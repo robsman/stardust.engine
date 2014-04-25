@@ -43,7 +43,6 @@ import javax.jcr.SimpleCredentials;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -79,7 +78,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
@@ -125,10 +123,8 @@ public class JcrVfsRepositoryService
    private transient VirtualFolderHandler virtualFolderHandler;
 
    private transient IDocumentRepositoryService vfs;
-   
+
    private transient IDocumentRepositoryService adminVfs;
-   
-   private transient List<IDmsResourceSyncListener> resourceSyncListeners;
 
    private final ISessionFactory sessionFactory;
 
@@ -138,7 +134,7 @@ public class JcrVfsRepositoryService
    {
       this.sessionFactory = sessionFactory;
       this.repository = repository;
-      
+
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////
@@ -724,8 +720,6 @@ public class JcrVfsRepositoryService
                      versionLabel, keepLocked);
 
                Document updatedDocument = fromVfs(vfsFile, getPartitionPrefix());
-               Document oldDocument = fromVfs(oldDoc, getPartitionPrefix());
-               notifyDocumentUpdated(oldDocument, updatedDocument);
 
                return updatedDocument;
             }
@@ -770,8 +764,6 @@ public class JcrVfsRepositoryService
                      versionComment, versionLabel, keepLocked);
 
                Document updatedDocument = fromVfs(vfsFile, getPartitionPrefix());
-               Document oldDocument = fromVfs(oldDoc, getPartitionPrefix());
-               notifyDocumentUpdated(oldDocument, updatedDocument);
 
                return updatedDocument;
             }
@@ -825,12 +817,6 @@ public class JcrVfsRepositoryService
                         AccessMode.Write))
             {
                vfs.removeFile(docIdWithPrefix);
-
-               if (file != null)
-               {
-                  Document oldDocument = fromVfs(file, getPartitionPrefix());
-                  notifyDocumentUpdated(oldDocument, null);
-               }
             }
             return null;
          }
@@ -1218,7 +1204,7 @@ public class JcrVfsRepositoryService
                BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(documentPath));
       }
    }
-   
+
    protected ISessionFactory getSessionFactory()
    {
       return sessionFactory;
@@ -1359,51 +1345,6 @@ public class JcrVfsRepositoryService
       return virtualFolderHandler;
    }
 
-   private List<IDmsResourceSyncListener> getResourceSyncListeners()
-   {
-      if (resourceSyncListeners == null)
-      {
-         resourceSyncListeners = CollectionUtils.newArrayList();
-
-         List factories = ExtensionProviderUtils.getExtensionProviders(IDmsResourceSyncListener.Factory.class);
-         for (int i = 0; i < factories.size(); ++i)
-         {
-            IDmsResourceSyncListener.Factory factory = (IDmsResourceSyncListener.Factory) factories.get(i);
-
-            IDmsResourceSyncListener resourceSyncListener = factory.getListener();
-            if (null != resourceSyncListener)
-            {
-               resourceSyncListeners.add(resourceSyncListener);
-            }
-         }
-      }
-      return resourceSyncListeners;
-   }
-
-   private void notifyDocumentUpdated(Document oldDocument, Document newDocument)
-   {
-      List<IDmsResourceSyncListener> listeners = getResourceSyncListeners();
-      if (listeners != null)
-      {
-         for (IDmsResourceSyncListener iResourceSyncListener : listeners)
-         {
-            iResourceSyncListener.documentChanged(oldDocument, newDocument);
-         }
-      }
-   }
-
-   private void notifyFolderUpdated(Folder oldFolder, Folder newFolder)
-   {
-      List<IDmsResourceSyncListener> listeners = getResourceSyncListeners();
-      if (listeners != null)
-      {
-         for (IDmsResourceSyncListener iResourceSyncListener : listeners)
-         {
-            iResourceSyncListener.folderChanged(oldFolder, newFolder);
-         }
-      }
-   }
-
    private IDocumentRepositoryService getVfsInternal()
    {
       if (vfs == null)
@@ -1536,14 +1477,14 @@ public class JcrVfsRepositoryService
             {
                throw new PublicException(e);
             }
-            
+
             // This call checks if JTA handles exist and ensures no logout is performed if
             // no handles exist. (Prevents stuck sessions on Weblogic)
             SessionUtils.logout(this.adminSession);
             this.adminSession = null;
          }
       }
-      
+
       private Credentials createAdminCredentials()
       {
          // JCR user name does not matter.

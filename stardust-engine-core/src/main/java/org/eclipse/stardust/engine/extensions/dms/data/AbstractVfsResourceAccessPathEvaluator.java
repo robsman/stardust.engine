@@ -24,9 +24,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
@@ -42,8 +39,8 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
  * Handles common tasks of property format for DmsResource
  */
 public abstract class AbstractVfsResourceAccessPathEvaluator
-{ 
-   
+{
+
    /**
     * Parameter key used to prevent cyclic updates. It is checked in the workflow code
     * which handles AuditTrail persistence of document data. If it is true, the update
@@ -56,7 +53,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
     * This accesspoint has to be ignored while synchronizing because it is updated by the call itself and the data value bean is not be created yet.
     */
    public final static String DMS_SYNC_CURRENT_ACCESS_POINT = "org.eclipse.stardust.engine.extensions.dms.data.AbstractVfsResourceAccessPathEvaluator.currentAccessPoint";
-   
+
 
    private final StructuredDataXPathEvaluator structEvaluator = new StructuredDataXPathEvaluator();
 
@@ -64,7 +61,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
    {
       super();
    }
-   
+
    protected void syncToRepository(Document document, Logger trace,
          AccessPoint accessPointDefinition)
    {
@@ -86,7 +83,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                Parameters.instance().set(SecurityProperties.CURRENT_USER,
                      TransientUser.getInstance());
             }
-   
+
             RepositoryProviderManager repositoryProviderManager = RepositoryProviderManager.getInstance();
             String repositoryId = RepositoryIdUtils.extractRepositoryId(documentId);
             Document prefixedDocument = document;
@@ -97,7 +94,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                documentId = RepositoryIdUtils.addRepositoryId(documentId, repositoryId);
                prefixedDocument = RepositoryIdUtils.addRepositoryId(document, repositoryId);
             }
-            
+
             IRepositoryInstance repositoryInstance = repositoryProviderManager
                   .getInstance(repositoryId);
             boolean synchronizationSupported = repositoryInstance.getRepositoryInstanceInfo()
@@ -171,10 +168,10 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
    protected Object writeToAuditTrail(AccessPoint accessPointDefinition, Object accessPointInstance, String inPath,
          AccessPathEvaluationContext accessPathEvaluationContext, Object value)
    {
-      return writeToAuditTrail(accessPointDefinition, accessPointInstance, inPath, 
+      return writeToAuditTrail(accessPointDefinition, accessPointInstance, inPath,
             accessPathEvaluationContext, value, "");
    }
-   
+
    protected Object writeToAuditTrail(AccessPoint accessPointDefinition, Object accessPointInstance, String inPath,
          AccessPathEvaluationContext accessPathEvaluationContext, Object value, String xPathPrefix)
    {
@@ -183,7 +180,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          String excludeXPath = null;
          if ( !hasDefaultMetadataSchema(accessPointDefinition))
          {
-            // do not convert properties of the document to a list form, since custom metadata is used 
+            // do not convert properties of the document to a list form, since custom metadata is used
             excludeXPath = xPathPrefix+AuditTrailUtils.RES_PROPERTIES;
          }
          // (fh) we make a copy of the map since the property formatter is modifying the original map.
@@ -195,10 +192,10 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          DmsPropertyFormatter propertyFormatter = new DmsPropertyFormatter(DmsPropertyFormatter.AS_LIST, excludeXPath);
          propertyFormatter.visit((Map)value, "");
       }
-      
+
       return structEvaluator.evaluate(accessPointDefinition,
             accessPointInstance, inPath, accessPathEvaluationContext,
-            value);      
+            value);
    }
 
    private boolean hasDefaultMetadataSchema(AccessPoint accessPointDefinition)

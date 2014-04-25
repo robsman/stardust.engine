@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 
 /**
  * Utility to handle the repositoryId prefix of {@link Document#getId()} and {@link Folder#getId()}.
- * 
+ *
  * @author Roland.Stamm
  */
 public class RepositoryIdUtils
@@ -40,7 +40,7 @@ public class RepositoryIdUtils
    public static String extractRepositoryId(String prefixedId)
    {
       String repositoryId = null;
-   
+
       if (prefixedId != null)
       {
          boolean startsWith = prefixedId.startsWith(REPOSITORY_ID_PREFIX);
@@ -49,7 +49,7 @@ public class RepositoryIdUtils
             repositoryId = prefixedId.substring(REPOSITORY_ID_PREFIX.length(), prefixedId.indexOf('}'));
          }
       }
-      
+
       return repositoryId;
    }
 
@@ -59,7 +59,7 @@ public class RepositoryIdUtils
       if (prefixedIds != null)
       {
          extractedIds = CollectionUtils.newArrayList();
-         
+
          for (String prefixedId : prefixedIds)
          {
             extractedIds.add(extractRepositoryId(prefixedId));
@@ -67,7 +67,7 @@ public class RepositoryIdUtils
       }
       return extractedIds;
    }
-   
+
    public static String extractRepositoryId(Resource resource)
    {
       if (resource != null)
@@ -81,7 +81,7 @@ public class RepositoryIdUtils
    public static String stripRepositoryId(String prefixedId)
    {
       String strippedId = null;
-   
+
       if (prefixedId != null)
       {
          boolean startsWith = prefixedId.startsWith(REPOSITORY_ID_PREFIX);
@@ -96,14 +96,14 @@ public class RepositoryIdUtils
       }
       return strippedId;
    }
-   
+
    public static List<String> stripRepositoryId(List<String> prefixedIds)
    {
       ArrayList<String> strippedIds = null;
       if (prefixedIds != null)
       {
          strippedIds = CollectionUtils.newArrayList();
-         
+
          for (String prefixedId : prefixedIds)
          {
             strippedIds.add(stripRepositoryId(prefixedId));
@@ -111,7 +111,7 @@ public class RepositoryIdUtils
       }
       return strippedIds;
    }
-   
+
    public static <T extends Resource> T stripRepositoryId(T resource)
    {
       if (resource != null)
@@ -124,7 +124,7 @@ public class RepositoryIdUtils
       }
       return resource;
    }
-   
+
    public static String addRepositoryId(String id, String repositoryId)
    {
       if (repositoryId != null)
@@ -189,5 +189,5 @@ public class RepositoryIdUtils
       }
 
    }
-   
+
 }

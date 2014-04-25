@@ -37,11 +37,13 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
 {
    private RepositoryProviderManager manager;
    private FederatedSearchHandler federatedSearchHandler;
+   private ResourceSyncHandler syncHandler;
 
    public RepositoryIdMediator(RepositoryProviderManager manager)
    {
       this.manager = manager;
       this.federatedSearchHandler = new FederatedSearchHandler(manager);
+      this.syncHandler = new ResourceSyncHandler();
    }
 
    @Override
@@ -293,9 +295,23 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       IRepositoryService service = instance.getService(getUserContext());
       if (service instanceof ILegacyRepositoryService)
       {
-         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
-               stripRepositoryId(document), createNewRevision, versionLabel, keepLocked);
-         return addRepositoryId(updatedDocument, instance.getRepositoryId());
+         Document oldDocument = this.getDocument(document.getId());
+         try
+         {
+            Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
+                  stripRepositoryId(document), createNewRevision, versionLabel,
+                  keepLocked);
+
+            Document prefixedUpdatedDocument = addRepositoryId(updatedDocument,
+                  instance.getRepositoryId());
+            syncHandler.notifyDocumentUpdated(oldDocument, prefixedUpdatedDocument);
+            return prefixedUpdatedDocument;
+         }
+         finally
+         {
+            // restore document state
+            addRepositoryId(document, instance.getRepositoryId());
+         }
       }
       else
       {
@@ -310,9 +326,23 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(document));
-      Document updatedDocument = instance.getService(getUserContext()).updateDocument(stripRepositoryId(document),
-            createNewRevision, versionComment, versionLabel, keepLocked);
-      return addRepositoryId(updatedDocument, instance.getRepositoryId());
+      Document oldDocument = this.getDocument(document.getId());
+      try
+      {
+         Document updatedDocument = instance.getService(getUserContext()).updateDocument(
+               stripRepositoryId(document), createNewRevision, versionComment,
+               versionLabel, keepLocked);
+
+         Document prefixedUpdatedDocument = addRepositoryId(updatedDocument,
+               instance.getRepositoryId());
+         syncHandler.notifyDocumentUpdated(oldDocument, prefixedUpdatedDocument);
+         return prefixedUpdatedDocument;
+      }
+      finally
+      {
+         // restore document state
+         addRepositoryId(document, instance.getRepositoryId());
+      }
    }
 
    @Deprecated
@@ -324,10 +354,23 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       IRepositoryService service = instance.getService(getUserContext());
       if (service instanceof ILegacyRepositoryService)
       {
-         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
-               stripRepositoryId(document), content, encoding, createNewRevision,
-               versionLabel, keepLocked);
-         return addRepositoryId(updatedDocument, instance.getRepositoryId());
+         Document oldDocument = this.getDocument(document.getId());
+         try
+         {
+            Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
+                  stripRepositoryId(document), content, encoding, createNewRevision,
+                  versionLabel, keepLocked);
+
+            Document prefixedUpdatedDocument = addRepositoryId(updatedDocument,
+                  instance.getRepositoryId());
+            syncHandler.notifyDocumentUpdated(oldDocument, prefixedUpdatedDocument);
+            return prefixedUpdatedDocument;
+         }
+         finally
+         {
+            // restore document state
+            addRepositoryId(document, instance.getRepositoryId());
+         }
       }
       else
       {
@@ -342,10 +385,23 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          boolean keepLocked) throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(document));
-      Document updatedDocument = instance.getService(getUserContext()).updateDocument(stripRepositoryId(document),
-            content, encoding, createNewRevision, versionComment, versionLabel,
-            keepLocked);
-      return addRepositoryId(updatedDocument, instance.getRepositoryId());
+      Document oldDocument = this.getDocument(document.getId());
+      try
+      {
+         Document updatedDocument = instance.getService(getUserContext()).updateDocument(
+               stripRepositoryId(document), content, encoding, createNewRevision,
+               versionComment, versionLabel, keepLocked);
+
+         Document prefixedUpdatedDocument = addRepositoryId(updatedDocument,
+               instance.getRepositoryId());
+         syncHandler.notifyDocumentUpdated(oldDocument, prefixedUpdatedDocument);
+         return prefixedUpdatedDocument;
+      }
+      finally
+      {
+         // restore document state
+         addRepositoryId(document, instance.getRepositoryId());
+      }
    }
 
    @Override
@@ -361,7 +417,9 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
+      Document oldDocument = this.getDocument(documentId);
       instance.getService(getUserContext()).removeDocument(stripRepositoryId(documentId));
+      syncHandler.notifyDocumentUpdated(oldDocument, null);
    }
 
    @Override
@@ -378,8 +436,21 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    public Folder updateFolder(Folder folder) throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folder));
-      Folder updatedFolder = instance.getService(getUserContext()).updateFolder(stripRepositoryId(folder));
-      return addRepositoryId(updatedFolder, instance.getRepositoryId());
+      Folder oldFolder = this.getFolder(folder.getId());
+      try
+      {
+         Folder updatedFolder = instance.getService(getUserContext()).updateFolder(
+               stripRepositoryId(folder));
+         Folder prefixedUpdatedFolder = addRepositoryId(updatedFolder,
+               instance.getRepositoryId());
+         syncHandler.notifyFolderUpdated(oldFolder, prefixedUpdatedFolder);
+         return prefixedUpdatedFolder;
+      }
+      finally
+      {
+         // restore folder state
+         addRepositoryId(folder, instance.getRepositoryId());
+      }
    }
 
    @Override
@@ -387,7 +458,9 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
+      Folder oldFolder = this.getFolder(folderId);
       instance.getService(getUserContext()).removeFolder(stripRepositoryId(folderId), recursive);
+      syncHandler.notifyFolderUpdated(oldFolder, null);
    }
 
    @Override

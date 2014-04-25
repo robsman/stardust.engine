@@ -890,7 +890,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             XSDSchema xsdSchema = null;
             if(type instanceof IExternalReference)
             {
-               xsdSchema = ((IExternalReference) type).getSchema(model);
+               String location = ((IExternalReference) type).getLocation();
+               if(location != null && (location.endsWith(".xsd") || location.endsWith(".xml")))
+               {
+                  xsdSchema = ((IExternalReference) type).getSchema(model);
+               }
             }
             else if(type instanceof SchemaTypeBean)
             {
@@ -926,7 +930,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                XSDSchema xsdSchema = null;
                if(type instanceof IExternalReference)
                {
-                  xsdSchema = ((IExternalReference) type).getSchema(model);
+                  String location = ((IExternalReference) type).getLocation();
+                  if(location != null && (location.endsWith(".xsd") || location.endsWith(".xml")))
+                  {
+                     xsdSchema = ((IExternalReference) type).getSchema(model);
+                  }
                }
                else if(type instanceof SchemaTypeBean)
                {
@@ -1954,7 +1962,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                   }
                   if (type instanceof IExternalReference)
                   {
-                     return ((IExternalReference) type).getSchema(model);
+                     String location = ((IExternalReference) type).getLocation();
+                     if(location != null && (location.endsWith(".xsd") || location.endsWith(".xml")))
+                     {
+                        return ((IExternalReference) type).getSchema(model);
+                     }
                   }
                   return null;
                }

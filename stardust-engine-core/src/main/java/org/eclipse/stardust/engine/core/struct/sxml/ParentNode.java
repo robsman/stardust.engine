@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -47,7 +48,7 @@ public abstract class ParentNode extends Node
    {
       return children.get(pos);
    }
-   
+
    public List<Node> getChildren()
    {
       return unmodifiableList(children);
@@ -80,12 +81,13 @@ public abstract class ParentNode extends Node
       }
       if (null != child.getParent())
       {
-         throw new PublicException("Node must be detached.");
+         throw new PublicException(BpmRuntimeError.SDT_NODE_MUST_NOT_BE_DETACHED.raise());
       }
 
       if ( !isValidChild(child))
       {
-         throw new PublicException("Invalid child element: " + child.getClass());
+         throw new PublicException(BpmRuntimeError.SDT_INVALID_CHILD_ELEMENT.raise(child
+               .getClass()));
       }
 
       if (children.isEmpty())
@@ -106,7 +108,7 @@ public abstract class ParentNode extends Node
       int pos = indexOf(child);
       if ( -1 == pos)
       {
-         throw new PublicException("No such child: " + child);
+         throw new PublicException(BpmRuntimeError.SDT_NO_SUCH_CHILD.raise(child));
       }
       else
       {

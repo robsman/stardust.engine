@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
@@ -34,7 +35,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
 {
 
    private static final Logger trace = LogManager.getLogger(VfsFolderAccessPathEvaluator.class);
-   
+
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance,
          String inPath, AccessPathEvaluationContext accessPathEvaluationContext,
          Object value)
@@ -44,7 +45,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
          // fully updating the folder
          if (value == null)
          {
-            // special case - remove the value 
+            // special case - remove the value
             Map auditTrailFolder = (Map) readFromAuditTrail(accessPointDefinition,
                   accessPointInstance, null, accessPathEvaluationContext);
             if (auditTrailFolder != null)
@@ -72,7 +73,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
             {
                auditTrailFolder = CollectionUtils.newMap();
             }
-            
+
             Map newAuditTrailFolder = ((DmsFolderBean)value).vfsResource();
             if ( !auditTrailFolder.equals(newAuditTrailFolder))
             {
@@ -83,7 +84,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
          }
          else
          {
-            throw new PublicException("Unsupported value: " + value);
+            throw new PublicException(BpmRuntimeError.DMS_UNSUPPORTED_VALUE.raise(value));
          }
 
          return accessPointInstance;
@@ -99,10 +100,10 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
          // read updated value
          Map auditTrailFolder = (Map) structEvaluator.evaluate(accessPointDefinition,
                accessPointInstance, null, accessPathEvaluationContext);
-         
+
          // write document into VFS, yields a snapshot of the updated state
          final String folderId = (String) auditTrailFolder.get(AuditTrailUtils.RES_ID);
-         
+
          if ( !StringUtils.isEmpty(folderId))
          {
             // update folder in vfs, retrieve snapshot of new state
@@ -110,7 +111,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
             if (snaphsotContainsUpdates)
             {
                // update audit trail with VFS snapshot
-               
+
                accessPointInstance = structEvaluator.evaluate(accessPointDefinition,
                      accessPointInstance, null, accessPathEvaluationContext,
                      auditTrailFolder);
@@ -118,10 +119,10 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
          }
          */
       }
-      
+
       return accessPointInstance;
    }
-   
+
    public Object createDefaultValue(AccessPoint accessPointDefinition,
          AccessPathEvaluationContext accessPathEvaluationContext)
    {
@@ -142,7 +143,7 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
          trace.debug("returning null for outPath '" + outPath + "'");
          return null;
       }
-      
+
       if (accessPointDefinition instanceof DmsFolderAccessPoint)
       {
          if (StringUtils.isEmpty(outPath))

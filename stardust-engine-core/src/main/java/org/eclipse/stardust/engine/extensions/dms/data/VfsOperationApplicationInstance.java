@@ -22,7 +22,13 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.Modules;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
@@ -149,8 +155,9 @@ public class VfsOperationApplicationInstance
       Object argumentValue = args.get(argumentName);
       if (argumentValue == null)
       {
-         throw new PublicException("No value for mandatory IN access point '"
-               + argumentName + "' supplied.");
+         throw new PublicException(
+               BpmRuntimeError.DMS_NO_VALUE_FOR_MANDATORY_IN_ACCESS_POINT_SUPPLIED
+                     .raise(argumentName));
       }
       else
       {
@@ -170,7 +177,7 @@ public class VfsOperationApplicationInstance
          if (dms == null)
          {
             throw new PublicException(
-                  "No DocumentManagementService is available. Check the configuration.");
+                  BpmRuntimeError.DMS_NO_DUCUMENTMANAGEMENTSERVICE_AVAILABLE.raise());
          }
 
          Map result = CollectionUtils.newMap();
@@ -309,7 +316,7 @@ public class VfsOperationApplicationInstance
          else if (DmsOperation.OP_UPDATE_DOCUMENT == operation)
          {
             Map legoDocument = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT);
-            
+
             Document document = new DmsDocumentBean(legoDocument);
             document = dms.updateDocument(document, shouldVersion(), null, getVersionLabel(), false);
 

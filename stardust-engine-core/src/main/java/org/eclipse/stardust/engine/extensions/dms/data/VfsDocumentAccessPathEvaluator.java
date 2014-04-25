@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -96,16 +97,16 @@ public class VfsDocumentAccessPathEvaluator
                DocumentType documentType = DocumentTypeUtils.inferDocumentType(data);
                if (documentType != null)
                {
-                  document.setDocumentType(documentType);                  
+                  document.setDocumentType(documentType);
                }
             }
-            
+
             syncToRepository(document, trace, accessPointDefinition);
 
             Map newAuditTrailDocument = ((DmsDocumentBean) value).vfsResource();
             if ( !auditTrailDoc.equals(newAuditTrailDocument))
             {
-               
+
                accessPointInstance = writeToAuditTrail(accessPointDefinition,
                      null, null, accessPathEvaluationContext,
                      newAuditTrailDocument);
@@ -113,7 +114,7 @@ public class VfsDocumentAccessPathEvaluator
          }
          else
          {
-            throw new PublicException("Unsupported value: " + value);
+            throw new PublicException(BpmRuntimeError.DMS_UNSUPPORTED_VALUE.raise(value));
          }
 
          return accessPointInstance;
@@ -121,7 +122,7 @@ public class VfsDocumentAccessPathEvaluator
       else
       {
          // partially updating the document
-         
+
          // write value into audit trail
          accessPointInstance = writeToAuditTrail(accessPointDefinition,
                accessPointInstance, inPath, accessPathEvaluationContext, value);
@@ -130,7 +131,7 @@ public class VfsDocumentAccessPathEvaluator
          Map auditTrailDoc = (Map) readFromAuditTrail(accessPointDefinition,
                accessPointInstance, null, accessPathEvaluationContext);
          syncToRepository(new DmsDocumentBean(auditTrailDoc), trace, accessPointDefinition);
-         
+
       }
 
       return accessPointInstance;

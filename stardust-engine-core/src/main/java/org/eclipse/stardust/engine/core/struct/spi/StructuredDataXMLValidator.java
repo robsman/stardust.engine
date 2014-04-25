@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.error.PublicException;
@@ -30,7 +32,6 @@ import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.Utils;
-import org.w3c.dom.Element;
 
 
 
@@ -72,8 +73,9 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
 
       if (point == null)
       {
-         throw new PublicException("Can not determine BridgeObject from AccessPoint of '" + point
-               + "'");
+         throw new PublicException(
+               BpmRuntimeError.SDT_CANNOT_DETERMINE_BRIDGEOBJECT_FROM_ACCESSPOINT
+                     .raise(point));
       }
 
       StructuredDataTransformation transformation = StructuredDataTransformation.valueOf(path);
@@ -89,7 +91,9 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
          // check for incompatible XPaths
          if ( !StructuredDataXPathUtils.canBeUsedForInDataMapping(path, xPathMap))
          {
-            throw new PublicException("XPath '"+path+"' can not be used for IN data mapping since it can return several items from different levels");
+            throw new PublicException(
+                  BpmRuntimeError.SDT_XPATH_CANNOT_BE_USED_FOR_IN_DATA_MAPPING_SINCE_IT_CAN_RETURN_SEVERAL_ITEMS_FROM_DIFFERENT_LEVELS
+                        .raise(path));
          }
       }
 

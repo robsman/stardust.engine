@@ -21,13 +21,14 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 
 
 /**
- * Access path evaluator for folder lists. 
+ * Access path evaluator for folder lists.
  */
 public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessPathEvaluator
       implements ExtendedAccessPathEvaluator, Stateless
@@ -42,10 +43,10 @@ public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessP
          Object value)
    {
       // since documents with different metadata can reside in a document list,
-      // unknown metadata schema elements should be ignored and not written to 
+      // unknown metadata schema elements should be ignored and not written to
       // audit trail
       accessPathEvaluationContext.setIgnoreUnknownValueParts(true);
-      
+
       if (StringUtils.isEmpty(inPath))
       {
          if (value == null)
@@ -104,7 +105,7 @@ public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessP
          }
          else
          {
-            throw new PublicException("Unsupported value: " + value);
+           throw new PublicException(BpmRuntimeError.DMS_UNSUPPORTED_VALUE.raise(value));
          }
       }
       else

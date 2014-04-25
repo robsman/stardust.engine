@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.vfs.IFileInfo;
 import org.eclipse.stardust.vfs.IFolderInfo;
 import org.eclipse.stardust.vfs.IResourceInfo;
@@ -108,7 +109,8 @@ public class VfsMediator
          if (StringUtils.isEmpty(resourceName))
          {
             throw new PublicException(
-                  "Setting empty name in documents or folders is not possible. Non-empty name must be supplied.");
+                  BpmRuntimeError.DMS_SETTING_EMPTY_NAME_IN_DOCUMENTS_OR_FOLDERS_NOT_POSSIBLE
+                        .raise());
          }
          target.setName(resourceName);
       }

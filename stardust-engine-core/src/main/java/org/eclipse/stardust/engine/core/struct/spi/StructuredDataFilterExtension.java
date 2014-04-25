@@ -10,12 +10,24 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct.spi;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.Stateless;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -23,17 +35,40 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.AbstractDataFilter;
+import org.eclipse.stardust.engine.api.query.DataOrder;
+import org.eclipse.stardust.engine.api.query.IJoinFactory;
 import org.eclipse.stardust.engine.api.query.SqlBuilderBase.DataAttributeKey;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
 import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
-import org.eclipse.stardust.engine.core.struct.*;
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 public class StructuredDataFilterExtension implements DataFilterExtension, Stateless
@@ -354,8 +389,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             }
             else
             {
-               throw new PublicException("Null values are not supported with operator "
-                     + operator);
+               throw new PublicException(
+                     BpmRuntimeError.SDT_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR
+                           .raise(operator));
             }
          }
          else
@@ -449,8 +485,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             {
                if ( !(matchValue instanceof Pair))
                {
-                  throw new PublicException("Inconsistent operator use " + operator
-                        + " --> " + matchValue);
+                  throw new PublicException(
+                        BpmRuntimeError.MDL_INCONSISTENT_OPERATOR_USE.raise(operator,
+                              matchValue));
                }
 
                Pair pair = (Pair) matchValue;

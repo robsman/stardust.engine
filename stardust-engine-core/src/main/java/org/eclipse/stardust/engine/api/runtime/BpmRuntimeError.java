@@ -215,8 +215,12 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 DMS_INVALID_REPOSITORY_SPACE = newArgs1("DMS04006", BpmRuntimeErrorMessages.getString("DMS04006")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_IN_MEMORY_REPOSITORY_FAILED = newArgs0("DMS04007", BpmRuntimeErrorMessages.getString("DMS04007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_REPOSITORY_NOT_FOUND_FOR_JNDI_NAME = newArgs1("DMS04008", BpmRuntimeErrorMessages.getString("DMS04008")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
+   public static final Args1 DMS_UNSUPPORTED_VALUE = newArgs1("DMS04009", BpmRuntimeErrorMessages.getString("DMS04009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_NO_JCR_DOCUMENT_REPOSITORY_SERVICE_SET = newArgs0("DMS04010", BpmRuntimeErrorMessages.getString("DMS04010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_SETTING_EMPTY_NAME_IN_DOCUMENTS_OR_FOLDERS_NOT_POSSIBLE = newArgs0("DMS04011", BpmRuntimeErrorMessages.getString("DMS04011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_NO_VALUE_FOR_MANDATORY_IN_ACCESS_POINT_SUPPLIED = newArgs1("DMS04012", BpmRuntimeErrorMessages.getString("DMS04012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_NO_DUCUMENTMANAGEMENTSERVICE_AVAILABLE = newArgs0("DMS04013", BpmRuntimeErrorMessages.getString("DMS04013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_ELEMENT_IS_NOT_FOUND = newArgs1("DMS04014", BpmRuntimeErrorMessages.getString("DMS04014")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 
@@ -667,6 +671,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 JDBC_DERBY_SESSION_ROLLED_BACK = newArgs0("JDBC01012", BpmRuntimeErrorMessages.getString("JDBC01012")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JDBC_FAILED_OBTAINING_NEW_SEQUECMCE_VALUES_RESULT_SET_EMPTY = newArgs0("JDBC01013", BpmRuntimeErrorMessages.getString("JDBC01013")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE = newArgs1("JDBC01014", BpmRuntimeErrorMessages.getString("JDBC01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_UNKNOWN_COLUMN_MODIFICATION_TYPE = newArgs1("JDBC01015", BpmRuntimeErrorMessages.getString("JDBC01015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_PREPARATION_OF_STRING_TO_VALUE_MIGRATION_FAILED = newArgs0("JDBC01016", BpmRuntimeErrorMessages.getString("JDBC01016")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    ////POJO related
@@ -691,6 +698,26 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 SDT_NO_SUCH_ATTRIBUTE = newArgs1("SDT01003", BpmRuntimeErrorMessages.getString("SDT01003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 SDT_FAILED_READING_XML_INPUT = newArgs0("SDT01004", BpmRuntimeErrorMessages.getString("SDT01004")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 SDT_EXPRESSION_WAS_EXPECTED_TO_RETURN_0_OR_1_HITS = newArgs2("SDT01005", BpmRuntimeErrorMessages.getString("SDT01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args5 SDT_COULD_NOT_PARSE_DATE_TIME_USING_STANDARD_XSD_FORMATS = newArgs5("SDT01006", BpmRuntimeErrorMessages.getString("SDT01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET = newArgs1("SDT01007", BpmRuntimeErrorMessages.getString("SDT01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 SDT_BOOLEAN_VALUE_MUST_BE_TRUE_OR_FALSE = newArgs0("SDT01008", BpmRuntimeErrorMessages.getString("SDT01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 SDT_ENUM_VALUE_IS_NOT_ALLOWED_FOR_ELEMENT = newArgs2("SDT01009", BpmRuntimeErrorMessages.getString("SDT01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_XPATH_CANNOT_BE_ASSIGNED_MULTIPLE_VALUES = newArgs1("SDT01010", BpmRuntimeErrorMessages.getString("SDT01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_XPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE = newArgs1("SDT01011", BpmRuntimeErrorMessages.getString("SDT01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_NO_DATA_FOUND_FOR_XPATH = newArgs1("SDT01012", BpmRuntimeErrorMessages.getString("SDT01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_XPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE_SINCE_IT_RETURNS_NODES_FROM_DIFFERENT_ORIGIN = newArgs1("SDT01013", BpmRuntimeErrorMessages.getString("SDT01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_INPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE = newArgs1("SDT01014", BpmRuntimeErrorMessages.getString("SDT01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_COULD_NOT_CREATE_QUALIFIED_XPATH_FROM_XPATH = newArgs1("SDT01015", BpmRuntimeErrorMessages.getString("SDT01015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_COULD_NOT_FIND_XSD_IN_CLASSPATH = newArgs1("SDT01016", BpmRuntimeErrorMessages.getString("SDT01016")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR = newArgs1("SDT01017", BpmRuntimeErrorMessages.getString("SDT01017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_CANNOT_DETERMINE_BRIDGEOBJECT_FROM_ACCESSPOINT = newArgs1("SDT01018", BpmRuntimeErrorMessages.getString("SDT01018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_XPATH_CANNOT_BE_USED_FOR_IN_DATA_MAPPING_SINCE_IT_CAN_RETURN_SEVERAL_ITEMS_FROM_DIFFERENT_LEVELS = newArgs1("SDT01019", BpmRuntimeErrorMessages.getString("SDT01019")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 SDT_FAILED_PARSING_XML_DOCUMENT = newArgs0("SDT01020", BpmRuntimeErrorMessages.getString("SDT01020")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 SDT_NODE_MUST_NOT_BE_DETACHED = newArgs0("SDT01021", BpmRuntimeErrorMessages.getString("SDT01021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_INVALID_CHILD_ELEMENT = newArgs1("SDT01022", BpmRuntimeErrorMessages.getString("SDT01022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_NO_SUCH_CHILD = newArgs1("SDT01023", BpmRuntimeErrorMessages.getString("SDT01023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 SDT_COULD_NOT_ANALYSE_STRUCTURED_DATA_FOR_XPATH_OID = newArgs2("SDT01024", BpmRuntimeErrorMessages.getString("SDT01024")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    ////Generic Exception message
 
@@ -800,6 +827,14 @@ public class BpmRuntimeError extends ErrorCase
       return new Args4(errorCode, defaultMessage);
    }
 
+   /**
+    * Static factory to prepare for future generification.
+    */
+   public static Args5 newArgs5(String errorCode, String defaultMessage)
+   {
+      return new Args5(errorCode, defaultMessage);
+   }
+
    public static class Args0 extends AbstractErrorFactory
    {
       private Args0(String errorCode, String defaultMessage)
@@ -882,6 +917,24 @@ public class BpmRuntimeError extends ErrorCase
       public BpmRuntimeError raise(long arg1, long arg2, long arg3, long arg4)
       {
          return buildError(new Object[] { new Long(arg1), new Long(arg2), new Long(arg3), new Long(arg4) });
+      }
+   }
+
+   public static class Args5 extends AbstractErrorFactory
+   {
+      private Args5(String errorCode, String defaultMessage)
+      {
+         super(errorCode, defaultMessage);
+      }
+
+      public BpmRuntimeError raise(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5)
+      {
+         return buildError(new Object[] { arg1, arg2, arg3, arg4, arg5 });
+      }
+
+      public BpmRuntimeError raise(long arg1, long arg2, long arg3, long arg4, long arg5)
+      {
+         return buildError(new Object[] { new Long(arg1), new Long(arg2), new Long(arg3), new Long(arg4), new Long(arg5) });
       }
    }
 

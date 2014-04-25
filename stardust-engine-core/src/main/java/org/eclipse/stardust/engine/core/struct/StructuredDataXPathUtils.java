@@ -13,7 +13,16 @@ package org.eclipse.stardust.engine.core.struct;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,9 +35,16 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
-import org.eclipse.stardust.engine.core.struct.sxml.*;
+import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
+import org.eclipse.stardust.engine.core.struct.sxml.Document;
+import org.eclipse.stardust.engine.core.struct.sxml.Element;
+import org.eclipse.stardust.engine.core.struct.sxml.LeafNode;
+import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
+import org.eclipse.stardust.engine.core.struct.sxml.Node;
+import org.eclipse.stardust.engine.core.struct.sxml.Text;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
 
@@ -969,7 +985,8 @@ public class StructuredDataXPathUtils
       }
       else
       {
-         throw new PublicException("BigData type '"+typeKey+"' is supported yet");
+         throw new PublicException(
+               BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(typeKey));
       }
    }
 
@@ -1275,8 +1292,9 @@ public class StructuredDataXPathUtils
                   {
                      if (newNodes.length > 1)
                      {
-                        throw new PublicException("XPath '" + xPath
-                              + "' can not be assigned multiple values");
+                        throw new PublicException(
+                              BpmRuntimeError.SDT_XPATH_CANNOT_BE_ASSIGNED_MULTIPLE_VALUES
+                                    .raise(xPath));
                      }
                      ((Text) contextElement).setValue(findNodeValue(newNodes[0]));
                   }
@@ -1286,14 +1304,16 @@ public class StructuredDataXPathUtils
                   }
                   else
                   {
-                     throw new PublicException("XPath '" + xPath
-                           + "' can not be used to set data value");
+                     throw new PublicException(
+                           BpmRuntimeError.SDT_XPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE
+                                 .raise(xPath));
                   }
                }
                else if (nodelist.isEmpty())
                {
                   // no target found
-                  throw new PublicException("No data found for XPath '" + xPath + "'");
+                  throw new PublicException(
+                        BpmRuntimeError.SDT_NO_DATA_FOUND_FOR_XPATH.raise(xPath));
                }
                else
                {
@@ -1302,9 +1322,8 @@ public class StructuredDataXPathUtils
                   {
                      // they are NOT from the same XPath
                      throw new PublicException(
-                           "Xath '"
-                                 + xPath
-                                 + "' can not be used to set data value since it returns nodes from different origins");
+                           BpmRuntimeError.SDT_XPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE_SINCE_IT_RETURNS_NODES_FROM_DIFFERENT_ORIGIN
+                                 .raise(xPath));
                   }
 
                   Element parentNode = (Element)((Node) nodelist.get(0)).getParent();
@@ -1325,8 +1344,9 @@ public class StructuredDataXPathUtils
             }
             else
             {
-               throw new PublicException("inPath '" + xPath
-                     + "' can not be used to set data value");
+               throw new PublicException(
+                     BpmRuntimeError.SDT_INPATH_CANNOT_BE_USED_TO_SET_DATA_VALUE
+                           .raise(xPath));
             }
          }
       }
@@ -1545,7 +1565,10 @@ public class StructuredDataXPathUtils
       }
       catch (Exception e)
       {
-         throw new PublicException("Could not create qualified XPath from xPath '" + unqualifiedXPath + "'", e);
+         throw new PublicException(
+               BpmRuntimeError.SDT_COULD_NOT_CREATE_QUALIFIED_XPATH_FROM_XPATH
+                     .raise(unqualifiedXPath),
+               e);
       }
    }
 

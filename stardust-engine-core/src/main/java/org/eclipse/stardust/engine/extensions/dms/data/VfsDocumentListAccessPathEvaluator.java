@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
@@ -147,7 +148,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
          }
          else
          {
-            throw new PublicException("Unsupported value: " + value);
+            throw new PublicException(BpmRuntimeError.DMS_UNSUPPORTED_VALUE.raise(value));
          }
       }
       else

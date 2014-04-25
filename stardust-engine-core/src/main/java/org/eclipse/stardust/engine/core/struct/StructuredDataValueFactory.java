@@ -109,12 +109,10 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
                   }
                   catch (Exception e4)
                   {
-                     throw new PublicException("Could not parse date/time/datetime '"
-                           + stringValue
-                           + "' using standard XSD date/time/datetime formats '"
-                           + XSD_DATE_FORMAT + "', '" + XSD_TIME_FORMAT + "', '"
-                           + XSD_DATETIME_FORMAT + "' and additional format '"
-                           + P_AND_M_DATETIME_FORMAT + "'.");
+                     throw new PublicException(
+                           BpmRuntimeError.SDT_COULD_NOT_PARSE_DATE_TIME_USING_STANDARD_XSD_FORMATS
+                                 .raise(stringValue, XSD_DATE_FORMAT, XSD_TIME_FORMAT,
+                                       XSD_DATETIME_FORMAT, P_AND_M_DATETIME_FORMAT));
                   }
                }
             }
@@ -146,7 +144,8 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
       else
       {
-         throw new PublicException("BigData type '"+typeKey+"' is supported yet");
+         throw new PublicException(
+               BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(typeKey));
       }
    }
 
@@ -178,7 +177,8 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
                // input that does not matching: equalsIgnoreCase("true").
                if ( !(stringValue.equalsIgnoreCase("true") || stringValue.equalsIgnoreCase("false")))
                {
-                  throw new PublicException("Boolean value must be 'true' or 'false'.");
+                  throw new PublicException(
+                        BpmRuntimeError.SDT_BOOLEAN_VALUE_MUST_BE_TRUE_OR_FALSE.raise());
                }
             }
             else if ( !xPath.getEnumerationValues().isEmpty())
@@ -186,7 +186,9 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
                /* make sure the given value matches one of the allowed enum values */
                if ( !xPath.getEnumerationValues().contains(stringValue))
                {
-                  throw new PublicException("The enum value '" + stringValue + "' is not allowed for element '" + xPath.getXsdElementName() + "'.");
+                  throw new PublicException(
+                        BpmRuntimeError.SDT_ENUM_VALUE_IS_NOT_ALLOWED_FOR_ELEMENT.raise(
+                              stringValue, xPath.getXsdElementName()));
                }
             }
          }
@@ -274,7 +276,8 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
       else
       {
-         throw new PublicException("BigData type '" + typeKey + "' is supported yet");
+         throw new PublicException(
+               BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(typeKey));
       }
 
    }

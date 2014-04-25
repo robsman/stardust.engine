@@ -23,6 +23,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
@@ -35,8 +36,16 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradableItem;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeObserver;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeTask;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
@@ -174,7 +183,10 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
          catch (SQLException e1)
          {
-            throw new PublicException("preparation of string to value migration failed", e1);
+            throw new PublicException(
+                  BpmRuntimeError.JDBC_PREPARATION_OF_STRING_TO_VALUE_MIGRATION_FAILED
+                        .raise(),
+                  e1);
          }
       }
 
@@ -243,7 +255,9 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
          else
          {
-            throw new PublicException(errorMsg.toString(), e);
+            throw new PublicException(
+                  BpmRuntimeError.SDT_COULD_NOT_ANALYSE_STRUCTURED_DATA_FOR_XPATH_OID.raise(
+                        theData.getId(), xpathOid), e);
          }
       }
 

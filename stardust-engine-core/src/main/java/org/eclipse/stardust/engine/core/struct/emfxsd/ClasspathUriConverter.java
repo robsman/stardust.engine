@@ -20,9 +20,11 @@ import java.util.Map;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
+
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 /**
  * Supports URLs with scheme "classpath:/". Searches for resources in CLASSPATH
@@ -42,28 +44,28 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
          {
             // does nothing
          }
-         
+
          public Map<String, ?> getAttributes(URI uri, Map<?, ?> options)
          {
             return Collections.emptyMap();
          }
-         
+
          public boolean exists(URI uri, Map<?, ?> options)
          {
             // TODO (fh) implement
             throw new RuntimeException("Not supported.");
          }
-         
+
          public void delete(URI uri, Map<?, ?> options) throws IOException
          {
             throw new RuntimeException("Not supported.");
          }
-         
+
          public OutputStream createOutputStream(URI uri, Map<?, ?> options) throws IOException
          {
             throw new RuntimeException("Not supported.");
          }
-         
+
          public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException
          {
             InputStream result = null;
@@ -74,11 +76,12 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
             }
             if (result == null)
             {
-               throw new PublicException("Could not find XSD '" + uri.path() + "' in CLASSPATH");
+               throw new PublicException(
+                     BpmRuntimeError.SDT_COULD_NOT_FIND_XSD_IN_CLASSPATH.raise(uri.path()));
             }
             return result;
          }
-         
+
          private InputStream createClasspathInputStream(URI uri) throws IOException
          {
             String path = uri.path();
@@ -91,7 +94,7 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
             }
             ClassLoader ctxCl = Thread.currentThread().getContextClassLoader();
             // (fh) classloaders are considering all paths to be absolute
-            // a path starting with a "/" is incorrect since first segment would then be empty 
+            // a path starting with a "/" is incorrect since first segment would then be empty
             URL resourceUrl = ctxCl.getResource(isAbsolute ? path.substring(1) : path);
 
             if (resourceUrl == null)
@@ -108,7 +111,7 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
                   return null;
                }
             }
-            
+
             if (trace.isDebugEnabled())
             {
                trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");

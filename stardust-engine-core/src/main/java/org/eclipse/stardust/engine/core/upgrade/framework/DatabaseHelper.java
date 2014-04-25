@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.framework;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +25,15 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
+import org.eclipse.stardust.engine.core.persistence.jdbc.IndexDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexInfo;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.LoggingPreparedStatement;
@@ -43,15 +56,15 @@ public final class DatabaseHelper
       LOWER_CASE,
       NONE
    }
-   
+
    public enum AlterMode
    {
       ALL,
       ADDED_COLUMNS_ONLY,
       ADDED_COLUMNS_IGNORED,
    }
-   
-   
+
+
    private static final Logger trace = LogManager.getLogger(DatabaseHelper.class);
 
    /**
@@ -73,8 +86,8 @@ public final class DatabaseHelper
    public static final int ORACLE_ERROR_TABLE_NOT_EXIST = 942;
 
 
-   public static ColumnNameModificationMode columnNameModificationMode 
-      = ColumnNameModificationMode.UPPER_CASE; 
+   public static ColumnNameModificationMode columnNameModificationMode
+      = ColumnNameModificationMode.UPPER_CASE;
 
    /**
     * <p>Creates a table based on the passed {@link TableInfo} object.</p>
@@ -331,15 +344,15 @@ public final class DatabaseHelper
    public static void alterTableAddColumns(RuntimeItem item, AlterTableInfo tableInfo,
          UpgradeObserver observer)
    {
-      
+
    }
-   
+
    public static void alterTable(RuntimeItem item, AlterTableInfo tableInfo,
          UpgradeObserver observer)
    {
       alterTable(item, tableInfo, observer, AlterMode.ALL);
    }
-   
+
    private static boolean canAddFields(AlterMode alterMode, AlterTableInfo tableInfo)
    {
       FieldInfo[] addedFields = tableInfo.getAddedFields();
@@ -348,10 +361,10 @@ public final class DatabaseHelper
       {
          return true;
       }
-      
+
       return false;
    }
-   
+
    public static void alterTable(RuntimeItem item, AlterTableInfo tableInfo,
          UpgradeObserver observer, AlterMode alterMode)
    {
@@ -391,12 +404,12 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       if(alterMode == AlterMode.ADDED_COLUMNS_ONLY)
       {
          return;
       }
-      
+
       if ((null != tableInfo.getModifiedFields()) && (0 < tableInfo.getModifiedFields().length))
       {
          for (int i = 0; i < tableInfo.getModifiedFields().length; i++)
@@ -428,7 +441,7 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       // drop obsolete indexes before dropping any columns
       if ((null != tableInfo.getDroppedIndexes())
             && (0 < tableInfo.getDroppedIndexes().length))
@@ -933,8 +946,10 @@ public final class DatabaseHelper
       {
          return dbDescriptor.quoteIdentifier(field.getName());
       }
-      
-      throw new PublicException("unknow column modification type: "+columnNameModificationMode);
+
+      throw new PublicException(
+            BpmRuntimeError.JDBC_UNKNOWN_COLUMN_MODIFICATION_TYPE
+                  .raise(columnNameModificationMode));
    }
 
    public static boolean hasTable(DatabaseMetaData databaseMetaData, String tableName) throws SQLException

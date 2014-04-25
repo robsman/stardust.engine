@@ -11,7 +11,11 @@
 package org.eclipse.stardust.engine.extensions.dms.data.emfxsd;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -19,10 +23,26 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.xsd.XSDComplexTypeDefinition;
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDModelGroup;
+import org.eclipse.xsd.XSDNamedComponent;
+import org.eclipse.xsd.XSDParticle;
+import org.eclipse.xsd.XSDSchema;
+import org.eclipse.xsd.XSDTypeDefinition;
+import org.eclipse.xsd.util.XSDResourceFactoryImpl;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IExternalReference;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.ISchemaType;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -30,8 +50,6 @@ import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.xsd.*;
-import org.eclipse.xsd.util.XSDResourceFactoryImpl;
 
 /**
  * @author rsauer
@@ -52,13 +70,13 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
    public static final String VERSIONING_COMPLEX_TYPE_NAME = "Versioning";
 
    public static final String PARAMETER_METADATA_TYPE = "metadataType";
-   
+
    public Set /*<TypedXPath>*/ getSchemaType(String dataTypeId, Map parameters)
    {
       XSDNamedComponent metadataXsdComponent = (XSDNamedComponent) parameters.get(PARAMETER_METADATA_TYPE);
       if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
       {
-         return declareDocumentSchema(metadataXsdComponent); 
+         return declareDocumentSchema(metadataXsdComponent);
       }
       else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
       {
@@ -77,7 +95,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
          throw new InternalException("Unsupported data type id: '"+dataTypeId+"'");
       }
    }
-   
+
    public Set /*<TypedXPath>*/ getSchemaType(AccessPoint accessPoint)
    {
       if (accessPoint instanceof IData)
@@ -86,7 +104,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
          IModel model = (IModel) data.getModel();
          ITypeDeclaration metadataTypeDeclaration = StructuredTypeRtUtils.getTypeDeclaration(
                data, model, DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
-         
+
          XSDNamedComponent metadataXsdComponent = null;
          if (metadataTypeDeclaration != null)
          {
@@ -141,12 +159,12 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
          {
             return INSTANCE;
          }
-         else 
+         else
          {
             return null;
          }
       }
-      
+
       public ISchemaTypeProvider getSchemaTypeProvider(AccessPoint accessPoint)
       {
          PluggableType type = accessPoint.getType();
@@ -166,10 +184,10 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
                }
             }
          }
-         
+
          return null;
       }
-      
+
    }
 
    private Set /*<TypedXPath>*/ declareVersioningSchema()
@@ -177,11 +195,11 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
       return XPathFinder.findAllXPaths(xsdSchema, VERSIONING_COMPLEX_TYPE_NAME, false);
    }
-      
+
    private static XSDParticle findParticle(String elementName, XSDComplexTypeDefinition xsdComplexTypeDefinition)
    {
       EList xsdParticles = ((XSDModelGroup)((XSDParticle)xsdComplexTypeDefinition.getContent()).getTerm()).getContents();
-      
+
       for (int i = 0; i < xsdParticles.size(); i++)
       {
          XSDParticle xsdParticle = (XSDParticle) xsdParticles.get(i);
@@ -194,27 +212,28 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
             }
          }
       }
-      throw new PublicException("Element '"+elementName+"' is not found.");
+      throw new PublicException(
+            BpmRuntimeError.DMS_ELEMENT_IS_NOT_FOUND.raise(elementName));
    }
-   
+
    public static Set /*<TypedXPath>*/ declareDocumentSchema(XSDNamedComponent metadataXsdComponent)
    {
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
-      
-      if (metadataXsdComponent != null) 
+
+      if (metadataXsdComponent != null)
       {
          // set type of the properties element to the custom type declared in metadataTypeDeclaration
          injectProperties(metadataXsdComponent, (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(DOCUMENT_COMPLEX_TYPE_NAME));
       }
-      
+
       return XPathFinder.findAllXPaths(xsdSchema, DOCUMENT_COMPLEX_TYPE_NAME, false);
    }
 
    public static Set /*<TypedXPath>*/ declareFolderSchema(XSDNamedComponent metadataXsdComponent)
    {
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
-      
-      if (metadataXsdComponent != null) 
+
+      if (metadataXsdComponent != null)
       {
          // set type of the properties element to the custom type declared in metadataTypeDeclaration
          injectProperties(metadataXsdComponent, (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(FOLDER_COMPLEX_TYPE_NAME));
@@ -226,8 +245,8 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
    public static Set /*<TypedXPath>*/ declareFolderInfoSchema(XSDNamedComponent metadataXsdComponent)
    {
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
-      
-      if (metadataXsdComponent != null) 
+
+      if (metadataXsdComponent != null)
       {
          // set type of the properties element to the custom type declared in metadataTypeDeclaration
          injectProperties(metadataXsdComponent, (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(FOLDER_INFO_COMPLEX_TYPE_NAME));
@@ -239,13 +258,13 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
    public static Set /*<TypedXPath>*/ declareDocumentListSchema(XSDNamedComponent metadataXsdComponent)
    {
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
-      
-      if (metadataXsdComponent != null) 
+
+      if (metadataXsdComponent != null)
       {
          // set type of the properties element to the custom type declared in metadataTypeDeclaration
          injectProperties(metadataXsdComponent, (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(DOCUMENT_COMPLEX_TYPE_NAME));
       }
-      
+
       return XPathFinder.findAllXPaths(xsdSchema, DOCUMENT_LIST_COMPLEX_TYPE_NAME, false);
    }
 
@@ -268,8 +287,8 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
    public static Set /*<TypedXPath>*/ declareFolderListSchema(XSDNamedComponent metadataType)
    {
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
-      
-      if (metadataType != null) 
+
+      if (metadataType != null)
       {
          // set type of the properties element to the custom type declared in metadataTypeDeclaration
          injectProperties(metadataType, (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(FOLDER_COMPLEX_TYPE_NAME));
@@ -283,7 +302,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       XSDSchema xsdSchema = loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
       return (XSDComplexTypeDefinition)xsdSchema.resolveTypeDefinition(RESOURCE_PROPERTY_COMPLEX_TYPE_NAME);
    }
-   
+
    public static XSDSchema getXSDSchema(ITypeDeclaration typeDeclaration)
    {
       IXpdlType xpdlType = typeDeclaration.getXpdlType();
@@ -292,9 +311,9 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       {
          // ExternalReference
          IExternalReference externalReference = (IExternalReference)xpdlType;
-         
+
          return loadExternalSchema(externalReference.getLocation());
-      } 
+      }
       else if (xpdlType instanceof ISchemaType)
       {
          // Internally defined type
@@ -307,7 +326,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
                      + typeDeclaration.getId() + "'.");
       }
    }
-   
+
    public static XSDSchema loadExternalSchema(String schemaLocation)
    {
       if ( !Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().containsKey("xsd"))
@@ -315,12 +334,12 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
          // this is needed when XSD ECORE is used standalone
          Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xsd", new XSDResourceFactoryImpl());
       }
-      
+
       ResourceSet resourceSet = new ResourceSetImpl();
-      
+
       HashMap options = new HashMap();
       options.put(XMLResource.OPTION_EXTENDED_META_DATA, Boolean.TRUE);
-       
+
       resourceSet.setURIConverter(new ClasspathUriConverter());
       if(schemaLocation.startsWith("/"))
       {
@@ -335,7 +354,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       {
          throw new RuntimeException(e);
       }
-      
+
       List l = resource.getContents();
       return(XSDSchema) l.get(0);
    }

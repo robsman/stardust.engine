@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.xml.stream.StaxUtils;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -57,7 +58,8 @@ public class DocumentBuilder
       }
       catch (XMLStreamException e)
       {
-         throw new PublicException("Failed parsing XML document", e);
+         throw new PublicException(
+               BpmRuntimeError.SDT_FAILED_PARSING_XML_DOCUMENT.raise(), e);
       }
 
       return doc;
@@ -85,7 +87,8 @@ public class DocumentBuilder
       }
       catch (XMLStreamException e)
       {
-         throw new PublicException("Failed parsing XML document", e);
+         throw new PublicException(
+               BpmRuntimeError.SDT_FAILED_PARSING_XML_DOCUMENT.raise(), e);
       }
 
       return doc;

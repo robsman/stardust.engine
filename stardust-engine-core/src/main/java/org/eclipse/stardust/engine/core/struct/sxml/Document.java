@@ -19,6 +19,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.xml.stream.StaxUtils;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter;
 
 
@@ -67,7 +68,7 @@ public class Document extends ParentNode
       }
       catch (XMLStreamException e)
       {
-         throw new PublicException("Failed generating XML", e);
+         throw new PublicException(BpmRuntimeError.SDT_FAILED_GENERATING_XML.raise(), e);
       }
       finally
       {

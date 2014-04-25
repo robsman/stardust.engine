@@ -14,8 +14,10 @@ import java.util.Date;
 
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,7 +25,7 @@ import org.w3c.dom.Node;
 
 public class Utils
 {
-   
+
    public static String getNodeName(Node node)
    {
       if (node.getLocalName() == null)
@@ -45,7 +47,7 @@ public class Utils
       }
       return null;
    }
-   
+
    public static Class getJavaTypeForTypedXPath(TypedXPath xPath)
    {
       Class clazz = String.class;
@@ -91,8 +93,9 @@ public class Utils
       }
       else
       {
-         throw new PublicException("BigData type '" + xPath.getType()
-               + "' is not supported yet");
+         throw new PublicException(
+               BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(xPath
+                     .getType()));
       }
 
       return clazz;

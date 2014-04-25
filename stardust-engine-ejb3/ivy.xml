@@ -24,7 +24,7 @@
     <info
         organisation="org.eclipse.stardust"
         module="stardust-engine-ejb3"
-        status="integration">
+        revision="${ipp.version.full}">
 	</info>
 	
 	<configurations>

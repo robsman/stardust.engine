@@ -169,8 +169,9 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 	private Pair getRemoteService(Context context, String className)
 			throws NamingException {
 
-		String homeClassName = "java:app/stardust-engine-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans.Remote" + className;
-
+		//String homeClassName = "java:app/stardust-engine-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans.Remote" + className;
+		String homeClassName = className + "Impl";
+		
 		Object rawHome = context.lookup(homeClassName);
 		LogUtils.traceObject(rawHome, false);
 
@@ -190,7 +191,9 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 
    private Pair getLocalService(Context context, String className) throws NamingException
    {
-	   String homeClassName = "java:app/stardust-engine-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans." + className;
+	   // String homeClassName = "java:app/stardust-engine-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans." + className;
+	   String homeClassName = className + "Impl";
+	   
       Object rawHome = context.lookup(homeClassName);
       LogUtils.traceObject(rawHome, false);
       

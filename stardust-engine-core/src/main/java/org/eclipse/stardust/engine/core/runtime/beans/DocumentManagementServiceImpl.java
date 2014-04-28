@@ -13,10 +13,15 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getUserContext;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -29,6 +34,7 @@ import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
@@ -405,12 +411,14 @@ public class DocumentManagementServiceImpl
    @Override
    public void bindRepository(IRepositoryConfiguration configuration)
    {
+      checkAdministratorRole();
       getProvider().bindRepository(configuration);
    }
 
    @Override
    public void unbindRepository(String repositoryId)
    {
+      checkAdministratorRole();
       getProvider().unbindRepository(repositoryId);
    }
 
@@ -423,7 +431,32 @@ public class DocumentManagementServiceImpl
    @Override
    public void setDefaultRepository(String repositoryId)
    {
+      checkAdministratorRole();
       getProvider().setDefaultRepository(repositoryId);
+   }
+
+   private void checkAdministratorRole()
+   {
+      PropertyLayer layer = ParametersFacade.pushLayer(Collections.singletonMap(
+            UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core));
+      try
+      {
+         User userDetails = (User) DetailsFactory.create(SecurityProperties.getUser(),
+               IUser.class, UserDetails.class);
+         if (!userDetails.isAdministrator())
+         {
+            throw new DocumentManagementServiceException(
+                  BpmRuntimeError.DMS_SECURITY_ERROR_ADMIN_REQUIRED.raise());
+         }
+      }
+      finally
+      {
+         if (layer != null)
+         {
+            ParametersFacade.popLayer();
+            layer = null;
+         }
+      }
    }
 
    @Override

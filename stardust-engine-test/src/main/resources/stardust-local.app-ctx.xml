@@ -16,21 +16,21 @@
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
    <!-- DMS Support -->
-   <import resource="classpath:stardust-local-dms-jcr-jackrabbit.app-ctx.xml" />
-   <import resource="classpath:stardust-local-dms-jcr-jackrabbit2.app-ctx.xml" />
+   <import resource="classpath:stardust-local-dms-jcr-jackrabbit-with-sec.app-ctx.xml" />
+   <import resource="classpath:stardust-local-dms-jcr-jackrabbit-no-sec.app-ctx.xml" />
 
    <!-- Clustering Support -->
    <import resource="classpath:stardust-local-clustering-hazelcast.app-ctx.xml" />
 
-   <!-- Stardust Engine Services -->   
+   <!-- Stardust Engine Services -->
    <bean id="abstractCarnotService" abstract="true" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
       <property name="transactionManager" ref="jtaTxManager" />
       <property name="dataSource" ref="xaAuditTrailConnectionFactory" />
       <property name="jcaResourceProvider" ref="carnotJcaResourceResolver" />
       <property name="jmsResourceProvider" ref="jmsResourceResolver" />
-      <property name="carnotProperties" ref="customCarnotProperties" />	
+      <property name="carnotProperties" ref="customCarnotProperties" />
    </bean>
-   
+
    <bean id="carnotWorkflowService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />
    <bean id="carnotUserService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.UserServiceBean" />
    <bean id="carnotQueryService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueryServiceBean" />
@@ -70,16 +70,16 @@
       <property name="connectionMaxWaitMilliseconds" value="5000" />
       <property name="connectionMaxIdleMinutes" value="1" />
    </bean>
-   
+
    <!-- JCA Resource Resolver -->
    <bean name="carnotJcaResourceResolver"
 		class="org.eclipse.stardust.engine.spring.integration.jca.DefaultJcaResourceResolver" />
-		  
+
    <!-- JMS Resource Resolver -->
    <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />
-   
+
    <!-- Property resolver for properties from 'carnot.properties' -->
    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
       <property name="location" value="classpath:carnot.properties" />
-    </bean>
+   </bean>
 </beans>

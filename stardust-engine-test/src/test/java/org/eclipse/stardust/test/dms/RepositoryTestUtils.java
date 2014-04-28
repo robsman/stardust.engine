@@ -15,7 +15,7 @@ public class RepositoryTestUtils
 
    public static final String TEST_PROVIDER_ID = "jcr-vfs";
 
-   public static final String TEST_REPO_JNDI = "jcr/ContentRepository2";
+   public static final String TEST_REPO_JNDI = "jcr/ContentRepositoryNoSec";
 
    public static IRepositoryConfiguration createTestRepoConfig()
    {

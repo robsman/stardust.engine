@@ -18,7 +18,7 @@
 <!--
    This configuration is based on an example repository configuration file (which can be found here:
    http://svn.apache.org/repos/asf/jackrabbit/tags/2.2.5/jackrabbit-core/src/main/resources/org/apache/jackrabbit/core/repository.xml)
-   provided by the Jackrabbit project adjusted to fulfill our needs wrt. functional testing 
+   provided by the Jackrabbit project adjusted to fulfill our needs wrt. functional testing
    of Stardust. The following changes have been made:
    * changed persistence manager configuration to use 'org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager'
    * changed file system configuration to use 'org.apache.jackrabbit.core.fs.mem.MemoryFileSystem'
@@ -38,11 +38,10 @@
 
    <!-- Security (enabled) -->
    <Security appName="Jackrabbit">
-
       <!-- access manager -->
-        <AccessManager class="org.apache.jackrabbit.core.security.simple.SimpleAccessManager">
-            <!-- <param name="config" value="${rep.home}/access.xml"/> -->
-        </AccessManager>
+      <AccessManager class="org.apache.jackrabbit.core.security.simple.SimpleAccessManager">
+         <!-- <param name="config" value="${rep.home}/access.xml"/> -->
+      </AccessManager>
       <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
          <!-- anonymous user name ('anonymous' is the default value) -->
          <param name="anonymousId" value="anonymous" />
@@ -59,12 +58,12 @@
    <Workspace name="${wsp.name}">
       <!-- virtual file system of the workspace -->
       <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
-      
+
       <!-- persistence manager of the workspace -->
       <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager">
          <param name="persistent" value="false" />
       </PersistenceManager>
-      
+
       <!-- Search index and the file system it uses -->
       <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
          <param name="path" value="${wsp.home}/index" />
@@ -86,7 +85,7 @@
    </Versioning>
 
    <!-- Search Index                                 -->
-   <!-- for content that is shared repository wide   --> 
+   <!-- for content that is shared repository wide   -->
    <!-- (/jcr:system tree, contains mainly versions) -->
    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
       <param name="path" value="${rep.home}/repository/index" />

@@ -14,45 +14,44 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-   
+
    <!-- Make jcrSessionFactory available as JcaResource -->
    <bean class="org.eclipse.stardust.engine.spring.integration.jca.JcaResourceBinding">
-      <property name="name" value="jcr/ContentRepository2" />
-      <property name="resource" ref="jcrSessionFactory2" />
-   </bean>   
- 
-   <bean id="jcrSessionFactory2" class="org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory" lazy-init="true">
-      <property name="repository" ref="xaJcrConnectionFactory2" />
+      <property name="name" value="jcr/ContentRepositoryNoSec" />
+      <property name="resource" ref="jcrSessionFactoryNoSec" />
    </bean>
-   
-   <bean id="xaJcrConnectionFactory2" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
+
+   <bean id="jcrSessionFactoryNoSec" class="org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory" lazy-init="true">
+      <property name="repository" ref="xaJcrConnectionFactoryNoSec" />
+   </bean>
+
+   <bean id="xaJcrConnectionFactoryNoSec" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
       <property name="managedConnectionFactory">
-         <bean id="jackrabbitRepo2" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
-            <property name="repository" ref="carnotJackrabbitRepository2" />
+         <bean id="jackrabbitRepoNoSec" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
+            <property name="repository" ref="carnotJackrabbitRepositoryNoSec" />
             <property name="bindSessionToTransaction" value="true" />
          </bean>
       </property>
       <property name="connectionManager">
-         <bean id="connectionManagerFactory2" class="org.jencks.factory.ConnectionManagerFactoryBean">
+         <bean id="connectionManagerFactoryNoSec" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="xa" />
             <property name="partitionStrategy" value="by-connector-properties"/>
          </bean>
       </property>
    </bean>
-   
-      <!-- Repository startup -->
-   <bean id="carnotJackrabbitRepository2" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
-      <property name="jndiName" value="jcr/ContentRepository2" />
+
+   <!-- Repository startup -->
+   <bean id="carnotJackrabbitRepositoryNoSec" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
+      <property name="jndiName" value="jcr/ContentRepositoryNoSec" />
       <property name="bindToJndi" value="false" />
       <property name="repositoryConfig" value="test-repo-no-sec.xml" />
-	  <property name="repositoryHome" >
-         <bean factory-bean="jcrWorkspace2" factory-method="filePath" />
-	  </property>
+      <property name="repositoryHome" >
+         <bean factory-bean="jcrWorkspaceNoSec" factory-method="filePath" />
+      </property>
    </bean>
-   
-   <bean id="jcrWorkspace2" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
-      <constructor-arg index="0" value="jcr2" />
+
+   <bean id="jcrWorkspaceNoSec" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
+      <constructor-arg index="0" value="jcrNoSec" />
    </bean>
-   
 </beans>

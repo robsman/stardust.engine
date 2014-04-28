@@ -42,7 +42,7 @@
 
    <dependencies>
       <!-- client-ejb3-module-runtime, ejb3-provider-compile -->
-      <dependency org="org.eclipse.stardust" name="stardust-engine-ejb3" rev="${ipp.version.full}" conf="client-ejb3-module-runtime,ejb3-provider-compile->carnot-ejb3-compile">
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-ejb3" rev="${ipp.version.full}" conf="client-ejb3-module-runtime,ejb3-provider-compile->carnot-ejb3-compile">
          <exclude org="rhino" module="js" />
       </dependency>
             

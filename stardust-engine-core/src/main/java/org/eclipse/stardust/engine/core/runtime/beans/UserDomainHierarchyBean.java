@@ -59,17 +59,17 @@ public class UserDomainHierarchyBean extends IdentifiablePersistentBean implemen
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_DOMAIN_HIERARCHY_OID.raise(0), 0);
       }
-      
+
       UserDomainHierarchyBean result = (UserDomainHierarchyBean) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL).findByOID(
                   UserDomainHierarchyBean.class, oid);
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_DOMAIN_HIERARCHY_OID.raise(oid), oid);
       }
-      
+
       return result;
    }
 
@@ -84,8 +84,9 @@ public class UserDomainHierarchyBean extends IdentifiablePersistentBean implemen
                   Predicates.isEqual(FR__SUPERDOMAIN, superDomain.getOID()),//
                   Predicates.isEqual(FR__SUBDOMAIN, subDomain.getOID())))))
       {
-         throw new PublicException("Domain hierarchy entry for '" + superDomain
-               + "' and '" + subDomain + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_DOMAIN_HIERARCHY_ENTRY_ALREADY_EXISTS.raise(
+                     superDomain, subDomain));
       }
 
       this.superDomain = superDomain;
@@ -104,11 +105,11 @@ public class UserDomainHierarchyBean extends IdentifiablePersistentBean implemen
       fetchLink(FIELD__SUPERDOMAIN);
       return superDomain;
    }
-   
+
    public void setSuperDomain(UserDomainBean superDomain)
    {
       fetchLink(FIELD__SUPERDOMAIN);
-      
+
       if (this.superDomain != superDomain)
       {
          markModified(FIELD__SUPERDOMAIN);
@@ -121,11 +122,11 @@ public class UserDomainHierarchyBean extends IdentifiablePersistentBean implemen
       fetchLink(FIELD__SUBDOMAIN);
       return subDomain;
    }
-   
+
    public void setSubDomain(UserDomainBean subDomain)
    {
       fetchLink(FIELD__SUBDOMAIN);
-      
+
       if (this.subDomain != subDomain)
       {
          markModified(FIELD__SUBDOMAIN);

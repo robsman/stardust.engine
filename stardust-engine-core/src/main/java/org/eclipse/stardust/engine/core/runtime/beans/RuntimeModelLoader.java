@@ -27,10 +27,28 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.DataTypeDetails;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IModeler;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
+import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -47,8 +65,8 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 public class RuntimeModelLoader implements ModelLoader
 {
    public static final Logger trace = LogManager.getLogger(RuntimeModelLoader.class);
-   
-   private final short partitionOid; 
+
+   private final short partitionOid;
 
    public RuntimeModelLoader(short partitionOid)
    {
@@ -82,7 +100,7 @@ public class RuntimeModelLoader implements ModelLoader
       registerOids(rtOidRegistry, cache, AuditTrailEventHandlerBean.findAll(partitionOid),
             IRuntimeOidRegistry.EVENT_HANDLER, false);
    }
-   
+
    public short getPartitionOid()
    {
       return partitionOid;
@@ -134,7 +152,7 @@ public class RuntimeModelLoader implements ModelLoader
          // TODO: use BLOB
          modelPersistor.setModel(model, XmlUtils.getXMLString(unit.getContent()));
       }
-      
+
       ModelDeploymentBean deployment = new ModelDeploymentBean(options.getValidFrom(), options.getComment());
       for (ParsedDeploymentUnit unit : units)
       {
@@ -148,7 +166,7 @@ public class RuntimeModelLoader implements ModelLoader
             {
                trace.info(model.getName() + " references " + referencedModel.getName());
                ModelRefBean.setResolvedModel(externalPackage, referencedModel, deployment.getOID());
-            }                
+            }
          }
          updateModelTables(model, null, rtOidRegistry);
       }
@@ -158,7 +176,7 @@ public class RuntimeModelLoader implements ModelLoader
    {
       IModel model = unit.getModel();
       IModel lastModel  = ModelManagerFactory.getCurrent().findActiveModel(model.getId());
-      
+
       SchemaHelper.validateBaseProperties();
 
       ModelPersistorBean modelPersistor = ModelPersistorBean.findByModelOID(unit.getReferencedModelOid());
@@ -168,10 +186,10 @@ public class RuntimeModelLoader implements ModelLoader
       modelPersistor.setModel(model, XmlUtils.getXMLString(unit.getContent()));
 
       //TODO: (fh) update deployment references...
-      
+
       updateModelTables(model, lastModel, rtOidRegistry);
    }
-   
+
    private static void validateModelElemetId(Class type, long rtOid,
          String modelFieldName, long modelOid, String idFieldName,
          String expectedModelElemetId)
@@ -185,14 +203,14 @@ public class RuntimeModelLoader implements ModelLoader
          QueryDescriptor desc = QueryDescriptor.from(type);
          desc.select(desc.fieldRef(idFieldName)) //
                .setPredicateTerm(Predicates.andTerm( //
-                     Predicates.isEqual(desc.fieldRef(modelFieldName), modelOid), // 
+                     Predicates.isEqual(desc.fieldRef(modelFieldName), modelOid), //
                      Predicates.isEqual(desc.fieldRef(IdentifiablePersistentBean.FIELD__OID), rtOid)));
-         
+
          ResultSet resultSet = null;
          try
          {
             resultSet = jdbcSession.executeQuery(desc);
-            
+
             if ( !resultSet.next())
             {
                throw new InternalException(MessageFormat
@@ -201,14 +219,13 @@ public class RuntimeModelLoader implements ModelLoader
                            new Object[] { type.getName(), new Long(modelOid),
                                  new Long(rtOid) }));
             }
-            
+
             String dbIdValue = resultSet.getString(idFieldName);
             if ( !CompareHelper.areEqual(dbIdValue, expectedModelElemetId))
             {
-               throw new PublicException(MessageFormat.format(
-                     "Deployed object of type {0} differs in its id from its defined value: "
-                           + "expected: [{1}] <-> persisted: [{2}].", new Object[] {
-                           type.getName(), expectedModelElemetId, dbIdValue }));
+               throw new PublicException(
+                     BpmRuntimeError.BPMRT_DEPLOYED_OBJECT_DIFFERS_IN_ITS_IDFROM_ITS_DEFINED_VALUE
+                           .raise(type.getName(), expectedModelElemetId, dbIdValue));
             }
          }
          catch (SQLException e)
@@ -230,40 +247,40 @@ public class RuntimeModelLoader implements ModelLoader
       Session driver = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       final int modelOID = model.getModelOID();
-      
+
       // prefetching all model element definitions into cache, thus speeding up eventual lookup
       Map<Long, AuditTrailProcessDefinitionBean> processDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailProcessDefinitionBean.class,
             AuditTrailProcessDefinitionBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailEventHandlerBean> eventHandlerDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailEventHandlerBean.class,
             AuditTrailEventHandlerBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailTriggerBean> triggerDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailTriggerBean.class,
             AuditTrailTriggerBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailActivityBean> activityDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailActivityBean.class,
             AuditTrailActivityBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailTransitionBean> transitionDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailTransitionBean.class,
             AuditTrailTransitionBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailDataBean> dataDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailDataBean.class,
             AuditTrailDataBean.FR__MODEL);
-      
+
       Map<Long, AuditTrailParticipantBean> modelParticipantDefRecords = loadModelElementDefinitions(
             modelOID, AuditTrailParticipantBean.class,
             AuditTrailParticipantBean.FR__MODEL);
-      
+
       for (IProcessDefinition process : model.getProcessDefinitions())
       {
          AuditTrailProcessDefinitionBean auditTrailProcess = null;
-         
+
          long rtProcOid = rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.PROCESS,
                RuntimeOidUtils.getFqId(process));
          if (0 != rtProcOid)
@@ -286,7 +303,7 @@ public class RuntimeModelLoader implements ModelLoader
                   modelOID, process);
             driver.cluster(auditTrailProcess);
          }
-         
+
          validateModelElemetId(AuditTrailProcessDefinitionBean.class, rtProcOid,
                AuditTrailProcessDefinitionBean.FIELD__MODEL, modelOID,
                AuditTrailProcessDefinitionBean.FIELD__ID, process.getId());
@@ -342,7 +359,7 @@ public class RuntimeModelLoader implements ModelLoader
                      trigger);
                driver.cluster(auditTrailTrigger);
             }
-            
+
             validateModelElemetId(AuditTrailTriggerBean.class, rtOid,
                   AuditTrailTriggerBean.FIELD__MODEL, modelOID,
                   AuditTrailTriggerBean.FIELD__ID, trigger.getId());
@@ -377,10 +394,10 @@ public class RuntimeModelLoader implements ModelLoader
                      handler);
                driver.cluster(auditTrailHandler);
             }
-            
+
             validateModelElemetId(AuditTrailEventHandlerBean.class, rtOid,
                   AuditTrailEventHandlerBean.FIELD__MODEL, modelOID,
-                  AuditTrailEventHandlerBean.FIELD__ID, handler.getId());         
+                  AuditTrailEventHandlerBean.FIELD__ID, handler.getId());
             }
 
          // Activities
@@ -412,10 +429,10 @@ public class RuntimeModelLoader implements ModelLoader
                      activity);
                driver.cluster(auditTrailActivity);
             }
-            
+
             validateModelElemetId(AuditTrailActivityBean.class, rtOid,
                   AuditTrailActivityBean.FIELD__MODEL, modelOID,
-                  AuditTrailActivityBean.FIELD__ID, activity.getId());         
+                  AuditTrailActivityBean.FIELD__ID, activity.getId());
 
             // activity level event handlers
             for (Iterator handlers = activity.getAllEventHandlers(); handlers.hasNext();)
@@ -446,10 +463,10 @@ public class RuntimeModelLoader implements ModelLoader
                         modelOID, handler);
                   driver.cluster(auditTrailHandler);
                }
-               
+
                validateModelElemetId(AuditTrailEventHandlerBean.class, rtHandlerOid,
                      AuditTrailEventHandlerBean.FIELD__MODEL, modelOID,
-                     AuditTrailEventHandlerBean.FIELD__ID, handler.getId());         
+                     AuditTrailEventHandlerBean.FIELD__ID, handler.getId());
             }
          }
 
@@ -482,13 +499,13 @@ public class RuntimeModelLoader implements ModelLoader
                      transition);
                driver.cluster(auditTrailTransition);
             }
-            
+
             validateModelElemetId(AuditTrailTransitionBean.class, rtOid,
                   AuditTrailTransitionBean.FIELD__MODEL, modelOID,
-                  AuditTrailTransitionBean.FIELD__ID, transition.getId());         
+                  AuditTrailTransitionBean.FIELD__ID, transition.getId());
          }
       }
-      
+
       // Data
       for (Iterator allData = model.getAllData(); allData.hasNext();)
       {
@@ -497,7 +514,7 @@ public class RuntimeModelLoader implements ModelLoader
          {
             continue;
          }
-         
+
          AuditTrailDataBean auditTrailData = null;
          long rtOid = rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.DATA,
                RuntimeOidUtils.getFqId(data));
@@ -524,10 +541,10 @@ public class RuntimeModelLoader implements ModelLoader
             driver.cluster(auditTrailData);
          }
          dataTypeLoader.deployData(rtOidRegistry, data, rtOid, modelOID, model);
-         
+
          validateModelElemetId(AuditTrailDataBean.class, rtOid,
                AuditTrailDataBean.FIELD__MODEL, modelOID, //
-               AuditTrailDataBean.FIELD__ID, data.getId());         
+               AuditTrailDataBean.FIELD__ID, data.getId());
       }
 
       // Participants
@@ -566,14 +583,14 @@ public class RuntimeModelLoader implements ModelLoader
                      modelOID, participant);
                driver.cluster(auditTrailParticipant);
             }
-            
+
             validateModelElemetId(AuditTrailParticipantBean.class, rtOid,
                   AuditTrailParticipantBean.FIELD__MODEL, modelOID,
-                  AuditTrailParticipantBean.FIELD__ID, auditTrailParticipant.getId());         
+                  AuditTrailParticipantBean.FIELD__ID, auditTrailParticipant.getId());
          }
       }
    }
-   
+
    private static <T extends IdentifiablePersistent> Map<Long, T> loadModelElementDefinitions(
          int modelOid, Class<T> type, FieldRef frModel)
    {
@@ -589,7 +606,7 @@ public class RuntimeModelLoader implements ModelLoader
             result.put(Long.valueOf(element.getOID()), (T) element);
          }
       }
-      
+
       return result;
    }
 }

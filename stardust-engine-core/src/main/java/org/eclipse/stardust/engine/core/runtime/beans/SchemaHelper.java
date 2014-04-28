@@ -46,6 +46,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
@@ -566,9 +567,8 @@ public class SchemaHelper
                if ( !isSchemaEmpty)
                {
                   throw new PublicException(
-                        "There is no password set for the sysop-user.\n"
-                              + "But as your schema seems to contain data sysop-user "
-                              + "authorization is required.");
+                        BpmRuntimeError.ATDB_NO_PASSWORD_SET_FOR_SYSOP_THOUGH_USER_AUTHORIZATION_IS_REQUIRED
+                              .raise());
                }
                System.out.println("Allowing access to empty schema without sysop-user"
                      + " authorization.");
@@ -576,13 +576,15 @@ public class SchemaHelper
             else if (!sysopPassword.equals(sysconPassword))
             {
                throw new PublicException(
-                     "Please specify appropriate password for sysop-user.");
+                     BpmRuntimeError.ATDB_PLEASE_SPECIFY_APPROPRIATE_PASSWORD_FOR_SYSOP_USER
+                           .raise());
             }
          }
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed during sysop-user authorization", e);
+         throw new PublicException(
+               BpmRuntimeError.ATDB_FAILED_DURING_SYSOP_USER_AUTHORIZATION.raise(), e);
       }
    }
 
@@ -607,8 +609,8 @@ public class SchemaHelper
          {
             session.rollback();
             throw new PublicException(
-                  "Please specify appropriate password for sysop user "
-                  + "before trying to change password");
+                  BpmRuntimeError.ATDB_PLEASE_SPECIFY_APPROPRIATE_PASSWORD_FOR_SYSOP_USER_BEFORE_TRYING_TO_CHANGE_PASSWORD
+                        .raise());
          }
 
          sysop.setValue(newPassword);
@@ -684,8 +686,9 @@ public class SchemaHelper
             || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
-         throw new PublicException("Unable to set value of audit trail property '" + name
-               + "'.");
+         throw new PublicException(
+               BpmRuntimeError.ATDB_UNABLE_TO_SET_VALUE_OF_AUDIT_TRAIL_PROPERTY
+                     .raise(name));
       }
 
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
@@ -721,8 +724,9 @@ public class SchemaHelper
             || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
-         throw new PublicException("Unable to delete audit trail property '" + name
-               + "'.");
+         throw new PublicException(
+               BpmRuntimeError.ATDB_UNABLE_TO_DELETE_VALUE_OF_AUDIT_TRAIL_PROPERTY
+                     .raise(name));
       }
 
       String result = null;
@@ -1133,11 +1137,13 @@ public class SchemaHelper
       }
       catch (SAXException x)
       {
-         throw new PublicException("Invalid runtime setup configuration file.", x);
+         throw new PublicException(
+               BpmRuntimeError.ATDB_INVALID_RUNTIME_SETUP_CONFIGURATION_FILE.raise(), x);
       }
       catch (IOException x)
       {
-         throw new PublicException("Invalid runtime setup configuration file.", x);
+         throw new PublicException(
+               BpmRuntimeError.ATDB_INVALID_RUNTIME_SETUP_CONFIGURATION_FILE.raise(), x);
       }
    }
    
@@ -1301,7 +1307,8 @@ public class SchemaHelper
             if(oldSetup != null && oldSetup.length > 0 && !upgrade)
             {
                throw new PublicException(
-                  "Cluster configuration already exists. Use option -dropDataClusters or -updateDataClusters first.");
+                     BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
+                           .raise());
             }
             
             TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
@@ -1318,7 +1325,8 @@ public class SchemaHelper
          else
          {
             throw new PublicException(
-                  "Cluster configuration does not exists. Provide valid configuration file.");
+                  BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
+                        .raise());
          }
          
          
@@ -1565,7 +1573,9 @@ public class SchemaHelper
          trace.warn(warning, reason);
          if(reason != null)
          {
-            throw new PublicException(warning, reason);
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(warning),
+                  reason);
          }
       }
    }

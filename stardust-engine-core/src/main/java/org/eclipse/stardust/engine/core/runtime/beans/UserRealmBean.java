@@ -106,13 +106,13 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
             return result;
          }
       }
-      
+
       result = (UserRealmBean) SessionFactory.getSession(
             SessionFactory.AUDIT_TRAIL).findFirst(UserRealmBean.class,//
                   QueryExtension.where(Predicates.andTerm(//
                         Predicates.isEqual(FR__ID, id),//
                         Predicates.isEqual(FR__PARTITION, partitionOid))));
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.ATDB_UNKNOWN_USER_REALM_ID.raise(
@@ -120,16 +120,16 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
       }
       return result;
    }
-   
+
    public static UserRealmBean createTransientRealm(String id, String name,
          IAuditTrailPartition partition)
    {
       UserRealmBean realm = new UserRealmBean();
-      
+
       realm.setId(id);
       realm.setName(name);
-      realm.setPartition(partition);      
-      
+      realm.setPartition(partition);
+
       return realm;
    }
 
@@ -141,21 +141,22 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
    {
       Assert.isNotEmpty(id, "ID for user realm must not be empty.");
       Assert.isNotNull(partition, "Partition for user realm must not be null.");
-      
+
       String trimmedId = StringUtils.cutString(id, id_COLUMN_LENGTH);
-      
+
       if (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).exists(UserRealmBean.class,
             QueryExtension.where(Predicates.andTerm(
                   Predicates.isEqual(FR__ID, trimmedId),
                   Predicates.isEqual(FR__PARTITION, partition.getOID())))))
       {
-         throw new PublicException("User Realm with id '" + trimmedId + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_USER_REALM_WITH_ID_ALREADY_EXISTS.raise(trimmedId));
       }
-      
+
       this.id = trimmedId;
       this.name = StringUtils.cutString(name, name_COLUMN_LENGTH);
       this.partition = (null != partition) ? partition.getOID() : 0;
-      
+
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
 
@@ -222,7 +223,7 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
          this.description = description;
       }
    }
-   
+
    public IAuditTrailPartition getPartition()
    {
       fetch();

@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.model.ITriggerType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -118,7 +119,9 @@ public class TriggerDaemon implements IDaemon
                }
                else
                {
-                  throw new PublicException("No valid evaluator class provided.");
+                     throw new PublicException(
+                           BpmRuntimeError.BPMRT_NO_VALID_EVALUATOR_CLASS_PROVIDED
+                                 .raise());
                }
                while (triggerMatches.hasNext())
                {

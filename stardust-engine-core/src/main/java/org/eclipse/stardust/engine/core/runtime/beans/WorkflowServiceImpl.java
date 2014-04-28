@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -178,15 +177,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             Collections.EMPTY_MAP, false);
 
       final ProcessInstance pi = DetailsFactory.create(processInstance);
-      
+
       if (isSerialExecutionScenario(processInstance))
       {
          ProcessInstanceUtils.scheduleSerialActivityThreadWorkerIfNecessary(processInstance);
       }
-      
+
       return pi;
    }
-   
+
    public ProcessInstance spawnSubprocessInstance(long rootProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
          throws IllegalOperationException, ObjectNotFoundException
@@ -233,7 +232,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_TRANSIENT.raise(pi.getOID()));
       }
    }
-   
+
    private void runProcessInstance(IProcessInstance processInstance, String startActivityId)
    {
       IProcessDefinition processDefinition = processInstance.getProcessDefinition();
@@ -246,7 +245,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       // schedule async unless it's an upgrade.
       boolean sync = false;
-      
+
       IActivity startActivity = null;
       if (startActivityId == null)
       {
@@ -639,13 +638,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       // check if the source process instance exists.
       IProcessInstance originatingProcessInstance = ProcessInstanceBean.findByOID(processInstanceOid);
-      
+
       // check if the source process instance is a case.
       assertNotCaseProcessInstance(originatingProcessInstance);
 
       // check if the source process instance is a transient process instance.
       assertNotTransientProcessInstance(originatingProcessInstance);
-      
+
       // check if the source process instance is a root process instance.
       IProcessInstance rootPI = originatingProcessInstance.getRootProcessInstance();
       if (rootPI != null && rootPI != originatingProcessInstance)
@@ -666,7 +665,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IProcessDefinition originatingProcessDefinition = originatingProcessInstance.getProcessDefinition();
       IModel model = (IModel) originatingProcessDefinition.getModel();
-      
+
       String modelId = qname.getNamespaceURI();
       if (!modelId.equals(XMLConstants.NULL_NS_URI))
       {
@@ -724,7 +723,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
          abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
       }
-      
+
       DataCopyOptions dco = options.getDataCopyOptions();
       if (dco == null)
       {
@@ -798,10 +797,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       // illegal to join from a transient process instance
       assertNotTransientProcessInstance(originatingProcessInstance);
-      
+
       // illegal to join to a transient process instance
       assertNotTransientProcessInstance(targetProcessInstance);
-      
+
       // check authorization
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
@@ -1187,7 +1186,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotActivated(activityInstance);
-      ActivityInstanceUtils.assertNotInUserWorklist(activityInstance, participant);            
+      ActivityInstanceUtils.assertNotInUserWorklist(activityInstance, participant);
       ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
 
       if (participant == null)
@@ -1205,18 +1204,18 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
 
          long modelOid = 0;
-         
+
          if (!activityInstance.isDefaultCaseActivityInstance())
          {
             // if no default Case Activity Instance use the modelOid to define the allowed
             // range of delegation
             modelOid = activityInstance.getActivity().getModel().getModelOID();
          }
-         
+
          ScopedModelParticipant scopedParticipant = (ScopedModelParticipant) DepartmentUtils.getScopedParticipant(
                participant, ModelManagerFactory.getCurrent(), modelOid);
          IModelParticipant modelParticipant = scopedParticipant.getModelParticipant();
-         
+
          IDepartment department = scopedParticipant.getDepartment();
          activityInstance.delegateToParticipant(modelParticipant, department, null);
       }
@@ -1330,11 +1329,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    /**
     * This reloads the attribute "lastModificationTime" and compares it with given timestamp.
-    * 
+    *
     * @param lastModTimeFromQuery the modification timestamp to compare with
     * @param activityInstance the activity instance to be compared on modification based on timestamps
     * @return <code>true</code> if modified, otherwise <code>false</code>
-    * @throws PhantomException thrown if activity instance is no longer available 
+    * @throws PhantomException thrown if activity instance is no longer available
     */
    private boolean isAiModified(long lastModTimeFromQuery,
          ActivityInstanceBean activityInstance) throws PhantomException
@@ -2241,7 +2240,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                          IActivityInstance.class, ActivityInstanceDetails.class);
                 }
                 catch (AccessForbiddenException e)
-                {                  
+                {
                    String errorId = e.getError().getId();
                    if(!errorId.equals("BPMRT03112"))
                    {
@@ -2285,9 +2284,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (pi != pi.getScopeProcessInstance())
       {
          throw new PublicException(
-               MessageFormat.format(
-                     "Process instance referenced by Oid {0} has to be a scope process instance.",
-                     pi.getOID()));
+               BpmRuntimeError.BPMRT_PROCESS_INSTANCE_REFERENCED_BY_OID_HAS_TO_BE_A_SCOPE_PROCESS_INSTANCES
+                     .raise(pi.getOID()));
       }
 
       for (Note note : notes)
@@ -2395,7 +2393,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       long activityInstanceOID = attributes.getActivityInstanceOid();
       ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
       QualityAssuranceUtils.validateActivityInstanceAttributes(attributes, activityInstance);
-      
+
       List<Note> addedNotes = attributes.getAddedNotes();
       if(addedNotes != null && !addedNotes.isEmpty())
       {
@@ -2419,13 +2417,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          throw new IllegalOperationException(BpmRuntimeError.BPMRT_AI_NOT_ADHOC_TRANSITION_SOURCE.raise(activityInstanceOid));
       }
-      
+
       ActivityInstanceBean activityInstance = ActivityInstanceUtils.lock(activityInstanceOid);
-      
+
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
-      
+
       // TODO rsauer fix for special scenario from CSS, involving automatic completion
       // of activities after a certain period of time, while the activity sticky to the
       // predecessor activitie's user worklist.

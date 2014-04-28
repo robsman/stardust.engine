@@ -24,7 +24,6 @@ import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.cache.CacheInputStream;
 import org.eclipse.stardust.engine.core.cache.CacheOutputStream;
 import org.eclipse.stardust.engine.core.cache.Cacheable;
-import org.eclipse.stardust.engine.core.cache.PartitionsCache;
 import org.eclipse.stardust.engine.core.cache.UserDomainsCache;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -66,7 +65,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
    private String id;
    private static final int description_COLUMN_LENGTH = 4000;
    private String description;
-   
+
    private AuditTrailPartitionBean partition;
    private UserDomainBean superDomain;
 
@@ -78,16 +77,16 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_USER_DOMAIN_OID.raise(0), 0);
       }
-      
+
       UserDomainBean result = (UserDomainBean) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
             .findByOID(UserDomainBean.class, oid);
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_USER_DOMAIN_OID.raise(oid), oid);
       }
-      
+
       return result;
    }
 
@@ -103,22 +102,22 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
             return result;
          }
       }
-      
+
       result = (UserDomainBean) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).
-            findFirst(UserDomainBean.class, 
+            findFirst(UserDomainBean.class,
                   QueryExtension.where(Predicates.andTerm(
                         Predicates.isEqual(FR__ID, id),
                         Predicates.isEqual(FR__PARTITION, partitionOid))));
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_USER_DOMAIN_ID.raise(id), id);
       }
-      
+
       return result;
    }
-   
+
    public UserDomainBean()
    {
    }
@@ -133,7 +132,8 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
                   Predicates.isEqual(FR__ID, trimmedId),//
                   Predicates.isEqual(FR__PARTITION, partition.getOID())))))
       {
-         throw new PublicException("Domain with id '" + trimmedId + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_DOMAIN_WITH_ID_ALREADY_EXISTS.raise(trimmedId));
       }
 
       this.id = trimmedId;
@@ -141,7 +141,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
       this.superDomain = superDomain;
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
-      
+
       new UserDomainHierarchyBean(this, this);
       UserDomainBean iteratingSuperDomain = superDomain;
       while (null != iteratingSuperDomain)
@@ -166,15 +166,17 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
    public void setId(String id)
    {
       fetch();
-      
+
       if ( !CompareHelper.areEqual(this.id, id))
       {
          if (null == this.superDomain)
          {
             throw new PublicException(
-                  "The ID for a partitions default domain is not allowd to be changed.");
+                  BpmRuntimeError.BPMRT_ID_FOR_A_PARTITIONS_DEFAULT_DOMAIN_IS_NOT_ALLOWED_TO_BE_CHANGED
+                        .raise());
+
          }
-         
+
          markModified(FIELD__ID);
          this.id = StringUtils.cutString(id, id_COLUMN_LENGTH);
       }
@@ -191,7 +193,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
       fetchLink(FIELD__SUPERDOMAIN);
       return superDomain;
    }
-   
+
    /**
     *
     */
@@ -212,17 +214,17 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
          this.description = description;
       }
    }
-   
+
    public void delete(boolean writeThrough)
    {
       long oid = getOID();
-      
+
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).delete(
             UserDomainHierarchyBean.class, Predicates.orTerm(//
                   Predicates.isEqual(UserDomainHierarchyBean.FR__SUPERDOMAIN, oid),//
                   Predicates.isEqual(UserDomainHierarchyBean.FR__SUBDOMAIN, oid)),
             writeThrough);
-      
+
       super.delete(writeThrough);
    }
 
@@ -236,14 +238,14 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
          fetch();
          cos.writeLong(oid);
          cos.writeString(id);
-         
+
          fetchLink(FIELD__PARTITION);
          cos.writeShort(partition.getOID());
-         
+
          // encode null superDomain with 0
          fetchLink(FIELD__SUPERDOMAIN);
          cos.writeLong(superDomain == null ? 0 : superDomain.getOID());
-         
+
          cos.writeString(description);
 
          cos.flush();
@@ -265,7 +267,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
       {
          oid = cis.readLong();
          id = cis.readString();
-         
+
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          short partitionOid = cis.readShort();
          if (partitionOid >= 0)
@@ -273,7 +275,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
             this.partition = (AuditTrailPartitionBean) session.findByOID(
                   AuditTrailPartitionBean.class, partitionOid);
          }
-         
+
          long superDomainOid = cis.readLong();
          // superDomain can be null which is encoded as 0
          if (superDomainOid > 0)
@@ -281,7 +283,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
             this.superDomain = (UserDomainBean) session.findByOID(UserDomainBean.class,
                   partitionOid);
          }
-         
+
          description = cis.readString();
       }
       finally

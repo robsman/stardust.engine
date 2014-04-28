@@ -13,10 +13,22 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Attribute;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.MultiAttribute;
 import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -24,14 +36,31 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.HMAC;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.PWHConstants;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.UserPK;
-import org.eclipse.stardust.engine.core.cache.*;
+import org.eclipse.stardust.engine.core.cache.CacheHelper;
+import org.eclipse.stardust.engine.core.cache.CacheInputStream;
+import org.eclipse.stardust.engine.core.cache.CacheOutputStream;
+import org.eclipse.stardust.engine.core.cache.Cacheable;
+import org.eclipse.stardust.engine.core.cache.UsersCache;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.PersistentVector;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -531,8 +560,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          long count = UserParticipantLink.countAllFor(participant);
          if (count >= participant.getCardinality())
          {
-            throw new PublicException("Cannot assign more users to participant. Cardinality "
-                  + participant.getCardinality() + " exceeded.");
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_CANNOT_ASSIGN_MORE_USERS_TO_PARTICIPANT_CARDINALITY_EXCEEDED
+                        .raise(participant.getCardinality()));
          }
       }
 
@@ -821,8 +851,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
                   Predicates.isEqual(FR__REALM, realm.getOID()),//
                   Predicates.isEqual(FR__ACCOUNT, trimmed_account)))))
       {
-         throw new PublicException("User with account '" + trimmed_account
-               + "' already exists in user realm with id '" + realm.getId() + "'.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_USER_WITH_ACCOUNT_ALREADY_EXISTS_IN_USER_REALM
+                     .raise(trimmed_account, realm.getId()));
       }
 
       this.account = trimmed_account;

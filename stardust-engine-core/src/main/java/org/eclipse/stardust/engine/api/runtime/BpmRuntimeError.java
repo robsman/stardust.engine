@@ -278,6 +278,18 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 ATDB_FAILED_EVALUATING_RECOVERY_STATUS = newArgs0("ATDB03001", BpmRuntimeErrorMessages.getString("ATDB03001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_PARTITION_WITH_ID_ALREADY_EXISTS = newArgs1("ATDB03002", BpmRuntimeErrorMessages.getString("ATDB03002")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args0 ATDB_NO_PASSWORD_SET_FOR_SYSOP_THOUGH_USER_AUTHORIZATION_IS_REQUIRED = newArgs0("ATDB03003", BpmRuntimeErrorMessages.getString("ATDB03003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_PLEASE_SPECIFY_APPROPRIATE_PASSWORD_FOR_SYSOP_USER = newArgs0("ATDB03004", BpmRuntimeErrorMessages.getString("ATDB03004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_PLEASE_SPECIFY_APPROPRIATE_PASSWORD_FOR_SYSOP_USER_BEFORE_TRYING_TO_CHANGE_PASSWORD = newArgs0("ATDB03005", BpmRuntimeErrorMessages.getString("ATDB03005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_UNABLE_TO_SET_VALUE_OF_AUDIT_TRAIL_PROPERTY = newArgs1("ATDB03006", BpmRuntimeErrorMessages.getString("ATDB03006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_FAILED_DURING_SYSOP_USER_AUTHORIZATION = newArgs0("ATDB03007", BpmRuntimeErrorMessages.getString("ATDB03007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_INVALID_RUNTIME_SETUP_CONFIGURATION_FILE = newArgs0("ATDB03008", BpmRuntimeErrorMessages.getString("ATDB03008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST = newArgs0("ATDB03009", BpmRuntimeErrorMessages.getString("ATDB03009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE = newArgs0("ATDB03010", BpmRuntimeErrorMessages.getString("ATDB03010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_UNABLE_TO_DELETE_VALUE_OF_AUDIT_TRAIL_PROPERTY = newArgs1("ATDB03011", BpmRuntimeErrorMessages.getString("ATDB03011")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+
 
    //// Authentication / Authorization
 
@@ -478,6 +490,20 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_INCONSISTENT_PAIR_VALUES = newArgs2("BPMRT07014", BpmRuntimeErrorMessages.getString("BPMRT07014")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BPMRT_INCONSISTENT_COLLECTION_VALUES = newArgs2("BPMRT07015", BpmRuntimeErrorMessages.getString("BPMRT07015")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_INPUT_NOT_SERIALIZABLE = newArgs0("BPMRT07016", BpmRuntimeErrorMessages.getString("BPMRT07016")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 BPMRT_DEPLOYED_OBJECT_DIFFERS_IN_ITS_IDFROM_ITS_DEFINED_VALUE = newArgs3("BPMRT07017", BpmRuntimeErrorMessages.getString("BPMRT07017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_NO_VALID_EVALUATOR_CLASS_PROVIDED = newArgs0("BPMRT07018", BpmRuntimeErrorMessages.getString("BPMRT07018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_CANNOT_ASSIGN_MORE_USERS_TO_PARTICIPANT_CARDINALITY_EXCEEDED = newArgs1("BPMRT07019", BpmRuntimeErrorMessages.getString("BPMRT07019")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_USER_WITH_ACCOUNT_ALREADY_EXISTS_IN_USER_REALM = newArgs2("BPMRT07020", BpmRuntimeErrorMessages.getString("BPMRT07020")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_DOMAIN_WITH_ID_ALREADY_EXISTS = newArgs1("BPMRT07021", BpmRuntimeErrorMessages.getString("BPMRT07021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_ID_FOR_A_PARTITIONS_DEFAULT_DOMAIN_IS_NOT_ALLOWED_TO_BE_CHANGED = newArgs0("BPMRT07022", BpmRuntimeErrorMessages.getString("BPMRT07022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_DOMAIN_HIERARCHY_ENTRY_ALREADY_EXISTS = newArgs2("BPMRT07023", BpmRuntimeErrorMessages.getString("BPMRT07023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_USER_DOMAIN_LINK_ALREADY_EXISTS = newArgs2("BPMRT07024", BpmRuntimeErrorMessages.getString("BPMRT07024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_USER_REALM_WITH_ID_ALREADY_EXISTS = newArgs1("BPMRT07025", BpmRuntimeErrorMessages.getString("BPMRT07025")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_PROCESS_INSTANCE_REFERENCED_BY_OID_HAS_TO_BE_A_SCOPE_PROCESS_INSTANCES = newArgs1("BPMRT07026", BpmRuntimeErrorMessages.getString("BPMRT07026")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_A_SINGLE_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_SVALUECOLUMN_AND_NVALUECOLUMN = newArgs0("BPMRT07027", BpmRuntimeErrorMessages.getString("BPMRT07027")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN = newArgs0("BPMRT07028", BpmRuntimeErrorMessages.getString("BPMRT07028")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN = newArgs0("BPMRT07029", BpmRuntimeErrorMessages.getString("BPMRT07029")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_INVALID_RUNTIME_SETUP_CONFIGURATION = newArgs0("BPMRT07030", BpmRuntimeErrorMessages.getString("BPMRT07030")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 

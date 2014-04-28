@@ -67,17 +67,17 @@ public class UserDomainUserBean extends IdentifiablePersistentBean implements
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_DOMAIN_LINK_OID.raise(0), 0);
       }
-      
+
       UserDomainUserBean result = (UserDomainUserBean) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL).findByOID(
                   UserDomainUserBean.class, oid);
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_DOMAIN_LINK_OID.raise(oid), oid);
       }
-      
+
       return result;
    }
 
@@ -92,8 +92,9 @@ public class UserDomainUserBean extends IdentifiablePersistentBean implements
                   Predicates.isEqual(FR__DOMAIN, userDomain.getOID()),//
                   Predicates.isEqual(FR__WFUSER, user.getOID())))))
       {
-         throw new PublicException("UserDomainUserLink for '"
-               + userDomain + "' and '" + user + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_USER_DOMAIN_LINK_ALREADY_EXISTS.raise(userDomain,
+                     user));
       }
 
       this.domain = userDomain;
@@ -101,7 +102,7 @@ public class UserDomainUserBean extends IdentifiablePersistentBean implements
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
-   
+
    public IUserDomain getUserDomain()
    {
       return domain;

@@ -20,38 +20,41 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
+
 
 public class RuntimeSetup implements XMLConstants
 {
    private static final Logger trace = LogManager.getLogger(RuntimeSetup.class);
-   
+
    private static final DataCluster[] EMPTY_DATA_CLUSTER_ARRAY = new DataCluster[0];
 
    private DataCluster[] clusters = EMPTY_DATA_CLUSTER_ARRAY;
 
    public static final String RUNTIME_SETUP_PROPERTY = "org.eclipse.stardust.engine.core.runtime.setup";
-   
+
    public static final String PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "ag.carnot.workflow.runtime.setup_definition";
    public static final String RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "org.eclipse.stardust.engine.core.runtime.setup_definition";
    public static final String ENABLED_FOR_PI_STATE = "";
-   
-   
+
+
    public static RuntimeSetup instance()
    {
       RuntimeSetup setup = (RuntimeSetup) Parameters.instance().get(
@@ -66,12 +69,12 @@ public class RuntimeSetup implements XMLConstants
 
       return setup;
    }
-   
+
    public boolean hasDataClusterSetup()
    {
       return clusters != null && clusters.length > 0;
    }
-   
+
    public DataCluster[] getDataClusterSetup()
    {
       return clusters;
@@ -86,7 +89,7 @@ public class RuntimeSetup implements XMLConstants
       {
          prop = PropertyPersistor.findByName(PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
       }
-      
+
       if (null != prop)
       {
          String xml = LargeStringHolder.getLargeString(prop.getOID(),
@@ -95,7 +98,7 @@ public class RuntimeSetup implements XMLConstants
          parse(xml);
       }
    }
-   
+
    protected void parse(String xml)
    {
       List<DataCluster> parsedClusters = new ArrayList();
@@ -177,19 +180,22 @@ public class RuntimeSetup implements XMLConstants
                                     && StringUtils.isNotEmpty(sValueColumn))
                               {
                                  throw new PublicException(
-                                       "A single data-slot must not contain both storage types sValueColumn and nValueColumn.");
+                                       BpmRuntimeError.BPMRT_A_SINGLE_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_SVALUECOLUMN_AND_NVALUECOLUMN
+                                             .raise());
                               }
                               if (StringUtils.isNotEmpty(nValueColumn)
                                     && StringUtils.isNotEmpty(dValueColumn))
                               {
                                  throw new PublicException(
-                                       "A numeric data-slot must not contain both storage types nValueColumn and dValueColumn.");
+                                       BpmRuntimeError.BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN
+                                             .raise());
                               }
                               if (StringUtils.isEmpty(sValueColumn)
                                     && StringUtils.isNotEmpty(dValueColumn))
                               {
                                  throw new PublicException(
-                                       "A data-slot must not contain storage type dValueColumn without storage type sValueColumn.");
+                                       BpmRuntimeError.BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN
+                                             .raise());
                               }
                               if (StringUtils.isNotEmpty(sValueColumn)
                                     && StringUtils.isEmpty(dValueColumn))
@@ -251,7 +257,7 @@ public class RuntimeSetup implements XMLConstants
 
                      Parameters params = Parameters.instance();
                      String schemaName = params.getString(Session.KEY_AUDIT_TRAIL_SCHEMA);
-                     
+
                      parsedClusters.add(new DataCluster(schemaName, dcTableName, dcNode
                            .getAttribute(DATA_CLUSTER_PICOLUMN_ATT), (DataSlot[]) slots
                            .toArray(new DataSlot[0]), (DataClusterIndex[]) indexes
@@ -265,7 +271,8 @@ public class RuntimeSetup implements XMLConstants
       }
       catch (SAXException e)
       {
-         throw new PublicException("Invalid runtime setup configuration.", e);
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_INVALID_RUNTIME_SETUP_CONFIGURATION.raise(), e);
       }
       catch (IOException e)
       {
@@ -273,13 +280,13 @@ public class RuntimeSetup implements XMLConstants
                "Cannot read runtime setup configuration from String.", e);
       }
    }
-      
+
    private Set<DataClusterEnableState> getEnableStates(Element dcNode)
    {
       Set<DataClusterEnableState> enableStates = new HashSet<DataClusterEnableState>();
-      try 
+      try
       {
-         String attribute = dcNode.getAttribute(DATA_CLUSTER_ENABLED_PI_STATE);      
+         String attribute = dcNode.getAttribute(DATA_CLUSTER_ENABLED_PI_STATE);
          StringTokenizer st = new StringTokenizer(attribute, ",");
          while(st.hasMoreTokens())
          {
@@ -293,14 +300,14 @@ public class RuntimeSetup implements XMLConstants
       }
       catch(Exception ignored)
       {}
-      
+
       if(enableStates.isEmpty())
       {
          enableStates.add(DataClusterEnableState.ALL);
       }
       return enableStates;
    }
-   
+
    private DataClusterEnableState getEnableState(String s)
    {
       try
@@ -311,7 +318,7 @@ public class RuntimeSetup implements XMLConstants
       }
       catch(Exception ignored)
       {}
-      
+
       return null;
    }
 }

@@ -65,12 +65,12 @@ public class ProcessQueryPostprocessor
 
    private static final int PREFETCH_N_PARALLEL_DATA = 4;
    private static final int PREFETCH_BATCH_SIZE = 400;
-   
+
    /**
     * Columns in data cluster per slot
     */
    private static final int DATA_CLUSTER_SLOT_COLOUMNS = 3;
-   
+
    private static final SubsetPolicy FIRST_ELEMENT_SUBSET_POLICY = new SubsetPolicy(1);
 
    /**
@@ -603,7 +603,7 @@ public class ProcessQueryPostprocessor
       {
          piSet.add(new Long(((ProcessInstanceBean) piItr.next()).getStartingUserOID()));
       }
-      
+
       int instancesBatchSize = Parameters.instance().getInteger(
             KernelTweakingProperties.USER_PREFETCH_N_PARALLEL_INSTANCES,
             Parameters.instance().getInteger(
@@ -769,7 +769,7 @@ public class ProcessQueryPostprocessor
       {
          // Only fetch INFO for EVENTS which are written on event execution
          logCodeTypePredicate.add(Predicates.andTerm(
-               Predicates.isEqual(LogEntryBean.FR__CODE, LogCode.EVENT.getValue()), 
+               Predicates.isEqual(LogEntryBean.FR__CODE, LogCode.EVENT.getValue()),
                Predicates.isEqual(LogEntryBean.FR__TYPE, LogType.INFO)));
       }
       performPrefetch(LogEntryBean.class, //
@@ -798,7 +798,7 @@ public class ProcessQueryPostprocessor
       ExtendedAccessPathEvaluatorRegistry evaluatorRegistry
          = new ExtendedAccessPathEvaluatorRegistry();
       rtEnv.setEvaluatorRegistry(evaluatorRegistry);
-      
+
       while (instanceItr.hasNext())
       {
          IdentifiablePersistent instance = (IdentifiablePersistent) instanceItr.next();
@@ -821,7 +821,7 @@ public class ProcessQueryPostprocessor
          {
             throw new InternalException("Unsupported descriptor context " + instance);
          }
-         
+
          IProcessDefinition pd = pi.getProcessDefinition();
 
          Pair pdSlice = (Pair) dataPrefetchFilter.get(pd);
@@ -860,7 +860,7 @@ public class ProcessQueryPostprocessor
                            {
                               //this data can be fetched from datacluster
                               dcStructuredDataInClusterPrefetchInfo.addAll(dataPrefetchInfo);
-                              //rember the data and the xpath for which the custom evaluator will be used 
+                              //rember the data and the xpath for which the custom evaluator will be used
                               evaluatorRegistry.register(data, dataXPath, ClusterAwareXPathEvaluator.class);
                            }
                            else
@@ -944,20 +944,20 @@ public class ProcessQueryPostprocessor
          {
             final HashSet<Long> prefetchedPiOids = CollectionUtils.newHashSet();
             final HashSet<Long> prefetchedDataRtOids = CollectionUtils.newHashSet();
-                                 
+
             if( !dcStructuredDataInClusterPrefetchInfo.isEmpty() && !piSet.isEmpty())
             {
                performPrefetchStructuredFromDataCluster(dcStructuredDataInClusterPrefetchInfo,
                      piSet, prefetchNParallelInstances);
             }
-            
+
             if ( !dataRtOidsNonStructured.isEmpty() && !piSet.isEmpty())
             {
                performPrefetchNonStructuredFromDataCluster(dataRtOidsNonStructured,
                      piSet, prefetchNParallelInstances, pd, timeout, prefetchedPiOids,
                      prefetchedDataRtOids);
             }
-            
+
             // prefetching remaining scope PIs to prevent persistence framework from performing an
             // inefficient star fetch during data value load (fixes #3712)
             if (trace.isDebugEnabled())
@@ -974,10 +974,10 @@ public class ProcessQueryPostprocessor
                trace.debug("Prefetching descriptor value(s) for " + piSet.size()
                      + " instance(s) of process " + pd + ".");
             }
-            
+
             // remove any data cluster prefetched data RT oid which will prevent duplicate prefetching
             CollectionUtils.remove(dataRtOidsNonStructured, prefetchedDataRtOids);
-            
+
             if ( !dataRtOidsNonStructured.isEmpty())
             {
                performPrefetchNonStructured(dataRtOidsNonStructured, nData, piSet,
@@ -994,9 +994,9 @@ public class ProcessQueryPostprocessor
          }
       }
    }
-    
+
    private static void performPrefetchStructuredFromDataCluster(
-         List<StructuredDataPrefetchInfo> prefetchInfo, 
+         List<StructuredDataPrefetchInfo> prefetchInfo,
          Collection<Long> piSet,
          int prefetchNParallelInstances)
    {
@@ -1008,17 +1008,17 @@ public class ProcessQueryPostprocessor
       }
 
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      org.eclipse.stardust.engine.core.persistence.jdbc.Session 
-         jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;     
+      org.eclipse.stardust.engine.core.persistence.jdbc.Session
+         jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
       ResultSet baseResultSet = null;
-      
+
       //selected fields
       List<Column> allColumns = new ArrayList<Column>();
       List<FieldRef> defaultFields = SqlUtils.getDefaultSelectFieldList(TypeDescriptor.get(ProcessInstanceBean.class));
       allColumns.addAll(defaultFields);
       //joins to cluster table
       Joins dcJoins = new Joins();
-      List<AliasProjectionResultSetInfo> sdvProjectionInfo 
+      List<AliasProjectionResultSetInfo> sdvProjectionInfo
          = new ArrayList<AliasProjectionResultSetInfo>();
 
       List<List<Long>> piSelections = CollectionUtils.split(new ArrayList<Long>(piSet),
@@ -1029,30 +1029,30 @@ public class ProcessQueryPostprocessor
          ComparisonTerm piSelectionTerm = Predicates.inList(
                ProcessInstanceBean.FR__OID, piSelection.iterator());
          for(StructuredDataPrefetchInfo info: prefetchInfo)
-         {    
+         {
             boolean stringValueColumnMapped = false;
             boolean numberValueColumnMapped = false;
             boolean doubleValueColumnMapped = false;
-            
+
             i++;
             DataCluster cluster = info.getCluster();
             DataSlot slot = info.getDataslot();
             String joinAlias = "dc"+i;
-            
+
             Join dcJoin = new Join(cluster, joinAlias);
             dcJoin = dcJoin.on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
                   .getProcessInstanceColumn());
             dcJoins.add(dcJoin);
-            
+
             List<Column> additionalSelectColumns = new ArrayList<Column>();
             additionalSelectColumns.add(new FieldRef(dcJoin, slot.getOidColumn()));
             additionalSelectColumns.add(new FieldRef(dcJoin, slot.getTypeColumn()));
-                       
+
             if (StringUtils.isNotEmpty(slot.getSValueColumn()))
             {
                stringValueColumnMapped = true;
                additionalSelectColumns.add(new FieldRef(dcJoin, slot.getSValueColumn()));
-            }   
+            }
             if (StringUtils.isNotEmpty(slot.getNValueColumn()))
             {
                numberValueColumnMapped = true;
@@ -1063,13 +1063,13 @@ public class ProcessQueryPostprocessor
                doubleValueColumnMapped = true;
                additionalSelectColumns.add(new FieldRef(dcJoin, slot.getDValueColumn()));
             }
-            
-            //build result set index mapping based on the order of the fields 
+
+            //build result set index mapping based on the order of the fields
             //declared in class StructuredDataValueBean, links have to be declared as last
             int localRsIndex = 0;
             List<Pair<ValueType, Object>> sdvRsMapping = CollectionUtils.newArrayList();
             long xpathOid = info.getXpathOid();
-                     
+
             //REGULAR FIELDS
             //StructuredDataValueBean.FIELD__OID
             addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
@@ -1081,7 +1081,7 @@ public class ProcessQueryPostprocessor
             addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, xpathOid);
             //StructuredDataValueBean.FIELD__TYPE_KEY
             addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
-            //StructuredDataValueBean.FIELD__STRING_VALUE 
+            //StructuredDataValueBean.FIELD__STRING_VALUE
             if(stringValueColumnMapped)
             {
                addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
@@ -1110,20 +1110,20 @@ public class ProcessQueryPostprocessor
             }
             //LINKS TO OTHER PERSISTENT
             //StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-            addCustomIndexEntry(sdvRsMapping, ValueType.GLOBAL_RS_INDEX, 1); 
-            
+            addCustomIndexEntry(sdvRsMapping, ValueType.GLOBAL_RS_INDEX, 1);
+
             allColumns.addAll(additionalSelectColumns);
             AliasProjectionResultSetInfo projectionInfo = new AliasProjectionResultSetInfo(dcJoin, sdvRsMapping);
             sdvProjectionInfo.add(projectionInfo);
          }
-         
+
          //prepare sql query
          Column[] allColumnsAsArray = allColumns.toArray(new Column[allColumns.size()]);
          QueryExtension queryExtension = QueryExtension.where(piSelectionTerm);
          queryExtension.addJoins(dcJoins);
          queryExtension.setSelection(allColumnsAsArray);
          baseResultSet = jdbcSession.executeQuery(ProcessInstanceBean.class, queryExtension);
-         
+
          //create the final result
          MultiplePersistentResultSet extendedResultSet = (MultiplePersistentResultSet) MultiplePersistentResultSet
          .createPersistentProjector(ProcessInstanceBean.class,
@@ -1131,22 +1131,20 @@ public class ProcessQueryPostprocessor
                allColumnsAsArray, true /* this will force loading all persistent objects */);
          for(AliasProjectionResultSetInfo info: sdvProjectionInfo)
          {
-            AliasProjectionResultSet projector 
+            AliasProjectionResultSet projector
                = AliasProjectionResultSet.createAliasProjector(StructuredDataValueBean.class, info.getJoin(), baseResultSet, allColumnsAsArray, info.getMapping());
             extendedResultSet.add(projector);
          }
-         
+
          ResultIterator iterator = new ResultSetIterator(jdbcSession,
                ProcessInstanceBean.class, true, extendedResultSet, 0, -1, null, false);
          while (iterator.hasNext())
          {
             ProcessInstanceBean pi = (ProcessInstanceBean) iterator.next();
-            System.out.println(pi);
-         
-         }        
+         }
       }
    }
-   
+
    private static void performPrefetchNonStructuredFromDataCluster(
          final Map<Long, IData> dataRtOids, Collection<Long> piSet,
          int prefetchNParallelInstances, final IProcessDefinition pd, int timeout,
@@ -1158,7 +1156,7 @@ public class ProcessQueryPostprocessor
       {
          return;
       }
-      
+
       // get all clusters which contain requested primitive data
       ProcessInstanceQuery dummyQuery = ProcessInstanceQuery.findAll();
       FilterAndTerm andTerm = dummyQuery.getFilter();
@@ -1178,18 +1176,18 @@ public class ProcessQueryPostprocessor
             continue;
          }
       }
-      
+
       final EvaluationContext evaluationContext = QueryServiceUtils
             .getDefaultEvaluationContext();
       final ParsedQuery parsedQuery = new ProcessInstanceQueryEvaluator(dummyQuery,
             evaluationContext).parseQuery();
-      
+
       final QueryExtension queryExtension = new QueryExtension();
       final List<Column> additionalSelection = CollectionUtils.newArrayList(dataRtOids
             .size() * DATA_CLUSTER_SLOT_COLOUMNS);
       final Map<ITableDescriptor, List<Pair<ValueType, Object>>> descrToJoinAssociator = CollectionUtils
             .newHashMap();
-      
+
       // add joins if it does not join the data value table
       boolean clusterMatchFound = false;
       for (Join join : parsedQuery.getPredicateJoins())
@@ -1205,7 +1203,7 @@ public class ProcessQueryPostprocessor
             {
                IData data = entry.getValue();
                Long dataRtOid = entry.getKey();
-               
+
                DataSlot slot = cluster.getSlot(data.getId(), "");
                if (slot != null)
                {
@@ -1213,7 +1211,7 @@ public class ProcessQueryPostprocessor
                         join, additionalSelection);
                   slotCount++;
                   prefetchedDataRtOids.add(dataRtOid);
-                  
+
                   List<Pair<ValueType, Object>> fieldIndexValueList = buildCustomResultSetIndexMapping(
                         data, dataRtOid, slot);
 
@@ -1226,7 +1224,7 @@ public class ProcessQueryPostprocessor
             queryExtension.addJoin(join);
          }
       }
-      
+
       if ( !clusterMatchFound)
       {
          // prefetching by cluster table not possible
@@ -1235,26 +1233,26 @@ public class ProcessQueryPostprocessor
 
          return;
       }
-      
+
       List<List<Long>> splittedList = CollectionUtils.split(new ArrayList<Long>(piSet),
             prefetchNParallelInstances);
-      
+
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
       {
          org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
-         
+
          // This term reference will be used for later modification of its value expression
          ComparisonTerm piTermTemplate = Predicates.inList(
                ProcessInstanceBean.FR__OID, Collections.EMPTY_LIST.iterator());
          queryExtension.setWhere(piTermTemplate);
-         
+
          List<Column> newSelection = CollectionUtils.<Column> newArrayList(SqlUtils
                .getDefaultSelectFieldList(TypeDescriptor.get(ProcessInstanceBean.class)));
          newSelection.addAll(additionalSelection);
          queryExtension.setSelection((Column[]) newSelection
                .toArray(new Column[newSelection.size()]));
-         
+
          for (List<Long> piSubList : splittedList)
          {
             List innerOidList = (List) piTermTemplate.getValueExpr();
@@ -1264,19 +1262,19 @@ public class ProcessQueryPostprocessor
                   || queryExtension.isEngineDistinct();
             ResultSet resultSet = jdbcSession.executeQuery(ProcessInstanceBean.class,
                   queryExtension);
-            
+
             if ( !additionalSelection.isEmpty())
             {
                // Since there exist some additional persistent objects to be fetched eagerly
                // the original result set has to be wrapped by an MultiPersistenResultSet.
-               
+
                Column[] selectionList = queryExtension.getSelection();
                ResultSet baseResultSet = resultSet;
                resultSet = MultiplePersistentResultSet.createPersistentProjector(
                      ProcessInstanceBean.class,
                      TypeDescriptor.get(ProcessInstanceBean.class), baseResultSet,
                      selectionList, true /* this will force loading all persistent objects */);
-               
+
                for (Entry<ITableDescriptor, List<Pair<ValueType, Object>>> projectorDescr : descrToJoinAssociator.entrySet())
                {
                   AliasProjectionResultSet projector = AliasProjectionResultSet
@@ -1284,8 +1282,8 @@ public class ProcessQueryPostprocessor
                               baseResultSet, selectionList, projectorDescr.getValue());
                   ((MultiplePersistentResultSet) resultSet).add(projector);
                }
-            }            
-            
+            }
+
             ResultIterator iterator = new ResultSetIterator(jdbcSession,
                   ProcessInstanceBean.class, distinct, resultSet, 0, -1, null, false);
 
@@ -1299,7 +1297,7 @@ public class ProcessQueryPostprocessor
             innerOidList.clear();
          }
       }
-      
+
       return;
    }
 
@@ -1309,7 +1307,7 @@ public class ProcessQueryPostprocessor
       List<Pair<ValueType, Object>> fieldIndexValueList = CollectionUtils.newArrayList();
 
       // init value mapper in order the persistent mapper will provide it
-      
+
       // fields
       // oid
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 1);
@@ -1317,7 +1315,7 @@ public class ProcessQueryPostprocessor
       addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, Long.valueOf(data.getModel().getModelOID()));
       // data
       addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, dataRtOid);
-      
+
       // column double_value does not need to be handled as this is used for sorting only
       if (StringUtils.isNotEmpty(slot.getSValueColumn()))
       {
@@ -1335,11 +1333,11 @@ public class ProcessQueryPostprocessor
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 3);
       // type_key
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 2);
-      
+
       // links
       // processInstance
       addCustomIndexEntry(fieldIndexValueList, ValueType.GLOBAL_RS_INDEX, 1);
-      
+
       return fieldIndexValueList;
    }
 
@@ -1348,9 +1346,9 @@ public class ProcessQueryPostprocessor
    {
       fieldIndexValueList.add(new Pair<ValueType, Object>(valueType, object));
    }
-   
+
    private static ITableDescriptor addDataClusterSlot(DataCluster cluster, DataSlot slot,
-         int usedSlotCnt, final Join join, 
+         int usedSlotCnt, final Join join,
          List<Column> additionalSelection)
    {
       TableAliasDecorator typeDescr = new TableAliasDecorator(
@@ -1376,7 +1374,7 @@ public class ProcessQueryPostprocessor
       additionalSelection.add(Functions.constantExpression(
             typeKey.toString(), typeDescr.getTableAlias() + "."
                   + DataValueBean.FIELD__TYPE_KEY));
-      
+
       // xxx_value
       if (StringUtils.isNotEmpty(slot.getSValueColumn()))
       {
@@ -1397,7 +1395,7 @@ public class ProcessQueryPostprocessor
 
       return typeDescr;
    }
-   
+
    private static void performPrefetchNonStructured(Map<Long, IData> dataRtOids, int nData,
          Collection<Long> piSet, int timeout, int prefetchNParallelData,
          int prefetchNParallelInstances, double prefetchDataDiscriminationThreshold)
@@ -1445,8 +1443,8 @@ public class ProcessQueryPostprocessor
          performPrefetch(DataValueBean.class, QueryExtension.where(piTermTemplate),
                piTermTemplate, piSet, false, timeout, prefetchNParallelInstances);
       }
-      
-      
+
+
    }
 
    private static void performPrefetchStructured(Set dataRtOids, int nData, Collection piSet, int timeout,  int prefetchNParallelData, int prefetchNParallelInstances, double prefetchDataDiscriminationThreshold)
@@ -1581,7 +1579,7 @@ public class ProcessQueryPostprocessor
    {
       return (eventTypes & eventType) == eventType;
    }
-   
+
    private static class AliasProjectionResultSetInfo
    {
       private final Join join;
@@ -1597,7 +1595,7 @@ public class ProcessQueryPostprocessor
       {
          return join;
       }
-      
+
       public List<Pair<ValueType, Object>> getMapping()
       {
          return mapping;

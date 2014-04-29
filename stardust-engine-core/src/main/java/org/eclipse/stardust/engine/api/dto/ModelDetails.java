@@ -402,7 +402,6 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       public XSDSchema locateSchema(XSDSchema xsdSchema, String namespaceURI,
             String rawSchemaLocationURI, String resolvedSchemaLocationURI)
       {
-         System.err.println("Locating schema: " + rawSchemaLocationURI);
          if (rawSchemaLocationURI.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
          {
             String typeId = rawSchemaLocationURI.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
@@ -424,7 +423,6 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
                }
             }
          }
-         System.err.println("Schema not found: " + namespaceURI);
          return null;
       }
    }

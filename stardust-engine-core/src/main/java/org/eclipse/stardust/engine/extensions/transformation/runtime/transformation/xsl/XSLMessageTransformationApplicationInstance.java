@@ -86,17 +86,17 @@ public class XSLMessageTransformationApplicationInstance implements
 		Application application = activityInstance.getActivity()
 				.getApplication();
 		ModelManager modelManager = ModelManagerFactory.getCurrent();
-        IModel model = modelManager.findModel(activityInstance.getModelOID());     
-		
+        IModel model = modelManager.findModel(activityInstance.getModelOID());
+
 		List allInDataMappings = activityInstance.getActivity().getApplicationContext(
 				PredefinedConstants.APPLICATION_CONTEXT).getAllInDataMappings();
 		if (allInDataMappings.size() == 0)
         {
 			throw new RuntimeException("Could not find IN data mapping");
         }
-        
+
 		DataMapping dataMapping = (DataMapping) allInDataMappings.get(0);
-		
+
 		IData data = model.findData(
 				dataMapping.getDataId());
 		IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
@@ -113,7 +113,7 @@ public class XSLMessageTransformationApplicationInstance implements
         {
 			throw new RuntimeException("Could not find OUT data mapping");
         }
-		
+
 		dataMapping = (DataMapping) allOutDataMappings.get(0);
 		data = model.findData(dataMapping.getDataId());
 		xPathMap = DataXPathMap.getXPathMap(data);
@@ -154,7 +154,7 @@ public class XSLMessageTransformationApplicationInstance implements
 		// Use the DocumentBuilder to parse the XSL stylesheet.
 
 		try
-		{			
+		{
 			String xslCode = (String) (application
 			.getAttribute(Constants.XSL_STRING));
 			InputStream stringReader = new ByteArrayInputStream(xslCode.getBytes("UTF8"));
@@ -212,7 +212,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void setInAccessPointValue(String name, Object value)
 	{
@@ -248,7 +248,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void cleanup()
 	{
@@ -256,7 +256,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param outDataTypes
 	 * @return
 	 * @throws InvocationTargetException
@@ -280,7 +280,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @param allowReturnValue
 	 * @return
@@ -293,7 +293,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -313,7 +313,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public Map invoke(Set outDataTypes) throws InvocationTargetException
 	{
@@ -344,13 +344,11 @@ public class XSLMessageTransformationApplicationInstance implements
 
 			Document inputDocument = new Document((Element)nodes[0]);
 
-			System.out.println("Input document: " + inputDocument);
-
 			org.w3c.dom.Document xmlDoc = DOMConverter.convert(inputDocument,
 					domImpl);
 
 			//printXML(xmlDoc);
-			
+
 			// Use the DOM Document to define a DOMSource object.
 
 			DOMSource xmlDomSource = new DOMSource(xmlDoc);
@@ -369,9 +367,7 @@ public class XSLMessageTransformationApplicationInstance implements
 			transformer.transform(xmlDomSource, domResult);
 			Document outputDocument = DOMConverter
 					.convert((org.w3c.dom.Document) domResult.getNode());
-			
-			System.out.println("Output document: " + outputDocument);
-			
+
 			Map outputMessage = (Map) outputStructuredDataConverter
 			   .toCollection(outputDocument.getRootElement(), "", true);
 
@@ -399,7 +395,7 @@ public class XSLMessageTransformationApplicationInstance implements
 	/*private void printXML(org.w3c.dom.Document xmlDoc) {
         try {
         	System.out.println("XML Input Doc:");
-			Transformer transformer = TransformerFactory.newInstance().newTransformer();			
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
         	TransformerFactory.newInstance().newTransformer().transform( new DOMSource(xmlDoc), new StreamResult(System.out));
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
@@ -407,7 +403,7 @@ public class XSLMessageTransformationApplicationInstance implements
 			e.printStackTrace();
 		} catch (TransformerFactoryConfigurationError e) {
 			e.printStackTrace();
-		}		
+		}
 	}*/
 
 	private org.w3c.dom.DOMImplementation getDOMImplementation()

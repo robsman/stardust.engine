@@ -178,7 +178,7 @@ public class TypeDeclarationUtils
          {
             XSDImport xsdImport = i.next();
             String importNameSpace = xsdImport.getNamespace();
-            if (nameSpace.equals(importNameSpace))
+            if (CompareHelper.areEqual(nameSpace, importNameSpace))
             {
                return xsdImport;
             }

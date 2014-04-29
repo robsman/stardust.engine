@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.*;
 
 import javax.xml.namespace.QName;
@@ -36,8 +33,6 @@ import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.util.XSDResourceImpl;
 import org.eclipse.xsd.util.XSDSchemaLocator;
 
-
-
 /**
  * @author ubirkemeyer
  * @version $Revision$
@@ -52,7 +47,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    final List topLevelRoles;
    final List topLevelOrganizations;
    final List data;
-   final List typeDeclarations;
+   final List<TypeDeclaration> typeDeclarations;
 
    private final List unmodifiableProcesses;
    private final List unmodifiableRoles;
@@ -60,17 +55,19 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    private final List unmodifiableTopLevelRoles;
    private final List unmodifiableTopLevelOrganizations;
    private final List unmodifiableData;
-   private final List unmodifiableTypeDeclarations;
+   private final List<TypeDeclaration> unmodifiableTypeDeclarations;
 
    final Map indexedPDs;
    final Map indexedRoles;
    final Map indexedOrgs;
    final Map indexedData;
-   final Map indexedTypeDecls;
+   final Map<String, TypeDeclaration> indexedTypeDecls;
 
    private Set<QualityAssuranceCode> qualityAssuranceCodes;
 
    private final Boolean alive;
+
+   private transient boolean resolved = false;
 
    public ModelDetails(IModel model)
    {
@@ -94,26 +91,21 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
 
       alive = null;
 
-      ModelElementList definitions = model.getProcessDefinitions();
-      for (int i = 0, len = definitions.size(); i < len; i++)
+      for (IProcessDefinition process : model.getProcessDefinitions())
       {
-         IProcessDefinition process = (IProcessDefinition) definitions.get(i);
-
-         ProcessDefinition processDefinition = (ProcessDefinition) DetailsFactory.create(
-               process, IProcessDefinition.class, ProcessDefinitionDetails.class);
+         ProcessDefinition processDefinition = (ProcessDefinition) DetailsFactory.create(process,
+               IProcessDefinition.class, ProcessDefinitionDetails.class);
          processes.add(processDefinition);
          indexedPDs.put(composeId(processDefinition.getId()), processDefinition);
       }
 
-      ModelElementList participants = model.getParticipants();
-      for (int i = 0, len = participants.size(); i < len; i++)
+      ModelElementList<IModelParticipant> participants = model.getParticipants();
+      for (IModelParticipant participant : participants)
       {
-         IModelParticipant participant = (IModelParticipant) participants.get(i);
-
          if (participant instanceof IRole)
          {
-            Role details = (Role) DetailsFactory.create(participant, IRole.class,
-                              RoleDetails.class);
+            Role details = (Role) DetailsFactory.create(participant,
+                  IRole.class, RoleDetails.class);
             roles.add(details);
             indexedRoles.put(composeId(details.getId()), details);
             if (details.getAllSuperOrganizations().size() == 0)
@@ -134,34 +126,29 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          }
       }
 
-      ModelElementList dataList = model.getData();
-      for (int i = 0, len = dataList.size(); i < len; i++)
+      for (IData data : model.getData())
       {
-         IData oneData = (IData) dataList.get(i);
-
-         Data dataDetails = (Data) DetailsFactory.create(oneData, IData.class,
-               DataDetails.class);
-         data.add(dataDetails);
+         Data dataDetails = (Data) DetailsFactory.create(data,
+               IData.class, DataDetails.class);
+         this.data.add(dataDetails);
          indexedData.put(composeId(dataDetails.getId()), dataDetails);
       }
 
-      ModelElementList declarations = model.getTypeDeclarations();
-      for (int i = 0, len = declarations.size(); i < len; i++)
+      for (ITypeDeclaration typeDeclaration : model.getTypeDeclarations())
       {
-         ITypeDeclaration typeDeclaration = (ITypeDeclaration) declarations.get(i);
-
-         TypeDeclaration typeDeclarationDetails = (TypeDeclaration) DetailsFactory.create(typeDeclaration, ITypeDeclaration.class, TypeDeclarationDetails.class);
+         TypeDeclaration typeDeclarationDetails = (TypeDeclaration) DetailsFactory.create(typeDeclaration,
+               ITypeDeclaration.class, TypeDeclarationDetails.class);
          typeDeclarations.add(typeDeclarationDetails);
          indexedTypeDecls.put(composeId(typeDeclarationDetails.getId()), typeDeclarationDetails);
       }
 
       IQualityAssurance qualityAssurance = model.getQualityAssurance();
-      if(qualityAssurance != null)
+      if (qualityAssurance != null)
       {
-         List<IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
-         for(IQualityAssuranceCode code : allCodes)
+         for (IQualityAssuranceCode code : qualityAssurance.getAllCodes())
          {
-            QualityAssuranceCode qualityAssuranceCodeDetails = DetailsFactory.create(code, IQualityAssuranceCode.class, QualityAssuranceCodeDetails.class);
+            QualityAssuranceCode qualityAssuranceCodeDetails = DetailsFactory.create(code,
+                  IQualityAssuranceCode.class, QualityAssuranceCodeDetails.class);
             qualityAssuranceCodes.add(qualityAssuranceCodeDetails);
          }
       }
@@ -172,7 +159,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       unmodifiableOrganizations = Collections.unmodifiableList(organizations);
       unmodifiableTopLevelOrganizations = Collections.unmodifiableList(topLevelOrganizations);
       unmodifiableTopLevelRoles = Collections.unmodifiableList(topLevelRoles);
-      unmodifiableTypeDeclarations = Collections.unmodifiableList(typeDeclarations);
+      this.unmodifiableTypeDeclarations = Collections.unmodifiableList(typeDeclarations);
    }
 
    protected ModelDetails(ModelDetails template, Boolean alive)
@@ -199,7 +186,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       unmodifiableOrganizations = Collections.unmodifiableList(organizations);
       unmodifiableTopLevelOrganizations = Collections.unmodifiableList(topLevelOrganizations);
       unmodifiableTopLevelRoles = Collections.unmodifiableList(topLevelRoles);
-      unmodifiableTypeDeclarations = Collections.unmodifiableList(typeDeclarations);
+      unmodifiableTypeDeclarations = template.unmodifiableTypeDeclarations;
 
       qualityAssuranceCodes = template.qualityAssuranceCodes;
 
@@ -311,13 +298,15 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       return "{" + getId() + "}" + id;
    }
 
-   public List /*<TypeDeclaration>*/ getAllTypeDeclarations()
+   public List<TypeDeclaration> getAllTypeDeclarations()
    {
+      resolve();
       return unmodifiableTypeDeclarations;
    }
 
    public TypeDeclaration getTypeDeclaration(String id)
    {
+      resolve();
       return (TypeDeclaration) indexedTypeDecls.get(composeDefaultId(id));
    }
 
@@ -347,41 +336,36 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       return null;
    }
 
-   private void writeObject(ObjectOutputStream stream) throws IOException
+   /**
+    * Resolve the embedded schemas.
+    */
+   private void resolve()
    {
-      // Nothing special on writing.
-      stream.defaultWriteObject();
-   }
-
-   private void readObject(ObjectInputStream stream) throws IOException,
-         ClassNotFoundException
-   {
-      // Call even if there is no default serializable fields.
-      stream.defaultReadObject();
-
-      // We must now resolve the embedded schemas.
-
-      // Step1: create a dummy resource and set the schema locator
-      XSDResourceImpl schemaResource = new XSDResourceImpl(URI.createURI(XMLConstants.NS_CARNOT_WORKFLOWMODEL_31));
-      schemaResource.eAdapters().add(new SchemaLocatorAdapter(this));
-      ResourceSetImpl resourceSet = new ResourceSetImpl();
-      resourceSet.getResources().add(schemaResource);
-
-      // Step2: set the resource and schema location on the embedded schemas to force resolving
-      for (int i = 0; i < typeDeclarations.size(); i++)
+      if (!resolved)
       {
-         TypeDeclarationDetails decl = (TypeDeclarationDetails) typeDeclarations.get(i);
-         XpdlType type = decl.getXpdlType();
-         if (type instanceof SchemaTypeDetails)
+         // Step1: create a dummy resource and set the schema locator
+         XSDResourceImpl schemaResource = new XSDResourceImpl(URI.createURI(XMLConstants.NS_CARNOT_WORKFLOWMODEL_31));
+         schemaResource.eAdapters().add(new SchemaLocatorAdapter(this));
+         ResourceSetImpl resourceSet = new ResourceSetImpl();
+         resourceSet.getResources().add(schemaResource);
+
+         // Step2: set the resource and schema location on the embedded schemas to force resolving
+         for (int i = 0; i < unmodifiableTypeDeclarations.size(); i++)
          {
-            SchemaTypeDetails schema = (SchemaTypeDetails) type;
-            XSDSchema xsdSchema = schema.getSchema();
-            if (xsdSchema != null)
+            TypeDeclarationDetails decl = (TypeDeclarationDetails) unmodifiableTypeDeclarations.get(i);
+            XpdlType type = decl.getXpdlType();
+            if (type instanceof SchemaTypeDetails)
             {
-               ((InternalEObject) xsdSchema).eSetResource(schemaResource, null);
-               xsdSchema.setSchemaLocation(StructuredDataConstants.URN_INTERNAL_PREFIX + decl.getId());
+               SchemaTypeDetails schema = (SchemaTypeDetails) type;
+               XSDSchema xsdSchema = schema.getSchema();
+               if (xsdSchema != null)
+               {
+                  ((InternalEObject) xsdSchema).eSetResource(schemaResource, null);
+                  xsdSchema.reset();
+               }
             }
          }
+         resolved = true;
       }
    }
 
@@ -418,13 +402,13 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       public XSDSchema locateSchema(XSDSchema xsdSchema, String namespaceURI,
             String rawSchemaLocationURI, String resolvedSchemaLocationURI)
       {
-//         System.out.println("Locating schema: " + rawSchemaLocationURI);
+         System.err.println("Locating schema: " + rawSchemaLocationURI);
          if (rawSchemaLocationURI.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
          {
             String typeId = rawSchemaLocationURI.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
-            for (int i = 0; i < model.typeDeclarations.size(); i++)
+            for (int i = 0; i < model.unmodifiableTypeDeclarations.size(); i++)
             {
-               TypeDeclarationDetails declaration = (TypeDeclarationDetails) model.typeDeclarations.get(i);
+               TypeDeclarationDetails declaration = (TypeDeclarationDetails) model.unmodifiableTypeDeclarations.get(i);
                if (typeId.equals(declaration.getId()))
                {
                   XpdlType type = declaration.getXpdlType();
@@ -440,6 +424,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
                }
             }
          }
+         System.err.println("Schema not found: " + namespaceURI);
          return null;
       }
    }

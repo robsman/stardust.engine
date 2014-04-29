@@ -117,7 +117,11 @@
 
          <xsl:copy-of select="x1:ExternalPackages|xpdl:ExternalPackages"/>
          <xsl:copy-of select="x1:Script|xpdl:Script"/>
-         <xsl:copy-of select="x1:TypeDeclarations|xpdl:TypeDeclarations"/>
+
+         <xpdl:TypeDeclarations>
+         	<xsl:copy-of select="x1:TypeDeclarations/x1:TypeDeclaration|xpdl:TypeDeclarations/xpdl:TypeDeclaration"/>
+         </xpdl:TypeDeclarations>
+
          <xsl:copy-of select="c:qualityControl"/>
 
          <xsl:for-each select="$Package">

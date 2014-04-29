@@ -34,6 +34,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
+import org.eclipse.stardust.engine.core.model.beans.SchemaTypeBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.CustomURIConverter;
@@ -54,7 +55,7 @@ public class StructuredTypeRtUtils
    private static final String EXTERNAL_SCHEMA_MAP = "com.infinity.bpm.rt.data.structured.ExternalSchemaMap";
 
    private static final XSDResourceFactoryImpl XSD_RESOURCE_FACTORY = new XSDResourceFactoryImpl();
-   
+
    public static ThreadLocal<URIConverter> uriConverters = new ThreadLocal<URIConverter>()
    {
       @Override
@@ -75,7 +76,7 @@ public class StructuredTypeRtUtils
             return new ClientXPathMap(getAllXPaths(ref));
          }
          String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         
+
          IModel model = (IModel) data.getModel();
          ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
          if (typeDeclaration == null)
@@ -90,7 +91,7 @@ public class StructuredTypeRtUtils
          String metadataComplexTypeName = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          IModel model = (IModel) data.getModel();
          ITypeDeclaration metadataTypeDeclaration = model.findTypeDeclaration(metadataComplexTypeName);
-         
+
          XSDNamedComponent metadataXsdComponent = null;
          if (metadataTypeDeclaration != null)
          {
@@ -104,7 +105,7 @@ public class StructuredTypeRtUtils
 
    /**
     * Retrieves the XPath map corresponding to the data argument.
-    * 
+    *
     * @param model the model containing the type declaration the data is referring to.
     * @param data the data object for which we want to retrive the xpath map.
     * @return the XPath map (may be empty).
@@ -127,7 +128,7 @@ public class StructuredTypeRtUtils
          // build-in schema
          String metadataComplexTypeName = (String)data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          TypeDeclaration metadataTypeDeclaration = model.getTypeDeclaration(metadataComplexTypeName);
-         
+
          XSDNamedComponent metadataXsdComponent = null;
          if (metadataTypeDeclaration != null)
          {
@@ -161,7 +162,7 @@ public class StructuredTypeRtUtils
       throw new InternalException("Could not find predefined XPaths for data type '"
             + dataTypeId + "'. Check if schema providers are configured correctly.");
    }
-   
+
    public static Set<TypedXPath> getAllXPaths(IModel model, String declaredTypeId)
    {
       if (declaredTypeId != null && declaredTypeId.startsWith("typeDeclaration:{"))
@@ -181,7 +182,7 @@ public class StructuredTypeRtUtils
       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(declaredTypeId);
       return getAllXPaths(model, typeDeclaration);
    }
-   
+
    public static Set<TypedXPath> getAllXPaths(IReference reference)
    {
       IExternalPackage pkg = reference.getExternalPackage();
@@ -199,7 +200,7 @@ public class StructuredTypeRtUtils
       }
       return Collections.emptySet();
    }
-   
+
    public static Set<TypedXPath> getAllXPaths(Model model, TypeDeclaration typeDeclaration)
    {
       XpdlType xpdlType = typeDeclaration.getXpdlType();
@@ -208,10 +209,10 @@ public class StructuredTypeRtUtils
       {
          // ExternalReference
          ExternalReference externalReference = (ExternalReference)xpdlType;
-         
+
          XSDSchema xsdSchema = externalReference.getSchema(model);
          return XPathFinder.findAllXPaths(xsdSchema, externalReference.getXref(), false);
-      } 
+      }
       else if (xpdlType instanceof SchemaType)
       {
          // Internally defined type
@@ -234,7 +235,7 @@ public class StructuredTypeRtUtils
          // ExternalReference
          ExternalReference externalReference = (ExternalReference)xpdlType;
          return externalReference.getSchema(model);
-      } 
+      }
       else if (xpdlType instanceof SchemaType)
       {
          // Internally defined type
@@ -250,70 +251,43 @@ public class StructuredTypeRtUtils
 
    public static Set<TypedXPath> getAllXPaths(IModel model, ITypeDeclaration typeDeclaration)
    {
+      XSDSchema xsdSchema = getXSDSchema(model, typeDeclaration);
       IXpdlType xpdlType = typeDeclaration.getXpdlType();
-
-      if (xpdlType instanceof IExternalReference)
-      {
-         // ExternalReference
-         IExternalReference externalReference = (IExternalReference)xpdlType;
-         
-         XSDSchema xsdSchema = externalReference.getSchema(model);
-         // (fh) moved below call to synchronized method ExternalReferenceBean.getExternalSchema
-         // patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
-         return XPathFinder.findAllXPaths(xsdSchema, externalReference.getXref(), false);
-      } 
-      else if (xpdlType instanceof ISchemaType)
-      {
-         // Internally defined type
-         return XPathFinder.findAllXPaths(((ISchemaType)xpdlType).getSchema(), typeDeclaration.getId(), true);
-      }
-      else
-      {
-         throw new RuntimeException(
-               "Neither external reference not schema type is set in the type declaration for '"
-                     + typeDeclaration.getId() + "'.");
-      }
+      return XPathFinder.findAllXPaths(xsdSchema, xpdlType instanceof IExternalReference
+            ? ((IExternalReference) xpdlType).getXref() : typeDeclaration.getId(), xpdlType instanceof ISchemaType);
    }
 
+   /**
+    *
+    * @param model
+    * @param typeDeclaration
+    * @return
+    * @throws RuntimeException if schema could not be found.
+    */
    public static XSDSchema getXSDSchema(IModel model, ITypeDeclaration typeDeclaration)
    {
-      IXpdlType xpdlType = typeDeclaration.getXpdlType();
-      
-      if (xpdlType instanceof IExternalReference)
-      {
-         // ExternalReference
-         IExternalReference externalReference = (IExternalReference)xpdlType;
-         
-         XSDSchema xsdSchema = externalReference.getSchema(model);
-         // (fh) moved below call to synchronized method ExternalReferenceBean.getExternalSchema
-         // patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
-         return xsdSchema;
-      } 
-      else if (xpdlType instanceof ISchemaType)
-      {
-         // Internally defined type
-         return ((ISchemaType)xpdlType).getSchema();
-      }
-      else
+      XSDSchema schema = getSchema(model, typeDeclaration);
+      if (schema == null)
       {
          throw new RuntimeException(
                "Neither external reference not schema type is set in the type declaration for '"
                      + typeDeclaration.getId() + "'.");
       }
+      return schema;
    }
-   
+
    public static void patchAnnotations(XSDSchema xsdSchema, Element externalAnnotations)
    {
       if (externalAnnotations == null)
       {
          return;
       }
-      
+
       NodeList appInfoNodes = externalAnnotations.getElementsByTagNameNS(DefaultXMLReader.NS_XSD_2001, XSDConstants.APPINFO_ELEMENT_TAG);
       for (int i = 0; i < appInfoNodes.getLength(); i++)
       {
          Element appInfo = (Element)appInfoNodes.item(i);
-         
+
          String sourcePath = appInfo.getAttribute(XSDConstants.SOURCE_ATTRIBUTE);
          if (!StringUtils.isEmpty(sourcePath))
          {
@@ -326,14 +300,14 @@ public class StructuredTypeRtUtils
    {
       String [] sourcePathParts = sourcePath.split("/");
       XSDComponent component = findElementOrTypeDeclaration(xsdSchema, sourcePathParts[0], false);
-      
+
       if (component != null)
       {
          for (int i = 1; i < sourcePathParts.length; i++)
          {
             component = findDefinitionPart(component, sourcePathParts[i]);
          }
-         
+
          if (component != null)
          {
             patchComponentAnnotations(component, childNodes);
@@ -446,12 +420,12 @@ public class StructuredTypeRtUtils
             // <complexType/>
             return null;
          }
-         
+
          if (xsdComplexTypeContent instanceof XSDParticle)
          {
             XSDParticle xsdParticle = (XSDParticle)xsdComplexTypeContent;
             return findComponent(xsdParticle, name);
-         } 
+         }
          else if (xsdComplexTypeContent instanceof XSDSimpleTypeDefinition)
          {
             // ignore, since this was already explored by recursion in getBigDataType()
@@ -467,7 +441,7 @@ public class StructuredTypeRtUtils
    private static XSDComponent findComponent(XSDParticle xsdParticle, String name)
    {
       XSDTerm xsdTerm = xsdParticle.getTerm();
-      
+
       if (xsdTerm instanceof XSDModelGroup)
       {
          XSDModelGroup xsdModelGroup = (XSDModelGroup)xsdTerm;
@@ -475,7 +449,7 @@ public class StructuredTypeRtUtils
          for (Iterator elements = xsdModelGroup.getContents().iterator(); elements.hasNext(); )
          {
             XSDParticle childParticle = (XSDParticle) elements.next();
-            
+
             if (childParticle.getTerm() instanceof XSDElementDeclaration)
             {
                XSDElementDeclaration xsdElementDeclaration = (XSDElementDeclaration)childParticle.getTerm();
@@ -495,7 +469,7 @@ public class StructuredTypeRtUtils
          // ignore wildcards, no specific type information can be retrieved
          return null;
       }
-      else 
+      else
       {
          throw new RuntimeException("Unsupported XSD: "+xsdTerm);
       }
@@ -522,7 +496,7 @@ public class StructuredTypeRtUtils
       {
          throw new RuntimeException("Unsupported type '"+component.getClass().getName()+"'");
       }
-      
+
       if (annotation == null)
       {
          annotation = XSDFactory.eINSTANCE.createXSDAnnotation();
@@ -591,8 +565,8 @@ public class StructuredTypeRtUtils
 
    private static void patchElement(Element originalElement, Element patchElement)
    {
-      // for every element, overwrite the attributes, if it has no child elements 
-      // and the trimmed text content is not empty, overwrite the content of 
+      // for every element, overwrite the attributes, if it has no child elements
+      // and the trimmed text content is not empty, overwrite the content of
       // the patched element, recurse for children
 
       NamedNodeMap attributes = patchElement.getAttributes();
@@ -603,7 +577,7 @@ public class StructuredTypeRtUtils
       }
 
       NodeList patchChildren = patchElement.getElementsByTagName("*");
-      
+
       String patchElementContent = findNodeValue(patchElement);
       if (patchChildren.getLength() == 0 && !StringUtils.isEmpty(patchElementContent))
       {
@@ -628,7 +602,7 @@ public class StructuredTypeRtUtils
 
       }
    }
-   
+
    private static void replaceWithText(Element parentElement, String text)
    {
       NodeList nl = parentElement.getChildNodes();
@@ -660,9 +634,9 @@ public class StructuredTypeRtUtils
 
    private static Element findExactlyOneChildElement(Element parent, String namespaceUri, String localName)
    {
-      // TODO (ab) should be getElementsByTagNameNS, but the namespace coming from the patch is 
+      // TODO (ab) should be getElementsByTagNameNS, but the namespace coming from the patch is
       // the IPP namespace, elements can not be found this way, so try both
-      
+
       NodeList nl = parent.getElementsByTagName(localName);
       if (nl.getLength() == 1)
       {
@@ -678,7 +652,7 @@ public class StructuredTypeRtUtils
       }
       return null;
    }
-   
+
    public static XSDSchema loadExternalSchema(String schemaLocation)
    {
       try
@@ -690,13 +664,13 @@ public class StructuredTypeRtUtils
          throw new RuntimeException(e);
       }
    }
-   
+
    /**
     * Returns the first schema in the document at the specified location that matches the namespaceURI.
     * If there is no such schema, then it returns the first schema that has an import for the namespaceURI.
     * If the namespaceURI is null then the first schema in the document is returned.
-    * 
-    * @param location the document location either as an absolute 
+    *
+    * @param location the document location either as an absolute
     * @param namespaceURI the namespace to match the schema agains or null if the first schema should be returned
     * @param customMap - a map used for customizing the {@link CustomURIConverter}, it will be passed to the
     * {@link CustomURIConverter} via {@link CustomURIConverter#setCustomMap(Map)}, can be null
@@ -723,7 +697,7 @@ public class StructuredTypeRtUtils
 	  {
 		  return o instanceof XSDSchema ? (XSDSchema) o : null;
 	  }
-	  
+
       ResourceSetImpl resourceSet = new ResourceSetImpl();
       //prepare the uri converter
       URIConverter uriConverter = uriConverters.get();
@@ -735,7 +709,7 @@ public class StructuredTypeRtUtils
          }
          resourceSet.setURIConverter(uriConverter);
       }
-            
+
       URI uri = URI.createURI(location);
       if (uri.scheme() == null)
       {
@@ -745,7 +719,7 @@ public class StructuredTypeRtUtils
          }
          uri = URI.createURI(ClasspathUriConverter.CLASSPATH_SCHEME + ":/" + location);
       }
-      
+
       // (fh) register the resource factory directly with the resource set and do not tamper with the global registry.
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(uri.scheme(), XSD_RESOURCE_FACTORY);
       resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xsd", XSD_RESOURCE_FACTORY);
@@ -753,7 +727,7 @@ public class StructuredTypeRtUtils
       Map options = new HashMap();
       options.put(XMLResource.OPTION_EXTENDED_META_DATA, Boolean.TRUE);
       resource.load(options);
-      
+
       boolean hasSchema = false;
       List l = resource.getContents();
       for (int i = 0; i < l.size(); i++)
@@ -775,7 +749,7 @@ public class StructuredTypeRtUtils
             }
          }
       }
-      
+
       // no schema matching the namespaceURI found, so try a second round by searching through imports.
       // this is indirect resolving, so it will return the first schema that has an import for the namespaceURI
       if (hasSchema)
@@ -836,7 +810,7 @@ public class StructuredTypeRtUtils
       List l = resource.getContents();
       return(XSDSchema) l.get(0);
    }
-   
+
    public static byte [] serializeSchema(XSDSchema xsdSchema)
    {
       HashMap options = new HashMap();
@@ -853,7 +827,7 @@ public class StructuredTypeRtUtils
          throw new RuntimeException(e);
       }
    }
-   
+
    public static String parseLocalName(String qNameAsString)
    {
       if (qNameAsString == null)
@@ -926,12 +900,12 @@ public class StructuredTypeRtUtils
    {
       return StructuredDataConstants.STRUCTURED_DATA.equals(dataTypeId);
    }
-   
+
    public static boolean isDmsType(String dataTypeId)
    {
-      return DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId) 
-            || DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId) 
-            || DmsConstants.DATA_TYPE_DMS_FOLDER.equals(dataTypeId) 
+      return DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId)
+            || DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId)
+            || DmsConstants.DATA_TYPE_DMS_FOLDER.equals(dataTypeId)
             || DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(dataTypeId);
    }
 
@@ -956,8 +930,8 @@ public class StructuredTypeRtUtils
             }
          }
       }
-   } 
-   
+   }
+
    public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model)
    {
       return getTypeDeclaration(data, model, StructuredDataConstants.TYPE_DECLARATION_ATT);
@@ -975,37 +949,51 @@ public class StructuredTypeRtUtils
             IExternalPackage pkg = ref.getExternalPackage();
             if (pkg != null)
             {
-               // handle UnresolvedExternalReference               
-               IModel otherModel = pkg.getReferencedModel(); 
+               // handle UnresolvedExternalReference
+               IModel otherModel = pkg.getReferencedModel();
                decl = otherModel.findTypeDeclaration(ref.getId());
             }
-         }         
+         }
       }
 
       if (decl == null)
-      {         
+      {
          Object type = data.getAttribute(typeDeclarationAtt);
          if (type != null)
-         {                    
-            String typeString = type.toString();    
+         {
+            String typeString = type.toString();
             if (data instanceof IData)
             {
                IModel refModel = (IModel) ((IData) data).getModel();
                decl = refModel.findTypeDeclaration(typeString);
             }
-            else 
+            else
             {
                decl = model.findTypeDeclaration(typeString);
             }
-         }         
+         }
       }
-      
+
       return decl;
    }
-   
+
 
    private StructuredTypeRtUtils()
    {
       // utility class
+   }
+
+   public static XSDSchema getSchema(IModel model, ITypeDeclaration decl)
+   {
+      IXpdlType type = decl.getXpdlType();
+      if (type instanceof IExternalReference)
+      {
+         return ((IExternalReference) type).getSchema(model);
+      }
+      else if (type instanceof SchemaTypeBean)
+      {
+         return ((SchemaTypeBean) type).getSchema();
+      }
+      return null;
    }
 }

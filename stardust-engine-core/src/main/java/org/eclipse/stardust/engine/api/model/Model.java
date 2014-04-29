@@ -27,7 +27,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 public interface Model extends ModelElement
 {
    Set<QualityAssuranceCode> getAllQualityAssuranceCodes();
-   
+
    /**
     * Gets all participants defined in this model.
     *
@@ -131,7 +131,7 @@ public interface Model extends ModelElement
     *
     * @return a List of {@link TypeDeclaration} objects.
     */
-   List /*<TypeDeclaration>*/ getAllTypeDeclarations();
+   List<TypeDeclaration> getAllTypeDeclarations();
 
    /**
     * Gets the specified type declaration.

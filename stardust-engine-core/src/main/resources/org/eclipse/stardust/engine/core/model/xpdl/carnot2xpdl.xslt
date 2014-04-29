@@ -52,7 +52,11 @@
 
          <xsl:copy-of select="x1:Script|xpdl:Script"/>
          <xsl:copy-of select="x1:ExternalPackages|xpdl:ExternalPackages"/>
-         <xsl:copy-of select="x1:TypeDeclarations|xpdl:TypeDeclarations"/>
+
+         <TypeDeclarations>
+         	<xsl:copy-of select="x1:TypeDeclarations/x1:TypeDeclaration|xpdl:TypeDeclarations/xpdl:TypeDeclaration"/>
+         </TypeDeclarations>
+
          <xsl:copy-of select="carnot:qualityControl"/>
 
          <Participants>
@@ -641,16 +645,16 @@
          <!-- Icon is not available from Carnot -->
          <!-- Documentation is not available from Carnot -->
 
-         <xsl:if test="@split='AND' or @join='AND' or @split='XOR' or @join='XOR' or @split='OR' or @join='OR'">
+         <xsl:if test="@split='AND' or @join='AND' or @split='XOR' or @join='XOR'">
             <TransitionRestrictions>
-               <xsl:if test="@join='AND' or @join='XOR' or @join='OR'">
+               <xsl:if test="@join='AND' or @join='XOR'">
                   <TransitionRestriction>
                      <Join>
                         <xsl:attribute name="Type"><xsl:value-of select="@join"/></xsl:attribute>
                      </Join>
                   </TransitionRestriction>
                </xsl:if>
-               <xsl:if test="@split='AND' or @split='XOR' or @split='OR'">
+               <xsl:if test="@split='AND' or @split='XOR'">
                   <TransitionRestriction>
                      <Split>
                         <xsl:attribute name="Type"><xsl:value-of select="@split"/></xsl:attribute>

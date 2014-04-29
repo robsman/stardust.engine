@@ -35,13 +35,13 @@ public class ExternalReferenceBean implements IExternalReference
    private static final Logger trace = LogManager.getLogger(ExternalReferenceBean.class);
 
    private final String location;
-   
+
    private final String namespace;
-   
+
    private final String xRef;
-   
+
    private Element externalAnnotations;
-   
+
    private String alternateLocation;
 
    /**
@@ -56,7 +56,7 @@ public class ExternalReferenceBean implements IExternalReference
       this.location = location;
       this.namespace = namespace;
       this.xRef = xRef;
-      
+
       this.externalAnnotations = externalAnnotations;
    }
 
@@ -95,10 +95,11 @@ public class ExternalReferenceBean implements IExternalReference
 
    /**
     * Simple caching mechanism to speed up the external schema retrieval
-    * and to prohibit the existence of multiple instances of the same schema 
+    * and to prohibit the existence of multiple instances of the same schema
     * @generated NOT
     */
-   public XSDSchema getSchema(IModel model) {
+   public XSDSchema getSchema(IModel model)
+   {
       if (location != null)
       {
          if (location.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
@@ -131,7 +132,7 @@ public class ExternalReferenceBean implements IExternalReference
       }
       return null;
    }
-   
+
    /**
     * We must synchronize that method entirely to ensure cache consistency.
     */
@@ -144,7 +145,7 @@ public class ExternalReferenceBean implements IExternalReference
          String url = alternateLocation == null ? location : alternateLocation;
          try
          {
-            
+
             schema = StructuredTypeRtUtils.getSchema(url, namespaceURI, typeDeclarationAttributes);
             if (trace.isDebugEnabled())
             {

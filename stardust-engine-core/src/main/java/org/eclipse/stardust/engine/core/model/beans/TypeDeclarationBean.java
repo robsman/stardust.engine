@@ -195,7 +195,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                if (baseType != null)
                {
                   String baseTypeNameSpace = baseType.getTargetNamespace();
-                  XSDImport baseTypeImport = TypeDeclarationUtils.getImportByNamespace(
+                  XSDImport baseTypeImport = baseTypeNameSpace == null ? null : TypeDeclarationUtils.getImportByNamespace(
                         schemaType.getSchema(), baseTypeNameSpace);
                   if (baseTypeImport != null)
                   {
@@ -212,7 +212,6 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                               Inconsistency.ERROR));
                      }
                   }
-
                }
             }
          }
@@ -232,5 +231,4 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       }
       return null;
    }
-
 }

@@ -76,6 +76,8 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.api.ejb3.
    @Resource(mappedName = "java:/queue/CarnotDaemonQueue")
    private Queue daemonQueue;
    
+   @Resource(mappedName="jcr/ContentRepository")
+   protected Object repository;  
    
    private ExecuteActionInvocationManager manager;
 
@@ -283,9 +285,8 @@ private ActionRunner serviceInstance;
 
 
 	@Override
-	public Object getRepository() {
-		// TODO Auto-generated method stub
-		return null;
+	public Object getRepository() {		
+		return this.repository;
 	}
 	
 

@@ -16,6 +16,7 @@ import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 import javax.sql.DataSource;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
@@ -54,7 +55,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    
    private final Ejb3Service serviceBean;
    
-   private transient EjbDocumentRepositoryService dmsServiceProvider;
 
    
    public CMTSessionInterceptor(String sessionName, SessionContext context, ForkingService serviceBean)
@@ -97,6 +97,11 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
       // repository will be retrieved from bean local JNDI location java:comp/env/jcr/ContentRepository
       Object contentRepositoryRes = serviceBean.getRepository();
+
+		rtEnv.setProperty(
+				Parameters.instance().getString("Jcr.ContentRepository",
+						"jcr/ContentRepository"), contentRepositoryRes);
+      
       
       rtEnv.setProperty("ActivityThread.Context", rtEnv.getActivityThreadContext());
 

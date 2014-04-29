@@ -80,7 +80,7 @@ public abstract class AbstractEjb3ServiceBean implements Ejb3Service
 	@PostConstruct
 	public void init() 
 	{
-								
+		
 		this.serviceTypeName = serviceType.getName();
 		
 		prepareInvocationManager(serviceTypeImpl);

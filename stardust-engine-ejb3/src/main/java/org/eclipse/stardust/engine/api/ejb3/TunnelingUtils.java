@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.ejb3.beans.AbstractEjb3ServiceBean;
 import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 
@@ -110,9 +111,17 @@ public class TunnelingUtils
       
       loginResult = endpoint.login(userId, password, properties);
       
+      Object signedPrincipal = loginResult.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
       Assert.condition(null != loginResult, "Tunneling mode login must return an invoker principal.");
+      if (signedPrincipal instanceof InvokerPrincipal)
+      {
+         return new TunneledContext((InvokerPrincipal) signedPrincipal);
+      }
+      else
+      {
+         return new TunneledContext(new InvokerPrincipal(loginResult.getUserId(), loginResult.getProperties()));
+      }
          
-      return new TunneledContext(new InvokerPrincipal(loginResult.getUserId(), loginResult.getProperties()));
    }
    
 }

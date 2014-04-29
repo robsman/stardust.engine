@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
@@ -166,7 +167,7 @@ public class DmsMultiRepositoryTest
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
 
-   @Test(expected=PublicException.class)
+   @Test(expected=DocumentManagementServiceException.class)
    public void testSetInvalidDefaultRepository()
    {
       getDms().setDefaultRepository("invalid");
@@ -174,7 +175,7 @@ public class DmsMultiRepositoryTest
       Assert.fail();
    }
 
-   @Test(expected=PublicException.class)
+   @Test(expected=DocumentManagementServiceException.class)
    public void testBindAlreadyExisting()
    {
       getDms().bindRepository(RepositoryTestUtils.createTestRepoConfig());
@@ -189,9 +190,10 @@ public class DmsMultiRepositoryTest
       Assert.assertEquals(Collections.EMPTY_MAP, preferences.getPreferences());
    }
 
-   @Test(expected=PublicException.class)
    public void testUnbindNonExisting()
    {
+      // Unbinding a non existing repository throws no exception, it just removes the
+      // configuration from the preference store if it exists.
       getDms().unbindRepository(TEST_REPO_ID);
    }
 

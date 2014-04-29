@@ -54,7 +54,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
  * This class aims at facilitating reoccurring operations when processing
  * transient processes.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -63,28 +63,28 @@ public class TransientProcessInstanceSupport
    private static final Logger LOGGER = LogManager.getLogger(TransientProcessInstanceSupport.class);
 
    private final boolean enabled;
-   
+
    private final Set<Long> rootPiOids = newHashSet();
-   
+
    private final Set<PersistentKey> persistentKeysToBeInserted;
-   
+
    private final Set<PersistentKey> persistentKeysToBeDeleted;
 
    private boolean pisAreTransientExecutionCandidates = false;
-   
+
    private boolean deferredPersist = false;
-   
+
    private boolean transientSession = false;
-   
+
    private boolean allPisAreCompleted = false;
-   
+
    private boolean cancelTransientExecution = false;
-   
+
    /**
     * <p>
     * The constructor initializing an object of this class with its initial state.
     * </p>
-    * 
+    *
     * @param supportsSequences whether the database in use supports sequences
     */
    public TransientProcessInstanceSupport(final boolean supportsSequences)
@@ -101,33 +101,33 @@ public class TransientProcessInstanceSupport
          {
             LOGGER.warn("Transient Process instance support cannot be enabled due to lack of support for DB sequences.");
          }
-         
+
          this.persistentKeysToBeInserted = Collections.emptySet();
          this.persistentKeysToBeDeleted = Collections.emptySet();
          this.enabled = false;
       }
    }
-   
+
    /**
     * <p>
     * Initializes the object in use with respect to the currently processed activity and
     * process instances. This operation is mandatory when executing transient process instances
     * in order to allow an object of this class to fullfil its responsibility.
     * </p>
-    * 
+    *
     * @param pis all process instances of the currently processed process instance graph
     * @param ais all activity instances of the currently processed process instance graph
     */
    public void init(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       assertEnabled();
-      
+
       determineWhetherPisAreTransientExecutionCandidates(pis);
       if ( !arePisTransientExecutionCandidates())
       {
          return;
       }
-      
+
       determineWhetherCurrentSessionIsTransient(pis, (ais != null) ? ais : Collections.<Object, PersistenceController>emptyMap());
       if ( !isCurrentSessionTransient())
       {
@@ -135,42 +135,42 @@ public class TransientProcessInstanceSupport
          cancelTransientExecution = true;
          return;
       }
-      
+
       determineWhetherItsDeferredPersist(pis);
       determineWhetherAllPIsAreCompleted(pis);
    }
-   
+
    /**
     * <p>
     * Allows for collecting all {@link Persistent}s that the currently running {@link Session}
     * has marked for database insertion.
     * </p>
-    * 
+    *
     * @param persistentsToBeInserted {@link Persistent}s marked for database insertion
     */
    public void addPersistentToBeInserted(final List<Persistent> persistentsToBeInserted)
    {
       collectPersistentKeys(persistentsToBeInserted, persistentKeysToBeInserted);
    }
-   
+
    /**
     * <p>
     * Allows for collecting all {@link Persistent}s that the currently running {@link Session}
     * has marked for database deletion.
     * </p>
-    * 
+    *
     * @param persistentToBeDeleted the {@link Persistent} marked for database deletion
     */
    public void addPersistentToBeDeleted(final Persistent persistentToBeDeleted)
    {
       collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), persistentKeysToBeDeleted);
    }
-   
+
    /**
     * <p>
     * Writes the given {@link Persistent}s to the process instance blob.
     * </p>
-    * 
+    *
     * @param persistentsToBeInserted the {@link Persistent}s that need to be written to the blob
     * @param blobBuilder the blob builder responsible for writing to the blob
     * @param typeDesc the {@link TypeDescriptor} of the {@link Persistent} to be written
@@ -178,11 +178,11 @@ public class TransientProcessInstanceSupport
    public void writeToBlob(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
    {
       assertEnabled();
-      
+
       /* write persistents to blob */
       ProcessBlobWriter.writeInstances(blobBuilder, typeDesc, persistentsToBeInserted);
    }
-   
+
    /**
     * <p>
     * Cleans up the in-memory storage, i.e. purges no longer needed process instance blobs and/or auxiliary information.
@@ -191,7 +191,7 @@ public class TransientProcessInstanceSupport
    public void cleanUpInMemStorage()
    {
       assertEnabled();
-      
+
       final boolean purgePiGraph;
       final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(persistentKeysToBeDeleted);
       if (!isCurrentSessionTransient() || areAllPisCompleted())
@@ -203,44 +203,44 @@ public class TransientProcessInstanceSupport
       {
          purgePiGraph = false;
       }
-      
+
       if ( !keysToBeDeleted.isEmpty())
       {
          TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph, rootPiOids);
       }
    }
-   
+
    /**
     * <p>
     * Writes the built process instance blob to the in-memory storage.
     * </p>
-    * 
+    *
     * @param blobBuilder the blob builder encapsulating the built process instance blob
     */
    public void writeToInMemStorage(final BlobBuilder blobBuilder)
    {
       assertEnabled();
-      
+
       if ( !(blobBuilder instanceof ByteArrayBlobBuilder))
       {
          throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
       }
-      
+
       if (rootPiOids.isEmpty())
       {
          throw new IllegalStateException("Root Process Instance OID has not been initialized.");
       }
-      
+
       final byte[] blob = ((ByteArrayBlobBuilder) blobBuilder).getBlob();
       final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
-      
+
       /* it's safe to assume that for a write operation (i.e. the session is still transient) */
       /* the root PI OID is unique, i.e. the set only contains one element                    */
       final long rootPiOid = rootPiOids.iterator().next().longValue();
-      
+
       TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, persistentKeysToBeInserted);
    }
-   
+
    /**
     * @return whether the currently processed process instance is a candidate for transient execution
     */
@@ -248,7 +248,7 @@ public class TransientProcessInstanceSupport
    {
       return pisAreTransientExecutionCandidates;
    }
-   
+
    /**
     * @return whether the process instance graph persist operation will be deferred
     */
@@ -256,7 +256,7 @@ public class TransientProcessInstanceSupport
    {
       return deferredPersist;
    }
-   
+
    /**
     * @return whether the current session is executed transiently
     */
@@ -264,17 +264,17 @@ public class TransientProcessInstanceSupport
    {
       return transientSession;
    }
-   
+
    /**
     * @return whether all process instances of the currently processed process instance graph are completed
     */
    public boolean areAllPisCompleted()
    {
       assertEnabled();
-      
+
       return allPisAreCompleted;
    }
-   
+
    /**
     * @return whether transient process instance execution has been cancelled
     */
@@ -282,7 +282,7 @@ public class TransientProcessInstanceSupport
    {
       return cancelTransientExecution;
    }
-   
+
    /**
     * @return whether all {@link Persistent}s associated with the currently processed process instance
     *    graph need to be written to the process instance blob
@@ -292,10 +292,10 @@ public class TransientProcessInstanceSupport
       final boolean transientExecutionIntermediateState = isCurrentSessionTransient() && !areAllPisCompleted();
       final boolean deferredPersist = isDeferredPersist();
       final boolean cancelledTransientExecution = isTransientExecutionCancelled();
-      
+
       return transientExecutionIntermediateState || deferredPersist || cancelledTransientExecution;
    }
-   
+
    /**
     * <p>
     * Loads the process instance graph identified by the given root process instance OID, i.e. reads the corresponding
@@ -303,7 +303,7 @@ public class TransientProcessInstanceSupport
     * given {@link Session}'s cache. If no matching process instance blob can be found in the in-memory storage, this
     * method silently returns without modifying the {@link Session}.
     * </p>
-    * 
+    *
     * @param rootPiOid the root process instance OID whose process instance graph should be loaded
     * @param session the session the {@link Persistent}s should be populated to
     */
@@ -314,10 +314,10 @@ public class TransientProcessInstanceSupport
       {
          return;
       }
-      
+
       loadProcessInstanceGraph(blob, session, null);
    }
-   
+
    /**
     * <p>
     * Loads the process instance graph identified by the given {@link PersistentKey}, i.e. reads the corresponding
@@ -325,7 +325,7 @@ public class TransientProcessInstanceSupport
     * given {@link Session}'s cache. If no matching process instance blob can be found in the in-memory storage, this
     * method silently returns without modifying the {@link Session}.
     * </p>
-    * 
+    *
     * @param pk the {@link PersistentKey} identifying a {@link Persistent} whose process instance graph should be loaded
     * @param session the session the {@link Persistent}s should be populated to
     * @return the resolved {@link Persistent} matching the given {@link PersistentKey}, or <code>null</code> if no matching process
@@ -338,14 +338,14 @@ public class TransientProcessInstanceSupport
       {
          return null;
       }
-      
+
       return loadProcessInstanceGraph(blob, session, pk);
    }
-   
+
    private void collectPersistentKeys(final List<Persistent> persistentsToCollect, final Set<PersistentKey> persistentKeys)
    {
       assertEnabled();
-      
+
       for (final Persistent p : persistentsToCollect)
       {
          if (p instanceof IdentifiablePersistent)
@@ -353,7 +353,7 @@ public class TransientProcessInstanceSupport
             final long oid = ((IdentifiablePersistent) p).getOID();
             final Class<? extends Persistent> clazz = p.getClass();
             final PersistentKey persistentKey = new PersistentKey(oid, clazz);
-            
+
             persistentKeys.add(persistentKey);
          }
       }
@@ -362,12 +362,12 @@ public class TransientProcessInstanceSupport
    private void determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
    {
       pisAreTransientExecutionCandidates = (pis != null) && !pis.isEmpty();
-      
-      if ( !arePisTransientExecutionCandidates())
+
+      if ( !pisAreTransientExecutionCandidates)
       {
          return;
       }
-      
+
       for (final PersistenceController pc : pis.values())
       {
          if ( !pc.isCreated())
@@ -375,12 +375,16 @@ public class TransientProcessInstanceSupport
             pisAreTransientExecutionCandidates = false;
             break;
          }
-         
+
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
          pisAreTransientExecutionCandidates &= ProcessInstanceUtils.isTransientExecutionScenario(pi);
+         if ( !pisAreTransientExecutionCandidates)
+         {
+            break;
+         }
       }
    }
-      
+
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       transientSession = determineWhetherRootProcessInstanceIsUnique(pis.values());
@@ -388,7 +392,7 @@ public class TransientProcessInstanceSupport
       {
          return;
       }
-      
+
       for (final PersistenceController pc : ais.values())
       {
          final IActivityInstance ai = (IActivityInstance) pc.getPersistent();
@@ -396,14 +400,14 @@ public class TransientProcessInstanceSupport
          {
             continue;
          }
-         
+
          transientSession &= ai.isCompleted();
          if ( !isCurrentSessionTransient())
          {
             return;
          }
       }
-      
+
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
@@ -420,17 +424,17 @@ public class TransientProcessInstanceSupport
          }
       }
    }
-   
+
    private boolean determineWhetherRootProcessInstanceIsUnique(final Collection<PersistenceController> pis)
    {
       boolean result = true;
-      
+
       for (final PersistenceController pc : pis)
       {
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
          rootPiOids.add(Long.valueOf(rootPi.getOID()));
       }
-      
+
       if (rootPiOids.isEmpty())
       {
          throw new IllegalStateException("Root process instance could not be determined.");
@@ -441,17 +445,17 @@ public class TransientProcessInstanceSupport
          result = false;
          LOGGER.warn("Root process instance is not unique (OIDs: " + rootPiOids + ").");
       }
-      
+
       return result;
    }
-   
+
    private boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
    {
       final boolean isSuspended = ai.getState() == ActivityInstanceState.Suspended;
       final boolean isSubprocessAi = ai.getActivity().getImplementationType() == ImplementationType.SubProcess;
       return isSuspended && isSubprocessAi;
    }
-   
+
    /**
     *  we can just take an arbitrary pi since it's guaranteed that all point to the same root pi:
     *  if it was not the case, {@link #transientSession} would be <code>false</code> and this
@@ -463,23 +467,23 @@ public class TransientProcessInstanceSupport
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
       deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
    }
-   
+
    private void determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis)
    {
       allPisAreCompleted = true;
-      
+
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
          allPisAreCompleted &= pi.getState() == ProcessInstanceState.Completed;
-         
+
          if ( !areAllPisCompleted())
          {
             return;
          }
       }
    }
-   
+
    private void resetTransientPiProperty(final Map<Object, PersistenceController> pis)
    {
       for (final PersistenceController pc : pis.values())
@@ -489,7 +493,7 @@ public class TransientProcessInstanceSupport
          rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
       }
    }
-   
+
    private void assertEnabled()
    {
       if ( !enabled)
@@ -497,12 +501,12 @@ public class TransientProcessInstanceSupport
          throw new IllegalStateException("Transient process instance support is disabled.");
       }
    }
-   
+
    private static Persistent loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
    {
       final ProcessBlobReader reader = new ProcessBlobReader(session);
       final Set<Persistent> persistents = reader.readProcessBlob(blob);
-      
+
       final Set<Persistent> deferredPersistents = newHashSet();
       Persistent result = null;
       for (final Persistent p : persistents)
@@ -518,18 +522,18 @@ public class TransientProcessInstanceSupport
             result = identifyLookedUpPersistent(p, pk);
          }
       }
-      
+
       if (result == null && pk != null)
       {
          throw new IllegalStateException("Persistent could not be found in the corresponding process instance graph.");
       }
-      
+
       for (final Persistent p : deferredPersistents)
       {
          ensurePkLinksAreFetched(p, session);
          loadPersistent(p, session);
       }
-      
+
       return result;
    }
 
@@ -544,21 +548,21 @@ public class TransientProcessInstanceSupport
             return true;
          }
       }
-      
+
       return false;
    }
-   
+
    private static boolean hasParents(final Persistent persistent, final Session session)
    {
       final TypeDescriptor typeDesc = session.getTypeDescriptor(persistent.getClass());
       final List<LinkDescriptor> parents = typeDesc.getParents();
       return !parents.isEmpty();
    }
-   
+
    private static void ensurePkLinksAreFetched(final Persistent persistent, final Session session)
    {
       final PersistenceController pc = persistent.getPersistenceController();
-      
+
       final TypeDescriptor typeDesc = session.getTypeDescriptor(persistent.getClass());
       final Field[] pkFields = typeDesc.getPkFields();
       for (final Field f : pkFields)
@@ -570,7 +574,7 @@ public class TransientProcessInstanceSupport
          }
       }
    }
-   
+
    private static void loadPersistent(final Persistent p, final Session session)
    {
       final TypeDescriptor typeDesc = session.getTypeDescriptor(p.getClass());
@@ -584,7 +588,7 @@ public class TransientProcessInstanceSupport
       {
          return null;
       }
-      
+
       final IdentifiablePersistent ip = (IdentifiablePersistent) p;
       if (pk.clazz().equals(ip.getClass()) && pk.oid() == ip.getOID())
       {
@@ -595,7 +599,7 @@ public class TransientProcessInstanceSupport
          return null;
       }
    }
-   
+
    /**
     * <p>
     * The class responsible for reading a process instance blob in order to (re-) create
@@ -605,16 +609,16 @@ public class TransientProcessInstanceSupport
    private static final class ProcessBlobReader
    {
       private final Session session;
-      
+
       private final TypeDescriptorRegistry typeDescRegistry;
 
       private final Map<Class<?>, ReadOp> readOps;
-      
+
       /**
        * <p>
        * Initializes an object of this class.
        * </p>
-       * 
+       *
        * @param session the session used to create {@link Persistent}s from the information encoded in the blob
        */
       public ProcessBlobReader(final Session session)
@@ -623,28 +627,28 @@ public class TransientProcessInstanceSupport
          {
             throw new NullPointerException("Session must not be null.");
          }
-         
+
          this.session = session;
          this.typeDescRegistry = TypeDescriptorRegistry.current();
          this.readOps = initReadOpMap();
       }
-      
+
       /**
        * <p>
        * Reads the given process instance blob in order to (re-) create
        * all {@link Persistent}s encoded in it.
        * </p>
-       * 
+       *
        * @param blob the blob to be read
        * @return a set of all {@link Persistent}s encoded in the blob
        */
       public Set<Persistent> readProcessBlob(final ProcessInstanceGraphBlob blob)
       {
          final Set<Persistent> persistents = new HashSet<Persistent>();
-         
+
          final ByteArrayBlobReader reader = new ByteArrayBlobReader(blob.blob);
          reader.nextBlob();
-         
+
          byte sectionMarker;
          while ((sectionMarker = reader.readByte()) != BlobBuilder.SECTION_MARKER_EOF)
          {
@@ -652,35 +656,35 @@ public class TransientProcessInstanceSupport
             {
                throw new IllegalStateException("Unknown section marker '" + sectionMarker + "'.");
             }
-            
+
             readSection(reader, persistents);
          }
-         
+
          return persistents;
       }
-      
+
       private void readSection(final ByteArrayBlobReader reader, final Set<Persistent> persistents)
       {
          final String tableName = reader.readString();
          final int instanceCount = reader.readInt();
-         
+
          final TypeDescriptor typeDesc = typeDescRegistry.getDescriptorForTable(tableName);
-         
+
          final List<FieldDescriptor> fieldDescs = typeDesc.getPersistentFields();
          final List<LinkDescriptor> linkDescs = typeDesc.getLinks();
-         
+
          for (int i=0; i<instanceCount; i++)
          {
             final Persistent persistent = recreatePersistent(reader, typeDesc, fieldDescs);
-            
+
             final Object[] linkBuffer = recreateLinkBuffer(reader, linkDescs);
             final DefaultPersistenceController pc = new DefaultPersistenceController(session, typeDesc, persistent, linkBuffer);
             pc.markCreated();
-            
+
             persistents.add(persistent);
          }
       }
-      
+
       private Persistent recreatePersistent(final BlobReader reader, final TypeDescriptor typeDesc, final List<FieldDescriptor> fieldDescs)
       {
          final Persistent p = (Persistent) Reflect.createInstance(typeDesc.getType(), null, null);
@@ -691,17 +695,17 @@ public class TransientProcessInstanceSupport
             final Object fieldValue = readFieldValue(reader, fieldType);
             Reflect.setFieldValue(p, field, fieldValue);
          }
-         
+
          return p;
       }
-      
+
       private Object[] recreateLinkBuffer(final BlobReader reader, final List<LinkDescriptor> linkDescs)
       {
          if (linkDescs.isEmpty())
          {
             return DefaultPersistenceController.NO_LINK_BUFFER;
          }
-         
+
          final Object[] result = new Object[linkDescs.size()];
          for (int i=0; i<linkDescs.size(); i++)
          {
@@ -714,7 +718,7 @@ public class TransientProcessInstanceSupport
 
          return result;
       }
-      
+
       private Object readFieldValue(final BlobReader reader, final Class<?> fieldType)
       {
          final ReadOp readOp = readOps.get(fieldType);
@@ -722,45 +726,45 @@ public class TransientProcessInstanceSupport
          {
             throw new IllegalArgumentException("Unsupported field type '" + fieldType + "'.");
          }
-         
+
          return readOp.read(reader);
       }
-      
+
       private Map<Class<?>, ReadOp> initReadOpMap()
       {
          final Map<Class<?>, ReadOp> result = newHashMap();
-         
+
          result.put(Boolean.TYPE, new BooleanReadOp());
          result.put(Boolean.class, new BooleanReadOp());
-         
+
          result.put(Byte.TYPE, new ByteReadOp());
          result.put(Byte.class, new ByteReadOp());
-         
+
          result.put(Character.TYPE, new CharacterReadOp());
          result.put(Character.class, new CharacterReadOp());
-         
+
          result.put(Short.TYPE, new ShortReadOp());
          result.put(Short.class, new ShortReadOp());
-         
+
          result.put(Integer.TYPE, new IntegerReadOp());
          result.put(Integer.class, new IntegerReadOp());
-         
+
          result.put(Long.TYPE, new LongReadOp());
          result.put(Long.class, new LongReadOp());
-         
+
          result.put(Float.TYPE, new FloatReadOp());
          result.put(Float.class, new FloatReadOp());
-         
+
          result.put(Double.TYPE, new DoubleReadOp());
          result.put(Double.class, new DoubleReadOp());
-         
+
          result.put(String.class, new StringReadOp());
-         
+
          result.put(Date.class, new DateReadOp());
-         
+
          return result;
       }
-      
+
       private static interface ReadOp
       {
          Object read(final BlobReader reader);
@@ -774,7 +778,7 @@ public class TransientProcessInstanceSupport
             return reader.readBoolean();
          }
       }
-      
+
       private static class ByteReadOp implements ReadOp
       {
          @Override
@@ -783,7 +787,7 @@ public class TransientProcessInstanceSupport
             return reader.readByte();
          }
       }
-      
+
       private static class CharacterReadOp implements ReadOp
       {
          @Override
@@ -792,7 +796,7 @@ public class TransientProcessInstanceSupport
             return reader.readChar();
          }
       }
-      
+
       private static class ShortReadOp implements ReadOp
       {
          @Override
@@ -810,7 +814,7 @@ public class TransientProcessInstanceSupport
             return reader.readInt();
          }
       }
-      
+
       private static class LongReadOp implements ReadOp
       {
          @Override
@@ -819,7 +823,7 @@ public class TransientProcessInstanceSupport
             return reader.readLong();
          }
       }
-      
+
       private static class FloatReadOp implements ReadOp
       {
          @Override
@@ -828,7 +832,7 @@ public class TransientProcessInstanceSupport
             return reader.readFloat();
          }
       }
-      
+
       private static class DoubleReadOp implements ReadOp
       {
          @Override
@@ -837,7 +841,7 @@ public class TransientProcessInstanceSupport
             return reader.readDouble();
          }
       }
-      
+
       private static class StringReadOp implements ReadOp
       {
          @Override
@@ -846,7 +850,7 @@ public class TransientProcessInstanceSupport
             return reader.readString();
          }
       }
-      
+
       private static class DateReadOp implements ReadOp
       {
          @Override

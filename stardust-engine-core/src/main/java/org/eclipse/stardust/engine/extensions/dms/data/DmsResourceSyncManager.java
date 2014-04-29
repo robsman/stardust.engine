@@ -183,7 +183,7 @@ public class DmsResourceSyncManager
 
    /**
     * Compares {@link Resource} Ids considering legacy Ids without repositoryId prefix.<br>
-    * The prefix pointing to the repositoryId {@link RepositoryProviderManager#DEFAULT_REPOSITORY_ID} is optional.
+    * The prefix pointing to the repositoryId {@link RepositoryProviderManager#SYSTEM_REPOSITORY_ID} is optional.
     * <p>
     * For example: <br>
     * '{urn:repository:default}{jcr-uuid}ABC' == '{jcr-uuid}ABC'.<br>
@@ -194,11 +194,11 @@ public class DmsResourceSyncManager
    {
       String repositoryId1 = RepositoryIdUtils.extractRepositoryId(id1);
       String repositoryId2 = RepositoryIdUtils.extractRepositoryId(id2);
-      if (repositoryId1 == null && repositoryId2 != null && RepositoryProviderManager.DEFAULT_REPOSITORY_ID.equals(repositoryId2))
+      if (repositoryId1 == null && repositoryId2 != null && RepositoryProviderManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
       {
          return id1.equals(RepositoryIdUtils.stripRepositoryId(id2));
       }
-      else if (repositoryId1 != null && repositoryId2 == null && RepositoryProviderManager.DEFAULT_REPOSITORY_ID.equals(repositoryId1))
+      else if (repositoryId1 != null && repositoryId2 == null && RepositoryProviderManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
       {
          return RepositoryIdUtils.stripRepositoryId(id1).equals(id2);
       }

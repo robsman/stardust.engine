@@ -18,7 +18,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
 {
    private static final long serialVersionUID = -3437673937195283480L;
-   
+
    private String repositoryId;
 
    private String repositoryType;
@@ -41,13 +41,12 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       this.repositoryType = repository.getDescriptor(Repository.SPEC_NAME_DESC) + " " + repository.getDescriptor(Repository.SPEC_VERSION_DESC);
       this.repositoryName = repository.getDescriptor(Repository.REP_NAME_DESC);
       this.repositoryVersion = repository.getDescriptor(Repository.REP_VERSION_DESC);
-      
+
       this.accessControlPolicySupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_ACCESS_CONTROL_SUPPORTED));
       this.fullTextSearchSupported = Boolean.valueOf(repository.getDescriptor(Repository.QUERY_FULL_TEXT_SEARCH_SUPPORTED));
       this.metaDataSearchSupported = true;
       this.metaDataStorageSupported = true;
-      this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED))
-            && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO); ;
+      this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED));
       this.versioningSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_VERSIONING_SUPPORTED))
             && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_VERSIONING);
       this.writeSupported = !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_WRITE);
@@ -70,7 +69,7 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    {
       return repositoryType;
    }
-   
+
    @Override
    public String getRepositoryName()
    {
@@ -118,13 +117,13 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    {
       return accessControlPolicySupported;
    }
-   
+
    @Override
    public boolean isWriteSupported()
    {
       return writeSupported;
    }
-   
+
    @Override
    public String toString()
    {

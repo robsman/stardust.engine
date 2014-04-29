@@ -210,22 +210,26 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 DMS_ANNOTATIONS_ID_PRESENT = newArgs1("DMS03001", BpmRuntimeErrorMessages.getString("DMS03001")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args2 DMS_REPOSITORY_DEFAULT_LOAD_FAILED = new Args2("DMS03101",  BpmRuntimeErrorMessages.getString("DMS03101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_CONFIGURATION_PARAMETER_IS_NULL = new Args1("DMS03102",  BpmRuntimeErrorMessages.getString("DMS03102")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_PROVIDER_NOT_FOUND = new Args1("DMS03103",  BpmRuntimeErrorMessages.getString("DMS03103")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_INSTANCE_ALREADY_BOUND = new Args1("DMS03104",  BpmRuntimeErrorMessages.getString("DMS03104")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_REPOSITORY_DEFAULT_UNBIND = new Args0("DMS03105",  BpmRuntimeErrorMessages.getString("DMS03105")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_REPOSITORY_SYSTEM_UNBIND = new Args0("DMS03106",  BpmRuntimeErrorMessages.getString("DMS03106")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_INSTANCE_NOT_FOUND = new Args1("DMS03107",  BpmRuntimeErrorMessages.getString("DMS03107")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_NOT_FOUND_FOR_JNDI_NAME = newArgs1("DMS03108", BpmRuntimeErrorMessages.getString("DMS03108")); //$NON-NLS-1$ //$NON-NLS-2$
+
    public static final Args1 DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE = newArgs1("DMS04001", BpmRuntimeErrorMessages.getString("DMS04001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_FAILED_UPDATING_CONTENT_FOR_FILE = newArgs1("DMS04002", BpmRuntimeErrorMessages.getString("DMS04002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_FAILED_READING_ENTITY_BEAN_ATTRIBUTE = newArgs0("DMS04003", BpmRuntimeErrorMessages.getString("DMS04003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_FAILED_SETTING_DOCUMENT_ATTRIBUTE = newArgs0("DMS04004", BpmRuntimeErrorMessages.getString("DMS04004")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_INVALID_HANLDE = newArgs1("DMS04005", BpmRuntimeErrorMessages.getString("DMS04005")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_INVALID_REPOSITORY_SPACE = newArgs1("DMS04006", BpmRuntimeErrorMessages.getString("DMS04006")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args0 DMS_IN_MEMORY_REPOSITORY_FAILED = newArgs0("DMS04007", BpmRuntimeErrorMessages.getString("DMS04007")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 DMS_REPOSITORY_NOT_FOUND_FOR_JNDI_NAME = newArgs1("DMS04008", BpmRuntimeErrorMessages.getString("DMS04008")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_UNSUPPORTED_VALUE = newArgs1("DMS04009", BpmRuntimeErrorMessages.getString("DMS04009")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args0 DMS_NO_JCR_DOCUMENT_REPOSITORY_SERVICE_SET = newArgs0("DMS04010", BpmRuntimeErrorMessages.getString("DMS04010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_SETTING_EMPTY_NAME_IN_DOCUMENTS_OR_FOLDERS_NOT_POSSIBLE = newArgs0("DMS04011", BpmRuntimeErrorMessages.getString("DMS04011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_NO_VALUE_FOR_MANDATORY_IN_ACCESS_POINT_SUPPLIED = newArgs1("DMS04012", BpmRuntimeErrorMessages.getString("DMS04012")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_NO_DUCUMENTMANAGEMENTSERVICE_AVAILABLE = newArgs0("DMS04013", BpmRuntimeErrorMessages.getString("DMS04013")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_ELEMENT_IS_NOT_FOUND = newArgs1("DMS04014", BpmRuntimeErrorMessages.getString("DMS04014")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
 
    public static final Args0 ATDB_NO_MATCHING_USER_REALM = newArgs0("ATDB02101", BpmRuntimeErrorMessages.getString("ATDB02101")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_REALM_OID = newArgs1("ATDB02102", BpmRuntimeErrorMessages.getString("ATDB02102")); //$NON-NLS-1$ //$NON-NLS-2$

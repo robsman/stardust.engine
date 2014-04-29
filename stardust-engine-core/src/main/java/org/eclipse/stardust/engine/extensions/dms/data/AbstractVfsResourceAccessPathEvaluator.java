@@ -90,7 +90,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
             // synchronization for legacy documents has to point to RepositoryProviderManager.DEFAULT_REPOSITORY_ID.
             if (repositoryId == null)
             {
-               repositoryId = RepositoryProviderManager.DEFAULT_REPOSITORY_ID;
+               repositoryId = RepositoryProviderManager.SYSTEM_REPOSITORY_ID;
                documentId = RepositoryIdUtils.addRepositoryId(documentId, repositoryId);
                prefixedDocument = RepositoryIdUtils.addRepositoryId(document, repositoryId);
             }

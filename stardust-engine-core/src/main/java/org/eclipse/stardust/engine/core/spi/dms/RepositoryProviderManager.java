@@ -20,22 +20,24 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider.Factory;
 
 public class RepositoryProviderManager
 {
-   public static String DEFAULT_REPOSITORY_ID = "default";
-   
-   private static Logger trace = LogManager.getLogger(RepositoryProviderManager.class); 
+   public static String SYSTEM_REPOSITORY_ID = "default";
+
+   private static Logger trace = LogManager.getLogger(RepositoryProviderManager.class);
 
    private static RepositoryProviderManager INSTANCE;
-   
+
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
-   
+
    private RepositoryInstanceCache instances;
-   
-   private String defaultRepositoryId = DEFAULT_REPOSITORY_ID;
+
+   private String defaultRepositoryId = SYSTEM_REPOSITORY_ID;
 
    private RepositoryIdMediator repositoryIdMediator;
 
@@ -47,18 +49,18 @@ public class RepositoryProviderManager
       {
          IRepositoryProvider.Factory providerFactory = (IRepositoryProvider.Factory) loaderIterator.next();
          IRepositoryProvider provider = providerFactory.getInstance();
-         providers.put(provider.getProviderId(), provider); 
+         providers.put(provider.getProviderId(), provider);
       }
-      
+
       instances = new RepositoryInstanceCache();
-      
+
       repositoryIdMediator = new RepositoryIdMediator(this);
-      
+
       registerDefaultInstances();
-      
+
       loadConfigurations();
    }
-   
+
    public static RepositoryProviderManager getInstance()
    {
       if (INSTANCE == null)
@@ -99,10 +101,9 @@ public class RepositoryProviderManager
                   IRepositoryInstance boundInstance = instances.getGlobal(repositoryId);
                   if ( !boundInstance.getProviderId().equals(providerId))
                   {
-                     throw new PublicException(
-                           "Loading default providers failed: The repositoryId '"
-                                 + repositoryId + "' is already bound by provider '"
-                                 + providerId + "'.");
+                     throw new DocumentManagementServiceException(
+                           BpmRuntimeError.DMS_REPOSITORY_DEFAULT_LOAD_FAILED.raise(
+                                 repositoryId, providerId));
                   }
                }
             }
@@ -113,7 +114,7 @@ public class RepositoryProviderManager
    private void loadConfigurations()
    {
       List<IRepositoryConfiguration> configurations = RepositoryProviderUtils.getAllConfigurations();
-      
+
       for (IRepositoryConfiguration configuration : configurations)
       {
          try
@@ -131,16 +132,23 @@ public class RepositoryProviderManager
    {
       String providerId = (String) configuration.getAttributes().get(IRepositoryConfiguration.PROVIDER_ID);
       String repositoryId = (String) configuration.getAttributes().get(IRepositoryConfiguration.REPOSITORY_ID);
-      IRepositoryProvider provider = providers.get(providerId);
-      if (provider == null)
+      if (StringUtils.isEmpty(providerId))
       {
-         throw new PublicException("The repository provider '"+ providerId +"' was not found.");
+         throw new DocumentManagementServiceException(
+               BpmRuntimeError.DMS_REPOSITORY_CONFIGURATION_PARAMETER_IS_NULL.raise(IRepositoryConfiguration.PROVIDER_ID));
       }
       if (StringUtils.isEmpty(repositoryId))
       {
-         throw new IllegalArgumentException("The RepositoryId cannot be empty or null");
+         throw new DocumentManagementServiceException(
+               BpmRuntimeError.DMS_REPOSITORY_CONFIGURATION_PARAMETER_IS_NULL.raise(IRepositoryConfiguration.REPOSITORY_ID));
       }
-      
+
+      IRepositoryProvider provider = providers.get(providerId);
+      if (provider == null)
+      {
+         throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_PROVIDER_NOT_FOUND.raise(providerId));
+      }
+
       synchronized (instances)
       {
          if ( !instances.containsKey(repositoryId))
@@ -150,8 +158,7 @@ public class RepositoryProviderManager
          }
          else
          {
-            throw new PublicException("The repositoryId '" + repositoryId
-                  + "' is already bound. ");
+            throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_INSTANCE_ALREADY_BOUND.raise(repositoryId));
          }
          RepositoryProviderUtils.saveConfiguration(configuration);
       }
@@ -159,23 +166,30 @@ public class RepositoryProviderManager
 
    public void unbindRepository(String repositoryId)
    {
-      if (repositoryId == null || defaultRepositoryId.equals(repositoryId) || DEFAULT_REPOSITORY_ID.equals(repositoryId))
+      if (repositoryId == null)
       {
-         throw new PublicException("Unbinding the default repository is not allowed!");
+         throw new IllegalArgumentException("null");
       }
-      
+      if (defaultRepositoryId.equals(repositoryId))
+      {
+         throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_DEFAULT_UNBIND.raise());
+      }
+      if (SYSTEM_REPOSITORY_ID.equals(repositoryId))
+      {
+         throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_SYSTEM_UNBIND.raise());
+      }
+
       IRepositoryInstance instance = instances.get(repositoryId);
-      if (instance == null)
+      if (instance != null)
       {
-         throw new PublicException("This repositoryId '" + repositoryId
-               + "' is not bound: ");
+
+         IRepositoryProvider provider = providers.get(instance.getProviderId());
+         provider.destroyInstance(instance);
+         instances.remove(repositoryId);
       }
-      IRepositoryProvider provider = providers.get(instance.getProviderId());
-      provider.destroyInstance(instance);
-      instances.remove(repositoryId);
       RepositoryProviderUtils.removeConfiguration(repositoryId);
    }
-   
+
    public String getDefaultRepository()
    {
       return defaultRepositoryId;
@@ -187,9 +201,9 @@ public class RepositoryProviderManager
       {
          throw new PublicException("Repository not bound: "+ repositoryId);
       }
-      
+
       this.defaultRepositoryId = repositoryId == null
-            ? DEFAULT_REPOSITORY_ID
+            ? SYSTEM_REPOSITORY_ID
             : repositoryId;
    }
 
@@ -209,7 +223,7 @@ public class RepositoryProviderManager
       }
       else
       {
-         throw new PublicException("No instance was found for '" + repositoryId + "'.");
+         throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_INSTANCE_NOT_FOUND.raise(repositoryId));
       }
    }
 

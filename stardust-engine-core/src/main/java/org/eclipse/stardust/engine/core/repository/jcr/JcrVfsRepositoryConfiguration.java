@@ -19,31 +19,25 @@ public class JcrVfsRepositoryConfiguration
       implements IRepositoryConfiguration
 {
    private static final long serialVersionUID = 5386597909598794074L;
-   
+
    private Map<String, Serializable> attributes;
 
    // Public use
    public static final String JNDI_NAME = "jndiName";
-   
+
    public static final String USER_LEVEL_AUTHORIZATION = "userLevelAuthorization";
+
+   public static final String DISABLE_CAPABILITY_VERSIONING = "disableVersioning";
+
+   public static final String DISABLE_CAPABILITY_WRITE = "disableWrite";
 
    // Internal use
    public static final String IS_DEFAULT_REPOSITORY = "isDefaultRepository";
-   
-   // Test use
-   public static final String IS_IN_MEMORY_TEST_REPO = "inMemoryTestRepo";
-   
-   public static final String REPOSITORY_CONFIG_LOCATION = "repositoryConfigLocation";
-
-   public static final String DISABLE_CAPABILITY_VERSIONING = "disableVersioning";
-   
-   public static final String DISABLE_CAPABILITY_WRITE = "disableWrite";
-
 
    public JcrVfsRepositoryConfiguration(Map<String, Serializable> attributes)
    {
       this.attributes = attributes;
-     
+
    }
 
    @Override
@@ -51,7 +45,7 @@ public class JcrVfsRepositoryConfiguration
    {
       return attributes;
    }
-   
+
    public static boolean getBoolean(IRepositoryConfiguration configuration, String key,
          boolean defaultValue)
    {

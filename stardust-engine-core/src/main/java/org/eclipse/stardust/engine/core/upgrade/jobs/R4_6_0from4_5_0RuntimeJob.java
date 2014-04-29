@@ -10,9 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -20,22 +29,38 @@ import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 import org.eclipse.stardust.engine.core.model.parser.info.XpdlInfo;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexWithTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
+import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.ModelXmlLoader;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.NVLFunction;
-import org.eclipse.stardust.engine.core.upgrade.utils.xml.*;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.RTJobCvmDataInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.RTJobCvmDataPathInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.RTJobCvmModelInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.RTJobCvmModelParser;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.RTJobCvmProcessDefinitionInfo;
 
 
 /**
@@ -754,7 +779,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             // TODO: Check for it at the beginning of the upgrade job!
             throw new PublicException(
-                  "Database does neither support sequences nor identity columns.");
+                  BpmRuntimeError.JDBC_DATABASE_DOES_NEITHER_SUPPORT_SEQUENCES_NOR_IDENTITY_COLUMNS
+                        .raise());
          }
 
          String piPropertyTableName = DatabaseHelper.getQualifiedName(PI_PROP_TABLE);
@@ -781,7 +807,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             // TODO: Check for it at the beginning of the upgrade job!
             throw new PublicException(
-                  "Database does neither support sequences nor identity columns.");
+                  BpmRuntimeError.JDBC_DATABASE_DOES_NEITHER_SUPPORT_SEQUENCES_NOR_IDENTITY_COLUMNS
+                        .raise());
          }
 
          String lshTableName = DatabaseHelper.getQualifiedName(LSH_TABLE_NAME);

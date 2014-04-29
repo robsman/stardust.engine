@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 
@@ -33,7 +34,7 @@ public class TestXPathMap implements IXPathMap
    private Map /* <String,Long> */xPathToOid = new HashMap();
 
    private Set /* <Long> */ allXPathOids = new HashSet();
-   
+
    public TestXPathMap(Set /* <TypedXPath> */xPaths)
    {
       long xPathOid = 0;
@@ -58,7 +59,7 @@ public class TestXPathMap implements IXPathMap
       Long xPathOID = getXPathOID(xPath);
       if (xPathOID == null)
       {
-         throw new PublicException("XPath '" + xPath + "' is not defined");
+         throw new PublicException(BpmRuntimeError.SDT_XPATH_IS_NOT_DEFINED.raise(xPath));
       }
 
       return (TypedXPath) this.oidToXPath.get(xPathOID);
@@ -83,7 +84,7 @@ public class TestXPathMap implements IXPathMap
    {
       return this.getXPath("");
    }
-   
+
    public Set getAllXPathOids()
    {
       return Collections.unmodifiableSet(this.allXPathOids);

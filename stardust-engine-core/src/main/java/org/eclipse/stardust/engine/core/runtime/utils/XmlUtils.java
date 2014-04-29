@@ -44,11 +44,13 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.xml.XmlProperties;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,11 +75,11 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class XmlUtils
 {
    private static final Logger trace = LogManager.getLogger(XmlUtils.class);
-   
+
    public static final String STREAM_ENCODING_ISO_8859_1 = "ISO8859_1";
 
    private static final DefaultHandler DEFAULT_SAX_HANDLER = new CarnotEntityResolver();
-   
+
    private static final String YES = "yes";
    private static final String OUTPUT_METHOD_XML = "xml";
 
@@ -97,7 +99,7 @@ public class XmlUtils
 
    private static final String SAXON_INDENT =
          "{http://saxon.sf.net/}indent-spaces";
-   
+
    private static final String PRP_CACHED_DOM_BUILDER_PREFIX = XmlUtils.class.getName() + ".CachedDomBuilder.";
 
    /**
@@ -147,8 +149,8 @@ public class XmlUtils
                return domBuilder;
             }
          }
-         
-         final DocumentBuilderFactory domBuilderFactory = 
+
+         final DocumentBuilderFactory domBuilderFactory =
             newDocumentBuilderFactory(validating, true);
 
          domBuilderFactory.setNamespaceAware(namespaceAware);
@@ -160,12 +162,12 @@ public class XmlUtils
          {
             rtEnv.setProperty(cacheKey, domBuilder);
          }
-         
+
          return domBuilder;
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
       }
    }
 
@@ -214,14 +216,14 @@ public class XmlUtils
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
       }
    }
-   
+
    public static SAXParserFactory newSaxParserFactory(boolean validating)
    {
       SAXParserFactory result = null;
-      
+
       String parserFactoryOverride;
       if (validating)
       {
@@ -233,14 +235,14 @@ public class XmlUtils
          parserFactoryOverride = Parameters.instance().getString(
                XmlProperties.NONVALIDATING_SAX_PARSER_FACTORY);
       }
-      
+
       if ( !StringUtils.isEmpty(parserFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(parserFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof SAXParserFactory)
             {
                result = (SAXParserFactory) rawResult;
@@ -260,18 +262,18 @@ public class XmlUtils
                   ie);
          }
       }
-      
+
       if (null == result)
       {
          result = SAXParserFactory.newInstance();
       }
-      
+
       result.setNamespaceAware(true);
       result.setValidating(validating);
-      
+
       return result;
    }
-   
+
    public static XMLReader newXmlReader(boolean validating)
    {
       try
@@ -288,11 +290,11 @@ public class XmlUtils
       }
       catch (SAXException se)
       {
-         throw new PublicException("Invalid JAXP setup.", se);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), se);
       }
       catch (ParserConfigurationException pce)
       {
-         throw new PublicException("Invalid JAXP setup.", pce);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(),  pce);
       }
    }
 
@@ -301,7 +303,7 @@ public class XmlUtils
    {
       // TODO process readOnly flag
       DocumentBuilderFactory result = null;
-      
+
       String domBuilderFactoryOverride;
       if (validating)
       {
@@ -318,14 +320,14 @@ public class XmlUtils
          domBuilderFactoryOverride = Parameters.instance().getString(
                XmlProperties.VALIDATING_DOM_BUILDER_FACTORY);
       }
-      
+
       if ( !StringUtils.isEmpty(domBuilderFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(domBuilderFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof DocumentBuilderFactory)
             {
                result = (DocumentBuilderFactory) rawResult;
@@ -346,33 +348,33 @@ public class XmlUtils
                   + " can not be instantiated.", ie);
          }
       }
-      
+
       if (null == result)
       {
          result = DocumentBuilderFactory.newInstance();
       }
-      
+
       result.setNamespaceAware(true);
       result.setValidating(validating);
-      
+
       return result;
    }
-   
+
    public static TransformerFactory newTransformerFactory()
    {
       TransformerFactory result = null;
-      
+
       String traxFactoryOverride = Parameters.instance().getString(
             XmlProperties.XSLT_TRANSFORMER_FACTORY/*,
             XmlProperties.XSLT_TRANSFORMER_FACTORY_XALAN*/);
-      
+
       if ( !StringUtils.isEmpty(traxFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(traxFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof TransformerFactory)
             {
                result = (TransformerFactory) rawResult;
@@ -389,12 +391,12 @@ public class XmlUtils
                   + " can not be instantiated.", ie);
          }
       }
-      
+
       if (null == result)
       {
          result = TransformerFactory.newInstance();
       }
-      
+
       return result;
    }
 
@@ -537,7 +539,7 @@ public class XmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
          }
       }
 
@@ -566,10 +568,11 @@ public class XmlUtils
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error during XML serialization.", e);
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_ERROR_DURING_XML_SERIALIZATION.raise(), e);
       }
    }
-   
+
    public static void transform(Source source, Transformer transformation,
          Result result, String cdataElements, int indent, String encoding)
    {
@@ -582,7 +585,7 @@ public class XmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
          }
       }
 
@@ -608,7 +611,9 @@ public class XmlUtils
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error during XML serialization.", e);
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_ERROR_DURING_XML_SERIALIZATION.raise(), e);
+
       }
    }
 
@@ -636,7 +641,7 @@ public class XmlUtils
             }
          }
       }
-         
+
       return result;
    }
 
@@ -644,10 +649,10 @@ public class XmlUtils
    {
       return toString(doc, null);
    }
-   
+
    /**
     * A DOM node will be stringified into XML.
-    * 
+    *
     * @param doc The DOM node or document.
     * @param transformProperties Additional properties which will change the default behavior
     * of the internally used {@link Transformer}. These properties set new or overwrite default
@@ -661,7 +666,7 @@ public class XmlUtils
     * "{http://xml.apache.org/xalan}indent-amount" = "2" <br>
     * and additionally if doc is no instance of {@link Document} then <br>
     * {@link OutputKeys#OMIT_XML_DECLARATION} = "yes"
-    * 
+    *
     * @return The stringified DOM node/document or null if doc is null.
     */
    public static String toString(Node doc, Properties transformProperties)
@@ -680,9 +685,9 @@ public class XmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
          }
-         
+
          if (doc instanceof Document)
          {
             // setting of the encoding will automatically enforce the xml declaration, regardless
@@ -696,7 +701,7 @@ public class XmlUtils
 
          transformation.setOutputProperty(OutputKeys.INDENT, YES);
          transformation.setOutputProperty(OutputKeys.METHOD, OUTPUT_METHOD_XML);
-         
+
          transformation.setOutputProperty(XALAN_INDENT, Integer.toString(2));
          transformation.setOutputProperty(SAXON_INDENT, Integer.toString(2));
 
@@ -705,19 +710,21 @@ public class XmlUtils
             for (Iterator i = transformProperties.entrySet().iterator(); i.hasNext();)
             {
                Map.Entry entry = (Map.Entry) i.next();
-               
+
                transformation.setOutputProperty((String) entry.getKey(), (String) entry
                      .getValue());
             }
          }
-         
+
          try
          {
             transformation.transform(new DOMSource(doc), result);
          }
          catch (TransformerException e)
          {
-            throw new PublicException("Error during XML serialization.", e);
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_ERROR_DURING_XML_SERIALIZATION.raise(), e);
+
          }
 
          string = writer.toString();
@@ -741,13 +748,13 @@ public class XmlUtils
    {
       return parseString(text, entityResolver, false, false);
    }
-   
+
    public static Document parseString(String text, EntityResolver entityResolver,
          boolean validating)
    {
       return parseString(text, entityResolver, validating, false);
    }
-   
+
    private static Document parseString(String text, EntityResolver entityResolver,
          boolean validating, boolean ignoreWhiteSpace)
    {
@@ -755,7 +762,7 @@ public class XmlUtils
       inputSource.setSystemId("");
       return parseSource(inputSource, entityResolver, validating, ignoreWhiteSpace);
    }
-   
+
    public static Document parseStream(InputStream stream)
    {
       // force validating parser for compatibility
@@ -792,13 +799,13 @@ public class XmlUtils
    {
       return parseSource(inputSource, entityResolver, false, false);
    }
-   
+
    public static Document parseSource(InputSource inputSource,
          EntityResolver entityResolver, boolean validating)
    {
       return parseSource(inputSource, entityResolver, validating, false);
    }
-   
+
    private static Document parseSource(InputSource inputSource,
          EntityResolver entityResolver, boolean validating, boolean ignoreWhiteSpace)
    {
@@ -812,7 +819,7 @@ public class XmlUtils
          {
             domBuilder.setEntityResolver(entityResolver);
          }
-         
+
          return domBuilder.parse(inputSource);
       }
       catch (SAXException e)
@@ -841,7 +848,7 @@ public class XmlUtils
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
       }
       domBuilder.setErrorHandler(new DefaultHandler());
       domBuilder.setEntityResolver(new EntityResolver() {
@@ -926,27 +933,27 @@ public class XmlUtils
       {
          trace.warn(formatParseException("Warning", exception));
       }
-   
+
       public void error(SAXParseException exception) throws SAXException
       {
          trace.error(formatParseException("Error", exception));
       }
-   
+
       public void fatalError(SAXParseException exception) throws SAXException
       {
          trace.error(formatParseException("Fatal Error", exception));
       }
-   
+
       private String formatParseException(String label,
             SAXParseException e)
       {
          StringBuffer buffer = new StringBuffer(100);
-   
+
          buffer.append(label).append(" (").append(e.getLineNumber()).append(", ").append(
                e.getColumnNumber()).append(") ");
-   
+
          buffer.append(e.getMessage());
-   
+
          return buffer.toString();
       }
    }
@@ -982,7 +989,7 @@ public class XmlUtils
                }
             }
          }
-         
+
          return null;
       }
    }
@@ -995,15 +1002,15 @@ public class XmlUtils
       }
       catch (FileNotFoundException e)
       {
-         throw new PublicException("File not found: '" + fileName + ".");
+         throw new PublicException(BpmRuntimeError.BPMRT_FILE_NOT_FOUND.raise(fileName));
       }
    }
-      
+
    public static String getXMLString(byte[] content)
    {
       return getXMLString(new InputSource(new ByteArrayInputStream(content)));
    }
-   
+
    public static String getXMLString(InputSource input)
    {
       try
@@ -1012,26 +1019,26 @@ public class XmlUtils
          xmlReader.setErrorHandler(new ParseErrorHandler());
          xmlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
          SAXSource source = new SAXSource(xmlReader, input);
-         
+
          StringWriter writer = new StringWriter();
          StreamResult target = new StreamResult(writer);
-         
+
          TransformerFactory factory = XmlUtils.newTransformerFactory();
          Transformer transformer = factory.newTransformer();
          transformer.transform(source, target);
-         
+
          return writer.toString();
       }
       catch (TransformerConfigurationException e)
       {
-         throw new PublicException("Error reading xml.", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_ERROR_READING_XML.raise(), e);
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error reading xml.", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_ERROR_READING_XML.raise(), e);
       }
    }
-   
+
    public static byte[] getContent(String fileName) throws IOException
    {
       return getContent(new File(fileName));
@@ -1054,7 +1061,7 @@ public class XmlUtils
       }
       return content;
    }
-      
+
    public static byte[] getContent(InputStream in) throws FileNotFoundException, IOException
    {
       byte[] buffer = new byte[512];
@@ -1068,7 +1075,7 @@ public class XmlUtils
       is.close();
       return content.toByteArray();
    }
-      
+
    public static String getOldXMLString(String fileName)
    {
       BufferedReader inStream = null;
@@ -1078,7 +1085,7 @@ public class XmlUtils
       }
       catch (FileNotFoundException e)
       {
-         throw new PublicException("File not found: '" + fileName + ".");
+         throw new PublicException(BpmRuntimeError.BPMRT_FILE_NOT_FOUND.raise(fileName));
       }
       try
       {

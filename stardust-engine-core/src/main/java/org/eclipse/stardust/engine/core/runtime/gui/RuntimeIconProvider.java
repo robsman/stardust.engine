@@ -18,10 +18,16 @@ import javax.swing.ImageIcon;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.Activity;
+import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.model.Organization;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.Grant;
 import org.eclipse.stardust.engine.core.compatibility.gui.IconProvider;
@@ -131,7 +137,8 @@ public class RuntimeIconProvider implements IconProvider
       catch (Exception x)
       {
          throw new PublicException(
-               "The resource '" + icon + "' for object '" + object + "' couldn't be loaded.");
+               BpmRuntimeError.DIAG_RESOURCE_FOR_OBJECT_COULD_NOT_BE_LOADED.raise(icon,
+                     object));
       }
    }
 

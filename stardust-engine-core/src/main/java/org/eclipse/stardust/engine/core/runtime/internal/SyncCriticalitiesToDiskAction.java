@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
@@ -34,9 +35,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 
 /**
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class SyncCriticalitiesToDiskAction extends Procedure
 {
@@ -50,9 +51,9 @@ public class SyncCriticalitiesToDiskAction extends Procedure
    private static final String AI_F_OID = ActivityInstanceBean.FIELD__OID;
 
    private static final String AI_F_CRITICALITY = ActivityInstanceBean.FIELD__CRITICALITY;
-   
+
    private static final String WI_F_CRITICALITY = WorkItemBean.FIELD__CRITICALITY;
-   
+
    private static final String WI_F_AI = WorkItemBean.FIELD__ACTIVITY_INSTANCE;
 
    private final Map criticalityMap;
@@ -136,7 +137,7 @@ public class SyncCriticalitiesToDiskAction extends Procedure
                         stmt.addBatch(MessageFormat.format(
                               updateTableSql,
                               new Object[] {
-                                    DmlManager.getSQLValue(Double.TYPE, new Double(criticality), 
+                                    DmlManager.getSQLValue(Double.TYPE, new Double(criticality),
                                           jdbcSession.getDBDescriptor()),
                                     DmlManager.getSQLValue(Long.TYPE, new Long(aiOid),
                                           jdbcSession.getDBDescriptor())}));
@@ -160,7 +161,10 @@ public class SyncCriticalitiesToDiskAction extends Procedure
          }
          catch (SQLException e)
          {
-            throw new PublicException("Failed to update criticalities in AuditTrail", e);
+            throw new PublicException(
+                  BpmRuntimeError.ATDB_FAILED_TO_UPDATE_CRITICALITIES_IN_AUDITTRAIL
+                        .raise(),
+                  e);
          }
       }
 

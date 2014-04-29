@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -49,7 +48,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
       IUserGroup, Serializable, Cacheable
 {
    private static final Logger trace = LogManager.getLogger(UserGroupBean.class);
-   
+
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__ID = "id";
    public static final String FIELD__NAME = "name";
@@ -115,13 +114,13 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
             return result;
          }
       }
-      
+
       result = (UserGroupBean) SessionFactory.getSession(
             SessionFactory.AUDIT_TRAIL).findFirst(UserGroupBean.class,
                   QueryExtension.where(Predicates.andTerm(
                         Predicates.isEqual(FR__ID, id),
                         Predicates.isEqual(FR__PARTITION, partitionOid))));
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
@@ -134,7 +133,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    /**
     * Returns user groups for a given user. It is possible to decide whether all user
     * groups or valid only should be returned.
-    * 
+    *
     * @param userOid Oid of an user
     * @param validOnly
     * @return Iterator of UserGroupBeans
@@ -145,16 +144,16 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
 
       Join uugJoin = new Join(UserUserGroupLink.class)
             .on(UserGroupBean.FR__OID, UserUserGroupLink.FIELD__USER_GROUP);
-      
+
       queryExtension.addJoin(uugJoin);
-      
+
       PredicateTerm predicate = Predicates.isEqual(UserUserGroupLink.FR__USER,
             userOid);
 
       if (true == validOnly)
       {
          Date now = new Date();
-         
+
          Join uJoin = new Join(UserBean.class)
                .on(UserUserGroupLink.FR__USER, UserBean.FIELD__OID);
          queryExtension.addJoin(uJoin);
@@ -176,7 +175,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    {
       return id_COLUMN_LENGTH;
    }
-   
+
    public UserGroupBean()
    {
    }
@@ -192,9 +191,9 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
                   Predicates.isEqual(FR__ID, trimmedId),
                   Predicates.isEqual(FR__PARTITION, partition.getOID())))))
       {
-         throw new PublicException(MessageFormat.format(
-               "User group with id ''{0}'' already exists for {1}.", new Object[] {
-                     trimmedId, partition }));
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_USER_GROUP_WITH_ID_ALREADY_EXISTS_FOR.raise(
+                     trimmedId, partition));
       }
 
       this.id = trimmedId;
@@ -230,7 +229,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    }
 
    /**
-    * 
+    *
     */
    public String getName()
    {
@@ -239,7 +238,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    }
 
    /**
-    * 
+    *
     */
    public void setName(String name)
    {
@@ -251,7 +250,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    }
 
    /**
-    * 
+    *
     */
    public Date getValidFrom()
    {
@@ -284,7 +283,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    }
 
    /**
-    * 
+    *
     */
    public String getDescription()
    {
@@ -293,7 +292,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    }
 
    /**
-    * 
+    *
     */
    public void setDescription(String description)
    {
@@ -320,7 +319,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
          markModified(FIELD__PARTITION);
       }
    }
-   
+
    // @todo (france, ub): introduce an additional boolean field for temporary disabling
    public boolean isValid()
    {
@@ -460,10 +459,10 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
       cos.writeDate(validFrom);
       cos.writeDate(validTo);
       cos.writeString(description);
-      
+
       fetchLink(FIELD__PARTITION);
       cos.writeShort(partition == null ? -1 : partition.getOID());
-      
+
       cos.flush();
       byte[] bytes = cos.getBytes();
       cos.close();

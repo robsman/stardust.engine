@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.ejb.EjbProperties;
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
@@ -52,15 +53,15 @@ public abstract class CarnotTxTemplate
 
       Map locals = CollectionUtils.newMap();
       locals.put(EjbProperties.CONTAINER_TYPE, type);
-      
+
       boolean pushedJndiContext = false;
       try
       {
          BpmRuntimeEnvironment rtEnv = (BpmRuntimeEnvironment) ParametersFacade.pushLayer(
                params, PropertyLayerProviderInterceptor.BPM_RT_ENV_LAYER_FACTORY, locals);
-         
+
          Session session;
-         
+
          if ((null != type) && !J2eeContainerType.POJO.equals(type))
          {
             InitialContext ic = new InitialContext();
@@ -77,8 +78,9 @@ public abstract class CarnotTxTemplate
 
          if (null == session)
          {
-            throw new PublicException("Missing data source for '"
-                  + SessionFactory.AUDIT_TRAIL + "'");
+            throw new PublicException(
+                  BpmRuntimeError.EJB_MISSING_DATA_SOURCE
+                        .raise(SessionFactory.AUDIT_TRAIL));
          }
 
          rtEnv.setAuditTrailSession(session);
@@ -92,7 +94,7 @@ public abstract class CarnotTxTemplate
             try
             {
                Object result = executeInTx(args);
-               
+
                if (J2eeContainerType.POJO.equals(type))
                {
                   session.save();
@@ -102,7 +104,7 @@ public abstract class CarnotTxTemplate
                   session.flush();
                }
                session.disconnect();
-               
+
                return result;
             }
             catch (Exception e)
@@ -128,6 +130,6 @@ public abstract class CarnotTxTemplate
          }
          ParametersFacade.popLayer();
       }
-      
+
    }
 }

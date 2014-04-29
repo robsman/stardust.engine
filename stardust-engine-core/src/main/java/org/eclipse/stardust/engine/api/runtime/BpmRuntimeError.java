@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 
 import org.eclipse.stardust.common.error.BaseErrorCaseMessages;
 import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.PublicException;
 
 
 /**
@@ -291,6 +292,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST = newArgs0("ATDB03009", BpmRuntimeErrorMessages.getString("ATDB03009")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE = newArgs0("ATDB03010", BpmRuntimeErrorMessages.getString("ATDB03010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNABLE_TO_DELETE_VALUE_OF_AUDIT_TRAIL_PROPERTY = newArgs1("ATDB03011", BpmRuntimeErrorMessages.getString("ATDB03011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ATDB_FAILED_TO_UPDATE_CRITICALITIES_IN_AUDITTRAIL = newArgs0("ATDB03012", BpmRuntimeErrorMessages.getString("ATDB03012")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 
@@ -508,6 +510,15 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN = newArgs0("BPMRT07028", BpmRuntimeErrorMessages.getString("BPMRT07028")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN = newArgs0("BPMRT07029", BpmRuntimeErrorMessages.getString("BPMRT07029")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_INVALID_RUNTIME_SETUP_CONFIGURATION = newArgs0("BPMRT07030", BpmRuntimeErrorMessages.getString("BPMRT07030")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_USER_GROUP_WITH_ID_ALREADY_EXISTS_FOR = newArgs2("BPMRT07031", BpmRuntimeErrorMessages.getString("BPMRT07031")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args0 BPMRT_UNABLE_TO_USE_XML_SCHEMA_MODEL_VALIDATION = newArgs0("BPMRT07032", BpmRuntimeErrorMessages.getString("BPMRT07032")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_UNABLE_TO_SET_DEFAULT_XML_SCHEMA_URI_FOR_MODEL_VALIDATION = newArgs0("BPMRT07033", BpmRuntimeErrorMessages.getString("BPMRT07033")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_ERROR_DURING_XML_SERIALIZATION = newArgs0("BPMRT07034", BpmRuntimeErrorMessages.getString("BPMRT07034")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_ERROR_READING_XML = newArgs0("BPMRT07035", BpmRuntimeErrorMessages.getString("BPMRT07035")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_FILE_NOT_FOUND = newArgs1("BPMRT07036", BpmRuntimeErrorMessages.getString("BPMRT07036")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
 
 
 
@@ -693,6 +704,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE = newArgs0("DIAG01007", BpmRuntimeErrorMessages.getString("DIAG01007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_COLON = newArgs0("DIAG01008", BpmRuntimeErrorMessages.getString("DIAG01008")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_CANNOT_LOAD_IMAGE_ICON = newArgs0("DIAG01009", BpmRuntimeErrorMessages.getString("DIAG01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_RESOURCE_FOR_OBJECT_COULD_NOT_BE_LOADED = newArgs2("DIAG01009", BpmRuntimeErrorMessages.getString("DIAG01009")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    ////JDBC related
 
@@ -712,8 +725,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE = newArgs1("JDBC01014", BpmRuntimeErrorMessages.getString("JDBC01014")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JDBC_UNKNOWN_COLUMN_MODIFICATION_TYPE = newArgs1("JDBC01015", BpmRuntimeErrorMessages.getString("JDBC01015")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JDBC_PREPARATION_OF_STRING_TO_VALUE_MIGRATION_FAILED = newArgs0("JDBC01016", BpmRuntimeErrorMessages.getString("JDBC01016")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
+   public static final Args0 JDBC_DATABASE_DOES_NEITHER_SUPPORT_SEQUENCES_NOR_IDENTITY_COLUMNS = newArgs0("JDBC01017", BpmRuntimeErrorMessages.getString("JDBC01017")); //$NON-NLS-1$ //$NON-NLS-2$
 
    ////POJO related
 
@@ -759,6 +771,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 SDT_INVALID_CHILD_ELEMENT = newArgs1("SDT01022", BpmRuntimeErrorMessages.getString("SDT01022")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 SDT_NO_SUCH_CHILD = newArgs1("SDT01023", BpmRuntimeErrorMessages.getString("SDT01023")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 SDT_COULD_NOT_ANALYSE_STRUCTURED_DATA_FOR_XPATH_OID = newArgs2("SDT01024", BpmRuntimeErrorMessages.getString("SDT01024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_XPATH_IS_NOT_DEFINED = newArgs1("SDT01025", BpmRuntimeErrorMessages.getString("SDT01025")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    ////Generic Exception message

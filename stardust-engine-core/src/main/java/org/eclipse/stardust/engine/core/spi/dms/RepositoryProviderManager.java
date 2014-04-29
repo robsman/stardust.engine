@@ -17,7 +17,6 @@ import java.util.ServiceLoader;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -199,7 +198,7 @@ public class RepositoryProviderManager
    {
       if (repositoryId != null && !instances.containsKey(repositoryId))
       {
-         throw new PublicException("Repository not bound: "+ repositoryId);
+         throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_INSTANCE_NOT_FOUND.raise(repositoryId));
       }
 
       this.defaultRepositoryId = repositoryId == null

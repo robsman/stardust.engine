@@ -12,8 +12,6 @@ package org.eclipse.stardust.common.error;
 
 import java.text.MessageFormat;
 
-import org.eclipse.stardust.common.error.ErrorCase;
-
 
 /**
  * @author sauer
@@ -22,9 +20,23 @@ import org.eclipse.stardust.common.error.ErrorCase;
 public class BaseErrorCase extends ErrorCase
 {
    private static final long serialVersionUID = 1L;
-  
-   public static final Args2 BPMRT_GENERAL_INCOMPATIBLE_TYPE = newArgs2("BPMRT04001", BaseErrorCaseMessages.getString("BPMRT04001")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
+   public static final Args2 BASE_INCOMPATIBLE_TYPES = newArgs2("BASE01001", BaseErrorCaseMessages.getString("BASE01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER = newArgs2("BASE01002", BaseErrorCaseMessages.getString("BASE01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE = newArgs2("BASE01003", BaseErrorCaseMessages.getString("BASE01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_DOUBLE = newArgs2("BASE01004", BaseErrorCaseMessages.getString("BASE01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_VALID_DATE = newArgs2("BASE01005", BaseErrorCaseMessages.getString("BASE01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BASE_URL_CANNOT_BE_LOADED = newArgs1("BASE01006", BaseErrorCaseMessages.getString("BASE01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_PASSWORD_FILE_COULD_NOT_BE_FOUND_AT_THE_SPECIFIED_LOCATION = newArgs0("BASE01007", BaseErrorCaseMessages.getString("BASE01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_PASSWORD_FILE_COULD_NOT_BE_READ = newArgs0("BASE01008", BaseErrorCaseMessages.getString("BASE01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 BASE_DATE_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT = newArgs3("BASE01010", BaseErrorCaseMessages.getString("BASE01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_INVALID_NUMERIC_ARGUMENT = newArgs0("BASE01011", BaseErrorCaseMessages.getString("BASE01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BASE_ILLEGAL_OPTION_VALUE_IS_NOT_A_LONG_VALUE = newArgs2("BASE01012", BaseErrorCaseMessages.getString("BASE01012")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args2 BASE_YOU_HAVE_NOT_SUPPLIED_THE_CORRECT_PARAMETER_IN_PROPERTIES = newArgs2("BASE01012", BaseErrorCaseMessages.getString("BASE01012")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+
    private static final Object[] NONE = {};
 
    private final String defaultMessage;

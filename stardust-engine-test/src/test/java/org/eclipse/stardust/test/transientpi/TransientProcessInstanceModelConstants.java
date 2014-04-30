@@ -216,6 +216,24 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_PROCESS_INTERFACE_UNQUALIFIED = "ProcessInterface";
 
+   /**
+    * the ID of the process definition allowing to change the audit trail persistence mode during process execution,
+    * originally audit trail persistence mode is {@link AuditTrailPersistence#TRANSIENT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_Transient";
+
+   /**
+    * the ID of the process definition allowing to change the audit trail persistence mode during process execution,
+    * originally audit trail persistence mode is {@link AuditTrailPersistence#DEFERRED}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_Deferred";
+
+   /**
+    * the ID of the process definition allowing to change the audit trail persistence mode during process execution,
+    * originally audit trail persistence mode is {@link AuditTrailPersistence#IMMEDIATE}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_Immediate";
+
 
    /**
     * the name of the process definition started by a timer trigger
@@ -224,10 +242,22 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 
 
    /**
+    * the name of the activity changing the audit trail persistence mode
+    */
+   /* package-private */ static final String ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE = "ChangeAuditTrailPersistenceActivity";
+
+
+   /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or
     * the non-transient route should be taken
     */
    /* package-private */ static final String DATA_ID_TRANSIENT_ROUTE = "TransientRoute";
+
+   /**
+    * the ID of the data in model 'ChangeAuditTrailPersistence' determining the audit trail persistence mode
+    * to change to
+    */
+   /* package-private */ static final String DATA_ID_AUDIT_TRAIL_PERSISTENCE = "AuditTrailPersistence";
 
    /**
     * the out data path for the primitive data 'Fail'

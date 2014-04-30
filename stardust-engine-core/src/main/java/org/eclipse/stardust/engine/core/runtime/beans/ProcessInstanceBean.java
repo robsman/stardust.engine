@@ -207,6 +207,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();
 
+   private transient AuditTrailPersistence previousAuditTrailPersistence = null;
+
    /**
     * Returns the process instance with the OID <tt>oid</tt>.
     */
@@ -1681,19 +1683,32 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          throw new NullPointerException("Audit Trail Persistence must not be null.");
       }
 
+      final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
+      oldValue.assertThatStateChangeIsAllowedTo(newValue);
+
       final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
       if (isGlobalOverride)
       {
          trace.warn("Changing process instance bound Audit Trail Persistence to '" + newValue + "' although a global override is set. (OID: " + oid + ").");
       }
 
-      final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
       if (oldValue != newValue && !isGlobalOverride)
       {
-         trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
+         trace.info("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }
 
+      if (previousAuditTrailPersistence != null)
+      {
+         throw new IllegalStateException("Audit Trail Persistence may only be changed once per transaction.");
+      }
+      previousAuditTrailPersistence = oldValue;
+
       setAuditTrailPersistencePropertyValue(newValue);
+   }
+
+   public AuditTrailPersistence getPreviousAuditTrailPersistence()
+   {
+      return previousAuditTrailPersistence;
    }
 
    private boolean isGlobalAuditTrailPersistenceOverride()

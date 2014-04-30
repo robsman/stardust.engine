@@ -75,10 +75,10 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    public IDataValue getDataValue(IData data);
 
    /**
-    * Returns all existing data values of the scope process instance 
+    * Returns all existing data values of the scope process instance
     */
    public Iterator getAllDataValues();
-   
+
    /**
     *
     */
@@ -93,7 +93,7 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    /**
     * Returns the OID of the root process instance hosting a subprocess instance, or the
     * OID of this process instance itself in case of a top-level process instance.
-    * 
+    *
     * @return The OID of the root process instance.
     * @see #getRootProcessInstance()
     */
@@ -102,46 +102,46 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    /**
     * Returns the root process instance hosting the subprocess instance, or the process
     * instance itself in case of a top-level process instance.
-    * 
+    *
     * @return The root process instance.
     * @see #getRootProcessInstanceOID()
     */
    public IProcessInstance getRootProcessInstance();
 
    /**
-    * Returns the OID of the scope process instance the data values of this 
+    * Returns the OID of the scope process instance the data values of this
     * process instance are bound to.
-    * 
+    *
     * @return The OID of the scope process instance.
     */
    public long getScopeProcessInstanceOID();
 
    /**
-    * Returns the scope process instance the data values of this 
+    * Returns the scope process instance the data values of this
     * process instance are bound to.
-    * 
+    *
     * @return The root process instance.
     * @see #getScopeProcessInstanceOID()
     */
    public IProcessInstance getScopeProcessInstance();
-   
+
    /**
     * Checks if this process instance is a case instance.
-    * 
+    *
     * @return true if this is a case instance.
     */
    boolean isCaseProcessInstance();
-   
+
    /**
     * Gets the priority of the process instance.
-    * 
+    *
     * @return The priority of the process instance or -1 if no priority set.
     */
    int getPriority();
 
    /**
     * Sets the priority of the process instance.
-    * 
+    *
     * param priority The new priority of the process instance.
     */
    void setPriority(int priority);
@@ -149,7 +149,7 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    /**
     * Returns the OID of the calling activity instance if this process is started as a
     * subprocess on behalf of this activity instance.
-    * 
+    *
     * @return The OID of the calling activity instance.
     */
    public long getStartingActivityInstanceOID();
@@ -170,7 +170,7 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
     * Interrupts the process due to exception in non-interactive application.
     */
    public void interrupt();
-   
+
    /**
     * Resets the interrupted flag after recovery.
     */
@@ -198,30 +198,32 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    void bind(IEventHandler handler, EventHandlerBinding aspect);
 
    void unbind(IEventHandler handler, EventHandlerBinding aspect);
-   
+
    void preloadDataValues(List dataItems);
-   
+
    boolean isPropertyAvailable();
-   
+
    boolean isPropertyAvailable(int pattern);
-   
+
    void addNote(String note);
-   
+
    void addNote(String note, ContextKind contextKind, long contextOid);
-   
+
    List/**/ getNotes();
 
    void addAbortingPiOid(long oid);
-   
+
    void removeAbortingPiOid(long oid);
-   
+
    List/**/ getAbortingPiOids();
 
    public long getReferenceDeployment();
-   
+
    public AuditTrailPersistence getAuditTrailPersistence();
-   
+
    public void setAuditTrailPersistence(final AuditTrailPersistence auditTrailPersistence);
+
+   public AuditTrailPersistence getPreviousAuditTrailPersistence();
 
    public void addExistingNote(ProcessInstanceProperty srcNote);
 }

@@ -13,51 +13,97 @@ package org.eclipse.stardust.engine.api.dto;
 /**
  * <p>
  * Encapsulates the <i>Audit Trail Persistence</i> mode the
- * engine is running in. 
+ * engine is running in.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public enum AuditTrailPersistence {
-   
+
    /**
     * <p>
     * The <i>Audit Trail Persistence</i> mode if nothing is defined explicitly:
     * meaning that it falls back to the standard behavior (see {@link #IMMEDIATE}).
     * </p>
     */
-   ENGINE_DEFAULT,
-   
+   ENGINE_DEFAULT
+   {
+      @Override
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      {
+         throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+      }
+   },
+
    /**
     * <p>
     * Running in this mode the process instance will never be written to the Audit Trail.
     * </p>
     */
-   TRANSIENT,
-   
+   TRANSIENT
+   {
+      @Override
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      {
+         if (to == ENGINE_DEFAULT)
+         {
+            throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+         }
+      }
+   },
+
    /**
     * <p>
     * Running in this mode the process instance will be written to the Audit Trail
     * only after the process instance has been completed.
     * </p>
     */
-   DEFERRED,
-   
+   DEFERRED
+   {
+      @Override
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      {
+         if (to == ENGINE_DEFAULT)
+         {
+            throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+         }
+      }
+   },
+
    /**
     * <p>
     * Running in this mode the process instance will be written to the Audit Trail
     * after every single transaction (standard behavior).
     * </p>
     */
-   IMMEDIATE;
-   
+   IMMEDIATE
+   {
+      @Override
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      {
+         throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+      }
+   };
+
+   /**
+    * <p>
+    * Asserts that the specified state change is allowed, i.e. if it's allowed, the method silently returns,
+    * whereas it throws an exception if the state change is forbidden.
+    * </p>
+    *
+    * @param to the state for which it should be checked whether a state change from the current state is allowed
+    *
+    * @throws IllegalStateException if the state change is not allowed
+    */
+   public abstract void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to);
+
    /**
     * <p>
     * Determines whether the given <i>Audit Trail Persistence</i> mode mandates transient
     * process instance execution or not.
     * </p>
-    * 
+    *
     * @param auditTrailPersistence the audit trail persistence to be checked
     * @return whether the execution is transient or not
     */
@@ -66,5 +112,10 @@ public enum AuditTrailPersistence {
       final boolean isTransient = auditTrailPersistence == AuditTrailPersistence.TRANSIENT;
       final boolean isDeferred = auditTrailPersistence == AuditTrailPersistence.DEFERRED;
       return isTransient || isDeferred;
+   }
+
+   private static String createStateChangeForbiddenMessage(final AuditTrailPersistence from, final AuditTrailPersistence to)
+   {
+      return "State change '" + from.name() + "' -> '" + to.name() + "' is forbidden.";
    }
 }

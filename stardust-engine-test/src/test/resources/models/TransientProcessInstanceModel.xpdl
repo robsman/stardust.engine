@@ -247,6 +247,24 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Application>
+      <Application Id="ChangeAuditTrailPersistenceApp" Name="Change Audit Trail Persistence App">
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$ChangeAuditTrailPersistence" xref="changeIt:long:java.lang.String"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="10785" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$ChangeAuditTrailPersistence"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="changeIt(long,java.lang.String)"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$ChangeAuditTrailPersistence()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
    </Applications>
    <DataFields>
       <DataField Id="LAST_ACTIVITY_PERFORMER" Name="&lt;Last Activity Performer&gt;" IsArray="FALSE">
@@ -550,6 +568,22 @@
                <carnot:DataField Oid="10770" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="AuditTrailPersistence" Name="Audit Trail Persistence" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10791" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
@@ -6099,6 +6133,617 @@
                      <carnot:FormalParameterMapping Data="StringInput" FormalParameter="Input"/>
                      <carnot:FormalParameterMapping Data="StringOutput" FormalParameter="Output"/>
                   </carnot:FormalParameterMappings>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ChangeAuditTrailPersistence_Transient" Name="Change Audit Trail Persistence - Transient" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10775">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10777">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ChangeAuditTrailPersistenceActivity" Name="Change Audit Trail Persistence Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="ChangeAuditTrailPersistenceApp">
+                        <ActualParameters>
+                           <ActualParameter>PROCESS_ID</ActualParameter>
+                           <ActualParameter>AuditTrailPersistence</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10779" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10790" Id="piOid" Name="piOid" Direction="IN" Context="application">
+                              <carnot:DataRef Id="PROCESS_ID"/>
+                              <carnot:AccessPointRef Id="lParam1"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10793" Id="AuditTrailPersistence" Name="AuditTrailPersistence" Direction="IN" Context="application">
+                              <carnot:DataRef Id="AuditTrailPersistence"/>
+                              <carnot:AccessPointRef Id="sParam2"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="WaitingActivity" Name="Waiting Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="WaitingApp">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10795" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="FirstActivity" To="ChangeAuditTrailPersistenceActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10781" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ChangeAuditTrailPersistenceActivity" To="WaitingActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10797" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition3" Name="Transition 3" From="WaitingActivity" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10799"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10774">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10773" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10772" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10776" X="230" Y="95" Width="250" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10778" X="230" Y="395" Width="250" Height="51" ModelElement="LastActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10780" X="230" Y="185" Width="250" Height="51" ModelElement="ChangeAuditTrailPersistenceActivity"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10786" X="540" Y="190" Width="200" Height="40" ModelElement="ChangeAuditTrailPersistenceApp"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10792" X="25" Y="175" Width="140" Height="70" ModelElement="AuditTrailPersistence"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10796" X="230" Y="285" Width="250" Height="51" ModelElement="WaitingActivity"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10802" X="575" Y="290" Width="140" Height="40" ModelElement="WaitingApp"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10782" ModelElement="Transition1" SourceSymbol="10776" TargetSymbol="10780" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10787" SourceSymbol="10786" TargetSymbol="10780"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10794" SourceSymbol="10792" TargetSymbol="10780"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10798" ModelElement="Transition2" SourceSymbol="10780" TargetSymbol="10796" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10800" ModelElement="Transition3" SourceSymbol="10796" TargetSymbol="10778" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10803" SourceSymbol="10802" TargetSymbol="10796"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ChangeAuditTrailPersistence_Deferred" Name="Change Audit Trail Persistence - Deferred" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10807">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ChangeAuditTrailPersistenceActivity" Name="Change Audit Trail Persistence Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="ChangeAuditTrailPersistenceApp">
+                        <ActualParameters>
+                           <ActualParameter>AuditTrailPersistence</ActualParameter>
+                           <ActualParameter>PROCESS_ID</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10809" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10824" Id="auditTrailPersistence" Name="auditTrailPersistence" Direction="IN" Context="application">
+                              <carnot:DataRef Id="AuditTrailPersistence"/>
+                              <carnot:AccessPointRef Id="sParam2"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10826" Id="piOID" Name="piOID" Direction="IN" Context="application">
+                              <carnot:DataRef Id="PROCESS_ID"/>
+                              <carnot:AccessPointRef Id="lParam1"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="WaitingActivity" Name="Waiting Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="WaitingApp">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10813" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10817">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="FirstActivity" To="ChangeAuditTrailPersistenceActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10811" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ChangeAuditTrailPersistenceActivity" To="WaitingActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10815" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition3" Name="Transition 3" From="WaitingActivity" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10819"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10806">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="DEFERRED"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10805" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10804" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10808" X="180" Y="90" Width="220" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10810" X="180" Y="180" Width="221" Height="51" ModelElement="ChangeAuditTrailPersistenceActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10814" X="180" Y="270" Width="220" Height="51" ModelElement="WaitingActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10818" X="180" Y="365" Width="220" Height="51" ModelElement="LastActivity"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10821" X="-20" Y="170" Width="140" Height="70" ModelElement="AuditTrailPersistence"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10822" X="445" Y="185" Width="200" Height="40" ModelElement="ChangeAuditTrailPersistenceApp"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10827" X="510" Y="275" Width="80" Height="40" ModelElement="WaitingApp"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10812" ModelElement="Transition1" SourceSymbol="10808" TargetSymbol="10810" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10816" ModelElement="Transition2" SourceSymbol="10810" TargetSymbol="10814" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10820" ModelElement="Transition3" SourceSymbol="10814" TargetSymbol="10818" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10823" SourceSymbol="10822" TargetSymbol="10810"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10825" SourceSymbol="10821" TargetSymbol="10810"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10828" SourceSymbol="10827" TargetSymbol="10814"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ChangeAuditTrailPersistence_Immediate" Name="Change Audit Trail Persistence - Immediate" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10832">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ChangeAuditTrailPersistenceActivity" Name="Change Audit Trail Persistence Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="ChangeAuditTrailPersistenceApp">
+                        <ActualParameters>
+                           <ActualParameter>AuditTrailPersistence</ActualParameter>
+                           <ActualParameter/>
+                           <ActualParameter>PROCESS_ID</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10834" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10847" Id="auditTrailPersistence" Name="auditTrailPersistence" Direction="IN" Context="application">
+                              <carnot:DataRef Id="AuditTrailPersistence"/>
+                              <carnot:AccessPointRef Id="sParam2"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10849" Id="InDataMapping1" Name="InDataMapping1" Direction="IN" Context="application">
+                              <carnot:DataRef Id=""/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10850" Id="piOid" Name="piOid" Direction="IN" Context="application">
+                              <carnot:DataRef Id="PROCESS_ID"/>
+                              <carnot:AccessPointRef Id="lParam1"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="WaitingActivity" Name="Waiting Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="WaitingApp">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10838" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10851">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="FirstActivity" To="ChangeAuditTrailPersistenceActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10836" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ChangeAuditTrailPersistenceActivity" To="WaitingActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10840" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition3" Name="Transition 3" From="WaitingActivity" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10853"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10831">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="IMMEDIATE"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10830" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10829" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10833" X="175" Y="80" Width="220" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10835" X="175" Y="175" Width="221" Height="51" ModelElement="ChangeAuditTrailPersistenceActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10839" X="175" Y="270" Width="220" Height="51" ModelElement="WaitingActivity"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10842" X="500" Y="275" Width="80" Height="40" ModelElement="WaitingApp"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10844" X="440" Y="180" Width="200" Height="40" ModelElement="ChangeAuditTrailPersistenceApp"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10846" X="-10" Y="165" Width="140" Height="70" ModelElement="AuditTrailPersistence"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10852" X="175" Y="365" Width="220" Height="51" ModelElement="LastActivity"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10837" ModelElement="Transition1" SourceSymbol="10833" TargetSymbol="10835" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10841" ModelElement="Transition2" SourceSymbol="10835" TargetSymbol="10839" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10843" SourceSymbol="10842" TargetSymbol="10839"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10845" SourceSymbol="10844" TargetSymbol="10835"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10848" SourceSymbol="10846" TargetSymbol="10835"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10854" ModelElement="Transition3" SourceSymbol="10839" TargetSymbol="10852" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
                </carnot:WorkflowProcess>
             </ExtendedAttribute>
          </ExtendedAttributes>

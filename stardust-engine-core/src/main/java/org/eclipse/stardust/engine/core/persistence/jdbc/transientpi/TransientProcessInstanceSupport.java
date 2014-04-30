@@ -125,6 +125,11 @@ public class TransientProcessInstanceSupport
       determineWhetherPisAreTransientExecutionCandidates(pis);
       if ( !arePisTransientExecutionCandidates())
       {
+         if (isSwitchFromTransientOrDeferredToImmediate(pis))
+         {
+            cancelTransientExecution = true;
+         }
+
          return;
       }
 
@@ -492,6 +497,38 @@ public class TransientProcessInstanceSupport
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
          rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
       }
+   }
+
+   /**
+    *  we can just take an arbitrary pi since we can assume that all point to the same root pi:
+    *  if it was not the case, {@link #determineWhetherRootProcessInstanceIsUnique(Collection)} will
+    *  return <code>false</code> afterwards (for the common use case first checking whether it's a switch
+    *  and afterwards checking for a unique root PI is much faster, because in the most cases there's no
+    *  switch and the expensive unique root PI checking can be omitted)
+    */
+   private boolean isSwitchFromTransientOrDeferredToImmediate(final Map<Object, PersistenceController> pis)
+   {
+      if (pis == null || pis.isEmpty())
+      {
+         return false;
+      }
+
+      final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
+      final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+      final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
+      final boolean wasTransient = AuditTrailPersistence.TRANSIENT.equals(rootPi.getPreviousAuditTrailPersistence());
+      final boolean wasDeferred = AuditTrailPersistence.DEFERRED.equals(rootPi.getPreviousAuditTrailPersistence());
+      if ( !(isImmediateNow && (wasTransient || wasDeferred)))
+      {
+         return false;
+      }
+
+      if ( !determineWhetherRootProcessInstanceIsUnique(pis.values()))
+      {
+         return false;
+      }
+
+      return true;
    }
 
    private void assertEnabled()

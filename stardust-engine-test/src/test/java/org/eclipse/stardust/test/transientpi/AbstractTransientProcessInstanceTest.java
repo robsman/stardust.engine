@@ -45,6 +45,7 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -52,11 +53,14 @@ import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
@@ -517,6 +521,26 @@ public class AbstractTransientProcessInstanceTest
       public void readData(final String string)
       {
          /* nothing to do */
+      }
+   }
+
+   /**
+    * <p>
+    * This is the application used in the test model to change the <i>Audit Trail Persistence</i> mode.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static final class ChangeAuditTrailPersistence
+   {
+      public void changeIt(final long piOid, final String auditTrailPersistence)
+      {
+         final AuditTrailPersistence newValue = AuditTrailPersistence.valueOf(auditTrailPersistence);
+
+         final ProcessInstanceBean pi = ProcessInstanceBean.findByOID(piOid);
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         rootPi.setAuditTrailPersistence(newValue);
       }
    }
 

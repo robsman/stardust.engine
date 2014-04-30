@@ -1814,7 +1814,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                               + type + " unexpectedly contained modified instances.");
                }
             }
-            else if (transientPiSupport.arePisTransientExecutionCandidates())
+            else if (transientPiSupport.arePisTransientExecutionCandidates() || transientPiSupport.isTransientExecutionCancelled())
             {
                if ( !persistentToBeUpdated.isEmpty())
                {
@@ -2006,7 +2006,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
 
-         if (transientPiSupport.arePisTransientExecutionCandidates())
+         if (transientPiSupport.arePisTransientExecutionCandidates() || transientPiSupport.isTransientExecutionCancelled())
          {
             transientPiSupport.cleanUpInMemStorage();
          }

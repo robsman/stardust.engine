@@ -1274,7 +1274,7 @@ public class Reflect
       else
       {
          throw new InvalidValueException(
-               BaseErrorCase.BPMRT_GENERAL_INCOMPATIBLE_TYPE.raise(value.getClass(),
+               BaseErrorCase.BASE_INCOMPATIBLE_TYPES.raise(value.getClass(),
                      targetType));
       }
       return result;

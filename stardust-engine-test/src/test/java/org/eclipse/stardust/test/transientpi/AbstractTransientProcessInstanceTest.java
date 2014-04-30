@@ -53,11 +53,9 @@ import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
@@ -534,12 +532,11 @@ public class AbstractTransientProcessInstanceTest
     */
    public static final class ChangeAuditTrailPersistence
    {
-      public void changeIt(final long piOid, final String auditTrailPersistence)
+      public void changeIt(final long rootPiOid, final String auditTrailPersistence)
       {
          final AuditTrailPersistence newValue = AuditTrailPersistence.valueOf(auditTrailPersistence);
 
-         final ProcessInstanceBean pi = ProcessInstanceBean.findByOID(piOid);
-         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         final ProcessInstanceBean rootPi = ProcessInstanceBean.findByOID(rootPiOid);
          rootPi.setAuditTrailPersistence(newValue);
       }
    }

@@ -218,6 +218,12 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 
    /**
     * the ID of the process definition allowing to change the audit trail persistence mode during process execution,
+    * originally audit trail persistence mode is {@link AuditTrailPersistence#ENGINE_DEFAULT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_EngineDefault";
+
+   /**
+    * the ID of the process definition allowing to change the audit trail persistence mode during process execution,
     * originally audit trail persistence mode is {@link AuditTrailPersistence#TRANSIENT}
     */
    /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_Transient";

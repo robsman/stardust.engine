@@ -19,6 +19,8 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.ConcatenatedList;
@@ -64,10 +66,13 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    final Map<String, TypeDeclaration> indexedTypeDecls;
 
    private Set<QualityAssuranceCode> qualityAssuranceCodes;
+   private Map<String, Long> externalPackages;
 
    private final Boolean alive;
 
    private transient boolean resolved = false;
+
+   private transient SchemaLocatorAdapter schemaLocatorAdapter;
 
    public ModelDetails(IModel model)
    {
@@ -153,6 +158,24 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          }
       }
 
+      List<IExternalPackage> packages = model.getExternalPackages();
+      if (!packages.isEmpty())
+      {
+         Map<String, Long> externalPackages = CollectionUtils.newMap();
+         for (IExternalPackage pkg : packages)
+         {
+            IModel referencedModel = pkg.getReferencedModel();
+            if (referencedModel != null)
+            {
+               externalPackages.put(pkg.getId(), (long) referencedModel.getModelOID());
+            }
+         }
+         if (!externalPackages.isEmpty())
+         {
+            this.externalPackages = externalPackages;
+         }
+      }
+
       unmodifiableProcesses = Collections.unmodifiableList(processes);
       unmodifiableRoles = Collections.unmodifiableList(roles);
       unmodifiableData  = Collections.unmodifiableList(data);
@@ -189,6 +212,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       unmodifiableTypeDeclarations = template.unmodifiableTypeDeclarations;
 
       qualityAssuranceCodes = template.qualityAssuranceCodes;
+      this.externalPackages = template.externalPackages;
 
       this.alive = alive;
    }
@@ -343,13 +367,11 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    {
       if (!resolved)
       {
-         // Step1: create a dummy resource and set the schema locator
-         XSDResourceImpl schemaResource = new XSDResourceImpl(URI.createURI(XMLConstants.NS_CARNOT_WORKFLOWMODEL_31));
-         schemaResource.eAdapters().add(new SchemaLocatorAdapter(this));
-         ResourceSetImpl resourceSet = new ResourceSetImpl();
-         resourceSet.getResources().add(schemaResource);
-
-         // Step2: set the resource and schema location on the embedded schemas to force resolving
+         if (schemaLocatorAdapter == null)
+         {
+            schemaLocatorAdapter = new SchemaLocatorAdapter();
+         }
+         Resource resource = schemaLocatorAdapter.addModel(this);
          for (int i = 0; i < unmodifiableTypeDeclarations.size(); i++)
          {
             TypeDeclarationDetails decl = (TypeDeclarationDetails) unmodifiableTypeDeclarations.get(i);
@@ -360,7 +382,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
                XSDSchema xsdSchema = schema.getSchema();
                if (xsdSchema != null)
                {
-                  ((InternalEObject) xsdSchema).eSetResource(schemaResource, null);
+                  ((InternalEObject) xsdSchema).eSetResource((Internal) resource, null);
                   xsdSchema.reset();
                }
             }
@@ -369,14 +391,29 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       }
    }
 
-   private static class SchemaLocatorAdapter implements Adapter, XSDSchemaLocator
+   public void setSchemaLocatorAdapter(SchemaLocatorAdapter schemaLocatorAdapter)
+   {
+      this.schemaLocatorAdapter = schemaLocatorAdapter;
+   }
+
+   public static class SchemaLocatorAdapter implements Adapter, XSDSchemaLocator
    {
       private Notifier target;
-      private ModelDetails model;
+      private Model model;
+      private ResourceSetImpl resourceSet;
 
-      public SchemaLocatorAdapter(ModelDetails model)
+      public SchemaLocatorAdapter()
+      {
+         resourceSet = new ResourceSetImpl();
+      }
+
+      public Resource addModel(Model model)
       {
          this.model = model;
+         Resource resource = new XSDResourceImpl(URI.createURI(XMLConstants.NS_CARNOT_WORKFLOWMODEL_31));
+         resource.eAdapters().add(this);
+         resourceSet.getResources().add(resource);
+         return resource;
       }
 
       public Notifier getTarget()
@@ -405,24 +442,44 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          if (rawSchemaLocationURI.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
          {
             String typeId = rawSchemaLocationURI.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
-            for (int i = 0; i < model.unmodifiableTypeDeclarations.size(); i++)
+            QName qname = QName.valueOf(typeId);
+            Model model = getModel(qname.getNamespaceURI());
+            if (model != null)
             {
-               TypeDeclarationDetails declaration = (TypeDeclarationDetails) model.unmodifiableTypeDeclarations.get(i);
-               if (typeId.equals(declaration.getId()))
+               typeId = qname.getLocalPart();
+               for (TypeDeclaration declaration : model.getAllTypeDeclarations())
                {
-                  XpdlType type = declaration.getXpdlType();
-                  if (type instanceof SchemaTypeDetails)
+                  if (typeId.equals(declaration.getId()))
                   {
-                     return ((SchemaTypeDetails) type).getSchema();
+                     XpdlType type = declaration.getXpdlType();
+                     if (type instanceof SchemaTypeDetails)
+                     {
+                        return ((SchemaTypeDetails) type).getSchema();
+                     }
+                     if (type instanceof ExternalReferenceDetails)
+                     {
+                        return ((ExternalReferenceDetails) type).getSchema(model);
+                     }
+                     return null;
                   }
-                  if (type instanceof ExternalReferenceDetails)
-                  {
-                     return ((ExternalReferenceDetails) type).getSchema(model);
-                  }
-                  return null;
                }
             }
          }
+         return null;
+      }
+
+      private Model getModel(String id)
+      {
+         if (id.isEmpty() || id.equals(model.getId()))
+         {
+            return model;
+         }
+         Long oid = model.getResolvedModelOid(id);
+         return oid == null ? null : getModel(oid);
+      }
+
+      protected Model getModel(long oid)
+      {
          return null;
       }
    }
@@ -430,5 +487,17 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    public Set<QualityAssuranceCode> getAllQualityAssuranceCodes()
    {
       return qualityAssuranceCodes;
+   }
+
+   @Override
+   public Set<String> getExternalPackages()
+   {
+      return externalPackages == null ? Collections.<String>emptySet() : externalPackages.keySet();
+   }
+
+   @Override
+   public Long getResolvedModelOid(String externalPackageId)
+   {
+      return externalPackages == null ? null : externalPackages.get(externalPackageId);
    }
 }

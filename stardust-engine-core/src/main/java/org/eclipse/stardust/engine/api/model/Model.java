@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 
-
 /**
  * A client side view of a workflow model.
  * Contains information about the model as well as sub elements such as processes, roles,
@@ -153,6 +152,22 @@ public interface Model extends ModelElement
     *         declaration was found.
     */
    TypeDeclaration getTypeDeclaration(DocumentType documentType);
+
+   /**
+    * Gets the referenced external package ids.
+    *
+    * @return a collection of ids.
+    */
+   Set<String> getExternalPackages();
+
+   /**
+    * Gets the resolved model oid corresponding to the external package reference.
+    *
+    * @param  externalPackageId the id of the external package reference.
+    * @return the oid of the resolved model or null if the id does not correspond
+    *         to an external package reference.
+    */
+   Long getResolvedModelOid(String externalPackageId);
 
    // @todo (france, ub):
    /*List getAllEventActionTypes();

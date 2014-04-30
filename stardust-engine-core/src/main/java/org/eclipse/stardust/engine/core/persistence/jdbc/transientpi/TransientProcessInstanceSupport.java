@@ -516,8 +516,8 @@ public class TransientProcessInstanceSupport
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
       final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
-      final boolean wasTransient = AuditTrailPersistence.TRANSIENT.equals(rootPi.getPreviousAuditTrailPersistence());
-      final boolean wasDeferred = AuditTrailPersistence.DEFERRED.equals(rootPi.getPreviousAuditTrailPersistence());
+      final boolean wasTransient = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.TRANSIENT;
+      final boolean wasDeferred = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
       if ( !(isImmediateNow && (wasTransient || wasDeferred)))
       {
          return false;

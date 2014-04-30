@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;extension base="{http://eclipse.org/stardust/ws/v2012a/api}ModelElement">
  *       &lt;sequence>
  *         &lt;element name="rtOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
+ *         &lt;element name="detailsLevel" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessDefinitionDetailsLevel"/>
  *         &lt;element name="dataPaths" type="{http://eclipse.org/stardust/ws/v2012a/api}DataPaths"/>
  *         &lt;element name="triggers" type="{http://eclipse.org/stardust/ws/v2012a/api}Triggers" minOccurs="0"/>
  *         &lt;element name="activities">
@@ -41,6 +42,8 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;/complexType>
  *         &lt;/element>
  *         &lt;element name="eventHandlers" type="{http://eclipse.org/stardust/ws/v2012a/api}EventHandlerDefinitions" minOccurs="0"/>
+ *         &lt;element name="implementedProcessInterface" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInterface" minOccurs="0"/>
+ *         &lt;element name="declaredProcessInterface" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInterface" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -52,22 +55,29 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessDefinition", propOrder = {
     "rtOid",
+    "detailsLevel",
     "dataPaths",
     "triggers",
     "activities",
-    "eventHandlers"
+    "eventHandlers",
+    "implementedProcessInterface",
+    "declaredProcessInterface"
 })
 public class ProcessDefinitionXto
     extends ModelElementXto
 {
 
     protected long rtOid;
+    @XmlElement(required = true)
+    protected ProcessDefinitionDetailsLevelXto detailsLevel;
     @XmlElement(required = true, nillable = true)
     protected DataPathsXto dataPaths;
     protected TriggersXto triggers;
     @XmlElement(required = true)
     protected ProcessDefinitionXto.ActivitiesXto activities;
     protected EventHandlerDefinitionsXto eventHandlers;
+    protected ProcessInterfaceXto implementedProcessInterface;
+    protected ProcessInterfaceXto declaredProcessInterface;
 
     /**
      * Gets the value of the rtOid property.
@@ -83,6 +93,30 @@ public class ProcessDefinitionXto
      */
     public void setRtOid(long value) {
         this.rtOid = value;
+    }
+
+    /**
+     * Gets the value of the detailsLevel property.
+     *
+     * @return
+     *     possible object is
+     *     {@link ProcessDefinitionDetailsLevelXto }
+     *
+     */
+    public ProcessDefinitionDetailsLevelXto getDetailsLevel() {
+        return detailsLevel;
+    }
+
+    /**
+     * Sets the value of the detailsLevel property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link ProcessDefinitionDetailsLevelXto }
+     *
+     */
+    public void setDetailsLevel(ProcessDefinitionDetailsLevelXto value) {
+        this.detailsLevel = value;
     }
 
     /**
@@ -179,6 +213,54 @@ public class ProcessDefinitionXto
      */
     public void setEventHandlers(EventHandlerDefinitionsXto value) {
         this.eventHandlers = value;
+    }
+
+    /**
+     * Gets the value of the implementedProcessInterface property.
+     *
+     * @return
+     *     possible object is
+     *     {@link ProcessInterfaceXto }
+     *
+     */
+    public ProcessInterfaceXto getImplementedProcessInterface() {
+        return implementedProcessInterface;
+    }
+
+    /**
+     * Sets the value of the implementedProcessInterface property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link ProcessInterfaceXto }
+     *
+     */
+    public void setImplementedProcessInterface(ProcessInterfaceXto value) {
+        this.implementedProcessInterface = value;
+    }
+
+    /**
+     * Gets the value of the declaredProcessInterface property.
+     *
+     * @return
+     *     possible object is
+     *     {@link ProcessInterfaceXto }
+     *
+     */
+    public ProcessInterfaceXto getDeclaredProcessInterface() {
+        return declaredProcessInterface;
+    }
+
+    /**
+     * Sets the value of the declaredProcessInterface property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link ProcessInterfaceXto }
+     *
+     */
+    public void setDeclaredProcessInterface(ProcessInterfaceXto value) {
+        this.declaredProcessInterface = value;
     }
 
 

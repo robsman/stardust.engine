@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.common.CollectionUtils.union;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
+import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -35,10 +36,7 @@ import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.JoinSplitType;
-import org.eclipse.stardust.engine.api.model.LoopType;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
@@ -114,6 +112,7 @@ public class ActivityThread implements Runnable
          Map data,
          boolean hasParent)
    {
+
 
       if (synchronously)
       {
@@ -278,6 +277,10 @@ public class ActivityThread implements Runnable
                TransitionTokenBean token = plan.getToken();
                tokenCache.registerToken(transition, token);
             }
+            if (activity == plan.getTargetActivity())
+            {
+               plan.terminate();
+            }
          }
          else if (processInstance.getProcessDefinition().getRootActivity().getId().equals(activity.getId()))
          {
@@ -306,11 +309,11 @@ public class ActivityThread implements Runnable
                {
                   if (RETRIES > 0)
                   {
-							trace.warn("No free tokens found for Process Instance <"
-									+ processInstance.getOID()
-									+ "> in "
-									+ (System.currentTimeMillis() - start)
-									+ " ms, giving up.");
+                     trace.warn("No free tokens found for Process Instance <"
+                           + processInstance.getOID()
+                           + "> in "
+                           + (System.currentTimeMillis() - start)
+                           + " ms, giving up.");
                   }
                   return;
                }
@@ -337,20 +340,22 @@ public class ActivityThread implements Runnable
       {
          while (activityInstance != null)
          {
-            if (context.isStepMode())
+            if (!activityInstance.isTerminated())
             {
-               // wait for join from thread context (i.e. debug controller)
-               context.suspendActivityThread(this);
+               if (context.isStepMode())
+               {
+                  // wait for join from thread context (i.e. debug controller)
+                  context.suspendActivityThread(this);
+               }
+   
+               runCurrentActivity();
+   
+               if (!activityInstance.isTerminated() || activityInstance.isAborting()
+                     || isInAbortingPiHierarchy())
+               {
+                  break;
+               }
             }
-   
-            runCurrentActivity();
-   
-            if (!activityInstance.isTerminated() || activityInstance.isAborting()
-                  || isInAbortingPiHierarchy())
-            {
-               break;
-            }
-   
             determineNextActivityInstance();
          }
       }
@@ -417,26 +422,73 @@ public class ActivityThread implements Runnable
    
    private void createActivityInstance(List<TransitionTokenBean> inTokens)
    {
-      if (LoopType.While.equals(activity.getLoopType())
-            && !processInstance.validateLoopCondition(activity.getLoopCondition()))
-      {
-         activityInstance = new PhantomActivityInstance(activity);
-      }
-      else
-      {
-         activityInstance = new ActivityInstanceBean(activity, processInstance);
+      boolean multiInstance = isMultiInstance();
+      int count = multiInstance ? getMultiInstanceCount() : 1;
 
-         getCurrentActivityThreadContext().enteringActivity(activityInstance);
+      if (count > 0)
+      {
+         if (LoopType.While.equals(activity.getLoopType())
+               && !processInstance.validateLoopCondition(activity.getLoopCondition()))
+         {
+            activityInstance = new PhantomActivityInstance(activity);
+         }
+         else
+         {
+            activityInstance = new ActivityInstanceBean(activity, processInstance);
+         }
       }
 
       for (int i = 0; i < inTokens.size(); ++i)
       {
          TransitionTokenBean freeToken = inTokens.get(i);
-         tokenCache.bindToken(freeToken, this.activityInstance);
+         if (count > 0)
+         {
+            tokenCache.bindToken(freeToken, activityInstance);
+         }
+         if (multiInstance)
+         {
+            tokenCache.consumeToken(freeToken);
+         }
          if (JoinSplitType.Xor.equals(activity.getJoinType()))
          {
             break;
          }
+      }
+
+      if (multiInstance)
+      {
+         if (count > 0)
+         {
+            createLoopOutputData();
+         }
+         boolean parallel = !isSequential();
+         for (int i = 0; i < count; i++)
+         {
+            createMultiInstance(i == 0 ? activityInstance
+                  : parallel ? new ActivityInstanceBean(activity, processInstance) : null, i);
+         }
+         activityInstance = null;
+      }
+      else
+      {
+         getCurrentActivityThreadContext().enteringActivity(activityInstance);
+      }
+   }
+
+   private void createMultiInstance(IActivityInstance target, int index)
+   {
+      TransitionTokenBean token = tokenCache.createMultiInstanceToken(activityInstance, index);
+      bindTokenAndScheduleActivity(token, target);
+   }
+
+   private void bindTokenAndScheduleActivity(TransitionTokenBean token,
+         IActivityInstance target)
+   {
+      tokenCache.bindToken(token, target);
+      if (target != null)
+      {
+         getCurrentActivityThreadContext().enteringActivity(target);
+         schedule(processInstance, null, target, false, null, Collections.EMPTY_MAP, false);
       }
    }
 
@@ -472,21 +524,46 @@ public class ActivityThread implements Runnable
 
          getCurrentActivityThreadContext().enteringActivity(activityInstance);
       }
-
       else
       {
          // traverse outgoing transitions 
          int removedTokens = 0;
 
          List<TransitionTokenBean> boundInTokens = tokenCache.getBoundInTokens(activityInstance, activity);
-         for (int i = 0; i < boundInTokens.size(); ++i)
+
+         for (TransitionTokenBean boundToken : boundInTokens)
          {
-            // TODO (ab) wenn nicht die erste activityInstance (fork, recovery) UND XOR, dann nehme "current" (muss im local cache sein)
-            TransitionTokenBean token = boundInTokens.get(i);
-            tokenCache.consumeToken(token);
+            if (isMultiInstance())
+            {
+               // (fh) lock this token and any other token we can get
+               TransitionTokenBean token = tokenCache.lockSourceAndOtherToken(boundToken);
+               if (token != boundToken)
+               {
+                  // (fh) this thread dies here
+                  if (token == null)
+                  {
+                     schedule(processInstance, null, activityInstance,
+                           false, null, Collections.EMPTY_MAP, false);
+                  }
+                  else
+                  {
+                     tokenCache.consumeToken(boundToken);
+                     getCurrentActivityThreadContext().completingTransition(boundToken);
+                     if (isSequential())
+                     {
+                        activityInstance = new ActivityInstanceBean(activity, processInstance);
+                        bindTokenAndScheduleActivity(token, activityInstance);
+                     }
+                  }
+                  activityInstance = null;
+                  return;
+               }
+            }
+
+            tokenCache.consumeToken(boundToken);
             removedTokens++;
 
-            getCurrentActivityThreadContext().completingTransition(token);
+            getCurrentActivityThreadContext().completingTransition(boundToken);
          }
 
          int addedTokens = 0;
@@ -596,7 +673,7 @@ public class ActivityThread implements Runnable
          {
             enabledOutTransitions = exceptionTransition != null
                   ? union(Collections.singletonList(exceptionTransition), otherwiseTransitions, false)
-                  : otherwiseTransitions;            
+                  : otherwiseTransitions;
          }
          else if (exceptionTransition != null)
          {
@@ -606,12 +683,12 @@ public class ActivityThread implements Runnable
          {
             enabledOutTransitions = Collections.emptyList();
          }
-         
+
          for (int i = 0; i < enabledOutTransitions.size(); ++i)
          {
             ITransition transition = enabledOutTransitions.get(i);
             TransitionTokenBean token = tokenCache.createToken(transition, this.activityInstance);
-            if (plan != null && transition == plan.getTransition())
+            if (plan != null && !plan.isTerminated() && transition == plan.getTransition())
             {
                plan.setToken(token);
             }
@@ -660,7 +737,7 @@ public class ActivityThread implements Runnable
                      ? plan.getTransition() : token.getTransition();
                IActivity targetActivity = transition.getToActivity();
 
-               if ( !foundSynchronousSuccessor && !transition.getForkOnTraversal())
+               if (!foundSynchronousSuccessor && !transition.getForkOnTraversal())
                {
                   activity = targetActivity;
                   if (enableVertex())
@@ -696,6 +773,70 @@ public class ActivityThread implements Runnable
       }
    }
    
+   private boolean isMultiInstance()
+   {
+      ILoopCharacteristics loop = activity.getLoopCharacteristics();
+      return loop instanceof IMultiInstanceLoopCharacteristics;
+   }
+
+   private boolean isSequential()
+   {
+      return ((IMultiInstanceLoopCharacteristics) activity.getLoopCharacteristics()).isSequential();
+   }
+
+   private int getMultiInstanceCount()
+   {
+      IMultiInstanceLoopCharacteristics loop = (IMultiInstanceLoopCharacteristics) activity.getLoopCharacteristics();
+      String inputParameterId = loop.getInputParameterId();
+      if (inputParameterId != null)
+      {
+         String context = inputParameterId.substring(0, inputParameterId.indexOf(':'));
+         inputParameterId = inputParameterId.substring(context.length() + 1);
+         ModelElementList<IDataMapping> mappings = activity.getInDataMappings();
+         for (IDataMapping mapping : mappings)
+         {
+            if (context.equals(mapping.getContext()) && inputParameterId.equals(mapping.getActivityAccessPointId()))
+            {
+               Object inputValue = processInstance.getInDataValue(mapping.getData(), mapping.getDataPath());
+               if (inputValue != null)
+               {
+                  if (inputValue instanceof List)
+                  {
+                     return ((List) inputValue).size();
+                  }
+                  if (inputValue.getClass().isArray())
+                  {
+                     return Array.getLength(inputValue);
+                  }
+                  // TODO (fh) support other types ?
+               }
+               break;
+            }
+         }
+      }
+      return 0;
+   }
+
+   private void createLoopOutputData()
+   {
+      IMultiInstanceLoopCharacteristics loop = (IMultiInstanceLoopCharacteristics) activity.getLoopCharacteristics();
+      String outputParameterId = loop.getOutputParameterId();
+      if (outputParameterId != null)
+      {
+         String context = outputParameterId.substring(0, outputParameterId.indexOf(':'));
+         outputParameterId = outputParameterId.substring(context.length() + 1);
+         ModelElementList<IDataMapping> mappings = activity.getOutDataMappings();
+         for (IDataMapping mapping : mappings)
+         {
+            if (context.equals(mapping.getContext()) && outputParameterId.equals(mapping.getActivityAccessPointId()))
+            {
+               processInstance.getInDataValue(mapping.getData(), mapping.getDataPath());
+               break;
+            }
+         }
+      }
+   }
+
    private boolean isAndJoinAI()
    {
       if (activity.getJoinType() == JoinSplitType.And)

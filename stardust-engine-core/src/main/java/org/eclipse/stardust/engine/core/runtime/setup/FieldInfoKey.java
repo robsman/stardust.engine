@@ -13,7 +13,7 @@ public class FieldInfoKey
    {
       if(fieldInfo != null)
       {
-         name = fieldInfo.name;
+         name = fieldInfo.getName();
       }
    }
    

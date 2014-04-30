@@ -20,7 +20,7 @@ import org.eclipse.stardust.common.log.Logger;
 public class ActivityEndpoint extends AbstractIppEndpoint
 {
 
-   final static Logger LOG = LogManager.getLogger(ActivityEndpoint.class);
+   private final static Logger LOG = LogManager.getLogger(ActivityEndpoint.class);
 
    protected Expression activityId;
    protected Expression activityInstanceOid;
@@ -77,11 +77,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     */
    public void setActivityId(String activityId)
    {
-//      if (activityId.startsWith("${") && activityId.endsWith("}"))
-//         this.activityId = SimpleLanguage.simple(extractTokenFromExpression(activityId));
-//      else
-//         this.activityId = SimpleLanguage.simple(activityId);
-      this.activityId=    parseSimpleExpression(activityId);
+      this.activityId = parseSimpleExpression(activityId);
    }
 
    /**
@@ -89,11 +85,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     */
    public void setActivityInstanceOid(String activityInstanceOid)
    {
-//      if (activityInstanceOid.startsWith("${") && activityInstanceOid.endsWith("}"))
-//         this.activityInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(activityInstanceOid));
-//      else
-//         this.activityInstanceOid = SimpleLanguage.simple(activityInstanceOid);
-      this.activityInstanceOid=    parseSimpleExpression(activityInstanceOid);
+      this.activityInstanceOid = parseSimpleExpression(activityInstanceOid);
    }
 
    /**
@@ -223,7 +215,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
    }
 
    /**
-    * Returns the value of ExpectedResultSize on the given exchange 
+    * Returns the value of ExpectedResultSize on the given exchange
     * 
     * @param exchange
     * @param strict

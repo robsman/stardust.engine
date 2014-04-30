@@ -7,8 +7,8 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCA
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRP_APPLICATION_CONTEXT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationPatterns.SENDRECEIVE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationTypes.ASYNCHRONOUS;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.isProducerApplication;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
+import static org.eclipse.stardust.engine.extensions.camel.Util.isProducerApplication;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 import org.apache.camel.CamelContext;
 import org.eclipse.stardust.common.config.Parameters;
@@ -32,14 +32,15 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public class CamelRuntimeEnvironmentMonitor implements IRuntimeEnvironmentMonitor
 {
-   public static final Logger logger = LogManager.getLogger(CamelRuntimeEnvironmentMonitor.class);
+   private static final Logger logger = LogManager.getLogger(CamelRuntimeEnvironmentMonitor.class);
 
    public void partitionCreated(IAuditTrailPartition arg0)
    {}
 
    public void partitionDropped(IAuditTrailPartition partition)
    {
-      logger.info("Partition to be dropped" + partition.getId());
+      if (logger.isDebugEnabled())
+         logger.debug("Partition to be dropped" + partition.getId());
       AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters.instance().get(
             PRP_APPLICATION_CONTEXT);
       if (applicationContext != null)
@@ -95,8 +96,9 @@ public class CamelRuntimeEnvironmentMonitor implements IRuntimeEnvironmentMonito
                   {
 
                      {
-                        logger.debug("Stopping route associated to Application type " + app.getId() + " defined in "
-                              + model.getId());
+                        if (logger.isDebugEnabled())
+                           logger.debug("Stopping route associated to Application type " + app.getId() + " defined in "
+                                 + model.getId());
                         String camelContextId = (String) app.getAttribute(CAMEL_CONTEXT_ID_ATT);
                         CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);
                         String processId = ((IProcessDefinition) app.getParent()).getId();

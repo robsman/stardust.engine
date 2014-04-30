@@ -115,15 +115,20 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       {
          // No startingActivityInstance found, but this could be a spawned sub process.
          // Lookup parent, complete parent process if possible.
-         if (pi.getRootProcessInstanceOID() != pi.getOID())
+         resumeParentOfSpawnedSubprocess(pi, hasParent);
+      }
+   }
+
+   static void resumeParentOfSpawnedSubprocess(IProcessInstance pi, boolean hasParent)
+   {
+      if (pi.getRootProcessInstanceOID() != pi.getOID())
+      {
+         IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(pi.getOID());
+         if (parentProcessInstance != null)
          {
-            IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(pi.getOID());
-            if (parentProcessInstance != null)
-            {
-               ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(
-                     new JanitorCarrier(parentProcessInstance.getOID()), hasParent);
-               processCompletionJanitor.execute();
-            }
+            ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(
+                  new JanitorCarrier(parentProcessInstance.getOID()), hasParent);
+            processCompletionJanitor.execute();
          }
       }
    }

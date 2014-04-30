@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
-
 public interface ITokenManager
 {
    public void registerToken(ITransition transition, TransitionTokenBean token);
@@ -21,4 +20,5 @@ public interface ITokenManager
    public TransitionTokenBean lockFirstAvailableToken(ITransition transition);
    public void flush();
    public TransitionTokenBean getTokenForTarget(ITransition transition, long targetActivityInstanceOid);
+   public TransitionTokenBean lockSourceAndOtherToken(TransitionTokenBean token);
 }

@@ -50,6 +50,8 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 /**
  *
@@ -58,9 +60,12 @@ import org.eclipse.stardust.engine.core.upgrade.framework.*;
  */
 public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+   private int batchSize = 500;
 
    private static final Logger trace = LogManager
          .getLogger(R7_0_0from6_x_xRuntimeJob.class);
+
+   private static final String WORK_ITEM_FIELD__ACTIVIYINSTANCE = "activityInstance";
 
    private static final String ACTIVITY_INSTANCE_TABLE_NAME = "activity_instance";
 
@@ -133,6 +138,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
+      String bs = Parameters.instance().getString(RuntimeUpgrader.UPGRADE_BATCH_SIZE);
+      if (bs != null)
+      {
+         batchSize = Integer.parseInt(bs);
+      }
+
       initUpgradeTasks();
    }
 
@@ -188,41 +199,44 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             }, runtimeJob);
 
-            try
-            {
-               setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
-                     ACTIVITY_INSTANCE_FIELD_CRITICALITY, -1);
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
-                     + "." + ACTIVITY_INSTANCE_FIELD_CRITICALITY + " to -1.");
-            }
+
+            //create info about the field to update
+            FieldInfo criticalityField
+               = new FieldInfo(ACTIVITY_INSTANCE_FIELD_CRITICALITY, Float.class);
+            FieldInfo propertyAvailableField
+               = new FieldInfo(ACTIVITY_INSTANCE_FIELD_PROPERTIES, Long.class);
+            UpdateColumnInfo updateCriticalityInfo
+                  = new UpdateColumnInfo(criticalityField, -1);
+            UpdateColumnInfo updatePropertyAvailableFieldInfo
+               = new UpdateColumnInfo(propertyAvailableField, 0);
 
             try
             {
-               setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
-                     ACTIVITY_INSTANCE_FIELD_PROPERTIES, 0);
+               final FieldInfo aiOidColumn = new FieldInfo(ACTIVITY_INSTANCE_FIELD_OID,
+                     Long.class, true);
+               DatabaseHelper.setColumnValuesInBatch(item, ACTIVITY_INSTANCE_TABLE_NAME,
+                     aiOidColumn, batchSize, updateCriticalityInfo,
+                     updatePropertyAvailableFieldInfo);
             }
             catch (SQLException e)
             {
-               reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
-                     + "." + ACTIVITY_INSTANCE_FIELD_PROPERTIES + " to 0.");
+               reportExeption(e, "Could not update table: "
+                     + ACTIVITY_INSTANCE_TABLE_NAME + ".");
             }
          }
       });
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
+         private final FieldInfo CRITICALITY = new FieldInfo(WORK_ITEM_FIELD_CRITICALITY,
+               Double.TYPE);
+
          @Override
          public void execute()
          {
             // Alter WorkItem Table
             DatabaseHelper.alterTable(item, new AlterTableInfo(WORK_ITEM_TABLE_NAME)
             {
-               private final FieldInfo CRITICALITY = new FieldInfo(WORK_ITEM_FIELD_CRITICALITY,
-                     Double.TYPE);
-
                @Override
                public FieldInfo[] getAddedFields()
                {
@@ -233,8 +247,9 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             try
             {
-               setColumnDefaultValue(item, WORK_ITEM_TABLE_NAME, WORK_ITEM_FIELD_CRITICALITY,
-                     -1);
+               FieldInfo workItemPk = new FieldInfo(WORK_ITEM_FIELD__ACTIVIYINSTANCE, Long.TYPE, true);
+               UpdateColumnInfo updateInfo = new UpdateColumnInfo(CRITICALITY, -1);
+               DatabaseHelper.setColumnValuesInBatch(item, WORK_ITEM_TABLE_NAME, workItemPk, batchSize, updateInfo);
             }
             catch (SQLException e)
             {
@@ -651,20 +666,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          QueryUtils.closeStatement(selectRowsStmt);
          QueryUtils.closeStatement(updateRowsStmt);
       }
-   }
-
-   private void setColumnDefaultValue(RuntimeItem item, String tableName,
-         String columnName, Object defaultValue) throws SQLException
-   {
-      tableName = DatabaseHelper.getQualifiedName(tableName);
-
-      StringBuffer buffer = new StringBuffer(500);
-      buffer.append(UPDATE).append(tableName);
-      buffer.append(SET).append(columnName).append(EQUALS).append(defaultValue);
-
-      // Execute DML instead of DDL, but this DML is part of the DDL so it has to be
-      // handled the same way.
-      item.executeDdlStatement(buffer.toString(), false);
    }
 
    private void insertDefaultLinkTypes() throws SQLException

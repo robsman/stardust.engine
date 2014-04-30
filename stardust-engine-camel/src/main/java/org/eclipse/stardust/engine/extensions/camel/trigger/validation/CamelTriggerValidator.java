@@ -14,7 +14,7 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getModelId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getProcessId;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -49,8 +50,6 @@ public class CamelTriggerValidator implements TriggerValidator,
 
     private static final transient Logger logger = LogManager
             .getLogger(CamelTriggerValidator.class);
-
-    private final String TIMER_ENDPOINT = "timer://timerEndpoint";
 
     final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
 
@@ -137,6 +136,7 @@ public class CamelTriggerValidator implements TriggerValidator,
         }
         catch(NullPointerException e)
         {
+           logger.error("User ID/ Password is not set for " + trigger.getName(),e);
             inconsistencies.add(new Inconsistency(
                   "User ID/ Password is not set for " + trigger.getName(),
                     trigger, Inconsistency.ERROR));
@@ -153,48 +153,61 @@ public class CamelTriggerValidator implements TriggerValidator,
                 AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters
                         .instance().get(PRP_APPLICATION_CONTEXT);
 
-                if (applicationContext != null) {
+                if (applicationContext != null && bpmRt != null && bpmRt.getModelManager() != null)
+                {
 
-                    String partitionId = SecurityProperties.getPartition()
-                            .getId();
+	                IModel model = (IModel) trigger.getModel();
 
-                    CamelContext camelContext = (CamelContext) applicationContext
-                            .getBean(camelContextId);
+	                IModel activeModel = bpmRt.getModelManager().findActiveModel(model.getId());
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Camel Context " + camelContextId
-                                + " used.");
-                    }
+	                // only start the contained routes if this model (the one being validated) is
+	                // intended to be active (aka it has the same model OID as the currently
+	                // active model with the same ID or is the first version to be deployed (model
+	                // OID is 0))
+	                if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
+	                {
 
-                    List<Route> routesToBeStopped = new ArrayList<Route>();
+	                    String partitionId = SecurityProperties.getPartition()
+	                            .getId();
 
-                    // select routes that are running in the current partition
-                    for (Route runningRoute : camelContext.getRoutes()) {
-                        if (runningRoute.getId().startsWith(getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false))) {
-                            routesToBeStopped.add(runningRoute);
-                        }
-                    }
+	                    CamelContext camelContext = (CamelContext) applicationContext
+	                            .getBean(camelContextId);
 
-                    // stop running routes to sync up with the deployed model
-                    for (Route runningRoute : routesToBeStopped) {
+	                    if (logger.isDebugEnabled()) {
+	                        logger.debug("Camel Context " + camelContextId
+	                                + " used.");
+	                    }
 
-                       stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
+	                    List<Route> routesToBeStopped = new ArrayList<Route>();
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Route " + runningRoute.getId()
-                                    + " is removed from context "
-                                    + camelContext + ".");
-                        }
-                    }
+	                    // select routes that are running in the current partition
+	                    for (Route runningRoute : camelContext.getRoutes()) {
+	                        if (runningRoute.getId().startsWith(getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false))) {
+	                            routesToBeStopped.add(runningRoute);
+	                        }
+	                    }
 
-                    CamelTriggerLoader camelTriggerLoader = (CamelTriggerLoader) applicationContext
-                            .getBean("camelTriggerLoader");
-                    
-                    Action<?> action = new CreateTriggerRouteAction(bpmRt,
-                            partitionId, applicationContext, camelTriggerLoader.getDataConverters(), trigger);
-                    
-                    action.execute();
+	                    // stop running routes to sync up with the deployed model
+	                    for (Route runningRoute : routesToBeStopped) {
 
+	                       stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
+
+	                        if (logger.isDebugEnabled()) {
+	                            logger.debug("Route " + runningRoute.getId()
+	                                    + " is removed from context "
+	                                    + camelContext + ".");
+	                        }
+	                    }
+
+	                    CamelTriggerLoader camelTriggerLoader = (CamelTriggerLoader) applicationContext
+	                            .getBean("camelTriggerLoader");
+
+	                    Action<?> action = new CreateTriggerRouteAction(bpmRt,
+	                            partitionId, applicationContext, camelTriggerLoader.getDataConverters(), trigger);
+
+	                    action.execute();
+
+	                }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

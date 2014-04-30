@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITransition;
@@ -55,7 +56,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
 
    public static final Long START_TRANSITION_RT_OID = new Long(-1L);
    public static final Long START_TRANSITION_MODEL_OID = new Long(0L);
-   
+
    public static final String TABLE_NAME = "trans_token";
    public static final String DEFAULT_ALIAS = "tk";
    public static final String LOCK_TABLE_NAME = "trans_token_lck";
@@ -81,14 +82,13 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       startToken.setTarget(processInstance.getStartingActivityInstance());
 
       startToken.persist();
-      //System.out.println("New start token: " + startToken);
 
       // register with 2nd level cache if existent
       final ISecondLevelTokenCache secondLevelTokenCache = TokenManagerRegistry.instance()
             .createSecondLevelCache(processInstance);
       secondLevelTokenCache.registerToken(ActivityThread.START_TRANSITION, startToken);
    }
-   
+
    /**
     * @return the unconsumed tokens available INCLUDING the one currently in the process of being consumed
     */
@@ -100,7 +100,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       long nAvailableTokens = 0l;
 
       boolean scanDb = true;
-      
+
       if ((pi instanceof ProcessInstanceBean)
             && ((ProcessInstanceBean) pi).isPersistent()
             && ((ProcessInstanceBean) pi).getPersistenceController().isCreated())
@@ -130,15 +130,24 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
                      Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE, pi.getOID()),
                      Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))), timeout);
       }
-      
+
       return nAvailableTokens;
    }
-   
+
+   public static int getMultiInstanceIndex(long aiOid)
+   {
+      TransitionTokenBean token =  SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findFirst(
+            TransitionTokenBean.class,
+            QueryExtension.where(Predicates.isEqual(
+                  TransitionTokenBean.FR__TARGET, aiOid)));
+      return token == null ? -1 : token.getMultiInstanceIndex();
+   }
+
    public static ResultIterator findForProcessInstance(long piOid)
    {
       // no need to look for transient start tokens as recovery will be performed in its
       // own TX
-      
+
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
             TransitionTokenBean.class,
             QueryExtension.where(Predicates.isEqual(
@@ -149,7 +158,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
    {
       // no need to look for transient start tokens as recovery will be performed in its
       // own TX
-      
+
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(TransitionTokenBean.class,
             QueryExtension.where(
                   Predicates.andTerm(
@@ -161,10 +170,10 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          Long transitionRtOid, long modelOid)
    {
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      
+
       Object result = null;
       boolean scanDb = true;
-      
+
       if ((pi instanceof ProcessInstanceBean)
             && ((ProcessInstanceBean) pi).isPersistent()
             && ((ProcessInstanceBean) pi).getPersistenceController().isCreated())
@@ -187,33 +196,35 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          result = session.getVector(TransitionTokenBean.class, QueryExtension.where(
                Predicates.andTerm(
                      Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE, pi.getOID()),
-                     Predicates.isEqual(TransitionTokenBean.FR__TRANSITION, transitionRtOid.longValue()),
-                     Predicates.isEqual(TransitionTokenBean.FR__MODEL, modelOid),
+                     Predicates.isEqual(TransitionTokenBean.FR__TRANSITION, transitionRtOid),
+                     transitionRtOid == null || transitionRtOid == -1
+                        ? Predicates.lessOrEqual(TransitionTokenBean.FR__MODEL, modelOid)
+                        : Predicates.isEqual(TransitionTokenBean.FR__MODEL, modelOid),
                      Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))));
       }
-      
+
       return result;
    }
-   
+
    private static Object findUnconsumedInSessionCache(Session session, long piOid,
          Long transitionRtOid)
    {
       Object result = null;
-      
+
       if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
       {
          final Collection cachedTokens = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(TransitionTokenBean.class);
-         
+
          if ((null != cachedTokens) && !cachedTokens.isEmpty())
          {
             for (Iterator i = cachedTokens.iterator(); i.hasNext();)
             {
                final PersistenceController pcToken = (PersistenceController) i.next();
                final TransitionTokenBean token = (TransitionTokenBean) pcToken.getPersistent();
-               
+
                boolean isDeleted = (pcToken instanceof DefaultPersistenceController)
                      && ((DefaultPersistenceController) pcToken).isDeleted();
-               
+
                if ( !isDeleted
                      && (piOid == token.getProcessInstanceOID())
                      && !token.isConsumed()
@@ -239,7 +250,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
             }
          }
       }
-      
+
       return result;
    }
 
@@ -251,12 +262,12 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          long source)
    {
       this.processInstance = processInstance.getOID();
-      this.model = (null != transition)
-            ? transition.getModel().getModelOID()
-            : START_TRANSITION_MODEL_OID.longValue();
-      this.transition = (null != transition)
-            ? ModelManagerFactory.getCurrent().getRuntimeOid(transition)
-            : START_TRANSITION_RT_OID.longValue();
+      this.model = transition == null
+            ? START_TRANSITION_MODEL_OID
+            : transition.getModel().getModelOID();
+      this.transition = transition == null
+            ? START_TRANSITION_RT_OID
+            : ModelManagerFactory.getCurrent().getRuntimeOid(transition);
       this.source = source;
 
       if (trace.isDebugEnabled())
@@ -264,7 +275,20 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          trace.debug(this + ": created.");
       }
    }
-   
+
+   public TransitionTokenBean(IProcessInstance processInstance, long source, int index)
+   {
+      this.processInstance = processInstance.getOID();
+      this.model = -(index + 1);
+      this.transition = START_TRANSITION_RT_OID;
+      this.source = source;
+
+      if (trace.isDebugEnabled())
+      {
+         trace.debug(this + ": created.");
+      }
+   }
+
    public boolean deferInsert()
    {
       return isStartToken();
@@ -272,8 +296,8 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
 
    public boolean isStartToken()
    {
-      return (TransitionTokenBean.START_TRANSITION_RT_OID.longValue() == getTransitionOID())
-            && (TransitionTokenBean.START_TRANSITION_MODEL_OID.longValue() == getModelOID());
+      return (TransitionTokenBean.START_TRANSITION_RT_OID == getTransitionOID())
+            && (TransitionTokenBean.START_TRANSITION_MODEL_OID == getModelOID());
    }
 
    public void setTarget(IActivityInstance target)
@@ -298,7 +322,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          trace.debug(this + ": bound to " + target);
       }
    }
-   
+
    public boolean isBound()
    {
       fetch();
@@ -308,15 +332,15 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
    public ITransition getTransition()
    {
       fetch();
-      return ( -1 != transition)
-            ? ModelManagerFactory.getCurrent().findTransition(model, transition)
-            : null;
+      return transition == START_TRANSITION_RT_OID
+            ? null
+            : ModelManagerFactory.getCurrent().findTransition(model, transition);
    }
 
    public long getModelOID()
    {
       fetch();
-      return model;
+      return model < 0 ? START_TRANSITION_MODEL_OID : model;
    }
 
    public long getTransitionOID()
@@ -334,17 +358,17 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
    public void setConsumed(boolean consumed)
    {
       fetch();
-      
+
       if (isConsumed() != consumed)
       {
          markModified(FIELD__IS_CONSUMED);
          this.isConsumed = consumed ? 1 : 0;
-         
+
          if (trace.isDebugEnabled())
          {
             trace.debug(this + ": consumed.");
          }
-         
+
          if (isStartToken() && isPersistent() && getPersistenceController().isCreated())
          {
             // prevent transient start token from finally getting persisted
@@ -370,7 +394,13 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       fetch();
       return target;
    }
-   
+
+   public int getMultiInstanceIndex()
+   {
+      fetch();
+      return model < 0 ? -((int) model + 1) : 0;
+   }
+
    public boolean isConsumed()
    {
       fetch();
@@ -386,5 +416,45 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          trace.debug(this + ": persisted.");
       }
    }
-   
+
+   /**
+    * Locks and reloads this token.
+    *
+    * @return an integer specifying the result of the operation:
+    *   0 - operation was successful
+    *   1 - a ConcurrencyException was logged
+    *   2 - a PhantomException was logged
+    */
+   public int lockAndReload()
+   {
+      try
+      {
+         lock();
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("token " + this + " locked.");
+         }
+         try
+         {
+            reload();
+            return 0;
+         }
+         catch (PhantomException ex)
+         {
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Try to bind phantom token: " + this);
+            }
+            return 2;
+         }
+      }
+      catch (ConcurrencyException ex)
+      {
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Concurrent attempt to lock token: " + this);
+         }
+         return 1;
+      }
+   }
 }

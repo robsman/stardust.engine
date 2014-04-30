@@ -16,15 +16,18 @@ import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.SplicingIterator;
+import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
+import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 
 /**
@@ -158,8 +161,8 @@ public class ModelUtils
 
       return "(model oid = " + model.getModelOID() + ", version = " + version
             + ", revision = " + revision + ")";
-   }      
-   
+   }
+
    public static String getQualifiedId(IdentifiableElement element)
    {
       if (element == null)
@@ -243,7 +246,14 @@ public class ModelUtils
       byte[] content = null;
       try
       {
-         InputStream in = AdministrationServiceImpl.class.getResourceAsStream(PREDEFINED_MODEL_PATH);
+         String modelPath = PREDEFINED_MODEL_PATH;
+         if (!ParametersFacade.instance().getBoolean(
+               KernelTweakingProperties.XPDL_MODEL_DEPLOYMENT, true))
+         {
+            modelPath = PREDEFINED_MODEL_PATH.replace("." + XpdlUtils.EXT_XPDL, "." + XpdlUtils.EXT_CWM);
+         }
+
+         InputStream in = AdministrationServiceImpl.class.getResourceAsStream(modelPath);
          content = XmlUtils.getContent(in);
       }
       catch (IOException e)

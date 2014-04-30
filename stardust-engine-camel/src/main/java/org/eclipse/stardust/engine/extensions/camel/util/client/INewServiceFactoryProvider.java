@@ -13,5 +13,5 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 public interface INewServiceFactoryProvider
 {
 
-   public ServiceFactory getServiceFactory(String user, String password, Map<String, ? > properties);
+   ServiceFactory getServiceFactory(String user, String password, Map<String, ? > properties);
 }

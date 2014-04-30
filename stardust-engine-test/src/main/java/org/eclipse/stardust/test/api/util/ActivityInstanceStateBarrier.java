@@ -11,8 +11,10 @@
 package org.eclipse.stardust.test.api.util;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -27,67 +29,77 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * <p>
  * Allows to wait for an activity instance state change.
  * </p>
- * 
+ *
  * <p>
  * The default timeout when waiting for a state change is
  * 10 seconds.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ActivityInstanceStateBarrier
 {
-   private static WaitTimeout timeout = new WaitTimeout(10, TimeUnit.SECONDS);
-   
+   /**
+    * the default timeout: 10 seconds
+    */
+   private static final WaitTimeout DEFAULT_TIMEOUT = new WaitTimeout(10, TimeUnit.SECONDS);
+
+   private static WaitTimeout timeout = DEFAULT_TIMEOUT;
+
    private static ActivityInstanceStateBarrier instance;
 
-   private final Map<Long, ActivityInstanceInfo> ais;
-   
+   private final Map<Long, Set<ActivityInstanceInfo>> ais;
+
    private volatile ActivityInstanceStateCondition aiStateCondition;
    private volatile ActivityInstanceAliveCondition aiAliveCondition;
    private volatile ActivityInstanceForIdCondition aiForIdCondition;
-   
+
    /**
     * <p>
     * Returns the one and only instance of this class.
     * </p>
-    * 
+    *
+    * <p>
+    * Needs to be synchronized since it modifies the field {@link #instance}
+    * which is accessed concurrently.
+    * </p>
+    *
     * @return the one and only instance of this class
     */
    public synchronized static ActivityInstanceStateBarrier instance()
    {
-      return (instance != null) 
-         ? instance 
+      return (instance != null)
+         ? instance
          : (instance = new ActivityInstanceStateBarrier());
    }
-   
+
    /**
     * <p>
     * Allows for changing the timeout when waiting for a state change.
     * </p>
-    * 
-    * @param timeout the timeout to set
+    *
+    * <p>
+    * Needs to be synchronized since it modifies the field {@link #timeout}
+    * which is accessed concurrently.
+    * </p>
+    *
+    * @param timeout the timeout to set, if <code>null</code> is passed, it's reset to {@link #DEFAULT_TIMEOUT}
     */
-   public synchronized static void setTimeout(final WaitTimeout timeout)
+   public synchronized void setTimeout(final WaitTimeout timeout)
    {
-      if (timeout == null)
-      {
-         throw new NullPointerException("Timeout must not be null.");
-      }
-      
-      ActivityInstanceStateBarrier.timeout = timeout;
+      ActivityInstanceStateBarrier.timeout = (timeout != null) ? timeout : DEFAULT_TIMEOUT;
    }
-   
+
    /**
     * <p>
     * Waits until the given activity instance is in the given state or the timeout has exceeded. It's only
     * allowed to wait for one condition at a time.
     * </p>
-    * 
+    *
     * @param aiOid the OID of the activity instance to wait for
     * @param aiState the state to wait for
-    * 
+    *
     * @throws IllegalStateException if one tries to wait for more than one condition at a time
     * @throws TimeoutException if the condition is still not met, but the timeout has exceeded
     * @throws InterruptedException if any thread interrupted the current thread
@@ -105,7 +117,7 @@ public class ActivityInstanceStateBarrier
          {
             return;
          }
-         
+
          final boolean success = aiStateCondition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
@@ -117,28 +129,28 @@ public class ActivityInstanceStateBarrier
          aiStateCondition = null;
       }
    }
-   
+
    /**
     * <p>
     * Waits until there's an alive activity instance for the given process instance or the timeout has exceeded. It's only
     * allowed to wait for one condition at a time.
     * </p>
-    * 
+    *
     * @param piOid the OID of the process instance enclosing the activity instance to wait for
-    * 
+    *
     * @throws IllegalStateException if one tries to wait for more than one condition at a time
     * @throws TimeoutException if the condition is still not met, but the timeout has exceeded
     * @throws InterruptedException if any thread interrupted the current thread
     */
    public void awaitAlive(final long piOid) throws IllegalStateException, TimeoutException, InterruptedException
-   {      
+   {
       try
       {
          if (isActivityInstanceAliveConditionAlreadyMet(piOid))
          {
             return;
          }
-         
+
          final boolean success = aiAliveCondition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
@@ -150,16 +162,16 @@ public class ActivityInstanceStateBarrier
          aiAliveCondition = null;
       }
    }
-   
+
    /**
     * <p>
     * Waits until there's an activity instance with the given ID for the given process instance or the timeout has exceeded.
     * It's only allowed to wait for one condition at a time.
     * </p>
-    * 
+    *
     * @param piOid the OID of the process instance enclosing the activity instance to wait for
     * @param activityID the ID of the activity to wait for
-    * 
+    *
     * @throws IllegalStateException if one tries to wait for more than one condition at a time
     * @throws TimeoutException if the condition is still not met, but the timeout has exceeded
     * @throws InterruptedException if any thread interrupted the current thread
@@ -172,7 +184,7 @@ public class ActivityInstanceStateBarrier
          {
             return;
          }
-         
+
          final boolean success = aiForIdCondition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
@@ -189,19 +201,24 @@ public class ActivityInstanceStateBarrier
     * <p>
     * Cleans up all the state gathered so far.
     * </p>
+    *
+    * <p>
+    * Needs to be synchronized since it modifies the fields {@link #ais}, {@link aiStateCondition},
+    * {@link aiAliveCondition}, and {@link #aiForIdCondition} which are accessed concurrently.
+    * </p>
     */
    public synchronized void cleanUp()
    {
       ais.clear();
-      
+
       aiStateCondition = null;
       aiAliveCondition = null;
       aiForIdCondition = null;
    }
-   
+
    /**
-    * needs to be synchronized since it reads the field {@link ActivityInstanceStateBarrier#aiStates},
-    * which is accessed concurrently
+    * needs to be synchronized since it reads the fields {@link #ais} and {@link #aiStateCondition}
+    * which are accessed concurrently
     */
    private synchronized boolean isActivityInstanceStateConditionAlreadyMet(final long aiOid, final ActivityInstanceState aiState)
    {
@@ -209,20 +226,23 @@ public class ActivityInstanceStateBarrier
       {
          throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
       }
-      
+
       aiStateCondition = new ActivityInstanceStateCondition(aiOid, aiState);
-      
-      if (aiStateCondition.matches(aiOid, ais.get(aiOid).state()))
+
+      for (final ActivityInstanceInfo aii : ais.get(aiOid))
       {
-         return true;
+         if (aiStateCondition.matches(aiOid, aii.state()))
+         {
+            return true;
+         }
       }
-      
+
       return false;
    }
-   
+
    /**
-    * needs to be synchronized since it reads the field {@link ActivityInstanceStateBarrier#aiStates},
-    * which is accessed concurrently
+    * needs to be synchronized since it reads the fields {@link #ais} and {@link #aiAliveCondition}
+    * which are accessed concurrently
     */
    private synchronized boolean isActivityInstanceAliveConditionAlreadyMet(final long piOid)
    {
@@ -230,23 +250,26 @@ public class ActivityInstanceStateBarrier
       {
          throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
       }
-      
+
       aiAliveCondition = new ActivityInstanceAliveCondition(piOid);
-      
-      for (final ActivityInstanceInfo ai : ais.values())
+
+      for (final Set<ActivityInstanceInfo> aiis : ais.values())
       {
-         if (aiAliveCondition.matches(ai))
+         for (final ActivityInstanceInfo ai : aiis)
          {
-            return true;
+            if (aiAliveCondition.matches(ai))
+            {
+               return true;
+            }
          }
       }
-      
+
       return false;
    }
-   
+
    /**
-    * needs to be synchronized since it reads the field {@link ActivityInstanceStateBarrier#aiStates},
-    * which is accessed concurrently
+    * needs to be synchronized since it reads the fields {@link #ais} and {@link #aiForIdCondition}
+    * which are accessed concurrently
     */
    private synchronized boolean isActivityInstanceForIdConditionAlreadyMet(final long piOid, final String activityId)
    {
@@ -254,28 +277,37 @@ public class ActivityInstanceStateBarrier
       {
          throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
       }
-      
+
       aiForIdCondition = new ActivityInstanceForIdCondition(piOid, activityId);
-      
-      for (final ActivityInstanceInfo ai : ais.values())
+
+      for (final Set<ActivityInstanceInfo> aiis : ais.values())
       {
-         if (aiForIdCondition.matches(ai.piOid(), ai.activityId()))
+         for (final ActivityInstanceInfo ai : aiis)
          {
-            return true;
+            if (aiForIdCondition.matches(ai.piOid(), ai.activityId()))
+            {
+               return true;
+            }
          }
       }
-      
+
       return false;
    }
-   
+
    /**
-    * needs to be synchronized since it modifies the field {@link ActivityInstanceStateBarrier#aiStates},
-    * which is accessed concurrently
+    * needs to be synchronized since it modifies the fields {@link #ais}, {@link #aiStateCondition},
+    * {@link #aiAliveCondition}, and {@link #aiForIdCondition} which are accessed concurrently
     */
    private synchronized void stateChanged(final ActivityInstanceInfo ai)
    {
-      ais.put(ai.oid(), ai);
-      
+      Set<ActivityInstanceInfo> aiis = ais.get(ai.oid());
+      if (aiis == null)
+      {
+         aiis = newHashSet();
+         ais.put(ai.oid(), aiis);
+      }
+      aiis.add(ai);
+
       if (aiStateCondition != null)
       {
          if (aiStateCondition.matches(ai.oid(), ai.state()))
@@ -298,20 +330,21 @@ public class ActivityInstanceStateBarrier
          }
       }
    }
-   
+
    /**
-    * private constructor for singleton implementation
+    * private constructor for singleton implementation, does <b>not</b> need to be synchronized
+    * since it's only called from a synchronized method
     */
    private ActivityInstanceStateBarrier()
    {
       ais = newHashMap();
    }
-   
+
    /**
     * <p>
     * Monitors the activity instance state changes.
     * </p>
-    * 
+    *
     * @author Nicolas.Werlein
     * @version $Revision$
     */
@@ -330,16 +363,16 @@ public class ActivityInstanceStateBarrier
          TransactionSynchronizationManager.registerSynchronization(monitor);
       }
    }
-   
+
    private static final class TransactionAwareMonitor extends TransactionSynchronizationAdapter
    {
       private final ActivityInstanceInfo ai;
-      
+
       public TransactionAwareMonitor(final ActivityInstanceInfo ai)
       {
          this.ai = ai;
       }
-      
+
       /* (non-Javadoc)
        * @see org.springframework.transaction.support.TransactionSynchronizationAdapter#afterCommit()
        */
@@ -349,25 +382,25 @@ public class ActivityInstanceStateBarrier
          instance().stateChanged(ai);
       }
    }
-   
+
    private static final class ActivityInstanceStateCondition
    {
       private final long aiOid;
       private final ActivityInstanceState aiState;
       private final CountDownLatch latch;
-      
+
       public ActivityInstanceStateCondition(final long aiOid, final ActivityInstanceState aiState)
       {
          this.aiOid = aiOid;
          this.aiState = aiState;
          this.latch = new CountDownLatch(1);
       }
-      
+
       public CountDownLatch latch()
       {
          return latch;
       }
-      
+
       public boolean matches(final long aiOid, final ActivityInstanceState aiState)
       {
          if (this.aiOid == aiOid && this.aiState == aiState)
@@ -382,18 +415,18 @@ public class ActivityInstanceStateBarrier
    {
       private final long piOid;
       private final CountDownLatch latch;
-      
+
       public ActivityInstanceAliveCondition(final long piOid)
       {
          this.piOid = piOid;
          this.latch = new CountDownLatch(1);
       }
-      
+
       public CountDownLatch latch()
       {
          return latch;
       }
-      
+
       public boolean matches(final ActivityInstanceInfo ai)
       {
          if (this.piOid == ai.piOid() && !ai.isTerminated())
@@ -403,25 +436,25 @@ public class ActivityInstanceStateBarrier
          return false;
       }
    }
-   
+
    private static final class ActivityInstanceForIdCondition
    {
       private final long piOid;
       private final String activityId;
       private final CountDownLatch latch;
-      
+
       public ActivityInstanceForIdCondition(final long piOid, final String activityId)
       {
          this.piOid = piOid;
          this.activityId = activityId;
          this.latch = new CountDownLatch(1);
       }
-      
+
       public CountDownLatch latch()
       {
          return latch;
       }
-      
+
       public boolean matches(final long piOid, final String activityId)
       {
          if (this.piOid == piOid && this.activityId.equals(activityId))
@@ -431,14 +464,14 @@ public class ActivityInstanceStateBarrier
          return false;
       }
    }
-   
+
    private static final class ActivityInstanceInfo
    {
       private final long oid;
       private final String activityId;
       private final long piOid;
       private ActivityInstanceState state;
-      
+
       public ActivityInstanceInfo(final long oid, final String activityId, final long piOid, final ActivityInstanceState state)
       {
          this.oid = oid;
@@ -446,27 +479,27 @@ public class ActivityInstanceStateBarrier
          this.piOid = piOid;
          this.state = state;
       }
-      
+
       public long oid()
       {
          return oid;
       }
-      
+
       public String activityId()
       {
          return activityId;
       }
-      
+
       public long piOid()
       {
          return piOid;
       }
-      
+
       public ActivityInstanceState state()
       {
          return state;
       }
-      
+
       public boolean isTerminated()
       {
          return state == ActivityInstanceState.Completed || state == ActivityInstanceState.Aborted;

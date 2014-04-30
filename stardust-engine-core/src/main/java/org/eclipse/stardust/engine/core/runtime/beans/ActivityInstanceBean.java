@@ -13,10 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -174,7 +171,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          FIELD__CRITICALITY, FIELD__PROCESS_INSTANCE};
 
    public static final String BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY = "Infinity.Engine.BoundaryEventHandler.Activated";
-   
+
    static final boolean state_USE_LITERALS = true;
 
    static final boolean currentUserPerformer_USE_LITERALS = true;
@@ -184,7 +181,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private transient EncodedPerformer originalPerformer;
 
    private transient List<ChangeLogDigester.HistoricState> historicStates;
-   
+
    private transient Long lastModifyingUser;
 
    private int state;
@@ -429,7 +426,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       setState(state, SecurityProperties.getUserOID());
    }
-   
+
    /**
     * Sets the state of the activity instance.
     */
@@ -940,7 +937,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
        * (fh) 2. this.toString() is a costly call that will be performed for *every* non
        * case activity // Assert.condition(model == participant.getModel().getModelOID(),
        * // "Cannot assign " + this + " to participant from different model.");
-       * 
+       *
        * IModel theModel = ModelManagerFactory.getCurrent().findModel(model);
        * Assert.condition(theModel.findParticipant(participant.getId()) == participant,
        * "Cannot assign " + this + " to participant from different model."); }
@@ -1233,7 +1230,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();      
-      
+
       if (plan != null && plan.hasNextActivity())
       {
          if (plan.nextStep())
@@ -1483,7 +1480,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    /**
     * Call a synchronous application instance
-    * 
+    *
     * @param activity
     * @param applicationInstance
     */
@@ -1602,7 +1599,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    /**
     * Execute the sending part of an asynchronous application instance.
-    * 
+    *
     * @throws Throwable
     */
    private void invokeAsynchronously(IActivity activity,
@@ -1632,7 +1629,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       // setting default values stored in the access points itself
 
-      Iterator inAccessPoints = activity.getApplication().getAllInAccessPoints();
+      IApplication application = activity.getApplication();
+      Iterator inAccessPoints = application.getAllInAccessPoints();
       while (inAccessPoints.hasNext())
       {
          AccessPoint accessPoint = (AccessPoint) inAccessPoints.next();
@@ -1649,6 +1647,38 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
 
+      String inputParameterId = null;
+      String counterParameterId = null;
+      int index = -1;
+      ILoopCharacteristics loop = activity.getLoopCharacteristics();
+      if (loop instanceof IMultiInstanceLoopCharacteristics)
+      {
+         index = TransitionTokenBean.getMultiInstanceIndex(getOID());
+         inputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
+         counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
+         if (counterParameterId != null)
+         {
+            if (inputParameterId.substring(0, inputParameterId.indexOf(':'))
+                  .equals(PredefinedConstants.APPLICATION_CONTEXT))
+            {
+               counterParameterId = counterParameterId.substring(counterParameterId.indexOf(':') + 1);
+               applicationInstance.setInAccessPointValue(counterParameterId, index);
+            }
+         }
+         if (inputParameterId != null)
+         {
+            if (inputParameterId.substring(0, inputParameterId.indexOf(':'))
+               .equals(PredefinedConstants.APPLICATION_CONTEXT))
+            {
+               inputParameterId = inputParameterId.substring(inputParameterId.indexOf(':') + 1);
+            }
+            else
+            {
+               inputParameterId = null;
+            }
+         }
+      }
+
       // processing all in data mappings
 
       ModelElementList inDataMappings = activity.getInDataMappings();
@@ -1659,11 +1689,24 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                mapping.getDataPath(), mapping.getActivityAccessPoint(),
                mapping.getActivityPath(), mapping.getActivity());
 
+         if (bridgeObject != null && inputParameterId != null && inputParameterId.equals(mapping.getActivityAccessPointId()))
+         {
+            if (bridgeObject instanceof List)
+            {
+               bridgeObject = index >= 0 && index < ((List) bridgeObject).size()
+                     ? ((List) bridgeObject).get(index) : null;
+            }
+            else if (bridgeObject.getClass().isArray())
+            {
+               bridgeObject = index >= 0 && index < Array.getLength(bridgeObject)
+                     ? Array.get(bridgeObject, index) : null;
+            }
+         }
+
          // @todo (france, ub): plethora: same style as out mappings?
          if (StringUtils.isEmpty(mapping.getActivityPath()))
          {
-            applicationInstance.setInAccessPointValue(mapping.getActivityAccessPointId(),
-                  bridgeObject);
+            applicationInstance.setInAccessPointValue(mapping.getActivityAccessPointId(), bridgeObject);
          }
          else
          {
@@ -1673,12 +1716,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   activityAccessPoint, mapping.getActivityPath());
             AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
                   processInstance, null);
-            /* Object result = */appPathEvaluator.evaluate(activityAccessPoint,
+            appPathEvaluator.evaluate(activityAccessPoint,
                   accessPointValue, mapping.getActivityPath(), evaluationContext,
                   bridgeObject);
-            // setting the computed result as the access point value.
-            // applicationInstance.setInAccessPointValue(
-            // mapping.getActivityAccessPointId(), result);
          }
       }
    }
@@ -1715,13 +1755,40 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private void processSubProcessInDataMappings(IActivity activity,
          IProcessInstance subProcessInstance)
    {
+      IProcessDefinition processDefinition = subProcessInstance.getProcessDefinition();
+      String inputParameterId = null;
+      String counterParameterId = null;
+      String parameterContext = null;
+      int index = -1;
+      ILoopCharacteristics loop = activity.getLoopCharacteristics();
+      if (loop instanceof IMultiInstanceLoopCharacteristics)
+      {
+         index = TransitionTokenBean.getMultiInstanceIndex(getOID());
+         counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
+         if (counterParameterId != null)
+         {
+            parameterContext = counterParameterId.substring(0, counterParameterId.indexOf(':'));
+            if (PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(parameterContext))
+            {
+               counterParameterId = counterParameterId.substring(parameterContext.length() + 1);
+               IData subProcessData = ModelUtils.getMappedData(processDefinition, counterParameterId);
+               subProcessInstance.setOutDataValue(subProcessData, null, index);
+            }
+         }
+         inputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
+         if (inputParameterId != null)
+         {
+            // must be set last
+            parameterContext = inputParameterId.substring(0, inputParameterId.indexOf(':'));
+            inputParameterId = inputParameterId.substring(parameterContext.length() + 1);
+         }
+      }
       ModelElementList inDataMappings = activity.getInDataMappings();
       for (int i = 0; i < inDataMappings.size(); ++i)
       {
          IDataMapping mapping = (IDataMapping) inDataMappings.get(i);
 
          String context = mapping.getContext();
-         IProcessDefinition processDefinition = subProcessInstance.getProcessDefinition();
          if (PredefinedConstants.ENGINE_CONTEXT.equals(context)
                || PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context))
          {
@@ -1730,6 +1797,20 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   mapping.getData(), mapping.getDataPath());
 
             String accessPointId = mapping.getActivityAccessPointId();
+            if (parentProcessDataValue != null && inputParameterId != null
+                  && inputParameterId.equals(accessPointId) && parameterContext.equals(context))
+            {
+               if (parentProcessDataValue instanceof List)
+               {
+                  parentProcessDataValue = index >= 0 && index < ((List) parentProcessDataValue).size()
+                        ? ((List) parentProcessDataValue).get(index) : null;
+               }
+               else if (parentProcessDataValue.getClass().isArray())
+               {
+                  parentProcessDataValue = index >= 0 && index < Array.getLength(parentProcessDataValue)
+                        ? Array.get(parentProcessDataValue, index) : null;
+               }
+            }
             IData subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context)
                   ? ModelUtils.getMappedData(processDefinition, accessPointId)
                   : ModelUtils.getData(processDefinition, accessPointId);
@@ -1780,22 +1861,74 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void setOutMappingValue(Map values, IDataMapping mapping)
    {
-      if (values != null && values.containsKey(mapping.getActivityAccessPointId()))
+      String activityAccessPointId = mapping.getActivityAccessPointId();
+      if (values != null && values.containsKey(activityAccessPointId))
       {
-         Object apValue = values.get(mapping.getActivityAccessPointId());
-
+         IData data = mapping.getData();
+         String dataPath = mapping.getDataPath();
          AccessPoint activityAP = mapping.getActivityAccessPoint();
-         ExtendedAccessPathEvaluator apEvaluator = SpiUtils.createExtendedAccessPathEvaluator(
-               activityAP, mapping.getActivityPath());
-         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-               this.processInstance, mapping.getData(), mapping.getDataPath(),
-               mapping.getActivity());
-         Object bridgeObject = apEvaluator.evaluate(activityAP, apValue,
-               mapping.getActivityPath(), evaluationContext);
+         String activityPath = mapping.getActivityPath();
+         IActivity activity = mapping.getActivity();
 
-         processInstance.setOutDataValue(mapping.getData(), mapping.getDataPath(),
-               bridgeObject);
+         String outputParameterId = null;
+         String parameterContext = null;
+         ILoopCharacteristics loop = activity.getLoopCharacteristics();
+         if (loop instanceof IMultiInstanceLoopCharacteristics)
+         {
+            outputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getOutputParameterId();
+            if (outputParameterId != null)
+            {
+               parameterContext = outputParameterId.substring(0, outputParameterId.indexOf(':'));
+               outputParameterId = outputParameterId.substring(parameterContext.length() + 1);
+            }
+         }
+
+         Object apValue = values.get(activityAccessPointId);
+
+         ExtendedAccessPathEvaluator apEvaluator = SpiUtils.createExtendedAccessPathEvaluator(
+               activityAP, activityPath);
+         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
+               processInstance, data, dataPath, activity);
+         Object bridgeObject = apEvaluator.evaluate(activityAP, apValue,
+               activityPath, evaluationContext);
+
+         if (outputParameterId != null && outputParameterId.equals(activityAccessPointId) && parameterContext.equals(mapping.getContext()))
+         {
+            int index = TransitionTokenBean.getMultiInstanceIndex(getOID());
+            if (index >= 0)
+            {
+               try
+               {
+                  processInstance.lockDataValue(data);
+               }
+               catch (PhantomException e)
+               {
+                  // (fh) do nothing
+                  return;
+               }
+               Object list = processInstance.getInDataValue(data, dataPath);
+               bridgeObject = setValueInList(index, bridgeObject, list);
+            }
+         }
+
+         processInstance.setOutDataValue(data, dataPath, bridgeObject);
       }
+   }
+
+   static Object setValueInList(int index, Object item, Object list)
+   {
+      if (!(list instanceof List))
+      {
+         // TODO create empty list ?
+         list = new ArrayList();
+      }
+      // ensure size
+      for (int li = ((List) list).size(); li <= index; li++)
+      {
+         ((List) list).add(null);
+      }
+      ((List) list).set(index, item);
+      return list;
    }
 
    /**
@@ -1820,7 +1953,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    /**
     * Engine out data mappings are always performed
-    * 
+    *
     */
    public void processEngineOutDataMappings()
    {
@@ -2337,7 +2470,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          state = new ChangeLogDigester.HistoricState( //
                tsFrom, tsUntil, //
-               getState(), getPerformer(), getCurrentDepartment(), workflowUserOid);     
+               getState(), getPerformer(), getCurrentDepartment(), workflowUserOid);
 
          if (null == historicStates)
          {
@@ -2397,7 +2530,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       fetch();
       return propertiesAvailable != 0 ? true : false;
    }
-   
+
    public long getLastModifyingUser()
    {
       if (this.lastModifyingUser != null)

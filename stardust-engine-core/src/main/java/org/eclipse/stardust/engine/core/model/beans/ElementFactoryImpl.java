@@ -13,22 +13,98 @@ package org.eclipse.stardust.engine.core.model.beans;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringKey;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.AccessPointOwner;
+import org.eclipse.stardust.engine.api.model.CardinalityKey;
+import org.eclipse.stardust.engine.api.model.EventActionContext;
+import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContext;
+import org.eclipse.stardust.engine.api.model.IApplicationContextType;
+import org.eclipse.stardust.engine.api.model.IApplicationType;
+import org.eclipse.stardust.engine.api.model.IBindAction;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IEventAction;
+import org.eclipse.stardust.engine.api.model.IEventActionType;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.ILinkType;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IModeler;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IParameterMapping;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IQualityAssurance;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.ITriggerType;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.IUnbindAction;
+import org.eclipse.stardust.engine.api.model.IView;
+import org.eclipse.stardust.engine.api.model.IViewable;
+import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.model.LoopType;
+import org.eclipse.stardust.engine.api.model.ModelParsingException;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.Scripting;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.core.compatibility.diagram.*;
-import org.eclipse.stardust.engine.core.model.gui.*;
+import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.ConnectionSymbol;
+import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
+import org.eclipse.stardust.engine.core.compatibility.diagram.GroupSymbol;
+import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.PathConnection;
+import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
+import org.eclipse.stardust.engine.core.model.gui.ActivitySymbol;
+import org.eclipse.stardust.engine.core.model.gui.AnnotationSymbol;
+import org.eclipse.stardust.engine.core.model.gui.ApplicationSymbol;
+import org.eclipse.stardust.engine.core.model.gui.ConditionalPerformerSymbol;
+import org.eclipse.stardust.engine.core.model.gui.DataMappingConnection;
+import org.eclipse.stardust.engine.core.model.gui.DataSymbol;
+import org.eclipse.stardust.engine.core.model.gui.ModelerSymbol;
+import org.eclipse.stardust.engine.core.model.gui.OrganizationSymbol;
+import org.eclipse.stardust.engine.core.model.gui.ProcessDefinitionSymbol;
+import org.eclipse.stardust.engine.core.model.gui.RoleSymbol;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
@@ -41,6 +117,7 @@ import org.w3c.dom.NodeList;
 public class ElementFactoryImpl implements ElementFactory
 {
    private static final Logger trace = LogManager.getLogger(ElementFactoryImpl.class);
+
    private int elementOID;
    private String id;
    private String name;
@@ -56,7 +133,7 @@ public class ElementFactoryImpl implements ElementFactory
       this.confVariablesProvider = confVariablesProvider;
    }
 
-   public IActivity createActivity(Node node, IProcessDefinition process, IModel model, Map subprocessList)
+   public IActivity createActivity(Element node, IProcessDefinition process, IModel model, Map subprocessList)
    {
       IActivity activity = process.createActivity(id, name, description, elementOID);
       
@@ -91,12 +168,6 @@ public class ElementFactoryImpl implements ElementFactory
       if (value != null)
       {
          activity.setSplitType(JoinSplitType.getKey(value));
-      }
-      activity.setLoopCondition(reader.getAttribute(LOOP_CONDITION_ATT));
-      value = reader.getRawAttribute(LOOP_TYPE);
-      if (value != null)
-      {
-         activity.setLoopType(LoopType.getKey(value));
       }
 
       String performerID = reader.getRawAttribute(PERFORMER);
@@ -140,7 +211,47 @@ public class ElementFactoryImpl implements ElementFactory
       }
       activity.setSubProcessMode(SubProcessModeKey.getKey(reader
             .getRawAttribute(SUB_PROCESS_MODE)));
+
+      activity.setLoopCharacteristics(createLoopCharacteristics(node));
+
       return activity;
+   }
+
+   private ILoopCharacteristics createLoopCharacteristics(Element node)
+   {
+      Element loopElement = (Element) node.getElementsByTagNameNS("*", XPDL_LOOP).item(0);
+      if (loopElement != null)
+      {
+         try
+         {
+            ILoopCharacteristics loopCharacteristics = Loop.loadLoopCharacteristics(loopElement, confVariablesProvider);
+            if (loopCharacteristics != null)
+            {
+               return loopCharacteristics;
+            }
+         }
+         catch (Exception ex)
+         {
+            DefaultXMLReader.fail(null, ex);
+         }
+      }
+
+      String value = reader.getRawAttribute(LOOP_TYPE);
+      if (value != null)
+      {
+         String condition = reader.getAttribute(LOOP_CONDITION_ATT);
+         LoopType loopType = LoopType.getKey(value);
+         if (LoopType.While == loopType)
+         {
+            return Loop.createStandardLoopCharacteristics(true, condition);
+         }
+         if (LoopType.Repeat == loopType)
+         {
+            return Loop.createStandardLoopCharacteristics(false, condition);
+         }
+      }
+
+      return null;
    }
 
    public IApplication createApplication(Node node, IModel model)
@@ -361,19 +472,19 @@ public class ElementFactoryImpl implements ElementFactory
    private <T extends ModelElement> T getProxyObject(Class<T> clazz, IModel model)
    {
       T result = null;
-      final String proxy = reader.getRawAttribute("proxy", false);
+      String proxy = reader.getRawAttribute("proxy", false);
       if (!StringUtils.isEmpty(proxy))
       {
          int ix = proxy.indexOf(':');
-         final QName ref = QName.valueOf(proxy.substring(ix + 1));
-         final IExternalPackage pkg = model.findExternalPackage(ref.getNamespaceURI());
+         QName ref = QName.valueOf(proxy.substring(ix + 1));
+         IExternalPackage pkg = model.findExternalPackage(ref.getNamespaceURI());
          if (pkg == null)
          {
             warn(ConversionWarning.MEDIUM,
                   "Referenced package '" + ref.getNamespaceURI() + "' for external data not found.", null, model);
          }
-         final String location = proxy.substring(0, ix);
-         final String refid = ref.getLocalPart();
+         String location = proxy.substring(0, ix);
+         String refid = ref.getLocalPart();
          try
          {
             result = (T) resolveReference(pkg.getReferencedModel(), location, refid);
@@ -385,37 +496,25 @@ public class ElementFactoryImpl implements ElementFactory
          if (result == null)
          {
             // try lazy resolving
-            result = (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[] {clazz}, new InvocationHandler()
-            {
-               boolean resolved = false;
-               T delegate = null;
-               
-               public Object invoke(Object proxyObject, Method method, Object[] args) throws Throwable
-               {
-                  if (!resolved)
-                  {
-                     delegate = (T) resolveReference(pkg.getReferencedModel(), location, refid);
-                     resolved = true;
-                     trace.info("Resolved '" + proxy + "' to: " + delegate);
-                  }
-                  return method.invoke(delegate, args);
-               }
-            });
+            result = (T) Proxy.newProxyInstance(clazz.getClassLoader(),
+                  new Class< ? >[] {clazz}, new DeferredResolvedTargetInvoker<T>(proxy,
+                        pkg, location, refid));
          }
       }
       return result;
    }
 
-   public Object resolveReference(final IModel refModel, final String location, final String refid)
+   private static <T> T resolveReference(IModel refModel, String location, String refid)
    {
       if ("data".equals(location))
       {
-         return refModel.findData(refid);
+         return (T) refModel.findData(refid);
       }
       else if ("role".equals(location) || "organization".equals(location) || "conditionalPerformer".equals(location))
       {
-         return refModel.findParticipant(refid);
+         return (T) refModel.findParticipant(refid);
       }
+
       return null;
    }
 
@@ -1174,37 +1273,12 @@ public class ElementFactoryImpl implements ElementFactory
 
    public IExternalPackage createExternalPackage(Node node, final IModel model)
    {
-      final String id = reader.getAttribute(XPDL_ID_ATT);
-      final String name = reader.getAttribute(XPDL_NAME_ATT);
-      final String href = reader.getAttribute(XPDL_HREF_ATT);
-      final Map<String, String> attributes = getExtendedAttributes(node);
-      IExternalPackage externalPackage = new IExternalPackage() {
-         private IModel[] referencedModel;
-         public String getId() {return id;}
-         public String getName() {return name;}
-         public String getHref() {return href;}
-         public String getExtendedAttribute(String name)
-         {
-            return attributes.get(name);
-         }
-         public IModel getModel() {return model;}
-         public IModel getReferencedModel() throws UnresolvedExternalReference
-         {
-            if (referencedModel == null)
-            {
-               IModel resolvedModel = ModelRefBean.resolveModel(this);
-               trace.info(resolvedModel == null
-                     ? "Reference '" + href + "' could not be resolved for model '" + model.getId()
-                           + "' [" + model.getModelOID()+ "]."
-                     : "Reference '" + href + "' was resolved for model '" + model.getId()
-                           + "' to model with oid: " + resolvedModel.getModelOID());
-               referencedModel = new IModel[] {resolvedModel};
-            }
-            return referencedModel[0];
-         }
-      };
-      ((ModelBean) model).addToExternalPackages(externalPackage);
-      return externalPackage;
+      String id = reader.getAttribute(XPDL_ID_ATT);
+      String name = reader.getAttribute(XPDL_NAME_ATT);
+      String href = reader.getAttribute(XPDL_HREF_ATT);
+      Map<String, String> attributes = getExtendedAttributes(node);
+
+      return new ExternalPackageDefinition(id, name, attributes, href, model);
    }
    
    private Map<String, String> getExtendedAttributes(Node node)
@@ -1248,19 +1322,12 @@ public class ElementFactoryImpl implements ElementFactory
 
    public IFormalParameter createFormalParameters(Node item, final IProcessDefinition process)
    {
-      final String id = reader.getAttribute("Id");
-      final String name = reader.getAttribute("Name");
+      String id = reader.getAttribute("Id");
+      String name = reader.getAttribute("Name");
       String mode = reader.getAttribute("Mode");
-      final Direction direction = mode == null ? Direction.IN : Direction.getKey(mode);
-      IFormalParameter parameter = new IFormalParameter()
-      {
-         public String getId() {return id;}
-         public String getName() {return name;}
-         public Direction getDirection() {return direction;}
-         public IData getData() {return process.getMappedData(id);}
-      };
-      ((ProcessDefinitionBean) process).addToFormalParameters(parameter);
-      return null;
+      Direction direction = mode == null ? Direction.IN : Direction.getKey(mode);
+
+      return new FormalParameterDefinition(id, name, process, direction);
    }
 
    public IQualityAssurance createQualityAssurance(Node node, IModel model)
@@ -1315,6 +1382,150 @@ public class ElementFactoryImpl implements ElementFactory
       else if(name.equals(PredefinedConstants.QUALITY_ASSURANCE_FORMULA_ATT))
       {
          activity.setQualityAssuranceFormula(reader.getChildValue(VALUE));
+      }
+   }
+
+   private static class DeferredResolvedTargetInvoker<T> implements InvocationHandler
+   {
+      private final String proxy;
+
+      private final IExternalPackage pkg;
+
+      private final String location;
+
+      private final String refid;
+
+      private boolean resolved = false;
+
+      private T delegate = null;
+
+      private DeferredResolvedTargetInvoker(String proxy, IExternalPackage pkg,
+            String location, String refid)
+      {
+         this.proxy = proxy;
+         this.pkg = pkg;
+         this.location = location;
+         this.refid = refid;
+      }
+
+      public Object invoke(Object proxyObject, Method method, Object[] args)
+            throws Throwable
+      {
+         if (!resolved)
+         {
+            this.delegate = resolveReference(pkg.getReferencedModel(), location, refid);
+            this.resolved = true;
+
+            trace.info("Resolved '" + proxy + "' to: " + delegate);
+         }
+
+         return method.invoke(delegate, args);
+      }
+
+   }
+
+   public static class ExternalPackageDefinition implements IExternalPackage
+   {
+      private final String id;
+
+      private final String name;
+
+      private final Map<String, String> attributes;
+
+      private final String href;
+
+      private final IModel model;
+
+      private IModel[] referencedModel;
+
+      public ExternalPackageDefinition(String id, String name,
+            Map<String, String> attributes, String href, IModel model)
+      {
+         this.id = id;
+         this.name = name;
+         this.attributes = attributes;
+         this.href = href;
+         this.model = model;
+      }
+
+      public String getId()
+      {
+         return id;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public String getHref()
+      {
+         return href;
+      }
+
+      public String getExtendedAttribute(String name)
+      {
+         return attributes.get(name);
+      }
+
+      public IModel getModel()
+      {
+         return model;
+      }
+
+      public IModel getReferencedModel() throws UnresolvedExternalReference
+      {
+         if (referencedModel == null)
+         {
+            IModel resolvedModel = ModelRefBean.resolveModel(this);
+            trace.info(resolvedModel == null ? "Reference '" + href
+                  + "' could not be resolved for model '" + model.getId() + "' ["
+                  + model.getModelOID() + "]." : "Reference '" + href
+                  + "' was resolved for model '" + model.getId()
+                  + "' to model with oid: " + resolvedModel.getModelOID());
+            referencedModel = new IModel[] {resolvedModel};
+         }
+         return referencedModel[0];
+      }
+   }
+
+   public static class FormalParameterDefinition implements IFormalParameter
+   {
+      private final String id;
+
+      private final String name;
+
+      private final IProcessDefinition process;
+
+      private final Direction direction;
+
+      public FormalParameterDefinition(String id, String name,
+            IProcessDefinition process, Direction direction)
+      {
+         this.id = id;
+         this.name = name;
+         this.process = process;
+         this.direction = direction;
+      }
+
+      public String getId()
+      {
+         return id;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public Direction getDirection()
+      {
+         return direction;
+      }
+
+      public IData getData()
+      {
+         return process.getMappedData(id);
       }
    }
 }

@@ -2,66 +2,78 @@ package org.eclipse.stardust.engine.extensions.camel.trigger;
 
 import org.eclipse.stardust.engine.api.model.IData;
 
+public class AccessPointProperties
+{
 
-public class AccessPointProperties {
+   private String accessPointType;
 
-	private String accessPointType;
+   private String accessPointPath;
 
-	private String accessPointPath;
+   private String accessPointLocation;
 
-	private String accessPointLocation;
+   private IData data;
 
-	private IData data;
+   private String dataPath;
 
-	private String dataPath;
+   private String xsdName;
 
-	private String xsdName;
+   public String getAccessPointType()
+   {
+      return accessPointType;
+   }
 
-	public String getAccessPointType() {
-		return accessPointType;
-	}
+   public void setAccessPointType(String accessPointType)
+   {
+      this.accessPointType = accessPointType;
+   }
 
-	public void setAccessPointType(String accessPointType) {
-		this.accessPointType = accessPointType;
-	}
+   public String getAccessPointLocation()
+   {
+      return accessPointLocation;
+   }
 
-	public String getAccessPointLocation() {
-		return accessPointLocation;
-	}
+   public void setAccessPointLocation(String accessPointLocation)
+   {
+      this.accessPointLocation = accessPointLocation;
+   }
 
-	public void setAccessPointLocation(String accessPointLocation) {
-		this.accessPointLocation = accessPointLocation;
-	}
+   public String getAccessPointPath()
+   {
+      return accessPointPath;
+   }
 
-	public String getAccessPointPath() {
-		return accessPointPath;
-	}
+   public void setAccessPointPath(String accessPointPath)
+   {
+      this.accessPointPath = accessPointPath;
+   }
 
-	public void setAccessPointPath(String accessPointPath) {
-		this.accessPointPath = accessPointPath;
-	}
+   public IData getData()
+   {
+      return data;
+   }
 
-	public IData getData() {
-		return data;
-	}
+   public void setData(IData data)
+   {
+      this.data = data;
+   }
 
-	public void setData(IData data) {
-		this.data = data;
-	}
+   public String getDataPath()
+   {
+      return dataPath;
+   }
 
-	public String getDataPath() {
-		return dataPath;
-	}
+   public void setDataPath(String dataPath)
+   {
+      this.dataPath = dataPath;
+   }
 
-	public void setDataPath(String dataPath) {
-		this.dataPath = dataPath;
-	}
+   public String getXsdName()
+   {
+      return xsdName;
+   }
 
-	public String getXsdName() {
-		return xsdName;
-	}
-
-	public void setXsdName(String xsdName) {
-		this.xsdName = xsdName;
-	}
+   public void setXsdName(String xsdName)
+   {
+      this.xsdName = xsdName;
+   }
 }

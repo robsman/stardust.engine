@@ -13,21 +13,15 @@ package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
-
 public class GlobalTokenManager implements ITokenManager
 {
-   private static final Logger trace = LogManager.getLogger(GlobalTokenManager.class);
-   private final Map /*<Long,<Long,TransitionTokenBean>>*/ tokensByTransition = new HashMap();
+   private final Map<Long, Object> tokensByTransition = new HashMap();
    private final IProcessInstance processInstance;
 
    public GlobalTokenManager(IProcessInstance processInstance)
@@ -37,7 +31,7 @@ public class GlobalTokenManager implements ITokenManager
 
    private Object getTokenMap(ITransition transition)
    {
-      Long transRtOid = getTransitionRtOid(transition);
+      long transRtOid = getTransitionRtOid(transition);
       int transModelOid = getModelOid(transition);
 
       Object tokens = tokensByTransition.get(transRtOid);
@@ -45,10 +39,10 @@ public class GlobalTokenManager implements ITokenManager
       {
          tokens = TransitionTokenBean.findUnconsumedForTransition(processInstance,
                transRtOid, transModelOid);
-            
-         // TODO (ab) is this needed? this could be needed for DB2: there the committed lines are readable 
+
+         // TODO (ab) is this needed? this could be needed for DB2: there the committed lines are readable
          // for other transactions before commit - duplicate tokens (local an global cache can be created this way?)
-         // but on the other hand: local tokens are only written to DB in flush(), so it could not happen? 
+         // but on the other hand: local tokens are only written to DB in flush(), so it could not happen?
          //         Set localTokens = this.localTokenCache.getAllTokens(transition);
          //         for (Iterator i = localTokens.iterator(); i.hasNext();)
          //         {
@@ -71,22 +65,22 @@ public class GlobalTokenManager implements ITokenManager
 
       return tokens;
    }
-   
-   private Long getTransitionRtOid(ITransition transition)
+
+   private long getTransitionRtOid(ITransition transition)
    {
-      if ((ActivityThread.START_TRANSITION == transition) || (null == transition))
+      if (ActivityThread.START_TRANSITION == transition || transition == null)
       {
          return TransitionTokenBean.START_TRANSITION_RT_OID;
       }
       else
       {
-         return new Long(ModelManagerFactory.getCurrent().getRuntimeOid(transition));
+         return ModelManagerFactory.getCurrent().getRuntimeOid(transition);
       }
    }
 
    private int getModelOid(ITransition transition)
    {
-      if ((ActivityThread.START_TRANSITION == transition) || (null == transition))
+      if (ActivityThread.START_TRANSITION == transition || transition == null)
       {
          return TransitionTokenBean.START_TRANSITION_MODEL_OID.intValue();
       }
@@ -98,11 +92,10 @@ public class GlobalTokenManager implements ITokenManager
 
    public void registerToken(ITransition transition, TransitionTokenBean token)
    {
-      
       Object tokens = getTokenMap(transition);
-      if (null == tokens)
+      if (tokens == null)
       {
-         this.tokensByTransition.put(getTransitionRtOid(transition), token);
+         tokensByTransition.put(getTransitionRtOid(transition), token);
       }
       else if (tokens instanceof TransitionTokenBean)
       {
@@ -120,7 +113,7 @@ public class GlobalTokenManager implements ITokenManager
    public boolean removeToken(TransitionTokenBean token)
    {
       Object tokens = getTokenMap(token.getTransition());
-      if (null == tokens || ((tokens instanceof List) && ((List) tokens).isEmpty()))
+      if (tokens == null || (tokens instanceof List && ((List) tokens).isEmpty()))
       {
          return false;
       }
@@ -142,84 +135,25 @@ public class GlobalTokenManager implements ITokenManager
          return ((List) tokens).remove(token);
       }
    }
-   
+
    public TransitionTokenBean lockFirstAvailableToken(ITransition transition)
    {
       Object tokens = getTokenMap(transition);
-      if (null == tokens || ((tokens instanceof List) && ((List) tokens).isEmpty()))
+      if (tokens == null || (tokens instanceof List && ((List) tokens).isEmpty()))
       {
          return null;
       }
 
-      if (tokens instanceof TransitionTokenBean)
+      List<TransitionTokenBean> tokenList = tokens instanceof TransitionTokenBean
+            ? Collections.singletonList((TransitionTokenBean) tokens)
+            : (List<TransitionTokenBean>) tokens;
+      for (TransitionTokenBean token : tokenList)
       {
-         TransitionTokenBean token = (TransitionTokenBean) tokens;
-         if ( !token.isBound())
+         if (!token.isBound())
          {
-            try
+            if (token.lockAndReload() == 0 && !token.isBound())
             {
-               token.lock();
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("token " + token + " locked.");
-               }
-               token.reload();
-               if ( !token.isBound())
-               {
-                  return token;
-               }
-            }
-            catch (ConcurrencyException e)
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Concurrent attempt to lock token: " + token);
-               }
-            }
-            catch (PhantomException e)
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Try to bind phantom token: " + token);
-               }
-            }
-         }
-      }
-      else
-      {
-         List tokenList = (List) tokens;
-         for (int i = 0; i < tokenList.size(); ++i)
-         {
-            TransitionTokenBean token = (TransitionTokenBean) tokenList.get(i);
-            if ( !token.isBound())
-            {
-               try
-               {
-                  token.lock();
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug("token " + token + " locked.");
-                  }
-                  token.reload();
-                  if ( !token.isBound())
-                  {
-                     return token;
-                  }
-               }
-               catch (ConcurrencyException e)
-               {
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug("Concurrent attempt to lock token: " + token);
-                  }
-               }
-               catch (PhantomException e)
-               {
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug("Try to bind phantom token: " + token);
-                  }
-               }
+               return token;
             }
          }
       }
@@ -230,7 +164,7 @@ public class GlobalTokenManager implements ITokenManager
    public void flush()
    {
       final Object startTokens = tokensByTransition.get(TransitionTokenBean.START_TRANSITION_RT_OID);
-      
+
       if (startTokens instanceof TransitionTokenBean)
       {
          TransitionTokenBean token = (TransitionTokenBean) startTokens;
@@ -254,15 +188,15 @@ public class GlobalTokenManager implements ITokenManager
             }
          }
       }
-      
-      this.tokensByTransition.clear();
+
+      tokensByTransition.clear();
    }
 
    public TransitionTokenBean getTokenForTarget(ITransition transition,
          long targetActivityInstanceOid)
    {
       Object tokens = getTokenMap(transition);
-      if (null == tokens || ((tokens instanceof List) && ((List) tokens).isEmpty()))
+      if (tokens == null || (tokens instanceof List && ((List) tokens).isEmpty()))
       {
          return null;
       }
@@ -276,10 +210,8 @@ public class GlobalTokenManager implements ITokenManager
       }
       else
       {
-         List tokenList = (List) tokens;
-         for (int i = 0; i < tokenList.size(); ++i)
+         for (TransitionTokenBean token :  (List<TransitionTokenBean>) tokens)
          {
-            TransitionTokenBean token = (TransitionTokenBean) tokenList.get(i);
             if (token.getTarget() == targetActivityInstanceOid)
             {
                return token;
@@ -290,4 +222,66 @@ public class GlobalTokenManager implements ITokenManager
       return null;
    }
 
+   @Override
+   public TransitionTokenBean lockSourceAndOtherToken(final TransitionTokenBean sourceToken)
+   {
+      Object tokens = getTokenMap(null);
+
+      List<TransitionTokenBean> tokenList = tokens instanceof TransitionTokenBean
+            ? Collections.singletonList((TransitionTokenBean) tokens)
+            : tokens instanceof List ? (List<TransitionTokenBean>) tokens : Collections.<TransitionTokenBean>emptyList();
+
+      if (tokenList.isEmpty() || !tokenList.contains(sourceToken) || sourceToken.lockAndReload() > 0)
+      {
+         return null;
+      }
+
+      return lockNextToken(sourceToken, filter(sourceToken, tokenList));
+   }
+
+   static TransitionTokenBean[] filter(final TransitionTokenBean sourceToken,
+         Collection<TransitionTokenBean> tokenList)
+   {
+      TransitionTokenBean[] filtered = new TransitionTokenBean[8];
+      long source = sourceToken.getSource();
+      long pi = sourceToken.getProcessInstanceOID();
+      for (TransitionTokenBean token : tokenList)
+      {
+         if (token != sourceToken && token.getSource() == source && token.getProcessInstanceOID() == pi)
+         {
+            int index = token.getMultiInstanceIndex();
+            if (filtered.length <= index)
+            {
+               filtered = Arrays.copyOf(filtered, index + 8);
+            }
+            filtered[index] = token;
+         }
+      }
+      return filtered;
+   }
+
+   static TransitionTokenBean lockNextToken(final TransitionTokenBean sourceToken,
+         TransitionTokenBean[] tokens)
+   {
+      boolean allLocked = true;
+      for (TransitionTokenBean token : tokens)
+      {
+         if (token != null)
+         {
+            int lockStatus = token.lockAndReload();
+            if (lockStatus == 0)
+            {
+               if (!token.isConsumed())
+               {
+                  return token;
+               }
+            }
+            else if (lockStatus == 1)
+            {
+               allLocked = false;
+            }
+         }
+      }
+      return allLocked ? sourceToken : null;
+   }
 }

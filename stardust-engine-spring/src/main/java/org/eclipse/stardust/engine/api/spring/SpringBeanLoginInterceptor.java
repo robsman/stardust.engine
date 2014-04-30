@@ -10,9 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.spring;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.security.Principal;
+import java.util.HashMap;
 
 import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -29,6 +36,8 @@ public class SpringBeanLoginInterceptor extends AbstractLoginInterceptor
       implements PrincipalProvider
 {
    private static final long serialVersionUID = 1L;
+
+   private static final Logger trace = LogManager.getLogger(SpringBeanLoginInterceptor.class);
 
    private final AbstractSpringServiceBean serviceBean;
 
@@ -53,9 +62,25 @@ public class SpringBeanLoginInterceptor extends AbstractLoginInterceptor
                && !isLoginCall(invocation.getMethod())
                && !isLogoutCall(invocation.getMethod());
 
-         principalProvider = usePrincipal ? this : null;
+         if (usePrincipal)
+         {
+            principalProvider = this;
+            if (SecurityProperties.isInternalAuthentication())
+            {
+               boolean ok = InvokerPrincipalUtils.checkPrincipalSignature(principal);
+               if ( !ok)
+               {
+                  trace.warn("The signature for principal '" + principal + "' is corrupt.");
+                  throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+               }
+            }
+         }
+         else
+         {
+            principalProvider = null;
+         }
       }
-      
+
       final PropertyLayer props = PropertyLayerProviderInterceptor.getCurrent();
       final Object backup = props.get(SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY);
 
@@ -84,8 +109,15 @@ public class SpringBeanLoginInterceptor extends AbstractLoginInterceptor
 
       if (null != loggedInUser)
       {
-         InvokerPrincipalUtils.setCurrent(loggedInUser.getUserId(),
-               loggedInUser.getProperties());
+         InvokerPrincipal signedPrincipal = InvokerPrincipalUtils.generateSignedPrincipal(
+               loggedInUser.getUserId(), loggedInUser.getProperties());
+
+         InvokerPrincipalUtils.setCurrent(signedPrincipal);
+
+         HashMap<Object, Object> enrichedProperties = newHashMap();
+         enrichedProperties.putAll(loggedInUser.getProperties());
+         enrichedProperties.put(InvokerPrincipal.PRP_SIGNED_PRINCIPAL, signedPrincipal);
+         loggedInUser = new LoggedInUser(loggedInUser.getUserId(), enrichedProperties);
       }
 
       return loggedInUser;

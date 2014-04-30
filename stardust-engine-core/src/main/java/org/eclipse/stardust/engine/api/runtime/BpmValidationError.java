@@ -110,6 +110,9 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 ACTY_NO_EXCEPTION_FLOW_TRANSITION_FOR_EVENT_HANDLER = newArgs1("ACTY01012", BpmValidationErrorMessages.getString("ACTY01012"));
    public static final Args2 ACTY_BOUNDARY_EVENTS_WITH_UNDISJUNCT_TYPE_HIERARCHIES = newArgs2("ACTY01013", BpmValidationErrorMessages.getString("ACTY01013"));
    public static final Args0 ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW = newArgs0("ACTY01014", BpmValidationErrorMessages.getString("ACTY01014"));
+   public static final Args1 ACTY_INCOMPATIBLE_SUBPROCESSMODE = newArgs1("ACTY01015");
+   public static final Args1 ACTY_NO_LOOP_INPUT_DATA = newArgs1("ACTY01016");
+
 
    //Conditions related
    public static final Args1 COND_NOT_AN_EXCEPTION_CLASS = newArgs1("COND01001", BpmValidationErrorMessages.getString("COND01001"));

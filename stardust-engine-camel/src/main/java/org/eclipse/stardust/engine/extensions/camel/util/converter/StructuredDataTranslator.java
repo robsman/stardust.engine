@@ -37,6 +37,7 @@ import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 /**
  * 
@@ -102,9 +103,11 @@ public class StructuredDataTranslator
             }
          }
 
+      } else if (schemaPath.startsWith("http:") ){//get url resource
+         setXsdSchema(new UrlResource("url:"+schemaPath));
       }
       else
-      {
+      {//classpath resource
          String xsdPath = schemaPath.substring(schemaPath.indexOf(":") + 1, schemaPath.length());
          setXsdSchema(new ClassPathResource(xsdPath));
       }
@@ -119,6 +122,7 @@ public class StructuredDataTranslator
    public void setXsdSchema(Resource xsdSchema) throws IOException
    {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024);
+
       byte[] bytes = new byte[512];
 
       // Read bytes from the input stream in bytes.length-sized chunks and

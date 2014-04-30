@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,22 +18,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Pair;
@@ -45,32 +35,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.CasePolicy;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.DefaultPersistentVector;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.FieldRefResolver;
-import org.eclipse.stardust.engine.core.persistence.Function;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.JoinElement;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.PersistentVector;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor.CompositeKey;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
@@ -143,7 +108,7 @@ public class DmlManager
          {
             return SQL_NULL;
          }
-         
+
          Pair<Double, Double> valueBorders = dbDescriptor
                .getNumericSQLTypeValueBorders(Double.class);
          if (doubleValue < valueBorders.getFirst())
@@ -496,6 +461,45 @@ public class DmlManager
    }
 
    /**
+    * Map a {@link java.sql.Types} to a java type
+    *
+    * @param type - a constant from java.sql.Types
+    * @return the java type
+    */
+   public static Class mapSqlTypeToJavaTpe(int type)
+   {
+      if (type == java.sql.Types.INTEGER)
+      {
+         return Integer.TYPE;
+      }
+      else if (type == java.sql.Types.DATE)
+      {
+         return java.sql.Date.class;
+      }
+      else if (type == java.sql.Types.BIGINT)
+      {
+         return Long.TYPE;
+      }
+      else if (type == java.sql.Types.FLOAT)
+      {
+         return Float.TYPE;
+      }
+      else if (type == java.sql.Types.DOUBLE)
+      {
+         return Double.TYPE;
+      }
+      else if (type == java.sql.Types.VARCHAR)
+      {
+         return String.class;
+      }
+      else
+      {
+         throw new InternalException(
+               "No Mapping available for sql type: '" + type+ "'");
+      }
+   }
+
+   /**
     * Maps Java types to constants of java.sql.Types.
     *
     * @todo check, whether this method is already provided by sql package
@@ -743,7 +747,7 @@ public class DmlManager
 
    private StringBuffer buildValueExpression(Operator op, FieldRef lhsField, Object value, List<Pair<Class<?>, ?>> bindValueList,
          boolean useLiteralsWhereAppropriate)
-   {    
+   {
       StringBuffer buffer = new StringBuffer(DEFAULT_STMT_BUFFER_SIZE);
 
       if (value instanceof QueryDescriptor)
@@ -756,8 +760,8 @@ public class DmlManager
       else
       {
          boolean useBindValues = null != bindValueList;
-         
-         //performance optimization for mixed mode: if comparison value starts with '%' 
+
+         //performance optimization for mixed mode: if comparison value starts with '%'
          //then value will not be bound as prepared statement parameter but set as literal in SQL
          if(useLiteralsWhereAppropriate)
          {
@@ -765,17 +769,17 @@ public class DmlManager
             {
                String stringValue = (String) value;
                if(stringValue.startsWith("%"))
-               {  
+               {
                   useBindValues = false;
                }
             }
          }
-         
+
          if(lhsField.isIgnorePreparedStatements())
          {
             useBindValues = false;
          }
-               
+
          if (value instanceof FieldRef)
          {
             sqlUtils.appendFieldRef(buffer, (FieldRef) value);

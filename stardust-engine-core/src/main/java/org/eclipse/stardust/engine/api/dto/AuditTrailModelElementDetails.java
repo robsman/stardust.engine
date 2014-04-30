@@ -21,8 +21,14 @@ public abstract class AuditTrailModelElementDetails extends ModelElementDetails
    protected AuditTrailModelElementDetails(IdentifiableElement element)
    {
       super(element);
-      
+
       this.runtimeElementOid = ModelManagerFactory.getCurrent().getRuntimeOid(element);
+   }
+
+   public AuditTrailModelElementDetails(AuditTrailModelElementDetails template)
+   {
+      super(template);
+      this.runtimeElementOid = template.runtimeElementOid;
    }
 
    public long getRuntimeElementOID()

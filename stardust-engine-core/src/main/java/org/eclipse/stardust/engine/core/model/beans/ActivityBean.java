@@ -29,28 +29,7 @@ import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IFormalParameter;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.JoinSplitType;
-import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
@@ -66,8 +45,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointProvider;
 
-
-
 /**
  * @author mgille
  */
@@ -79,12 +56,6 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    public static final String IMPLEMENTATION_TYPE_ATT = "Implementation Type";
    private ImplementationType implementationType;
-
-   public static final String LOOP_TYPE_ATT = "Loop Type";
-   private LoopType loopType = LoopType.None;
-
-   public static final String LOOP_CONDITION_ATT = "Loop Condition";
-   private String loopCondition;
 
    public static final String JOIN_TYPE_ATT = "Join Type";
    private JoinSplitType joinType = JoinSplitType.None;
@@ -98,23 +69,23 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    public static final String HIBERNATE_ON_CREATION_ATT = "Hibernate On Creation";
    private boolean hibernateOnCreation;
 
-   private IProcessDefinition implementationProcessDefinition = null;
+   private IProcessDefinition implementationProcessDefinition;
 
    public static final String SUBPROCESS_MODE_ATT = "Subprocess Execution Mode";
 
    private SubProcessModeKey subProcessMode;
 
-   private IModelParticipant performer = null;
+   private IModelParticipant performer;
 
-   private IApplication application = null;
+   private IApplication application;
 
-   private List<ITransition> inTransitions = null;
+   private List<ITransition> inTransitions;
 
-   private List<ITransition> outTransitions = null;
+   private List<ITransition> outTransitions;
 
-   private List<ITransition> exceptionTransitions = null;
+   private List<ITransition> exceptionTransitions;
 
-   private List dataMappings = null;
+   private List dataMappings;
 
    private ModelElementListAdapter inDataMappings = new ModelElementListAdapter(CollectionUtils.newList());
 
@@ -122,7 +93,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    private Link eventHandlers = new Link(this, "Event Handlers");
 
-   private IReference externalReference = null;
+   private IReference externalReference;
+
+   private ILoopCharacteristics loopCharacteristics;
 
    private transient IApplicationContext interfaceContext = new MyInterfaceContext();
    private transient IApplicationContext engineContext = new MyEngineContext();
@@ -199,28 +172,31 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       implementationType = type;
    }
 
-   public void setLoopType(LoopType type)
+   public ILoopCharacteristics getLoopCharacteristics()
    {
-      markModified();
+      return loopCharacteristics;
+   }
 
-      loopType = type;
+   @Override
+   public void setLoopCharacteristics(ILoopCharacteristics loopCharacteristics)
+   {
+      this.loopCharacteristics = loopCharacteristics;
    }
 
    public LoopType getLoopType()
    {
-      return loopType;
+      return loopCharacteristics instanceof IStandardLoopCharacteristics
+            ? ((IStandardLoopCharacteristics) loopCharacteristics).testBefore()
+                  ? LoopType.While
+                  : LoopType.Repeat
+            : LoopType.None;
    }
 
    public String getLoopCondition()
    {
-      return loopCondition;
-   }
-
-   public void setLoopCondition(String loopCondition)
-   {
-      markModified();
-
-      this.loopCondition = loopCondition;
+      return loopCharacteristics instanceof IStandardLoopCharacteristics
+            ? ((IStandardLoopCharacteristics) loopCharacteristics).getLoopCondition()
+            : null;
    }
 
    public JoinSplitType getJoinType()
@@ -508,7 +484,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    }
 
-   public ModelElementList getInDataMappings()
+   public ModelElementList<IDataMapping> getInDataMappings()
    {
       return inDataMappings;
    }
@@ -661,10 +637,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          {
             // ignore
          }
-         if (getSubProcessMode() == null)
+         SubProcessModeKey mode = getSubProcessMode();
+         if (mode == null)
          {
             BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_NOT_SET.raise(getId());
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+         }
+
+         if (loopCharacteristics instanceof IMultiInstanceLoopCharacteristics)
+         {
+            if (mode == SubProcessModeKey.SYNC_SHARED &&
+                  !((IMultiInstanceLoopCharacteristics) loopCharacteristics).isSequential())
+            {
+               BpmValidationError error = BpmValidationError.ACTY_INCOMPATIBLE_SUBPROCESSMODE.raise(getId());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+            }
          }
       }
 
@@ -725,7 +712,19 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          }
       }
 
-      // check concistencies for DataMappings
+      String inputId = null;
+      if (loopCharacteristics instanceof IMultiInstanceLoopCharacteristics)
+      {
+         inputId = ((IMultiInstanceLoopCharacteristics) loopCharacteristics).getInputParameterId();
+         if (inputId == null)
+         {
+            BpmValidationError error = BpmValidationError.ACTY_NO_LOOP_INPUT_DATA.raise(getId());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+         }
+      }
+
+      boolean hasLoopInput = false;
+      // check consistencies for DataMappings
       for (Iterator iterator = getAllDataMappings(); iterator.hasNext();)
       {
          IDataMapping dataMapping = (IDataMapping) iterator.next();
@@ -737,6 +736,16 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          {
             // ignore
          }
+         if (inputId != null && dataMapping.getDirection() == Direction.IN
+               && inputId.equals(dataMapping.getContext() + ":" + dataMapping.getActivityAccessPointId()))
+         {
+            hasLoopInput = true;
+         }
+      }
+      if (inputId != null && !hasLoopInput)
+      {
+         BpmValidationError error = BpmValidationError.ACTY_NO_LOOP_INPUT_DATA.raise(getId());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
 
       // check consistencies for EventHandlers

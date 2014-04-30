@@ -16,10 +16,10 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
-   
+
    <!-- JMS Forking Service -->
    <bean name="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.spring.integration.jms.threading.JmsForkingService" />
-   
+
    <!-- JMS Resource Adapter -->
    <bean id="jmsResourceAdapter" class="org.apache.activemq.ra.ActiveMQResourceAdapter" depends-on="broker">
       <property name="serverUrl" value="vm://localhost" />
@@ -45,7 +45,7 @@
          </bean>
       </property>
    </bean>
-   
+
    <!-- JMS Connection Manager -->
    <bean id="jmsConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
       <property name="transactionManager" ref="xaTransactionManager" />
@@ -53,18 +53,18 @@
       <property name="poolingSupport" ref="jmsPoolingSupport" />
    </bean>
    <bean id="jmsPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
-      <property name="poolMinSize" value="10" />
-      <property name="poolMaxSize" value="50" />
+      <property name="poolMinSize" value="50" />
+      <property name="poolMaxSize" value="200" />
       <property name="connectionMaxWaitMilliseconds" value="5000" />
       <property name="connectionMaxIdleMinutes" value="1" />
    </bean>
-   
+
    <!-- JMS Resource Reference Binding -->
    <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceRefBinding">
       <property name="name" value="jms/CarnotXAConnectionFactory" />
       <property name="resourceRef" ref="jmsConnectionFactory" />
    </bean>
-   
+
    <!-- Queue Listeners -->
    <bean name="systemQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsSystemQueue" />
@@ -100,7 +100,7 @@
       <property name="receiveTimeout" value="3000" />
       <property name="sessionTransacted" value="true" />
    </bean>
-   
+
    <!-- Queue Resource Bindings -->
    <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
       <property name="name" value="jms/CarnotSystemQueue" />
@@ -118,13 +118,13 @@
       <property name="name" value="jms/CarnotTestQueue" />
       <property name="resource" ref="jmsTestQueue" />
    </bean>
-   
+
    <!-- Queues -->
    <amq:queue id="jmsSystemQueue" physicalName="CarnotSystemQueue" />
    <amq:queue id="jmsDaemonQueue" physicalName="CarnotDaemonQueue" />
    <amq:queue id="jmsApplicationQueue" physicalName="CarnotApplicationQueue" />
    <amq:queue id="jmsTestQueue" physicalName="CarnotTestQueue" />
-   
+
    <!-- Carnot Properties -->
    <bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
       <property name="properties">
@@ -138,5 +138,5 @@
          </map>
       </property>
    </bean>
-   
+
 </beans>

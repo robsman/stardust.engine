@@ -1,15 +1,26 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
+import static org.apache.camel.Exchange.FILE_NAME_ONLY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_DOCUMENT_CONTENT_KEY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_DOCUMENT_NAME_KEY;
+
 import java.io.IOException;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMultipart;
+
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
+import org.apache.camel.component.file.FileEndpoint;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.camel.component.jms.JmsEndpoint;
+import org.apache.camel.component.mail.MailEndpoint;
 import org.apache.commons.lang.StringUtils;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+
 
 
 @Converter
@@ -61,8 +72,9 @@ public class DocumentDataConverter implements DataConverter {
 	@SuppressWarnings("unchecked")
 	@Handler
 	public String genericFileToDocument(Object messageContent,
-			Exchange exchange) throws IOException{
+			Exchange exchange) throws IOException, MessagingException{
 		byte[] jcrDocumentContent = null;
+
 		if (exchange != null) {
 			if (messageContent instanceof GenericFile<?>) {
 				((GenericFile) messageContent).getBinding().loadContent(
@@ -73,14 +85,35 @@ public class DocumentDataConverter implements DataConverter {
 						.convertTo(byte[].class, exchange,
 						//.convertTo(String.class, exchange,
 								((GenericFile) messageContent).getBody());
-				 logger.debug("*** FileLength = " +((GenericFile) messageContent).getFileLength()); 
+				 if (logger.isDebugEnabled())
+		         {
+					 logger.debug("*** FileLength = " +((GenericFile) messageContent).getFileLength());
+		         }
 			} else if (messageContent instanceof String) {
 				jcrDocumentContent =  ((String) messageContent).getBytes();
+			} else if(messageContent instanceof MimeMultipart) {
+				jcrDocumentContent = ((String)(((MimeMultipart)messageContent).getBodyPart(0).getContent())).getBytes();
 			}
 
-			String fileName = (String) exchange.getIn().getHeader("CamelFileNameOnly");
-			exchange.getIn().getHeaders().put("CamelAttachment", fileName);
-			exchange.getIn().getHeaders().put("CamelDocumentContent", jcrDocumentContent);
+			// check the invoked Endpoint
+			String fileName = "";
+			if (exchange.getFromEndpoint() instanceof FileEndpoint) {
+				fileName = (String) exchange.getIn().getHeader(FILE_NAME_ONLY);
+			} else if (exchange.getFromEndpoint() instanceof MailEndpoint) {
+				String senderAddress = (String) exchange.getIn().getHeader("From");
+				int begintIndex = senderAddress.indexOf("<");
+				int endIndex = senderAddress.indexOf("@");
+				String senderName = senderAddress.substring(begintIndex + 1, endIndex);
+				fileName = exchange.getExchangeId() + "-" + senderName + "-mailDoc.txt";
+			} else if (exchange.getFromEndpoint() instanceof JmsEndpoint) {
+				fileName = exchange.getExchangeId() + "-jmsDoc.txt";
+			}
+			else {
+				fileName = exchange.getExchangeId() + ".txt";
+			}
+
+			exchange.getIn().getHeaders().put(CAMEL_DOCUMENT_NAME_KEY, fileName);
+			exchange.getIn().getHeaders().put(CAMEL_DOCUMENT_CONTENT_KEY, jcrDocumentContent);
 			String document = fileName + "_";
 			exchange.getIn().setBody(document);
 			return document;

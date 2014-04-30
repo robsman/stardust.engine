@@ -1,11 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.*;
 import static org.junit.Assert.*;
 
+import java.net.URISyntaxException;
 import java.util.Map;
 
+import org.apache.camel.util.URISupport;
 import org.junit.Test;
 
 public class EndpointHelperTest
@@ -18,7 +18,6 @@ public class EndpointHelperTest
       String response = EndpointHelper.sanitizeUri(uri);
       String expectedResponse = "imaps://imap.gmail.com?username=test@gmail.com&amp;password=test&amp;delete=false&amp;unseen=true&amp;consumer.delay=60000";
       assertTrue(expectedResponse.equalsIgnoreCase(response));
-
    }
 
    @Test
@@ -30,34 +29,25 @@ public class EndpointHelperTest
       assertTrue(expectedResponse.equalsIgnoreCase(response));
    }
 
-//   @Test
-//   public void testKeyClassMapping()
-//   {
-//      Map<String, String> endpoints = getManagedEndpoints();
-//      String className = GENERIC_ENDPOINT;
-//      String reponse = getKeyByValue(endpoints, className);
-//   }
-
    @Test
-   public void testReplaceSymbolicEndpoint()
+   public void testRawFirstExample() throws URISyntaxException
    {
-      String expected = "<route id=\"FileTrigger\" autoStartup=\"true\" ><from uri=\"file://C:/tmp/camel/sdt?delay=5000\" /><convertBodyTo type=\"java.lang.String\"/><to uri=\"ipp:authenticate:setCurrent?user=motu&amp;password=motu\" /><to uri=\"ipp:process:start?processId=FileTriggerWithBodyConversion&amp;data=BodyContent::$simple{bodyAs(java.lang.String)}\"/></route>";
-
-      String providedRouteDefinition = "<route id=\"FileTrigger\" autoStartup=\"true\" ><from uri=\"file://C:/tmp/camel/sdt?delay=5000\" />"
-            + "<convertBodyTo type=\"java.lang.String\"/>" + "<to uri=\"ipp:direct\" />" + "</route>";
-      String replacement = "ipp:authenticate:setCurrent?user=motu&amp;password=motu\" />"
-            + "<to uri=\"ipp:process:start?processId=FileTriggerWithBodyConversion&amp;data=BodyContent::$simple{bodyAs(java.lang.String)}\"";
-      assertTrue(replaceSymbolicEndpoint(providedRouteDefinition, replacement).equalsIgnoreCase(expected));
+      Map<String, Object> response = URISupport.parseQuery("authMethod=Basic&authUsername=motu&authPassword=RAW(motu)");
+      URISupport.resolveRawParameterValues(response);
+      assertEquals(3, response.size());
+      assertEquals(response.get("authPassword"), "motu");
+      assertEquals(response.get("authMethod"), "Basic");
+      assertEquals(response.get("authUsername"), "motu");
    }
 
    @Test
-   public void testReplaceSymbolicEndpointAnotherExample()
+   public void testRawSecondExample() throws URISyntaxException
    {
-      String providedRouteDefinition = "<from uri=\"file://C:/tmp/camel/sdt?delay=5000\" />"
-+"<convertBodyTo type=\"java.lang.String\"/>"
-+"<to uri=\"ipp:direct\" />";
-      String replacement = "ipp:authenticate:setCurrent?user=motu&amp;password=motu\" />"
-            + "<to uri=\"ipp:process:start?processId=FileTriggerWithBodyConversion&amp;data=BodyContent::$simple{bodyAs(java.lang.String)}\"";
-      replaceSymbolicEndpoint(providedRouteDefinition, replacement);
+      Map<String, Object> response = URISupport.parseQuery("password=RAW(se+re?t&23)&binary=true");
+      URISupport.resolveRawParameterValues(response);
+      assertEquals(2, response.size());
+      assertEquals(response.get("password"), "se+re?t&23");
+      assertEquals(response.get("binary"), "true");
    }
+
 }

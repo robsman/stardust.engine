@@ -1,11 +1,10 @@
 package org.eclipse.stardust.engine.extensions.camel.util.data;
 
-public interface KeyValue
-{
+public interface KeyValue {
 
-   public String getKey();
+   String getKey();
 
-   public String getValue();
+   String getValue();
 
-   public String getType();
+   String getType();
 }

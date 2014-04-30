@@ -11,15 +11,28 @@
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import static org.eclipse.stardust.common.CollectionUtils.newTreeSet;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -30,19 +43,69 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.Note;
+import org.eclipse.stardust.engine.api.dto.NoteDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.RuntimeObject;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortionJanitorCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.AbstractPropertyWithUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
+import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessAbortionJanitor;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -50,7 +113,7 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
@@ -67,7 +130,7 @@ public class ProcessInstanceUtils
    private static final int DEFAULT_STATEMENT_BATCH_SIZE = 100;
 
    private static final int PK_OID = 0;
-   
+
    public static void cleanupProcessInstance(IProcessInstance pi)
    {
       // hierarchy is deleted only for root process instances
@@ -76,7 +139,7 @@ public class ProcessInstanceUtils
       {
          ProcessInstanceHierarchyBean.delete(pi);
       }
-      
+
       // tokens are deleted only for completed process instances
       if (pi.isCompleted() && Parameters.instance().getBoolean(
             KernelTweakingProperties.AUTOMATIC_TOKEN_CLEANUP, false))
@@ -87,29 +150,29 @@ public class ProcessInstanceUtils
                      pi.getOID()), true);
       }
    }
-   
+
    public static boolean isLoadNotesEnabled()
    {
       Parameters parameters = Parameters.instance();
       ProcessInstanceDetailsLevel detailsLevel = parameters.getObject(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Default);
       EnumSet<ProcessInstanceDetailsOptions> detailsOptions = parameters.getObject(ProcessInstanceDetails.PRP_PI_DETAILS_OPTIONS, EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
 
-      
+
       return ProcessInstanceDetailsLevel.Full == detailsLevel
             || ProcessInstanceDetailsLevel.WithProperties == detailsLevel
             || ProcessInstanceDetailsLevel.WithResolvedProperties == detailsLevel
             || detailsOptions.contains(ProcessInstanceDetailsOptions.WITH_NOTES);
    }
-   
+
    public static boolean hasNotes(IProcessInstance pi)
    {
       return pi.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_NOTE);
    }
-   
+
    public static List<Note> getNotes(IProcessInstance pi, ActivityInstance contextObject)
    {
       List<Note> activityInstanceNotes = new ArrayList<Note>();
-      
+
       ProcessInstance processInstanceContext = contextObject.getProcessInstance().getScopeProcessInstance();
       List<Note> allNotes = getNotes(pi, processInstanceContext);
       for(Note n: allNotes)
@@ -120,31 +183,31 @@ public class ProcessInstanceUtils
             activityInstanceNotes.add(n);
          }
       }
-    
+
       return activityInstanceNotes;
    }
-   
+
    public static List<Note> getNotes(IProcessInstance pi, ProcessInstance contextObject)
    {
       List<AbstractPropertyWithUser> notesAsProperties = pi.getNotes();
       List<Note> notes = new ArrayList<Note>(notesAsProperties.size());
-      
+
       for (Iterator<AbstractPropertyWithUser> iterator = notesAsProperties.iterator(); iterator.hasNext();)
       {
          AbstractPropertyWithUser noteAttribute = iterator.next();
          String rawText = (String) noteAttribute.getValue();
-   
+
          int contextKind;
          long oid;
          String noteText;
-         
+
          try
          {
             Object[] noteParts;
             noteParts = new java.text.MessageFormat(
                   ProcessInstanceBean.PI_NOTE_CONTEXT_PREFIX_PATTERN + "{2}")
                   .parse(rawText);
-            
+
             contextKind = Integer.valueOf((String) noteParts[0]).intValue();
             oid = Long.valueOf((String) noteParts[1]).longValue();
             noteText = (String) noteParts[2];
@@ -155,7 +218,7 @@ public class ProcessInstanceUtils
             oid = pi != null ? pi.getOID() : 0;
             noteText = rawText;
          }
-         
+
          IUser user = noteAttribute.getUser();
          User userDetails = null;
          PropertyLayer layer = null;
@@ -174,18 +237,18 @@ public class ProcessInstanceUtils
                ParametersFacade.popLayer();
             }
          }
-         
+
          Note note = new NoteDetails(noteText, ContextKind.get(contextKind), oid,
-               null, noteAttribute.getLastModificationTime(), 
+               null, noteAttribute.getLastModificationTime(),
                userDetails == null ? null : userDetails);
-   
+
          notes.add(note);
       }
-      
+
       resolveContextObjects(notes, contextObject);
       return notes;
    }
-   
+
    private static void resolveContextObjects(List<Note> notes, ProcessInstance contextObject)
    {
       if ( !notes.isEmpty() && contextObject != null)
@@ -224,7 +287,7 @@ public class ProcessInstanceUtils
                }
             }
 
-            // set resolved context objects 
+            // set resolved context objects
             for (Note note : notes)
             {
                NoteDetails noteDetails = (NoteDetails) note;
@@ -247,7 +310,7 @@ public class ProcessInstanceUtils
     * Checks if the process tree for the given processInstance. If the process instance
     * itself or any of its parents is in {@link ProcessInstanceState#ABORTED} or
     * {@link ProcessInstanceState#ABORTING} state, true is returned,
-    * 
+    *
     * @param processInstance
     *           - the process instance to check
     * @return true if the process instance or its parent is is in
@@ -324,7 +387,7 @@ public class ProcessInstanceUtils
    /**
     * Tests if the given process instance has a persisted state of ABORTING or ABORTED.
     * After that call the state is recovered.
-    * 
+    *
     * @param pi
     *           the process instance
     * @return true if the persisted state is ABORTING or ABORT
@@ -364,7 +427,7 @@ public class ProcessInstanceUtils
       }
    }
 
-   public static int deleteProcessInstances(List piOids, Session session)
+   public static int deleteProcessInstances(List<Long> piOids, Session session)
    {
       if (piOids.isEmpty())
       {
@@ -397,7 +460,7 @@ public class ProcessInstanceUtils
             ActivityInstanceBean.FR__PROCESS_INSTANCE, session);
 
       // TODO (ab) SPI
-      List<Long> structuredDataOids = findAllStructuredDataOids();
+      List<Long> structuredDataOids = findAllStructuredDataOids(SecurityProperties.getPartitionOid(), session);
       if (structuredDataOids.size() != 0)
       {
          delete2ndLevelPiParts(piOids, LargeStringHolder.class,
@@ -430,9 +493,20 @@ public class ProcessInstanceUtils
                   EventBindingBean.FR__TYPE, Event.PROCESS_INSTANCE),
             session);
 
+      delete2ndLevelPiParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID, //
+            ProcessInstanceProperty.class, ProcessInstanceProperty.FR__OBJECT_OID, //
+            isEqual(LargeStringHolder.FR__DATA_TYPE, ProcessInstanceProperty.TABLE_NAME),
+            session);
       deletePiParts(piOids, ProcessInstanceProperty.class,
             ProcessInstanceProperty.FR__OBJECT_OID, session);
 
+      deletePiParts(piOids, ProcessInstanceLinkBean.class,
+            ProcessInstanceLinkBean.FR__LINKED_PROCESS_INSTANCE, session);
+      deletePiParts(piOids, ProcessInstanceLinkBean.class,
+            ProcessInstanceLinkBean.FR__PROCESS_INSTANCE, session);
+
+      deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
+            ProcessInstanceHierarchyBean.FR__SUB_PROCESS_INSTANCE, session);
       deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
             ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, session);
 
@@ -533,9 +607,9 @@ public class ProcessInstanceUtils
          // Mark this PI at its root PI as aborting
          final long piOid = processInstance.getOID();
          rootProcessInstance.addAbortingPiOid(piOid);
-                                   
-         final long userOid = SecurityProperties.getUserOID();         
-         
+
+         final long userOid = SecurityProperties.getUserOID();
+
          AbortionJanitorCarrier carrier = new AbortionJanitorCarrier(piOid, userOid);
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv.getExecutionPlan() != null)
@@ -606,37 +680,47 @@ public class ProcessInstanceUtils
    }
 
 
-   private static List<Long> findAllStructuredDataOids()
+   private static List<Long> findAllStructuredDataOids(short partitionOid, Session session)
    {
-      List<Long> dataOids = new LinkedList<Long>();
-      for (Iterator modelItr = ModelManagerFactory.getCurrent().getAllModels(); modelItr.hasNext(); )
+      QueryDescriptor structDataQuery = QueryDescriptor.from(StructuredDataBean.class) //
+            .select(StructuredDataBean.FR__DATA) //
+            .groupBy(StructuredDataBean.FR__DATA) //
+            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid));
+
+      structDataQuery.innerJoin(ModelPersistorBean.class) //
+            .on(StructuredDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID);
+
+      List<Long> dataOids = CollectionUtils.newArrayList();
+
+      ResultSet dataRtOids = session.executeQuery(structDataQuery);
+      try
       {
-         IModel model = (IModel)modelItr.next();
-         for (IData data : model.getData())
+         while (dataRtOids.next())
          {
-            if (StructuredTypeRtUtils.isStructuredType(data.getType().getId()) ||
-                  StructuredTypeRtUtils.isDmsType(data.getType().getId()))
-            {
-               dataOids.add(Long.valueOf(ModelManagerFactory.getCurrent().getRuntimeOid(data)));
-            }
+            dataOids.add(dataRtOids.getLong(1));
          }
       }
+      catch (SQLException sqle)
+      {
+         closeResultSet(dataRtOids);
+      }
+
       return dataOids;
    }
 
-   private static int deletePiParts(List piOids, Class partType, FieldRef fkPiField,
+   private static int deletePiParts(List<Long> piOids, Class partType, FieldRef fkPiField,
          Session session)
    {
       return deletePiParts(piOids, partType, fkPiField, null, session);
    }
 
-   private static int deletePiParts(List piOids, Class partType, FieldRef fkPiField,
+   private static int deletePiParts(List<Long> piOids, Class partType, FieldRef fkPiField,
          PredicateTerm restriction, Session session)
    {
       int processedItems = 0;
       int batchSize = getStatementBatchSize();
 
-      for (Iterator iterator = getChunkIterator(piOids, batchSize); iterator.hasNext();)
+      for (Iterator<List<Long>> iterator = getChunkIterator(piOids, batchSize); iterator.hasNext();)
       {
          List piOidsBatch = (List) iterator.next();
 
@@ -680,19 +764,19 @@ public class ProcessInstanceUtils
       return processedItems;
    }
 
-   private static void deleteAiParts(List piOids, Class partType, FieldRef fkAiField, Session session)
+   private static void deleteAiParts(List<Long> piOids, Class partType, FieldRef fkAiField, Session session)
    {
       deleteAiParts(piOids, partType, fkAiField, null, session);
    }
 
-   private static void deleteAiParts(List piOids, Class partType, FieldRef fkAiField,
+   private static void deleteAiParts(List<Long> piOids, Class partType, FieldRef fkAiField,
          PredicateTerm restriction, Session session)
    {
       delete2ndLevelPiParts(piOids, partType, fkAiField, ActivityInstanceBean.class,
             ActivityInstanceBean.FR__PROCESS_INSTANCE, restriction, session);
    }
 
-   private static void deleteDvParts(List piOids, Class partType, FieldRef fkDvField,
+   private static void deleteDvParts(List<Long> piOids, Class partType, FieldRef fkDvField,
          PredicateTerm restriction, Session session)
    {
       delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueBean.class,
@@ -700,22 +784,22 @@ public class ProcessInstanceUtils
    }
 
 
-   private static int delete2ndLevelPiParts(List piOids, Class partType, FieldRef fkPiPartField,
+   private static int delete2ndLevelPiParts(List<Long> piOids, Class partType, FieldRef fkPiPartField,
          Class piPartType, FieldRef piOidField, PredicateTerm restriction, Session session)
    {
       TypeDescriptor tdPiPart = TypeDescriptor.get(piPartType);
       return delete2ndLevelPiParts(piOids, partType, fkPiPartField, piPartType, tdPiPart.getPkFields()[0].getName(),  piOidField, restriction, session);
    }
 
-   private static int delete2ndLevelPiParts(List piOids, Class partType, FieldRef fkPiPartField,
+   private static int delete2ndLevelPiParts(List<Long> piOids, Class partType, FieldRef fkPiPartField,
          Class piPartType, String piPartPkName, FieldRef piOidField, PredicateTerm restriction, Session session)
    {
       int processedItems = 0;
       int batchSize = getStatementBatchSize();
 
-      for (Iterator iterator = getChunkIterator(piOids, batchSize); iterator.hasNext();)
+      for (Iterator<List<Long>> iterator = getChunkIterator(piOids, batchSize); iterator.hasNext();)
       {
-         List piOidsBatch = (List) iterator.next();
+         List<Long> piOidsBatch = iterator.next();
 
          PredicateTerm predicate = Predicates
          		.andTerm(
@@ -766,19 +850,19 @@ public class ProcessInstanceUtils
             DEFAULT_STATEMENT_BATCH_SIZE);
    }
 
-   private static Iterator/*<List>*/ getChunkIterator(List list, int chunkSize)
+   private static <E> Iterator<List<E>> getChunkIterator(List<E> list, int chunkSize)
    {
-      return new ListChunkIterator(list, chunkSize);
+      return new ListChunkIterator<E>(list, chunkSize);
    }
 
-   private static final class ListChunkIterator implements Iterator
+   private static final class ListChunkIterator<E> implements Iterator<List<E>>
    {
       private final int chunkSize;
-      private final ArrayList list;
+      private final ArrayList<E> list;
 
       private int offset = 0;
 
-      public ListChunkIterator(List list, int chunkSize)
+      public ListChunkIterator(List<E> list, int chunkSize)
       {
          super();
 
@@ -793,7 +877,7 @@ public class ProcessInstanceUtils
          }
 
          this.chunkSize = chunkSize;
-         this.list = new ArrayList(list);
+         this.list = new ArrayList<E>(list);
       }
 
       public boolean hasNext()
@@ -801,9 +885,9 @@ public class ProcessInstanceUtils
          return offset < list.size();
       }
 
-      public Object next()
+      public List<E> next()
       {
-         ArrayList nextListChunk = new ArrayList(chunkSize);
+         ArrayList<E> nextListChunk = new ArrayList<E>(chunkSize);
 
          int upperLimit = Math.min(list.size() - offset, chunkSize);
          for (int idx = 0; idx < upperLimit; ++idx)
@@ -900,15 +984,15 @@ public class ProcessInstanceUtils
       }
       return processInstance;
    }
-   
+
    /**
-    * @return whether the Infinity property to enable support for transient processes is set 
+    * @return whether the Infinity property to enable support for transient processes is set
     */
    public static boolean isTransientPiSupportEnabled()
    {
       final Parameters params = Parameters.instance();
       final String transientPiSupport = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
-      
+
       final boolean isOn = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON.equals(transientPiSupport);
       final boolean isAlwaysTransient = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(transientPiSupport);
       final boolean isAlwaysDeferred = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(transientPiSupport);
@@ -922,7 +1006,7 @@ public class ProcessInstanceUtils
    {
       return isTransientExecutionScenario(pi);
    }
-   
+
    /**
     * @return whether the given process instance is executed transiently
     */
@@ -932,7 +1016,7 @@ public class ProcessInstanceUtils
       {
          return false;
       }
-      
+
       if (pi != null)
       {
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
@@ -940,7 +1024,7 @@ public class ProcessInstanceUtils
       }
       return false;
    }
-   
+
    /**
     * <p>
     * Schedules a worker thread processing the queued {@link ActivityThread}s for the given
@@ -948,7 +1032,7 @@ public class ProcessInstanceUtils
     * for the given {@link IProcessInstance}. This worker thread guarantees a serial execution of all
     * {@link ActivityThread}s for the given {@link IProcessInstance}.
     * </p>
-    * 
+    *
     * @param pi the process instance for which a worker thread should be scheduled
     */
    public static void scheduleSerialActivityThreadWorkerIfNecessary(final IProcessInstance pi)
@@ -958,17 +1042,17 @@ public class ProcessInstanceUtils
       {
          return;
       }
-      
+
       final Map<Long, Queue<SerialActivityThreadData>> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
       final boolean isActivityThreadAvailable = map.containsKey(pi.getRootProcessInstanceOID());
       if ( !isActivityThreadAvailable)
       {
          return;
       }
-      
+
       final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
       carrier.setRootProcessInstanceOid(pi.getRootProcessInstanceOID());
-      
+
       final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
       ForkingService service = null;
       try

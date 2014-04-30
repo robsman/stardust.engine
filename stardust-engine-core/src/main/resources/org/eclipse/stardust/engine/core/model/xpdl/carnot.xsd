@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.carnot.ag/xpdl/3.1"
+   targetNamespace="http://www.carnot.ag/xpdl/3.1"
+   xmlns:carnot="http://www.carnot.ag/xpdl/3.1"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   elementFormDefault="qualified">
+
+   <xsd:element name="qualityControl">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="code" minOccurs="0" maxOccurs="unbounded" />
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="code">
+      <xsd:complexType>
+	       <xsd:attribute name="code" type="xsd:string" use="required" />
+	       <xsd:attribute name="name" type="xsd:string" use="required" />
+	       <xsd:attribute name="value" type="xsd:string" use="optional" />
+      </xsd:complexType>
+   </xsd:element>
+
+
+
+</xsd:schema>

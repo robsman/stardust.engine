@@ -10,32 +10,130 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.parser.filters;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.util.StreamReaderDelegate;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Filter to replace/fix namespaces.
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public class NamespaceFilter extends XMLFilterImpl
+public class NamespaceFilter
 {
+   private static XMLInputFactory inputFactory = null;
+
+   static synchronized XMLInputFactory getXMLInputFactory()
+   {
+      if (inputFactory == null)
+      {
+         try
+         {
+            inputFactory = XMLInputFactory.newFactory();
+         }
+         catch (NoSuchMethodError error)
+         {
+            // fallback to old newInstance method
+            inputFactory = XMLInputFactory.newInstance();
+         }
+      }
+      return inputFactory;
+   }
+
+   public static XMLFilter createXMLFilter(String replacementUri, String... namespaceUri) throws SAXException
+   {
+      return createXMLFilter(new NamespaceFilter(replacementUri, namespaceUri));
+   }
+
+   public static XMLFilter createXMLFilter(NamespaceFilter filter) throws SAXException
+   {
+      return createXMLFilter(filter, XMLReaderFactory.createXMLReader());
+   }
+
+   public static XMLFilter createXMLFilter(NamespaceFilter filter, XMLReader reader) throws SAXException
+   {
+      return new NamespaceXMLFilter(filter, reader);
+   }
+
+   public static XMLStreamReader createXMLStreamReader(Source source, String replacementUri, String... namespaceUri) throws XMLStreamException
+   {
+      return createXMLStreamReader(new NamespaceFilter(replacementUri, namespaceUri), source);
+   }
+
+   public static XMLStreamReader createXMLStreamReader(NamespaceFilter filter, Source source) throws XMLStreamException
+   {
+      return createXMLStreamReader(filter, createXMLStreamReader(source));
+   }
+
+   public static XMLStreamReader createXMLStreamReader(NamespaceFilter filter, XMLStreamReader reader)
+   {
+      return new NamespaceStreamReaderDelegate(filter, reader);
+   }
+
+   private static XMLStreamReader createXMLStreamReader(Source source)
+         throws XMLStreamException
+   {
+      try
+      {
+         return getXMLInputFactory().createXMLStreamReader(source);
+      }
+      catch (RuntimeException ex)
+      {
+         if (!(source instanceof DOMSource))
+         {
+            throw ex;
+         }
+      }
+      catch (XMLStreamException stex)
+      {
+         if (!(source instanceof DOMSource))
+         {
+            throw stex;
+         }
+      }
+      return createXMLStreamReader(toStreamSource((DOMSource) source));
+   }
+
+   private static Source toStreamSource(DOMSource source)
+   {
+      Node node = source.getNode();
+      String xml = XmlUtils.toString(node);
+      return new StreamSource(new StringReader(xml));
+   }
+
    private Map<String, String> replacedNamespaces = new HashMap<String, String>();
 
-   /**
-    * Constructs a new namespace filter.
-    * 
-    * @param parent the parent reader. Must not be null.
-    */
-   public NamespaceFilter(XMLReader parent)
+   public NamespaceFilter()
+   {}
+
+   public NamespaceFilter(String replacementUri, String... namespaceUri)
    {
-      super(parent);
+      if (namespaceUri != null)
+      {
+         for (String uri : namespaceUri)
+         {
+            replacedNamespaces.put(uri, replacementUri);
+         }
+      }
    }
 
    /**
@@ -56,27 +154,88 @@ public class NamespaceFilter extends XMLFilterImpl
       replacedNamespaces.put(namespaceUri, replacementUri);
    }
 
-   @Override
-   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
-   {
-      super.startElement(replace(uri), localName, qName, atts);
-   }
-
-   @Override
-   public void endElement(String uri, String localName, String qName) throws SAXException
-   {
-      super.endElement(replace(uri), localName, qName);
-   }
-
-   @Override
-   public void startPrefixMapping(String prefix, String uri) throws SAXException
-   {
-      super.startPrefixMapping(prefix, replace(uri));
-   }
-   
    private String replace(String uri)
    {
       String replacement = replacedNamespaces.get(uri);
       return replacement == null ? uri : replacement;
+   }
+
+   private static class NamespaceXMLFilter extends XMLFilterImpl
+   {
+      private NamespaceFilter filter;
+
+      private NamespaceXMLFilter(NamespaceFilter filter, XMLReader parent)
+      {
+         super(parent);
+         this.filter = filter;
+      }
+
+      @Override
+      public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
+      {
+         super.startElement(filter.replace(uri), localName, qName, atts);
+      }
+
+      @Override
+      public void endElement(String uri, String localName, String qName) throws SAXException
+      {
+         super.endElement(filter.replace(uri), localName, qName);
+      }
+
+      @Override
+      public void startPrefixMapping(String prefix, String uri) throws SAXException
+      {
+         super.startPrefixMapping(prefix, filter.replace(uri));
+      }
+   }
+
+   private static class NamespaceStreamReaderDelegate extends StreamReaderDelegate
+   {
+      private NamespaceFilter filter;
+
+      public NamespaceStreamReaderDelegate(NamespaceFilter filter, XMLStreamReader reader)
+      {
+         super(reader);
+         this.filter = filter;
+      }
+
+      @Override
+      public NamespaceContext getNamespaceContext()
+      {
+         return null;
+         //return super.getNamespaceContext();
+      }
+
+      @Override
+      public void require(int type, String namespaceURI, String localName)
+            throws XMLStreamException
+      {
+         throw new UnsupportedOperationException();
+         //super.require(type, namespaceURI, localName);
+      }
+
+      @Override
+      public String getNamespaceURI(String prefix)
+      {
+         return filter.replace(super.getNamespaceURI(prefix));
+      }
+
+      @Override
+      public String getAttributeNamespace(int index)
+      {
+         return filter.replace(super.getAttributeNamespace(index));
+      }
+
+      @Override
+      public String getNamespaceURI(int index)
+      {
+         return filter.replace(super.getNamespaceURI(index));
+      }
+
+      @Override
+      public String getNamespaceURI()
+      {
+         return filter.replace(super.getNamespaceURI());
+      }
    }
 }

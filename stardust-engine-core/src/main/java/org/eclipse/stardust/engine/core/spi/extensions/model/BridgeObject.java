@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.extensions.model;
 
+import java.util.List;
+
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -131,17 +135,23 @@ public class BridgeObject
     *
     * @see #acceptAssignmentFrom(org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject)
     */
-   public static boolean isValidMapping(Direction direction, AccessPoint lhsPoint,
+   public static boolean isValidMapping(String context, Direction direction, AccessPoint lhsPoint,
          String lhsPath, AccessPoint rhsPoint, String rhsPath, IActivity activity)
+   {
+      return isValidMapping(context, direction, lhsPoint.getId(), lhsPoint, lhsPath, rhsPoint, rhsPath, activity);
+   }
+
+   public static boolean isValidMapping(String context, Direction direction, String accessPointId,
+         AccessPoint lhsPoint, String lhsPath, AccessPoint rhsPoint, String rhsPath, IActivity activity)
    {
       BridgeObject leftBridge;
       try
       {
-         AccessPathEvaluationContext context = new AccessPathEvaluationContext(null,
+         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(null,
                rhsPoint, rhsPath, activity);
          leftBridge = getBridge(lhsPoint, lhsPath, Direction.IN.equals(direction)
                ? Direction.IN
-               : Direction.OUT, context);
+               : Direction.OUT, evaluationContext);
       }
       catch (Exception e)
       {
@@ -151,16 +161,33 @@ public class BridgeObject
       BridgeObject rightBridge;
       try
       {
-         AccessPathEvaluationContext context = new AccessPathEvaluationContext(null,
+         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(null,
                lhsPoint, lhsPath, activity);
          rightBridge = getBridge(rhsPoint, rhsPath, Direction.OUT.equals(direction)
                ? Direction.IN
-               : Direction.OUT, context);
+               : Direction.OUT, evaluationContext);
       }
       catch (Exception e)
       {
          return false;
       }
+
+      if (activity != null)
+      {
+         ILoopCharacteristics loop = activity.getLoopCharacteristics();
+         if (loop instanceof IMultiInstanceLoopCharacteristics)
+         {
+            String paramId = Direction.OUT.equals(direction)
+               ? ((IMultiInstanceLoopCharacteristics) loop).getOutputParameterId()
+               : ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
+            Class<?> endClass = rightBridge.getEndClass();
+            if (paramId != null && paramId.equals(context + ':' + accessPointId) && (List.class.isAssignableFrom(endClass) || endClass.isArray()))
+            {
+               return true;
+            }
+         }
+      }
+
       return Direction.IN.equals(direction)
             ? leftBridge.acceptAssignmentFrom(rightBridge)
             : rightBridge.acceptAssignmentFrom(leftBridge);

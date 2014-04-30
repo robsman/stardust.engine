@@ -23,6 +23,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
@@ -243,6 +244,10 @@ public class QueryAdapterUtils
          {
             query.setPolicy(unmarshalDescriptorPolicy((DescriptorPolicyXto) policy));
          }
+         else if (policy instanceof ProcessDefinitionDetailsPolicyXto)
+         {
+            query.setPolicy(unmarshalProcessDefinitionDetailsPolicy((ProcessDefinitionDetailsPolicyXto) policy));
+         }
          else if (policy instanceof ProcessInstanceDetailsPolicyXto)
          {
             query.setPolicy(unmarshalProcessInstanceDetailsPolicy((ProcessInstanceDetailsPolicyXto) policy));
@@ -439,6 +444,30 @@ public class QueryAdapterUtils
       {
          return DescriptorPolicy.NO_DESCRIPTORS;
       }
+   }
+
+   private static EvaluationPolicy unmarshalProcessDefinitionDetailsPolicy(
+         ProcessDefinitionDetailsPolicyXto processDefinitionDetailsPolicy)
+   {
+      ProcessDefinitionDetailsPolicy policy = null;
+      switch (processDefinitionDetailsPolicy.getDetailsLevel())
+      {
+      case CORE:
+         policy = new ProcessDefinitionDetailsPolicy(ProcessDefinitionDetailsLevel.CORE);
+         break;
+      case WITHOUT_ACTIVITIES:
+         policy = new ProcessDefinitionDetailsPolicy(
+               ProcessDefinitionDetailsLevel.WITHOUT_ACTIVITIES);
+         break;
+      case FULL:
+         policy = new ProcessDefinitionDetailsPolicy(ProcessDefinitionDetailsLevel.FULL);
+         break;
+      default:
+            throw new UnsupportedOperationException(
+                  "ProcessDefinitionDetailsLevel mapping not implemented: "
+                  + processDefinitionDetailsPolicy.getDetailsLevel());
+      }
+      return policy;
    }
 
    private static EvaluationPolicy unmarshalProcessInstanceDetailsPolicy(
@@ -1226,7 +1255,7 @@ public class QueryAdapterUtils
       }
       return query;
    }
-   
+
 	public static PreferenceQuery unmarshalPreferenceQuery(PreferenceQueryXto preferenceQuery)
 	{
 		PreferenceQuery query = null;
@@ -1240,7 +1269,7 @@ public class QueryAdapterUtils
 		return query;
 
 	}
-	
+
    public static DeployedModelQuery unmarshalDeployedModelQuery(
          DeployedModelQueryXto deployedModelQuery)
 	{
@@ -1251,14 +1280,14 @@ public class QueryAdapterUtils
 
       return query;
 	}
-	
-		
+
+
 	private static <T> T createInstance(Class<T> clazz)
 	{
 		try
 		{
 			 Constructor<T> ctor = clazz.getDeclaredConstructor(new Class[]{});
-			
+
 			if (!ctor.isAccessible())
 			{
 				ctor.setAccessible(true);

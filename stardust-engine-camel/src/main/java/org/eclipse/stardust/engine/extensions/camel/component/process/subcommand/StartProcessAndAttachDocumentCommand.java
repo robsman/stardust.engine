@@ -3,16 +3,25 @@ package org.eclipse.stardust.engine.extensions.camel.component.process.subcomman
 import static org.eclipse.stardust.common.CollectionUtils.newLinkedList;
 import static org.eclipse.stardust.engine.api.runtime.DmsUtils.createFolderInfo;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_DOCUMENT_NAME_KEY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_DOCUMENT_CONTENT_KEY;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import javax.activation.DataHandler;
+
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.component.file.FileEndpoint;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.DataPath;
@@ -43,13 +52,15 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 
 	private String processId;
 	private final Boolean startSynchronously;
+	private Map<String, Object> initialDataValues;
 	private String dataId ;
 	private Exchange exchange;
 	private Boolean processAttachmentSupport = false;
 	
-	public StartProcessAndAttachDocumentCommand(String processId,
+	public StartProcessAndAttachDocumentCommand(String processId, Map<String, Object> initialDataValues,
 			String dataId, Boolean startSynchronously, Exchange exchange) {
 		this.processId = processId;
+		this.initialDataValues = initialDataValues;
 		this.dataId = dataId;
 		this.startSynchronously = startSynchronously;
 		this.exchange = exchange;
@@ -59,9 +70,12 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 
 		WorkflowService wService = sFactory.getWorkflowService();
 		
-		byte[] content = (byte[]) exchange.getIn().getHeader("CamelDocumentContent");
+		// Ignore Document data from initialDataValues
+		if(initialDataValues != null) {
+			initialDataValues = IgnoreDocumentData(initialDataValues);
+		}
 
-		ProcessInstance pInstance = wService.startProcess(processId, null,
+		ProcessInstance pInstance = wService.startProcess(processId, initialDataValues,
 				startSynchronously);
 
 		ProcessDefinition processDefinition 	= sFactory.getQueryService().getProcessDefinition(processId);
@@ -70,14 +84,36 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 			processAttachmentSupport = true;
 		}
 		
-		String fileName = (String) exchange.getIn().getHeader("CamelFileNameOnly");
-		Document document;
-		try {
-			document = this.storeDocument(sFactory, pInstance,
-					content, fileName, processAttachmentSupport);
-		} catch (CreateDocumentException e) {
+		Endpoint endpoint =  exchange.getFromEndpoint();
+		byte[] content = (byte[]) exchange.getIn().getHeader(CAMEL_DOCUMENT_CONTENT_KEY);
+		String fileName = (String) exchange.getIn().getHeader(CAMEL_DOCUMENT_NAME_KEY);
+		Document document = null;
+		if(fileName != null) {
+			try {
+				if(endpoint instanceof FileEndpoint) {
+					document = this.storeDocument(sFactory, pInstance,
+						content, fileName, processAttachmentSupport);
+				}
+				else {
+					document = this.storeDocument(sFactory, pInstance,
+							content, fileName, false);
+				}
+			} catch (CreateDocumentException e) {
+
+				throw new RuntimeException("Failed creating document.", e);
+			}
 			
-			throw new RuntimeException("Failed creating document.", e);
+			ModelManager modelManager = ModelManagerFactory.getCurrent();
+			IModel iModel = modelManager.findModel(pInstance.getModelOID());
+			IData iData = iModel.findData(DataUtils
+					.getUnqualifiedProcessId(dataId));
+
+			DocumentTypeUtils
+					.inferDocumentTypeAndStoreDocument(iData, document);
+
+			ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pInstance
+					.getOID());
+			iPi.setOutDataValue(iData, "", document);
 		}
 		
 		if(processAttachmentSupport) {
@@ -90,25 +126,44 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 	         {
 	            attachments = new ArrayList<Document>();
 	         }
-	         // add the new document
-	         attachments.add(document);
+	         // Multiple Attachment in case of Mail Endpoint
+	         Map<String, DataHandler> mailAttachments = exchange.getIn().getAttachments();
+	         if(!mailAttachments.isEmpty()) {
+			for(Map.Entry<String, DataHandler> entry: mailAttachments.entrySet()) {
+				Document mailDocument = null;
+				String mailDocName = entry.getKey();
+				byte[] mailDocContent = null;
+				try {
+						final InputStream in = entry.getValue().getInputStream();
+						mailDocContent = IOUtils.toByteArray(in);
+
+					} catch (IOException e1) {
+
+						throw new RuntimeException("Failed Converting Attachment Data To Byte.", e1);
+					}
+
+				try {
+					mailDocument = this.storeDocument(sFactory, pInstance,
+							mailDocContent, mailDocName, processAttachmentSupport);
+
+				} catch (CreateDocumentException e) {
+
+					throw new RuntimeException("Failed creating document.", e);
+				}
+				attachments.add(mailDocument);
+			}
+	         }
+	         else if(document != null && endpoint instanceof FileEndpoint){
+		         // add new document
+		         attachments.add(document);
+	         }
 
 	         // update the attachments
-	         wService.setOutDataPath(pInstance.getOID(), PROCESS_ATTACHMENTS, attachments);
+	         if(!attachments.isEmpty()) {
+			 wService.setOutDataPath(pInstance.getOID(), PROCESS_ATTACHMENTS, attachments);
+	         }
 		}	
 		
-			ModelManager modelManager = ModelManagerFactory.getCurrent();
-			IModel iModel = modelManager.findModel(pInstance.getModelOID());
-			IData iData = iModel.findData(DataUtils
-					.getUnqualifiedProcessId(dataId));
-
-			DocumentTypeUtils
-					.inferDocumentTypeAndStoreDocument(iData, document);
-
-			ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pInstance
-					.getOID());
-			iPi.setOutDataValue(iData, "", document);
-
 		return pInstance;
 	}
 
@@ -230,6 +285,16 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 				currentPath = folder.getPath();
 			}
 		}
+	}
+
+	public Map<String, Object> IgnoreDocumentData(Map<String, Object> initialDataValues) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		for(Map.Entry<String, Object> entry: initialDataValues.entrySet()) {
+			Object value = entry.getValue();
+			if(value instanceof String && ((String)value).endsWith("_")) continue;
+			result.put(entry.getKey(), entry.getValue());
+		}
+		return result;
 	}
 
 }

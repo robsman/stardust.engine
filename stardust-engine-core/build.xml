@@ -123,8 +123,8 @@
            org.eclipse.stardust.engine.core.preferences.configurationvariables,
            org.eclipse.stardust.engine.core.preferences.permissions, org.eclipse.stardust.engine.extensions.dms.data,
            org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument, org.eclipse.stardust.engine.api.web.dms,
-           org.eclipse.stardust.engine.cli.security.authentication, org.eclipse.stardust.engine.core.spi.cluster, 
-           org.eclipse.stardust.engine.core.spi.monitoring, org.eclipse.stardust.engine.core.spi.preferences, 
+           org.eclipse.stardust.engine.cli.security.authentication, org.eclipse.stardust.engine.core.spi.cluster,
+           org.eclipse.stardust.engine.core.spi.jms, org.eclipse.stardust.engine.core.spi.monitoring, org.eclipse.stardust.engine.core.spi.preferences,
            org.eclipse.stardust.engine.core.compatibility.ui.preferences.spi, org.eclipse.stardust.engine.core.compatibility.spi.security">
          <classpaths>
             <classpath>
@@ -283,6 +283,7 @@
                <include name="org/eclipse/stardust/engine/api/runtime/ServiceNotAvailableException.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/SpawnOptions.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/SubprocessSpawnInfo.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/TransitionInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/TransitionOptions.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/TransitionTarget.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/User.java" />
@@ -313,15 +314,14 @@
 
                <include name="org/eclipse/stardust/engine/api/dto/HistoricalState.java" />
                <include name="org/eclipse/stardust/engine/api/dto/Note.java" />
+               <include name="org/eclipse/stardust/engine/api/dto/ProcessDefinitionDetailsLevel.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceAttributes.java" />
-               <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetails.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetailsLevel.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetailsOptions.java" />
                <include name="org/eclipse/stardust/engine/api/dto/QualityAssuranceAdminServiceFacade.java" />
                <include name="org/eclipse/stardust/engine/api/dto/QualityAssuranceInfo.java" />
                <include name="org/eclipse/stardust/engine/api/dto/QualityAssuranceResultImpl.java" />
                <include name="org/eclipse/stardust/engine/api/dto/QualityAssuranceResult.java" />
-               <include name="org/eclipse/stardust/engine/api/dto/RuntimeEnvironmentInfoDetails.java" />
                <include name="org/eclipse/stardust/engine/api/dto/UserDetailsLevel.java" />
 
                <include name="org/eclipse/stardust/engine/api/pojo/AuditTrailPartitionManager.java" />
@@ -357,6 +357,7 @@
                <include name="org/eclipse/stardust/engine/api/query/LinkDirection.java" />
                <include name="org/eclipse/stardust/engine/api/query/LogEntryQuery.java" />
                <include name="org/eclipse/stardust/engine/api/query/LogEntries.java" />
+               <include name="org/eclipse/stardust/engine/api/query/ModelPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/ModelVersionPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/OrderCriteria.java" />
                <include name="org/eclipse/stardust/engine/api/query/OrderCriterion.java" />
@@ -369,6 +370,7 @@
                <include name="org/eclipse/stardust/engine/api/query/PerformingOnBehalfOfFilter.java" />
                <include name="org/eclipse/stardust/engine/api/query/PerformingUserFilter.java" />
                <include name="org/eclipse/stardust/engine/api/query/PreferenceQuery.java" />
+               <include name="org/eclipse/stardust/engine/api/query/ProcessDefinitionDetailsPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/ProcessDefinitionFilter.java" />
                <include name="org/eclipse/stardust/engine/api/query/ProcessDefinitionQuery.java" />
                <include name="org/eclipse/stardust/engine/api/query/ProcessInstanceDetailsPolicy.java" />
@@ -416,14 +418,16 @@
                <include name="org/eclipse/stardust/engine/core/spi/extensions/runtime/EventActionInstance.java" />
                <include name="org/eclipse/stardust/engine/core/spi/extensions/runtime/SynchronousApplicationInstance.java" />
                <include name="org/eclipse/stardust/engine/core/spi/extensions/runtime/UnrecoverableExecutionException.java" />
-               
+
+               <include name="org/eclipse/stardust/engine/core/spi/jms/IQueueConnectionProvider.java" />
+
                <include name="org/eclipse/stardust/engine/core/spi/security/DynamicParticipantSynchronizationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/DynamicParticipantSynchronizationStrategy.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalDepartmentConfiguration.java" />
                <include name="org/eclipse/stardust/engine/core/spi/cluster/ClusterSafeObjectProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IProcessExecutionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IWorklistMonitor.java" />
-               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IPartitionMonitor.java" />           
+               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IPartitionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/preferences/IStaticConfigurationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/DefaultPrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/PrincipalNameProvider.java" />
@@ -555,14 +559,14 @@
       <copy todir="${build.classes}/META-INF/resources/models">
          <fileset dir="${project.res}/META-INF/resources/models" includes="*" />
       </copy>
-      
+
       <copy todir="${build.classes}">
          <fileset dir="${project.res}" includes="**/*_de.properties" />
          <fileset dir="${project.res}" includes="**/*_en.properties" />
          <fileset dir="${project.res}" includes="**/*_zh_CN.properties" />
          <fileset dir="${project.res}" includes="**/*_zh_TW.properties" />
       </copy>
-      
+
       <mkdir dir="${build.classes}/META-INF/services" />
       <copy todir="${build.classes}/META-INF/services">
          <fileset dir="${project.res}/META-INF/services" includes="*" />
@@ -672,7 +676,7 @@
       </junit>
    </target>
 
-   <target name="compileTests" depends="compile, copyTestsSourceFiles, copyTestsDatFiles, initClasspath" 
+   <target name="compileTests" depends="compile, copyTestsSourceFiles, copyTestsDatFiles, initClasspath"
       unless="skip.compile" description="compiles the Infinity test classes">
       <javac srcdir="${build.tests.src}" destdir="${build.tests.classes}" debug="true" deprecation="no" includes="**/*.java">
          <classpath refid="junit.test.classpath" />
@@ -871,7 +875,7 @@
 
       <delete dir="${build.dir}/temp" />
    </target>
-   
+
    <target name="initCodegen" depends="init, dependencies:init" xmlns:ivy="antlib:org.apache.ivy.ant">
       <property name="codegen.build.dir" value="${build.dir}/codegen" />
       <property name="codegen.build.classes" value="${codegen.build.dir}/classes" />
@@ -880,7 +884,7 @@
       <mkdir dir="${codegen.build.dir}" />
       <mkdir dir="${codegen.build.classes}" />
       <mkdir dir="${codegen.build.dir.src}" />
-      
+
       <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
       <ivy:cachepath pathid="stardust-engine-core.deps" conf="engine-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
@@ -906,7 +910,7 @@
          </classpath>
       </javac>
    </target>
-               
+
    <target name="copyEjbFacadeGeneratorSourceFiles" depends="initCodegen">
       <copy todir="${codegen.build.dir.src}/org/eclipse/stardust">
          <fileset dir="${project.src}/org/eclipse/stardust">
@@ -929,11 +933,11 @@
 
    <target name="install" if="maven.localRepository" depends="initKernelBuild"
       description="installs the artifacts into a local Maven repository">
-      
+
       <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
       <ipp:mvn-install file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
       <ipp:mvn-install file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
-      
+
       <ipp:mvn-install pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/ant-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/client-module.pom" />
@@ -953,7 +957,7 @@
       <ipp:mvn-install pomFile="${build.lib}/swing-client-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/web-client-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/xerces-module.pom" />
-      
+
    </target>
 
    <target name="publish" depends="initKernelBuild"
@@ -962,7 +966,7 @@
       <ipp:init-mvn />
       <ipp:mvn-deploy file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
       <ipp:mvn-deploy file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
-      
+
       <ipp:mvn-deploy pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/ant-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/client-module.pom" />
@@ -992,9 +996,9 @@
       <copy file="${carnot.engine.jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.engine.src-jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
    </target>
-   
+
    <!-- target is invoked by stardust-engine-nls project -->
-   <target name="copy-nls-resources" 
+   <target name="copy-nls-resources"
       description="copies the resources into a given folder">
       <copy todir="${build.nls.dir}">
          <fileset dir="${project.res}">

@@ -11,13 +11,8 @@
 package org.eclipse.stardust.common.security;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Provider;
-import java.security.Security;
 import java.util.Arrays;
-
-import org.eclipse.stardust.common.reflect.Reflect;
 
 
 /**
@@ -31,7 +26,7 @@ public class HMAC
    public static final String UTF8_ENCODING = "UTF-8";
 
    private String hashType;
-   private static MessageDigest myDigest;
+   private MessageDigest myDigest;
 
    /**
     * Creates new instance for HMAC hashing.
@@ -173,8 +168,8 @@ public class HMAC
          throw new RuntimeException("passed key may not be null");
       }
 
-      byte[] _saltArray = {(byte) (salt >>> 24), 
-                           (byte) (salt >>> 16), 
+      byte[] _saltArray = {(byte) (salt >>> 24),
+                           (byte) (salt >>> 16),
                            (byte) (salt >>> 8),
                            (byte) salt};
 
@@ -234,7 +229,7 @@ public class HMAC
          throws java.security.NoSuchAlgorithmException,
          java.io.UnsupportedEncodingException
    {
-      
+
       if ((key == null) || (text == null))
       {
          throw new RuntimeException(
@@ -306,7 +301,7 @@ public class HMAC
       {
          return false;
       }
-      
+
       if(hexHashValue.length() != 32)
       {
          return false;

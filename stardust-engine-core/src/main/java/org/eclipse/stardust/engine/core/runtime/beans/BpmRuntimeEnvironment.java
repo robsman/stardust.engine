@@ -30,6 +30,7 @@ import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.config.TimestampProvider;
@@ -40,6 +41,7 @@ import org.eclipse.stardust.engine.api.dto.RtDetailsFactory;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.runtime.DefaultQueueConnectionProvider;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -48,6 +50,7 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
+import org.eclipse.stardust.engine.core.spi.jms.IQueueConnectionProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.JcrSecurityUtils;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
@@ -227,6 +230,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public QueueConnection retrieveQueueConnection(QueueConnectionFactory factory)
          throws JMSException
    {
+
       QueueConnection connection = null;
 
       if ( !jmsQueueConnections.isEmpty())
@@ -236,7 +240,18 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
       if (null == connection)
       {
-         connection = factory.createQueueConnection();
+         IQueueConnectionProvider queueConnectionProvider = ExtensionProviderUtils.getFirstExtensionProvider(IQueueConnectionProvider.class);
+
+         if (queueConnectionProvider == null)
+         {
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Could not load a custom QueueConnectionProvider. Will use DefaultQueueConnectionProvider.");
+            }
+            queueConnectionProvider = new DefaultQueueConnectionProvider();
+         }
+
+         connection = queueConnectionProvider.createQueueConnection(factory);
 
          if (jmsQueueConnections.isEmpty())
          {

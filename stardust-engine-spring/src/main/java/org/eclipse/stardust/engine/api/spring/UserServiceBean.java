@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 66568 
+ * Generated from Revision: 71045
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 66568
+ * @version 71045
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {
@@ -108,14 +108,15 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
     */
    public void generatePasswordResetToken(java.lang.String account)
    {
-	      ((org.eclipse.stardust.engine.api.runtime.UserService)
-	              serviceProxy).generatePasswordResetToken(account);
+      ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).generatePasswordResetToken(account);
    }
-   
+
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.UserService#resetPassword(java.lang.String account, java.util.Map properties)
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#resetPassword(java.lang.String account, java.util.Map properties, java.lang.String token)
     */
-   public void resetPassword(java.lang.String account, java.util.Map properties, java.lang.String token)
+   public void resetPassword(
+         java.lang.String account, java.util.Map properties, java.lang.String token)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException

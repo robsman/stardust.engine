@@ -36,10 +36,12 @@ import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-
+   private int batchSize = 500;
    // Structured Data Value Table
    private static final String SDV_TABLE = "structured_data_value";
    private static final String SDV_OID = "oid";
@@ -79,6 +81,11 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
             DBMSKey.MYSQL_SEQ});
       observer = this;
+      String bs = Parameters.instance().getString(RuntimeUpgrader.UPGRADE_BATCH_SIZE);
+      if (bs != null)
+      {
+         batchSize = Integer.parseInt(bs);
+      }
    }
 
    @Override
@@ -100,44 +107,46 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initUpgradeSchemaTasks(RuntimeItem item)
    {
+      //oid & double value are both the same for table data_value and
+      //structured_data_value
+      FieldInfo oidColumn = new FieldInfo(SDV_OID, Long.TYPE);
+      FieldInfo doubleValueColumn = new FieldInfo(SDV_DOUBLE_VALUE, Double.TYPE);
+
       upgradeTaskExecutor
-            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(DV_TABLE,
-                  DV_DOUBLE_VALUE));
+            .addUpgradeSchemaTask(getDoubleValueUpgradeTask(DV_TABLE, oidColumn, doubleValueColumn));
       upgradeTaskExecutor
-            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(SDV_TABLE,
-                  SDV_DOUBLE_VALUE));
+            .addUpgradeSchemaTask(getDoubleValueUpgradeTask(SDV_TABLE, oidColumn, doubleValueColumn));
    }
 
-   private UpgradeTask addDoubleValueColumnToDataValueUpgradeTask(final String tableName,
-         final String fieldName)
+   private UpgradeTask getDoubleValueUpgradeTask(final String tableName, final FieldInfo oidColumn, final FieldInfo doubleValueColumn)
    {
       return new UpgradeTask()
       {
+         final UpdateColumnInfo updateColumnInfo
+            = new UpdateColumnInfo(doubleValueColumn, "0.0");
+
          @Override
          public void execute()
          {
             DatabaseHelper.alterTable(item, new AlterTableInfo(tableName)
             {
-               private final FieldInfo DOUBLE_VALUE = new FieldInfo(fieldName,
-                     Double.TYPE);
-
                @Override
                public FieldInfo[] getAddedFields()
                {
-                  return new FieldInfo[] {DOUBLE_VALUE};
+                  return new FieldInfo[] {doubleValueColumn};
                }
             }, observer);
 
             try
             {
-               String initStmnt = "UPDATE " + DatabaseHelper.getQualifiedName(tableName)
-                     + " SET " + fieldName + "=0.0";
-               item.executeDdlStatement(initStmnt, false);
+               //check javadoc for further information on this method
+               DatabaseHelper.setColumnValuesInBatch(item, tableName, oidColumn, batchSize,
+                     updateColumnInfo);
             }
             catch (SQLException e)
             {
                reportExeption(e, "Could not initialize new column " + tableName + "."
-                     + fieldName + ".");
+                     + doubleValueColumn.getName() + ".");
             }
          }
       };

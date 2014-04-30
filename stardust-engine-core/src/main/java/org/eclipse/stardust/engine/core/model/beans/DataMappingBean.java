@@ -82,9 +82,6 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
    public void checkConsistency(List inconsistencies)
    {
       // Rule: associated activity must be part of the same model
-
-      // @todo/belgium (ub): here and in all similar cases:
-      // getActivity() is never null.
       IActivity activity = getActivity();
       if (activity == null)
       {
@@ -98,11 +95,13 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
          BpmValidationError error = BpmValidationError.DATA_NO_DATA_SET_FOR_DATAMAPPING.raise(getErrorName());
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
+
       if (getId() == null || getId().length() == 0)
       {
          BpmValidationError error = BpmValidationError.DATA_NO_USEFUL_ID_SET_FOR_DATAMAPPING.raise(getErrorName());
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
+
       if (getName() == null || getName().length() == 0)
       {
          BpmValidationError error = BpmValidationError.DATA_NO_USEFUL_NAME_SET_FOR_DATAMAPPING.raise(getErrorName());
@@ -191,7 +190,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             if ( !ctxMissing && getData() != null)
             {
                IData data = getData();
-               if ( !BridgeObject.isValidMapping(direction, accessPoint, applicationPath,
+               if (!BridgeObject.isValidMapping(context, direction, applicationAccessPointId, accessPoint, applicationPath,
                      data, dataPath, activity))
                {
                   BpmValidationError error = BpmValidationError.DATA_INVALID_DATATYPE_FOR_DATAMAPPING.raise(

@@ -74,6 +74,14 @@ public class IppComponent extends DefaultComponent
          ippEndpoint = new DocumentManagementEndpoint(uri, this);
          setProperties(ippEndpoint, parameters);
       }
+      else if (CamelConstants.Endpoint.DATA.equalsIgnoreCase(endpointKey))
+      {
+         ippEndpoint = new DataEndpoint(uri, this);
+         DataEndpointConfiguration endpointConfiguration = new DataEndpointConfiguration(this.getCamelContext(), uri);
+         endpointConfiguration.setSubCommand(subCommand);
+         endpointConfiguration.setParams(parameters);
+         ippEndpoint.setEndpointConfiguration(endpointConfiguration);
+      }
 
       if (StringUtils.isNotEmpty(subCommand) && null != ippEndpoint)
          ippEndpoint.setSubCommand(subCommand);

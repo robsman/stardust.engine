@@ -151,7 +151,7 @@ public final class SecurityProperties
    public static final String LOGIN_USERS_WITHOUT_TIMESTAMP =
          "Security.LoginUsersWithoutTimestamp";
 
-   public static final String LOGIN_USERS_WITHOUT_LOGIN_LOGGING = 
+   public static final String LOGIN_USERS_WITHOUT_LOGIN_LOGGING =
          "Security.LoginUsersWithoutLoginLogging";
 
    public static final String CURRENT_USER = "Current.User";
@@ -162,6 +162,8 @@ public final class SecurityProperties
    public static final String CREDENTIAL_PROVIDER = "Credential.Provider";
    public static final String SECURE_SESSION_FACTORY = "Secure.Session.Factory";
    public static final String DEFAULT_AUTHENTICATION_CONFIGURATION_NAME = "carnot";
+
+   public static final String PRINCIPAL_SECRET = "Security.Principal.Secret";
 
    public static boolean isInternalAuthentication()
    {
@@ -325,25 +327,25 @@ public final class SecurityProperties
 
       return oid.shortValue();
    }
-   
+
    public static boolean isTeamLeader(IUser user)
-   {      
+   {
       List<IModelParticipant> all = CollectionUtils.createList();
-      
+
       IUser currentUser = getUser();
       for (Iterator i = currentUser.getAllParticipants(); i.hasNext();)
       {
          IModelParticipant participant = (IModelParticipant) i.next();
          if(participant instanceof IRole)
-         {            
+         {
             for (Iterator<IOrganization> teamsIter = ((IRole) participant).getAllTeams(); teamsIter.hasNext();)
             {
                IOrganization team = teamsIter.next();
-               collectAllParticipants(all, team);            
+               collectAllParticipants(all, team);
             }
          }
       }
-      
+
       for (Iterator i = user.getAllParticipants(); i.hasNext();)
       {
          IModelParticipant participant = (IModelParticipant) i.next();
@@ -352,16 +354,16 @@ public final class SecurityProperties
             return true;
          }
       }
-      
+
       return false;
    }
-   
+
    private static void collectAllParticipants(List<IModelParticipant> all, IOrganization team)
    {
       if(!all.contains(team))
-      {      
+      {
          all.add(team);
-         
+
          for (Iterator i = team.getAllParticipants(); i.hasNext();)
          {
             IModelParticipant childParticipant = (IModelParticipant) i.next();
@@ -370,14 +372,14 @@ public final class SecurityProperties
                if(!all.contains(childParticipant))
                {
                   all.add(childParticipant);
-                  collectAllParticipants(all, (IOrganization) childParticipant);               
-               }            
+                  collectAllParticipants(all, (IOrganization) childParticipant);
+               }
             }
             else
             {
-               all.add(childParticipant);            
+               all.add(childParticipant);
             }
-         }            
+         }
       }
    }
 }

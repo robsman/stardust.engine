@@ -295,7 +295,7 @@ public class TriggerBean extends IdentifiableElementBean
                   error = BpmValidationError.TRIGG_SCAN_TRIGGERS_DO_NOT_SUPPORT_ACCESS_POINT_TYPE.raise(apType);
                }
             }
-            else if (!BridgeObject.isValidMapping(Direction.OUT, accessPoint,
+            else if (!BridgeObject.isValidMapping(null, Direction.OUT, accessPoint,
                   pm.getParameterPath(), pm.getData(), pm.getDataPath(), null))
             {
                error = BpmValidationError.TRIGG_PARAMETER_MAPPING_CONTAINS_AN_INVALID_TYPE_CONVERSION.raise(pm.getParameterId());

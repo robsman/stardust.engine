@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;element name="subFolderPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}SubFolderPolicy" minOccurs="0"/>
  *           &lt;element name="modelVersionPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ModelVersionPolicy" minOccurs="0"/>
  *           &lt;element name="descriptorPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}DescriptorPolicy" minOccurs="0"/>
+ *           &lt;element name="processDefinitionDetailsPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ProcessDefinitionDetailsPolicy" minOccurs="0"/>
  *           &lt;element name="processInstanceDetailsPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ProcessInstanceDetailsPolicy" minOccurs="0"/>
  *           &lt;element name="historicalStatesPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}HistoricalStatesPolicy" minOccurs="0"/>
  *           &lt;element name="historicalEventPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}HistoricalEventPolicy" minOccurs="0"/>
@@ -59,23 +60,24 @@ import javax.xml.bind.annotation.XmlType;
 public class PolicyXto {
 
     @XmlElements({
-        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
-        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
-        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
         @XmlElement(name = "criticalCostPerExecutionPolicy", type = CriticalCostPerExecutionPolicyXto.class),
-        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
-        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
+        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
+        @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
+        @XmlElement(name = "processDefinitionDetailsPolicy", type = ProcessDefinitionDetailsPolicyXto.class),
+        @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class),
+        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
+        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
         @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class),
+        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
+        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
+        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
+        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
+        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
         @XmlElement(name = "excludeUserPolicy", type = ExcludeUserPolicyXto.class),
         @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
-        @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
-        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
-        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
         @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class),
         @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
-        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
-        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
-        @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class)
+        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class)
     })
     protected List<EvaluationPolicyXto> subsetPolicyOrSubFolderPolicyOrModelVersionPolicy;
 
@@ -97,23 +99,24 @@ public class PolicyXto {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DescriptorPolicyXto }
-     * {@link HistoricalEventPolicyXto }
-     * {@link SubsetPolicyXto }
      * {@link CriticalCostPerExecutionPolicyXto }
-     * {@link CasePolicyXto }
-     * {@link ProcessInstanceDetailsPolicyXto }
+     * {@link PerformanceCriticalityPolicyXto }
+     * {@link HistoricalStatesPolicyXto }
+     * {@link ProcessDefinitionDetailsPolicyXto }
+     * {@link SubFolderPolicyXto }
+     * {@link DescriptorPolicyXto }
+     * {@link SubsetPolicyXto }
      * {@link TimeoutPolicyXto }
+     * {@link HistoricalEventPolicyXto }
+     * {@link EvaluateByWorkitemsPolicyXto }
+     * {@link ProcessInstanceDetailsPolicyXto }
+     * {@link ModelVersionPolicyXto }
+     * {@link CasePolicyXto }
      * {@link ExcludeUserPolicyXto }
      * {@link UserDetailsPolicyXto }
-     * {@link HistoricalStatesPolicyXto }
-     * {@link CriticalExecutionTimePolicyXto }
-     * {@link PerformanceCriticalityPolicyXto }
      * {@link ProcessCumulationPolicyXto }
      * {@link CriticalProcessingTimePolicyXto }
-     * {@link ModelVersionPolicyXto }
-     * {@link EvaluateByWorkitemsPolicyXto }
-     * {@link SubFolderPolicyXto }
+     * {@link CriticalExecutionTimePolicyXto }
      * 
      * 
      */

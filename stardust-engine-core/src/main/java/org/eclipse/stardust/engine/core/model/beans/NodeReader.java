@@ -10,24 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
-
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariable;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-
 
 /**
  * Provides some additional methods for reading data from a DOM-Node.
@@ -36,7 +29,7 @@ public class NodeReader
 {
    private Node node = null;
    private final IConfigurationVariablesProvider confVarProvider;
-   
+
    public NodeReader(IConfigurationVariablesProvider confVarProvider)
    {
       this.confVarProvider = confVarProvider;
@@ -62,12 +55,12 @@ public class NodeReader
       }
       return value;
    }
-   
+
    public String getRawAttribute(String name)
    {
       return getRawAttribute(name, true);
    }
-   
+
    public String getRawAttribute(String name, boolean evalVariables)
    {
       NamedNodeMap attributes = node.getAttributes();
@@ -79,13 +72,13 @@ public class NodeReader
          if (attrNode != null)
          {
             final String value = attrNode.getNodeValue().trim();
-            return evalVariables ? evaluteModelVariables(value) : value;
+            return evalVariables ? ConfigurationVariableUtils.evaluate(confVarProvider, value) : value;
          }
       }
 
       return null;
    }
-   
+
    public boolean getBooleanAttribute(String name, boolean defaultValue)
    {
       String value = getRawAttribute(name);
@@ -129,7 +122,7 @@ public class NodeReader
    {
       return getChildValue(childName, true);
    }
-   
+
    public String getChildValue(String childName, boolean evalVariables)
    {
       String value = getRawChildValue(childName, evalVariables);
@@ -139,12 +132,12 @@ public class NodeReader
       }
       return value;
    }
-   
+
    public String getRawChildValue(String childName)
    {
       return getRawChildValue(childName, true);
    }
-   
+
    public String getRawChildValue(String childName, boolean evalVariables)
    {
       String text = null;
@@ -182,11 +175,11 @@ public class NodeReader
 
          text = null;
       }
-      
+
       if (text != null)
       {
          text = text.trim();
-         text = evalVariables ? evaluteModelVariables(text) : text;
+         text = evalVariables ? ConfigurationVariableUtils.evaluate(confVarProvider, text) : text;
       }
 
       return text;
@@ -233,46 +226,6 @@ public class NodeReader
          }
       }
       return result;
-   }
-
-   private String evaluteModelVariables(String text)
-   {
-      // register names of potential variables
-      Matcher varMatcher = ConfigurationVariableUtils
-            .getConfigurationVariablesMatcher(text);
-      
-      Set<String> detectedCvNames = newHashSet();
-      
-      while (varMatcher.find())
-      {
-         String varCandidate = varMatcher.group(1);
-         confVarProvider.registerCandidate(varCandidate);
-         detectedCvNames.add(varCandidate);
-      }
-      
-      // replace variables with values
-      final List<ConfigurationVariable> configurationVariables = confVarProvider
-            .getConfigurationVariables().getConfigurationVariables();
-      
-      if ( !detectedCvNames.isEmpty())
-      {
-         for (ConfigurationVariable var : configurationVariables)
-         {
-        	if (detectedCvNames.contains(var.getName())){
-        		text = ConfigurationVariableUtils.replace(var, text);
-        	}
-         }
-      }
-      
-      // replace escaped Variables: \${abc} -> ${abc}
-      Matcher escMatcher = ConfigurationVariableUtils
-            .getEscapedConfigurationVariablesMatcher(text);
-      if (escMatcher.find())
-      {
-         text = escMatcher.replaceAll("$1");
-      }
-
-      return text;
    }
 }
 

@@ -10,7 +10,7 @@ import org.eclipse.stardust.engine.api.model.DataMapping;
 
 public interface IBpmTypeConverter
 {
-   public void unmarshal(DataMapping mapping, Map<String, Object> extendedAttributes);
+   void unmarshal(DataMapping mapping, Map<String, Object> extendedAttributes);
 
-   public void marshal(DataMapping mapping, Map<String, Object> extendedAttributes);
+   void marshal(DataMapping mapping, Map<String, Object> extendedAttributes);
 }

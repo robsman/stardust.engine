@@ -702,6 +702,8 @@
 				<sequence>
 					<element name="rtOid" type="long" />
 
+                    <element name="detailsLevel" type="tns:ProcessDefinitionDetailsLevel" />
+
 					<element name="dataPaths" type="tns:DataPaths" nillable="true" />
 
 					<element name="triggers" type="tns:Triggers" minOccurs="0" />
@@ -717,6 +719,12 @@
 
 					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
 						minOccurs="0" />
+
+					<element name="implementedProcessInterface" type="tns:ProcessInterface"
+						minOccurs="0" />
+
+					<element name="declaredProcessInterface" type="tns:ProcessInterface"
+						minOccurs="0" />
 				</sequence>
 			</extension>
 		</complexContent>
@@ -725,6 +733,40 @@
 	<complexType name="Triggers">
 		<sequence>
 			<element name="trigger" type="tns:Trigger" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessInterface">
+		<annotation>
+			<documentation>
+			Interface used to separate a process definition from its interface.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="declaringProcessDefintionId" type="QName" />
+			<element name="formalParameters" type="tns:FormalParameters" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="FormalParameters">
+		<sequence>
+			<element name="formalParameter" type="tns:FormalParameter" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="FormalParameter">
+		<annotation>
+			<documentation>
+			ToDo
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="id" type="string" />
+			<element name="name" type="string" />
+			<element name="direction" type="tns:Direction" minOccurs="0" />
+			<element name="typeId" type="string" />
+			<element name="dataId" type="string" />
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
 		</sequence>
 	</complexType>
 
@@ -1265,7 +1307,7 @@
 			<!--
 				<element name="attributes" type="tns:Attributes" minOccurs="0" />
 			-->
-			
+
 			<element name="descriptorDefinitions" type="tns:DataPaths" minOccurs="0" />
 		</sequence>
 	</complexType>
@@ -2029,6 +2071,14 @@
 		</sequence>
 	</complexType>
 
+    <simpleType name="ProcessDefinitionDetailsLevel">
+      <restriction base="string">
+         <enumeration value="Core" />
+         <enumeration value="WithoutActivities" />
+         <enumeration value="Full" />
+      </restriction>
+    </simpleType>
+
 	<simpleType name="ProcessInstanceDetailsLevel">
 		<restriction base="string">
 			<enumeration value="Core" />
@@ -2334,7 +2384,7 @@
 			<element name="defaultValue" type="string"/>
 			<element name="description" type="string"/>
 			<element name="modelOid" type="int"/>
-			<element name="type" type="string"/> 			
+			<element name="type" type="string"/>
 		</sequence>
 	</complexType>
 
@@ -2402,7 +2452,7 @@
 			<element name="valueList" type="tns:StringList" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="DeputyOptions">
 		<sequence>
 			<element name="fromDate" type="dateTime" />
@@ -2410,7 +2460,7 @@
 			<element name="modelParticipantInfos" type="tns:ModelParticipantInfos" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="Deputy">
 		<sequence>
 			<element name="user" type="tns:UserInfo" />
@@ -2420,10 +2470,10 @@
 			<element name="participants" type="tns:ModelParticipantInfos" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="Deputies">
 		<sequence>
-			<element name="deputy" type="tns:Deputy" minOccurs="0" maxOccurs="unbounded"/> 
+			<element name="deputy" type="tns:Deputy" minOccurs="0" maxOccurs="unbounded"/>
 		</sequence>
 	</complexType>
 
@@ -2431,7 +2481,7 @@
    		<sequence>
    			<element name="modelparticipantInfo" type="tns:ModelParticipantInfo" minOccurs="0" maxOccurs="unbounded" />
    		</sequence>
-   </complexType>	
+   </complexType>
 
 	<!--  Simple types -->
 

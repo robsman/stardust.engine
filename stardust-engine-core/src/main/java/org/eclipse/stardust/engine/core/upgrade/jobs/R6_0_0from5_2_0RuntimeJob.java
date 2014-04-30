@@ -12,12 +12,14 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Version;
@@ -387,31 +389,16 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       // No need to do anything if no models are deployed.
       if (!activeModels.isEmpty())
       {
-         Connection connection = item.getConnection();
-         Statement stmt = null;
-         try
-         {
-            stmt = connection.createStatement();
+         // delete grants for all but the active models
+         DatabaseHelper.executeUpdate(item, getDeleteGrantsSql(activeModels));
 
-            // delete grants for all but the active models
-            stmt.executeUpdate(getDeleteGrantsSql(activeModels));
+         // as columns cannot be dropped just set value to null
+         String tableName = DatabaseHelper.getQualifiedName(UP_TABLE_NAME);
+         StringBuffer buffer = new StringBuffer(500);
+         buffer.append(UPDATE).append(tableName);
+         buffer.append(SET).append(UP_FIELD__MODEL).append(EQUALS).append(NULL);
 
-            // as columns cannot be dropped just set value to null
-            String tableName = DatabaseHelper
-                  .getQualifiedName(UP_TABLE_NAME);
-            StringBuffer buffer = new StringBuffer(500);
-            buffer.append(UPDATE).append(tableName);
-            buffer.append(SET).append(UP_FIELD__MODEL).append(EQUALS).append(NULL);
-
-            stmt.executeUpdate(buffer.toString());
-         }
-         finally
-         {
-            if (stmt != null)
-            {
-               stmt.close();
-            }
-         }
+         DatabaseHelper.executeUpdate(item, buffer.toString());
       }
    }
 
@@ -444,15 +431,13 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       selectCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_COMMENT);
       selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(M_TABLE_NAME));
 
-      PreparedStatement selectStatement = connection.prepareStatement(selectCmd.toString());
-      ResultSet rs = selectStatement.executeQuery();
+      ResultSet rs = DatabaseHelper.executeQuery(item, selectCmd.toString());
 
       if (recover)
       {
-         Statement delStmt = item.getConnection().createStatement();
          StringBuffer deleteCmd = new StringBuffer();
          deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(MODEL_DEP_TABLE_NAME));
-         delStmt.execute(deleteCmd.toString());
+         DatabaseHelper.executeUpdate(item, deleteCmd.toString());
       }
 
       StringBuffer insertCmd = new StringBuffer();
@@ -477,8 +462,9 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_COMMENT).append(") ");
          insertCmd.append("VALUES (?,?,?,?)");
       }
-      PreparedStatement insertStatement = connection.prepareStatement(insertCmd.toString());
 
+      PreparedStatement insertStatement
+         = DatabaseHelper.prepareLoggingStatement(connection, insertCmd.toString());
       while (rs.next())
       {
          insertStatement.setLong(1, 0);
@@ -499,15 +485,13 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       selectCmd.append(M_FIELD__OID);
       selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(M_TABLE_NAME));
 
-      selectStatement = connection.prepareStatement(selectCmd.toString());
-      rs = selectStatement.executeQuery();
+      rs = DatabaseHelper.executeQuery(item, selectCmd.toString());
 
       if (recover)
       {
-         Statement delStmt = item.getConnection().createStatement();
          StringBuffer deleteCmd = new StringBuffer();
          deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(MODEL_REF_TABLE_NAME));
-         delStmt.execute(deleteCmd.toString());
+         DatabaseHelper.executeUpdate(item, deleteCmd.toString());
       }
 
       insertCmd = new StringBuffer();
@@ -518,7 +502,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       insertCmd.append(MODEL_REF_FIELD__REF_OID).append(COMMA);
       insertCmd.append(MODEL_REF_FIELD__DEPLOYMENT).append(")");
       insertCmd.append("VALUES (?,?,?,?,?)");
-      insertStatement = connection.prepareStatement(insertCmd.toString());
+      insertStatement = DatabaseHelper.prepareLoggingStatement(connection, insertCmd.toString());
 
       while (rs.next())
       {
@@ -529,7 +513,9 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          insertStatement.setString(5, rs.getString(4));
          insertStatement.execute();
       }
+
       insertStatement.close();
+      rs.close();
 
       //Populate field 'deployment' in Process Instance table
       selectCmd = new StringBuffer();
@@ -537,14 +523,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       selectCmd.append(MODEL_REF_FIELD__DEPLOYMENT).append(COMMA);
       selectCmd.append(MODEL_REF_FIELD__MODEL_OID);
       selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(MODEL_REF_TABLE_NAME));
-      selectStatement = connection.prepareStatement(selectCmd.toString());
-      rs = selectStatement.executeQuery();
+
+      rs = DatabaseHelper.executeQuery(item, selectCmd.toString());
 
       StringBuffer updateCmd = new StringBuffer();
       updateCmd.append(UPDATE).append(DatabaseHelper.getQualifiedName(PI_TABLE_NAME));
       updateCmd.append(SET).append(PI_FIELD__DEPLOYMENT).append(EQUAL_PLACEHOLDER);
       updateCmd.append(WHERE).append(PI_FIELD__MODEL).append(EQUAL_PLACEHOLDER);
-      PreparedStatement p2 = connection.prepareStatement(updateCmd.toString());
+      PreparedStatement p2 = DatabaseHelper.prepareLoggingStatement(connection, updateCmd.toString());
       while (rs.next())
       {
          p2.setLong(1, rs.getLong(1));
@@ -622,8 +608,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          // @formatter:on
 
          Connection connection = item.getConnection();
-
-         selectRowsStmt = connection.prepareStatement(selectCmd.toString());
+         selectRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, selectCmd.toString());
 
          ResultSet pendingRows = null;
          try
@@ -673,10 +658,9 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                if (recover)
                {
-                  Statement delStmt = item.getConnection().createStatement();
                   StringBuffer deleteCmd = new StringBuffer();
                   deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(P_TABLE_NAME));
-                  delStmt.execute(deleteCmd.toString());
+                  DatabaseHelper.executeUpdate(item, deleteCmd.toString());
                }
 
                String preferencesId = "global";
@@ -805,8 +789,9 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             .append(")")
             .append(valuesFragment(insertCols.length));
 
-      PreparedStatement prefStmt = item.getConnection().prepareStatement(
-            insertPrefCmd.toString());
+      Connection connection = item.getConnection();
+      PreparedStatement prefStmt
+         = DatabaseHelper.prepareLoggingStatement(connection, insertPrefCmd.toString());
 
       short partitionOid = SecurityProperties.getPartitionOid();
       String moduleId = PREFERENCES_MODULE_ID_PERMISSIONS;

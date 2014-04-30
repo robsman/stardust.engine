@@ -1217,19 +1217,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                participant, ModelManagerFactory.getCurrent(), modelOid);
          IModelParticipant modelParticipant = scopedParticipant.getModelParticipant();
          
-         if (!(activityInstance instanceof ActivityInstanceBean)
-               || !((ActivityInstanceBean) activityInstance).isDefaultCaseActivityInstance())
-         {
-            if (activityInstance.getActivity().getModel() != modelParticipant.getModel())
-            {
-               String participantID = modelParticipant.getId();
-               throw new AccessForbiddenException(
-                     BpmRuntimeError.MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL.raise(
-                           participantID, activityInstance.getActivity()
-                                 .getModel()
-                                 .getOID()));
-            }
-         }
          IDepartment department = scopedParticipant.getDepartment();
          activityInstance.delegateToParticipant(modelParticipant, department, null);
       }

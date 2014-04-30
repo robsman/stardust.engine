@@ -35,72 +35,73 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
       implements ProcessDefinition
 {
    private static final long serialVersionUID = 6250589260762155929L;
-   
+
    private List<Trigger> triggers = new ArrayList<Trigger>();
    private final List<DataPath> dataPaths;
    private final List<Activity> activities;
    private final List<EventHandler> eventHandlers;
+   private final ProcessDefinitionDetailsLevel detailsLevel;
    private String description;
    private int defaultPriority;
    private ProcessInterface declaredProcessInterface;
    private ProcessInterface implementedProcessInterface;
-   
+
    private final static Logger log = LogManager.getLogger(ProcessDefinitionDetails.class);
 
    ProcessDefinitionDetails(IProcessDefinition processDefinition)
    {
       super(processDefinition);
-      
-      for (Iterator i = processDefinition.getAllTriggers();i.hasNext();)
+
+      detailsLevel = ProcessDefinitionDetailsLevel.FULL;
+
+      for (Iterator i = processDefinition.getAllTriggers(); i.hasNext();)
       {
          triggers.add(new TriggerDetails(this, (ITrigger) i.next()));
       }
 
-      /*triggers = DetailsFactory.<Trigger, TriggerDetails>createCollection(
-            processDefinition.getTriggers(), ITrigger.class, TriggerDetails.class);*/
-
-      dataPaths = DetailsFactory.<DataPath, DataPathDetails>createCollection(
+      dataPaths = DetailsFactory.<DataPath, DataPathDetails> createCollection(
             processDefinition.getDataPaths(), IDataPath.class, DataPathDetails.class);
 
-      activities = DetailsFactory.<Activity, ActivityDetails>createCollection(
+      activities = DetailsFactory.<Activity, ActivityDetails> createCollection(
             processDefinition.getActivities(), IActivity.class, ActivityDetails.class);
-      
+
       Parameters parameters = Parameters.instance();
-      
-      if (parameters.getBoolean(KernelTweakingProperties.SORT_ACTIVITIES_IN_TRANSITION_ORDER, true))
+      if (parameters.getBoolean(
+            KernelTweakingProperties.SORT_ACTIVITIES_IN_TRANSITION_ORDER, true))
       {
          Map<String, Activity> activityMap = CollectionUtils.newMap();
          Queue<IActivity> queue = new LinkedList<IActivity>();
          // put all activities in queue which has no incoming transitions
          ModelElementList activities = processDefinition.getActivities();
          int length = activities.size();
-         for (int i = 0; i<length; ++i)
+         for (int i = 0; i < length; ++i)
          {
             IActivity activity = (IActivity) activities.get(i);
-            for(int adIndex = 0; adIndex < this.activities.size(); ++adIndex)
+            for (int adIndex = 0; adIndex < this.activities.size(); ++adIndex)
             {
                Activity ad = this.activities.get(adIndex);
-               if(activity.getId().equals(ad.getId()))
+               if (activity.getId().equals(ad.getId()))
                {
                   activityMap.put(activity.getId(), ad);
                }
             }
-            if(activity.getInTransitions().isEmpty())
+            if (activity.getInTransitions().isEmpty())
             {
                queue.offer(activity);
             }
          }
          List<Activity> sortedActivities = new LinkedList<Activity>();
-         while (!queue.isEmpty())
+         while ( !queue.isEmpty())
          {
             IActivity activity = queue.poll();
             sortedActivities.add(activityMap.get(activity.getId()));
             ModelElementList outTransistions = activity.getOutTransitions();
-            for(int otIndex = 0; otIndex < outTransistions.size(); ++otIndex)
+            for (int otIndex = 0; otIndex < outTransistions.size(); ++otIndex)
             {
                ITransition transition = (ITransition) outTransistions.get(otIndex);
                IActivity toActivity = transition.getToActivity();
-               if(!queue.contains(toActivity) && !sortedActivities.contains(activityMap.get(toActivity.getId())))
+               if ( !queue.contains(toActivity)
+                     && !sortedActivities.contains(activityMap.get(toActivity.getId())))
                {
                   queue.offer(transition.getToActivity());
                }
@@ -108,34 +109,83 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
          }
          if (sortedActivities.size() != this.activities.size())
          {
-            log.warn("Sorted activities for process " + getName() + " doesn't match with unsorted activity list. Use unsorted list instead.");
+            log.warn("Sorted activities for process "
+                  + getName()
+                  + " doesn't match with unsorted activity list. Use unsorted list instead.");
          }
          else
          {
             this.activities.clear();
             this.activities.addAll(sortedActivities);
          }
+
       }
 
-      eventHandlers = DetailsFactory.<EventHandler, EventHandlerDetails>createCollection(
-            processDefinition.getAllEventHandlers(), IEventHandler.class, EventHandlerDetails.class);
-      
+      eventHandlers = DetailsFactory.<EventHandler, EventHandlerDetails> createCollection(
+            processDefinition.getAllEventHandlers(), IEventHandler.class,
+            EventHandlerDetails.class);
+
       description = processDefinition.getDescription();
-      
+
       defaultPriority = processDefinition.getDefaultPriority();
-      
+
       if (processDefinition.getDeclaresInterface())
       {
-         declaredProcessInterface = DetailsFactory.create(processDefinition, IProcessDefinition.class, ProcessInterfaceDetails.class);
+         declaredProcessInterface = DetailsFactory.create(processDefinition,
+               IProcessDefinition.class, ProcessInterfaceDetails.class);
       }
       else
       {
          IReference ref = processDefinition.getExternalReference();
          if (ref != null)
          {
-            implementedProcessInterface = DetailsFactory.create(processDefinition, IProcessDefinition.class, ProcessInterfaceDetails.class);
+            implementedProcessInterface = DetailsFactory.create(processDefinition,
+                  IProcessDefinition.class, ProcessInterfaceDetails.class);
          }
       }
+   }
+
+   /**
+    * Clones the original ProcessDefinitionDetails to the extent defined by detailsLevel.
+    * The template must always have a higher or equal details level than the targeted details level.
+    *
+    * @param template original ProcessDefinitionDetails with FULL details level.
+    * @param detailsLevel target details level.
+    */
+   public ProcessDefinitionDetails(ProcessDefinitionDetails template,
+         ProcessDefinitionDetailsLevel detailsLevel)
+   {
+      super(template);
+      this.detailsLevel = detailsLevel != null
+            ? detailsLevel
+            : ProcessDefinitionDetailsLevel.FULL;
+      this.description = template.description;
+      this.defaultPriority = template.defaultPriority;
+
+      if ( !ProcessDefinitionDetailsLevel.CORE.equals(this.detailsLevel))
+      {
+         this.dataPaths = template.dataPaths;
+         this.eventHandlers = template.eventHandlers;
+         this.triggers = template.triggers;
+      }
+      else
+      {
+         triggers = Collections.EMPTY_LIST;
+         dataPaths = Collections.EMPTY_LIST;
+         eventHandlers = Collections.EMPTY_LIST;
+      }
+
+      if (ProcessDefinitionDetailsLevel.FULL.equals(this.detailsLevel))
+      {
+         this.activities = template.activities;
+      }
+      else
+      {
+         activities = Collections.EMPTY_LIST;
+      }
+
+      this.declaredProcessInterface = template.declaredProcessInterface;
+      this.implementedProcessInterface = template.implementedProcessInterface;
    }
 
    public List getAllEventHandlers()
@@ -172,7 +222,7 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
    {
       return (Activity) ModelApiUtils.firstWithId(activities.iterator(), id);
    }
-   
+
    public String getDescription()
    {
       return description;
@@ -181,6 +231,11 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
    public int getDefaultPriority()
    {
       return defaultPriority;
+   }
+
+   public ProcessDefinitionDetailsLevel getDetailsLevel()
+   {
+      return detailsLevel;
    }
 
    public ProcessInterface getDeclaredProcessInterface()

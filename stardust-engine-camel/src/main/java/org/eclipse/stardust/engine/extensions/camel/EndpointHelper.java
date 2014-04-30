@@ -4,7 +4,7 @@ public class EndpointHelper
 {
    private EndpointHelper()
    {
-    
+
    }
 
    /**
@@ -25,19 +25,36 @@ public class EndpointHelper
       return uri;
 
    }
-   
-   public static String replaceHtmlCodeByCharacter (final String input){
-      String answer=input;
-      
-      if(answer.contains("&amp;"))
-         answer= answer.replaceAll("&amp;", "\\&");
-      if(answer.contains("&lt;"))
-         answer= answer.replaceAll("&lt;", "<");
-      if(answer.contains("&gt;"))
-         answer= answer.replaceAll("&gt;", ">");
-      if(answer.contains("&quot;"))
-    	  answer= answer.replaceAll("&quot;", "\"");
-      
+
+   public static String replaceHtmlCodeByCharacter(final String input)
+   {
+      String answer = input;
+
+      if (answer.contains("&amp;"))
+         answer = answer.replaceAll("&amp;", "\\&");
+      if (answer.contains("&lt;"))
+         answer = answer.replaceAll("&lt;", "<");
+      if (answer.contains("&gt;"))
+         answer = answer.replaceAll("&gt;", ">");
+      if (answer.contains("&quot;"))
+         answer = answer.replaceAll("&quot;", "\"");
+
+      return answer;
+   }
+
+   public static String replaceCharacterByHtmlCode(final String input)
+   {
+      String answer = input;
+
+      if (answer.contains("&"))
+         answer = answer.replaceAll("&", "&amp;");
+      if (answer.contains("<"))
+         answer = answer.replaceAll("<", "&lt;");
+      if (answer.contains(">"))
+         answer = answer.replaceAll(">", "&gt;");
+      if (answer.contains("\""))
+         answer = answer.replaceAll("\"", "&quot;");
+
       return answer;
    }
 }

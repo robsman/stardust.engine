@@ -60,46 +60,46 @@ import org.junit.rules.TestRule;
  * This class is not part of the common sanity test suite (i.e. is not executed automatically on a regular basis),
  * but helps to profile transient process instance execution.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class TransientProcessInstanceProfilingTest
 {
    private static final Log LOG = LogFactory.getLog(TransientProcessInstanceProfilingTest.class);
-   
+
    private static final String SEQUENCE_BATCH_SIZE_STRING = "5000";
-   
+
    private static final Long SEQUENCE_BATCH_SIZE = Long.valueOf(SEQUENCE_BATCH_SIZE_STRING);
-   
+
    private static final String DEFER_JDBC_CONNECTION_RETRIEVAL_PROPERTY_KEY = "Carnot.Engine.Tuning.Spring.DeferJdbcConnectionRetrieval";
-   
+
    private static final String ALL_USERS_WILDCARD_PROPERTY_VALUE = "*";
-   
-   
+
+
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
-   
+
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_ID);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
 
    static
    {
-      Logger.getRootLogger().setLevel(Level.WARN);      
+      Logger.getRootLogger().setLevel(Level.WARN);
    }
-   
+
    @BeforeClass
    public static void setUpOnce() throws SQLException
    {
       System.setProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY, TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_VALUE);
-      
+
       final GlobalParameters params = GlobalParameters.globals();
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
@@ -117,7 +117,7 @@ public class TransientProcessInstanceProfilingTest
    {
       System.clearProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY);
    }
-   
+
    @Test
    public void profileIt() throws Exception
    {
@@ -127,10 +127,10 @@ public class TransientProcessInstanceProfilingTest
       doTest();
       final long endTime = System.currentTimeMillis();
       final long duration = endTime - startTime;
-      
+
       LOG.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " + duration + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
    }
-   
+
    private static void incrementDbSequenceSize() throws SQLException
    {
       final Connection connection = testClassSetup.dataSource().getConnection();
@@ -168,7 +168,7 @@ public class TransientProcessInstanceProfilingTest
       stmt.addBatch("ALTER SEQUENCE link_type_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
       stmt.executeBatch();
    }
-   
+
    private static void injectSequenceGenerator(final GlobalParameters params)
    {
       params.set(KernelTweakingProperties.SEQUENCE_BATCH_SIZE, SEQUENCE_BATCH_SIZE);
@@ -176,15 +176,15 @@ public class TransientProcessInstanceProfilingTest
       final DBDescriptor dbDescriptor = DBDescriptor.create(SessionFactory.AUDIT_TRAIL);
       final SqlUtils sqlUtils = new SqlUtils((String) params.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX), dbDescriptor);
       sequenceGenerator.init(dbDescriptor, sqlUtils);
-      
+
       params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, sequenceGenerator);
    }
-   
+
    private void warmUp() throws Exception
    {
       doTest();
    }
-   
+
    private void doTest() throws InterruptedException, TimeoutException, ExecutionException, SQLException
    {
       final int nThreads = 100;
@@ -192,8 +192,8 @@ public class TransientProcessInstanceProfilingTest
       final Set<ProcessExecutor> processExecutors = TransientProcessInstanceTest.initProcessExecutors(nThreads, sf.getWorkflowService());
 
       final List<Future<Long>> piOids = TransientProcessInstanceTest.executeProcesses(nThreads, processExecutors);
-      
-      ProcessInstanceStateBarrier.setTimeout(new WaitTimeout(1, TimeUnit.MINUTES));
+
+      ProcessInstanceStateBarrier.instance().setTimeout(new WaitTimeout(1, TimeUnit.MINUTES));
       for (final Future<Long> f : piOids)
       {
          ProcessInstanceStateBarrier.instance().await(f.get(), ProcessInstanceState.Completed);

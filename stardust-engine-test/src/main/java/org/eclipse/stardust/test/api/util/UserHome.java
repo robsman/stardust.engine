@@ -33,7 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
  * </ul>
  * for testing purposes.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -43,7 +43,7 @@ public class UserHome
     * <p>
     * Creates a new user with the given user ID and initializes the created user with the given grants.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for creating the user
     * @param userId the ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
     * @param grants the grants the user should be initialized with
@@ -59,7 +59,7 @@ public class UserHome
       {
          throw new IllegalArgumentException("User ID must not be empty.");
       }
-      
+
       final Set<ModelParticipantInfo> grantSet;
       if (grants == null || grants.length == 0)
       {
@@ -70,17 +70,17 @@ public class UserHome
          grantSet = newHashSet();
          Collections.addAll(grantSet, grants);
       }
-      
+
       final CreateUserWithGrantsCommand createUserCmd = new CreateUserWithGrantsCommand(userId, grantSet);
       final User user = (User) sf.getWorkflowService().execute(createUserCmd);
       return user;
    }
-   
+
    /**
     * <p>
     * Creates a new user with the given user ID and initializes the created user with the given grants.
     * </p>
-    * 
+    *
     * @param userId an ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
     * @param sf a service factory needed for creating the user
     * @param grants the IDs of the grants the user should be initialized with
@@ -96,8 +96,8 @@ public class UserHome
     * <p>
     * Creates a new user with the given user ID and does not initializes the created user with any grants.
     * </p>
-    * 
-    * @param userId an ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
+    *
+    * @param userId an ID the user's <i>account</i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
     * @param sf a service factory needed for creating the user
     * @return the created user
     */
@@ -105,12 +105,12 @@ public class UserHome
    {
       return create(sf, userId, new ModelParticipantInfo[0]);
    }
-   
+
    /**
     * <p>
     * Adds the specified grants to the already existing user.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for adding the grants
     * @param user the already created user
     * @param grants the grants that should be applied to the user
@@ -129,7 +129,7 @@ public class UserHome
     * <p>
     * Adds the specified grants to the already existing user.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for adding the grants
     * @param user the already created user
     * @param grants the IDs of the grants that should be applied to the user
@@ -145,7 +145,7 @@ public class UserHome
     * <p>
     * Removes the specified grants from the already existing user.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for removing the grants
     * @param user the already created user
     * @param grants the grants that should be removed from the user
@@ -164,7 +164,7 @@ public class UserHome
     * <p>
     * Removes the specified grants from the already existing user.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for removing the grants
     * @param user the already created user
     * @param grants the IDs of the grants that should be removed from the user
@@ -175,12 +175,12 @@ public class UserHome
       final ModelParticipantInfo[] mpGrants = resolveModelParticipants(sf, grants);
       return removeGrants(sf, user, mpGrants);
    }
-   
+
    /**
     * <p>
     * Removes all grants from the given already existing user.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for removing the grants
     * @param user the already created user
     * @return the user with all grants removed
@@ -190,7 +190,7 @@ public class UserHome
       user.removeAllGrants();
       return sf.getUserService().modifyUser(user);
    }
-   
+
    private static ModelParticipantInfo[] resolveModelParticipants(final ServiceFactory sf, final String ... grants)
    {
       final Set<ModelParticipantInfo> mpGrants = newHashSet();
@@ -209,30 +209,30 @@ public class UserHome
       }
       return mpGrants.toArray(new ModelParticipantInfo[mpGrants.size()]);
    }
-   
+
    private UserHome()
    {
       /* utility class; do not allow the creation of an instance */
    }
-   
+
    private static final class CreateUserWithGrantsCommand implements ServiceCommand
    {
       private static final long serialVersionUID = 2504537023808759739L;
 
       private final String userId;
       private final Set<ModelParticipantInfo> grants;
-      
+
       public CreateUserWithGrantsCommand(final String userId, final Set<ModelParticipantInfo> grants)
       {
          this.userId = userId;
          this.grants = grants;
       }
-      
+
       @Override
       public User execute(final ServiceFactory sf)
       {
          final UserService userService = sf.getUserService();
-         
+
          final User user = userService.createUser(userId, userId, userId, userId, userId, null, null, null);
          if ( !grants.isEmpty())
          {

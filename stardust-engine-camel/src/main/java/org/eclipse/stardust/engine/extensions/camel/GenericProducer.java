@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 
 public class GenericProducer
 {
-   public static final Logger logger = LogManager.getLogger(GenericProducer.class.getCanonicalName());
+   private static final Logger logger = LogManager.getLogger(GenericProducer.class.getCanonicalName());
 
    private ProducerTemplate template;
 
@@ -51,12 +51,14 @@ public class GenericProducer
                   .getAttribute(INVOCATION_TYPE_EXT_ATT);
             if (StringUtils.isEmpty(invocationPattern))
             {
-               logger.debug("Attribute " + INVOCATION_PATTERN_EXT_ATT + " is missing");
+               if (logger.isDebugEnabled())
+                  logger.debug("Attribute " + INVOCATION_PATTERN_EXT_ATT + " is missing");
             }
 
             if (StringUtils.isEmpty(invocationType))
             {
-               logger.debug("Attribute " + INVOCATION_TYPE_EXT_ATT + " is missing");
+               if (logger.isDebugEnabled())
+                  logger.debug("Attribute " + INVOCATION_TYPE_EXT_ATT + " is missing");
             }
 
             if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
@@ -87,9 +89,11 @@ public class GenericProducer
                this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
             }
 
-         }else{
-            if(this.producerMethodName.equalsIgnoreCase(SEND_METHOD))
-               this.producerMethodName=SEND_METHOD_WITH_HEADER;
+         }
+         else
+         {
+            if (this.producerMethodName.equalsIgnoreCase(SEND_METHOD))
+               this.producerMethodName = SEND_METHOD_WITH_HEADER;
          }
 
       }

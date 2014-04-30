@@ -87,6 +87,8 @@ public class PreferenceStorageFactory
                         new ValidationConfigurationVariablesProvider(preferences))
                         .importFromXML(new StringReader(xml));
 
+                  newModel.setModelOID(model.getModelOID());
+
                   // Add property to property layer to hold information that model is revalidated
                   PropertyLayer layer = null;
                   try {

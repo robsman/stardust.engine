@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.AuditTrailManagementUtils.deleteAllProcessInstancesForModel;
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.AuditTrailManagementUtils.deleteAllProcessInstancesFromPartition;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
@@ -56,6 +61,7 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.AuditTrailManagementUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonUtils;
@@ -351,7 +357,7 @@ public class AdministrationServiceImpl
       }
    }
 
-   private void deleteModelRuntimePart(long modelOid, boolean removeModelReferences)
+   private void deleteModelRuntimePart(long modelOid)
    {
       // @todo (paris, ub): isolate every single delete operation?
       ModelManager modelManager = null;
@@ -373,7 +379,7 @@ public class AdministrationServiceImpl
       }
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      AdminServiceUtils.deleteModelRuntimePart(modelOid, session, removeModelReferences);
+      deleteAllProcessInstancesForModel(modelOid, session);
    }
 
    private DeploymentInfo deleteModelModelingPart(long modelOid)
@@ -400,6 +406,8 @@ public class AdministrationServiceImpl
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       AdminServiceUtils.deleteModelModelingPart(modelOid, session);
 
+      ModelRefBean.deleteForModel(modelOid, session);
+
       return ModelManagerFactory.getCurrent().deleteModel(model);
    }
 
@@ -424,7 +432,7 @@ public class AdministrationServiceImpl
          try
          {
             checkCanDeleteModel(modelOid);
-            deleteModelRuntimePart(modelOid, true);
+            deleteModelRuntimePart(modelOid);
          }
          catch (Exception e)
          {
@@ -961,7 +969,7 @@ public class AdministrationServiceImpl
          .select(ProcessInstanceBean.FR__OID)
          .where(Predicates.inList(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, piOids));
 
-      Set resolvedPiOids = new TreeSet();
+      Set<Long> resolvedPiOids = new TreeSet<Long>();
       ResultSet rsPiOids = session.executeQuery(qPiClosure, -1);
       try
       {
@@ -979,7 +987,7 @@ public class AdministrationServiceImpl
          QueryUtils.closeResultSet(rsPiOids);
       }
 
-      ProcessInstanceUtils.deleteProcessInstances(new ArrayList(resolvedPiOids), session);
+      ProcessInstanceUtils.deleteProcessInstances(new ArrayList<Long>(resolvedPiOids), session);
    }
 
    /**
@@ -1012,19 +1020,12 @@ public class AdministrationServiceImpl
                BpmRuntimeError.MDL_MODEL_MANAGER_UNAVAILABLE.raise());
       }
 
-      // delete runtime data for all models contained in the current partition
-      for (Iterator iter = manager.getAllModels(); iter.hasNext();)
-      {
-         IModel model = (IModel) iter.next();
-
-         long modelElementOid = model.getModelOID();
-         deleteModelRuntimePart(modelElementOid, false);
-      }
-
+      short partitionOid = SecurityProperties.getPartitionOid();
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
+      deleteAllProcessInstancesFromPartition(partitionOid, session);
+
       long userOID = SecurityProperties.getUserOID();
-      long partitionOid = SecurityProperties.getPartitionOid();
 
       AdminServiceUtils.deleteModelIndependentRuntimeData(keepUsers, keepLoginUser,
             session, userOID, partitionOid);
@@ -1929,8 +1930,8 @@ public class AdministrationServiceImpl
 
       return ConfigurationVariableUtils.getConfigurationVariables(getPreferenceStore(),
             modelId, true, all);
-   }   
-   
+   }
+
    public List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds)
    {
       if(modelIds == null)

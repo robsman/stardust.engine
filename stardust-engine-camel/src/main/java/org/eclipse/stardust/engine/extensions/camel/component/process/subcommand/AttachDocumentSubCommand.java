@@ -1,8 +1,10 @@
 package org.eclipse.stardust.engine.extensions.camel.component.process.subcommand;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.extensions.camel.component.ProcessEndpoint;
@@ -16,6 +18,7 @@ public class AttachDocumentSubCommand extends AbstractSubCommand
       super(endpoint, sf);
    }
 
+   @SuppressWarnings("unchecked")
    public void process(Exchange exchange) throws Exception
    {
       Long processInstanceOid = endpoint.evaluateProcessInstanceOid(exchange, true);
@@ -38,24 +41,16 @@ public class AttachDocumentSubCommand extends AbstractSubCommand
       {
          folderName = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
          LOG.debug("No folder name provided, default location set to " + folderName);
-         folderName = folderName.substring(1);
       }
 
-      String data = endpoint.evaluateContent(exchange);
-
-      if (data != null && pi != null && !pi.getState().equals(ProcessInstanceState.Completed)
+      if (pi != null && !pi.getState().equals(ProcessInstanceState.Completed)
             && !pi.getState().equals(ProcessInstanceState.Interrupted))
       {
          DmsFileArchiver dmsFileArchiver = new DmsFileArchiver(ClientEnvironment.getCurrentServiceFactory());
 
-         String jcrDocumentContent = data;
-         // dmsFileArchiver.setRootFolderPath("/");
-
-         Document newDocument = dmsFileArchiver.archiveFile(jcrDocumentContent.getBytes(), fileName, folderName);
+         Document newDocument = dmsFileArchiver.archiveFile(endpoint.evaluateContent(exchange), fileName, folderName);
          List<Document> attachments = (List<Document>) getWorkflowService().getInDataPath(pi.getOID(),
                PROCESS_ATTACHMENTS);
-
-         // initialize it if necessary
          if (null == attachments)
          {
             attachments = new ArrayList<Document>();

@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public class ModelInfo
+public class ModelInfo implements IModelInfo
 {
    /**
     * The id of the model.
@@ -34,4 +34,10 @@ public class ModelInfo
    @XmlElementWrapper(name="ExternalPackages", namespace="http://www.wfmc.org/2008/XPDL2.1")
    @XmlElement(name="ExternalPackage", namespace="http://www.wfmc.org/2008/XPDL2.1")
    public List<ExternalPackageInfo> externalPackages;
+
+   @Override
+   public String getId()
+   {
+      return id;
+   }
 }

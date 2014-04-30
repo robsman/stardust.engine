@@ -16,22 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.JoinSplitType;
-import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.Hook;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -47,7 +32,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 public class QualityAssuranceActivityBean implements IActivity
 {
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = -1996372708676893771L;
    private final IActivity delegate;
@@ -108,6 +93,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getDescription();
    }
 
+   @Deprecated
    public Iterator getAllEventHandlers()
    {
       return delegate.getAllEventHandlers();
@@ -116,11 +102,6 @@ public class QualityAssuranceActivityBean implements IActivity
    public void setDescription(String description)
    {
       delegate.setDescription(description);
-   }
-
-   public Object getAttribute(String name)
-   {
-      return delegate.getAttribute(name);
    }
 
    public void setQualityAssuranceEnabled()
@@ -319,10 +300,10 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getImplementationType();
    }
 
-   public void setLoopType(LoopType type)
+   /*public void setLoopType(LoopType type)
    {
       delegate.setLoopType(type);
-   }
+   }*/
 
    public LoopType getLoopType()
    {
@@ -334,10 +315,10 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getLoopCondition();
    }
 
-   public void setLoopCondition(String loopCondition)
+   /*public void setLoopCondition(String loopCondition)
    {
       delegate.setLoopCondition(loopCondition);
-   }
+   }*/
 
    public void setImplementationType(ImplementationType type)
    {
@@ -399,6 +380,7 @@ public class QualityAssuranceActivityBean implements IActivity
       delegate.setSubProcessMode(mode);
    }
 
+   @Deprecated
    public Iterator getAllInTransitions()
    {
       return delegate.getAllInTransitions();
@@ -409,6 +391,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getInTransitions();
    }
 
+   @Deprecated
    public Iterator getAllOutTransitions()
    {
       return delegate.getAllOutTransitions();
@@ -423,12 +406,12 @@ public class QualityAssuranceActivityBean implements IActivity
    {
       return delegate.getExceptionTransition(eventHandlerId);
    }
-   
+
    public boolean hasExceptionTransitions()
    {
       return delegate.hasExceptionTransitions();
    }
-   
+
    public IModelParticipant getPerformer()
    {
       return delegate.getQualityAssurancePerformer();
@@ -472,6 +455,7 @@ public class QualityAssuranceActivityBean implements IActivity
       delegate.removeAllDataMappings();
    }
 
+   @Deprecated
    public Iterator getAllDataMappings()
    {
       return delegate.getAllDataMappings();
@@ -482,6 +466,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getDataMappings();
    }
 
+   @Deprecated
    public Iterator getAllInDataMappings()
    {
       return delegate.getAllInDataMappings();
@@ -492,6 +477,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getInDataMappings();
    }
 
+   @Deprecated
    public Iterator getAllOutDataMappings()
    {
       return delegate.getAllOutDataMappings();
@@ -577,5 +563,21 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getExternalReference();
    }
 
-   
+   @Override
+   public <T> T getAttribute(String name)
+   {
+      return delegate.getAttribute(name);
+   }
+
+   @Override
+   public ILoopCharacteristics getLoopCharacteristics()
+   {
+      return delegate.getLoopCharacteristics();
+   }
+
+   @Override
+   public void setLoopCharacteristics(ILoopCharacteristics loopCharacteristics)
+   {
+      delegate.setLoopCharacteristics(loopCharacteristics);
+   }
 }

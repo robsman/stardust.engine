@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -30,6 +32,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Pair;
@@ -57,6 +60,7 @@ import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
+
 import org.eclipse.xsd.*;
 import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceImpl;
@@ -73,7 +77,7 @@ import org.xml.sax.*;
 
 /**
  * Converts a model representation in CARNOT XML format to the internal representation.
- * 
+ *
  * @author ubirkemeyer
  * @version $Revision$
  */
@@ -102,7 +106,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    private IConfigurationVariablesProvider confVarProvider;
 
    private Long modelOid;
-   
+
    public static EntityResolver getCarnotModelEntityResolver()
    {
       final URL xsdURL = DefaultXMLReader.class.getResource(WORKFLOWMODEL_XSD);
@@ -128,19 +132,19 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    {
       this(includeDiagrams, confVarProvider, null);
    }
-   
+
    public DefaultXMLReader(boolean includeDiagrams, IConfigurationVariablesProvider confVarProvider, Long modelOid)
    {
       this.includeDiagrams = includeDiagrams;
       this.confVarProvider = confVarProvider;
       this.modelOid = modelOid;
-      
+
       elementFactory = (ElementFactory) Proxy.newProxyInstance(getClass().getClassLoader(),
             new Class[]{ElementFactory.class},
             new InvocationManager());
    }
 
-   public void addActivity(IProcessDefinition process, Node node)
+   public void addActivity(IProcessDefinition process, Element node)
    {
       IActivity activity = elementFactory.createActivity(node, process, model, subprocesses);
 
@@ -172,13 +176,13 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             {
                qualityAssuranceCodes.add(code);
             }
-         }         
+         }
          else if (ATTRIBUTE.equals(childNode.getNodeName()))
          {
             elementFactory.createQualityAssuranceAttributes(childNode, activity, model);
          }
       }
-      activity.setQualityAssuranceCodes(qualityAssuranceCodes);      
+      activity.setQualityAssuranceCodes(qualityAssuranceCodes);
    }
 
    public void addApplication(IModel model, Node node)
@@ -450,7 +454,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    public IProcessDefinition addProcess(IModel model, Node node)
    {
       IProcessDefinition process = elementFactory.createProcess(node, model);
-      
+
       NodeList nodeList = node.getChildNodes();
 
       int length = nodeList.getLength();
@@ -461,9 +465,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          try
          {
             child = nodeList.item(i);
-            if (ACTIVITY.equals(child.getNodeName()))
+            if (child.getNodeType() == Node.ELEMENT_NODE && ACTIVITY.equals(child.getNodeName()))
             {
-               addActivity(process, child);
+               addActivity(process, (Element) child);
             }
          }
          catch (Exception e)
@@ -559,10 +563,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          NodeList nl2 = params.getElementsByTagNameNS(NS_XPDL_2_1, XPDL_FORMAL_PARAMETER);
          for (int j = 0; j < nl2.getLength(); j++)
          {
-            elementFactory.createFormalParameters(nl2.item(j), process);
+            IFormalParameter param = elementFactory.createFormalParameters(nl2.item(j), process);
+            ((ProcessDefinitionBean) process).addToFormalParameters(param);
          }
       }
-      
+
       return process;
    }
 
@@ -607,7 +612,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    {
       // Load model shell and extract configuration variable definitions from it.
       model = elementFactory.createModel(node);
-      
+
       Set<IConfigurationVariableDefinition> configurationVariableDefinitions = model
             .getConfigurationVariableDefinitions();
       if ( !configurationVariableDefinitions.isEmpty())
@@ -632,7 +637,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          for (int i = 0, nQualityAssurance = qualityAssurance.getLength(); i < nQualityAssurance; i++)
          {
             Element qualityAssuranceNode = (Element) qualityAssurance.item(i);
-            
+
             IQualityAssurance createQualityAssurance = elementFactory.createQualityAssurance(qualityAssuranceNode, model);
             NodeList nodeList = qualityAssuranceNode.getElementsByTagNameNS(NS_CARNOT_XPDL_31, QUALITY_ASSURANCE_CODE);
             int length = nodeList.getLength();
@@ -640,10 +645,10 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             for (int j = 0; j < length; j++)
             {
                Node child = nodeList.item(j);
-               elementFactory.createQualityAssuranceCode(child, createQualityAssurance);                  
+               elementFactory.createQualityAssuranceCode(child, createQualityAssurance);
             }
          }
-         
+
          NodeList appTypes = node.getOwnerDocument().getElementsByTagName(APPLICATION_TYPE);
          for (int i = 0, nAppTypes = appTypes.getLength(); i < nAppTypes; i++)
          {
@@ -703,7 +708,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          {
             DefaultModelBuilder.createPredefinedEventActionTypes(model);
          }
-         
+
          addExternalPackages(model, node);
 
          // there is a great confusion here regarding the namespaces so we'll just ignore namespaces for the moment.
@@ -736,7 +741,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                         String location = ((Element) child).getAttribute(XPDL_LOCATION_ATT);
                         String ns = ((Element) child).getAttribute(XPDL_NAMESPACE_ATT);
                         String xref = ((Element) child).getAttribute(XPDL_XREF_ATT);
-                        
+
                         Element externalAnnotationsElement = findExternalAnnotationsElement((Node) typeDeclarations.get(j));
                         xpdlType = new ExternalReferenceBean(intern(location), intern(ns), intern(xref), externalAnnotationsElement);
 
@@ -765,7 +770,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                               schemaElement = cloneToSchema(xsdDoc, embeddedSchemaElement);
                               schemaElement.setAttributeNS(XSDConstants.XMLNS_URI_2000, "xmlns", NS_XSD_2001);
                            }
-                           
+
                            // transfer namespace declarations
                            Set nsPrefixes = CollectionUtils.newSet();
                            // collect existing namespaces
@@ -843,7 +848,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                      else if (XPDL_BASIC_TYPE.equals(child.getLocalName()))
                      {
                         String type = ((Element) child).getAttribute(XPDL_TYPE_ATT);
-                        
+
                         xpdlType = new BasicTypeBean(XpdlBasicType.fromId(type));
 
                         // no patching if any other type then schema types are present
@@ -852,7 +857,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                      else if (XPDL_DECLARED_TYPE.equals(child.getLocalName()))
                      {
                         String id = ((Element) child).getAttribute(XPDL_ID_ATT);
-                        
+
                         xpdlType = new DeclaredTypeBean(intern(id));
 
                         // no patching if any other type then schema types are present
@@ -865,15 +870,18 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                      }
                   }
                }
-            }            
+            }
          }
 
          XSDResourceImpl schemaResource = new XSDResourceImpl(URI.createURI(NS_CARNOT_WORKFLOWMODEL_31));
-         schemaResource.eAdapters().add(new SchemaLocatorAdapter(model));
          ResourceSetImpl resourceSet = new ResourceSetImpl();
          resourceSet.getResources().add(schemaResource);
 
-         HashMap schemas2namespace = new HashMap();
+         Map<XSDSchema, String> schemas2namespace = newHashMap();
+
+         // temporarily install schema locator to allow resolution of cross-schema references
+         SchemaLocatorAdapter schemaLocatorAdapter = new SchemaLocatorAdapter(model);
+         schemaResource.eAdapters().add(schemaLocatorAdapter);
 
          // patch namespaces
          ModelElementList declarations = model.getTypeDeclarations();
@@ -904,7 +912,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                }
             }
          }
-         
+
          if (needsPatching)
          {
             // now traverse the structure and resolve types
@@ -929,6 +937,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                }
             }
          }
+
+         // remove adapter after type resolution to avoid a permanent reference to model
+         schemaResource.eAdapters().remove(schemaLocatorAdapter);
 
          NodeList data = node.getOwnerDocument().getElementsByTagName(DATA);
          for (int i = 0, nData = data.getLength(); i < nData; i++)
@@ -1007,9 +1018,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          for (int i = 0, nOrganizations = organizations.getLength(); i < nOrganizations; i++)
          {
             Node organizationNode = organizations.item(i);
-            
+
             elementFactory.attachTeamLead(organizationNode, model);
-            
+
             NodeList organizationChildren = organizationNode.getChildNodes();
 
             for (int j = 0, nOrganizationChildren = organizationChildren.getLength(); j < nOrganizationChildren; j++)
@@ -1152,7 +1163,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             }
          }
       }
-      
+
       return model;
    }
 
@@ -1178,7 +1189,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          }
          for (int j = 0, l2 = externalPackages.getLength(); j < l2; j++)
          {
-            elementFactory.createExternalPackage(externalPackages.item(j), model);
+            IExternalPackage pkg = elementFactory.createExternalPackage(
+                  externalPackages.item(j), model);
+            ((ModelBean) model).addToExternalPackages(pkg);
          }
       }
    }
@@ -1376,7 +1389,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       }
       return null;
    }
-   
+
    private static XSDTypeDefinition findTypeDefinition(XSDSchema schema, String name)
    {
       if (schema != null)
@@ -1510,7 +1523,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       }
    }
 
-   private void fail(IModel model, ErrorCase errorCase, Exception ex)
+   static void fail(ErrorCase errorCase, Exception ex)
    {
       if (ex instanceof ModelParsingException)
       {
@@ -1576,15 +1589,15 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          }
 
          DocumentBuilder domBuilder = XmlUtils.newDomBuilder(true, NS_CARNOT_WORKFLOWMODEL_31);
-         ParseErrorHandler errorHandler = new ParseErrorHandler(); 
+         ParseErrorHandler errorHandler = new ParseErrorHandler();
          domBuilder.setErrorHandler(errorHandler);
-         
+
          RecordingEntityResolver entityResolver = new RecordingEntityResolver(xsdURL,
                dtdURL);
          domBuilder.setEntityResolver(entityResolver);
-         
+
          Document document = domBuilder.parse(inputSource);
-         
+
          Set usedUrls = entityResolver.getUsedUrls();
          if (usedUrls.contains(dtdURL))
          {
@@ -1593,13 +1606,13 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             trace.info("XML source will be re-validated with " + DTD_NAME + ".");
 
             domBuilder = XmlUtils.newDomBuilder(true);
-            
+
             errorHandler = new ParseErrorHandler();
             domBuilder.setErrorHandler(errorHandler);
-            
+
             entityResolver = new RecordingEntityResolver(xsdURL, dtdURL);
             domBuilder.setEntityResolver(entityResolver);
-            
+
             Properties transformProperties = new Properties();
             transformProperties.put(OutputKeys.DOCTYPE_SYSTEM, WORKFLOWMODEL_31_DTD_URL);
 
@@ -1607,18 +1620,18 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             String stringifiedDocument = XmlUtils.toString(document, transformProperties);
             domBuilder.parse(new InputSource(new StringReader(stringifiedDocument)));
          }
-         
+
          if (showModelLoadMessages)
          {
             errorHandler.doTracing();
          }
-         
+
          NodeList elements = document.getElementsByTagName(MODEL);
 
          Element rootNode = (Element) elements.item(0);
          if (null == rootNode)
          {
-            fail(null, BpmRuntimeError.MDL_INVALID_IPP_MODEL_FILE.raise(MODEL), null);
+            fail(BpmRuntimeError.MDL_INVALID_IPP_MODEL_FILE.raise(MODEL), null);
          }
 
          trace.info("Reading model with id '" + rootNode.getAttribute("id") + "'.");
@@ -1628,11 +1641,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       catch (Exception x)
       {
          x.printStackTrace();
-         fail(model, null, x);
+         fail(null, x);
       }
       return null;
    }
-   
+
    private static final class DeclarationAndTypeHolder
    {
       private XSDTypeDefinition type;
@@ -1649,9 +1662,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    private final class ParseErrorHandler implements ErrorHandler
    {
       private static final String WARNING = "Warning";
-      
+
       private List parseMessages = new ArrayList();
-      
+
       public void warning(SAXParseException exception) throws SAXException
       {
          parseMessages.add(formatParseException(WARNING, exception));
@@ -1666,13 +1679,13 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       {
          parseMessages.add(formatParseException("Fatal Error", exception));
       }
-      
+
       public void doTracing()
       {
          for (Iterator i = parseMessages.iterator(); i.hasNext();)
          {
             String parseMessage = (String) i.next();
-            
+
             if (parseMessage.startsWith(WARNING))
             {
                trace.warn(parseMessage);
@@ -1697,19 +1710,19 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          return buffer.toString();
       }
    }
-   
+
    private static final class RecordingEntityResolver implements EntityResolver
    {
       private URL xsdUrl;
       private URL dtdUrl;
       private Set usedUrls = new HashSet();
-      
+
       public RecordingEntityResolver(URL xsdUrl, URL dtdUrl)
       {
          this.xsdUrl = xsdUrl;
          this.dtdUrl = dtdUrl;
       }
-      
+
       public InputSource resolveEntity(String publicId, String systemId)
             throws SAXException, IOException
       {
@@ -1747,6 +1760,13 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                         .endsWith(XpdlUtils.XPDL_XSD))
             {
                URL xpdlUrl = XpdlUtils.getXpdlSchema();
+               usedUrls.add(xpdlUrl);
+               return new InputSource(xpdlUrl.openStream());
+            }
+            else if (XpdlUtils.XPDL_EXTENSIONS_XSD.equals(systemId) || systemId
+                  .endsWith(XpdlUtils.XPDL_EXTENSIONS_XSD))
+            {
+               URL xpdlUrl = XpdlUtils.getXpdlExtensionsSchema();
                usedUrls.add(xpdlUrl);
                return new InputSource(xpdlUrl.openStream());
             }
@@ -1792,11 +1812,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
 
                      String name = reader.getAttribute(NAME_ATT);
                      String classname = reader.getRawAttribute(CLASS_ATT);
-                     
+
                      if (PredefinedConstants.XPDL_EXTENDED_ATTRIBUTES.equals(name))
                      {
                         DocumentFragment extFragment = child.getOwnerDocument().createDocumentFragment();
-                        
+
                         NodeList extElements = child.getChildNodes();
                         for (int i = 0, nExtElements = extElements.getLength(); i < nExtElements; ++i)
                         {
@@ -1861,7 +1881,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          return result;
       }
    }
-   
+
    private static class SchemaLocatorAdapter implements Adapter, XSDSchemaLocator
    {
       private Notifier target;

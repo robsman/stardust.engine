@@ -277,7 +277,7 @@ public class GlobalParameters
                final String key = entry.getKey();
                final Object value = entry.getValue();
 
-               if ( !key.equals("AuditTrail.Password"))
+               if ( !key.equals("AuditTrail.Password") && !key.equals("Security.Principal.Secret"))
                {
                   final Object oldValue = this.localProperties.get(key);
 

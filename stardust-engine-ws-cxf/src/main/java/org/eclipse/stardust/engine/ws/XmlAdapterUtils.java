@@ -78,6 +78,7 @@ import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
 import org.eclipse.stardust.engine.api.dto.ModelReconfigurationInfoDetails;
 import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
 import org.eclipse.stardust.engine.api.dto.PasswordRulesDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
@@ -97,6 +98,7 @@ import org.eclipse.stardust.engine.api.model.DynamicParticipantInfo;
 import org.eclipse.stardust.engine.api.model.EventAction;
 import org.eclipse.stardust.engine.api.model.EventHandler;
 import org.eclipse.stardust.engine.api.model.ExternalReference;
+import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelElement;
@@ -109,6 +111,7 @@ import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ProcessInterface;
 import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.model.RoleInfo;
 import org.eclipse.stardust.engine.api.model.SchemaType;
@@ -825,6 +828,7 @@ public class XmlAdapterUtils
       ProcessDefinitionXto res = toWs(pd, new ProcessDefinitionXto());
 
       res.setRtOid(pd.getRuntimeElementOID());
+      res.setDetailsLevel(marshalProcessDefinitionDetailsLevel(pd.getDetailsLevel()));
 
       res.setTriggers(marshalTriggers(pd.getAllTriggers()));
 
@@ -847,7 +851,83 @@ public class XmlAdapterUtils
       }
       res.setEventHandlers(toWs(pd.getAllEventHandlers(),
             new EventHandlerDefinitionsXto()));
+
+      res.setDeclaredProcessInterface(marshallProcessInterface(pd.getDeclaredProcessInterface()));
+      res.setImplementedProcessInterface(marshallProcessInterface(pd.getImplementedProcessInterface()));
+
       return res;
+   }
+
+   private static ProcessInterfaceXto marshallProcessInterface(
+         ProcessInterface processInterface)
+   {
+      ProcessInterfaceXto ret = null;
+
+      if (processInterface != null)
+      {
+         ret = new ProcessInterfaceXto();
+         ret.setDeclaringProcessDefintionId(processInterface.getDeclaringProcessDefinitionId());
+
+         if (processInterface.getFormalParameters() != null)
+         {
+
+            ret.setFormalParameters(marshalFormalParamaeters(processInterface.getFormalParameters()));
+         }
+      }
+
+      return ret;
+   }
+
+   private static FormalParametersXto marshalFormalParamaeters(
+         List<FormalParameter> parameters)
+   {
+      FormalParametersXto parametersXto = null;
+      if (parameters != null)
+      {
+         parametersXto = new FormalParametersXto();
+         for (FormalParameter parameter : parameters)
+         {
+            FormalParameterXto parameterXto = marshallFormalParameter(parameter);
+            parametersXto.getFormalParameter().add(parameterXto);
+         }
+      }
+      return parametersXto;
+   }
+
+   private static FormalParameterXto marshallFormalParameter(FormalParameter parameter)
+   {
+      FormalParameterXto ret = null;
+      if (parameter != null)
+      {
+         ret = new FormalParameterXto();
+         ret.setAttributes(marshalAttributes(parameter.getAllAttributes()));
+         ret.setDataId(parameter.getDataId());
+         ret.setDirection(parameter.getDirection());
+         ret.setId(parameter.getId());
+         ret.setName(parameter.getName());
+         ret.setTypeId(parameter.getTypeId());
+      }
+      return ret;
+   }
+
+   private static ProcessDefinitionDetailsLevelXto marshalProcessDefinitionDetailsLevel(
+         ProcessDefinitionDetailsLevel detailsLevel)
+   {
+      if (ProcessDefinitionDetailsLevel.FULL.equals(detailsLevel))
+      {
+         return ProcessDefinitionDetailsLevelXto.FULL;
+      }
+      else if (ProcessDefinitionDetailsLevel.CORE.equals(detailsLevel))
+      {
+         return ProcessDefinitionDetailsLevelXto.CORE;
+      }
+      else if (ProcessDefinitionDetailsLevel.WITHOUT_ACTIVITIES.equals(detailsLevel))
+      {
+         return ProcessDefinitionDetailsLevelXto.WITHOUT_ACTIVITIES;
+      }
+      throw new UnsupportedOperationException(
+            "Marshaling unsupported for ProcessDefinitionDetailsLevel: "
+                  + detailsLevel);
    }
 
    private static DataPathsXto marshalDataPathList(List<DataPath> dataPathList,

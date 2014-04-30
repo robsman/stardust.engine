@@ -18,7 +18,7 @@ import org.eclipse.stardust.common.log.Logger;
 public class SqlPrepareStatementStrategy extends DefaultSqlPrepareStatementStrategy
 {
    private final char separator;
-   public static final Logger LOG = LogManager.getLogger(SqlPrepareStatementStrategy.class.getCanonicalName());
+   private static final Logger LOG = LogManager.getLogger(SqlPrepareStatementStrategy.class.getCanonicalName());
 
    public SqlPrepareStatementStrategy(char separator)
    {
@@ -40,7 +40,8 @@ public class SqlPrepareStatementStrategy extends DefaultSqlPrepareStatementStrat
    {
       String answer = super.prepareQuery(query, allowNamedParameters);
       answer = replaceHtmlCodeByCharacter(answer);
-      LOG.debug("Prepared query: " + answer);
+      if (LOG.isDebugEnabled())
+         LOG.debug("Prepared query: " + answer);
       return answer;
    }
 

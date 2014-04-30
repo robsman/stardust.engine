@@ -18,89 +18,98 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class CamelTriggerLoader implements ApplicationContextAware {
+public class CamelTriggerLoader implements ApplicationContextAware
+{
 
-	private ForkingService forkingService;
-	private List<CamelContext> camelContexts;
-	private List<DataConverter> dataConverters;
-	private ApplicationContext springContext;
-	private String partitionId;
+   private ForkingService forkingService;
+   private List<CamelContext> camelContexts;
+   private List<DataConverter> dataConverters;
+   private ApplicationContext springContext;
+   private String partitionId;
 
-	public ForkingService getForkingService() {
-		return forkingService;
-	}
+   public ForkingService getForkingService()
+   {
+      return forkingService;
+   }
 
-	public void setForkingService(ForkingService forkingService) {
-		this.forkingService = forkingService;
-	}
+   public void setForkingService(ForkingService forkingService)
+   {
+      this.forkingService = forkingService;
+   }
 
-	public List<CamelContext> getCamelContexts() {
-		return camelContexts;
-	}
+   public List<CamelContext> getCamelContexts()
+   {
+      return camelContexts;
+   }
 
-	public void setCamelContexts(List<CamelContext> camelContexts) {
-		this.camelContexts = camelContexts;
-	}
+   public void setCamelContexts(List<CamelContext> camelContexts)
+   {
+      this.camelContexts = camelContexts;
+   }
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+   {
 
-		this.springContext = applicationContext;
+      this.springContext = applicationContext;
 
-		SpringUtils
-				.setApplicationContext((ConfigurableApplicationContext) applicationContext);
+      SpringUtils.setApplicationContext((ConfigurableApplicationContext) applicationContext);
 
-		this.bootstrap();
+      this.bootstrap();
 
-	}
+   }
 
-	public List<DataConverter> getDataConverters() {
-		return dataConverters;
-	}
+   public List<DataConverter> getDataConverters()
+   {
+      return dataConverters;
+   }
 
-	public void setDataConverters(List<DataConverter> dataConverters) {
-		this.dataConverters = dataConverters;
-	}
+   public void setDataConverters(List<DataConverter> dataConverters)
+   {
+      this.dataConverters = dataConverters;
+   }
 
-	public void setPartitionId(String partitionId) {
-		this.partitionId = partitionId;
-	}
+   public void setPartitionId(String partitionId)
+   {
+      this.partitionId = partitionId;
+   }
 
-	/**
-	 * used to generate Camel routes from the audit trial at startup
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void bootstrap() {
+   /**
+    * used to generate Camel routes from the audit trial at startup
+    */
+   @SuppressWarnings({"unchecked", "rawtypes"})
+   private void bootstrap()
+   {
 
-		final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
-				.getCurrent();
+      final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
 
-		if (bpmRt != null && this.partitionId != null) {
+      if (bpmRt != null && this.partitionId != null)
+      {
 
-			Action action = new CreateTriggerRouteAction(bpmRt,
-					this.partitionId, this.springContext, this.dataConverters);
+         Action action = new CreateTriggerRouteAction(bpmRt, this.partitionId, this.springContext, this.dataConverters);
 
-			action.execute();
+         action.execute();
 
-		} else {
+      }
+      else
+      {
+         List<String> partitions = null;
 
-			List<String> partitions = null;
+         if (this.partitionId == null)
+         {
+            partitions = (List<String>) this.forkingService.isolate(new LoadPartitionsAction());
+         }
+         else
+         {
+            partitions = CollectionUtils.newList();
+            partitions.add(this.partitionId);
+         }
 
-			if (this.partitionId == null) {
-				partitions = (List<String>) this.forkingService
-						.isolate(new LoadPartitionsAction());
-			} else {
-				partitions = CollectionUtils.newList();
-				partitions.add(this.partitionId);
-			}
-
-			for (Iterator<String> i = partitions.iterator(); i.hasNext();) {
-
-				String partition = i.next();
-
-				this.forkingService.isolate(new CreateTriggerRouteAction(
-						partition, this.springContext, this.dataConverters));
-			}
-		}
-	}
+         for (Iterator<String> i = partitions.iterator(); i.hasNext();)
+         {
+            String partition = i.next();
+            this.forkingService
+                  .isolate(new CreateTriggerRouteAction(partition, this.springContext, this.dataConverters));
+         }
+      }
+   }
 }

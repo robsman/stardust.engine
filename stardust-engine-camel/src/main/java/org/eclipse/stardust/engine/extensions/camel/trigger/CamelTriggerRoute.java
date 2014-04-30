@@ -1,24 +1,22 @@
 package org.eclipse.stardust.engine.extensions.camel.trigger;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
-
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createRouteDefintion;
+import static org.eclipse.stardust.engine.extensions.camel.RouteDefinitionBuilder.createRouteDefintionForCamelTrigger;
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.camel.CamelContext;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IAccessPoint;
 import org.eclipse.stardust.engine.api.model.IParameterMapping;
+import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.core.model.beans.ExternalReferenceBean;
@@ -31,7 +29,6 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.extensions.camel.MappingExpression;
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
-
 import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.UndefinedEndpointException;
 
 public class CamelTriggerRoute
@@ -69,8 +66,9 @@ public class CamelTriggerRoute
 
    }
 
-   public CamelTriggerRoute(CamelContext camelContext, ITrigger trigger, List<DataConverter> converters,
-         String partition) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+   public CamelTriggerRoute(CamelContext camelContext, ITrigger trigger,
+         List<DataConverter> converters, String partition) throws IOException,
+         ClassNotFoundException, InstantiationException, IllegalAccessException,
          UndefinedEndpointException
    {
       this.trigger = trigger;
@@ -85,9 +83,10 @@ public class CamelTriggerRoute
          {
             List<AccessPointProperties> accessPointList = performParameterMapping();
             buildMappingExpression(accessPointList, mappingExpression);
-            StringBuilder route = createRouteDefintion(providedRouteDefinition, getCurrentPartition(partition),
-                  modelId, processId, trigger.getId(), getUserName(this.trigger), getPassword(this.trigger),
-                  mappingExpression);
+            StringBuilder route = createRouteDefintionForCamelTrigger(
+                  providedRouteDefinition, getCurrentPartition(partition), modelId,
+                  processId, trigger.getId(), getUserName(this.trigger),
+                  getPassword(this.trigger), mappingExpression);
             routeDefinition = route;
          }
       }
@@ -132,9 +131,21 @@ public class CamelTriggerRoute
          while (iter.hasNext())
          {
             TypeDeclarationBean extType = (TypeDeclarationBean) iter.next();
-            schemaRefs.put(extType.getId(), extType.getXpdlType() instanceof ExternalReferenceBean
-                  ? ((ExternalReferenceBean) extType.getXpdlType()).getLocation().split("/")[1].replace('.', '*')
-                  : "internal:" + ((ModelBean) this.trigger.getModel()).getId() + "::" + extType.getId());
+
+            if (extType.getXpdlType() instanceof ExternalReferenceBean)
+            {
+               ExternalReferenceBean xpdlType = ((ExternalReferenceBean) extType
+                     .getXpdlType());
+               schemaRefs.put(extType.getId(), xpdlType.getLocation().replace('.', '*'));
+
+            }
+            else
+            {
+               schemaRefs.put(extType.getId(),
+                     "internal:" + ((ModelBean) this.trigger.getModel()).getId() + "::"
+                           + extType.getId());
+            }
+
             // the last replace is to overcome a camel bug in parsing of bean
             // name when the
             // method/param
@@ -147,9 +158,33 @@ public class CamelTriggerRoute
          for (Object parameter : parameterMappings)
          {
             ParameterMappingBean parameterMapping = (ParameterMappingBean) parameter;
-            schemaRefs.put(parameterMapping.getData().getStringAttribute("carnot:engine:dataType"), "reference:"
-                  + ((ModelBean) parameterMapping.getData().getParent()).getId() + "::"
-                  + parameterMapping.getData().getStringAttribute("carnot:engine:dataType"));
+            if (parameterMapping != null && parameterMapping.getData() != null)
+            {
+               if (parameterMapping.getData().getExternalReference() != null)
+               {
+                  IReference ref = parameterMapping.getData().getExternalReference();
+
+                  schemaRefs.put(ref.getId(),
+                        "reference:" + ref.getExternalPackage().getReferencedModel().getId() + "::"
+                              + ref.getId());
+               }
+               else if ((parameterMapping.getData().getStringAttribute(
+                     "carnot:engine:dataType") != null)
+                     && (((ModelBean) parameterMapping.getData().getParent()).getId() != null))
+               {
+
+                  schemaRefs.put(
+                        parameterMapping.getData().getStringAttribute(
+                              "carnot:engine:dataType"),
+                        "reference:"
+                              + ((ModelBean) parameterMapping.getData().getParent())
+                                    .getId()
+                              + "::"
+                              + parameterMapping.getData().getStringAttribute(
+                                    "carnot:engine:dataType"));
+               }
+
+            }
          }
 
       }
@@ -162,9 +197,10 @@ public class CamelTriggerRoute
 
          String outBodyAccesPoint = (String) this.trigger.getAllAttributes().get(
                "carnot:engine:camel::outBodyAccessPoint");
-         if ((outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping.getParameterId()))
-               || (mapping != null && mapping.getParameterId() != null && mapping.getParameterId().equalsIgnoreCase(
-                     ACCESS_POINT_MESSAGE)))
+         if ((outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping
+               .getParameterId()))
+               || (mapping != null && mapping.getParameterId() != null && mapping
+                     .getParameterId().equalsIgnoreCase(ACCESS_POINT_MESSAGE)))
          {
             accessPtProps.setAccessPointLocation(ACCESS_POINT_MESSAGE);
             accessPtProps.setAccessPointPath(mapping.getParameterPath());
@@ -172,14 +208,25 @@ public class CamelTriggerRoute
          else
          {
             accessPtProps.setAccessPointLocation(ACCESS_POINT_HEADERS);
-            accessPtProps.setAccessPointPath("get"
-                  + getOutAccessPointNameUsingDataMappingName((ParameterMappingBean) mapping) + "()");
+            accessPtProps
+                  .setAccessPointPath("get"
+                        + getOutAccessPointNameUsingDataMappingName((ParameterMappingBean) mapping)
+                        + "()");
          }
          // accessPtProps.setAccessPointLocation(mapping.getParameterId());
 
          accessPtProps.setData(mapping.getData());
          accessPtProps.setDataPath(mapping.getDataPath());
-         accessPtProps.setXsdName(schemaRefs.get(mapping.getData().getStringAttribute("carnot:engine:dataType")));
+         if (mapping.getData() != null
+               && mapping.getData().getExternalReference() != null)
+            accessPtProps.setXsdName(schemaRefs.get(mapping.getData()
+                  .getExternalReference().getId()));
+         else
+         {
+
+            accessPtProps.setXsdName(schemaRefs.get(mapping.getData().getStringAttribute(
+                  "carnot:engine:dataType")));
+         }
          /*
           * if(mapping.getData().getAllAttributes().containsKey(
           * "carnot:engine:dms:resourceMetadataSchema")) { if(! accessPtProps.
@@ -193,9 +240,11 @@ public class CamelTriggerRoute
       return accessPointList;
    }
 
+   @SuppressWarnings("rawtypes")
    private String getOutAccessPointNameUsingDataMappingName(ParameterMappingBean mapping)
    {
-      if (mapping != null && ((TriggerBean) mapping.getParent()).getAllOutAccessPoints() != null)
+      if (mapping != null
+            && ((TriggerBean) mapping.getParent()).getAllOutAccessPoints() != null)
       {
          Iterator itr = ((TriggerBean) mapping.getParent()).getAllOutAccessPoints();
          while (itr.hasNext())
@@ -211,7 +260,8 @@ public class CamelTriggerRoute
       return null;
    }
 
-   private void buildMappingExpression(List<AccessPointProperties> accessList, MappingExpression mappingExpression)
+   private void buildMappingExpression(List<AccessPointProperties> accessList,
+         MappingExpression mappingExpression)
    {
       if (accessList == null || accessList.isEmpty())
          return;
@@ -227,9 +277,10 @@ public class CamelTriggerRoute
          mappingExpression.getBodyExpression().append(accessPtProps.getData().getId());
 
          if (!StringUtils.isEmpty(accessPtProps.getDataPath()))
-            mappingExpression.getBodyExpression().append("." + accessPtProps.getDataPath());
+            mappingExpression.getBodyExpression().append(
+                  "." + accessPtProps.getDataPath());
 
-         String bodyPathType = extractBodyPathType(accessPtProps.getDataPath());
+         // String bodyPathType = extractBodyPathType(accessPtProps.getDataPath());
          String bodyMainType = extractBodyMainType(accessPtProps.getData());
          mappingExpression.getBodyExpression().append("::$simple{");
 
@@ -240,7 +291,8 @@ public class CamelTriggerRoute
             {
                int startIndex = accessPtProps.getAccessPointPath().indexOf("get");
                int endIndex = accessPtProps.getAccessPointPath().lastIndexOf("()");
-               headerName = accessPtProps.getAccessPointPath().substring(startIndex + 3, endIndex);
+               headerName = accessPtProps.getAccessPointPath().substring(startIndex + 3,
+                     endIndex);
             }
 
             if (accessPtProps.getAccessPointType().equals(DOCUMENT_LIST))
@@ -254,7 +306,8 @@ public class CamelTriggerRoute
                mappingExpression.getBodyExpression().append("\\," + bodyMainType + ")}");
 
                mappingExpression.getPostHeadersExpression().add(
-                     "<setHeader headerName=\"" + headerName + "\"><simple>$simple{body}</simple></setHeader>");// As(org.eclipse.stardust.engine.api.runtime.Document)
+                     "<setHeader headerName=\"" + headerName
+                           + "\"><simple>$simple{body}</simple></setHeader>");// As(org.eclipse.stardust.engine.api.runtime.Document)
                mappingExpression.setIncludeMoveEndpoint(true);
             }
             else if (accessPtProps.getData().getType().getId().equals("struct"))
@@ -285,14 +338,16 @@ public class CamelTriggerRoute
                      "headerAs("
                            + headerName
                            + "\\,"
-                           + getNonPrimitiveType(((Type) accessPtProps.getData().getAttribute("carnot:engine:type"))
-                                 .getName()) + ")}");
-            else if (accessPtProps.getData().getType().getId().equals("serializable") && bodyMainType != null)
+                           + getNonPrimitiveType(((Type) accessPtProps.getData()
+                                 .getAttribute("carnot:engine:type")).getName()) + ")}");
+            else if (accessPtProps.getData().getType().getId().equals("serializable")
+                  && bodyMainType != null)
             {
                // mappingExpression.getBodyExpression().append("bodyAs(");
                // mappingExpression.getBodyExpression().append(bodyMainType + ")");
                mappingExpression.getBodyExpression().append(
-                     "headerAs(" + headerName + "\\," + bodyMainType.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+                     "headerAs(" + headerName + "\\,"
+                           + bodyMainType.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
                            + ")}");
             }
 
@@ -327,12 +382,16 @@ public class CamelTriggerRoute
             if (accessPtProps.getAccessPointType().equals(DOCUMENT_LIST))
             { // Document
               // Lists
-               List<DataConverter> availableConvertersForDocumentType = getConverterForType(DOCUMENT_LIST,
-                     dataConverters);
-               if (availableConvertersForDocumentType == null || availableConvertersForDocumentType.isEmpty())
-                  logger.warn("No Converters found for Access point of type " + DOCUMENT_LIST);
-               else if (availableConvertersForDocumentType != null && availableConvertersForDocumentType.size() > 1)
-                  logger.warn("Multiple Converters found for Access point of type " + DOCUMENT_LIST);
+               List<DataConverter> availableConvertersForDocumentType = getConverterForType(
+                     DOCUMENT_LIST, dataConverters);
+               if (availableConvertersForDocumentType == null
+                     || availableConvertersForDocumentType.isEmpty())
+                  logger.warn("No Converters found for Access point of type "
+                        + DOCUMENT_LIST);
+               else if (availableConvertersForDocumentType != null
+                     && availableConvertersForDocumentType.size() > 1)
+                  logger.warn("Multiple Converters found for Access point of type "
+                        + DOCUMENT_LIST);
                else
                {
                   for (DataConverter converter : dataConverters)
@@ -342,7 +401,8 @@ public class CamelTriggerRoute
                      // //&&
                      // converter.getTargetType().equals(DOCUMENT_LIST))
                      // {
-                     mappingExpression.getBeanExpression().add("bean:" + converter.getClass().getCanonicalName());
+                     mappingExpression.getBeanExpression().add(
+                           "bean:" + converter.getClass().getCanonicalName());
                      // break;
                      // }
                   }
@@ -353,11 +413,15 @@ public class CamelTriggerRoute
             }
             else if (accessPtProps.getAccessPointType().equals(DOCUMENT))
             { // Document
-               List<DataConverter> availableConvertersForDocumentType = getConverterForType(DOCUMENT, dataConverters);
-               if (availableConvertersForDocumentType == null || availableConvertersForDocumentType.isEmpty())
+               List<DataConverter> availableConvertersForDocumentType = getConverterForType(
+                     DOCUMENT, dataConverters);
+               if (availableConvertersForDocumentType == null
+                     || availableConvertersForDocumentType.isEmpty())
                   logger.warn("No Converters found for Access point of type " + DOCUMENT);
-               else if (availableConvertersForDocumentType != null && availableConvertersForDocumentType.size() > 1)
-                  logger.warn("Multiple Converters found for Access point of type " + DOCUMENT);
+               else if (availableConvertersForDocumentType != null
+                     && availableConvertersForDocumentType.size() > 1)
+                  logger.warn("Multiple Converters found for Access point of type "
+                        + DOCUMENT);
                else
                {
                   for (DataConverter converter : availableConvertersForDocumentType)
@@ -367,7 +431,8 @@ public class CamelTriggerRoute
                      // //&&
                      // //converter.getTargetType().equals(DOCUMENT))
                      // {
-                     mappingExpression.getBeanExpression().add("bean:" + converter.getClass().getCanonicalName());
+                     mappingExpression.getBeanExpression().add(
+                           "bean:" + converter.getClass().getCanonicalName());
                      // break;
                      // }
                   }
@@ -378,42 +443,59 @@ public class CamelTriggerRoute
                   // return;
                }
             }
-//            if (bodyPathType == null)
-//            {
-               if (accessPtProps.getData().getType().getId().equals("struct"))
-               {
+            // if (bodyPathType == null)
+            // {
+            if (accessPtProps.getData().getType().getId().equals("struct"))
+            {
+               if(accessPtProps.getData().getExternalReference()!=null){
                   mappingExpression.getBeanExpression().add(
-                        "bean:sdtFileConverter?method=genericXSDToSDT(&quot;" + accessPtProps.getXsdName()
+                        "bean:sdtFileConverter?method=genericXSDToSDT(&quot;"
+                              + accessPtProps.getXsdName()
                               + "&quot; , &quot;"
-                              + accessPtProps.getData().getStringAttribute("carnot:engine:dataType") + "&quot;)");
-                  // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
-                  // +
-                  // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-                  // + "\" , \"$simple{body}\")");
-                  mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
+                              + accessPtProps.getData().getExternalReference().getId() + "&quot;)");
+
+               }else{
+
+
+               mappingExpression.getBeanExpression().add(
+                     "bean:sdtFileConverter?method=genericXSDToSDT(&quot;"
+                           + accessPtProps.getXsdName()
+                           + "&quot; , &quot;"
+                           + accessPtProps.getData().getStringAttribute(
+                                 "carnot:engine:dataType") + "&quot;)");
                }
-               else if (accessPtProps.getData().getType().getId().equals("primitive"))
-                  mappingExpression.getBodyExpression().append("bodyAs("+getNonPrimitiveType(((Type) accessPtProps.getData().getAttribute("carnot:engine:type")).getName())+")");
-               else if (accessPtProps.getData().getType().getId().equals("serializable"))
-               {
-                  mappingExpression.getBodyExpression().append("bodyAs(");
-                  mappingExpression.getBodyExpression().append(bodyMainType + ")");
-               }
-//            }
-//            else
-//            {
-//               if (bodyMainType != null)
-//                  mappingExpression.getHeaderExpression().put("IsSerializable", "true");
-//               mappingExpression.getBodyExpression().append("bodyAs(");
-//               mappingExpression.getBodyExpression().append(bodyPathType + ")");
-//            }
+               // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
+               // +
+               // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
+               // + "\" , \"$simple{body}\")");
+               mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
+            }
+            else if (accessPtProps.getData().getType().getId().equals("primitive"))
+               mappingExpression.getBodyExpression().append(
+                     "bodyAs("
+                           + getNonPrimitiveType(((Type) accessPtProps.getData()
+                                 .getAttribute("carnot:engine:type")).getName()) + ")");
+            else if (accessPtProps.getData().getType().getId().equals("serializable"))
+            {
+               mappingExpression.getBodyExpression().append("bodyAs(");
+               mappingExpression.getBodyExpression().append(bodyMainType + ")");
+            }
+            // }
+            // else
+            // {
+            // if (bodyMainType != null)
+            // mappingExpression.getHeaderExpression().put("IsSerializable", "true");
+            // mappingExpression.getBodyExpression().append("bodyAs(");
+            // mappingExpression.getBodyExpression().append(bodyPathType + ")");
+            // }
             mappingExpression.getBodyExpression().append("}");
          }
       }
       // }
    }
 
-   private List<DataConverter> getConverterForType(String type, List<DataConverter> converters)
+   private List<DataConverter> getConverterForType(String type,
+         List<DataConverter> converters)
    {
       List<DataConverter> selectedConverters = new ArrayList<DataConverter>();
       for (DataConverter converter : converters)
@@ -424,19 +506,19 @@ public class CamelTriggerRoute
       return selectedConverters;
    }
 
-   private String extractBodyPathType(String bodyExpression)
-   {
-      String bodyType = null;
-      if (bodyExpression == null)
-         return bodyType;
-      Pattern bodyPattern = Pattern.compile("\\(.+?\\)");
-      Matcher bodyMatcher = bodyPattern.matcher(bodyExpression);
-      if (bodyMatcher.find())
-      {
-         bodyType = bodyMatcher.group().split("\\s+")[0];
-         bodyType = bodyType.substring(1, bodyType.length() - 1);
-      }
-      return bodyType;
-   }
+   // private String extractBodyPathType(String bodyExpression)
+   // {
+   // String bodyType = null;
+   // if (bodyExpression == null)
+   // return bodyType;
+   // Pattern bodyPattern = Pattern.compile("\\(.+?\\)");
+   // Matcher bodyMatcher = bodyPattern.matcher(bodyExpression);
+   // if (bodyMatcher.find())
+   // {
+   // bodyType = bodyMatcher.group().split("\\s+")[0];
+   // bodyType = bodyType.substring(1, bodyType.length() - 1);
+   // }
+   // return bodyType;
+   // }
 
 }

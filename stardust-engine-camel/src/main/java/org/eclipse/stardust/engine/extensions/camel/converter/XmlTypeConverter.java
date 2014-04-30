@@ -69,7 +69,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
 
       if (xml != null)
       {
-         String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
+         //String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
 
          long modelOid = new Long(dataMapping.getModelOID());
          SDTConverter converter = new SDTConverter(dataMapping, modelOid);

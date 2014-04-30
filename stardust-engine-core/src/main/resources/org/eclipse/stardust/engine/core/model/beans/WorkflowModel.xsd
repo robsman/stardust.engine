@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns="http://www.carnot.ag/workflowmodel/3.1"
-   xmlns:xs="http://www.w3.org/2001/XMLSchema"
    targetNamespace="http://www.carnot.ag/workflowmodel/3.1"
-   elementFormDefault="qualified"
-   xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0">
-   <xs:import namespace="http://www.wfmc.org/2002/XPDL1.0" schemaLocation="../xpdl/xpdl.xsd" />
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1"
+   elementFormDefault="qualified">
+
+   <xs:import namespace="http://www.wfmc.org/2008/XPDL2.1" schemaLocation="../xpdl/xpdl.xsd" />
+
    <xs:group name="grDescrAttr">
       <xs:sequence>
          <xs:element ref="description" minOccurs="1" maxOccurs="1">
@@ -140,6 +142,13 @@
                <xs:annotation>
                   <xs:documentation>
                      The list of event handlers of the activity definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="xpdl:Loop" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>
+                     The loop characteristics of the activity.
                   </xs:documentation>
                </xs:annotation>
             </xs:element>
@@ -1301,6 +1310,14 @@
                <xs:group ref="grDescrAttr" />
                <xs:group ref="grAttrDescr" />
             </xs:choice>
+            <!--
+            <xs:element ref="carnot:qualityControl" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+             -->
             <xs:element ref="dataType" minOccurs="0" maxOccurs="unbounded">
                <xs:annotation>
                   <xs:documentation>
@@ -1654,92 +1671,92 @@
          </xs:documentation>
       </xs:annotation>
       <xs:complexType>
-      	<xs:sequence>
-      		<xs:choice minOccurs="0" maxOccurs="1">
-      			<xs:group ref="grDescrAttr" />
-      			<xs:group ref="grAttrDescr" />
-      		</xs:choice>
-      		<xs:element ref="activity" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of activity definitions of the
-      					workflow process definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      		<xs:element ref="transition" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of transitions between the activity
-      					definitions of the workflow process
-      					definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      		<xs:element ref="trigger" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of triggers of the workflow process
-      					definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      		<xs:element ref="dataPath" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of data paths of the workflow process
-      					definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      		<xs:element ref="eventHandler" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of event handlers of the workflow
-      					process definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      		<xs:element ref="diagram" minOccurs="0"
-      			maxOccurs="unbounded">
-      			<xs:annotation>
-      				<xs:documentation>
-      					The list of diagrams of the workflow process
-      					definition.
-      				</xs:documentation>
-      			</xs:annotation>
-      		</xs:element>
-      	</xs:sequence>
-      	<xs:attribute name="oid" type="xs:long" use="required">
-      		<xs:annotation>
-      			<xs:documentation>
-      				A 32-bit number assigned to the workflow process
-      				definition.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="id" type="xs:string" use="required">
-      		<xs:annotation>
-      			<xs:documentation>
-      				The human usable identifier of the workflow
-      				process definition.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="name" type="xs:string" use="required">
-      		<xs:annotation>
-      			<xs:documentation>
-      				The human friendly name of the workflow process
-      				definition.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="defaultPriority" type="xs:int"></xs:attribute>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="activity" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of activity definitions of the
+                     workflow process definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="transition" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of transitions between the activity
+                     definitions of the workflow process
+                     definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="trigger" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of triggers of the workflow process
+                     definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dataPath" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of data paths of the workflow process
+                     definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="eventHandler" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of event handlers of the workflow
+                     process definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="diagram" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of diagrams of the workflow process
+                     definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the workflow process
+                  definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the workflow
+                  process definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the workflow process
+                  definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="defaultPriority" type="xs:int"></xs:attribute>
       </xs:complexType>
    </xs:element>
    <xs:element name="role">
@@ -2089,183 +2106,183 @@
          </xs:documentation>
       </xs:annotation>
       <xs:complexType>
-      	<xs:sequence>
-      		<xs:choice minOccurs="0" maxOccurs="unbounded">
-      			<xs:element ref="activitySymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of activity symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="annotationSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of annotation symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="applicationSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of application symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="conditionalPerformerSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of conditional performer symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="dataSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of data symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="endEventSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of end event symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="gatewaySymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of gateway symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="groupSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of group symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="intermediateEventSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of intermediate event symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="modelerSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of modeler symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="organizationSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of organization symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="processSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of workflow process symbols. Only
-      						possible for diagrams in workflow model
-      						scope.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="roleSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of role symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="startEventSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of start event symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="textSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of text symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="dataMappingConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of data mapping connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="executedByConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of &quot;executed
-      						by&quot;-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="genericLinkConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of generic link connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="partOfConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of &quot;part
-      						of&quot;-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="performsConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of performs-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="refersToConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of &quot;refers
-      						to&quot;-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="subProcessOfConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of &quot;subprocess
-      						of&quot;-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="transitionConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of transition connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      			<xs:element ref="worksForConnection">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of &quot;works
-      						for&quot;-connections.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+               <xs:element ref="activitySymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of activity symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="annotationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of annotation symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="applicationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of application symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="conditionalPerformerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of conditional performer symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of data symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="endEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of end event symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="gatewaySymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of gateway symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="groupSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of group symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="intermediateEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of intermediate event symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="modelerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of modeler symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="organizationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of organization symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="processSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of workflow process symbols. Only
+                        possible for diagrams in workflow model
+                        scope.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="roleSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of role symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="startEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of start event symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="textSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of text symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataMappingConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of data mapping connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="executedByConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;executed
+                        by&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="genericLinkConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of generic link connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="partOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;part
+                        of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="performsConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of performs-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="refersToConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;refers
+                        to&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="subProcessOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;subprocess
+                        of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="transitionConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of transition connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="worksForConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;works
+                        for&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
                <xs:element ref="teamLeadConnection">
                   <xs:annotation>
                      <xs:documentation>
@@ -2279,40 +2296,40 @@
                         The list of &quot;triggers&quot;-connections.
                      </xs:documentation>
                   </xs:annotation>
-               </xs:element>      			
-      			<xs:element ref="poolSymbol">
-      				<xs:annotation>
-      					<xs:documentation>
-      						The list of contained pool symbols.
-      					</xs:documentation>
-      				</xs:annotation>
-      			</xs:element>
-      		</xs:choice>
-      	</xs:sequence>
-      	<xs:attribute name="oid" type="xs:long" use="required">
-      		<xs:annotation>
-      			<xs:documentation>
-      				A 32-bit number assigned to the diagram.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="name" type="xs:string" use="required">
-      		<xs:annotation>
-      			<xs:documentation>
-      				The human friendly name of the diagram.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="orientation"
-      		type="swimlaneOrientationType" use="optional">
-      		<xs:annotation>
-      			<xs:documentation>
-      				The default orientation of the diagram.
-      			</xs:documentation>
-      		</xs:annotation>
-      	</xs:attribute>
-      	<xs:attribute name="mode" type="modeType">
-      	</xs:attribute>
+               </xs:element>
+               <xs:element ref="poolSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of contained pool symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="orientation"
+            type="swimlaneOrientationType" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The default orientation of the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="mode" type="modeType">
+         </xs:attribute>
       </xs:complexType>
    </xs:element>
    <xs:element name="poolSymbol">
@@ -2477,7 +2494,7 @@
                         The list of &quot;triggers&quot;-connections.
                      </xs:documentation>
                   </xs:annotation>
-               </xs:element>               
+               </xs:element>
                <xs:element ref="laneSymbol">
                   <xs:annotation>
                      <xs:documentation>
@@ -4617,9 +4634,9 @@
    </xs:element>
 
    <xs:simpleType name="modeType">
-   	<xs:restriction base="xs:NCName">
-   		<xs:enumeration value="MODE_4_0_0"></xs:enumeration>
-   		<xs:enumeration value="MODE_4_5_0"></xs:enumeration>
-   	</xs:restriction>
+      <xs:restriction base="xs:NCName">
+         <xs:enumeration value="MODE_4_0_0"></xs:enumeration>
+         <xs:enumeration value="MODE_4_5_0"></xs:enumeration>
+      </xs:restriction>
    </xs:simpleType>
 </xs:schema>

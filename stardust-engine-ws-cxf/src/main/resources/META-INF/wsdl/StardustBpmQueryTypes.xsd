@@ -127,12 +127,12 @@
      </extension>
     </complexContent>
    </complexType>
-  
-  
+
+
   <complexType name="DeployedModelQuery">
   	<annotation>
   		<documentation>
-  		Query container for building complex queries for deployed models. 
+		Query container for building complex queries for deployed models.
   		</documentation>
   	</annotation>
   	<complexContent>
@@ -327,6 +327,8 @@
                   <element name="notInList" type="tns:NotInListPredicate" />
                   <element name="notAnyOf" type="tns:NotAnyOfPredicate" />
 
+                  <element name="between" type="tns:BetweenPredicate" />
+
                   <element name="forProcessDefinition" type="tns:ProcessDefinitionFilter" />
                   <element name="forProcess" type="tns:ProcessInstanceFilter" />
                   <element name="processesInState" type="tns:ProcessStateFilter" />
@@ -503,12 +505,12 @@
          <extension base="tns:BinaryListValuedPredicate" />
       </complexContent>
    </complexType>
-   
+
    <complexType name="NotAnyOfPredicate">
       <complexContent>
          <extension base="tns:BinaryListValuedPredicate" />
       </complexContent>
-   </complexType>   
+   </complexType>
 
    <complexType name="BetweenPredicate">
       <complexContent>
@@ -519,6 +521,7 @@
    <element name="inList" type="tns:InListPredicate" substitutionGroup="tns:filterCriterion" />
    <element name="notInList" type="tns:NotInListPredicate" substitutionGroup="tns:filterCriterion" />
    <element name="notAnyOf" type="tns:NotAnyOfPredicate" substitutionGroup="tns:filterCriterion" />
+   <element name="between" type="tns:BetweenPredicate" substitutionGroup="tns:filterCriterion" />
 
    <!-- specific filters -->
 
@@ -963,6 +966,7 @@
             <element name="subFolderPolicy" type="tns:SubFolderPolicy" minOccurs="0" />
             <element name="modelVersionPolicy" type="tns:ModelVersionPolicy" minOccurs="0" />
             <element name="descriptorPolicy" type="tns:DescriptorPolicy" minOccurs="0" />
+            <element name="processDefinitionDetailsPolicy" type="tns:ProcessDefinitionDetailsPolicy" minOccurs="0" />
             <element name="processInstanceDetailsPolicy" type="tns:ProcessInstanceDetailsPolicy" minOccurs="0" />
             <element name="historicalStatesPolicy" type="tns:HistoricalStatesPolicy" minOccurs="0" />
             <element name="historicalEventPolicy" type="tns:HistoricalEventPolicy" minOccurs="0" />
@@ -974,8 +978,8 @@
             <element name="timeoutPolicy" type="tns:TimeoutPolicy" minOccurs="0" />
             <element name="userDetailsPolicy" type="tns:UserDetailsPolicy" minOccurs="0" />
             <element name="casePolicy" type="tns:CasePolicy" minOccurs="0" />
-            <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" /> 
-   			<element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />                  
+            <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" />
+			<element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />
          </choice>
       </sequence>
     </complexType>
@@ -1000,7 +1004,7 @@
    </complexType>
 
    <element name="subsetPolicy" type="tns:SubsetPolicy" />
-   
+
    <complexType name="SubFolderPolicy">
       <annotation>
          <documentation>
@@ -1017,7 +1021,7 @@
       </complexContent>
    </complexType>
 
-   <element name="subFolderPolicy" type="tns:SubFolderPolicy" />   
+   <element name="subFolderPolicy" type="tns:SubFolderPolicy" />
 
    <complexType name="ModelVersionPolicy">
       <annotation>
@@ -1054,6 +1058,33 @@
    </complexType>
 
    <element name="descriptorPolicy" type="tns:DescriptorPolicy" />
+
+   <complexType name="ProcessDefinitionDetailsPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for specifying details level of processDefinitions.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="detailsLevel" type="tns:ProcessDefinitionDetailsLevel" />
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processDefinitionDetailsPolicy" type="tns:ProcessDefinitionDetailsPolicy" />
+
+    <simpleType name="ProcessDefinitionDetailsLevel">
+      <restriction base="string">
+         <enumeration value="Core" />
+         <enumeration value="WithoutActivities" />
+         <enumeration value="Full" />
+      </restriction>
+    </simpleType>
+
+   <element name="processDefinitionDetailsLevel" type="tns:ProcessDefinitionDetailsLevel" />
 
    <complexType name="ProcessInstanceDetailsPolicy">
       <annotation>
@@ -1329,9 +1360,9 @@
          </extension>
       </complexContent>
    </complexType>
-   
-   <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" />   
-   
+
+   <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" />
+
    <complexType name="ExcludeUserPolicy">
       <annotation>
          <documentation>
@@ -1343,8 +1374,8 @@
             <sequence />
          </extension>
       </complexContent>
-   </complexType>   
-   
-   <element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />      
+   </complexType>
+
+   <element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />
 
 </schema>

@@ -34,30 +34,30 @@ public class QualityAssuranceFormulaEvaluationAction implements ContextAction
    private static final String KEY_COMPILED_CONDITION = QualityAssuranceFormulaEvaluater.class.getName()
          + ".CompiledCondition";
 
-   private final ThreadLocal threadLocalSymbolTable = new ThreadLocal();
+   private final ThreadLocal<SymbolTable> threadLocalSymbolTable = new ThreadLocal<SymbolTable>();
 
    private final IActivity activity;
-   
+
    public QualityAssuranceFormulaEvaluationAction(IActivity activity)
    {
-      this.activity = activity;      
+      this.activity = activity;
    }
 
    public SymbolTable getSymbolTableForThread()
    {
-      return (SymbolTable) threadLocalSymbolTable.get();
+      return threadLocalSymbolTable.get();
    }
-   
+
    public void bindSymbolTableToThread(SymbolTable symbolTable)
    {
       threadLocalSymbolTable.set(symbolTable);
    }
-   
+
    public void unbindSymbolTableFromThread()
    {
-      threadLocalSymbolTable.set(null);
+      threadLocalSymbolTable.remove();
    }
-   
+
    public Object run(Context cx)
    {
       GlobalVariablesScope modelScope = getModelScope(activity, cx);
@@ -65,7 +65,7 @@ public class QualityAssuranceFormulaEvaluationAction implements ContextAction
       try
       {
          modelScope.bindThreadLocalSymbolTable(getSymbolTableForThread());
-         
+
          Script compiledCondition = getScriptForCondition(activity, cx);
          final Object result = compiledCondition.exec(cx, modelScope);
 

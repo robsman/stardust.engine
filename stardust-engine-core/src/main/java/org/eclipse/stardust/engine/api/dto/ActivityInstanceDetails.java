@@ -63,7 +63,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 {
    private static final long serialVersionUID = 2L;
 
-   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+   private static final String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
 
    // this pattern does define a group which will contain a long value: the handler oid
    private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");
@@ -369,8 +369,15 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
     */
    public String toString()
    {
-      return processDefinitionName + ": " + getActivity().getName() + " ("
-            + DATE_FORMAT.format(getLastModificationTime()) + ")";
+	  StringBuffer sb = new StringBuffer();
+	  sb.append(processDefinitionName);
+	  sb.append(": ");
+	  sb.append(getActivity().getName());
+	  sb.append(" (");
+	  sb.append(new SimpleDateFormat(DATE_FORMAT).format(getStartTime()));
+	  sb.append(") ");
+
+      return sb.toString();
    }
 
    public ActivityInstanceState getState()

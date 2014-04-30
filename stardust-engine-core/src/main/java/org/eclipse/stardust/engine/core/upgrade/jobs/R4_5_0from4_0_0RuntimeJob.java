@@ -21,19 +21,16 @@ import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.NVLFunction;
 
 
 /**
@@ -375,11 +372,41 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       try
       {
          String procInstTableName = DatabaseHelper.getQualifiedName(TABLE_NAME_PROC_INST);
+         final IndexInfo nullIndex;
+         final NVLFunction<FieldInfo, Long> nullReplaceFunction;
+         final FieldInfo oidColumn = new FieldInfo(FIELD_NAME_OID, Long.TYPE);
+         final FieldInfo nullCriteriaColumn = new FieldInfo(FIELD_NAME_PRIORITY, Long.TYPE);
+
+         //performance optimization for oracle - use the NVL function to replace
+         //null values from a column with a constant, use this function to create an index ("called function base index")
+         //and also use this function as criteria in the where clause
+         DBDescriptor descriptor = item.getDbDescriptor();
+         if(descriptor instanceof OracleDbDescriptor )
+         {
+            nullReplaceFunction = new NVLFunction(nullCriteriaColumn, -8795L);
+            nullIndex = new IndexInfo("process_instance_null_idx99", nullReplaceFunction);
+            DatabaseHelper.alterTable(item, new AlterTableInfo(TABLE_NAME_PROC_INST)
+            {
+               @Override
+               public IndexInfo[] getAddedIndexes()
+               {
+                  IndexInfo[] addedIndexes = new IndexInfo[] {
+                    nullIndex
+                  };
+                  return addedIndexes;
+               }
+            }, this);
+         }
+         else
+         {
+            nullReplaceFunction = null;
+            nullIndex = null;
+         }
+
          
-         StringBuffer selectCmd = new StringBuffer()
-               .append("SELECT ").append(FIELD_NAME_OID)
-               .append(" FROM ").append(procInstTableName)
-               .append(" WHERE ").append(FIELD_NAME_PRIORITY).append(" IS NULL");
+         // select all pi oids where priority is null - user oracle nvl function if available
+         String selectCmd = DatabaseHelper.getSelectBasedOnNullCriteriaSql(item,
+               TABLE_NAME_PROC_INST, nullCriteriaColumn, nullReplaceFunction, oidColumn);
 
          StringBuffer updateCmd = new StringBuffer()
                .append("UPDATE ").append(procInstTableName)
@@ -387,9 +414,8 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                .append(" WHERE ").append(FIELD_NAME_OID).append(" = ?");
 
          Connection connection = item.getConnection();
-
-         selectRowsStmt = connection.prepareStatement(selectCmd.toString());
-         updateRowsStmt = connection.prepareStatement(updateCmd.toString());
+         selectRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, selectCmd);
+         updateRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, updateCmd.toString());
 
          int rowCounter = 0;
 
@@ -446,6 +472,22 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             QueryUtils.closeResultSet(pendingRows);
          }
 
+         //if necessary - cleanup temporary null value index
+         if(nullIndex != null)
+         {
+            DatabaseHelper.alterTable(item, new AlterTableInfo(TABLE_NAME_PROC_INST)
+            {
+               @Override
+               public IndexInfo[] getDroppedIndexes()
+               {
+                  IndexInfo[] droppedIndexes = new IndexInfo[] {
+                    nullIndex
+                  };
+                  return droppedIndexes;
+               }
+            }, this);
+         }
+
          info(TABLE_NAME_PROC_INST + " table upgraded.");
       }
       finally
@@ -471,7 +513,26 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             = DatabaseHelper.getQualifiedName(ActivityInstanceHistoryBean.TABLE_NAME);
          String activityInstanceLogTableName 
             = DatabaseHelper.getQualifiedName(ActivityInstanceLogBean.TABLE_NAME);
-      
+         final String tmpIndexName = "ACTIVITY_INST_IDX999";
+         final FieldInfo[] tmpIndexFields = new FieldInfo[] {
+               new FieldInfo(ActivityInstanceBean.FIELD__OID, Long.class),
+               new FieldInfo(ActivityInstanceBean.FIELD__PROCESS_INSTANCE, Long.class),
+         };
+
+         //create temporary index to improve performance - qualifying table name is done within the alter method
+         DatabaseHelper.alterTable(item, new AlterTableInfo(ActivityInstanceBean.TABLE_NAME)
+         {
+            @Override
+            public IndexInfo[] getAddedIndexes()
+            {
+               IndexInfo[] addedIndexes = new IndexInfo[] {
+                  new IndexInfo(tmpIndexName, tmpIndexFields)
+               };
+
+               return addedIndexes;
+            }
+         }, this);
+
          StringBuffer selectLastActivityInstanceCmd = new StringBuffer()
                .append("SELECT MAX(").append(ActivityInstanceHistoryBean.FIELD__ACTIVITY_INSTANCE).append(")")
                .append(" FROM ").append(activityInstanceHistoryTableName);
@@ -487,6 +548,7 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                                  .append(ActivityInstanceBean.FIELD__PROCESS_INSTANCE)
                .append(" FROM ").append(activityInstanceTableName)
                .append(" WHERE ").append(ActivityInstanceBean.FIELD__OID).append(" > ?")
+               .append(" AND ").append(ActivityInstanceBean.FIELD__OID).append(" <= ?")
                .append(" ORDER BY ").append(ActivityInstanceBean.FIELD__OID);
 
          StringBuffer selectActivityInstanceLogsCmd = new StringBuffer()
@@ -515,16 +577,15 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
          Connection connection = item.getConnection();
 
-         selectLastActivityInstanceStmt = connection.prepareStatement(
-               selectLastActivityInstanceCmd.toString());
-         firstSelectActivityInstanceStmt = connection.prepareStatement(
-               firstSelectActivityInstanceCmd.toString());
-         selectActivityInstanceStmt = connection.prepareStatement(
-               selectActivityInstanceCmd.toString());
-         selectActivityInstanceLogsStmt = connection.prepareStatement(
-               selectActivityInstanceLogsCmd.toString());
-         insertStmt = connection.prepareStatement(
-               insertCmd.toString());
+         selectLastActivityInstanceStmt
+            = DatabaseHelper.prepareLoggingStatement(connection, selectLastActivityInstanceCmd.toString());
+         firstSelectActivityInstanceStmt
+            = DatabaseHelper.prepareLoggingStatement(connection, firstSelectActivityInstanceCmd.toString());
+         selectActivityInstanceStmt
+            = DatabaseHelper.prepareLoggingStatement(connection, selectActivityInstanceCmd.toString());
+         selectActivityInstanceLogsStmt
+            = DatabaseHelper.prepareLoggingStatement(connection, selectActivityInstanceLogsCmd.toString());
+         insertStmt = DatabaseHelper.prepareLoggingStatement(connection, insertCmd.toString());
 
          int rowCounter = 0;
 
@@ -562,7 +623,11 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
                else
                {
-                  selectActivityInstanceStmt.setLong(1, activityInstanceOid);
+                  long aiOidStart = activityInstanceOid;
+                  long aiOidEnd = activityInstanceOid + batchSize;
+
+                  selectActivityInstanceStmt.setLong(1, aiOidStart);
+                  selectActivityInstanceStmt.setLong(2, aiOidEnd);
                   pendingRows = selectActivityInstanceStmt.executeQuery();
                }
                while (pendingRows.next())
@@ -656,6 +721,19 @@ public class R4_5_0from4_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             QueryUtils.closeResultSet(pendingRows);
          }
+
+         // cleanup temporary index - qualifying table name is done within the alter method
+         DatabaseHelper.alterTable(item, new AlterTableInfo(ActivityInstanceBean.TABLE_NAME)
+         {
+            @Override
+            public IndexInfo[] getDroppedIndexes()
+            {
+               IndexInfo[] droppedIndexes = new IndexInfo[] {new IndexInfo(tmpIndexName,
+                     tmpIndexFields)};
+
+               return droppedIndexes;
+            }
+         }, this);
 
          info(ActivityInstanceHistoryBean.TABLE_NAME + " table upgraded.");
       }

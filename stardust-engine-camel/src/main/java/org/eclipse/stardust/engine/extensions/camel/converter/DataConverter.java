@@ -1,20 +1,21 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
-public interface DataConverter {
-   public abstract String getFromEndpoint();
+public interface DataConverter
+{
+   String getFromEndpoint();
 
-/**
- * @param endpoint
- */
-public abstract void setFromEndpoint(String endpoint);
+   /**
+    * @param endpoint
+    */
+   void setFromEndpoint(String endpoint);
 
-/**
-* @return the target type
-*/
-public abstract String getTargetType();
+   /**
+    * @return the target type
+    */
+   String getTargetType();
 
-/**
-* @param clazz
-*/
-public abstract void setTargetType(String clazz);
+   /**
+    * @param clazz
+    */
+   void setTargetType(String clazz);
 }

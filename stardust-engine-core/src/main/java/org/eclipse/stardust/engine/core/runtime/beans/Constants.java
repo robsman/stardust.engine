@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonLog;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -27,6 +28,53 @@ public interface Constants
    String SYSOP_PASSWORD = "sysop.password";
    String DEFAULT_PASSWORD = "sysop";
    String FORCE_IMMEDIATE_INSERT_ON_SESSION = "Infinity.ForceImmediateInsert";
+
+   /**
+    * All tables for runtime classes.
+    */
+   public static final Class<? extends Persistent>[] PERSISTENT_RUNTIME_PI_CLASSES =
+         new Class[]{ActivityInstanceBean.class,
+                     ActivityInstanceLogBean.class,
+                     ActivityInstanceHistoryBean.class,
+                     ActivityInstanceProperty.class,
+                     TransitionInstanceBean.class,
+                     TransitionTokenBean.class,
+                     DataValueBean.class,
+                     EventBindingBean.class,
+                     ProcessInstanceBean.class,
+                     ProcessInstanceProperty.class,
+                     ProcessInstanceScopeBean.class,
+                     ProcessInstanceHierarchyBean.class,
+                     StructuredDataValueBean.class,
+                     WorkItemBean.class,
+                     ClobDataBean.class,
+                     ProcessInstanceLinkBean.class
+         };
+
+   public static final Class<? extends Persistent>[] PERSISTENT_RUNTIME_NON_PI_CLASSES =
+         new Class[]{DaemonLog.class,
+                     LogEntryBean.class,
+                     PropertyPersistor.class,
+                     TimerLog.class,
+                     UserGroupBean.class,
+                     UserGroupProperty.class,
+                     UserBean.class,
+                     UserProperty.class,
+                     UserSessionBean.class,
+                     UserParticipantLink.class,
+                     UserUserGroupLink.class,
+                     UserDomainBean.class,
+                     UserDomainHierarchyBean.class,
+                     UserDomainUserBean.class,
+                     UserRealmBean.class,
+                     StructuredDataBean.class,
+                     DepartmentBean.class,
+                     DepartmentHierarchyBean.class,
+                     ModelRefBean.class,
+                     ModelDeploymentBean.class,
+                     PreferencesBean.class,
+                     ProcessInstanceLinkTypeBean.class
+         };
 
    /**
     * All tables for runtime classes.

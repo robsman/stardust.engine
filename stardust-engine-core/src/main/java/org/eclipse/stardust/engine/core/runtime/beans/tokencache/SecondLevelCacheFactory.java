@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
-
 public class SecondLevelCacheFactory
 {
-   
    public static final NullTokenManager NULL_TOKEN_MANAGER = new NullTokenManager();
-   
+
    public static ISecondLevelTokenCache createSecondLevelCache()
    {
       return NULL_TOKEN_MANAGER;
    }
-
 }

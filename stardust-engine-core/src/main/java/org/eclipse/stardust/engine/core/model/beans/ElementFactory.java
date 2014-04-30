@@ -29,15 +29,15 @@ import org.w3c.dom.Node;
  */
 public interface ElementFactory extends XMLConstants
 {
-   void createQualityAssuranceAttributes(Node node, IActivity activity, IModel model);      
-   
-   IQualityAssurance createQualityAssurance(Node node, IModel model);   
+   void createQualityAssuranceAttributes(Node node, IActivity activity, IModel model);
 
-   IQualityAssuranceCode createQualityAssuranceCode(Node node, IQualityAssurance qualityAssurance);   
-   
-   IQualityAssuranceCode createQualityAssuranceCode(Node node, IActivity activity, IModel model);   
-   
-   IActivity createActivity(Node node, IProcessDefinition process, IModel model, Map subprocessList);
+   IQualityAssurance createQualityAssurance(Node node, IModel model);
+
+   IQualityAssuranceCode createQualityAssuranceCode(Node node, IQualityAssurance qualityAssurance);
+
+   IQualityAssuranceCode createQualityAssuranceCode(Node node, IActivity activity, IModel model);
+
+   IActivity createActivity(Element node, IProcessDefinition process, IModel model, Map subprocessList);
 
    IApplication createApplication(Node node, IModel model);
 
@@ -46,7 +46,7 @@ public interface ElementFactory extends XMLConstants
    AccessPoint createAccessPoint(Node node, AccessPointOwner holder);
 
    ITypeDeclaration createTypeDeclaration(Node node, IModel model, IXpdlType xpdlType);
-   
+
    IApplicationType createApplicationType(Node node, IModel model);
 
    IData createData(Node node, IModel model);

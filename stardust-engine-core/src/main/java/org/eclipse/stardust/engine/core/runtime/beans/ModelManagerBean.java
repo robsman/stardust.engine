@@ -980,8 +980,13 @@ public class ModelManagerBean implements ModelManager
                      ITransition relocateTransition = process.createTransition(PredefinedConstants.RELOCATION_TRANSITION_ID, "Relocation Transition", "", null, null);
                      relocateTransition.setForkOnTraversal(false);
                      ITransition transition_ = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);
-                     rtOidRegistry.registerNewRuntimeOid(
-                           IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));
+
+                     long runtimeOid = rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));
+                     if(runtimeOid == 0)
+                     {
+                        rtOidRegistry.registerNewRuntimeOid(
+                              IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));
+                     }
                      break;
                   }
                }
@@ -1910,7 +1915,7 @@ public class ModelManagerBean implements ModelManager
          models.set(index, model);
          dependentObjectCache.reload(model);
          recomputeAlivenessCache();
-         
+
          return info;
       }
 
@@ -1973,6 +1978,8 @@ public class ModelManagerBean implements ModelManager
             inconsistencies.add(new Inconsistency(error, null, Inconsistency.ERROR));
             return inconsistencies;
          }
+
+         newModel.setModelOID(oldModel.getModelOID());
 
          inconsistencies.addAll(DeploymentUtils.checkModelVersion(newModel));
 

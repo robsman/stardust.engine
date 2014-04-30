@@ -16,6 +16,7 @@ import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.query.ModelPolicy;
 import org.eclipse.stardust.engine.api.query.Query;
 
 /**
@@ -25,10 +26,25 @@ import org.eclipse.stardust.engine.api.query.Query;
  */
 public class ModelQueryEvaluator extends AbstractQueryPredicate<IModel>
 {
+	private ModelPolicy policy;
+
    public ModelQueryEvaluator(Query query)
    {
       super(query);
+      this.policy = (ModelPolicy) query.getPolicy(ModelPolicy.class);
    }
+
+   @Override
+	public boolean accept(IModel model) {
+		if (policy != null) {
+			if (policy.isExcludePredefinedModels()
+					&& PredefinedConstants.PREDEFINED_MODEL_ID.equals(model
+							.getId())) {
+				return false;
+			}
+		}
+		return super.accept(model);
+	}
 
    public Object getValue(IModel model, String attribute, Object expected)
    {

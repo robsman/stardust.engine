@@ -28,7 +28,10 @@ public interface XMLConstants
    String NS_CARNOT_WORKFLOWMODEL_31 = "http://www.carnot.ag/workflowmodel/3.1";
    String NS_CARNOT_XPDL_31 = "http://www.carnot.ag/xpdl/3.1";
    String NS_XPDL_1_0 = "http://www.wfmc.org/2002/XPDL1.0";
+   String NS_XPDL_2_0 = "http://www.wfmc.org/2004/XPDL2.0alpha";
    String NS_XPDL_2_1 = "http://www.wfmc.org/2008/XPDL2.1";
+   String NS_XPDL_2_2 = "http://www.wfmc.org/2009/XPDL2.2";
+   String NS_XPDL = NS_XPDL_2_1;
    String NS_XSD_2001 = "http://www.w3.org/2001/XMLSchema";
    String NS_WSDL_1_1 = "http://schemas.xmlsoap.org/wsdl/";
 
@@ -51,19 +54,20 @@ public interface XMLConstants
    
    String XPDL_BASIC_TYPE = "BasicType";
    String XPDL_DECLARED_TYPE = "DeclaredType";
-   String XPDL_EXTERNAL_REFERENCE = "ExternalReference";
-   String XPDL_FORMAL_PARAMETERS = "FormalParameters";
-   String XPDL_FORMAL_PARAMETER = "FormalParameter";
-   String XPDL_SCHEMA_TYPE = "SchemaType";
-   String XPDL_TYPE_DECLARATIONS = "TypeDeclarations";
-   String XPDL_TYPE_DECLARATION = "TypeDeclaration";
-   String XPDL_EXTENDED_ATTRIBUTES = "ExtendedAttributes";
    String XPDL_EXTENDED_ATTRIBUTE = "ExtendedAttribute";
    String XPDL_EXTENDED_ATTRIBUTE_NAME = "Name";
    String XPDL_EXTENDED_ATTRIBUTE_VALUE = "Value";
-   String XPDL_EXTERNAL_PACKAGES = "ExternalPackages";
+   String XPDL_EXTENDED_ATTRIBUTES = "ExtendedAttributes";
    String XPDL_EXTERNAL_PACKAGE = "ExternalPackage";
+   String XPDL_EXTERNAL_PACKAGES = "ExternalPackages";
+   String XPDL_EXTERNAL_REFERENCE = "ExternalReference";
+   String XPDL_FORMAL_PARAMETER = "FormalParameter";
+   String XPDL_FORMAL_PARAMETERS = "FormalParameters";
+   String XPDL_LOOP = "Loop";
+   String XPDL_SCHEMA_TYPE = "SchemaType";
    String XPDL_SCRIPT = "Script";
+   String XPDL_TYPE_DECLARATION = "TypeDeclaration";
+   String XPDL_TYPE_DECLARATIONS = "TypeDeclarations";
 
    String ACCESS_POINT = "accessPoint";
    String ACTIVITY = "activity";

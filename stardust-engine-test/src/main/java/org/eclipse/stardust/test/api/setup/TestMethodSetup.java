@@ -39,34 +39,34 @@ import org.springframework.jms.core.JmsTemplate;
  * after the test case execution. Plus, it logs the test method's name before entering and after leaving
  * the test method.
  * </p>
- * 
+ *
  * <p>
  * This class is responsible for the test method setup whereas {@link LocalJcrH2TestSetup}
  * deals with test class setup and {@link LocalJcrH2TestSuiteSetup} deals with test suite setup.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class TestMethodSetup extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(TestMethodSetup.class);
-   
+
    private static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
-   
+
    private static final String NATIVE_THREADING_JOB_MANAGER_BEAN_ID = "carnotAsyncJobManager";
-   
+
    private final UsernamePasswordPair userPwdPair;
    private final LocalJcrH2TestSetup testClassSetup;
-   
+
    private ServiceFactory sf;
    private String testMethodName;
-   
+
    /**
     * <p>
     * Sets up a runtime configurer with the username password pair to use for test method setup.
     * </p>
-    * 
+    *
     * @param userPwdPair the credentials of the user used for test method setup; must not be null
     * @param testClassSetup the corresponding test class setup object; must not be null
     */
@@ -80,11 +80,11 @@ public class TestMethodSetup extends ExternalResource
       {
          throw new NullPointerException("Test class setup must not be null.");
       }
-      
+
       this.userPwdPair = userPwdPair;
       this.testClassSetup = testClassSetup;
    }
-   
+
    /**
     * @return the service factory this object has been initialized with
     */
@@ -92,7 +92,7 @@ public class TestMethodSetup extends ExternalResource
    {
       return sf;
    }
-   
+
    /**
     * @return the name of the test method currently executed
     */
@@ -100,16 +100,16 @@ public class TestMethodSetup extends ExternalResource
    {
       return testMethodName;
    }
-   
+
    /* (non-Javadoc)
     * @see org.junit.rules.ExternalResource#apply(org.junit.runners.model.Statement, org.junit.runner.Description)
     */
    public Statement apply(final Statement base, final Description description) {
       testMethodName = description.getMethodName();
-      
+
       return super.apply(base, description);
    }
-   
+
    /**
     * <p>
     * Does internal initialization.
@@ -120,10 +120,10 @@ public class TestMethodSetup extends ExternalResource
    {
       LOG.info(LOG_EYE_CATCHER);
       LOG.info("--> " + testMethodName);
-      
+
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
-   
+
    /**
     * <p>
     * Cleans up the runtime (including user removal) without deleting the deployed models.
@@ -134,14 +134,14 @@ public class TestMethodSetup extends ExternalResource
    {
       logRunningActivityThreads();
       RtEnvHome.cleanUpRuntime(sf.getAdministrationService());
-      
+
       sf.close();
       sf = null;
-      
+
       LOG.info("<-- " + testMethodName);
       LOG.info(LOG_EYE_CATCHER);
    }
-   
+
    private void logRunningActivityThreads()
    {
       if (testClassSetup.forkingServiceMode() == ForkingServiceMode.NATIVE_THREADING)
@@ -157,13 +157,13 @@ public class TestMethodSetup extends ExternalResource
          throw new IllegalStateException("Unknown forking service mode '" + testClassSetup.forkingServiceMode() + "'.");
       }
    }
-   
+
    private void logRunningActivityThreadsForNativeThreading()
    {
       final FiFoJobManager jobManager = testClassSetup.appCtx().getBean(NATIVE_THREADING_JOB_MANAGER_BEAN_ID, FiFoJobManager.class);
       final List<?> activeJobs = (List<?>) Reflect.getFieldValue(jobManager, "activeJobs");
       final List<?> scheduledJobs = (List<?>) Reflect.getFieldValue(jobManager, "scheduledJobs");
-      
+
       for (final Object o : activeJobs)
       {
          logRunningActivityThread(o);
@@ -173,7 +173,7 @@ public class TestMethodSetup extends ExternalResource
          logRunningActivityThread(o);
       }
    }
-   
+
    private void logRunningActivityThreadsForJMS()
    {
       final Queue queue = testClassSetup.queue(JmsProperties.SYSTEM_QUEUE_NAME_PROPERTY);
@@ -189,12 +189,12 @@ public class TestMethodSetup extends ExternalResource
             {
                logRunningActivityThread(ats.nextElement());
             }
-            
+
             return null;
          }
       });
    }
-   
+
    private void logRunningActivityThread(final Object at)
    {
       LOG.warn("Still running activity thread found: " + at);

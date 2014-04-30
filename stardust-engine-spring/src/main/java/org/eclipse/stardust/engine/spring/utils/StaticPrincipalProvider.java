@@ -38,6 +38,8 @@ public class StaticPrincipalProvider implements PrincipalProvider, InitializingB
 
    private String realm;
 
+   private byte[] signature;
+
    private InvokerPrincipal principal;
 
    public String getUserId()
@@ -80,6 +82,16 @@ public class StaticPrincipalProvider implements PrincipalProvider, InitializingB
       this.realm = realm;
    }
 
+   public byte[] getSignature()
+   {
+      return signature;
+   }
+
+   public void setSignature(byte[] signature)
+   {
+      this.signature = signature;
+   }
+
    public void afterPropertiesSet() throws Exception
    {
       if (isEmpty(userId))
@@ -101,13 +113,13 @@ public class StaticPrincipalProvider implements PrincipalProvider, InitializingB
       {
          properties.put(SecurityProperties.REALM, realm);
       }
-      
+
       if (isEmpty(properties))
       {
          properties = emptyMap();
       }
 
-      this.principal = new InvokerPrincipal(userId, properties);
+      this.principal = new InvokerPrincipal(userId, properties, signature);
    }
 
    public Principal getPrincipal()

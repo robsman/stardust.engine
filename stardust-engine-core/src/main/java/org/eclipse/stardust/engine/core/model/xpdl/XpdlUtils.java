@@ -36,22 +36,21 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 public class XpdlUtils
 {
    public static final DefaultHandler DEFAULT_SAX_HANDLER = new CarnotEntityResolver();
-   
+
    public static final String EXT_XPDL = "xpdl";
-   
+   public static final String EXT_CWM = "cwm";
    public static final String EXT_ZIP = "zip";
 
    public static String NS_XPDL_1_0 = "http://www.wfmc.org/2002/XPDL1.0";
    public static String NS_XPDL_2_1 = "http://www.wfmc.org/2008/XPDL2.1";
 
    public static final String UTF8_ENCODING = "UTF-8";
-   
+
    public static final String ISO8859_1_ENCODING = "ISO-8859-1";
-   
+
    public static final String XPDL_1_0_XSD = "TC-1025_schema_10_xpdl.xsd";
    public static final String XPDL_1_0_XSD_URL = "http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd";
 
@@ -60,47 +59,54 @@ public class XpdlUtils
 
    public static final String CARNOT_XPDL_XSD = "carnot-xpdl.xsd";
    public static final String CARNOT_XPDL_XSD_URL = "http://www.carnot.ag/xpdl/3.1";
-   
+
    private static final String XPDL_2_WFM_XSLT = "xpdl2carnot.xslt";
    private static final String WFM_2_XPDL_XSLT = "carnot2xpdl.xslt";
 
    public static final String XPDL_XSD = "xpdl.xsd";
-   
+   public static final String XPDL_EXTENSIONS_XSD = "xpdl.extensions.xsd";
+
+
+   public static URL getXpdlExtensionsSchema()
+   {
+      return XpdlUtils.class.getResource(XPDL_EXTENSIONS_XSD);
+   }
+
    public static URL getXpdlSchema()
    {
       return XpdlUtils.class.getResource(XPDL_XSD);
    }
-   
+
    public static URL getCarnotXpdlSchema()
    {
       return XpdlUtils.class.getResource(CARNOT_XPDL_XSD);
    }
-   
+
    public static URL getXpdl_10_Schema()
    {
       return XpdlUtils.class.getResource(XPDL_1_0_XSD);
    }
-   
+
    public static URL getXpdl_21_Schema()
    {
       return XpdlUtils.class.getResource(XPDL_2_1_XSD);
    }
-   
+
    public static URL getXpdl2CarnotStylesheet()
    {
       return XpdlUtils.class.getResource(XPDL_2_WFM_XSLT);
    }
-   
+
    public static URL getCarnot2XpdlStylesheet()
    {
       return XpdlUtils.class.getResource(WFM_2_XPDL_XSLT);
    }
-   
+
    public static String getCarnotVersion()
    {
       return CurrentVersion.getVersionName();
    }
-   
+
    // code adapted from QName.valueOf()
    // TODO: fixit with regards to java 5.0
    public static String getQnameLocalPart(String qNameAsString)
@@ -125,7 +131,7 @@ public class XpdlUtils
                   + qNameAsString
                   + "\", missing closing \"}\"");
       }
-      
+
       return qNameAsString.substring(endOfNamespaceURI + 1);
    }
 
@@ -153,14 +159,14 @@ public class XpdlUtils
                   + qNameAsString
                   + "\", missing closing \"}\"");
       }
-      
+
       return qNameAsString.substring(1, endOfNamespaceURI);
    }
-   
+
    public static String encodeMethodName(String methodName)
    {
       StringBuffer encodedName = new StringBuffer(methodName.length());
-      
+
       StringTokenizer parser = new StringTokenizer(methodName, "(), ", true);
       while (parser.hasMoreTokens())
       {
@@ -178,14 +184,14 @@ public class XpdlUtils
             encodedName.append(token);
          }
       }
-      
+
       return encodedName.toString();
    }
-   
+
    public static String decodeMethodName(String encodedName)
    {
       StringBuffer methodName = new StringBuffer(2 * encodedName.length());
-      
+
       // TODO
       StringTokenizer parser = new StringTokenizer(encodedName, ":", true);
       String delimiter = "(";
@@ -203,7 +209,7 @@ public class XpdlUtils
          }
       }
       methodName.append(")");
-      
+
       return methodName.toString();
    }
 
@@ -211,16 +217,16 @@ public class XpdlUtils
    {
       return convertCarnot2Xpdl(carnotXml, true);
    }
-   
+
    public static String convertCarnot2Xpdl(String carnotXml, boolean fixPre31Ns)
    {
       Source cwmSource;
       if (fixPre31Ns)
       {
          Document carnotDom = XmlUtils.parseString(carnotXml, DEFAULT_SAX_HANDLER);
-         
+
          String ns = carnotDom.getDocumentElement().getNamespaceURI();
-         if (StringUtils.isEmpty(ns) // 
+         if (StringUtils.isEmpty(ns) //
                || !XMLConstants.NS_CARNOT_WORKFLOWMODEL_31.equals(ns))
          {
             // convert carnot document into to namespace workflowmodel 3.1
@@ -230,7 +236,7 @@ public class XpdlUtils
             carnotDom = XmlUtils.newDocument();
             writer.exportAsXML(model, carnotDom);
          }
-         
+
          cwmSource = new DOMSource(carnotDom.getDocumentElement());
       }
       else
@@ -239,7 +245,7 @@ public class XpdlUtils
 
          cwmReader.setErrorHandler(DEFAULT_SAX_HANDLER);
          cwmReader.setEntityResolver(DEFAULT_SAX_HANDLER);
-         
+
          try
          {
             cwmReader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -253,7 +259,7 @@ public class XpdlUtils
          cwmSource = new SAXSource(cwmReader,
                new InputSource(new StringReader(carnotXml)));
       }
-      
+
       // assume XPDL representation will need about same order of characters as CARNOT
       // representation, but is known to be more verbose
       StringWriter xpdlWriter = new StringWriter( !StringUtils.isEmpty(carnotXml)
@@ -263,14 +269,14 @@ public class XpdlUtils
 
       return xpdlWriter.toString();
    }
-   
+
    public static byte[] convertCarnot2Xpdl(byte[] content, String encoding)
    {
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
       xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
-      
+
       try
       {
          xpdlReader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -280,7 +286,7 @@ public class XpdlUtils
       {
          // ignore
       }
-      
+
       // assume CARNOT representation will need about same order of characters as XPDL
       // representation
       ByteArrayOutputStream output = new ByteArrayOutputStream(content == null ? 100 : content.length);
@@ -288,7 +294,7 @@ public class XpdlUtils
       SAXSource source = new SAXSource(xpdlReader, inputSource);
       StreamResult result = new StreamResult(output);
       convertCarnot2Xpdl(source, result, encoding);
-      
+
       return output.toByteArray();
    }
 
@@ -296,11 +302,11 @@ public class XpdlUtils
    {
       convertCarnot2Xpdl(carnotXml, result, UTF8_ENCODING);
    }
-   
+
    public static void convertCarnot2Xpdl(Source carnotXml, Result result, String encoding)
    {
       final long tsStart = System.currentTimeMillis();
-      
+
       final URL xsltURL = XpdlUtils.class.getResource(WFM_2_XPDL_XSLT);
       if (xsltURL == null)
       {
@@ -344,7 +350,7 @@ public class XpdlUtils
                         }
                      }
                   }
-                  
+
                   return null;
                }
             });
@@ -357,14 +363,14 @@ public class XpdlUtils
          {
             throw new PublicException("Unable to load XPDL export stylesheet", e);
          }
-         
+
          final long tsAfterStylesheetLoaded = System.currentTimeMillis();
-         
+
          final ClassLoader cclBackup = Thread.currentThread().getContextClassLoader();
          try
          {
             Thread.currentThread().setContextClassLoader(XpdlUtils.class.getClassLoader());
-            
+
             XmlUtils.transform(carnotXml, xpdlTrans, result,
                   DefaultXMLWriter.CDATA_ELEMENTS, 3, encoding);
 
@@ -388,19 +394,19 @@ public class XpdlUtils
          throw new PublicException("Invalid JAXP setup", e);
       }
    }
-   
+
    public static String convertXpdl2Carnot(String xpdlString)
    {
       return convertXpdl2Carnot(xpdlString, UTF8_ENCODING);
    }
-   
+
    public static String convertXpdl2Carnot(String xpdlString, String encoding)
    {
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
       xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
-      
+
       try
       {
          xpdlReader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -410,26 +416,26 @@ public class XpdlUtils
       {
          // ignore
       }
-      
+
       // assume CARNOT representation will need about same order of characters as XPDL
       // representation
       StringWriter xmlWriter = new StringWriter( !StringUtils.isEmpty(xpdlString)
             ? xpdlString.length()
             : 100);
-      
+
       convertXpdl2Carnot(new SAXSource(xpdlReader, new InputSource(new StringReader(
             xpdlString))), new StreamResult(xmlWriter), encoding);
-      
+
       return xmlWriter.toString();
    }
-   
+
    public static byte[] convertXpdl2Carnot(byte[] content, String encoding)
    {
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
       xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
-      
+
       try
       {
          xpdlReader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -439,7 +445,7 @@ public class XpdlUtils
       {
          // ignore
       }
-      
+
       // assume CARNOT representation will need about same order of characters as XPDL
       // representation
       ByteArrayOutputStream output = new ByteArrayOutputStream(content == null ? 100 : content.length);
@@ -447,19 +453,19 @@ public class XpdlUtils
       SAXSource source = new SAXSource(xpdlReader, inputSource);
       StreamResult result = new StreamResult(output);
       convertXpdl2Carnot(source, result, encoding);
-      
+
       return output.toByteArray();
    }
-   
+
    public static void convertXpdl2Carnot(Source xpdlSource, Result result)
    {
       convertXpdl2Carnot(xpdlSource, result, UTF8_ENCODING);
    }
-   
+
    public static void convertXpdl2Carnot(Source xpdlSource, Result result, String encoding)
    {
       final long tsStart = System.currentTimeMillis();
-      
+
       final URL xsltURL = XpdlUtils.class.getResource(XPDL_2_WFM_XSLT);
       if (xsltURL == null)
       {
@@ -489,12 +495,12 @@ public class XpdlUtils
          }
 
          final long tsAfterStylesheetLoaded = System.currentTimeMillis();
-         
+
          final ClassLoader cclBackup = Thread.currentThread().getContextClassLoader();
          try
          {
             Thread.currentThread().setContextClassLoader(XpdlUtils.class.getClassLoader());
-            
+
             XmlUtils.transform(xpdlSource, xpdlTrans, result,
                   DefaultXMLWriter.CDATA_ELEMENTS, 3, encoding);
 
@@ -518,24 +524,24 @@ public class XpdlUtils
          throw new PublicException("Invalid JAXP setup", e);
       }
    }
-   
+
    public static IModel loadXpdlModel(File xpdlFile)
    {
       return loadXpdlModel(xpdlFile, new DefaultConfigurationVariablesProvider());
    }
-   
+
    public static IModel loadXpdlModel(File xpdlFile,
          IConfigurationVariablesProvider confVarProvider)
    {
       return loadXpdlModel(xpdlFile, confVarProvider, true);
    }
-   
+
    public static IModel loadXpdlModel(File xpdlFile, boolean includeDiagrams)
    {
       return loadXpdlModel(xpdlFile, new DefaultConfigurationVariablesProvider(),
             includeDiagrams);
    }
-   
+
    public static IModel loadXpdlModel(File xpdlFile,
          IConfigurationVariablesProvider confVarProvider, boolean includeDiagrams)
    {
@@ -558,17 +564,17 @@ public class XpdlUtils
       {
          throw new PublicException("Failed reading XPDL model file.", e);
       }*/
-      
+
       return loadXpdlModel(new DOMSource(xpdlDoc.getDocumentElement()), confVarProvider,
             includeDiagrams);
    }
-   
+
    public static IModel loadXpdlModel(String xpdlString, boolean includeDiagrams)
    {
       return loadXpdlModel(xpdlString, new DefaultConfigurationVariablesProvider(),
             includeDiagrams);
    }
-   
+
    public static IModel loadXpdlModel(String xpdlString,
          IConfigurationVariablesProvider confVarProvider, boolean includeDiagrams)
    {
@@ -577,19 +583,19 @@ public class XpdlUtils
       return loadXpdlModel(new DOMSource(xpdlDoc.getDocumentElement()), confVarProvider,
             includeDiagrams);
    }
-   
+
    public static IModel loadXpdlModel(Source xpdlSource, boolean includeDiagrams)
    {
       return loadXpdlModel(xpdlSource, new DefaultConfigurationVariablesProvider(),
             includeDiagrams);
    }
-   
+
    public static IModel loadXpdlModel(Source xpdlSource,
          IConfigurationVariablesProvider confVarProvider, boolean includeDiagrams)
    {
       DOMResult carnotDom = new DOMResult();
       convertXpdl2Carnot(xpdlSource, carnotDom);
-      
+
       Element modelElement;
       if (carnotDom.getNode() instanceof Element)
       {
@@ -604,11 +610,11 @@ public class XpdlUtils
          throw new InternalException("Invalid result of XPDL import: "
                + carnotDom.getNode());
       }
-      
+
       return new DefaultXMLReader(includeDiagrams, confVarProvider).loadModel(
             modelElement, true);
    }
-   
+
    public static void writeModel(IModel model, File target)
    {
       writeModel(model, new StreamResult(target));
@@ -623,7 +629,7 @@ public class XpdlUtils
    {
       Document document = XmlUtils.newDocument();
       new DefaultXMLWriter(includeDiagrams).exportAsXML(model, document);
-      
+
       convertCarnot2Xpdl(new DOMSource(document.getDocumentElement()), target);
    }
 
@@ -656,7 +662,7 @@ public class XpdlUtils
                return super.resolveEntity(publicId, systemId);
             }
          }
-         
+
          return null;
       }
    }

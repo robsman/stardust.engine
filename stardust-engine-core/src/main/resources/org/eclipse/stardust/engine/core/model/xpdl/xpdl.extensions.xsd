@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions"
+   targetNamespace="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions">
+
+   <xsd:element name="ExtendedAnnotation">
+   <!--
+      <xsd:complexType>
+         <xsd:complexContent/>
+            <xsd:extension base="xsd:Annotation"/>
+         </xsd:complexContent>
+      </xsd:complexType>
+ -->
+   </xsd:element>
+</xsd:schema>

@@ -1,6 +1,5 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
-
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Document.COMMAND_MOVE;
 import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.getServiceFactory;
@@ -43,7 +42,7 @@ public class DocumentManagementProducer extends AbstractIppProducer
          String destination = endpoint.evaluateTargetPath(exchange);
          if (documentId == null)
             throw new CamelException("Missing required attribute DocumentId");
-         Folder piAttachmentsFolder=null;
+         Folder piAttachmentsFolder = null;
          if (destination == null)
          {
             long scopeProcessInstanceOID = -1;
@@ -51,25 +50,27 @@ public class DocumentManagementProducer extends AbstractIppProducer
             {
                scopeProcessInstanceOID = (Long) exchange.getIn().getHeader("ippProcessInstanceOid");
             }
-            logger.debug("scopeProcessInstanceOID = " + scopeProcessInstanceOID);
+            if (logger.isDebugEnabled())
+               logger.debug("scopeProcessInstanceOID = " + scopeProcessInstanceOID);
             Date scopeProcessInstanceStartTime = (Date) exchange.getIn().getHeader("CamelFileLastModified");
             if ((scopeProcessInstanceStartTime != null) && (!("-1".equals(Long.toString(scopeProcessInstanceOID)))))
             {
                destination = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
-               piAttachmentsFolder= DmsUtils.ensureFolderHierarchyExists(destination, dms);
+               piAttachmentsFolder = DmsUtils.ensureFolderHierarchyExists(destination, dms);
             }
          }
-         Document document=dms.getDocument(documentId);
-         byte[] documentContent=dms.retrieveDocumentContent(documentId);
-         
-         //Folder folder=dms.getFolder(document.getPath());
-         DocumentInfo documentInfo=DmsUtils.createDocumentInfo(document.getName(), document.getId());
-         //piAttachmentsFolder.
-         Document newDocument=null;
-         if(dms.getDocument(piAttachmentsFolder.getId())!=null)
-         newDocument=dms.createDocument(piAttachmentsFolder.getId(), documentInfo,documentContent,null);
-//        dms.updateDocument(newDocument, documentContent, null, false,null,null, false);
-         //dms.updateFolder(piAttachmentsFolder);
+         Document document = dms.getDocument(documentId);
+         byte[] documentContent = dms.retrieveDocumentContent(documentId);
+
+         // Folder folder=dms.getFolder(document.getPath());
+         DocumentInfo documentInfo = DmsUtils.createDocumentInfo(document.getName(), document.getId());
+         // piAttachmentsFolder.
+         Document newDocument = null;
+         if (dms.getDocument(piAttachmentsFolder.getId()) != null)
+            newDocument = dms.createDocument(piAttachmentsFolder.getId(), documentInfo, documentContent, null);
+         // dms.updateDocument(newDocument, documentContent, null, false,null,null,
+         // false);
+         // dms.updateFolder(piAttachmentsFolder);
          List<Document> attachments = (List<Document>) wfService.getInDataPath(pi.getOID(), PROCESS_ATTACHMENTS);
          if (null == attachments)
          {
@@ -77,14 +78,14 @@ public class DocumentManagementProducer extends AbstractIppProducer
          }
          // add the new document
          attachments.add(newDocument);
-         
+
          // update the attachments
          wfService.setOutDataPath(pi.getOID(), PROCESS_ATTACHMENTS, attachments);
-       //  dms.removeFolder(folder.getId(), true);
-        
-      //   dms.moveDocument(documentId, destination);
+         // dms.removeFolder(folder.getId(), true);
+
+         // dms.moveDocument(documentId, destination);
          dms.removeDocument(documentId);
-         exchange.getIn().removeHeader(CamelConstants.MessageProperty.DOCUMENT_Id);
+         exchange.getIn().removeHeader(CamelConstants.MessageProperty.DOCUMENT_ID);
       }
 
    }

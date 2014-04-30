@@ -10,19 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.Iterator;
+import java.sql.Types;
 import java.util.List;
 
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
@@ -59,54 +55,50 @@ public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       DBMSKey targetDBMS = item.getDbDescriptor().getDbmsKey();
       if (DBMSKey.ORACLE.equals(targetDBMS) || DBMSKey.ORACLE9i.equals(targetDBMS))
       {
-         DDLManager ddlManager = new DDLManager(item.getDbDescriptor());
-         for (Iterator iter = SchemaHelper.getPersistentClasses(item.getDbDescriptor())
-               .iterator(); iter.hasNext();)
+         try
          {
-            Class type = (Class) iter.next();
-            final TypeDescriptor typeDescriptor = TypeDescriptor.get(type);
-            try
+            DatabaseMetaData databaseMetaData = DatabaseHelper.getDatabaseMetaData(item);
+            //list of persistence table for 4_7
+            String[] persistenceTables4_7 = {
+                  "activity_instance", "activity_inst_log", "act_inst_history",
+                  "act_inst_property", "trans_inst", "trans_token", "daemon_log", "data_value",
+                  "event_binding", "log_entry", "message_store", "property", "timer_log",
+                  "usergroup", "usergroup_property", "workflowuser", "user_property",
+                  "wfuser_session", "user_participant", "user_usergroup", "process_instance",
+                  "proc_inst_property", "procinst_scope", "procinst_hierarchy",
+                  "structured_data_value", "domain", "domain_hierarchy", "wfuser_domain",
+                  "wfuser_realm", "workitem", "structured_data", "model", "string_data",
+                  "activity", "data", "event_handler", "participant", "partition",
+                  "process_definition", "transition", "process_trigger"};
+
+            //qualifying table name is done by the called methods
+            for(String tableName: persistenceTables4_7)
             {
-               if (ddlManager.containsTable(typeDescriptor.getSchemaName(),
-                     typeDescriptor.getTableName(), item.getConnection()))
+               //change every string column from varchar byte to varchar  char
+               List<FieldInfo> affectedColumns
+                  = DatabaseHelper.getColumns(databaseMetaData, tableName, Types.VARCHAR);
+               if(affectedColumns != null && !affectedColumns.isEmpty())
                {
-                  final List modifyColumnCandidates = CollectionUtils.newArrayList();
+                  final FieldInfo[] fieldInfos
+                     = affectedColumns.toArray(new FieldInfo[affectedColumns.size()]);
 
-                  List persistentFields = typeDescriptor.getPersistentFields();
-                  for (Iterator fieldIter = persistentFields.iterator(); fieldIter
-                        .hasNext();)
-                  {
-                     FieldDescriptor fieldDscr = (FieldDescriptor) fieldIter.next();
-                     Class fieldType = fieldDscr.getField().getType();
-                     int length = fieldDscr.getLength();
-                     if (String.class.isAssignableFrom(fieldType)
-                           && Integer.MAX_VALUE != length)
-                     {
-                        modifyColumnCandidates.add(new FieldInfo(fieldDscr.getField()
-                              .getName(), String.class, length));
-                     }
-                  }
-
-                  if (!modifyColumnCandidates.isEmpty())
-                  {
-                     DatabaseHelper.alterTable(item,
-                           new AlterTableInfo(typeDescriptor.getTableName())
+                  //qualifying table name is done within that call
+                  DatabaseHelper.alterTable(item,
+                        new AlterTableInfo(tableName)
+                        {
+                           public FieldInfo[] getModifiedFields()
                            {
-                              public FieldInfo[] getModifiedFields()
-                              {
-                                 return (FieldInfo[]) modifyColumnCandidates
-                                       .toArray(new FieldInfo[modifyColumnCandidates
-                                             .size()]);
-                              }
+                              return (fieldInfos);
+                           }
 
-                           }, this);
-                  }
+                        }, this);
+
                }
             }
-            catch (SQLException e)
-            {
-               error("Failed determining the tables to modify.", e);
-            }
+         }
+         catch(SQLException e)
+         {
+            error("Failed determining the tables and/or string columns to modify.", e);
          }
       }
 

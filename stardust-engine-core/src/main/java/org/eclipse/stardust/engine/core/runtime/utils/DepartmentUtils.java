@@ -96,30 +96,21 @@ public final class DepartmentUtils
          ModelParticipantInfo mpInfo = (ModelParticipantInfo) participant;
 
          IModelParticipant modelParticipant = null;
-         if (modelOid > 0)
-         {
             Iterator<IModelParticipant> participants = modelManager.getParticipantsForID(participant.getId());
             
-            // iterating through all participants with the given id to find the one
-            // belonging to the model
-            while (participants.hasNext())
-            {
-               IModelParticipant ptcp = participants.next();
-               if (ptcp.getModel().getModelOID() == modelOid)
-               {
-                  long runtimeOid = modelManager.getRuntimeOid(ptcp);
-                  modelParticipant = modelManager.findModelParticipant(modelOid,
-                        runtimeOid);
-
-                  break;
-               }
-            } 
-            
-         }
-         else
+         while (participants.hasNext())
          {
-            modelParticipant = modelManager.findModelParticipant(mpInfo);
+            IModelParticipant ptcp = participants.next();
+
+            long runtimeOid = modelManager.getRuntimeOid(ptcp);
+            modelParticipant = modelManager.findModelParticipant(PredefinedConstants.ANY_MODEL, runtimeOid);
+            
+            if (modelParticipant != null)
+            {
+               break;
+            }
          }
+
          if (modelParticipant == null)
          {
             throw new ObjectNotFoundException(

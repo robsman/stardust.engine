@@ -10,23 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.framework;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.IndexDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.LoggingPreparedStatement;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.NVLFunction;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 
 /**
@@ -35,6 +34,9 @@ import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.Inde
  */
 public final class DatabaseHelper
 {
+   public static final long OID_UNDEFINED = -1;
+
+
    public enum ColumnNameModificationMode
    {
       UPPER_CASE,
@@ -92,6 +94,142 @@ public final class DatabaseHelper
             item,
             "create table " + getQualifiedName(tableInfo.getTableName()) + "("
             + tableInfo.getTableDefinition() + ")");
+   }
+
+   /**
+    * Updates multiple columns using batching.
+    * That means update are issued in blocks based on
+    * the {@code batchSize} and using the {@code oidColumn}
+    * as block building criteria. This method also checks if
+    * the database supports multi column updates or not based on
+    * the {@code item}. The passed {@code tableName} will also be qualified
+    * within this method(this means the schema name is appended if necessary)
+    *
+    * @param item - the runtime item
+    * @param tableName - the table on which to update, must contain NO schema name
+    * @param oidColumn - the oid column of type Long
+    * @param batchSize - the batchsize after each block will be committed
+    * @param updateColumnInfos - the columns to update and their value
+    * @throws SQLException if any exception occur during updating
+    */
+   public static void setColumnValuesInBatch(RuntimeItem item,
+         String tableName,
+         FieldInfo oidColumn,
+         int batchSize,
+         UpdateColumnInfo...updateColumnInfos) throws SQLException
+   {
+      String qualifiedTableName = DatabaseHelper.getQualifiedName(tableName);
+      long pkMin = getMinOid(item, qualifiedTableName, oidColumn.getName());
+      long pkMax = getMaxOid(item, qualifiedTableName, oidColumn.getName());
+
+      // check if the database supports multiple columns in update statement.
+      DBDescriptor dbDescriptor = item.getDbDescriptor();
+      if(dbDescriptor != null && dbDescriptor.supportsMultiColumnUpdates())
+      {
+         internalSetColumnValuesInBatch(item, tableName, oidColumn, batchSize, pkMin, pkMax, updateColumnInfos);
+      }
+      else
+      {
+         for(UpdateColumnInfo updateColumnInfo: updateColumnInfos)
+         {
+            internalSetColumnValuesInBatch(item, tableName, oidColumn, batchSize, pkMin, pkMax, updateColumnInfo);
+         }
+      }
+   }
+
+   private static void internalSetColumnValuesInBatch(RuntimeItem item,
+         String tableName,
+         FieldInfo oidColumn,
+         int batchSize,
+         long pkMin,
+         long pkMax,
+         UpdateColumnInfo...updateColumnInfos) throws SQLException
+   {
+      //at least one record was found
+      if(pkMin != OID_UNDEFINED)
+      {
+         StringBuffer updateTableSql = new StringBuffer(500);
+         updateTableSql.append("UPDATE ").append(tableName);
+         updateTableSql.append(" SET ");
+
+         int columnCount = 0;
+         for (UpdateColumnInfo updateColumnInfo : updateColumnInfos)
+         {
+            if (columnCount > 0)
+            {
+               updateTableSql.append(",");
+            }
+
+            updateTableSql.append(updateColumnInfo.getColumn().getName());
+            updateTableSql.append(" = ");
+            updateTableSql.append(updateColumnInfo.getValue());
+            columnCount++;
+         }
+         updateTableSql.append(" WHERE ").append(oidColumn.getName());
+         updateTableSql.append(" >= ?").append(" AND ");
+         updateTableSql.append(oidColumn.getName()).append(" < ? ");
+
+         PreparedStatement updateStatement
+            = prepareLoggingStatement(item.getConnection(), updateTableSql.toString());
+
+         long oidCursor = pkMin;
+         while(oidCursor <= pkMax)
+         {
+            //lower border is inclusive
+            long lowerOidBorder  = oidCursor;
+            //upper border is exclusive
+            long upperOidBorder = oidCursor + batchSize;
+
+            updateStatement.setLong(1, lowerOidBorder);
+            updateStatement.setLong(2, upperOidBorder);
+            updateStatement.execute();
+
+            //commit after each batch
+            oidCursor = upperOidBorder;
+            item.getConnection().commit();
+         }
+      }
+   }
+
+   private static long getMinOid(RuntimeItem item, String qualifiedTableName, String oidColumn) throws SQLException
+   {
+      StringBuffer selectPkMinSql = new StringBuffer();
+      selectPkMinSql.append("Select MIN(").append(oidColumn);
+      selectPkMinSql.append(") from ").append(qualifiedTableName);
+
+      PreparedStatement selectPkMinStatement
+         = prepareLoggingStatement(item.getConnection(), selectPkMinSql.toString());
+      return getFirstOid(selectPkMinStatement);
+   }
+
+   private static long getMaxOid(RuntimeItem item, String qualifiedTableName, String oidColumn) throws SQLException
+   {
+      StringBuffer selectPkMaxSql = new StringBuffer();
+      selectPkMaxSql.append("Select MAX(").append(oidColumn);
+      selectPkMaxSql.append(") from ").append(qualifiedTableName);
+
+      PreparedStatement selectPkMinStatement
+         = prepareLoggingStatement(item.getConnection(), selectPkMaxSql.toString());
+      return getFirstOid(selectPkMinStatement);
+   }
+
+   private static long getFirstOid(PreparedStatement ps) throws SQLException
+   {
+      ResultSet rs = null;
+      try {
+         rs = ps.executeQuery();
+         boolean hasNext = rs.next();
+         if(hasNext)
+         {
+            return rs.getLong(1);
+         }
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rs);
+      }
+
+      return OID_UNDEFINED;
    }
 
    /**
@@ -533,6 +671,12 @@ public final class DatabaseHelper
             SessionFactory.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX);
    }
 
+   public static String getUserName()
+   {
+      return (String) Parameters.instance().get(
+            SessionFactory.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
+   }
+
    /**
     * <p>Drops a table based on the passed {@link TableInfo} object.</p>
     *
@@ -732,10 +876,37 @@ public final class DatabaseHelper
       }
 
       IndexDescriptor idxDesc = new IndexDescriptor(index.name, fieldNames, index.unique);
-
       // TODO schema name
       executeDdlStatement(item, dbDescriptor.getCreateIndexStatement(schema,
             table.getTableName(), idxDesc));
+   }
+
+   public static String getInClause(Collection<?> values)
+   {
+      StringBuffer inClause = new StringBuffer();
+      inClause.append("IN(");
+
+      int count = 0;
+      for(Object value: values)
+      {
+         if(count > 0)
+         {
+            inClause.append(",");
+         }
+
+         inClause.append(getSqlValue(value));
+         count++;
+      }
+
+      inClause.append(")");
+      return inClause.toString();
+
+   }
+
+   public static LoggingPreparedStatement prepareLoggingStatement(Connection connection, String sql) throws SQLException
+   {
+      PreparedStatement ps = connection.prepareStatement(sql);
+      return new LoggingPreparedStatement(ps, sql);
    }
 
    protected static String getColumnName(DBDescriptor dbDescriptor, FieldInfo field)
@@ -745,24 +916,284 @@ public final class DatabaseHelper
          String colName = null;
          if(DBMSKey.SYBASE.equals(dbDescriptor.getDbmsKey()))
          {
-            colName = field.name;
+            colName = field.getName();
          }
          else
          {
-            colName = field.name.toUpperCase();
+            colName = field.getName().toUpperCase();
          }
          return dbDescriptor.quoteIdentifier(colName);
       }
       else if(columnNameModificationMode == ColumnNameModificationMode.LOWER_CASE)
       {
-         String colName = field.name.toLowerCase();
+         String colName = field.getName().toLowerCase();
          return dbDescriptor.quoteIdentifier(colName);
       }
       else if(columnNameModificationMode == ColumnNameModificationMode.NONE)
       {
-         return dbDescriptor.quoteIdentifier(field.name);
+         return dbDescriptor.quoteIdentifier(field.getName());
       }
       
       throw new PublicException("unknow column modification type: "+columnNameModificationMode);
+   }
+
+   public static boolean hasTable(DatabaseMetaData databaseMetaData, String tableName) throws SQLException
+   {
+      String metaDataSchema = getMetaDataSchema(databaseMetaData);
+      tableName = getIdentifierAsStoredInDb(databaseMetaData, tableName);
+
+      String[] types = {"TABLE"};
+      ResultSet rs = null;
+      try {
+         rs = databaseMetaData.getTables(null, metaDataSchema, tableName, types);
+         if(rs.next())
+         {
+            return true;
+         }
+
+         return false;
+      }
+      finally
+      {
+         if(rs != null)
+         {
+            rs.close();
+         }
+      }
+   }
+
+   public static List<FieldInfo> getColumns(DatabaseMetaData databaseMetaData, String tableName, Integer columType) throws SQLException
+   {
+      List<FieldInfo> columns = new ArrayList<FieldInfo>();
+      String metaDataSchema = getMetaDataSchema(databaseMetaData);
+      tableName = getIdentifierAsStoredInDb(databaseMetaData, tableName);
+
+      ResultSet rs = null;
+      try {
+         rs = databaseMetaData.getColumns(null, metaDataSchema, tableName, null);
+         while(rs.next())
+         {
+            int rsType = rs.getInt(5);
+            boolean match = true;
+            if(columType != null)
+            {
+               if(!columType.equals(rsType))
+               {
+                  match = false;
+               }
+            }
+
+            if(match)
+            {
+               Class javaType = DmlManager.mapSqlTypeToJavaTpe(rsType);
+               String columnName = rs.getString(4);
+               int columnSize = rs.getInt(7);
+
+               FieldInfo fieldInfo
+                  = new FieldInfo(columnName, javaType, columnSize);
+               columns.add(fieldInfo);
+            }
+         }
+      }
+      finally
+      {
+         if(rs != null)
+         {
+            rs.close();
+         }
+      }
+
+      return columns;
+   }
+
+   public static List<String> getColumns(DatabaseMetaData databaseMetaData, String tableName) throws SQLException
+   {
+      List<String> columns = new ArrayList<String>();
+      String metaDataSchema = getMetaDataSchema(databaseMetaData);
+      tableName = getIdentifierAsStoredInDb(databaseMetaData, tableName);
+
+      ResultSet rs = null;
+      try {
+         rs = databaseMetaData.getColumns(null, metaDataSchema, tableName, null);
+         while(rs.next())
+         {
+            String column = rs.getString(4);
+            columns.add(column);
+         }
+      }
+      finally
+      {
+         if(rs != null)
+         {
+            rs.close();
+         }
+      }
+
+      return columns;
+   }
+
+   public static boolean hasIndex(DatabaseMetaData databaseMetaData, String tableName, String indexName) throws SQLException
+   {
+      List<IndexInfo> allIndices = getIndices(databaseMetaData, tableName);
+      IndexInfo match = findIndex(databaseMetaData, indexName, allIndices);
+      if(match != null)
+      {
+         return true;
+      }
+
+      return false;
+   }
+
+   public static IndexInfo findIndex(DatabaseMetaData databaseMetaData, String indexName,
+         List<IndexInfo> indices) throws SQLException
+   {
+      indexName = getIdentifierAsStoredInDb(databaseMetaData, indexName);
+      for (IndexInfo index : indices)
+      {
+         String tmpIndexName = getIdentifierAsStoredInDb(databaseMetaData, index.getName());
+         if (indexName.equals(tmpIndexName))
+         {
+            return index;
+         }
+      }
+
+      return null;
+   }
+
+   public static List<IndexInfo> getIndices(DatabaseMetaData databaseMetaData,
+         String tableName) throws SQLException
+   {
+      List<IndexInfo> nonUniqueIndices = getIndices(databaseMetaData, tableName, false);
+      List<IndexInfo> uniqueIndices = getIndices(databaseMetaData, tableName, true);
+
+      List<IndexInfo> allIndices = new ArrayList<IndexInfo>();
+      allIndices.addAll(nonUniqueIndices);
+      allIndices.addAll(uniqueIndices);
+      return allIndices;
+   }
+
+   public static List<IndexInfo> getIndices(DatabaseMetaData databaseMetaData,
+         String tableName, boolean unique) throws SQLException
+   {
+      List<IndexInfo> indices = new ArrayList<IndexInfo>();
+      String metaDataSchema = getMetaDataSchema(databaseMetaData);
+      tableName = getIdentifierAsStoredInDb(databaseMetaData, tableName);
+
+      ResultSet rs = null;
+      try {
+         rs = databaseMetaData.getIndexInfo(null, metaDataSchema, tableName, unique, false);
+         while(rs.next())
+         {
+            String indexName = rs.getString(6);
+            IndexInfo indexInfo = new IndexInfo(indexName, unique, new FieldInfo[0]);
+            indices.add(indexInfo);
+         }
+      }
+      finally
+      {
+         if(rs != null)
+         {
+            rs.close();
+         }
+      }
+
+      return indices;
+   }
+
+   private static String getMetaDataSchema(DatabaseMetaData databaseMetaData) throws SQLException
+   {
+      String schemaIdentifier = getSchemaName();
+      if(StringUtils.isNotEmpty(schemaIdentifier))
+      {
+         return getIdentifierAsStoredInDb(databaseMetaData, schemaIdentifier);
+      }
+
+      return null;
+   }
+
+   public static DatabaseMetaData getDatabaseMetaData(RuntimeItem item) throws SQLException
+   {
+      return item.getConnection().getMetaData();
+   }
+
+   //return an identifier in the format as its stored in the databse
+   //this is used when working with DatabaseMetaData
+   public static String getIdentifierAsStoredInDb(DatabaseMetaData databaseMetaData, String identifier) throws SQLException
+   {
+      if(StringUtils.isNotEmpty(identifier))
+      {
+         if(databaseMetaData.storesLowerCaseIdentifiers())
+         {
+            identifier = identifier.toLowerCase();
+         }
+         else if(databaseMetaData.storesUpperCaseIdentifiers())
+         {
+            identifier = identifier.toUpperCase();
+         }
+      }
+
+      return identifier;
+   }
+
+   public static String getSqlValue(Object value)
+   {
+      String quotedValue = null;
+      if(value != null)
+      {
+         if(value instanceof String)
+         {
+            quotedValue = "'"+value.toString()+"'";
+         }
+         else if(value instanceof FieldInfo)
+         {
+            quotedValue = ((FieldInfo) value).getName();
+         }
+         else
+         {
+            quotedValue = value.toString();
+         }
+      }
+
+      return quotedValue;
+   }
+
+   public static String getSelectBasedOnNullCriteriaSql(RuntimeItem item,
+         String tableName,
+         FieldInfo nullCriteriaColumn,
+         NVLFunction nullReplaceFunction,
+         FieldInfo...selectColumns) throws SQLException
+   {
+      DBDescriptor descriptor = item.getDbDescriptor();
+
+      tableName = getQualifiedName(tableName);
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("SELECT ");
+
+      int columnCount = 0;
+      for(FieldInfo selectColumn: selectColumns)
+      {
+         if(columnCount > 0)
+         {
+            buffer.append(", ");
+         }
+         buffer.append(selectColumn.getName());
+      }
+      buffer.append(" FROM ").append(tableName);
+      buffer.append(" WHERE ");
+
+      if(descriptor instanceof OracleDbDescriptor
+            && nullReplaceFunction != null)
+      {
+         buffer.append(nullReplaceFunction);
+         buffer.append(" = ");
+         buffer.append(nullReplaceFunction.getReplaceValue());
+      }
+      else
+      {
+         buffer.append(nullCriteriaColumn.getName());
+         buffer.append(" IS NULL");
+      }
+
+      return buffer.toString();
    }
 }

@@ -129,6 +129,8 @@ public class AttributeFilterUtils
    
    public static final String PROCESS_DEFINITION_QUERY_MODEL_OID = ModelAwareQueryPredicate.INTERNAL_MODEL_OID_ATTRIBUTE;
 
+   public static final String PROCESS_DEFINITION_QUERY_INVOCATION_TYPE = "invocationType";
+
    // DocumentQuery Attributes
    public static final String DOCUMENT_QUERY_CONTENT = "content";
 
@@ -402,7 +404,11 @@ public class AttributeFilterUtils
          }
          else if (PROCESS_DEFINITION_QUERY_MODEL_OID.equals(attribute))
          {
-        	return (FilterableAttribute) Reflect.getStaticFieldValue(ProcessDefinitionQuery.class, "MODEL_OID");
+            return (FilterableAttribute) Reflect.getStaticFieldValue(ProcessDefinitionQuery.class, "MODEL_OID");
+         }
+         else if (PROCESS_DEFINITION_QUERY_INVOCATION_TYPE.equals(attribute))
+         {
+            return ProcessDefinitionQuery.INVOCATION_TYPE;
          }
       }
       if (DocumentQuery.class.equals(clazz))
@@ -764,6 +770,10 @@ public class AttributeFilterUtils
             if (((FilterableAttribute) Reflect.getStaticFieldValue(ProcessDefinitionQuery.class, "MODEL_OID")).getAttributeName().equals(attribute))
             {
             	return PROCESS_DEFINITION_QUERY_MODEL_OID;
+            }
+            if (ProcessDefinitionQuery.INVOCATION_TYPE.getAttributeName().equals(attribute))
+            {
+               return PROCESS_DEFINITION_QUERY_INVOCATION_TYPE;
             }
          }
          if (DataQuery.class.equals(clazz))

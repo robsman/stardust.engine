@@ -30,11 +30,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -42,17 +38,7 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
@@ -66,12 +52,7 @@ import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -211,7 +192,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private static final String startingActivityInstance_MANDATORY = Boolean.FALSE.toString();
 
    private static final String AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY = "Infinity.Engine.AuditTrailPersistence";
-   
+
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -223,7 +204,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private int propertiesAvailable;
 
    private transient Map<String,IDataValue> dataValueCache;
-   
+
    private transient Map<Long, IStructuredDataValue> structuredDataValueCache;
 
    private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();
@@ -264,7 +245,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return createInstance(processDefinition, null, null, user, data, isSubprocess);
    }   
-   
+
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
    {
@@ -328,8 +309,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else
       {
-			processInstance.setDeployment(ModelManagerFactory.getCurrent()
-					.getLastDeployment());
+         processInstance.setDeployment(ModelManagerFactory.getCurrent()
+               .getLastDeployment());
       }
       if (parentActivityInstance != null)
       {
@@ -421,7 +402,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       this.startTime = TimestampProviderUtils.getTimeStamp().getTime();
       this.terminationTime = 0;
       this.tokenCount = 1;
-      
+
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       session.cluster(this);
@@ -527,11 +508,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          DataClusterHelper.synchronizeDataCluster(scopePi);
       }
    }
-   
+
    /**
     * This method is intended to restore the state after a reloadAttribute(FIELD__STATE).
     * Most not be used in any other way and not be made public.
-    * 
+    *
     * @param state the original state.
     */
    void restoreState(ProcessInstanceState state)
@@ -683,7 +664,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          /* transient process instances do not contain any manual activities */
          return null;
       }
-      
+
       return ActivityInstanceBean.getLastActivityPerformer(getOID());
    }
 
@@ -954,7 +935,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       return (IDataValue) dataValueCache.get(dataId);
    }
-   
+
    public IStructuredDataValue getCachedStructuredDataValue(long xPathOid)
    {
       if (getOID() != getScopeProcessInstanceOID())
@@ -965,7 +946,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return null;
       }
-      
+
       return structuredDataValueCache.get(xPathOid);
    }
 
@@ -1179,7 +1160,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       AuditTrailLogger.getInstance(LogCode.ENGINE, this).info(
             "Process instance interrupted.");
-      
+
       MonitoringUtils.processExecutionMonitors().processInterrupted(this);
    }
 
@@ -1316,7 +1297,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             return null;
          }
       }*/
-      
+
       IDataValue dataValue = getDataValue(data);
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
@@ -1325,6 +1306,49 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
       return evaluator.evaluate(data, dataValue.getValue(), path, evaluationContext);
+   }
+
+   void lockDataValue(IData data) throws PhantomException
+   {
+      // TODO (fh) hardcoded 1 min, should be configurable
+      long timeout = System.currentTimeMillis() + 60000;
+      IDataValue dataValue = getDataValue(data);
+      if (dataValue instanceof DataValueBean)
+      {
+         while (true)
+         {
+            try
+            {
+               ((DataValueBean) dataValue).lock();
+               ((DataValueBean) dataValue).reload();
+               if (dataValueCache != null)
+               {
+                  dataValueCache.put(data.getId(), dataValue);
+               }
+               return;
+            }
+            catch (ConcurrencyException ex)
+            {
+               if (System.currentTimeMillis() > timeout)
+               {
+                  throw ex;
+               }
+               try
+               {
+                  // TODO (fh) hardcoded random delay between 50 and 100 milliseconds, should be configurable
+                  Thread.sleep((long) (Math.random() * 50 + 50));
+               }
+               catch (InterruptedException e)
+               {
+                  // (fh) do nothing
+               }
+            }
+            catch (PhantomException ex)
+            {
+               throw ex;
+            }
+         }
+      }
    }
 
    /**
@@ -1357,23 +1381,23 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       dataValueCache.put(value.getData().getId(), value);
    }
-   
+
    public void addStructuredDataValue(IStructuredDataValue value)
    {
       if (getOID() != getScopeProcessInstanceOID())
       {
-         ProcessInstanceBean scopeProcessInstance 
+         ProcessInstanceBean scopeProcessInstance
             = (ProcessInstanceBean) getScopeProcessInstance();
          scopeProcessInstance.addStructuredDataValue(value);
       }
-      
+
       if(structuredDataValueCache == null)
       {
          this.structuredDataValueCache = CollectionUtils.newHashMap();
       }
-          
+
       structuredDataValueCache.put(value.getXPathOID(), value);
-      
+
    }
 
    public AbstractProperty createProperty(String name, Serializable value)
@@ -1531,7 +1555,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public void addExistingNote(ProcessInstanceProperty srcNote)
    {
       super.addProperty(srcNote.clone(this.getOID()));
-      
+
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
@@ -1573,7 +1597,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       setPropertyValue(ABORTING_USER_OID, new Long(oid));
    }
-   
+
    public void addPropertyValues(Map attributes)
    {
       super.addPropertyValues(attributes);
@@ -1629,12 +1653,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return determineProcessInstanceBoundAuditTrailPersistence();
       }
    }
-   
+
    private AuditTrailPersistence determineGlobalOverride()
    {
       final Parameters params = Parameters.instance();
       final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
-      
+
       if (KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF.equals(globalSetting))
       {
          return AuditTrailPersistence.IMMEDIATE;
@@ -1652,7 +1676,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          throw new IllegalStateException("Value '" + globalSetting + "' is not an override for property '" + KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES + "'.");
       }
    }
-   
+
    private AuditTrailPersistence determineProcessInstanceBoundAuditTrailPersistence()
    {
       final AuditTrailPersistence auditTrailPersistence = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
@@ -1660,37 +1684,37 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return auditTrailPersistence;
       }
-      
+
       return AuditTrailPersistence.ENGINE_DEFAULT;
    }
-   
+
    public void setAuditTrailPersistence(final AuditTrailPersistence newValue)
    {
       if (newValue == null)
       {
          throw new NullPointerException("Audit Trail Persistence must not be null.");
       }
-      
+
       final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
       if (isGlobalOverride)
       {
          trace.warn("Changing process instance bound Audit Trail Persistence to '" + newValue + "' although a global override is set. (OID: " + oid + ").");
       }
-      
+
       final AuditTrailPersistence oldValue = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
       if (oldValue != null && oldValue != newValue && !isGlobalOverride)
       {
          trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }
-      
+
       setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, newValue);
    }
-   
+
    private boolean isGlobalAuditTrailPersistenceOverride()
    {
       final Parameters params = Parameters.instance();
       final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
-      
+
       final boolean isOff = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF.equals(globalSetting);
       final boolean isAlwaysTransient = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(globalSetting);
       final boolean isAlwaysDeferred = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(globalSetting);
@@ -1698,10 +1722,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return true;
       }
-      
+
       return false;
    }
-   
+
    private boolean noteExists()
    {
       Attribute property = (Attribute) getAllProperties().get(PI_NOTE);
@@ -1721,10 +1745,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return AuditTrailPersistence.ENGINE_DEFAULT;
       }
-      
+
       return AuditTrailPersistence.valueOf(auditTrailPersistence);
    }
-   
+
    /**
     * @throws ObjectNotFoundException
     * @throws InvalidValueException
@@ -1741,27 +1765,61 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             SubProcessModeKey subProcessMode = startingActivity.getSubProcessMode();
             if (subProcessMode != null && !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode))
             {
+               String outputParameterId = null;
+               String parameterContext = null;
+               ILoopCharacteristics loop = startingActivity.getLoopCharacteristics();
+               if (loop instanceof IMultiInstanceLoopCharacteristics)
+               {
+                  outputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getOutputParameterId();
+                  if (outputParameterId != null)
+                  {
+                     parameterContext = outputParameterId.substring(0, outputParameterId.indexOf(':'));
+                     outputParameterId = outputParameterId.substring(parameterContext.length() + 1);
+                  }
+               }
+
                ModelElementList outDataMappings = startingActivity.getOutDataMappings();
                for (int i = 0; i < outDataMappings.size(); ++i)
                {
                   IDataMapping mapping = (IDataMapping) outDataMappings.get(i);
 
-                  if (PredefinedConstants.ENGINE_CONTEXT.equals(mapping.getContext()) ||
-                      PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(mapping.getContext()))
+                  String context = mapping.getContext();
+                  if (PredefinedConstants.ENGINE_CONTEXT.equals(context) ||
+                      PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context))
                   {
                      // copy data value
                      String accessPointId = mapping.getActivityAccessPointId();
-                     IData subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(mapping.getContext())
+                     IData subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context)
                         ? ModelUtils.getMappedData(getProcessDefinition(), accessPointId)
                         : ModelUtils.getData(getProcessDefinition(), accessPointId);
-                     String subProcessDataPath = mapping.getActivityPath();
-                     Object subProcessDataValue = getInDataValue(subProcessData,
-                           subProcessDataPath);
 
-                     IProcessInstance parentProcessInstance = startingActivityInstance
-                           .getProcessInstance();
-                     parentProcessInstance.setOutDataValue(mapping.getData(), mapping
-                           .getDataPath(), subProcessDataValue);
+                     String subProcessDataPath = mapping.getActivityPath();
+                     Object subProcessDataValue = getInDataValue(subProcessData, subProcessDataPath);
+
+                     IProcessInstance parentProcessInstance = startingActivityInstance.getProcessInstance();
+                     IData data = mapping.getData();
+                     String dataPath = mapping.getDataPath();
+                     if (outputParameterId != null
+                           && outputParameterId.equals(accessPointId)
+                           && parameterContext.equals(context))
+                     {
+                        int index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        if (index >= 0)
+                        {
+                           try
+                           {
+                              lockDataValue(data);
+                           }
+                           catch (PhantomException e)
+                           {
+                              // (fh) do nothing
+                              continue;
+                           }
+                           Object list = parentProcessInstance.getInDataValue(data, dataPath);
+                           subProcessDataValue = ActivityInstanceBean.setValueInList(index, subProcessDataValue, list);
+                        }
+                     }
+                     parentProcessInstance.setOutDataValue(data, dataPath, subProcessDataValue);
                   }
                }
             }
@@ -1964,7 +2022,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          this.currentValue = defaultValue;
       }
    }
-   
+
    public class IStructuredDataValueCacheKey
    {
       private final long xpathOid;

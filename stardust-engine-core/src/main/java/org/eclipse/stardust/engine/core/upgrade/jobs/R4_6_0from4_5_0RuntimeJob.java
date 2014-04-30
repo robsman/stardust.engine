@@ -10,14 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -25,18 +20,22 @@ import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.IModelPersistor;
-import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
+import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
+import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
+import org.eclipse.stardust.engine.core.model.parser.info.XpdlInfo;
+import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.pojo.data.Type;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.IndexWithTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.ModelXmlLoader;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.NVLFunction;
+import org.eclipse.stardust.engine.core.upgrade.utils.xml.*;
 
 
 /**
@@ -143,7 +142,11 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String LSH_FIELD__OBJECTID = "objectid";
    private static final String LSH_FIELD__DATA_TYPE = "data_type";
    private static final String LSH_FIELD__DATA = "data";
+   private static final String DATA_TABLE = "data";
 
+   private final FieldInfo propAvailableColumn
+      = new FieldInfo(PI_FIELD_PROPERTIES_AVAILABLE, Integer.TYPE);
+   private NVLFunction<FieldInfo, Integer> nullReplaceFunction = null;
 
    private int batchSize = 500;
 
@@ -163,6 +166,72 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    public Version getVersion()
    {
       return VERSION;
+   }
+
+   private List<IndexWithTableInfo> getTemporaryIndexDefinitions()
+   {
+      DBDescriptor descriptor = item.getDbDescriptor();
+      List<IndexWithTableInfo> indexDefinitions
+         = new ArrayList<IndexWithTableInfo>();
+      if (descriptor instanceof OracleDbDescriptor)
+      {
+         nullReplaceFunction = new NVLFunction(propAvailableColumn, -8795);
+         IndexWithTableInfo nullIndex
+            = new IndexWithTableInfo("pi_prop_null_idx99", PI_TABLE_NAME, nullReplaceFunction);
+         indexDefinitions.add(nullIndex);
+      }
+
+      FieldInfo dvDataField = new FieldInfo(DV_FIELD__DATA, Long.TYPE);
+      FieldInfo dvTypeKeyField = new FieldInfo(DV_FIELD__TYPE_KEY, Integer.TYPE);
+      FieldInfo dvModelField = new FieldInfo(DV_FIELD__MODEL, Long.TYPE);
+
+      IndexWithTableInfo dataValueIndex
+         = new IndexWithTableInfo("data_value_idx99", DV_TABLE_NAME, dvDataField, dvTypeKeyField, dvModelField);
+      indexDefinitions.add(dataValueIndex);
+
+      return indexDefinitions;
+   }
+
+   private void createTemporaryIndexes(final List<IndexWithTableInfo> indexDefinitions) throws SQLException
+   {
+      DatabaseMetaData databaseMetaData = DatabaseHelper.getDatabaseMetaData(item);
+      for(final IndexWithTableInfo indexWithTableInfo: indexDefinitions)
+      {
+         if (!DatabaseHelper.hasIndex(databaseMetaData, indexWithTableInfo.getTableName(),
+               indexWithTableInfo.getName()))
+         {
+            DatabaseHelper.alterTable(item, new AlterTableInfo(indexWithTableInfo.getTableName())
+            {
+               @Override
+               public IndexInfo[] getAddedIndexes()
+               {
+                  IndexInfo[] addedIndexes = new IndexInfo[] {indexWithTableInfo};
+                  return addedIndexes;
+               }
+            }, this);
+         }
+      }
+   }
+
+   private void dropTemporaryIndexes(List<IndexWithTableInfo> indexDefinitions) throws SQLException
+   {
+      DatabaseMetaData databaseMetaData = DatabaseHelper.getDatabaseMetaData(item);
+      for(final IndexWithTableInfo indexWithTableInfo: indexDefinitions)
+      {
+         if (DatabaseHelper.hasIndex(databaseMetaData, indexWithTableInfo.getTableName(),
+               indexWithTableInfo.getName()))
+         {
+            DatabaseHelper.alterTable(item, new AlterTableInfo(indexWithTableInfo.getTableName())
+            {
+               @Override
+               public IndexInfo[] getDroppedIndexes()
+               {
+                  IndexInfo[] droppedIndexes = new IndexInfo[] {indexWithTableInfo};
+                  return droppedIndexes;
+               }
+            }, this);
+         }
+      }
    }
 
    protected void upgradeSchema(boolean recover) throws UpgradeException
@@ -228,6 +297,34 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       }, this);
 
+      final List<IndexInfo> indicesToDrop = new ArrayList<IndexInfo>();
+      List<String> indexDropCandidates = new ArrayList<String>();
+      // one of the following variants of index names should exist:
+      // names longer 18 characters do not work with DB2 8.1.
+      // These have been used in original createschema in 4.5.0.
+      indexDropCandidates.add("wfuser_session_idx1");
+      indexDropCandidates.add("wfuser_session_idx2");
+      // These names have been used in upgrade 4.0.0 to 4.5.0
+      indexDropCandidates.add("wfuser_session1");
+      indexDropCandidates.add("wfuser_session2");
+      try
+      {
+         DatabaseMetaData databaseMetaData = DatabaseHelper.getDatabaseMetaData(item);
+         List<IndexInfo> allIndices = DatabaseHelper.getIndices(databaseMetaData, US_TABLE_NAME);
+         for(String indexName: indexDropCandidates)
+         {
+            IndexInfo match = DatabaseHelper.findIndex(databaseMetaData, indexName, allIndices);
+            if(match != null)
+            {
+               indicesToDrop.add(match);
+            }
+         }
+      }
+      catch(SQLException e)
+      {
+         reportExeption(e, "Failed determing which index to drop");
+      }
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(US_TABLE_NAME)
       {
          private final FieldInfo OID = new FieldInfo(US_FIELD__OID, Long.TYPE, 0, true);
@@ -246,15 +343,7 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
          public IndexInfo[] getDroppedIndexes()
          {
-            return new IndexInfo[] {//
-                  // one of the following variants of index names should exist:
-                  // names longer 18 characters do not work with DB2 8.1.
-                  // These have been used in original createschema in 4.5.0.
-                  new IndexInfo("wfuser_session_idx1", NO_FIELDS),
-                  new IndexInfo("wfuser_session_idx2", NO_FIELDS),
-                  // These names have been used in upgrade 4.0.0 to 4.5.0
-                  new IndexInfo("wfuser_session1", NO_FIELDS),
-                  new IndexInfo("wfuser_session2", NO_FIELDS)};
+            return indicesToDrop.toArray(new IndexInfo[indicesToDrop.size()]);
          }
       }, this);
 
@@ -404,12 +493,19 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          // perform data migration in well defined TXs
          item.getConnection().setAutoCommit(false);
 
+         //get the definition for temporary indexes to boost performance
+         List<IndexWithTableInfo> temporaryIndexDefinitions
+            = getTemporaryIndexDefinitions();
+         createTemporaryIndexes(temporaryIndexDefinitions);
+
          info("Setting field process_instance.noteAvailable to default values...");
          updateProcessInstanceTable();
          info("Change storage of process instance notes...");
          updateProcessInstanceNoteStorage();
          info("Updating structured data value table ...");
          updateStructuredDataValueTable();
+
+         dropTemporaryIndexes(temporaryIndexDefinitions);
       }
       catch (SQLException sqle)
       {
@@ -454,57 +550,120 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
-   private void updateProcessInstanceNoteStorage(String partition) throws SQLException
+   private List<RTJobCvmDataInfo> getPiNotesData(String modelXml)
    {
-      Utils.initCarnotEngine(partition, getRtJobEngineProperties());
-      HashMap registries = new HashMap(); // <partition>,<runtime registry>
-
-      Short partitionOid = (Short) Parameters.instance().get(
-            SecurityProperties.CURRENT_PARTITION_OID);
-      RuntimeOidRegistry registry = getRuntimeOidRegistry(registries, partitionOid);
-
-      for (Iterator modelIter = ModelPersistorBean.findAll(partitionOid.shortValue()); modelIter
-            .hasNext();)
+      List<RTJobCvmDataInfo> piNotesData = new ArrayList<RTJobCvmDataInfo>();
+      try
       {
-         IModelPersistor currentModel = (IModelPersistor) modelIter.next();
-         IModel model = ModelManagerFactory.getCurrent().findModel(
-               currentModel.getModelOID());
-         for (Iterator iter = model.getAllProcessDefinitions(); iter.hasNext();)
+         ModelInfo modelInfo = ModelInfoRetriever.get(modelXml.getBytes());
+         if (modelInfo instanceof XpdlInfo)
          {
-            IProcessDefinition pd = (IProcessDefinition) iter.next();
-            for (Iterator dataPathsIter = pd.getAllDataPaths(); dataPathsIter.hasNext();)
-            {
-               IDataPath dataPath = (IDataPath) dataPathsIter.next();
-               if (NOTE_DATA_PATH.equals(dataPath.getId()))
-               {
-                  // This is a candidate for pi note
+            modelXml = XpdlUtils.convertXpdl2Carnot(modelXml);
+         }
 
-                  IData data = dataPath.getData();
-                  Type dataType = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
-                  if (Type.String == dataType
-                        && StringUtils.isEmpty(dataPath.getAccessPath()))
+         RTJobCvmModelParser modelParser = new RTJobCvmModelParser();
+         RTJobCvmModelInfo rtModelInfo = modelParser.getIModelInfo(modelXml);
+         List<RTJobCvmProcessDefinitionInfo> processDefinitions = rtModelInfo
+               .getProcessDefintions();
+
+         // a note must have a datapath with id "Note", an empty accesspath
+         // and the corresponding data must be of type String
+         for (RTJobCvmProcessDefinitionInfo pd : processDefinitions)
+         {
+            for (RTJobCvmDataPathInfo dataPathInfo : pd.getDataPathInfos())
+            {
+               if (dataPathInfo.getId().equals(NOTE_DATA_PATH))
+               {
+                  String dataId = dataPathInfo.getData();
+                  RTJobCvmDataInfo dataInfo = rtModelInfo.findDataById(dataId);
+                  if (StringUtils.isEmpty(dataPathInfo.getDataPath())
+                        && dataInfo.isStringType())
                   {
-                     // Data path with string data and no access path:
-                     // this will be assumed to be a PI-note.
-                     long dataOid = registry.getRuntimeOid(IRuntimeOidRegistry.DATA,
-                           RuntimeOidUtils.getFqId(data));
-                     updateProcessInstanceNoteStorage(currentModel.getModelOID(), dataOid);
+                     piNotesData.add(dataInfo);
                   }
                   else
                   {
-                     warn(MessageFormat
-                           .format(
-                                 "DataPath with ID 'Note' for process definition {0} found. "
-                                       + "But the assigned data is not of type String (current: {1}) "
-                                       + "or its access path is not empty (current: {2}). "
-                                       + "Its values will be ignored!",
-                                 new Object[] {
-                                       pd.getId(), dataType.getId(),
-                                       dataPath.getAccessPath()}),
-                           null);
+                     warn(MessageFormat.format(
+                           "DataPath with ID 'Note' for process definition {0} found. "
+                                 + "But the assigned data is not of type String (current: {1}) "
+                                 + "or its access path is not empty (current: {2}). "
+                                 + "Its values will be ignored!",
+                           new Object[] {
+                                 pd.getId(), dataInfo.getType(),
+                                 dataPathInfo.getDataPath()}), null);
                   }
+
                }
             }
+
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("error parsing model xml, ", e);
+      }
+
+      return piNotesData;
+   }
+
+
+   private List<String> collectDataIds(List<RTJobCvmDataInfo> dataInfos)
+   {
+      List<String> dataIds = new ArrayList<String>();
+      for(RTJobCvmDataInfo dataInfo: dataInfos)
+      {
+         dataIds.add(dataInfo.getId());
+      }
+      return dataIds;
+   }
+
+   private List<DeployedDataInfo> collectDataOids(long modelOid, List<RTJobCvmDataInfo> dataInfos)
+   {
+      List<String> dataIds = collectDataIds(dataInfos);
+      List<DeployedDataInfo> deployedDataInfo
+         = new ArrayList<DeployedDataInfo>();
+
+      StringBuffer collectDataOidsSql = new StringBuffer();
+      collectDataOidsSql.append("Select oid, id from ");
+      collectDataOidsSql.append(DatabaseHelper.getQualifiedName(DATA_TABLE));
+      collectDataOidsSql.append(" where model = ").append(modelOid);
+      collectDataOidsSql.append(" and id ");
+      collectDataOidsSql.append(DatabaseHelper.getInClause(dataIds));
+
+      try
+      {
+         ResultSet rs = DatabaseHelper.executeQuery(item, collectDataOidsSql.toString());
+         while(rs.next())
+         {
+            Long dataOid = rs.getLong(1);
+            String dataId = rs.getString(2);
+
+            DeployedDataInfo ddi
+               = new DeployedDataInfo(dataId, dataOid, modelOid);
+            deployedDataInfo.add(ddi);
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new RuntimeException("Exception occured during collecting data oids from auditrail.", e);
+      }
+
+      return deployedDataInfo;
+   }
+
+   private void updateProcessInstanceNoteStorage(String partition) throws SQLException
+   {
+      ModelXmlLoader modelXmlLoader = ModelXmlLoader.getInstance(item);
+      Set<Long> deployedModelOids = modelXmlLoader.getModelOids();
+      for(Long modelOid: deployedModelOids)
+      {
+         String modelXml = modelXmlLoader.getModelXml(modelOid);
+         List<RTJobCvmDataInfo> piNoteData = getPiNotesData(modelXml);
+         List<DeployedDataInfo> deployedDataInfo = collectDataOids(modelOid, piNoteData);
+
+         for(DeployedDataInfo ddi: deployedDataInfo)
+         {
+            updateProcessInstanceNoteStorage(modelOid, ddi.getDataOid());
          }
       }
    }
@@ -1023,19 +1182,20 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                .append(WHERE)
                   .append(PIP_FIELD_OBJECTOID).append(EQUALS).append(PI_TABLE_NAME).append(DOT).append(PI_FIELD_OID);
 
+         // select all pi oids where propertiesAvailable is null
+         final FieldInfo piOidColumn
+            = new FieldInfo(PI_FIELD_OID, Long.TYPE);
+         final String selectOidByNullPropSql = DatabaseHelper.getSelectBasedOnNullCriteriaSql(item,
+               PI_TABLE_NAME, propAvailableColumn, nullReplaceFunction, piOidColumn);
+
          // All PIs which have any properties
-         StringBuffer selectPiWithPropCmd = new StringBuffer()
-               .append(SELECT).append(PI_FIELD_OID)
-               .append(FROM).append(piTableName)
-               .append(WHERE)
-                  .append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL)
-                  .append(AND).append(existsFragment(subselectPiPropCmd));
+         StringBuffer selectPiWithPropCmd = new StringBuffer();
+         selectPiWithPropCmd.append(selectOidByNullPropSql);
+         selectPiWithPropCmd.append(AND).append(existsFragment(subselectPiPropCmd));
 
          // All PIs which still containing NULL
-         StringBuffer selectPiWithoutPropCmd = new StringBuffer()
-               .append(SELECT).append(PI_FIELD_OID)
-               .append(FROM).append(piTableName)
-               .append(WHERE).append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL);
+         StringBuffer selectPiWithoutPropCmd = new StringBuffer();
+         selectPiWithoutPropCmd.append(selectOidByNullPropSql);
 
          StringBuffer updateCmd = new StringBuffer()
                .append(UPDATE).append(piTableName)
@@ -1043,14 +1203,13 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                .append(WHERE).append(PI_FIELD_OID).append(EQUAL_PLACEHOLDER);
 
          Connection connection = item.getConnection();
+         updateRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, updateCmd.toString());
 
-         updateRowsStmt = connection.prepareStatement(updateCmd.toString());
-
-         selectRowsStmt = connection.prepareStatement(selectPiWithPropCmd.toString());
+         selectRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, selectPiWithPropCmd.toString());
          updateProcessInstanceTable(ANY_PROPERTY_AVAILABLE, selectRowsStmt,
                updateRowsStmt, connection);
 
-         selectRowsStmt = connection.prepareStatement(selectPiWithoutPropCmd.toString());
+         selectRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, selectPiWithoutPropCmd.toString());
          updateProcessInstanceTable(NO_PROPERTY_AVAILABLE, selectRowsStmt,
                updateRowsStmt, connection);
 
@@ -1160,4 +1319,34 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       return trace;
    }
+
+   private static class DeployedDataInfo
+   {
+      private String dataId;
+      private Long dataOid;
+      private Long modelOid;
+
+      public DeployedDataInfo(String dataId, Long dataOid, Long modelOid)
+      {
+         this.dataId = dataId;
+         this.dataOid = dataOid;
+         this.modelOid = modelOid;
+      }
+
+      public String getDataId()
+      {
+         return dataId;
+      }
+
+      public Long getDataOid()
+      {
+         return dataOid;
+      }
+
+      public Long getModelOid()
+      {
+         return modelOid;
+      }
+   }
+
 }

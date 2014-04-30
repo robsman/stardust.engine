@@ -897,11 +897,21 @@ public abstract class SynchronizationService
          }
          else
          {
-            trace.warn("Model participant " + participant.getId() + " (model OID "
-                  + participant.getModel().getModelOID() + ") for department "
-                  + (department != null ? department.getId() : "null") + " is no longer granted to user "
-                  + user.getId());
-
+				if (participant != null)
+				{
+					trace.warn("Model participant "
+							+ participant.getId()
+							+ " (model OID "
+							+ participant.getModel().getModelOID()
+							+ ") for department "
+							+ (department != null ? department.getId() : "null")
+							+ " is no longer granted to user " + user.getId());
+				}
+				else
+				{
+               trace.warn("Model participant: null is no langer granted to user "
+                     + user.getId());
+				}
             invalidGrants.add(scopedParticipant);
          }
       }

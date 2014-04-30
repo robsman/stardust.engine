@@ -51,6 +51,15 @@ public class ProcessDefinitionQueryEvaluator extends ModelAwareQueryPredicate<IP
          }
          return null;
       }
+      else if (ProcessDefinitionQuery.INVOCATION_TYPE.getAttributeName().equals(attribute))
+      {
+         if (process.getDeclaresInterface())
+         {
+               return process.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE);
+
+         }
+         return null;
+      }
       else
       {
          return super.getValue(process, attribute, expected);

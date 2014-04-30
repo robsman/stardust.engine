@@ -119,7 +119,7 @@ public abstract class AbstractTableInfo
 
    public static class FieldInfo
    {
-      public final String name;
+      private final String name;
       public final Class type;
       public final int size;
       
@@ -128,6 +128,11 @@ public abstract class AbstractTableInfo
       public FieldInfo(String name, Class type)
       {
          this(name, type, 0);
+      }
+
+      public FieldInfo(String name, Class type, boolean isPK)
+      {
+         this(name, type, 0, isPK);
       }
 
       public FieldInfo(String name, Class type, int size)
@@ -142,6 +147,11 @@ public abstract class AbstractTableInfo
          this.size = size;
          this.isPK = isPK;
       }
+
+      public String getName()
+      {
+         return name;
+      }
    }
    
    public static class IndexInfo
@@ -151,12 +161,12 @@ public abstract class AbstractTableInfo
 
       public final boolean unique;
       
-      public IndexInfo(final String name, final FieldInfo[] fields)
+      public IndexInfo(final String name, final FieldInfo...fields)
       {
          this(name, false, fields);
       }
 
-      public IndexInfo(final String name, boolean unique, final FieldInfo[] fields)
+      public IndexInfo(final String name, boolean unique, final FieldInfo...fields)
       {
          this.name = name;
          this.fields = fields;
@@ -215,6 +225,27 @@ public abstract class AbstractTableInfo
             indexIterator.remove();
             return;
          }
+      }
+   }
+
+   public static class IndexWithTableInfo extends IndexInfo
+   {
+      private String tableName;
+
+      public IndexWithTableInfo(final String name, String tableName, final FieldInfo...fields)
+      {
+         this(name, tableName, false, fields);
+      }
+
+      public IndexWithTableInfo(final String name, String tableName, boolean unique, final FieldInfo...fields)
+      {
+         super(name, unique, fields);
+         this.tableName = tableName;
+      }
+
+      public String getTableName()
+      {
+         return tableName;
       }
    }
 }

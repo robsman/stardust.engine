@@ -5,13 +5,9 @@ import java.util.List;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerLoader;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateApplicationRouteAction;
 import org.eclipse.stardust.engine.extensions.camel.util.LoadPartitionsAction;
@@ -22,8 +18,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 public class CamelApplicationLoader implements ApplicationContextAware
 {
-
-   public static final Logger logger = LogManager.getLogger(CamelApplicationLoader.class);
 
    private ForkingService forkingService;
 

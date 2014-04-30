@@ -13,11 +13,14 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 
 /**
@@ -28,10 +31,11 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    private static final Logger trace = LogManager.getLogger(R5_2_0from4_9_0RuntimeJob.class);
 
+   private int batchSize = 500;
    private static final Version VERSION = Version.createFixedVersion(5, 2, 0);
 
+   private static final String FIELD__OID = "oid";
    private static final String D_TABLE_NAME = "department";
-   private static final String D_FIELD__OID = "oid";
    private static final String D_FIELD__ID = "id";
    private static final String D_FIELD__NAME = "name";
    private static final String D_FIELD__PARTITION = "partition";
@@ -56,6 +60,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String AI_IDX3 = "activity_inst_idx3";
 
    private static final String WI_TABLE_NAME = "workitem";
+   private static final String WI_FIELD_ACTIVITYINSTANCE = "activityInstance";
    private static final String WI_FIELD__PERFORMER_KIND = "performerKind";
    private static final String WI_FIELD__PERFORMER = "performer";
    private static final String WI_FIELD__DEPARTMENT = "department";
@@ -63,6 +68,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String WI_IDX2 = "workitem_idx2";
 
    private static final String AIH_TABLE_NAME = "act_inst_history";
+   private static final String AIH_FIELD__PROCESSINSTANCE = "processInstance";
    private static final String AIH_FIELD__DEPARTMENT = "department";
    private static final String AIH_FIELD__ON_BEHALF_OF_DEPARTMENT = "onBehalfOfDepartment";
 
@@ -79,6 +85,11 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       super(new DBMSKey[] { DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE });
+      String bs = Parameters.instance().getString(RuntimeUpgrader.UPGRADE_BATCH_SIZE);
+      if (bs != null)
+      {
+         batchSize = Integer.parseInt(bs);
+      }
    }
 
    public Version getVersion()
@@ -88,9 +99,9 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
+      final FieldInfo genericOidColumn = new FieldInfo(FIELD__OID, Long.TYPE, 0, true);
       DatabaseHelper.createTable(item, new CreateTableInfo(D_TABLE_NAME)
       {
-         private final FieldInfo OID = new FieldInfo(D_FIELD__OID, Long.TYPE, 0, true);
          private final FieldInfo ID = new FieldInfo(D_FIELD__ID, String.class, 50);
          private final FieldInfo NAME = new FieldInfo(D_FIELD__NAME, String.class, 150);
          private final FieldInfo PARTITION = new FieldInfo(D_FIELD__PARTITION, Long.TYPE);
@@ -99,7 +110,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          private final FieldInfo ORGANIZATION = new FieldInfo(D_FIELD__ORGANIZATION, Long.TYPE);
 
          private final IndexInfo IDX1 = new IndexInfo(D_IDX1,
-               true, new FieldInfo[] { OID });
+               true, new FieldInfo[] { genericOidColumn });
 
          private final IndexInfo IDX2 = new IndexInfo(D_IDX2,
                true, new FieldInfo[] { ID, ORGANIZATION, PARENTDEPARTMENT });
@@ -107,7 +118,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          @Override
          public FieldInfo[] getFields()
          {
-            return new FieldInfo[] { OID, ID, NAME, PARTITION, PARENTDEPARTMENT,
+            return new FieldInfo[] { genericOidColumn, ID, NAME, PARTITION, PARENTDEPARTMENT,
                   DESCRIPTION, ORGANIZATION };
          }
 
@@ -185,8 +196,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-
-            setNewColumnToZero(item, getTableName(), AI_FIELD__CURRENT_DEPARTMENT);
+            setColumnsToZero(item, getTableName(), genericOidColumn, CURRENT_DEPARTMENT);
          }
       }, this);
 
@@ -196,6 +206,9 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          private final FieldInfo PERFORMER = new FieldInfo(WI_FIELD__PERFORMER, Long.TYPE);
          private final FieldInfo DEPARTMENT = new FieldInfo(WI_FIELD__DEPARTMENT, Long.TYPE);
          private final FieldInfo STATE = new FieldInfo(WI_FIELD__STATE, Integer.TYPE);
+         //primary key for the workitem table
+         private final FieldInfo ACTIVITY_INSTANCE = new FieldInfo(
+               WI_FIELD_ACTIVITYINSTANCE, Long.TYPE, true);
 
          private final IndexInfo IDX2 = new IndexInfo(WI_IDX2, false,
                new FieldInfo[] { PERFORMER, DEPARTMENT, PERFORMER_KIND, STATE });
@@ -218,8 +231,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-
-            setNewColumnToZero(item, getTableName(), WI_FIELD__DEPARTMENT);
+            setColumnsToZero(item, getTableName(), ACTIVITY_INSTANCE, DEPARTMENT);
          }
       }, this);
 
@@ -227,6 +239,8 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          private final FieldInfo DEPARTMENT = new FieldInfo(AIH_FIELD__DEPARTMENT, Long.TYPE);
          private final FieldInfo ON_BEHALF_OF_DEPARTMENT = new FieldInfo(AIH_FIELD__ON_BEHALF_OF_DEPARTMENT, Long.TYPE);
+         //primary key for act_inst_history table
+         private final FieldInfo PROCESS_INSTANCE = new FieldInfo(AIH_FIELD__PROCESSINSTANCE, Long.TYPE, true);
 
          @Override
          public FieldInfo[] getAddedFields()
@@ -240,12 +254,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-
-            // Not sure if the database supports multiple columns in update statement.
-            // Therefore columns get updated one by one.
-
-            setNewColumnToZero(item, getTableName(), AIH_FIELD__DEPARTMENT);
-            setNewColumnToZero(item, getTableName(), AIH_FIELD__ON_BEHALF_OF_DEPARTMENT);
+            setColumnsToZero(item, getTableName(), PROCESS_INSTANCE, DEPARTMENT, ON_BEHALF_OF_DEPARTMENT);
          }
       }, this);
 
@@ -278,7 +287,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
 
-            setNewColumnToZero(item, getTableName(), UP_FIELD__DEPARTMENT);
+            setColumnsToZero(item, getTableName(), genericOidColumn, DEPARTMENT);
          }
       }, this);
 
@@ -295,9 +304,11 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       }, this);
 
+
+      final FieldInfo extendedState = new FieldInfo(WU_EXTENDED_STATE, Long.TYPE);
       try
       {
-         setNewColumnToZero(item, WU_TABLE_NAME, WU_EXTENDED_STATE);
+         setColumnsToZero(item, WU_TABLE_NAME, genericOidColumn, extendedState);
       }
       catch (SQLException e)
       {
@@ -314,18 +325,23 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
    }
 
-   protected void setNewColumnToZero(RuntimeItem item, String tableName, String columnName)
+   protected void setColumnsToZero(RuntimeItem item, String tableName, FieldInfo oidColumn, FieldInfo...columnsToUpdate)
          throws SQLException
    {
-      tableName = DatabaseHelper.getQualifiedName(tableName);
+      UpdateColumnInfo[] updateInfos = new UpdateColumnInfo[columnsToUpdate.length];
+      for(int i=0; i<columnsToUpdate.length; i++)
+      {
+         FieldInfo columnToUpdate = columnsToUpdate[i];
+         updateInfos[i] = new UpdateColumnInfo(columnToUpdate, 0);
+      }
 
-      StringBuffer buffer = new StringBuffer(500);
-      buffer.append("UPDATE ").append(tableName);
-      buffer.append(" SET ").append(columnName).append(" = 0");
-
-      // Execute DML instead of DDL, but this DML is part of the DDL so it has to be handled the same way.
-      item.executeDdlStatement(buffer.toString(), false);
+      //check javadoc for further information on this method
+      DatabaseHelper.setColumnValuesInBatch(item, tableName, oidColumn, batchSize,
+            updateInfos);
    }
+
+
+
 
    @Override
    protected void printUpgradeSchemaInfo()

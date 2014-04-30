@@ -24,7 +24,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -162,7 +161,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       }
       catch (Exception e)
       {
-         log.error("Unable to read model file for deployment. Make sure the correct model file is declared for this test!");
+         log.error("Unable to read model file for deployment. Make sure the correct model file is declared for this test!",e);
          throw e;
       }
 
@@ -457,7 +456,6 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       }
       catch (IOException e)
       {
-         e.printStackTrace();
          throw e;
       }
       finally
@@ -468,7 +466,6 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
          }
          catch (IOException e)
          {
-            e.printStackTrace();
             throw e;
          }
       }

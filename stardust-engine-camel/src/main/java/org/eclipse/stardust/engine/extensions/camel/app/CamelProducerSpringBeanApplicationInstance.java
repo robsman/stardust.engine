@@ -172,11 +172,6 @@ public class CamelProducerSpringBeanApplicationInstance
       {
          throw new InvocationTargetException(e.getCause());
       }
-      catch (Throwable e)
-      {
-         throw new InvocationTargetException(e.getCause());
-      }
-
    }
 
    public boolean isReceiving()

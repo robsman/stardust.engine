@@ -79,7 +79,7 @@ public class BpmTypeConverterTest // extends AbstractJUnit4SpringContextTests
 
       String expectedBody = "{\"short\":5,\"dateTime\":\"" + dateString1
             + "\",\"byte\":1,\"int\":10,\"string\":\"aString\",\"boolean\":false,\"date\":\"" + dateString2
-            + "\",\"double\":2.5,\"decimal\":\"500.00\",\"float\":3.5}";
+            + "\",\"double\":2.5,\"decimal\":500.00,\"float\":3.5}";
 
       resultEndpoint.expectedBodiesReceived(expectedBody);
 
@@ -137,9 +137,9 @@ public class BpmTypeConverterTest // extends AbstractJUnit4SpringContextTests
 
       String expectedBody = "{\"dataTypes\":[{\"short\":5,\"dateTime\":\"" + dateString1
             + "\",\"byte\":1,\"int\":10,\"string\":\"aString\",\"boolean\":false,\"date\":\"" + dateString2
-            + "\",\"double\":2.5,\"decimal\":\"500.00\",\"float\":3.5},{\"short\":5,\"dateTime\":\"" + dateString1
+            + "\",\"double\":2.5,\"decimal\":500.00,\"float\":3.5},{\"short\":5,\"dateTime\":\"" + dateString1
             + "\",\"byte\":1,\"int\":10,\"string\":\"aString\",\"boolean\":false,\"date\":\"" + dateString2
-            + "\",\"double\":2.5,\"decimal\":\"500.00\",\"float\":3.5}]}";
+            + "\",\"double\":2.5,\"decimal\":500.00,\"float\":3.5}]}";
 
       resultEndpoint.expectedBodiesReceived(expectedBody);
 

@@ -48,14 +48,14 @@ public class EngineService
          try
          {
             trace.info("Bootstrapping engine");
-            
+
             ExtensionService.initializeModuleExtensions(Modules.ENGINE);
-            
+
             ItemLocatorUtils.registerDescription(ModelManagerFactory.ITEM_NAME,
                   new ItemDescription(new ModelManagerLoader(),
                         Parameters.instance().getString(
                               EngineProperties.WATCHER_PROPERTY, NullWatcher.class.getName())));
-            
+
             Parameters.instance().set(BOOTSTRAPPED, true);
          }
          catch (ApplicationException e)

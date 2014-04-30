@@ -12,7 +12,6 @@ import org.apache.camel.Expression;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.language.simple.SimpleLanguage;
-import org.apache.camel.model.language.ConstantExpression;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -155,6 +154,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
    protected Expression parentProcessInstanceOid;
    protected Expression spawnProcessID;
    protected Expression copyData;
+
    public ProcessEndpoint(String uri, IppComponent component)
    {
       super(uri, component);
@@ -217,17 +217,23 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
    {
-      if (null != this.processInstanceOid){
-         logger.info("Simple Expression detected for Process Instance OID attribute, Expression evaluated to  < " + this.processInstanceOid.evaluate(exchange, Long.class)+">");
+      if (null != this.processInstanceOid)
+      {
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for Process Instance OID attribute, Expression evaluated to  < "
+                  + this.processInstanceOid.evaluate(exchange, Long.class) + ">");
          return this.processInstanceOid.evaluate(exchange, Long.class);
-      }else
+      }
+      else
       {
          Long piOid = exchange.getIn().getHeader(MessageProperty.PROCESS_INSTANCE_OID, Long.class);
          if (null == piOid && strict)
          {
             throw new IllegalStateException("Missing required process instance OID.");
          }
-         logger.info("Process instance OID value will be retrieved from exchange header <"+MessageProperty.PROCESS_INSTANCE_OID+">, found <" + piOid+">");
+         if (logger.isInfoEnabled())
+            logger.info("Process instance OID value will be retrieved from exchange header <"
+                  + MessageProperty.PROCESS_INSTANCE_OID + ">, found <" + piOid + ">");
          return piOid;
       }
    }
@@ -245,13 +251,17 @@ public class ProcessEndpoint extends AbstractIppEndpoint
 
       if (null != this.ippAttachmentFileName)
       {
-         logger.info("Simple Expression detected for File Name attribute, Expression evaluated to  < " + this.ippAttachmentFileName.evaluate(exchange, String.class)+">");
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for File Name attribute, Expression evaluated to  < "
+                  + this.ippAttachmentFileName.evaluate(exchange, String.class) + ">");
          return this.ippAttachmentFileName.evaluate(exchange, String.class);
       }
       else
       {
          String attachmentFileName = exchange.getProperty(MessageProperty.ATTACHMENT_FILE_NAME, String.class);
-         logger.info("Attachment File Name value will be retrieved from exchange header <"+MessageProperty.ATTACHMENT_FILE_NAME+">, found <" + attachmentFileName+">");
+         if (logger.isInfoEnabled())
+            logger.info("Attachment File Name value will be retrieved from exchange header <"
+                  + MessageProperty.ATTACHMENT_FILE_NAME + ">, found <" + attachmentFileName + ">");
          return attachmentFileName;
       }
 
@@ -270,14 +280,17 @@ public class ProcessEndpoint extends AbstractIppEndpoint
 
       if (null != this.ippAttachmentFolderName)
       {
-         logger.info("Simple Expression detected for Folder Name attribute, Expression evaluated to  <" + this.ippAttachmentFolderName.evaluate(exchange, String.class)+">");
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for Folder Name attribute, Expression evaluated to  <"
+                  + this.ippAttachmentFolderName.evaluate(exchange, String.class) + ">");
          return this.ippAttachmentFolderName.evaluate(exchange, String.class);
       }
       else
       {
          String attachmentFolderName = exchange.getProperty(MessageProperty.ATTACHMENT_FOLDER_NAME, String.class);
-         //logger.info("Folder Name = " + attachmentFolderName);
-         logger.info("Attachment Folder Name value will be retrieved from exchange header <"+MessageProperty.ATTACHMENT_FILE_NAME+">, found <" + attachmentFolderName+">");
+         if (logger.isInfoEnabled())
+            logger.info("Attachment Folder Name value will be retrieved from exchange header <"
+                  + MessageProperty.ATTACHMENT_FILE_NAME + ">, found <" + attachmentFolderName + ">");
          return attachmentFolderName;
       }
    }
@@ -296,17 +309,23 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public String evaluateProcessId(Exchange exchange, boolean strict)
    {
-      if (null != this.processId){
-         logger.info("Simple Expression detected for ProcessId attribute, Expression evaluated to  <" + this.processId.evaluate(exchange, String.class)+">");
+      if (null != this.processId)
+      {
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for ProcessId attribute, Expression evaluated to  <"
+                  + this.processId.evaluate(exchange, String.class) + ">");
          return this.processId.evaluate(exchange, String.class);
-      }else
+      }
+      else
       {
          String id = exchange.getIn().getHeader(MessageProperty.PROCESS_ID, String.class);
          if (StringUtils.isEmpty(id) && strict)
          {
             throw new IllegalStateException("Missing required process ID.");
          }
-         logger.info("Process ID value will be retrieved from exchange header <"+MessageProperty.PROCESS_ID+">, found <" + id+">");
+         if (logger.isInfoEnabled())
+            logger.info("Process ID value will be retrieved from exchange header <" + MessageProperty.PROCESS_ID
+                  + ">, found <" + id + ">");
          return id;
       }
    }
@@ -317,20 +336,26 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     * @param exchange
     * @return attachment file content
     */
-   public String evaluateContent(Exchange exchange)
+   public byte[] evaluateContent(Exchange exchange)
    {
 
-      if (!StringUtils.isEmpty(this.ippAttachmentFileContent) && parseSimpleExpression(this.ippAttachmentFileContent)!=null)
+      if (!StringUtils.isEmpty(this.ippAttachmentFileContent)
+            && parseSimpleExpression(this.ippAttachmentFileContent) != null)
       {
          Expression expr = SimpleLanguage.simple(this.ippAttachmentFileContent);
-         logger.debug("Simple Expression detected for Attachment File Content attribute, Expression evaluated to  < " + expr.evaluate(exchange, String.class)+">");
-         return expr.evaluate(exchange, String.class);
+         if (logger.isDebugEnabled())
+            logger.debug("Simple Expression detected for Attachment File Content attribute, Expression evaluated to  < "
+                  + expr.evaluate(exchange, byte[].class) + ">");
+         return expr.evaluate(exchange, byte[].class);
       }
-      else 
+      else
       {
          // get from header property
-         String exchangeBody=exchange.getProperty(CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT, String.class);
-         logger.info("Attachment File Content value will be retrieved from exchange header <"+CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT+">, found <" + exchangeBody+">");
+         byte[] exchangeBody = exchange.getProperty(CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT,
+               byte[].class);
+         if (logger.isInfoEnabled())
+            logger.info("Attachment File Content value will be retrieved from exchange header <"
+                  + CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT + ">, found <" + exchangeBody + ">");
          return exchangeBody;
       }
    }
@@ -348,7 +373,9 @@ public class ProcessEndpoint extends AbstractIppEndpoint
    {
       if (null != this.dataMap)
       {
-         logger.info("Simple Expression detected for DataMap attribute, Expression evaluated to  < " + this.dataMap.evaluate(exchange, Map.class)+">");
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for DataMap attribute, Expression evaluated to  < "
+                  + this.dataMap.evaluate(exchange, Map.class) + ">");
          return this.dataMap.evaluate(exchange, Map.class);
       }
       else if (StringUtils.isNotEmpty(this.data))
@@ -433,10 +460,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setProcessId(String processId)
    {
-//      if (processId.startsWith("${") && processId.endsWith("}"))
-//         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
-//      else
-//         this.processId = new ConstantExpression(processId); // SimpleLanguage.simple(processId);
       this.processId = parseSimpleExpression(processId);
    }
 
@@ -509,11 +532,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setDataMap(String dataMap)
    {
-//      if (dataMap.startsWith("${") && dataMap.endsWith("}"))
-//
-//         this.dataMap = SimpleLanguage.simple(extractTokenFromExpression(dataMap));
-//      else
-//         this.dataMap = SimpleLanguage.simple(dataMap);
       this.dataMap = parseSimpleExpression(dataMap);
    }
 
@@ -522,11 +540,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setDataOutputMap(String dataOutputMap)
    {
-//      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
-//         this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
-//      else
-//         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
-      this.dataOutputMap  = parseSimpleExpression(dataOutputMap);
+      this.dataOutputMap = parseSimpleExpression(dataOutputMap);
    }
 
    /**
@@ -534,11 +548,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setPropertiesMap(String propertiesMap)
    {
-//      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
-//         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
-//      else
-//         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
-      this.propertiesMap  = parseSimpleExpression(propertiesMap);
+      this.propertiesMap = parseSimpleExpression(propertiesMap);
    }
 
    /**
@@ -546,10 +556,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setProcessInstanceOid(String processInstanceOid)
    {
-//      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
-//         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
-//      else
-//         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
       this.processInstanceOid = parseSimpleExpression(processInstanceOid);
    }
 
@@ -582,12 +588,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setIppAttachmentFileName(String ippAttachmentFileName)
    {
-      // if (ippAttachmentFileName.startsWith("${") &&
-      // ippAttachmentFileName.endsWith("}"))
-      // this.ippAttachmentFileName =
-      // SimpleLanguage.simple(extractTokenFromExpression(ippAttachmentFileName));
-      // else
-      // this.ippAttachmentFileName = SimpleLanguage.simple(ippAttachmentFileName);
       if (StringUtils.isNotEmpty(ippAttachmentFileName) && parseSimpleExpression(ippAttachmentFileName) != null)
       {
          this.ippAttachmentFileName = parseSimpleExpression(ippAttachmentFileName);
@@ -604,11 +604,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
       {
          this.ippAttachmentFolderName = parseSimpleExpression(ippAttachmentFolderName);
       }
-      
-//      if (ippAttachmentFolderName.startsWith("${") && ippAttachmentFolderName.endsWith("}"))
-//         this.ippAttachmentFolderName = SimpleLanguage.simple(extractTokenFromExpression(ippAttachmentFolderName));
-//      else
-//         this.ippAttachmentFolderName = SimpleLanguage.simple(ippAttachmentFolderName);
    }
 
    /**
@@ -629,11 +624,13 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public String evaluateModelId(Exchange exchange, boolean strict)
    {
-      logger.debug("evaluateProcessId(" + exchange + ", " + strict + ") - start"); //$NON-NLS-1$
+      if (logger.isDebugEnabled())
+         logger.debug("evaluateProcessId(" + exchange + ", " + strict + ") - start"); //$NON-NLS-1$
 
       if (null != exchange.getIn().getHeader(MessageProperty.MODEL_ID, String.class))
       {
-         logger.debug("Returning value provided by the header Property <" + MessageProperty.MODEL_ID + ">..");
+         if (logger.isDebugEnabled())
+            logger.debug("Returning value provided by the header Property <" + MessageProperty.MODEL_ID + ">..");
          String modelId = exchange.getIn().getHeader(MessageProperty.MODEL_ID, String.class);
          if (StringUtils.isEmpty(modelId) && strict)
          {
@@ -645,12 +642,14 @@ public class ProcessEndpoint extends AbstractIppEndpoint
       {
          if (null != this.modelId)
          {
-            logger.debug("Returning value provided by modelId attribute..");
+            if (logger.isDebugEnabled())
+               logger.debug("Returning value provided by modelId attribute..");
             return this.modelId.evaluate(exchange, String.class).replaceAll("\"", "");
 
          }
          else
          {
+
             logger.warn("Invalid configuration, modelId attribute is empty, The header property"
                   + MessageProperty.MODEL_ID + " is not populated.");
             return null;
@@ -663,10 +662,6 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setModelId(String modelId)
    {
-//      if (modelId.startsWith("${") && modelId.endsWith("}"))
-//         this.modelId = SimpleLanguage.simple(extractTokenFromExpression(modelId));
-//      else
-//         this.modelId = new ConstantExpression(modelId); // SimpleLanguage.simple(processId);
       this.modelId = parseSimpleExpression(modelId);
    }
 
@@ -736,12 +731,14 @@ public class ProcessEndpoint extends AbstractIppEndpoint
          return null;
       }
    }
+
    public Long evaluateParentProcessInstanceOid(Exchange exchange, boolean strict)
    {
       if (null != this.parentProcessInstanceOid)
       {
-         logger.info("Simple Expression detected for Parent OID attribute, Expression evaluated to  < "
-               + this.parentProcessInstanceOid.evaluate(exchange, Long.class) + ">");
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for Parent OID attribute, Expression evaluated to  < "
+                  + this.parentProcessInstanceOid.evaluate(exchange, Long.class) + ">");
          return this.parentProcessInstanceOid.evaluate(exchange, Long.class);
       }
       else
@@ -751,11 +748,13 @@ public class ProcessEndpoint extends AbstractIppEndpoint
          {
             throw new IllegalStateException("Missing required parent OID.");
          }
-         logger.info("Parent OID value will be retrieved from exchange header <"
-               + MessageProperty.PARENT_PROCESS_INSTANCE_OID + ">, found <" + parentiOid + ">");
+         if (logger.isInfoEnabled())
+            logger.info("Parent OID value will be retrieved from exchange header <"
+                  + MessageProperty.PARENT_PROCESS_INSTANCE_OID + ">, found <" + parentiOid + ">");
          return parentiOid;
       }
    }
+
    public Expression getParentProcessInstanceOid()
    {
       return parentProcessInstanceOid;
@@ -763,8 +762,9 @@ public class ProcessEndpoint extends AbstractIppEndpoint
 
    public void setParentProcessInstanceOid(String parentProcessInstanceOid)
    {
-      this.parentProcessInstanceOid =SimpleLanguage.simple( parentProcessInstanceOid);
+      this.parentProcessInstanceOid = SimpleLanguage.simple(parentProcessInstanceOid);
    }
+
    public Expression getSpawnProcessID()
    {
       return spawnProcessID;
@@ -774,12 +774,14 @@ public class ProcessEndpoint extends AbstractIppEndpoint
    {
       this.spawnProcessID = spawnProcessID;
    }
+
    public Boolean evaluateCopyData(Exchange exchange, boolean strict)
    {
       if (null != this.copyData)
       {
-         logger.info("Simple Expression detected for CopyDate attribute, Expression evaluated to  < "
-               + this.copyData.evaluate(exchange, Boolean.class) + ">");
+         if (logger.isInfoEnabled())
+            logger.info("Simple Expression detected for CopyDate attribute, Expression evaluated to  < "
+                  + this.copyData.evaluate(exchange, Boolean.class) + ">");
          return this.copyData.evaluate(exchange, Boolean.class);
       }
       else
@@ -789,8 +791,9 @@ public class ProcessEndpoint extends AbstractIppEndpoint
          {
             throw new IllegalStateException("Missing required parent OID.");
          }
-         logger.info("Attribute CopyData value will be retrieved from exchange header <" + MessageProperty.COPY_DATA
-               + ">, found <" + copyData + ">");
+         if (logger.isInfoEnabled())
+            logger.info("Attribute CopyData value will be retrieved from exchange header <" + MessageProperty.COPY_DATA
+                  + ">, found <" + copyData + ">");
          return copyData;
       }
    }
@@ -802,8 +805,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
 
    public void setCopyData(String copyData)
    {
-      this.copyData =  SimpleLanguage.simple(copyData);
-      
-  
+      this.copyData = SimpleLanguage.simple(copyData);
+
    }
 }

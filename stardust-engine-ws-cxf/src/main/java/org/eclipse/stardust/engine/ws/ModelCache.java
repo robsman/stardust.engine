@@ -16,10 +16,8 @@ package org.eclipse.stardust.engine.ws;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-
 
 /**
  * @author robert.sauer
@@ -36,7 +34,7 @@ public class ModelCache
       cache.clear();
    }
 
-   public Model getModel(int modelOid)
+   public DeployedModel getModel(int modelOid)
    {
       Long key = new Long(modelOid);
 
@@ -68,11 +66,11 @@ public class ModelCache
 
    private static class CachedModel
    {
-      final Model model;
+      final DeployedModel model;
 
       final long expirationDate;
 
-      public CachedModel(Model model, long expirationDate)
+      public CachedModel(DeployedModel model, long expirationDate)
       {
          this.model = model;
          this.expirationDate = expirationDate;

@@ -1,22 +1,16 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
-import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.*;
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.language.simple.SimpleLanguage;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 
 public class AuthenticationEndpoint extends AbstractIppEndpoint
 {
-
-   final static Logger LOG = LogManager.getLogger(AuthenticationEndpoint.class);
 
    protected Expression user;
 
@@ -137,10 +131,6 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
     */
    public void setUser(String user)
    {
-      // if (user.startsWith("${") && user.endsWith("}"))
-      // this.user = SimpleLanguage.simple(extractTokenFromExpression(user));
-      // else
-      // this.user = SimpleLanguage.simple(user);
       this.user = parseSimpleExpression(user);
 
    }
@@ -150,10 +140,6 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
     */
    public void setPassword(String password)
    {
-      // if (password.startsWith("${") && password.endsWith("}"))
-      // this.password = SimpleLanguage.simple(extractTokenFromExpression(password));
-      // else
-      // this.password = SimpleLanguage.simple(password);
       this.password = parseSimpleExpression(password);
    }
 
@@ -162,10 +148,6 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
     */
    public void setPartition(String partition)
    {
-      // if (partition.startsWith("${") && partition.endsWith("}"))
-      // this.partition = SimpleLanguage.simple(extractTokenFromExpression(partition));
-      // else
-      // this.partition = SimpleLanguage.simple(partition);
       this.partition = parseSimpleExpression(partition);
    }
 
@@ -174,10 +156,6 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
     */
    public void setRealm(String realm)
    {
-      // if (realm.startsWith("${") && realm.endsWith("}"))
-      // this.realm = SimpleLanguage.simple(extractTokenFromExpression(realm));
-      // else
-      // this.realm = SimpleLanguage.simple(realm);
       this.realm = parseSimpleExpression(realm);
    }
 
@@ -186,10 +164,6 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
     */
    public void setDomain(String domain)
    {
-      // if (domain.startsWith("${") && domain.endsWith("}"))
-      // this.domain = SimpleLanguage.simple(extractTokenFromExpression(domain));
-      // else
-      // this.domain = SimpleLanguage.simple(domain);
       this.domain = parseSimpleExpression(domain);
    }
 

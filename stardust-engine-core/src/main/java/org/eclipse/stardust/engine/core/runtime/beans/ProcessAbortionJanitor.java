@@ -42,7 +42,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
    public static final String PRP_RETRY_PAUSE = "Infinity.Engine.ProcessAbortion.Failure.RetryPause";
 
    private long processInstanceOid;
-   private long abortingUserOid;   
+   private long abortingUserOid;
    private int triesLeft;
    private ProcessInstanceLocking piLock = new ProcessInstanceLocking();
 
@@ -50,7 +50,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
    {
       super(carrier);
       this.processInstanceOid = carrier.getProcessInstanceOid();
-      this.abortingUserOid = carrier.getAbortingUserOid();      
+      this.abortingUserOid = carrier.getAbortingUserOid();
       this.triesLeft = carrier.getTriesLeft();
    }
 
@@ -169,7 +169,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
             {
                activityInstance.lock();
 
-               activityInstance.setState(ActivityInstanceState.ABORTED, abortingUserOid);               
+               activityInstance.setState(ActivityInstanceState.ABORTED, abortingUserOid);
                activityInstance.removeFromWorklists();
                EventUtils.detachAll(activityInstance);
             }
@@ -190,6 +190,11 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       if (startingActivityInstance != null)
       {
          ActivityInstanceUtils.scheduleNewActivityThread(startingActivityInstance);
+      }
+      else
+      {
+         // if it's a spawned sub process, try to complete it's parent
+         ProcessCompletionJanitor.resumeParentOfSpawnedSubprocess(pi, false);
       }
    }
 

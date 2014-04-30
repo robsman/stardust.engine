@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlType;
     EvaluateByWorkitemsPolicyXto.class,
     ProcessInstanceDetailsPolicyXto.class,
     TimeoutPolicyXto.class,
+    ProcessDefinitionDetailsPolicyXto.class,
     UserDetailsPolicyXto.class,
     SubFolderPolicyXto.class,
     CasePolicyXto.class,

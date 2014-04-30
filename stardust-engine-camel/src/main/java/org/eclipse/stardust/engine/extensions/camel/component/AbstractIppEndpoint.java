@@ -94,11 +94,6 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
    public void setProcessInstanceOid(String processInstanceOid)
    {
       this.processInstanceOid =    parseSimpleExpression(processInstanceOid);
-//      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
-//         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
-//      else
-//
-//         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
    }
 
    /**
@@ -107,10 +102,6 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
     */
    public void setProcessId(String processId)
    {
-//      if (processId.startsWith("${") && processId.endsWith("}"))
-//         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
-//      else
-//         this.processId = SimpleLanguage.simple(processId);
       this.processId =    parseSimpleExpression(processId);
    }
 
@@ -152,10 +143,6 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
     */
    public void setDataOutputMap(String dataOutputMap)
    {
-//      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
-      //   this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
-//      else
-//         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
       this.dataOutputMap =    parseSimpleExpression(dataOutputMap);
    }
 
@@ -164,10 +151,6 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
     */
    public void setPropertiesMap(String propertiesMap)
    {
-//      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
-//         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
-//      else
-//         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
       this.propertiesMap =    parseSimpleExpression(propertiesMap);
    }
 
@@ -176,10 +159,6 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
     */
    public void setDataFiltersMap(String dataFiltersMap)
    {
-//      if (dataFiltersMap.startsWith("${") && dataFiltersMap.endsWith("}"))
-//         this.dataFiltersMap = SimpleLanguage.simple(extractTokenFromExpression(dataFiltersMap));
-//      else
-//         this.dataFiltersMap = SimpleLanguage.simple(dataFiltersMap);
       this.dataFiltersMap=    parseSimpleExpression(dataFiltersMap);
    }
 

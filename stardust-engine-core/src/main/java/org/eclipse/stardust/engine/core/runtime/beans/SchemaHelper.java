@@ -10,11 +10,31 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.AuditTrailManagementUtils.deleteAllContentFromPartition;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.CurrentVersion;
@@ -29,19 +49,32 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
+import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetupDocumentBuilder;
+import org.eclipse.stardust.engine.core.runtime.setup.TransientRuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.AlterMode;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.ColumnNameModificationMode;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeObserver;
 
 /**
  * SchemaHelper will be used to generate DDL and copy to a specified file.
@@ -732,7 +765,7 @@ public class SchemaHelper
       if (null == PropertyPersistor.findByName(name))
       {
          trace.info("CARNOT base property '" + name + "' not set,"
-               + " will initialize it with it's default value.");
+               + " will initialize it with its default value.");
          new PropertyPersistor(name, defaultValue);
       }
    }
@@ -1180,9 +1213,9 @@ public class SchemaHelper
                FieldInfo oldColumn = columnIterator.next();
                FieldInfo newColumn = columnMapping.get(oldColumn);
                
-               builder.append(newColumn.name);
+               builder.append(newColumn.getName());
                builder.append(" = ");
-               builder.append(oldColumn.name);
+               builder.append(oldColumn.getName());
                if(columnIterator.hasNext())
                {
                   builder.append(", ");
@@ -1488,61 +1521,7 @@ public class SchemaHelper
             .getSession(SessionFactory.AUDIT_TRAIL);
       verifySysopPassword(session, password);
 
-      // Delete for all models in given partition the runtime data (process instances, ...).
-      Iterator iter = session.getIterator(ModelPersistorBean.class, QueryExtension
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partition
-                  .getOID())));
-      while (iter.hasNext())
-      {
-         ModelPersistorBean model = (ModelPersistorBean) iter.next();
-         AdminServiceUtils.deleteModelRuntimePart(model.getOID(), session, true);
-      }
-
-      // Delete runtime data which does not depend on any model in given partition.
-      // loginUserOid can be 0 because keepLoginUser = false.
-      AdminServiceUtils.deleteModelIndependentRuntimeData(false, false, session, 0,
-            partition.getOID());
-
-      // Delete for all model the definition data (process definition, ...).
-      iter = session.getIterator(ModelPersistorBean.class, QueryExtension
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partition
-                  .getOID())));
-      while (iter.hasNext())
-      {
-         ModelPersistorBean model = (ModelPersistorBean) iter.next();
-         AdminServiceUtils.deleteModelModelingPart(model.getOID(), session);
-         model.delete();
-      }
-
-      // Delete ProcessInstanceLinkTypes
-      session.delete(ProcessInstanceLinkTypeBean.class,
-            Predicates.isEqual(ProcessInstanceLinkTypeBean.FR__PARTITION, partition.getOID()),
-            false);
-
-      // Delete partition scope preferences
-      AdminServiceUtils.deletePartitionPreferences(partition.getOID(), session);
-
-      // There should only be one for this partition. But to be on the save side...
-      iter = session.getIterator(UserDomainBean.class, QueryExtension.where(Predicates
-            .isEqual(UserDomainBean.FR__PARTITION, partition.getOID())));
-      while (iter.hasNext())
-      {
-         IUserDomain domain = (IUserDomain) iter.next();
-         domain.delete();
-      }
-
-      // There should only be one for this partition. But to be on the save side...
-      iter = session.getIterator(UserRealmBean.class, QueryExtension.where(Predicates
-            .isEqual(UserRealmBean.FR__PARTITION, partition.getOID())));
-      while (iter.hasNext())
-      {
-         IUserRealm realm = (IUserRealm) iter.next();
-
-         session.delete(UserBean.class, Predicates.isEqual(UserBean.FR__REALM, realm
-               .getOID()), false);
-
-         realm.delete();
-      }
+      deleteAllContentFromPartition(partition.getOID(), session);
 
       partition.delete();
 

@@ -2000,7 +2000,7 @@ public class DDLManager
       {
          StringBuffer errorMsg = new StringBuffer();
          errorMsg.append("Cannot create data value field for slot column: '");
-         errorMsg.append(dataSlotField.name);
+         errorMsg.append(dataSlotField.getName());
          errorMsg.append("'. ");
          errorMsg.append(dataSlotField.getSlotType());
          
@@ -2032,7 +2032,7 @@ public class DDLManager
    private String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
-      builder.append(fieldInfo.name).append(" = ");
+      builder.append(fieldInfo.getName()).append(" = ");
       builder.append("(");
       builder.append("SELECT ");
       builder.append(dataValuePrefix);
@@ -2215,7 +2215,7 @@ public class DDLManager
                      while(i.hasNext())
                      {
                         DataSlotFieldInfo dataSlotColumn = i.next(); 
-                        buffer.append(dataSlotColumn.name); 
+                        buffer.append(dataSlotColumn.getName());
                         if(i.hasNext())
                         {
                            buffer.append(", ");

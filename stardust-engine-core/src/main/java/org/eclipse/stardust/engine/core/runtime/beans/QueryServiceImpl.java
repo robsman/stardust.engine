@@ -545,10 +545,27 @@ public class QueryServiceImpl implements QueryService, Serializable
          }
       }
 
-      return new ProcessDefinitions(query,
-            DetailsFactory.<ProcessDefinition, ProcessDefinitionDetails> createCollection(
-                  new FilteringIterator(processes, evaluator), IProcessDefinition.class,
-                  ProcessDefinitionDetails.class));
+      List<ProcessDefinition> processDefinitionDetails = DetailsFactory.<ProcessDefinition, ProcessDefinitionDetails> createCollection(
+            new FilteringIterator(processes, evaluator), IProcessDefinition.class,
+            ProcessDefinitionDetails.class);
+
+      ProcessDefinitionDetailsPolicy policy = (ProcessDefinitionDetailsPolicy) query.getPolicy(ProcessDefinitionDetailsPolicy.class);
+      // Only apply the policy if requested details level is less than FULL
+      if (policy != null
+            && !ProcessDefinitionDetailsLevel.FULL.equals(policy.getDetailsLevel()))
+      {
+         List<ProcessDefinition> postProcessedPDs = CollectionUtils.newArrayList();
+         for (ProcessDefinition processDefinition : processDefinitionDetails)
+         {
+            // Strip down contents of returned ProcessDefinitionDetails based on details
+            // level.
+            postProcessedPDs.add(new ProcessDefinitionDetails(
+                  (ProcessDefinitionDetails) processDefinition, policy.getDetailsLevel()));
+         }
+         processDefinitionDetails = postProcessedPDs;
+      }
+
+      return new ProcessDefinitions(query, processDefinitionDetails);
    }
 
    public DataQueryResult getAllData(DataQuery query)

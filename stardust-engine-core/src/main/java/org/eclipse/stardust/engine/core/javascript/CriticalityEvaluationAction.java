@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.javascript;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
@@ -26,9 +25,9 @@ import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.Script;
 
 /**
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class CriticalityEvaluationAction implements ContextAction
 {
@@ -76,8 +75,6 @@ public class CriticalityEvaluationAction implements ContextAction
 
    public static final String DEFAULT_PREF_CRITICALITY_FORMULA = "Criticality.Formula.Default";
 
-   private final ThreadLocal threadLocalSymbolTable = new ThreadLocal();
-
    private ActivityInstanceBean aiBean;
 
    private static final String KEY_MODEL_SCOPE = CriticalityEvaluator.class.getName()
@@ -90,21 +87,25 @@ public class CriticalityEvaluationAction implements ContextAction
 
    public Object run(Context cx)
    {
-
       GlobalVariablesScope modelScope = getModelScope(aiBean, cx);
 
-      bindSymbolTableToThread(SymbolTableFactory.create(aiBean));
-      modelScope.bindThreadLocalSymbolTable(getSymbolTableForThread());
+      try
+      {
+         modelScope.bindThreadLocalSymbolTable(SymbolTableFactory.create(aiBean));
 
-      // Temporary Fix for js.jar dependency issue: Run always in interpretive mode
-      // (-1)
-      cx.setOptimizationLevel( -1);
-      Script compiledFormula = cx.compileString(getScriptForActivityInstance(aiBean),
-            aiBean.getActivity().getModel().getName(), 1, null);
+         // Temporary Fix for js.jar dependency issue: Run always in interpretive mode
+         // (-1)
+         cx.setOptimizationLevel( -1);
+         Script compiledFormula = cx.compileString(getScriptForActivityInstance(aiBean),
+               aiBean.getActivity().getModel().getName(), 1, null);
 
-      final Object result = compiledFormula.exec(cx, modelScope);
-      return result;
-
+         Object result = compiledFormula.exec(cx, modelScope);
+         return result;
+      }
+      finally
+      {
+         modelScope.unbindThreadLocalSymbolTable();
+      }
    }
 
    public static GlobalVariablesScope getModelScope(ActivityInstanceBean aiBean,
@@ -124,16 +125,6 @@ public class CriticalityEvaluationAction implements ContextAction
       }
 
       return modelScope;
-   }
-
-   public SymbolTable getSymbolTableForThread()
-   {
-      return (SymbolTable) threadLocalSymbolTable.get();
-   }
-
-   public void bindSymbolTableToThread(SymbolTable symbolTable)
-   {
-      threadLocalSymbolTable.set(symbolTable);
    }
 
    private String getScriptForActivityInstance(ActivityInstanceBean aiBean)

@@ -10,21 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static org.eclipse.stardust.engine.core.runtime.beans.tokencache.GlobalTokenManager.filter;
+
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -33,33 +28,32 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
-
 public class SecondLevelTokenManager implements ISecondLevelTokenCache
 {
    // TODO (ab) review syncronization. currently, not synchronized collections
    // are used and all public methods are synchronized
-   
+
    private static final Logger trace = LogManager.getLogger(SecondLevelTokenManager.class);
-   
-   private final Map /*<ITransition,<Long,TransitionTokenBean>>*/ tokensByTransitionRtOid = new HashMap();
-   private final Map /*<Object,<Long>> */ lockedTokensOidsByTransaction = new HashMap();
-   private final Set /*<Long> */ lockedTokensOids = new HashSet();
+
+   private final Map<Long, Map<Long,TransitionTokenBean>> tokensByTransitionRtOid = new HashMap();
+   private final Map<Object, Set<Long>> lockedTokensOidsByTransaction = new HashMap();
+   private final Set<Long> lockedTokensOids = new HashSet();
    private final boolean singleNodeDeployment;
    private boolean seenStartToken = false;
    // these are only for counting purposes (getUnconsumedTokenCount()), they are otherwise invisible from here
-   private final Map /*<Object,<TransitionTokenBean>> */ localCacheTokensByTransaction = new HashMap();
-   
+   private final Map<Object, Set<TransitionTokenBean>> localCacheTokensByTransaction = new HashMap();
+
    public SecondLevelTokenManager()
    {
       this.singleNodeDeployment = Parameters.instance().getBoolean(KernelTweakingProperties.SINGLE_NODE_DEPLOYMENT, false);
    }
-   
-   private Map /*<Long,TransitionTokenBean>*/ getTokenMap(ITransition transition)
+
+   private Map<Long, TransitionTokenBean> getTokenMap(ITransition transition)
    {
-      return (Map) this.tokensByTransitionRtOid.get(getTransitionRtOid(transition));
+      return tokensByTransitionRtOid.get(getTransitionRtOid(transition));
    }
-   
-   private Long getTransitionRtOid(ITransition transition)
+
+   private long getTransitionRtOid(ITransition transition)
    {
       if ((ActivityThread.START_TRANSITION == transition) || (null == transition))
       {
@@ -67,19 +61,19 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
       }
       else
       {
-         return new Long(ModelManagerFactory.getCurrent().getRuntimeOid(transition));
+         return ModelManagerFactory.getCurrent().getRuntimeOid(transition);
       }
    }
-   
+
    public synchronized void addLocalToken(TransitionTokenBean token)
    {
       Object transaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-      Set tokens /*<TransitionTokenBean>*/ = (Set) this.localCacheTokensByTransaction.get(transaction);
+      Set<TransitionTokenBean> tokens = localCacheTokensByTransaction.get(transaction);
 
       if (tokens == null)
       {
          tokens = new HashSet();
-         this.localCacheTokensByTransaction.put(transaction, tokens);
+         localCacheTokensByTransaction.put(transaction, tokens);
       }
       tokens.add(token);
    }
@@ -87,7 +81,7 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
    private synchronized void removeLocalToken(TransitionTokenBean token)
    {
       Object transaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-      Set tokens /*<TransitionTokenBean>*/ = (Set) this.localCacheTokensByTransaction.get(transaction);
+      Set<TransitionTokenBean> tokens = localCacheTokensByTransaction.get(transaction);
       if (tokens != null)
       {
          boolean removed = tokens.remove(token);
@@ -96,7 +90,7 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
             if (removed)
             {
                trace.debug("removed token from local");
-            } 
+            }
             else
             {
                trace.debug("did not remove token from local");
@@ -109,79 +103,80 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
    {
       if (ActivityThread.START_TRANSITION.equals(transition))
       {
-         this.seenStartToken = true;
+         seenStartToken = true;
       }
-      
-      Map /*<Long,TransitionTokenBean>*/ tokensForTransition = getTokenMap(transition);
+
+      Map<Long,TransitionTokenBean> tokensForTransition = getTokenMap(transition);
       if (tokensForTransition == null)
       {
          tokensForTransition = new HashMap();
-         this.tokensByTransitionRtOid.put(getTransitionRtOid(transition), tokensForTransition);
+         tokensByTransitionRtOid.put(getTransitionRtOid(transition), tokensForTransition);
       }
-      Long tokenOid = new Long(token.getOID());
+      Long tokenOid = token.getOID();
       tokensForTransition.put(tokenOid, token);
-      // detach old persistence controller since the token is flushed to DB  
+      // detach old persistence controller since the token is flushed to DB
       // TODO (ab) not sure if this is needed
       token.setPersistenceController(null);
       lockInMemory(tokenOid);
-      
+
       // keep localCacheTokensByTransaction in sync
       removeLocalToken(token);
    }
 
    public synchronized boolean removeToken(TransitionTokenBean token)
    {
-      Map /*<Long,TransitionTokenBean>*/ tokensForTransition = getTokenMap(token.getTransition());
+      Map<Long,TransitionTokenBean> tokensForTransition = getTokenMap(token.getTransition());
       if (tokensForTransition == null || tokensForTransition.size() == 0)
       {
          return false;
       }
-      Long tokenOid = new Long(token.getOID());
+      Long tokenOid = token.getOID();
       if (tokensForTransition.remove(tokenOid) == null)
       {
-         return false; 
+         return false;
       }
       else
       {
          if (trace.isDebugEnabled())
          {
-            trace.debug("Removed token "+tokenOid+" (consumed)");
+            trace.debug("Removed token " + tokenOid + " (consumed)");
          }
          registerPersistenceController(tokenOid, token);
          return true;
       }
    }
-   
+
    public synchronized TransitionTokenBean lockFirstAvailableToken(ITransition transition)
    {
-      Map /*<Long,TransitionTokenBean>*/ tokensForTransition = getTokenMap(transition);
+      Map<Long,TransitionTokenBean> tokensForTransition = getTokenMap(transition);
       if (tokensForTransition == null || tokensForTransition.size() == 0)
       {
          return null;
       }
 
-      for (Iterator iterator = tokensForTransition.entrySet().iterator(); iterator.hasNext();)
+      for (Entry<Long, TransitionTokenBean> entry : tokensForTransition.entrySet())
       {
-         Entry entry = (Entry)iterator.next();
-         
-         Long tokenOid = (Long) entry.getKey();
-         TransitionTokenBean token = (TransitionTokenBean) entry.getValue();
+         Long tokenOid = entry.getKey();
+         TransitionTokenBean token = entry.getValue();
 
          if (!isLockedInMemory(tokenOid))
          {
-            if (this.singleNodeDeployment)
+            if (singleNodeDeployment)
             {
-               this.lockInMemory(tokenOid);
+               lockInMemory(tokenOid);
                return token;
             }
             else
             {
                // TODO (ab) lockInDb does not work
                //registerPersistenceController(tokenOid, token);
-               if (lockInDb(token))
+               if (!token.isBound())
                {
-                  this.lockInMemory(tokenOid);
-                  return token;
+                  if (token.lockAndReload() == 0 && !token.isBound())
+                  {
+                     lockInMemory(tokenOid);
+                     return token;
+                  }
                }
             }
          }
@@ -189,48 +184,13 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
       return null;
    }
 
-   private synchronized boolean lockInDb(TransitionTokenBean token)
-   {
-      if (!token.isBound())
-      {
-         try
-         {
-            token.lock();
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("Token " + token + " locked.");
-            }
-            token.reload();
-            if (!token.isBound())
-            {
-               return true;
-            }
-         }
-         catch (ConcurrencyException e)
-         {
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("Concurrent attempt to lock token: " + token);
-            }
-         }
-         catch (PhantomException e)
-         {
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("Try to bind phantom token: " + token);
-            }
-         }
-      }
-      return false;
-   }
-
    private synchronized boolean isLockedInMemory(Long tokenOid)
    {
-      if (this.lockedTokensOids.contains(tokenOid))
+      if (lockedTokensOids.contains(tokenOid))
       {
          Object transaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-         Set /*<Long>*/ lockedForCurrentTransaction = (Set) this.lockedTokensOidsByTransaction.get(transaction);
-         if (lockedForCurrentTransaction == null || 
+         Set<Long> lockedForCurrentTransaction = lockedTokensOidsByTransaction.get(transaction);
+         if (lockedForCurrentTransaction == null ||
                lockedForCurrentTransaction != null && !lockedForCurrentTransaction.contains(tokenOid))
          {
             // locked by another transaction
@@ -242,17 +202,17 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
 
    private synchronized void lockInMemory(Long tokenOid)
    {
-      this.lockedTokensOids.add(tokenOid);
+      lockedTokensOids.add(tokenOid);
       if (trace.isDebugEnabled())
       {
-         trace.debug("Locked token "+tokenOid+" in memory");
+         trace.debug("Locked token " + tokenOid + " in memory");
       }
       Object transaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-      Set /*<Long>*/ lockedForCurrentTransaction = (Set) this.lockedTokensOidsByTransaction.get(transaction);
+      Set<Long> lockedForCurrentTransaction = lockedTokensOidsByTransaction.get(transaction);
       if (lockedForCurrentTransaction == null)
       {
          lockedForCurrentTransaction = new HashSet();
-         this.lockedTokensOidsByTransaction.put(transaction, lockedForCurrentTransaction);
+         lockedTokensOidsByTransaction.put(transaction, lockedForCurrentTransaction);
       }
       lockedForCurrentTransaction.add(tokenOid);
    }
@@ -260,7 +220,7 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
    private synchronized void registerPersistenceController(Long tokenOid, TransitionTokenBean token)
    {
       Session session = (Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      
+
       if (!token.isPersistent() || (token.isPersistent() && token.getPersistenceController().getSession() != session))
       {
          DmlManager dmlManager = session.getDMLManager(token.getClass());
@@ -281,18 +241,16 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
          long targetActivityInstanceOid)
    {
       // TODO (ab) give a read-only version of token from here!
-      Map /*<Long,TransitionTokenBean>*/ tokensForTransition = getTokenMap(transition);
+      Map<Long, TransitionTokenBean> tokensForTransition = getTokenMap(transition);
       if (tokensForTransition == null || tokensForTransition.size() == 0)
       {
          return null;
       }
-      
-      for (Iterator i = tokensForTransition.entrySet().iterator(); i.hasNext();)
+
+      for (Entry<Long, TransitionTokenBean> entry : tokensForTransition.entrySet())
       {
-         Entry entry = (Entry)i.next();
-         
-         Long tokenOid = (Long) entry.getKey();
-         TransitionTokenBean token = (TransitionTokenBean) entry.getValue();
+         Long tokenOid = entry.getKey();
+         TransitionTokenBean token = entry.getValue();
          if (token.getTarget() == targetActivityInstanceOid && !isLockedInMemory(tokenOid))
          {
             lockInMemory(tokenOid);
@@ -302,37 +260,91 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
       return null;
    }
 
+   @Override
+   public synchronized TransitionTokenBean lockSourceAndOtherToken(final TransitionTokenBean sourceToken)
+   {
+      Map<Long, TransitionTokenBean> tokenList = getTokenMap(null);
+      if (tokenList == null || tokenList.size() == 0
+            || !tokenList.containsKey(sourceToken.getOID()) || sourceToken.lockAndReload() > 0)
+      {
+         return null;
+      }
+
+      return lockNextToken(sourceToken, filter(sourceToken, tokenList.values()));
+   }
+
+   private TransitionTokenBean lockNextToken(final TransitionTokenBean sourceToken,
+         TransitionTokenBean[] tokens)
+   {
+      boolean allLocked = true;
+      for (TransitionTokenBean token : tokens)
+      {
+         Long tokenOid = token.getOID();
+         if (!isLockedInMemory(tokenOid))
+         {
+            if (singleNodeDeployment)
+            {
+               lockInMemory(tokenOid);
+               if (!token.isConsumed())
+               {
+                  return token;
+               }
+            }
+            else
+            {
+               int lockStatus = token.lockAndReload();
+               if (lockStatus == 0)
+               {
+                  lockInMemory(tokenOid);
+                  if (!token.isConsumed())
+                  {
+                     return token;
+                  }
+               }
+               else if (lockStatus == 1)
+               {
+                  allLocked = false;
+               }
+            }
+         }
+         else
+         {
+            allLocked = false;
+         }
+      }
+      return allLocked ? sourceToken : null;
+   }
+
    public boolean hasCompleteInformation()
    {
-      return this.singleNodeDeployment && this.seenStartToken;
+      return singleNodeDeployment && seenStartToken;
    }
-   
+
    public synchronized void unlockForTransaction(Object transaction)
    {
-      Set /*<Long>*/ lockedForTransaction = (Set) this.lockedTokensOidsByTransaction.remove(transaction);
+      Set<Long> lockedForTransaction = lockedTokensOidsByTransaction.remove(transaction);
       if (lockedForTransaction != null)
       {
-         this.lockedTokensOids.removeAll(lockedForTransaction);
+         lockedTokensOids.removeAll(lockedForTransaction);
       }
-      
+
       // keep localCacheTokensByTransaction in sync
-      this.localCacheTokensByTransaction.remove(transaction);
+      localCacheTokensByTransaction.remove(transaction);
    }
 
    public synchronized void unlockTokens(List tokens)
    {
       Object transaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-      for (Iterator i = tokens.iterator(); i.hasNext(); )
+      for (TransitionTokenBean token : (List<TransitionTokenBean>) tokens)
       {
-         TransitionTokenBean token = (TransitionTokenBean)i.next();
-         Long tokenOid = new Long(token.getOID());
-         if (this.lockedTokensOids.remove(tokenOid))
+         Long tokenOid = token.getOID();
+         if (lockedTokensOids.remove(tokenOid))
          {
             if (trace.isDebugEnabled())
             {
                trace.debug("Unlocked token "+tokenOid+" again because not all tokens are there to execute the activity");
             }
-            Set /*<Long>*/ lockedForCurrentTransaction = (Set) this.lockedTokensOidsByTransaction.get(transaction);
+            Set<Long> lockedForCurrentTransaction = lockedTokensOidsByTransaction.get(transaction);
             if (lockedForCurrentTransaction != null)
             {
                lockedForCurrentTransaction.remove(tokenOid);
@@ -340,14 +352,13 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
          }
       }
    }
-   
+
    public synchronized void registerPersistenceControllers(List tokens)
    {
-      for (Iterator i = tokens.iterator(); i.hasNext();)
+      for (TransitionTokenBean token : (List<TransitionTokenBean>) tokens)
       {
-         TransitionTokenBean token = (TransitionTokenBean) i.next();
-         Long tokenOid = new Long(token.getOID());
-         if (this.lockedTokensOids.contains(tokenOid))
+         Long tokenOid = token.getOID();
+         if (lockedTokensOids.contains(tokenOid))
          {
             registerPersistenceController(tokenOid, token);
          }
@@ -362,26 +373,23 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
    public synchronized long getUnconsumedTokenCount()
    {
       long unconsumedTokenCount = 0;
-      
+
       // count all unconsumed tokens in local caches of _other_ transactions
       Object currentTransaction = TransactionUtils.getCurrentTxStatus().getTransaction();
-      for (Iterator i = this.localCacheTokensByTransaction.entrySet().iterator(); i.hasNext(); )
+      for (Entry<?, Set<TransitionTokenBean>> entry : localCacheTokensByTransaction.entrySet())
       {
-         Entry e = (Entry)i.next();
-         Set tokens /*<TransitionTokenBean>*/ = (Set) e.getValue();
+         Set<TransitionTokenBean> tokens = entry.getValue();
 
-         if (currentTransaction != e.getKey())
+         if (currentTransaction != entry.getKey())
          {
             unconsumedTokenCount += tokens.size();
          }
       }
-      
-      for (Iterator i = this.tokensByTransitionRtOid.values().iterator(); i.hasNext(); )
+
+      for (Map<Long,TransitionTokenBean> tokenMap : tokensByTransitionRtOid.values())
       {
-         Map /*<Long,TransitionTokenBean>*/ tokenMap = (Map)i.next();
          unconsumedTokenCount += tokenMap.size();
       }
       return unconsumedTokenCount;
    }
-
 }

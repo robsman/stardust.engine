@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
+import static org.eclipse.stardust.common.CollectionUtils.newSortedMap;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.SortedMap;
 
 import org.eclipse.stardust.common.Base64;
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
@@ -44,7 +48,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 public class LargeStringHolder extends IdentifiablePersistentBean implements Comparable
 {
    public static final String END_MARKER = "\\";
-   
+
    /**
     * Database meta information like table name, name of the PK, and name of
     * the PK sequence
@@ -75,7 +79,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
    private String data_type;
    private static final int data_COLUMN_LENGTH = 4000;
    private String data;
-   
+
    transient private boolean useEndMarker = false;
 
    /**
@@ -83,7 +87,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
     * stored in a VARCHAR field
     */
    private static int ATOM_SIZE = 1000;
-   
+
    /**
     * Finds all string portions for an OID and persistent class in the
     * database and returns an iterator on them.
@@ -92,69 +96,36 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
     * @param persistent the class of the object the oid is related to.
     * @return an iterator containing all string portion for the passed OID.
     */
-   public static ClosableIterator findAllByOID(long oid, Class persistent,
+   public static ClosableIterator<LargeStringHolder> findAllByOID(long oid, Class persistent,
          boolean considerDisk)
    {
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-      TypeDescriptor foreignType = TypeDescriptor.get(persistent);
-      final String tableName = (null != foreignType)
-            ? foreignType.getTableName()
-            : TypeDescriptor.getTableName(persistent);
+      SortedMap<Long, LargeStringHolder> result = findAllCachedByOID(oid, persistent);
 
-      SortedMap result = null;
-      if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
-      {
-         // if we find any large strings in the session cache, it is safe to assume we
-         // have all as the engine always loads all or nothing
-         Collection cachedParts = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(LargeStringHolder.class);
-         if ((null != cachedParts) && !cachedParts.isEmpty())
-         {
-            for (Iterator i = cachedParts.iterator(); i.hasNext();)
-            {
-               PersistenceController pc = (PersistenceController) i.next();
-               
-               if ( !((DefaultPersistenceController) pc).isDeleted())
-               {
-                  LargeStringHolder cachedPart = (LargeStringHolder) pc.getPersistent();
-                  
-                  if ((cachedPart.getObjectID() == oid)
-                        && tableName.equals(cachedPart.getDataType()))
-                  {
-                     if (null == result)
-                     {
-                        result = CollectionUtils.newSortedMap();
-                     }
-                     
-                     result.put(new Long(cachedPart.getOID()), cachedPart);
-                  }
-               }
-            }
-         }
-      }
-      
       if (considerDisk)
       {
          ClosableIterator recordsFromDisk = session.getIterator(LargeStringHolder.class,
                QueryExtension
-               .where(Predicates.andTerm(
-                     Predicates.isEqual(FR__OBJECTID, oid),
-                     Predicates.isEqual(FR__DATA_TYPE, tableName)))
-                     .addOrderBy(FR__OID));
-         
-         if ((null == result) || result.isEmpty())
+               .where(andTerm(
+                     isEqual(FR__OBJECTID, oid),
+                     isEqual(FR__DATA_TYPE, tableNameForPersistent(persistent))))
+               .addOrderBy(FR__OID));
+
+         if (isEmpty(result))
          {
             return recordsFromDisk;
          }
          else
          {
+            // merge cached entries with entries loaded from disk
             try
             {
                while (recordsFromDisk.hasNext())
                {
                   LargeStringHolder part = (LargeStringHolder) recordsFromDisk.next();
-                  
-                  result.put(new Long(part.getOID()), part);
+
+                  result.put(part.getOID(), part);
                }
             }
             finally
@@ -167,6 +138,62 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
       return ClosableIteratorAdapter.newIteratorAdapter((null != result)
             ? result.values().iterator()
             : Collections.EMPTY_LIST.iterator());
+   }
+
+   public static String tableNameForPersistent(Class persistent)
+   {
+      TypeDescriptor foreignType = TypeDescriptor.get(persistent);
+      return (null != foreignType) //
+            ? foreignType.getTableName()
+            : TypeDescriptor.getTableName(persistent);
+   }
+
+   /**
+    * Finds all non-deleted string portions for an OID and persistent class in the session
+    * cache and returns an iterator on them.
+    *
+    * @param oid the OID of the object this string portion is assigned to
+    * @param persistent the class of the object the OID is related to.
+    * @return an iterator containing all string portion for the passed OID.
+    */
+   public static SortedMap<Long, LargeStringHolder> findAllCachedByOID(long oid, Class<?> persistent)
+   {
+      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+      SortedMap<Long, LargeStringHolder> result = null;
+      if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+      {
+         String tableName = tableNameForPersistent(persistent);
+
+         // if we find any large strings in the session cache, it is safe to assume we
+         // have all as the engine always loads all or nothing
+         Collection cachedParts = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(LargeStringHolder.class);
+         if (!isEmpty(cachedParts))
+         {
+            for (Iterator i = cachedParts.iterator(); i.hasNext();)
+            {
+               PersistenceController pc = (PersistenceController) i.next();
+
+               if ( !((DefaultPersistenceController) pc).isDeleted())
+               {
+                  LargeStringHolder cachedPart = (LargeStringHolder) pc.getPersistent();
+
+                  if ((cachedPart.getObjectID() == oid)
+                        && tableName.equals(cachedPart.getDataType()))
+                  {
+                     if (null == result)
+                     {
+                        result = newSortedMap();
+                     }
+
+                     result.put(new Long(cachedPart.getOID()), cachedPart);
+                  }
+               }
+            }
+         }
+      }
+
+      return result;
    }
 
    /**
@@ -192,51 +219,26 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
     */
    public static void deleteAllForOID(long oid, Class persistent, boolean considerDisk)
    {
-      ClosableIterator i = findAllByOID(oid, persistent, considerDisk);
-      try
+      SortedMap<Long, LargeStringHolder> cachedEntries = findAllCachedByOID(oid, persistent);
+      if ( !isEmpty(cachedEntries))
       {
-         while (i.hasNext())
+         for (LargeStringHolder cachedEntry : cachedEntries.values())
          {
-            ((LargeStringHolder) i.next()).delete(true);
+            cachedEntry.delete(false);
          }
       }
-      finally
+
+      if (considerDisk)
       {
-         i.close();
-      }
-   }
-
-   /**
-    * Deletes all string portions (the whole large string) from the database
-    * that are related to an OID and the class of the object represented by the
-    * OID.
-    *
-    * @param persistent the class of the object represented by OID.
-    */
-   public static void deleteAllForDataType(Class persistent)
-   {
-      TypeDescriptor foreignType = TypeDescriptor.get(persistent);
-      final String tableName = (null != foreignType)
-            ? foreignType.getTableName()
-            : TypeDescriptor.getTableName(persistent);
-
-      ClosableIterator iterator =
-            SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
-                  LargeStringHolder.class,
-                  QueryExtension.where(
-                        Predicates.isEqual(FR__DATA_TYPE, tableName)));
-
-      try
-      {
-         while (iterator.hasNext())
+         Session session = SessionFactory.getSession(SessionFactory.DS_NAME_AUDIT_TRAIL);
+         if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            ((LargeStringHolder) iterator.next()).delete(true);
+            ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session)
+                  .executeDelete(DeleteDescriptor.from(LargeStringHolder.class)
+                        .where(andTerm(
+                              isEqual(LargeStringHolder.FR__OBJECTID, oid),
+                              isEqual(LargeStringHolder.FR__DATA_TYPE, tableNameForPersistent(persistent)))));
          }
-
-      }
-      finally
-      {
-         iterator.close();
       }
    }
 
@@ -274,13 +276,13 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
             while (parts.hasNext())
             {
                LargeStringHolder part = (LargeStringHolder) parts.next();
-               
+
                if (null != part.getData())
                {
                   joinBuffer.append(part.getData());
                }
             }
-            
+
             return joinBuffer.toString();
          }
       }
@@ -291,12 +293,12 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
 
       return null;
    }
-   
+
    public static void setLargeString(long oid, Class persistent, String value)
    {
       setLargeString(oid, persistent, value, true);
    }
-   
+
    /**
     * Stores a large string in the database. The passed string is splitted into
     * portions of 4000 characters and then stored in the database using
@@ -316,7 +318,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
       {
          return;
       }
-      
+
       int loopCount = ((value.length() - 1) / ATOM_SIZE) + 1;
 
       for (int i = 0; i < loopCount; i++)
@@ -392,7 +394,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
    protected LargeStringHolder(long objectid, Class persistent, String data)
    {
       this();
-      
+
       this.objectid = objectid;
       this.data = data;
 
@@ -442,7 +444,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
       {
          returnData = data.substring(0, data.length() - 1);
       }
-      
+
       return returnData;
    }
 
@@ -454,7 +456,7 @@ public class LargeStringHolder extends IdentifiablePersistentBean implements Com
    public void setData(String data)
    {
       fetch();
-      String useData = data + (useEndMarker ? END_MARKER : "");  
+      String useData = data + (useEndMarker ? END_MARKER : "");
       if ( !CompareHelper.areEqual(this.data, useData))
       {
          markModified(FIELD__DATA);

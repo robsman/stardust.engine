@@ -2,42 +2,35 @@ package org.eclipse.stardust.engine.extensions.camel;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ADDITIONAL_SPRING_BEANS_DEF_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GREATER_THAN_SIGN;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_TYPE_EXT_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_DIRECT_TAG;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRODUCER_ROUTE_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_FOOTER;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_HEADER;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_TRIGGER_TYPE;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createAndStartConsumerRoute;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createAndStartProducerRoute;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createSpringFileContent;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
-
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.apache.camel.CamelContext;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RoutesDefinition;
-import org.apache.commons.io.IOUtils;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_FOOTER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_HEADER;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
-import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
-import org.springframework.context.support.AbstractApplicationContext;
 
 public class Util
 {
    public static final Logger logger = LogManager.getLogger(Util.class);
 
-   public static String getCurrentPartition(String partition)
+   /**
+    * if partition is populated then its value is returned; otherwise lookup to
+    * SecurityProperties.DEFAULT_PARTITION from the context
+    *
+    * @param partition
+    * @return
+    */
+   public static String getCurrentPartition(final String partition)
    {
       if (!StringUtils.isEmpty(partition))
       {
@@ -46,260 +39,383 @@ public class Util
       return Parameters.instance().getString(SecurityProperties.DEFAULT_PARTITION, "default");
    }
 
-   public static String getUserName(ITrigger trigger)
+   /**
+    * return the value of carnot:engine:camel::username attribute defined in the trigger.
+    *
+    * @param trigger
+    * @return
+    */
+   public static String getUserName(final ITrigger trigger)
    {
       return (String) trigger.getAllAttributes().get("carnot:engine:camel::username");
    }
 
-   public static String getPassword(ITrigger trigger)
+   /**
+    * return the value of carnot:engine:camel::password attribute defined in the trigger.
+    *
+    * @param trigger
+    * @return
+    */
+   public static String getPassword(final ITrigger trigger)
    {
       return (String) trigger.getAllAttributes().get("carnot:engine:camel::password");
    }
 
-   public static String getProcessId(ITrigger trigger)
+   /**
+    * return the current processID
+    *
+    * @param trigger
+    * @return
+    */
+   public static String getProcessId(final ITrigger trigger)
    {
       return (String) ((IProcessDefinition) trigger.getParent()).getId();
    }
 
-   public static String getModelId(ITrigger trigger)
+   /**
+    * returns the current ModelID
+    *
+    * @param trigger
+    * @return
+    */
+   public static String getModelId(final ITrigger trigger)
    {
       return (String) trigger.getModel().getId();
    }
 
-   public static String getProvidedRouteConfiguration(ITrigger trigger)
+   /**
+    * Returns provided route configuration for the camel Trigger. it's persisted in
+    * carnot:engine:camel::camelRouteExt attribute.
+    *
+    * @param trigger
+    * @return
+    */
+   public static String getProvidedRouteConfiguration(final ITrigger trigger)
    {
       return (String) (String) trigger.getAttribute(ROUTE_EXT_ATT);
    }
 
-   public static boolean isConsumerApplication(IApplication application)
+   /**
+    * Returns true if the application is a consumer Application
+    *
+    * @param application
+    * @return
+    */
+   public static boolean isConsumerApplication(final IApplication application)
    {
-      return CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId())
-            && ((application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay") != null) && !((String) application
-                  .getAttribute("carnot:engine:camel::applicationIntegrationOverlay"))
-                  .equalsIgnoreCase("mailIntegrationOverlay"));
+      Boolean isConsumer = CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId());
+      // mail application should be set as consumerApp to be able to set the activity
+      // instance in hibernated state
+      if ((application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay") != null)
+            && ((String) application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay"))
+                  .equalsIgnoreCase("mailIntegrationOverlay"))
+         return false;
+
+      String invocationPattern = getInvocationPattern(application);
+      String invocationType = getInvocationType(application);
+
+      if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
+            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.ASYNCHRONOUS
+                  .equals(invocationType)))
+      {
+         isConsumer = true;
+      }
+      if (StringUtils.isNotEmpty(invocationPattern)
+            && CamelConstants.InvocationPatterns.RECEIVE.equals(invocationPattern))
+      {
+         isConsumer = true;
+      }
+
+      return isConsumer;
    }
 
-   public static String getProvidedRouteConfiguration(IApplication application)
+   /**
+    * According to the application instance type; the provided route configuration will be
+    * returned. if the application is a producer application then the value of
+    * carnot:engine:camel::routeEntries will be returned. otherwise
+    * carnot:engine:camel::routeEntries
+    *
+    * @param application
+    * @return
+    */
+   public static String getConsumerRouteConfiguration(final IApplication application)
    {
-      if (isConsumerApplication(application))
-         return (String) application.getAttribute(CamelConstants.CONSUMER_ROUTE_ATT);
-      // return (String) (String) application.getAttribute(ROUTE_EXT_ATT);
-      return (String) (String) application.getAttribute(PRODUCER_ROUTE_ATT);
+      return (String) application.getAttribute(CamelConstants.CONSUMER_ROUTE_ATT);
 
    }
 
-   public static String extractBodyMainType(IData data)
+   public static String getProducerRouteConfiguration(final IApplication application)
+   {
+      return (String) application.getAttribute(PRODUCER_ROUTE_ATT);
+
+   }
+
+   /**
+    * Extracts the value of carnot:engine:className attribute.
+    *
+    * @param data
+    * @return
+    */
+   public static String extractBodyMainType(final IData data)
    {
       return (String) data.getAttribute("carnot:engine:className");
    }
 
-   public static String getAdditionalBeansDefinition(IApplication application)
+   /**
+    * Returns the provided bean definitions (attribute ID :
+    * carnot:engine:camel::additionalSpringBeanDefinitions")
+    *
+    * @param application
+    * @return
+    */
+   public static String getAdditionalBeansDefinition(final IApplication application)
    {
       return (String) application.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
    }
 
-   public static String getCamelContextId(IApplication application)
+   /**
+    * if the camelContextId is provided in carnot:engine:camel::camelContextId Returns the
+    * name of camelContext to be used.
+    *
+    * @param application
+    * @return
+    */
+   public static String getCamelContextId(final IApplication application)
    {
-
       return checkNotNull((String) application.getAttribute(CAMEL_CONTEXT_ID_ATT), DEFAULT_CAMEL_CONTEXT_ID);
-
    }
 
-   private static String checkNotNull(String input, String defaultValue)
+   /**
+    *
+    * @param input
+    * @param defaultValue
+    * @return
+    */
+   private static String checkNotNull(final String input, final String defaultValue)
    {
       if (StringUtils.isEmpty(input))
       {
-         input = defaultValue;
+         return defaultValue;
       }
       return input;
    }
 
-   public static String getCamelContextId(Application application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static String getCamelContextId(final Application application)
    {
 
       return checkNotNull((String) application.getAttribute(CamelConstants.CAMEL_CONTEXT_ID_ATT),
             DEFAULT_CAMEL_CONTEXT_ID);
    }
 
-   public static String getInvocationPattern(IApplication application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static String getInvocationPattern(final IApplication application)
    {
       return (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
    }
 
-   public static String getInvocationPattern(Application application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static String getInvocationPattern(final Application application)
    {
       return (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
    }
 
-   public static String getInvocationType(IApplication application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static String getInvocationType(final IApplication application)
    {
       return (String) application.getAttribute(INVOCATION_TYPE_EXT_ATT);
    }
 
-   public static Object getBodyOutAccessPoint(Application application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static Object getBodyOutAccessPoint(final Application application)
    {
       return application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT);
    }
 
-   public static Object getBodyInAccessPoint(Application application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static Object getBodyInAccessPoint(final Application application)
    {
       return application.getAttribute(CamelConstants.CAT_BODY_IN_ACCESS_POINT);
    }
 
-   public static Object getSupportMultipleAccessPointAttribute(Application application)
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static Object getSupportMultipleAccessPointAttribute(final Application application)
    {
       return application.getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS);
    }
 
-   public static ApplicationContext getActivityInstanceApplicationContext(ActivityInstance ai)
+   /**
+    *
+    * @param ai
+    * @return
+    */
+   public static ApplicationContext getActivityInstanceApplicationContext(final ActivityInstance ai)
    {
       return ai.getActivity().getApplicationContext("application");
    }
 
-   public static ApplicationContext getActivityInstanceDefaultContext(ActivityInstance ai)
+   /**
+    *
+    * @param ai
+    * @return
+    */
+   public static ApplicationContext getActivityInstanceDefaultContext(final ActivityInstance ai)
    {
       return ai.getActivity().getApplicationContext("default");
    }
 
-//   public static void createTriggerRoute(String partitionId, IProcessDefinition process,
-//         AbstractApplicationContext springContext)
-//   {
-//
-//      for (int i = 0; i < process.getTriggers().size(); i++)
-//      {
-//
-//         ITrigger trigger = (ITrigger) process.getTriggers().get(i);
-//
-//         if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId()))
-//         {
-//            createTriggerlRoute(partitionId, trigger, springContext);
-//         }
-//      }
-//   }
-//
-//   public static void createApplicationRoute(String partitionId,ModelElementList<IApplication> apps,AbstractApplicationContext springContext)
-//   {
-//      for (int ai = 0; ai < apps.size(); ai++)
-//      {
-//
-//         IApplication app = apps.get(ai);
-//
-//         if (app != null
-//               && app.getType() != null
-//               && (app.getType().getId().equals(CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE) || app.getType()
-//                     .getId().equals(CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE)))
-//         {
-//             createApplicationRoute(partitionId,app,springContext);
-//         }
-//
-//      }
-//   }
+   /**
+    *
+    * @param application
+    * @return
+    */
+   public static boolean isProducerApplication(final IApplication application)
+   {
+      Boolean isProducer = application.getType().getId().equalsIgnoreCase(CAMEL_PRODUCER_APPLICATION_TYPE);
 
-//   private static void createApplicationRoute(String partition,IApplication application,AbstractApplicationContext springContext)
-//   {
-//
-//      try
-//      {
-//         String contextId = getCamelContextId(application);
-//
-//         String springBeans = getAdditionalBeansDefinition(application);
-//
-//         String invocationPattern = getInvocationPattern(application);
-//
-//         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
-//
-//         if (!StringUtils.isEmpty(springBeans))
-//         {
-//            loadBeanDefinition(createSpringFileContent(springBeans, false, null),
-//                  (AbstractApplicationContext) springContext);
-//         }
-//
-//         if (isConsumerApplication(application))
-//         {
-//
-//            if (StringUtils.isNotEmpty(invocationPattern)
-//                  && CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern))
-//            {
-//               createAndStartProducerRoute(application, camelContext, partition);
-//            }
-//
-//            createAndStartConsumerRoute(application, camelContext, partition);
-//
-//         }
-//         else if (CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE.equals(application.getType().getId()))
-//         {
-//
-//            createAndStartProducerRoute(application, camelContext, partition);
-//
-//         }
-//         else
-//         {
-//
-//            // old behaviour
-//            createAndStartProducerRoute(application, camelContext, partition);
-//
-//         }
-//      }
-//      catch (Exception e)
-//      {
-//         throw new RuntimeException("Exception creating route for application " + application.getId(), e);
-//      }
-//   }
-//
-//   private static void createTriggerlRoute(String partitionId, ITrigger trigger,
-//         AbstractApplicationContext springContext)
-//   {
-//      try
-//      {
-//
-//         String contextId = (String) trigger.getAttribute(CAMEL_CONTEXT_ID_ATT);
-//
-//         if (StringUtils.isEmpty(contextId))
-//         {
-//            contextId = DEFAULT_CAMEL_CONTEXT_ID;
-//            logger.warn("No context provided - the default context is used.");
-//         }
-//         Map<String,DataConverter> converters= springContext.getBeansOfType(DataConverter.class);
-//         
-//         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
-//
-//         String additionalBeanDefinition = (String) trigger.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
-//
-//         if (!StringUtils.isEmpty(additionalBeanDefinition))
-//         {
-//            loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null), springContext);
-//         }
-//
-//         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger,new ArrayList<DataConverter>(converters.values()), SecurityProperties.getPartition()
-//               .getId());
-//
-//         if (route.getRouteDefinition() != null && route.getRouteDefinition().length() > 0)
-//         {
-//
-//            StringBuilder generatedXml = new StringBuilder(SPRING_XML_ROUTES_HEADER + route.getRouteDefinition()
-//                  + SPRING_XML_ROUTES_FOOTER);
-//
-//            logger.info("Route for trigger " + trigger.getName() + " to be added to context " + contextId
-//                  + " for partition " + partitionId + ".");
-//
-//            if (logger.isDebugEnabled())
-//            {
-//               logger.debug(route.getRouteDefinition());
-//            }
-//
-//            RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils
-//                  .toInputStream(generatedXml.toString()));
-//
-//            ((ModelCamelContext) camelContext).addRouteDefinitions(routes.getRoutes());
-//         }
-//         else
-//         {
-//            logger.warn("No route definition found.");
-//         }
-//      }
-//      catch (Exception e)
-//      {
-//         throw new RuntimeException("Route creation for trigger " + trigger.getName() + " failed.", e);
-//      }
-//   }
+      String invocationPattern = getInvocationPattern(application);
+      String invocationType = getInvocationType(application);
+
+      if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
+            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.SYNCHRONOUS
+                  .equals(invocationPattern)))
+      {
+         isProducer = true;
+      }else if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
+            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.ASYNCHRONOUS
+                  .equals(invocationType)))
+      {
+         isProducer = true;
+      }
+      if (StringUtils.isNotEmpty(invocationPattern) && CamelConstants.InvocationPatterns.SEND.equals(invocationPattern))
+      {
+         isProducer = true;
+      }
+
+      return isProducer;
+   }
+
+   /**
+    *
+    * @param partitionId
+    * @param modelId
+    * @param parentModelElementId
+    * @param modelElementId
+    * @param isProducer
+    * @return
+    */
+   public static String getRouteId(final String partition, final String modelId, final String parentModelElementId,
+         final String modelElementId, boolean isProducer)
+   {
+      if (logger.isDebugEnabled())
+      {
+         logger.debug("Calculating RouteId for Camel Application Type <" + modelElementId
+               + "> with the following parameters :");
+         logger.debug("< Partition = " + partition + ", modelId = " + modelId + ", parentModelElementId = "
+               + ((parentModelElementId == null) ? "" : parentModelElementId) + ", Is Producer Application = "
+               + isProducer + ">");
+      }
+      String type = isProducer ? "Producer" : "Consumer";
+      // StringBuffer buffer = new StringBuffer(200);
+      StringBuilder routeId = new StringBuilder();
+      routeId.append(partition);
+      routeId.append("|");
+      routeId.append(modelId);
+      routeId.append("|");
+      if (parentModelElementId != null)
+      {
+         routeId.append(parentModelElementId);
+         routeId.append("|");
+      }
+      routeId.append(modelElementId);
+      return type + routeId.toString().hashCode();
+      //
+      // buffer.append(partition);
+      // buffer.append("|");
+      // buffer.append(modelId);
+      // buffer.append("|");
+      //
+      // if (parentModelElementId != null)
+      // {
+      // buffer.append(parentModelElementId);
+      // buffer.append("|");
+      // }
+      //
+      // buffer.append(modelElementId);
+
+      // return type + buffer.toString().hashCode();
+   }
+
+   /**
+    * creates a standard Spring config file
+    *
+    * @param providedBeanConfiguration
+    * @param fieldMappingProvided
+    * @param mapAppenderBeanDefinition
+    * @return beanDefinition the content of a spring file
+    */
+   public static StringBuilder createSpringFileContent(final String providedBeanConfiguration,
+         final boolean fieldMappingProvided, StringBuilder mapAppenderBeanDefinition)
+   {
+
+      StringBuilder beanDefinition = new StringBuilder();
+      beanDefinition.append(SPRING_XML_HEADER);
+      beanDefinition.append(providedBeanConfiguration);
+      if (fieldMappingProvided)
+         beanDefinition.append(mapAppenderBeanDefinition);
+      beanDefinition.append(SPRING_XML_FOOTER);
+      return beanDefinition;
+   }
+
+   /**
+    *
+    * @param providedRouteDefinition
+    * @param replacementUri
+    * @return
+    */
+   public static String replaceSymbolicEndpoint(final String providedRouteDefinition, final String replacementUri)
+   {
+      if (!StringUtils.isEmpty(providedRouteDefinition))
+      {
+         if (providedRouteDefinition.contains(IPP_DIRECT_TAG))
+         {
+            int indexOfUri = providedRouteDefinition.indexOf(IPP_DIRECT_TAG);
+            int indexOfEndStatement = providedRouteDefinition.substring(indexOfUri, providedRouteDefinition.length())
+                  .indexOf("/" + GREATER_THAN_SIGN);
+            String partToBeReplaced = providedRouteDefinition.substring(indexOfUri, indexOfUri + indexOfEndStatement);
+            String replacedUri = providedRouteDefinition.replace(partToBeReplaced, replacementUri);
+            return replacedUri;
+         }
+
+      }
+      return providedRouteDefinition;
+   }
 }

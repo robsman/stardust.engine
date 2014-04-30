@@ -1,11 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
-
-import java.util.List;
-
 import org.apache.camel.*;
-import org.apache.camel.language.simple.SimpleLanguage;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 
 public class DocumentManagementEndpoint extends AbstractIppEndpoint
@@ -33,9 +29,6 @@ public class DocumentManagementEndpoint extends AbstractIppEndpoint
 
    private Expression executeExpression(String expression)
    {
-//      if (expression.startsWith("${") && expression.endsWith("}"))
-//         return SimpleLanguage.simple(extractTokenFromExpression(expression));
-//      return SimpleLanguage.simple(expression);
       return parseSimpleExpression(expression);
    }
 
@@ -54,7 +47,7 @@ public class DocumentManagementEndpoint extends AbstractIppEndpoint
       }
       else
       {
-         String documentId = exchange.getIn().getHeader(CamelConstants.MessageProperty.DOCUMENT_Id, String.class);
+         String documentId = exchange.getIn().getHeader(CamelConstants.MessageProperty.DOCUMENT_ID, String.class);
          if (documentId==null)
          {
             throw new IllegalStateException("Missing required DocumentID.");

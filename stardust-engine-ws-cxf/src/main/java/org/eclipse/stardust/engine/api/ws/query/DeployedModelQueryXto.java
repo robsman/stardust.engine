@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- *   		Query container for building complex queries for deployed models. 
+ *   		Query container for building complex queries for deployed models.
  *   		
  * 
  * <p>Java class for DeployedModelQuery complex type.

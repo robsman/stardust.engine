@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
-
 public interface ISecondLevelTokenCache extends ITokenManager
 {
    public boolean hasCompleteInformation();
@@ -24,5 +23,4 @@ public interface ISecondLevelTokenCache extends ITokenManager
    public void registerTransaction(Object transaction);
    public long getUnconsumedTokenCount();
    public void addLocalToken(TransitionTokenBean token);
-
 }

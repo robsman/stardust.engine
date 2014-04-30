@@ -17,34 +17,31 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.sax.SAXSource;
 
+import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.model.parser.filters.NamespaceFilter;
 import org.eclipse.stardust.engine.core.model.parser.filters.StopFilter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.XMLReaderFactory;
+import org.xml.sax.XMLFilter;
 
 /**
  * Helper class to retrieve information from either an XPDL or an CWM model.
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
 public class ModelInfoRetriever
 {
-   private static final String XPDL_1_0 = "http://www.wfmc.org/2002/XPDL1.0";
-   private static final String XPDL_2_0 = "http://www.wfmc.org/2004/XPDL2.0alpha";
-   private static final String XPDL_2_1 = "http://www.wfmc.org/2008/XPDL2.1";
-   
    /**
     * The cached context. Needs only to be created once.
     */
    private static JAXBContext context;
-   
+
    /**
     * Creates a parsing context for both XPDL and CWM model files.
-    * 
+    *
     * @return the parsing context.
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     */
    @SuppressWarnings("deprecation")
@@ -59,10 +56,10 @@ public class ModelInfoRetriever
 
    /**
     * Retrieves the model information from a file.
-    * 
+    *
     * @param file the file containing the model
     * @return the model information
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     * @throws SAXException if the xml document is invalid
     * @throws FileNotFoundException if the file does not exist
@@ -74,10 +71,10 @@ public class ModelInfoRetriever
 
    /**
     * Retrieves the model information from a memory byte array.
-    * 
+    *
     * @param content the byte array containing the model
     * @return the model information
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     * @throws SAXException if the xml document is invalid
     */
@@ -88,10 +85,10 @@ public class ModelInfoRetriever
 
    /**
     * Retrieves the model information from a binary stream.
-    * 
+    *
     * @param stream the binary stream providing the model
     * @return the model information
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     * @throws SAXException if the xml document is invalid
     */
@@ -102,10 +99,10 @@ public class ModelInfoRetriever
 
    /**
     * Retrieves the model information from a character reader.
-    * 
+    *
     * @param content the character reader providing the model
     * @return the model information
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     * @throws SAXException if the xml document is invalid
     */
@@ -116,20 +113,18 @@ public class ModelInfoRetriever
 
    /**
     * Retrieves the model information from a SAX input source.
-    * 
+    *
     * @param inputSource the data stream.
     * @return the model information
-    * 
+    *
     * @throws JAXBException if JAXB is not correctly set up.
     * @throws SAXException if the xml document is invalid
     */
    public static ModelInfo get(InputSource inputSource) throws SAXException, JAXBException
    {
-      NamespaceFilter fixer = new NamespaceFilter(XMLReaderFactory.createXMLReader());
-      fixer.addReplacement(XPDL_1_0, XPDL_2_1);
-      fixer.addReplacement(XPDL_2_0, XPDL_2_1);
+      XMLFilter fixer = NamespaceFilter.createXMLFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
       StopFilter stopper = new StopFilter(fixer);
-      stopper.addStopCondition(XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
+      stopper.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
       SAXSource source = new SAXSource(stopper, inputSource);
 
       JAXBContext context = getContext();

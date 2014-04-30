@@ -1,7 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand;
 
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
-
+import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
 import java.io.Serializable;
 import java.util.Map;
 

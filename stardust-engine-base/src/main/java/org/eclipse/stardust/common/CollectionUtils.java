@@ -161,6 +161,11 @@ public class CollectionUtils
       return newHashSet();
    }
 
+   public static <E> Set<E> newSet(Collection<E> from)
+   {
+      return newHashSet(from);
+   }
+
    public static <E> Set<E> newSetFromIterator(Iterator<E> iterator)
    {
       return newHashSetFromIterator(iterator);
@@ -177,6 +182,11 @@ public class CollectionUtils
    public static <E> HashSet<E> newHashSet()
    {
       return new HashSet<E>();
+   }
+
+   public static <E> HashSet<E> newHashSet(Collection<E> from)
+   {
+      return new HashSet<E>(from);
    }
 
    public static <E> HashSet<E> newHashSetFromIterator(Iterator<E> iterator)
@@ -382,7 +392,7 @@ public class CollectionUtils
       result.retainAll(rhs);
       return result;
    }
-   
+
 
 
    public static <E> List<E> union(List<E> lhs, List<E> rhs)
@@ -401,14 +411,14 @@ public class CollectionUtils
 
       return result;
    }
-   
+
    public static <E> List<E> union(List<E> lhs, List<E> rhs, boolean addToLhs)
    {
       if (addToLhs)
       {
          return union(lhs, rhs);
       }
-      
+
       List<E> result;
 
       if (Collections.emptyList().equals(lhs))
@@ -427,8 +437,8 @@ public class CollectionUtils
       }
 
       return result;
-   }   
-   
+   }
+
    private CollectionUtils()
    {
       // utility class

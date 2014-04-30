@@ -1,7 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -51,8 +51,18 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Checks if the application has valid attributes (routes entries and camelContextId).
+    *
+    * @param attributes
+    *           The application context attributes.
+    * @param typeAttributes
+    *           The application type attributes.
+    * @param accessPoints
+    * @return A list with all found
+    *         {@link org.eclipse.stardust.engine.api.model.Inconsistency} instances.
+    */
    @SuppressWarnings({"unchecked", "rawtypes"})
-   // @Override
    public List validate(IApplication application)
    {
 
@@ -75,7 +85,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
       }
 
       // check if route has been specified
-      String routeDefinition = getProvidedRouteConfiguration(application);
+      //String routeDefinition = getProvidedRouteConfiguration(application);
 
       String invocationPattern = getInvocationPattern(application);
       String invocationType = getInvocationType(application);
@@ -83,7 +93,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
       if (invocationPattern == null && invocationType == null)
       {
          // backward compatiblity
-         if (StringUtils.isEmpty(routeDefinition))
+         if (StringUtils.isEmpty(getProducerRouteConfiguration(application)))
          {
             inconsistencies.add(new Inconsistency("No Producer route definition specified for application: "
                   + application.getId(), application, Inconsistency.ERROR));
@@ -94,7 +104,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
          if (invocationPattern.equals(CamelConstants.InvocationPatterns.SEND)
                || invocationPattern.equals(CamelConstants.InvocationPatterns.SENDRECEIVE))
          {
-            if (StringUtils.isEmpty(routeDefinition))
+            if (StringUtils.isEmpty(getProducerRouteConfiguration(application)))
                inconsistencies.add(new Inconsistency("No Producer route definition specified for application: "
                      + application.getId(), application, Inconsistency.ERROR));
          }
@@ -102,7 +112,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
          if (invocationPattern.equals(CamelConstants.InvocationPatterns.RECEIVE))
          {
 
-            if (getProvidedRouteConfiguration(application) == null)
+            if (getConsumerRouteConfiguration(application) == null)
             {
                inconsistencies.add(new Inconsistency("No route definition specified for application: "
                      + application.getId(), application, Inconsistency.ERROR));
@@ -137,48 +147,61 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
             AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters.instance().get(
                   CamelConstants.PRP_APPLICATION_CONTEXT);
 
-            if (applicationContext != null)
+            if (applicationContext != null && bpmRt != null && bpmRt.getModelManager() != null)
             {
 
-               String partitionId = SecurityProperties.getPartition().getId();
+	            IModel model = (IModel) application.getModel();
 
-               CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);
+	            IModel activeModel = bpmRt.getModelManager().findActiveModel(model.getId());
 
-               if (logger.isDebugEnabled())
-               {
-                  logger.debug("Camel Context " + camelContextId + " used.");
-               }
+	            // only start the contained routes if this model (the one being validated) is
+	            // intended to be active (aka it has the same model OID as the currently
+	            // active model with the same ID or is the first version to be deployed (model
+	            // OID is 0))
+	            if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
+	            {
 
-               List<Route> routesToBeStopped = new ArrayList<Route>();
+	               String partitionId = SecurityProperties.getPartition().getId();
 
-               // select routes that are running in the current partition
-               for (Route runningRoute : camelContext.getRoutes())
-               {
-                  if (runningRoute.getId().equalsIgnoreCase(
-                        getRouteId(partitionId, application.getModel().getId(), null, application.getId(), application
-                              .getType().getId().equalsIgnoreCase("camelSpringProducerApplication"))))
-                  {
-                     routesToBeStopped.add(runningRoute);
-                  }
-               }
+	               CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);
 
-               // stop running routes to sync up with the deployed model
-               for (Route runningRoute : routesToBeStopped)
-               {
+	               if (logger.isDebugEnabled())
+	               {
+	                  logger.debug("Camel Context " + camelContextId + " used.");
+	               }
 
-                  // camelContext.removeRoute(runningRoute.getId());
-                  stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
-                  if (logger.isDebugEnabled())
-                  {
-                     logger.debug("Route " + runningRoute.getId() + " is removed from context " + camelContext + ".");
-                  }
-               }
+	               List<Route> routesToBeStopped = new ArrayList<Route>();
 
-               Action< ? > action = new CreateApplicationRouteAction(bpmRt, partitionId, applicationContext,
-                     application);
+	               // select routes that are running in the current partition
+	               for (Route runningRoute : camelContext.getRoutes())
+	               {
+	                  if (runningRoute.getId().equalsIgnoreCase(
+	                        getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application)
+	//                              application.getType().getId().equalsIgnoreCase("camelSpringProducerApplication")
+	                              )))
+	                  {
+	                     routesToBeStopped.add(runningRoute);
+	                  }
+	               }
 
-               action.execute();
+	               // stop running routes to sync up with the deployed model
+	               for (Route runningRoute : routesToBeStopped)
+	               {
 
+	                  // camelContext.removeRoute(runningRoute.getId());
+	                  stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
+	                  if (logger.isDebugEnabled())
+	                  {
+	                     logger.debug("Route " + runningRoute.getId() + " is removed from context " + camelContext + ".");
+	                  }
+	               }
+
+	               Action< ? > action = new CreateApplicationRouteAction(bpmRt, partitionId, applicationContext,
+	                     application);
+
+	               action.execute();
+
+	            }
             }
          }
          catch (Exception e)

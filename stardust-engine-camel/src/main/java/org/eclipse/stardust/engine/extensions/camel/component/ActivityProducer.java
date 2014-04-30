@@ -11,8 +11,6 @@ import org.eclipse.stardust.engine.extensions.camel.component.exception.MissingE
 
 public class ActivityProducer extends AbstractIppProducer
 {
-   // private static Logger LOG = LogManager.getLogger(ActivityProducer.class);
-
    private ActivityEndpoint endpoint;
 
    public ActivityProducer(ActivityEndpoint endpoint)

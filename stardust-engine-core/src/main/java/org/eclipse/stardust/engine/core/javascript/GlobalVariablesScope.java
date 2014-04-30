@@ -57,11 +57,11 @@ public class GlobalVariablesScope extends ScriptableObject
    private static final long serialVersionUID = 1L;
 
    private final IModel model;
-   
+
    private Context context;
-   
-   private final ThreadLocal symbolTableHolder = new ThreadLocal();
-   
+
+   private final ThreadLocal<SymbolTable> symbolTableHolder = new ThreadLocal<SymbolTable>();
+
    private final ThreadLocal adaptersHolder = new ThreadLocal();
 
    public GlobalVariablesScope(IModel model, Context context)
@@ -69,24 +69,24 @@ public class GlobalVariablesScope extends ScriptableObject
       this.model = model;
       this.context = context;
    }
-   
+
    public SymbolTable getSymbolTableForThread()
    {
-      return (SymbolTable) symbolTableHolder.get();
+      return symbolTableHolder.get();
    }
-   
+
    public void bindThreadLocalSymbolTable(SymbolTable symbolTable)
    {
       symbolTableHolder.set(symbolTable);
    }
-   
+
    public void unbindThreadLocalSymbolTable()
    {
-      symbolTableHolder.set(null);
+      symbolTableHolder.remove();
 
-      adaptersHolder.set(null);
+      adaptersHolder.remove();
    }
-   
+
    public String getClassName()
    {
       return "Global Variables Scope";
@@ -120,11 +120,11 @@ public class GlobalVariablesScope extends ScriptableObject
             if (null != value && null != data.getType())
             {
                ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, null);
-               
+
                AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, null);
                value = evaluator.evaluate(data, value, null, evaluationContext);
             }
-            
+
             // wrap non-Java APs with accessor
             // TODO implement in terms of SPI, may be on Evaluator or Validator
             IDataType dataType = (IDataType) data.getType();
@@ -139,7 +139,7 @@ public class GlobalVariablesScope extends ScriptableObject
                value = new ActivityInstanceAccessor((ActivityInstance) value);
                return value;
             }
-            if (PredefinedConstants.SERIALIZABLE_DATA.equals(dataType.getId())) {               
+            if (PredefinedConstants.SERIALIZABLE_DATA.equals(dataType.getId())) {
             	//If this is an Enum we'll wrap the contained values with the generic EnumAccessor
             	String className = (String) data.getAttribute(PredefinedConstants.CLASS_NAME_ATT);
             	try {
@@ -147,15 +147,15 @@ public class GlobalVariablesScope extends ScriptableObject
 	            		Class clazz = Reflect.getClassFromClassName(className);
 						if (clazz.isEnum()) {
 							Field[] fields = clazz.getFields();
-							Method[] methods = clazz.getMethods();							
+							Method[] methods = clazz.getMethods();
 						    value = new EnumAccessor(fields, methods, value);
 							return value;
-						}						
+						}
 					}
 				} catch (InternalException e) {
 					e.printStackTrace();
 				}
-            }            
+            }
             if (PredefinedConstants.STRUCTURED_DATA.equals(dataType.getId()))
             {
                // Check if this a Enumeration --> return EnumAccessor
@@ -212,7 +212,7 @@ public class GlobalVariablesScope extends ScriptableObject
                   adapter = new PlainXmlDataAccessor((String)value);
                   adapters.put(data.getId(), adapter);
                }
-               
+
                value = adapter;
             }
             // compatibility with carnotEL expressions: all objects that are not Scriptable will be wrapped
@@ -265,7 +265,7 @@ public class GlobalVariablesScope extends ScriptableObject
          return super.getAttributes(name);
       }
    }
-   
+
    private List<XSDEnumerationFacet> checkEnumeration(AccessPoint data) {
       ITypeDeclaration decl = StructuredTypeRtUtils.getTypeDeclaration(data, model);
       if (decl != null)

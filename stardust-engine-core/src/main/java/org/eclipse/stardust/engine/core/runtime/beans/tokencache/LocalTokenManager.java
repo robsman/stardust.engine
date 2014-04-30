@@ -10,24 +10,19 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
+import static org.eclipse.stardust.engine.core.runtime.beans.tokencache.GlobalTokenManager.filter;
+import static org.eclipse.stardust.engine.core.runtime.beans.tokencache.GlobalTokenManager.lockNextToken;
+
 import java.util.*;
 import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
-
 
 public class LocalTokenManager implements ITokenManager
 {
-   
-   private static final Logger trace = LogManager.getLogger(LocalTokenManager.class);
-   
-   private final Map /*<ITransition,<TransitionTokenBean>>*/ tokensByTransition = new HashMap();
+   private final Map<ITransition,Set<TransitionTokenBean>> tokensByTransition = new HashMap();
 
    private ISecondLevelTokenCache secondLevelCache;
 
@@ -35,28 +30,28 @@ public class LocalTokenManager implements ITokenManager
    {
       this.secondLevelCache = secondLevelCache;
    }
-   
-   private Set /*<TransitionTokenBean>*/ getTokenSet(ITransition transition)
+
+   private Set<TransitionTokenBean> getTokenSet(ITransition transition)
    {
-      return (Set) this.tokensByTransition.get(transition);
+      return tokensByTransition.get(transition);
    }
-   
+
    public void registerToken(ITransition transition, TransitionTokenBean token)
    {
-      Set/*<TransitionTokenBean>*/ tokensForTransition = getTokenSet(transition);
+      Set<TransitionTokenBean> tokensForTransition = getTokenSet(transition);
       if (null == tokensForTransition)
       {
          // most transitions will only have one associated token, so optimize for this
          // case
          tokensForTransition = Collections.singleton(token);
-         this.tokensByTransition.put(transition, tokensForTransition);
+         tokensByTransition.put(transition, tokensForTransition);
       }
       else
       {
-         if (1 == tokensForTransition.size())
+         if (tokensForTransition.size() == 1)
          {
             tokensForTransition = CollectionUtils.copySet(tokensForTransition);
-            this.tokensByTransition.put(transition, tokensForTransition);
+            tokensByTransition.put(transition, tokensForTransition);
          }
          tokensForTransition.add(token);
       }
@@ -66,17 +61,16 @@ public class LocalTokenManager implements ITokenManager
 
    public boolean removeToken(TransitionTokenBean token)
    {
-      Set /*<TransitionTokenBean>*/ tokensForTransition = getTokenSet(token.getTransition());
+      Set<TransitionTokenBean> tokensForTransition = getTokenSet(token.getTransition());
       if (tokensForTransition == null || tokensForTransition.size() == 0)
       {
          return false;
       }
-      else if ((1 == tokensForTransition.size()) && tokensForTransition.contains(token))
+      else if (tokensForTransition.size() == 1 && tokensForTransition.contains(token))
       {
          // most transitions will only have one associated token, so optimize for this
          // case
-         this.tokensByTransition.remove(token.getTransition());
-
+         tokensByTransition.remove(token.getTransition());
          return true;
       }
       else
@@ -84,46 +78,22 @@ public class LocalTokenManager implements ITokenManager
          return tokensForTransition.remove(token);
       }
    }
-   
+
    public TransitionTokenBean lockFirstAvailableToken(ITransition transition)
    {
-      Set /*<TransitionTokenBean>*/ tokensForTransition = getTokenSet(transition);
-      if (tokensForTransition == null || tokensForTransition.size() == 0)
+      Set<TransitionTokenBean> tokensForTransition = getTokenSet(transition);
+      if (tokensForTransition == null || tokensForTransition.isEmpty())
       {
          return null;
       }
-      
-      for (Iterator iterator = tokensForTransition.iterator(); iterator.hasNext();)
+
+      for (TransitionTokenBean token : tokensForTransition)
       {
-         TransitionTokenBean token = (TransitionTokenBean) iterator.next();
          if (!token.isBound())
          {
-            try
+            if (token.lockAndReload() == 0 && !token.isBound())
             {
-               token.lock();
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("token " + token + " locked.");
-               }
-               token.reload();
-               if (!token.isBound())
-               {
-                  return token;
-               }
-            }
-            catch (ConcurrencyException e)
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Concurrent attempt to lock token: " + token);
-               }
-            }
-            catch (PhantomException e)
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Try to bind phantom token: " + token);
-               }
+               return token;
             }
          }
       }
@@ -132,39 +102,35 @@ public class LocalTokenManager implements ITokenManager
 
    public void flush()
    {
-      for (Iterator i = this.tokensByTransition.entrySet().iterator(); i.hasNext();)
+      for (Entry<ITransition, Set<TransitionTokenBean>> e : tokensByTransition.entrySet())
       {
-         Entry e = (Entry)i.next();
-         ITransition transition = (ITransition) e.getKey();
-         Set /*<TransitionTokenBean>*/ tokensForTransition = (Set) e.getValue();
-         for (Iterator j = tokensForTransition.iterator(); j.hasNext();)
+         ITransition transition = e.getKey();
+         for (TransitionTokenBean token : e.getValue())
          {
-            TransitionTokenBean token = (TransitionTokenBean) j.next();
             if (!token.isPersistent() && !token.isConsumed())
             {
                token.persist();
             }
             if (!token.isConsumed())
             {
-               this.secondLevelCache.registerToken(transition, token);
+               secondLevelCache.registerToken(transition, token);
             }
          }
       }
-      this.tokensByTransition.clear();
+      tokensByTransition.clear();
    }
 
    public TransitionTokenBean getTokenForTarget(ITransition transition,
          long targetActivityInstanceOid)
    {
-      Set /*<TransitionTokenBean>*/ tokensForTransition = getTokenSet(transition);
-      if (tokensForTransition == null || tokensForTransition.size() == 0)
+      Set<TransitionTokenBean> tokensForTransition = getTokenSet(transition);
+      if (tokensForTransition == null || tokensForTransition.isEmpty())
       {
          return null;
       }
-      
-      for (Iterator i = tokensForTransition.iterator(); i.hasNext();)
+
+      for (TransitionTokenBean token : tokensForTransition)
       {
-         TransitionTokenBean token = (TransitionTokenBean) i.next();
          if (token.getTarget() == targetActivityInstanceOid)
          {
             return token;
@@ -173,4 +139,16 @@ public class LocalTokenManager implements ITokenManager
       return null;
    }
 
+   @Override
+   public TransitionTokenBean lockSourceAndOtherToken(final TransitionTokenBean sourceToken)
+   {
+      Set<TransitionTokenBean> tokenSet = getTokenSet(null);
+      if (tokenSet == null || tokenSet.isEmpty()
+            || !tokenSet.contains(sourceToken) || sourceToken.lockAndReload() > 0)
+      {
+         return null;
+      }
+
+      return lockNextToken(sourceToken, filter(sourceToken, tokenSet));
+   }
 }

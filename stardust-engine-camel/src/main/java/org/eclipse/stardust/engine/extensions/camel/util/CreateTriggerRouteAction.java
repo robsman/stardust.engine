@@ -5,15 +5,11 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_HEADER;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_FOOTER;
-//import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_FOOTER;
-//import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_HEADER;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createSpringFileContent;
+import static org.eclipse.stardust.engine.extensions.camel.Util.createSpringFileContent;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RoutesDefinition;

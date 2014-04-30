@@ -268,15 +268,15 @@ public class Archiver
    public void archiveDeadModel(long modelOid, long interval)
    {
       Set<Long> terminatedDeadModels = Collections.singleton(modelOid);
-      
+
       archiveDeadModel(modelOid, interval, terminatedDeadModels);
-      
+
       if (canDeleteModel(modelOid, terminatedDeadModels))
       {
          deleteModel(modelOid);
    }
    }
-   
+
    public void archiveDeadModel(long modelOid, long interval, Set<Long> terminatedDeadModels)
    {
       // check for nonterminated process instances
@@ -1496,8 +1496,9 @@ public class Archiver
    {
       try
       {
-         AdminServiceUtils.deleteModelRuntimePart(modelOid, session, true);
          AdminServiceUtils.deleteModelModelingPart(modelOid, session);
+
+         ModelRefBean.deleteForModel(modelOid, session);
 
          ModelPersistorBean model = ModelPersistorBean.findByModelOID(modelOid);
          model.delete();

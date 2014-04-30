@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.preferences.configurationvariables;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
 import java.io.Serializable;
@@ -19,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.ecore.xml.type.internal.RegEx;
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -28,6 +28,7 @@ import org.eclipse.stardust.engine.api.model.ConfigurationVariableDefinitionProv
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo;
 import org.eclipse.stardust.engine.api.runtime.ReconfigurationInfo;
+import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -318,5 +319,40 @@ public class ConfigurationVariableUtils
          return false;
       }
       return true;
+   }
+
+   public static String evaluate(IConfigurationVariablesProvider provider, String text)
+   {
+      // register names of potential variables
+      Set<String> detectedCvNames = newHashSet();
+      Matcher varMatcher = getConfigurationVariablesMatcher(text);
+      while (varMatcher.find())
+      {
+         String varCandidate = varMatcher.group(1);
+         provider.registerCandidate(varCandidate);
+         detectedCvNames.add(varCandidate);
+      }
+
+      // replace variables with values
+      if (!detectedCvNames.isEmpty())
+      {
+         ConfigurationVariables variables = provider.getConfigurationVariables();
+         for (ConfigurationVariable var : variables.getConfigurationVariables())
+         {
+            if (detectedCvNames.contains(var.getName()))
+            {
+               text = replace(var, text);
+            }
+         }
+      }
+
+      // replace escaped Variables: \${abc} -> ${abc}
+      Matcher escMatcher = getEscapedConfigurationVariablesMatcher(text);
+      if (escMatcher.find())
+      {
+         text = escMatcher.replaceAll("$1");
+      }
+
+      return text;
    }
 }

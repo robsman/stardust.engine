@@ -34,8 +34,8 @@ public final class TransitionEvaluationAction implements ContextAction
 
    private final ITransition transition;
 
-   private final ThreadLocal threadLocalSymbolTable = new ThreadLocal();
-   
+   private final ThreadLocal<SymbolTable> threadLocalSymbolTable = new ThreadLocal<SymbolTable>();
+
    public TransitionEvaluationAction(ITransition transition)
    {
       this.transition = transition;
@@ -43,19 +43,19 @@ public final class TransitionEvaluationAction implements ContextAction
 
    public SymbolTable getSymbolTableForThread()
    {
-      return (SymbolTable) threadLocalSymbolTable.get();
+      return threadLocalSymbolTable.get();
    }
-   
+
    public void bindSymbolTableToThread(SymbolTable symbolTable)
    {
       threadLocalSymbolTable.set(symbolTable);
    }
-   
+
    public void unbindSymbolTableFromThread()
    {
-      threadLocalSymbolTable.set(null);
+      threadLocalSymbolTable.remove();
    }
-   
+
    public Object run(Context cx)
    {
       GlobalVariablesScope modelScope = getModelScope(transition, cx);
@@ -63,7 +63,7 @@ public final class TransitionEvaluationAction implements ContextAction
       try
       {
          modelScope.bindThreadLocalSymbolTable(getSymbolTableForThread());
-         
+
          Script compiledCondition = getScriptForCondition(transition, cx);
          final Object result = compiledCondition.exec(cx, modelScope);
 

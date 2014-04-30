@@ -10,7 +10,7 @@ import org.eclipse.stardust.engine.core.spi.monitoring.IPartitionMonitor;
 
 public class CamelRouteUpdateMonitor implements IPartitionMonitor {
 
-	public static final Logger logger = LogManager
+	private static final Logger logger = LogManager
 			.getLogger(CamelRouteCleanupMonitor.class);
 
 	public void modelDeleted(IModel model) throws DeploymentException {

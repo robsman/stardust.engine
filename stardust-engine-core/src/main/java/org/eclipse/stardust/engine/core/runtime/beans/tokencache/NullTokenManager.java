@@ -15,10 +15,8 @@ import java.util.List;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
-
 public class NullTokenManager implements ISecondLevelTokenCache
 {
-
    public boolean removeToken(TransitionTokenBean token)
    {
       return false;
@@ -47,7 +45,7 @@ public class NullTokenManager implements ISecondLevelTokenCache
    public void registerToken(ITransition transition, TransitionTokenBean token)
    {
    }
-   
+
    public void unlockTokens(List tokens)
    {
    }
@@ -76,5 +74,10 @@ public class NullTokenManager implements ISecondLevelTokenCache
    public void addLocalToken(TransitionTokenBean token)
    {
    }
-   
+
+   @Override
+   public TransitionTokenBean lockSourceAndOtherToken(TransitionTokenBean token)
+   {
+      return null;
+   }
 }

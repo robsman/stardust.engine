@@ -44,7 +44,7 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
    private String username;
 
    private String password;
-   
+
    private Principal userPrincipal;
 
    private Map properties = Collections.EMPTY_MAP;
@@ -54,7 +54,7 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
    {
       this.appContext = applicationContext;
    }
-   
+
    protected ApplicationContext getApplicationContext()
    {
       if(this.appContext != null)
@@ -166,7 +166,16 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
          {
             if (null != user)
             {
-               InvokerPrincipalUtils.setCurrent(user.getUserId(), user.getProperties());
+               Object signedPrincipal = user.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
+               if (signedPrincipal instanceof InvokerPrincipal)
+               {
+                  // pass principal created during previous login
+                  InvokerPrincipalUtils.setCurrent((InvokerPrincipal) signedPrincipal);
+               }
+               else
+               {
+                  InvokerPrincipalUtils.setCurrent(user.getUserId(), user.getProperties());
+               }
             }
             else
             {

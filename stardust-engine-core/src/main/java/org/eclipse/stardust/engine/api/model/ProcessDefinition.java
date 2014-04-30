@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.api.model;
 
 import java.util.List;
 
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
+
 /**
  * The client view of a workflow process.
  * <p>A process definition normally comprises a number of discrete activity steps,
@@ -29,14 +31,14 @@ public interface ProcessDefinition extends ModelElement, EventAware
     * Contrary to the element OID, runtime element OIDs are guaranteed to be stable over
     * model versions for model elements of same type and identical fully qualified IDs.
     * </p>
-    * 
+    *
     * <p>
     * The fully qualified ID of a model element consists of the concatenation of the fully
     * qualified element ID of its parent element, if existent, and the element ID.
     * </p>
-    * 
+    *
     * @return the runtime model element OID
-    * 
+    *
     * @see ModelElement#getElementOID()
     */
    long getRuntimeElementOID();
@@ -56,6 +58,13 @@ public interface ProcessDefinition extends ModelElement, EventAware
     * @return the requested data path.
     */
    DataPath getDataPath(String id);
+
+   /**
+    * Retrieves the level of detail for process definition.
+    *
+    * @return the process instance details level.
+    */
+   ProcessDefinitionDetailsLevel getDetailsLevel();
 
    /**
     * Gets all activities defined for this process definition.
@@ -80,17 +89,17 @@ public interface ProcessDefinition extends ModelElement, EventAware
     * @return a List of <code>{@link Trigger}</code> objects.
     */
    List getAllTriggers();
-   
+
    /**
     * Gets the process interface implemented by this process definition.
-    * 
+    *
     * @return the ProcessInterface or null if this process do not implement an interface.
     */
    ProcessInterface getImplementedProcessInterface();
 
    /**
     * Gets the process interface implemented by this process definition.
-    * 
+    *
     * @return the ProcessInterface or null if this process do not implement an interface.
     */
    ProcessInterface getDeclaredProcessInterface();

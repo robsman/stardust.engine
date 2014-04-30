@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.carnot.ag/xpdl/3.1 http://www.carnot.ag/workflowmodel/3.1" id="PredefinedModel" name="PredefinedModel" author="" carnotVersion="7.0.0" created="Tue Oct 18 13:09:18 CEST 2011" modelOID="0" oid="1" vendor="SunGard CSA LLC">
+  <attribute name="carnot:engine:version" value="1"/>
+  <attribute name="carnot:engine:released" type="boolean" value="false"/>
+  <attribute name="carnot:engine:revision" type="int" value="0"/>
+  <attribute name="carnot:simulation:configuration:nextSimulationConfigurationId" value="1"/>
+  <attribute name="visual_rules:RulesPackagePrefix" value="com.infinity.bpm.visualrules.generated"/>
+  <attribute name="visual_rules:TargetDir" value="src"/>
+  <attribute name="visual_rules:ReformatCode" type="boolean" value="false"/>
+  <attribute name="visual_rules:GenerateStatistics" type="boolean" value="false"/>
+  <attribute name="carnot:model:resourceBundle" value="ag.carnot.PredefinedModel"/>
+  <attribute name="project-planning:effortParameter[0]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[0]:filter"/>
+  <attribute name="project-planning:effortParameter[0]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[0]:name" value="Application Server"/>
+  <attribute name="project-planning:effortParameter[0]:initializers" value="BEA WebLogic=1.0;1.0;1.0;1.0;1.0,IBM WebSphere=1.0;1.0;1.0;1.0;1.0,JBOSS=1.0;1.0;1.0;1.0;1.0,SAP NetWeaver=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[1]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[1]:filter"/>
+  <attribute name="project-planning:effortParameter[1]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[1]:name" value="DBMS"/>
+  <attribute name="project-planning:effortParameter[1]:initializers" value="Oracle=1.0;1.0;1.0;1.0;1.0,SQL Server=1.0;1.0;1.0;1.0;1.0,MySQL=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[2]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[2]:filter"/>
+  <attribute name="project-planning:effortParameter[2]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[2]:name" value="Directory Service"/>
+  <attribute name="project-planning:effortParameter[2]:initializers" value="LDAP=1.0;1.0;1.0;1.0;1.0,Active Directory=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[3]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[3]:filter"/>
+  <attribute name="project-planning:effortParameter[3]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[3]:name" value="Portal Technology"/>
+  <attribute name="project-planning:effortParameter[3]:initializers" value="SWT=1.0;1.0;1.0;1.0;1.0,Swing=1.0;1.0;1.0;1.0;1.0,JSF=1.0;1.0;1.0;1.0;1.0,JSP=1.0;1.0;1.0;1.0;1.0,.NET=1.0;1.0;1.0;1.0;1.0,Other=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[4]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[4]:filter"/>
+  <attribute name="project-planning:effortParameter[4]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByQuantityParameter"/>
+  <attribute name="project-planning:effortParameter[4]:name" value="Number of High-Complexity Reports"/>
+  <attribute name="project-planning:effortParameter[4]:initializers" value="1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[5]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[5]:filter"/>
+  <attribute name="project-planning:effortParameter[5]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByQuantityParameter"/>
+  <attribute name="project-planning:effortParameter[5]:name" value="Number of Medium-Complexity Reports"/>
+  <attribute name="project-planning:effortParameter[5]:initializers" value="1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[6]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
+  <attribute name="project-planning:effortParameter[6]:filter"/>
+  <attribute name="project-planning:effortParameter[6]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByQuantityParameter"/>
+  <attribute name="project-planning:effortParameter[6]:name" value="Number of Low-Complexity Reports"/>
+  <attribute name="project-planning:effortParameter[6]:initializers" value="1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[7]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ProcessDefinitionType"/>
+  <attribute name="project-planning:effortParameter[7]:filter"/>
+  <attribute name="project-planning:effortParameter[7]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[7]:name" value="Remaining Modeling Complexity"/>
+  <attribute name="project-planning:effortParameter[7]:initializers" value="Well-defined=1.0;1.0;1.0;1.0;1.0,Complex=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Simple=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[8]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ActivityType"/>
+  <attribute name="project-planning:effortParameter[8]:filter"/>
+  <attribute name="project-planning:effortParameter[8]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[8]:name" value="Subprocess Refinement Required"/>
+  <attribute name="project-planning:effortParameter[8]:initializers" value="No Refinement Required=0.0;0.0;0.0;0.0;0.0,High-complexity Subprocess Refinement=3.0;3.0;3.0;3.0;3.0,Medium-complexity Subprocess Refinement=2.0;2.0;2.0;2.0;2.0,Low-complexity Subprocess Refinement=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[9]:scope" value="org.eclipse.stardust.model.xpdl.carnot.TransitionType"/>
+  <attribute name="project-planning:effortParameter[9]:filter"/>
+  <attribute name="project-planning:effortParameter[9]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[9]:name" value="Transition Type"/>
+  <attribute name="project-planning:effortParameter[9]:initializers" value="Expression on Process Data=1.0;1.0;1.0;1.0;1.0,Complex/Auxiliary logic required=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[10]:scope" value="org.eclipse.stardust.model.xpdl.carnot.TransitionType"/>
+  <attribute name="project-planning:effortParameter[10]:filter"/>
+  <attribute name="project-planning:effortParameter[10]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[10]:name" value="Transition Complexity"/>
+  <attribute name="project-planning:effortParameter[10]:initializers" value="High=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Low=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[11]:scope" value="org.eclipse.stardust.model.xpdl.carnot.DataType"/>
+  <attribute name="project-planning:effortParameter[11]:filter"/>
+  <attribute name="project-planning:effortParameter[11]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[11]:name" value="Data Technology"/>
+  <attribute name="project-planning:effortParameter[11]:initializers" value="Primitive Data=1.0;1.0;1.0;1.0;1.0,Serializable Data=1.0;1.0;1.0;1.0;1.0,Entity Bean=1.0;1.0;1.0;1.0;1.0,XML Document=1.0;1.0;1.0;1.0;1.0,Structured Data=1.0;1.0;1.0;1.0;1.0,Document List=1.0;1.0;1.0;1.0;1.0,New Development=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[12]:scope" value="org.eclipse.stardust.model.xpdl.carnot.DataType"/>
+  <attribute name="project-planning:effortParameter[12]:filter"/>
+  <attribute name="project-planning:effortParameter[12]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[12]:name" value="Data Development"/>
+  <attribute name="project-planning:effortParameter[12]:initializers" value="Link to existing DBMS=1.0;1.0;1.0;1.0;1.0,Link to other data=1.0;1.0;1.0;1.0;1.0,New data model=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[13]:scope" value="org.eclipse.stardust.model.xpdl.carnot.RoleType"/>
+  <attribute name="project-planning:effortParameter[13]:filter"/>
+  <attribute name="project-planning:effortParameter[13]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[13]:name" value="Role Complexity"/>
+  <attribute name="project-planning:effortParameter[13]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[14]:scope" value="org.eclipse.stardust.model.xpdl.carnot.OrganizationType"/>
+  <attribute name="project-planning:effortParameter[14]:filter"/>
+  <attribute name="project-planning:effortParameter[14]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[14]:name" value="Organization Complexity"/>
+  <attribute name="project-planning:effortParameter[14]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[15]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ConditionalPerformerType"/>
+  <attribute name="project-planning:effortParameter[15]:filter"/>
+  <attribute name="project-planning:effortParameter[15]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[15]:name" value="Performer Complexity"/>
+  <attribute name="project-planning:effortParameter[15]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[16]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[16]:filter" value="Interactive"/>
+  <attribute name="project-planning:effortParameter[16]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[16]:name" value="Implementation"/>
+  <attribute name="project-planning:effortParameter[16]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[17]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[17]:filter" value="Interactive"/>
+  <attribute name="project-planning:effortParameter[17]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[17]:name" value="Complexity"/>
+  <attribute name="project-planning:effortParameter[17]:initializers" value="High=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Low=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[18]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[18]:filter" value="Service"/>
+  <attribute name="project-planning:effortParameter[18]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[18]:name" value="Technology"/>
+  <attribute name="project-planning:effortParameter[18]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0,New Development=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[19]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[19]:filter" value="Service"/>
+  <attribute name="project-planning:effortParameter[19]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[19]:name" value="Quality available documentation"/>
+  <attribute name="project-planning:effortParameter[19]:initializers" value="High=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Low=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[20]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[20]:filter" value="Service"/>
+  <attribute name="project-planning:effortParameter[20]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[20]:name" value="Technology"/>
+  <attribute name="project-planning:effortParameter[20]:initializers" value="ToDo=1.0;1.0;1.0;1.0;1.0,New Development=1.0;1.0;1.0;1.0;1.0"/>
+  <attribute name="project-planning:effortParameter[21]:scope" value="org.eclipse.stardust.model.xpdl.carnot.ApplicationType"/>
+  <attribute name="project-planning:effortParameter[21]:filter" value="Service"/>
+  <attribute name="project-planning:effortParameter[21]:type" value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
+  <attribute name="project-planning:effortParameter[21]:name" value="Complexity"/>
+  <attribute name="project-planning:effortParameter[21]:initializers" value="High=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Low=1.0;1.0;1.0;1.0;1.0"/>
+  <description>Technical model that contains the Case Process Definition.</description>
+  <dataType oid="10002" id="primitive" name="Primitive Data" predefined="true">
+    <attribute name="carnot:defdesk:accessPathEditor" value="org.eclipse.stardust.engine.core.pojo.data.POJOAccessPathEditor"/>
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/data/java/images/primitive_data.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.pojo.data.PrimitivePropertiesEditor"/>
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.core.pojo.data.PrimitiveAccessPathEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.dataTypes.PrimitiveValidator"/>
+  </dataType>
+  <dataType oid="10003" id="serializable" name="Serializable Data" predefined="true">
+    <attribute name="carnot:defdesk:accessPathEditor" value="org.eclipse.stardust.engine.core.pojo.data.POJOAccessPathEditor"/>
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/data/java/images/serializable_data.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.pojo.data.SerializablePropertiesEditor"/>
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.core.pojo.data.JavaBeanAccessPathEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.pojo.data.SerializableValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.dataTypes.SerializableValidator"/>
+  </dataType>
+  <dataType oid="10004" id="entity" name="Entity Bean" predefined="true">
+    <attribute name="carnot:defdesk:accessPathEditor" value="org.eclipse.stardust.engine.core.pojo.data.POJOAccessPathEditor"/>
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/data/entitybean/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanPropertiesEditor"/>
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.dataTypes.EntityBeanValidator"/>
+  </dataType>
+  <dataType oid="10005" id="plainXML" name="XML Document" predefined="true">
+    <attribute name="carnot:defdesk:accessPathEditor" value="org.eclipse.stardust.engine.extensions.xml.data.XPathEditor"/>
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/data/plainxml/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.xml.data.XMLDocumentPropertiesEditor"/>
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.extensions.xml.data.XPathEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.xml.data.XMLValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.dataTypes.XMLValidator"/>
+  </dataType>
+  <dataType oid="10006" id="struct" name="Structured Data" predefined="true">
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator"/>
+    <attribute name="carnot:engine:dataFilterExtension" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+    <attribute name="carnot:engine:dataLoader" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+  </dataType>
+  <dataType oid="10050" id="dmsDocumentList" name="Document List" predefined="true">
+    <attribute name="carnot:engine:evaluator" value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListAccessPathEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListValidator"/>
+    <attribute name="carnot:engine:dataLoader" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+    <attribute name="carnot:engine:dataFilterExtension" value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+  </dataType>
+  <applicationType oid="10007" id="sessionBean" name="Session Bean Application" predefined="true" synchronous="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/applications/sessionbean/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.ejb.app.SessionBeanApplicationPanel"/>
+    <attribute name="carnot:engine:accessPointProvider" value="org.eclipse.stardust.engine.extensions.ejb.app.SessionBeanAccessPointProvider"/>
+    <attribute name="carnot:engine:applicationInstance" value="org.eclipse.stardust.engine.extensions.ejb.app.SessionBeanApplicationInstance"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.ejb.SessionBeanValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.applicationTypes.SessionBeanValidator"/>
+  </applicationType>
+  <applicationType oid="10008" id="plainJava" name="Plain Java Application" predefined="true" synchronous="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/applications/plainjava/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaApplicationPanel"/>
+    <attribute name="carnot:engine:accessPointProvider" value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaAccessPointProvider"/>
+    <attribute name="carnot:engine:applicationInstance" value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaApplicationInstance"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.applicationTypes.PlainJavaValidator"/>
+  </applicationType>
+  <applicationType oid="10009" id="jms" name="JMS Application" predefined="true" synchronous="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/applications/jms/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationPanel"/>
+    <attribute name="carnot:engine:applicationInstance" value="org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationInstance"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.jms.app.JMSValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.applicationTypes.JMSValidator"/>
+  </applicationType>
+  <applicationType oid="10010" id="webservice" name="Web Service Application" predefined="true" synchronous="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/applications/ws/gui/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.jaxws.app.gui.WebserviceApplicationPanel"/>
+    <attribute name="carnot:engine:applicationInstance" value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationInstance"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.applicationTypes.WebserviceApplicationValidator"/>
+  </applicationType>
+  <applicationContextType oid="10011" id="default" name="Default Context" predefined="true" hasApplicationPath="false" hasMappingId="true"/>
+  <applicationContextType oid="10012" id="engine" name="Engine Context" predefined="true" hasApplicationPath="true" hasMappingId="false"/>
+  <applicationContextType oid="10013" id="application" name="Noninteractive Application Context" predefined="true" hasApplicationPath="true" hasMappingId="false"/>
+  <applicationContextType oid="10014" id="jfc" name="JFC Application" predefined="true" hasApplicationPath="true" hasMappingId="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/contexts/jfc/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCContextTypePanel"/>
+    <attribute name="carnot:engine:accessPointProvider" value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCAccessPointProvider"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.engine.api.model.validation.impl.spi.contextTypes.JFCValidator"/>
+    <attribute name="carnot:exdesk:instance" value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCApplicationInstance"/>
+  </applicationContextType>
+  <applicationContextType oid="10015" id="jsp" name="JSP Application" predefined="true" hasApplicationPath="false" hasMappingId="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/contexts/jsp/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPContextTypePanel"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.engine.api.model.validation.impl.spi.contextTypes.JSPValidator"/>
+  </applicationContextType>
+  <applicationContextType oid="10016" id="processInterface" name="Process Interface Context" predefined="true" hasApplicationPath="true" hasMappingId="false"/>
+  <triggerType oid="10017" id="manual" name="Manual Trigger" predefined="true" pullTrigger="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/triggers/manual/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.triggers.manual.ManualTriggerPanel"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.triggers.manual.ManualTriggerValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.triggerTypes.ManualTriggerValidator"/>
+  </triggerType>
+  <triggerType oid="10018" id="jms" name="JMS Trigger" predefined="true" pullTrigger="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/triggers/jms/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.jms.trigger.JMSTriggerPane"/>
+    <attribute name="carnot:engine:jmsAcceptor" value="org.eclipse.stardust.engine.extensions.jms.trigger.DefaultTriggerMessageAcceptor"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.jms.trigger.JMSTriggerValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.triggerTypes.JMSTriggerValidator"/>
+  </triggerType>
+  <triggerType oid="10019" id="mail" name="Mail Trigger" predefined="true" pullTrigger="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/triggers/mail/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.mail.trigger.MailTriggerPanel"/>
+    <attribute name="carnot:engine:pullTriggerEvaluator" value="org.eclipse.stardust.engine.extensions.mail.trigger.MailTriggerEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.mail.trigger.MailTriggerValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.triggerTypes.MailTriggerValidator"/>
+  </triggerType>
+  <triggerType oid="10020" id="timer" name="Timer Based Trigger" predefined="true" pullTrigger="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/triggers/timer/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.triggers.timer.TimerTriggerPanel"/>
+    <attribute name="carnot:engine:pullTriggerEvaluator" value="org.eclipse.stardust.engine.core.extensions.triggers.timer.TimerTriggerEvaluator"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.triggers.timer.TimerTriggerValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.triggerTypes.TimerTriggerValidator"/>
+  </triggerType>
+  <eventConditionType oid="10021" id="timer" name="Timer" predefined="true" activityCondition="true" implementation="pull" processCondition="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/conditions/timer/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.PeriodPropertiesPanel"/>
+    <attribute name="carnot:engine:accessPointProvider" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimerAccessPointProvider"/>
+    <attribute name="carnot:engine:binder" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampBinder"/>
+    <attribute name="carnot:engine:condition" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampCondition"/>
+    <attribute name="carnot:engine:pullEventEmitter" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampEmitter"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimerValidator"/>
+    <attribute name="carnot:exdesk:runtimePanel" value="org.eclipse.stardust.engine.core.extensions.conditions.timer.TimerbasedRuntimeBindPanel"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.conditionTypes.TimerValidator"/>
+  </eventConditionType>
+  <eventConditionType oid="10022" id="exception" name="On Exception" predefined="true" activityCondition="true" implementation="engine" processCondition="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/conditions/exception/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionConditionPropertiesPanel"/>
+    <attribute name="carnot:engine:accessPointProvider" value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionConditionAccessPointProvider"/>
+    <attribute name="carnot:engine:condition" value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionCondition"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionConditionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.conditionTypes.ExceptionConditionValidator"/>
+  </eventConditionType>
+  <eventConditionType oid="10023" id="statechange" name="On Activity State Change" predefined="true" activityCondition="true" implementation="engine" processCondition="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/conditions/statechange/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.StatechangeConditionPropertiesPanel"/>
+    <attribute name="carnot:engine:condition" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.StatechangeCondition"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.StatechangeConditionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.conditionTypes.StatechangeConditionValidator"/>
+  </eventConditionType>
+  <eventConditionType oid="10024" id="processStatechange" name="On Process State Change" predefined="true" activityCondition="false" implementation="engine" processCondition="true">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/conditions/statechange/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.ProcessStatechangeConditionPropertiesPanel"/>
+    <attribute name="carnot:engine:condition" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.ProcessStatechangeCondition"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.conditions.statechange.StatechangeConditionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.conditionTypes.StatechangeConditionValidator"/>
+  </eventConditionType>
+  <eventConditionType oid="10025" id="onAssignment" name="On Assignment" predefined="true" activityCondition="true" implementation="engine" processCondition="false">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/conditions/assignment/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.conditions.assignment.AssignmentConditionPropertiesPanel"/>
+    <attribute name="carnot:engine:condition" value="org.eclipse.stardust.engine.core.extensions.conditions.assignment.AssignmentCondition"/>
+  </eventConditionType>
+  <eventActionType oid="10026" id="trigger" name="Process Trigger" predefined="true" activityAction="true" processAction="true" supportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/trigger/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.actions.trigger.TriggerProcessActionPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.trigger.TriggerProcessAction"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.actions.trigger.TriggerActionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.engine.api.model.validation.impl.spi.actionTypes.TriggerActionValidator"/>
+  </eventActionType>
+  <eventActionType oid="10027" id="mail" name="Send Mail" predefined="true" activityAction="true" processAction="true" supportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/mail/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.extensions.mail.action.sendmail.SendmailActionPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.extensions.mail.action.sendmail.SendmailAction"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.extensions.mail.action.sendmail.MailActionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.engine.api.model.validation.impl.spi.actionTypes.MailActionValidator"/>
+  </eventActionType>
+  <eventActionType oid="10028" id="abortProcess" name="Abort Process" predefined="true" activityAction="true" processAction="true" supportedConditionTypes="timer, exception" unsupportedContexts="bind">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/abort/icon.gif"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.abort.AbortProcessEventAction"/>
+  </eventActionType>
+  <eventActionType oid="10029" id="completeActivity" name="Complete Activity" predefined="true" activityAction="true" processAction="false" supportedConditionTypes="timer, exception" unsupportedContexts="bind">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/complete/icon.gif"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.complete.CompleteActivityEventAction"/>
+  </eventActionType>
+  <eventActionType oid="10030" id="activateActivity" name="Activate Activity" predefined="true" activityAction="true" processAction="false" supportedConditionTypes="timer, exception, onAssignment">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/awake/icon.gif"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.awake.AwakeActivityEventAction"/>
+  </eventActionType>
+  <eventActionType oid="10031" id="delegateActivity" name="Delegate Activity" predefined="true" activityAction="true" processAction="false" supportedConditionTypes="timer, exception, statechange">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/delegate/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.actions.delegate.DelegateEventActionPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.delegate.DelegateEventAction"/>
+    <attribute name="carnot:exdesk:runtimePanel" value="org.eclipse.stardust.engine.core.extensions.actions.delegate.DelegateEventActionRuntimePanel"/>
+  </eventActionType>
+  <eventActionType oid="10032" id="scheduleActivity" name="Schedule Activity" predefined="true" activityAction="true" processAction="false" supportedConditionTypes="timer, exception, statechange">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/schedule/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.actions.schedule.ScheduleEventActionPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.schedule.ScheduleEventAction"/>
+    <attribute name="carnot:exdesk:runtimePanel" value="org.eclipse.stardust.engine.core.extensions.actions.schedule.ScheduleEventActionRuntimePanel"/>
+  </eventActionType>
+  <eventActionType oid="10033" id="excludeUser" name="Exclude User" predefined="true" activityAction="true" processAction="false" supportedConditionTypes="onAssignment">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/excludeuser/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.actions.excludeuser.ExcludeUserActionPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.excludeuser.ExcludeUserAction"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.actions.excludeuser.ExcludeUserActionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.actionTypes.ExcludeUserActionValidator"/>
+  </eventActionType>
+  <eventActionType oid="10034" id="setData" name="Set Data" predefined="true" activityAction="true" processAction="true" supportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
+    <attribute name="carnot:defdesk:icon" value="/ag/carnot/workflow/spi/providers/actions/setdata/icon.gif"/>
+    <attribute name="carnot:defdesk:panel" value="org.eclipse.stardust.engine.core.extensions.actions.setdata.SetDataActionPropertiesPanel"/>
+    <attribute name="carnot:engine:action" value="org.eclipse.stardust.engine.core.extensions.actions.setdata.SetDataAction"/>
+    <attribute name="carnot:engine:validator" value="org.eclipse.stardust.engine.core.extensions.actions.setdata.SetDataActionValidator"/>
+    <attribute name="carnot:engine:runtimeValidator" value="org.eclipse.stardust.modeling.validation.impl.spi.actionTypes.SetDataActionValidator"/>
+  </eventActionType>
+  <data oid="10035" id="LAST_ACTIVITY_PERFORMER" name="Last Activity Performer" predefined="true" type="entity">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:homeInterface" value="org.eclipse.stardust.engine.api.runtime.UserHome"/>
+    <attribute name="carnot:engine:isLocal" type="boolean" value="true"/>
+    <attribute name="carnot:engine:jndiPath" value="org.eclipse.stardust.engine.api.runtime.User"/>
+    <attribute name="carnot:engine:primaryKey" value="org.eclipse.stardust.engine.api.runtime.UserPK"/>
+    <attribute name="carnot:engine:remoteInterface" value="org.eclipse.stardust.engine.core.runtime.beans.IUser"/>
+    <description>User performing the last activity of the current process.</description>
+  </data>
+  <data oid="10036" id="STARTING_USER" name="Starting User" predefined="true" type="entity">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:homeInterface" value="org.eclipse.stardust.engine.api.runtime.UserHome"/>
+    <attribute name="carnot:engine:isLocal" type="boolean" value="true"/>
+    <attribute name="carnot:engine:jndiPath" value="org.eclipse.stardust.engine.api.runtime.User"/>
+    <attribute name="carnot:engine:primaryKey" value="org.eclipse.stardust.engine.api.runtime.UserPK"/>
+    <attribute name="carnot:engine:remoteInterface" value="org.eclipse.stardust.engine.core.runtime.beans.IUser"/>
+    <description>User starting the current process.</description>
+  </data>
+  <data oid="10037" id="CURRENT_USER" name="Current User" predefined="true" type="entity">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:homeInterface" value="org.eclipse.stardust.engine.api.runtime.UserHome"/>
+    <attribute name="carnot:engine:isLocal" type="boolean" value="true"/>
+    <attribute name="carnot:engine:jndiPath" value="org.eclipse.stardust.engine.api.runtime.User"/>
+    <attribute name="carnot:engine:primaryKey" value="org.eclipse.stardust.engine.api.runtime.UserPK"/>
+    <attribute name="carnot:engine:remoteInterface" value="org.eclipse.stardust.engine.core.runtime.beans.IUser"/>
+    <description>The User currently attached to the activity thread. Usually only available for synchronously executed activity threads.</description>
+  </data>
+  <data oid="10038" id="PROCESS_ID" name="Process OID" predefined="true" type="primitive">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:type" type="org.eclipse.stardust.engine.core.pojo.data.Type" value="long"/>
+    <description>ID assigned to the current process.</description>
+  </data>
+  <data oid="10039" id="PROCESS_PRIORITY" name="Process Priority" predefined="true" type="primitive">
+    <attribute name="carnot:engine:type" type="org.eclipse.stardust.engine.core.pojo.data.Type" value="int"/>
+    <description>Priority assigned to the current process.</description>
+  </data>
+  <data oid="10040" id="ROOT_PROCESS_ID" name="Root Process OID" predefined="true" type="primitive">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:type" type="org.eclipse.stardust.engine.core.pojo.data.Type" value="long"/>
+    <description>ID assigned to the root process of the current process.</description>
+  </data>
+  <data oid="10041" id="CURRENT_DATE" name="Current Date" predefined="true" type="primitive">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:type" type="org.eclipse.stardust.engine.core.pojo.data.Type" value="Calendar"/>
+    <description>Current Date.</description>
+  </data>
+  <data oid="10042" id="CURRENT_LOCALE" name="Current Locale" predefined="true" type="primitive">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:type" type="org.eclipse.stardust.engine.core.pojo.data.Type" value="String"/>
+    <description>String representing the current locale.</description>
+  </data>
+  <data oid="10043" id="CURRENT_MODEL" name="Current Model" predefined="true" type="serializable">
+    <attribute name="carnot:engine:browsable" type="boolean" value="true"/>
+    <attribute name="carnot:engine:className" value="org.eclipse.stardust.engine.api.runtime.DeployedModelDescription"/>
+    <description>Current Model.</description>
+  </data>
+  <data oid="10051" id="PROCESS_ATTACHMENTS" name="Process Attachments" type="dmsDocumentList">
+    <attribute name="carnot:engine:className" value="java.util.List"/>
+    <attribute name="carnot:engine:data:bidirectional" type="boolean" value="true"/>
+  </data>
+  <data oid="10054" id="CaseInfo" name="Case Info" type="struct">
+    <attribute name="carnot:engine:path:separator" value="/"/>
+    <attribute name="carnot:engine:data:bidirectional" type="boolean" value="true"/>
+    <attribute name="authorization:data.readDataValues" value="__carnot_internal_all_permissions__"/>
+    <attribute name="carnot:engine:dataType" value="CaseInfo"/>
+  </data>
+  <carnot:qualityControl xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1"/>
+  <role oid="10044" id="Administrator" name="Administrator">
+    <description>In charge of all workflow administration activities.</description>
+  </role>
+  <organization oid="10057" id="CasePerformer" name="Case Performer"/>
+  <processDefinition oid="10045" id="CaseProcess" name="Case Process">
+    <attribute name="authorization:processDefinition.abortProcessInstances[0]" value="Administrator"/>
+    <attribute name="authorization:processDefinition.modifyProcessInstances[0]" value="Administrator"/>
+    <attribute name="authorization:processDefinition.deleteProcessInstances[0]" value="Administrator"/>
+    <attribute name="authorization:processDefinition.readProcessInstanceData" value="__carnot_internal_all_permissions__"/>
+    <attribute name="authorization:processDefinition.manageEventHandlers[0]" value="Administrator"/>
+    <description>Process Definition for starting Cases.</description>
+    <activity oid="10048" id="DefaultCaseActivity" name="Default Case Activity" allowsAbortByPerformer="false" hibernateOnCreation="false" implementation="Manual" performer="CasePerformer">
+      <attribute name="carnot:pwh:includeTime" type="boolean" value="false"/>
+      <attribute name="carnot:engine:relocate:source" type="boolean" value="false"/>
+      <attribute name="authorization:activity.delegateToOther" value="__carnot_internal_all_permissions__"/>
+      <attribute name="authorization:activity.delegateToDepartment[0]" value="Administrator"/>
+      <attribute name="authorization:activity.manageEventHandlers" value="__carnot_internal_all_permissions__"/>
+      <attribute name="authorization:activity.readActivityInstanceData" value="__carnot_internal_all_permissions__"/>
+      <attribute name="authorization:activity.abortActivityInstances" value="__carnot_internal_owner_permission__"/>
+      <description>Default Activity for Cases.</description>
+    </activity>
+    <dataPath oid="10052" id="PROCESS_ATTACHMENTS" name="Process Attachments" data="PROCESS_ATTACHMENTS" direction="IN"/>
+    <dataPath oid="10053" id="PROCESS_ATTACHMENTS" name="Process Attachments" data="PROCESS_ATTACHMENTS" direction="OUT"/>
+    <dataPath oid="10056" id="CaseName" name="Case Name" data="CaseInfo" dataPath="CaseName" descriptor="true" direction="IN"/>
+    <dataPath oid="10060" id="CaseName" name="Case Name" data="CaseInfo" dataPath="CaseName" descriptor="false" direction="OUT"/>
+    <dataPath oid="10061" id="CaseDescription" name="Case Description" data="CaseInfo" dataPath="CaseDescription" descriptor="true" direction="IN"/>
+    <dataPath oid="10062" id="CaseDescription" name="Case Description" data="CaseInfo" dataPath="CaseDescription" descriptor="false" direction="OUT"/>
+    <diagram oid="10046" name="Default" orientation="Vertical" mode="MODE_4_0_0">
+      <poolSymbol oid="10047" x="0" y="0" width="-1" height="-1" id="_default_pool__1" name="Default Pool">
+        <activitySymbol oid="10049" x="215" y="105" width="181" height="51" refer="DefaultCaseActivity"/>
+        <dataSymbol oid="10055" x="590" y="105" width="90" height="70" refer="CaseInfo"/>
+        <organizationSymbol oid="10058" x="245" y="300" width="120" height="50" refer="CasePerformer"/>
+        <performsConnection oid="10059" activitySymbol="10049" participantSymbol="10058"/>
+      </poolSymbol>
+    </diagram>
+  </processDefinition>
+  <xpdl:Script Type="text/ecmascript" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+  <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xpdl:TypeDeclaration Id="CaseInfo" Name="Case Info">
+      <xpdl:ExtendedAttributes>
+        <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
+      </xpdl:ExtendedAttributes>
+      <xpdl:SchemaType>
+        <xsd:schema targetNamespace="http://www.infinity.com/bpm/model/PredefinedModel/CaseInfo" xmlns:cas="http://www.infinity.com/bpm/model/PredefinedModel/CaseInfo" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <xsd:complexType name="CaseInfo">
+            <xsd:sequence>
+              <xsd:element name="CaseName" type="xsd:string"/>
+              <xsd:element name="CaseDescription" type="xsd:string"/>
+              <xsd:element maxOccurs="unbounded" minOccurs="0" name="Descriptors">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="type" type="xsd:string"/>
+                    <xsd:element name="value" type="xsd:string"/>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+          <xsd:element name="CaseInfo" type="cas:CaseInfo"/>
+        </xsd:schema>
+      </xpdl:SchemaType>
+    </xpdl:TypeDeclaration>
+  </xpdl:TypeDeclarations>
+  <diagram oid="10001" name="Default Diagram" orientation="Vertical" mode="MODE_4_0_0"/>
+</model>

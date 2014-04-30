@@ -33,12 +33,7 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
@@ -92,6 +87,12 @@ public class ActivityThread implements Runnable
    private IActivity activity;
    private final IProcessInstance processInstance;
    private IActivityInstance activityInstance;
+
+   /*
+    * Sequential MI activities batch data;
+    */
+   private int sizeOfMIBatch = 0;
+   private int executedActivities = 0;
 
    /*
     * Contains the data passed by awakening a HIBERNATED activity instance
@@ -211,7 +212,13 @@ public class ActivityThread implements Runnable
       {
          this.processInstance = activityInstance.getProcessInstance();
          this.activity = activityInstance.getActivity();
+         if (isMultiInstance())
+         {
+            ((ActivityInstanceBean) activityInstance).setIndex(TransitionTokenBean.getMultiInstanceIndex(activityInstance.getOID()));
+         }
       }
+
+      sizeOfMIBatch = fetchMIBatchSize();
 
       this.tokenCache = new TokenCache(this.processInstance);
       
@@ -354,6 +361,7 @@ public class ActivityThread implements Runnable
                }
    
                runCurrentActivity();
+               executedActivities++;
    
                if (!activityInstance.isTerminated() || activityInstance.isAborting()
                      || isInAbortingPiHierarchy())
@@ -438,6 +446,7 @@ public class ActivityThread implements Runnable
    {
       boolean multiInstance = isMultiInstance();
       int count = multiInstance ? getMultiInstanceCount() : 1;
+      sizeOfMIBatch = fetchMIBatchSize();
 
       if (count > 0)
       {
@@ -471,6 +480,7 @@ public class ActivityThread implements Runnable
 
       if (multiInstance)
       {
+         executedActivities = 0;
          if (count > 0)
          {
             createLoopOutputData();
@@ -481,11 +491,44 @@ public class ActivityThread implements Runnable
             createMultiInstance(i == 0 ? activityInstance
                   : parallel ? new ActivityInstanceBean(activity, processInstance) : null, i);
          }
-         activityInstance = null;
+         if (parallel)
+         {
+            activityInstance = null;
+         }
       }
-      else
+      if (activityInstance != null)
       {
          getCurrentActivityThreadContext().enteringActivity(activityInstance);
+      }
+   }
+
+   private int fetchMIBatchSize()
+   {
+      Object att = activity.getAttribute(PredefinedConstants.ACTIVITY_MI_BATCH_SIZE_ATT);
+      if (att == null)
+      {
+         return 0;
+      }
+      if (att instanceof Integer)
+      {
+         return (Integer) att;
+      }
+      String val = att.toString().trim();
+      if (val.isEmpty())
+      {
+         activity.removeAttribute(PredefinedConstants.ACTIVITY_MI_BATCH_SIZE_ATT);
+         return 0;
+      }
+      try
+      {
+         int size = Integer.parseInt(val);
+         activity.setAttribute(PredefinedConstants.ACTIVITY_MI_BATCH_SIZE_ATT, size);
+         return size;
+      }
+      catch (NumberFormatException ex)
+      {
+         activity.removeAttribute(PredefinedConstants.ACTIVITY_MI_BATCH_SIZE_ATT);
+         return 0;
       }
    }
 
@@ -495,15 +538,26 @@ public class ActivityThread implements Runnable
       bindTokenAndScheduleActivity(token, target);
    }
 
-   private void bindTokenAndScheduleActivity(TransitionTokenBean token,
+   private boolean bindTokenAndScheduleActivity(TransitionTokenBean token,
          IActivityInstance target)
    {
       tokenCache.bindToken(token, target);
       if (target != null)
       {
+         ((ActivityInstanceBean) target).setIndex(token.getMultiInstanceIndex());
          getCurrentActivityThreadContext().enteringActivity(target);
-         schedule(processInstance, null, target, false, null, Collections.EMPTY_MAP, false);
+         if (shouldSchedule())
+         {
+            schedule(processInstance, null, target, false, null, Collections.EMPTY_MAP, false);
+            return true;
+         }
       }
+      return false;
+   }
+
+   private boolean shouldSchedule()
+   {
+      return !isSequential() || sizeOfMIBatch > 0 && executedActivities == sizeOfMIBatch;
    }
 
    private void determineNextActivityInstance()
@@ -558,6 +612,8 @@ public class ActivityThread implements Runnable
                   {
                      schedule(processInstance, null, activityInstance,
                            false, null, Collections.EMPTY_MAP, false);
+                     activityInstance = null;
+                     return;
                   }
                   else
                   {
@@ -566,21 +622,26 @@ public class ActivityThread implements Runnable
                      if (isSequential())
                      {
                         activityInstance = new ActivityInstanceBean(activity, processInstance);
-                        bindTokenAndScheduleActivity(token, activityInstance);
+                        if (bindTokenAndScheduleActivity(token, activityInstance))
+                        {
+                           activityInstance = null;
+                        }
                      }
+                     else
+                     {
+                        activityInstance = null;
+                     }
+                     janitor.incrementCount(-1);
+                     return;
                   }
-                  activityInstance = null;
-                  return;
                }
             }
-
             tokenCache.consumeToken(boundToken);
             if (trace.isDebugEnabled())
             {
                trace.debug("Removed " + boundToken);
             }
             removedTokens++;
-
             getCurrentActivityThreadContext().completingTransition(boundToken);
          }
 

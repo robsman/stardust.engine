@@ -17,13 +17,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.sax.SAXSource;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
+
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.model.parser.filters.NamespaceFilter;
 import org.eclipse.stardust.engine.core.model.parser.filters.StopFilter;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLFilter;
 
 /**
  * Helper class to retrieve information from either an XPDL or an CWM model.
@@ -123,20 +124,47 @@ public class ModelInfoRetriever
     */
    public static ModelInfo get(InputSource inputSource) throws SAXException, JAXBException
    {
-      NamespaceFilter filter = new NamespaceFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
-      filter.addReplacement("", XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
-      filter.addReplacement(XMLConstants.NS_CARNOT_WORKFLOWMODEL_30, XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
+      XMLFilter nameSpaceFilter = getNameSpaceFilter();
+      StopFilter stopFilter = new StopFilter(nameSpaceFilter);
+      stopFilter.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
 
-      XMLFilter xpdlNamespaceFixer = NamespaceFilter.createXMLFilter(filter);
-      StopFilter stopper = new StopFilter(xpdlNamespaceFixer);
-      stopper.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
-
-      stopper.setEntityResolver(XpdlUtils.DEFAULT_SAX_HANDLER);
-
-      SAXSource source = new SAXSource(stopper, inputSource);
-
+      SAXSource source = getModelSource(inputSource, stopFilter);
       JAXBContext context = getContext();
       Unmarshaller um = context.createUnmarshaller();
       return (ModelInfo) um.unmarshal(source);
+   }
+
+   /**
+    * Get a {@link SAXSource} for parsing models
+    * @param inputSource - the inputSource
+    * @return
+    * @throws SAXException
+    */
+   public static SAXSource getModelSource(InputSource inputSource) throws SAXException
+   {
+      return getModelSource(inputSource, getNameSpaceFilter());
+}
+
+   /**
+    * Gets a {@link SAXSource} for parsing models
+    * It will be configured with the supplied {@link XMLFilter}
+    * and with the {@link XpdlUtils.DEFAULT_SAX_HANDLER} EntityResolver
+    *
+    * @param inputSource
+    * @param xmlFilter
+    * @return the preconfigured SAXSource
+    */
+   public static SAXSource getModelSource(InputSource inputSource, XMLFilter xmlFilter)
+   {
+      xmlFilter.setEntityResolver(XpdlUtils.DEFAULT_SAX_HANDLER);
+      return new SAXSource(xmlFilter, inputSource);
+   }
+
+   private static XMLFilter getNameSpaceFilter() throws SAXException
+   {
+      NamespaceFilter nsFixer = new NamespaceFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
+      nsFixer.addReplacement("", XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
+      nsFixer.addReplacement(XMLConstants.NS_CARNOT_WORKFLOWMODEL_30, XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
+      return NamespaceFilter.createXMLFilter(nsFixer);
    }
 }

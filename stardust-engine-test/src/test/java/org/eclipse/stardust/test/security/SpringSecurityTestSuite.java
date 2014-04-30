@@ -19,7 +19,9 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SpringInternalAuthenticationTest.class })
+@SuiteClasses({ SpringInternalAuthenticationTest.class,
+                SpringPrincipalAuthenticationTest.class
+              })
 public class SpringSecurityTestSuite
 {
    /* test suite */

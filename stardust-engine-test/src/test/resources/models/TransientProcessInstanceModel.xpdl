@@ -9,8 +9,8 @@
       <Version>1</Version>
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
-   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1"/>
+   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" Type="text/ecmascript"/>
+   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions"/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -24,7 +24,7 @@
    </Participants>
    <Applications>
       <Application Id="FailingApp" Name="Failing App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$FailingApp" xref="fail:"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$FailingApp" xref="fail:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10084" Type="plainJava">
@@ -32,9 +32,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$FailingApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$FailingApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="fail()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$FailingApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$FailingApp()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -42,7 +42,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="SucceedingApp" Name="Succeeding App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$SucceedingApp" xref="success:"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$SucceedingApp" xref="success:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10093" Type="plainJava">
@@ -50,9 +50,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$SucceedingApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$SucceedingApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="success()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$SucceedingApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$SucceedingApp()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -60,7 +60,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="RollbackApp" Name="Rollback App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$SettingRollbackOnlyApp" xref="setRollbackOnly:"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$SettingRollbackOnlyApp" xref="setRollbackOnly:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10140" Type="plainJava">
@@ -68,9 +68,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$SettingRollbackOnlyApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$SettingRollbackOnlyApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="setRollbackOnly()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$SettingRollbackOnlyApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$SettingRollbackOnlyApp()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -140,7 +140,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="AbortingApp" Name="Aborting App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$AbortingApp" xref="abort:long"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$AbortingApp" xref="abort:long"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10535" Type="plainJava">
@@ -148,9 +148,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$AbortingApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$AbortingApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="abort(long)"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$AbortingApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$AbortingApp()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -158,7 +158,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="IsolatedQueryApp" Name="Isolated Query App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$IsolatedQueryApp" xref="queryIsolated:long"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$IsolatedQueryApp" xref="queryIsolated:long"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10544" Type="plainJava">
@@ -166,9 +166,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$IsolatedQueryApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$IsolatedQueryApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="queryIsolated(long)"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$IsolatedQueryApp"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$IsolatedQueryApp"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -176,7 +176,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="WaitingApp" Name="Waiting App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$WaitingApp" xref="doWait:"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$WaitingApp" xref="doWait:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10596" Type="plainJava">
@@ -184,9 +184,9 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$WaitingApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$WaitingApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="doWait()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$WaitingApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$WaitingApp()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -194,7 +194,7 @@
          </ExtendedAttributes>
       </Application>
       <Application Id="FirstTryFailsApp" Name="First Try Fails App">
-         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$FirstTryFailsApp" xref="failTheFirstTime:"/>
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$FirstTryFailsApp" xref="failTheFirstTime:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="10692" Type="plainJava">
@@ -202,9 +202,45 @@
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$FirstTryFailsApp"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$FirstTryFailsApp"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="failTheFirstTime()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$FirstTryFailsApp()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$FirstTryFailsApp()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+      <Application Id="BigDataWriter" Name="Big Data Writer">
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$BigDataWriter" xref="writeData:"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="10733" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$BigDataWriter"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="writeData()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$BigDataWriter()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+      <Application Id="BigDataReader" Name="Big Data Reader">
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$BigDataReader" xref="readData:java.lang.String"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="10741" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest$BigDataReader"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="AbstractTransientProcessInstanceTest$BigDataReader()"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="readData(java.lang.String)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -450,9 +486,9 @@
                <carnot:DataField Oid="10708" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value="18"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -467,8 +503,54 @@
                <carnot:DataField Oid="10710" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BigData" Name="Big Data" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10723" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="StringInput" Name="String Input" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10768" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="StringOutput" Name="String Output" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10770" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -2851,7 +2933,7 @@
             </Activity>
             <Activity Id="FirstSubprocess" Name="First Subprocess">
                <Implementation>
-                  <SubFlow Id="SplitProcessDefaultPersist" Execution="SYNCHR"/>
+                  <SubFlow Id="SplitSplitProcess" Execution="SYNCHR"/>
                </Implementation>
                <StartMode>
                   <Automatic/>
@@ -2873,6 +2955,10 @@
                            <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -2880,7 +2966,7 @@
             </Activity>
             <Activity Id="SecondSubprocess" Name="Second Subprocess">
                <Implementation>
-                  <SubFlow Id="SplitSplitProcess" Execution="SYNCHR"/>
+                  <SubFlow Id="Sub_Process" Execution="SYNCHR"/>
                </Implementation>
                <StartMode>
                   <Automatic/>
@@ -2902,6 +2988,10 @@
                            <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -5478,21 +5568,30 @@
                </TransitionRestrictions>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="10696">
+                     <carnot:Activity Oid="10696" IsHibernatedOnCreation="false">
                         <carnot:EventHandlers/>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="10712" Id="InData" Name="InData" Direction="IN" Context="default">
                               <carnot:DataRef Id="InData"/>
-                              <carnot:AccessPointRef/>
+                              <carnot:AccessPointRef Id="InData"/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="10714" Id="OutData" Name="OutData" Direction="OUT" Context="default">
                               <carnot:DataRef Id="OutData"/>
-                              <carnot:AccessPointRef/>
+                              <carnot:AccessPointRef Id="InData"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -5607,10 +5706,407 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="BigDataAccess" Name="Big Data Access" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="WriteBigData" Name="Write Big Data">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="BigDataWriter">
+                        <ActualParameters>
+                           <ActualParameter>BigData</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10721" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10725" Id="BigData" Name="BigData" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="BigData"/>
+                              <carnot:AccessPointRef Id="returnValue"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ReadBigData" Name="Read Big Data">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="BigDataReader">
+                        <ActualParameters>
+                           <ActualParameter>BigData</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10737" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10739" Id="BigData" Name="BigData" Direction="IN" Context="application">
+                              <carnot:DataRef Id="BigData"/>
+                              <carnot:AccessPointRef Id="sParam1"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="_Transition_1" Name="&lt;Transition&gt; 1" From="WriteBigData" To="ReadBigData">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10744" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10718">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10717" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10716" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10722" X="255" Y="110" Width="141" Height="51" ModelElement="WriteBigData"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10724" X="75" Y="200" Width="110" Height="60" ModelElement="BigData"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10734" X="445" Y="115" Width="150" Height="40" ModelElement="BigDataWriter"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10738" X="255" Y="255" Width="141" Height="51" ModelElement="ReadBigData"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10742" X="445" Y="260" Width="150" Height="40" ModelElement="BigDataReader"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10726" SourceSymbol="10724" TargetSymbol="10722"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10735" SourceSymbol="10734" TargetSymbol="10722"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10740" SourceSymbol="10724" TargetSymbol="10738"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10743" SourceSymbol="10742" TargetSymbol="10738"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10745" ModelElement="_Transition_1" SourceSymbol="10722" TargetSymbol="10738" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="Sub_Process" Name="Sub-Process" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10749">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10751">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="Subprocess" Name="Subprocess">
+               <Implementation>
+                  <SubFlow Id="SplitProcessDefaultPersist" Execution="SYNCHR"/>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10753" Implementation="Subprocess" IsHibernatedOnCreation="false" SubProcessMode="sync_shared">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="_Transition_1" Name="&lt;Transition&gt; 1" From="FirstActivity" To="Subprocess">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10755"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="_Transition_2" Name="&lt;Transition&gt; 2" From="Subprocess" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10757"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10748">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10747" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10746" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10750" X="260" Y="85" Width="141" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10752" X="260" Y="295" Width="141" Height="51" ModelElement="LastActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10754" X="255" Y="190" Width="151" Height="51" ModelElement="Subprocess"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10756" ModelElement="_Transition_1" SourceSymbol="10750" TargetSymbol="10754" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10758" ModelElement="_Transition_2" SourceSymbol="10754" TargetSymbol="10752" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ProcessInterface" Name="Process Interface" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <xpdl:FormalParameters xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions">
+            <xpdl:FormalParameter Id="Input" Name="Input">
+               <xpdl:DataType ext:carnotType="primitive">
+                  <xpdl:BasicType Type="STRING"/>
+               </xpdl:DataType>
+            </xpdl:FormalParameter>
+            <xpdl:FormalParameter Id="Output" Mode="OUT" Name="Output">
+               <xpdl:DataType ext:carnotType="primitive">
+                  <xpdl:BasicType Type="STRING"/>
+               </xpdl:DataType>
+            </xpdl:FormalParameter>
+         </xpdl:FormalParameters>
+         <Activities>
+            <Activity Id="Std__FirstActivity" Name="Std :: First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10762">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="Std__LastActivity" Name="Std :: Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10764">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="_Transition_1" Name="&lt;Transition&gt; 1" From="Std__FirstActivity" To="Std__LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10766" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10761">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10760" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10759" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10763" X="245" Y="95" Width="141" Height="51" ModelElement="Std__FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10765" X="245" Y="195" Width="141" Height="51" ModelElement="Std__LastActivity"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10769" X="70" Y="90" Width="110" Height="60" ModelElement="StringInput"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10771" X="70" Y="190" Width="110" Height="60" ModelElement="StringOutput"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10767" ModelElement="_Transition_1" SourceSymbol="10763" TargetSymbol="10765" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+                  <carnot:FormalParameterMappings xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">
+                     <carnot:FormalParameterMapping Data="StringInput" FormalParameter="Input"/>
+                     <carnot:FormalParameterMapping Data="StringOutput" FormalParameter="Output"/>
+                  </carnot:FormalParameterMappings>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="1" CarnotVersion="7.1.1" ModelOid="0">
+         <carnot:Package Oid="1" CarnotVersion="7.3.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="10002" Id="primitive" Name="&lt;Primitive Data&gt;" IsPredefined="true">
@@ -5816,6 +6312,7 @@
                      </carnot:Attributes>
                   </carnot:ApplicationContextType>
                   <carnot:ApplicationContextType Oid="10016" Id="processInterface" Name="&lt;Process Interface Context&gt;" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="10736" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true"/>
                </carnot:ApplicationContextTypes>
                <carnot:TriggerTypes>
                   <carnot:TriggerType Oid="10017" Id="manual" Name="&lt;Manual Trigger&gt;" IsPredefined="true" IsPullTrigger="false">

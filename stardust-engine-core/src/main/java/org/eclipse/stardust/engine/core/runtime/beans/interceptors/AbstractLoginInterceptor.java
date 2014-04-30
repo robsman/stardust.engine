@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Collections;
@@ -19,18 +21,31 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserDomain;
+import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationService;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.LoginServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
@@ -42,6 +57,7 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginResult;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
+import org.eclipse.stardust.engine.core.spi.security.PrincipalValidator;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
 
@@ -146,6 +162,9 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          setCurrentPartitionAndDomain(invocation.getParameters(), layer,
                loggedInUser.getProperties());
 
+         /* wait until we're in the context of partition and domain */
+         doSecurityCheck(loggedInUser);
+
          IModel model = ModelManagerFactory.getCurrent().findActiveModel();
          if (model == null)
          {
@@ -172,6 +191,54 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       return invocation.proceed();
    }
 
+   private void doSecurityCheck(LoggedInUser user)
+   {
+      InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
+      if (principal == null)
+      {
+         Object signedPrincipal = user.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
+         if (signedPrincipal instanceof InvokerPrincipal)
+         {
+            principal = (InvokerPrincipal) signedPrincipal;
+         }
+         else
+         {
+            trace.warn("No principal provided.");
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+         }
+      }
+
+      if (SecurityProperties.isInternalAuthentication())
+      {
+         boolean ok = InvokerPrincipalUtils.checkPrincipalSignature(principal);
+         if ( !ok)
+         {
+            trace.warn("The signature for principal '" + principal + "' is corrupt.");
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+         }
+      }
+      else if (SecurityProperties.isPrincipalBasedLogin())
+      {
+         PrincipalValidator validator = determinePrincipalValidator();
+         boolean ok = validator.isValid(principal);
+         if ( !ok)
+         {
+            trace.warn("The principal '" + principal + "' is invalid.");
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+         }
+      }
+   }
+
+   private PrincipalValidator determinePrincipalValidator()
+   {
+      if (Parameters.instance().get(SecurityProperties.PRINCIPAL_VALIDATOR_PROPERTY) == null)
+      {
+         Parameters.instance().set(SecurityProperties.PRINCIPAL_VALIDATOR_PROPERTY, SecurityProperties.PRINCIPAL_VALIDATOR_DEFAULT_VALUE);
+      }
+
+      return ExtensionProviderUtils.getFirstExtensionProvider(PrincipalValidator.class, SecurityProperties.PRINCIPAL_VALIDATOR_PROPERTY);
+   }
+
    protected LoggedInUser performLoginCall(MethodInvocation invocation)
    {
       final PropertyLayer layer = PropertyLayerProviderInterceptor.getCurrent();
@@ -196,6 +263,16 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       if ( !LoginUtils.isLoginLoggingDisabled(user))
       {
          AuditTrailLogger.getInstance(LogCode.SECURITY).info("Logged in.");
+      }
+
+      if (loggedInUser != null)
+      {
+         InvokerPrincipal principal = InvokerPrincipalUtils.generateSignedPrincipal(loggedInUser.getUserId(), loggedInUser.getProperties());
+
+         HashMap<Object, Object> enrichedProperties = newHashMap();
+         enrichedProperties.putAll(loggedInUser.getProperties());
+         enrichedProperties.put(InvokerPrincipal.PRP_SIGNED_PRINCIPAL, principal);
+         loggedInUser = new LoggedInUser(loggedInUser.getUserId(), enrichedProperties);
       }
 
       return loggedInUser;

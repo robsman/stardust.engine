@@ -35,7 +35,7 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: 54345 $
+ * @version $Revision$
  */
 public class Workspace
 {

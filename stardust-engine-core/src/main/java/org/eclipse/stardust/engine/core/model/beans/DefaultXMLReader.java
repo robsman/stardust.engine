@@ -59,7 +59,6 @@ import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-
 import org.eclipse.xsd.*;
 import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceImpl;
@@ -888,10 +887,16 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          {
             TypeDeclarationBean decl = (TypeDeclarationBean) declarations.get(i);
             IXpdlType type = decl.getXpdlType();
-            if (type instanceof SchemaTypeBean)
+            XSDSchema xsdSchema = null;
+            if(type instanceof IExternalReference)
             {
-               SchemaTypeBean schema = (SchemaTypeBean) type;
-               XSDSchema xsdSchema = schema.getSchema();
+               xsdSchema = ((IExternalReference) type).getSchema(model);
+            }
+            else if(type instanceof SchemaTypeBean)
+            {
+               xsdSchema = ((SchemaTypeBean) type).getSchema();
+            }
+
                if (xsdSchema != null)
                {
                   if (needsPatching)
@@ -910,7 +915,6 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                   xsdSchema.setSchemaLocation(intern(StructuredDataConstants.URN_INTERNAL_PREFIX + decl.getId()));
                }
             }
-         }
 
          if (needsPatching)
          {
@@ -919,10 +923,16 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             {
                TypeDeclarationBean decl = (TypeDeclarationBean) declarations.get(i);
                IXpdlType type = decl.getXpdlType();
-               if (type instanceof SchemaTypeBean)
+               XSDSchema xsdSchema = null;
+               if(type instanceof IExternalReference)
                {
-                  SchemaTypeBean schema = (SchemaTypeBean) type;
-                  XSDSchema xsdSchema = schema.getSchema();
+                  xsdSchema = ((IExternalReference) type).getSchema(model);
+               }
+               else if(type instanceof SchemaTypeBean)
+               {
+                  xsdSchema = ((SchemaTypeBean) type).getSchema();
+               }
+
                   if (xsdSchema != null)
                   {
                      resolveTypes(decl, xsdSchema, schemas2namespace);
@@ -935,7 +945,6 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                   }
                }
             }
-         }
 
          // remove adapter after type resolution to avoid a permanent reference to model
          schemaResource.eAdapters().remove(schemaLocatorAdapter);
@@ -1381,9 +1390,9 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          IXpdlType type = declaration.getXpdlType();
          if (type instanceof SchemaTypeBean)
          {
-            XSDSchema schema = ((SchemaTypeBean) type).getSchema();
+            XSDSchema xsdSchema = ((SchemaTypeBean) type).getSchema();
             String name = declaration.getId();
-            return findTypeDefinition(schema, name);
+            return findTypeDefinition(xsdSchema, name);
          }
       }
       return null;

@@ -659,7 +659,6 @@ public class ProcessInstanceUtils
                }
                piToAbort.setState(ProcessInstanceState.ABORTED);
                EventUtils.detachAll(piToAbort);
-               MonitoringUtils.processExecutionMonitors().processAborted(piToAbort);
                ProcessInstanceUtils.cleanupProcessInstance(piToAbort);
             }
          }

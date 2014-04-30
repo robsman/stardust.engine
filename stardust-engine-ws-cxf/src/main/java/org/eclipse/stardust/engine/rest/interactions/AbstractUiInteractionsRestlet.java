@@ -169,14 +169,7 @@ public abstract class AbstractUiInteractionsRestlet
       }
 
       Serializable decodedValue = unmarshalOutDataValue(interaction.getModel(), outParam, value);
-      if (null != decodedValue)
-      {
-         interaction.setOutDataValue(parameterId, decodedValue);
-      }
-      else
-      {
-         throw new WebApplicationException(Status.BAD_REQUEST);
-      }
+      interaction.setOutDataValue(parameterId, decodedValue);
    }
 
    protected void setOutDataValueByMappingId(String parameterId, Object value)

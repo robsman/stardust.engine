@@ -29,7 +29,7 @@ public final class PredefinedConstants
    public static final String WEBEX_SCOPE = "carnot:webex:";
    public static final String ENGINE_SCOPE = "carnot:engine:";
    public static final String PWH_SCOPE = "carnot:pwh:";
-      
+
    // predefined application type IDs
    public static final String SESSIONBEAN_APPLICATION = "sessionBean";
    public static final String PLAINJAVA_APPLICATION = "plainJava";
@@ -141,6 +141,9 @@ public final class PredefinedConstants
    // Forward and Rewind
    public static final String ACTIVITY_IS_RELOCATE_SOURCE_ATT = ENGINE_SCOPE + "relocate:source";
    public static final String ACTIVITY_IS_RELOCATE_TARGET_ATT = ENGINE_SCOPE + "relocate:target";
+
+   // Multi-Instance
+   public static final String ACTIVITY_MI_BATCH_SIZE_ATT = ENGINE_SCOPE + "mi:size";
 
    // Quality Control
    public static final String ACTIVITY_IS_QUALITY_ASSURANCE_ATT = "isQualityControlActivity";

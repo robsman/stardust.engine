@@ -77,8 +77,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
-
-
 /**
  * Represents an instance of a process definition, instantiated to be
  * executed on the carnot workflow engine.
@@ -407,7 +405,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       session.cluster(this);
 
-      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, determineAuditTrailPersistence(processDefinition));
+      setAuditTrailPersistencePropertyValue(determineAuditTrailPersistence(processDefinition));
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
@@ -562,7 +560,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       setState(ProcessInstanceState.COMPLETED);
 
       detachHandlers();
-      MonitoringUtils.processExecutionMonitors().processCompleted(this);
    }
 
    /**
@@ -1650,7 +1647,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else
       {
-         return determineProcessInstanceBoundAuditTrailPersistence();
+         return getAuditTrailPersistencePropertyValue();
       }
    }
 
@@ -1677,17 +1674,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
    }
 
-   private AuditTrailPersistence determineProcessInstanceBoundAuditTrailPersistence()
-   {
-      final AuditTrailPersistence auditTrailPersistence = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (auditTrailPersistence != null)
-      {
-         return auditTrailPersistence;
-      }
-
-      return AuditTrailPersistence.ENGINE_DEFAULT;
-   }
-
    public void setAuditTrailPersistence(final AuditTrailPersistence newValue)
    {
       if (newValue == null)
@@ -1701,13 +1687,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          trace.warn("Changing process instance bound Audit Trail Persistence to '" + newValue + "' although a global override is set. (OID: " + oid + ").");
       }
 
-      final AuditTrailPersistence oldValue = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (oldValue != null && oldValue != newValue && !isGlobalOverride)
+      final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
+      if (oldValue != newValue && !isGlobalOverride)
       {
          trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }
 
-      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, newValue);
+      setAuditTrailPersistencePropertyValue(newValue);
    }
 
    private boolean isGlobalAuditTrailPersistenceOverride()
@@ -1726,6 +1712,22 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return false;
    }
 
+   private void setAuditTrailPersistencePropertyValue(final AuditTrailPersistence value)
+   {
+      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, value.name());
+   }
+
+   private AuditTrailPersistence getAuditTrailPersistencePropertyValue()
+   {
+      final String auditTrailPersistenceName = (String) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
+      if (auditTrailPersistenceName == null)
+      {
+         return AuditTrailPersistence.ENGINE_DEFAULT;
+      }
+
+      return AuditTrailPersistence.valueOf(auditTrailPersistenceName);
+   }
+
    private boolean noteExists()
    {
       Attribute property = (Attribute) getAllProperties().get(PI_NOTE);
@@ -1740,13 +1742,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    private AuditTrailPersistence determineAuditTrailPersistence(final IProcessDefinition processDef)
    {
-      final String auditTrailPersistence = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
-      if (auditTrailPersistence == null)
+      final String auditTrailPersistenceName = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
+      if (auditTrailPersistenceName == null)
       {
          return AuditTrailPersistence.ENGINE_DEFAULT;
       }
 
-      return AuditTrailPersistence.valueOf(auditTrailPersistence);
+      return AuditTrailPersistence.valueOf(auditTrailPersistenceName);
    }
 
    /**

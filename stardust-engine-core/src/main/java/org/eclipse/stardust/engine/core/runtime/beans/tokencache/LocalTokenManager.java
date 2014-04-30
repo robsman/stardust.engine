@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
 public class LocalTokenManager implements ITokenManager
@@ -33,7 +34,8 @@ public class LocalTokenManager implements ITokenManager
 
    private Set<TransitionTokenBean> getTokenSet(ITransition transition)
    {
-      return tokensByTransition.get(transition);
+      return tokensByTransition.get(transition == ActivityThread.START_TRANSITION && !tokensByTransition.containsKey(transition)
+            ? null : transition);
    }
 
    @Override

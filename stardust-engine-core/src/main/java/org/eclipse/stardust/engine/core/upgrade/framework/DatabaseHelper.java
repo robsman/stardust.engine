@@ -1081,7 +1081,7 @@ public final class DatabaseHelper
 
       ResultSet rs = null;
       try {
-         rs = databaseMetaData.getIndexInfo(null, metaDataSchema, tableName, unique, false);
+         rs = databaseMetaData.getIndexInfo(null, metaDataSchema, tableName, unique, true);
          while(rs.next())
          {
             String indexName = rs.getString(6);

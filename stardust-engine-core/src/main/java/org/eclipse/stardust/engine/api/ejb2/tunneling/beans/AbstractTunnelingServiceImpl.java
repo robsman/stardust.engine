@@ -75,9 +75,19 @@ public abstract class AbstractTunnelingServiceImpl extends AbstractEjbServiceImp
          LoggedInUser user = ((ManagedService) service).login(username, password,
                properties);
 
-         return (null != user) //
-               ? new InvokerPrincipal(user.getUserId(), user.getProperties())
-               : null;
+         if (user != null)
+         {
+            Object signedPrincipal = user.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
+            if (signedPrincipal instanceof InvokerPrincipal)
+            {
+               return (InvokerPrincipal) signedPrincipal;
+            }
+            else
+            {
+               return new InvokerPrincipal(user.getUserId(), user.getProperties());
+            }
+         }
+         return null;
       }
       catch (LoginFailedException e)
       {
@@ -96,14 +106,14 @@ public abstract class AbstractTunnelingServiceImpl extends AbstractEjbServiceImp
          if (null != tunneledContext.getInvokerPrincipal())
          {
             InvokerPrincipal principalBackup = InvokerPrincipalUtils.setCurrent(tunneledContext.getInvokerPrincipal());
-            
+
             if (null != principalBackup)
             {
                return Collections.singletonMap(InvokerPrincipal.class.getName(), principalBackup);
             }
          }
       }
-      
+
       return null;
    }
 
@@ -116,7 +126,7 @@ public abstract class AbstractTunnelingServiceImpl extends AbstractEjbServiceImp
             InvokerPrincipal backup = (null != contextBackup)
             ? (InvokerPrincipal) contextBackup.get(InvokerPrincipal.class.getName())
                   : null;
-            
+
             if (null != backup)
             {
                InvokerPrincipalUtils.setCurrent(backup);

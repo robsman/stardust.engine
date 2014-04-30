@@ -18,9 +18,11 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.springframework.remoting.support.DefaultRemoteInvocationExecutor;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.remoting.support.RemoteInvocationExecutor;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 /**
@@ -30,7 +32,7 @@ import org.springframework.remoting.support.RemoteInvocationExecutor;
 public class CarnotRemoteInvocationExecutor implements RemoteInvocationExecutor
 {
    private static final Logger trace = LogManager.getLogger(CarnotRemoteInvocationExecutor.class);
-   
+
    private RemoteInvocationExecutor executor = new DefaultRemoteInvocationExecutor();
 
    public Object invoke(RemoteInvocation invocation, Object targetObject)
@@ -44,7 +46,7 @@ public class CarnotRemoteInvocationExecutor implements RemoteInvocationExecutor
          boolean loggingIn = AbstractLoginInterceptor.METHODNAME_LOGIN.equals(invocation.getMethodName());
 
          Serializable userId = invocation.getAttribute("carnot:userId");
-         
+
          if ( !loggingIn && ((null == userId) || "".equals(userId)))
          {
             String defaultUserId = Parameters.instance().getString(
@@ -60,14 +62,14 @@ public class CarnotRemoteInvocationExecutor implements RemoteInvocationExecutor
          outerPrincipal = InvokerPrincipalUtils.getCurrent();
 
          Object principal = invocation.getAttribute(SpringConstants.ATTR_CARNOT_PRINCIPAL);
-         
+
          if (principal instanceof InvokerPrincipal)
          {
             // TODO remove
             //SpringRemoteUserIdentityInterceptor.setUserId(((InvokerPrincipal) principal).getName());
 
             InvokerPrincipalUtils.setCurrent((InvokerPrincipal) principal);
-            
+
             if (trace.isDebugEnabled())
             {
                trace.debug("Setting User ID '" + userId + "' for invocation of method "
@@ -84,7 +86,7 @@ public class CarnotRemoteInvocationExecutor implements RemoteInvocationExecutor
                      + invocation.getMethodName());
             }
          }
-         
+
          return executor.invoke(invocation, targetObject);
       }
       finally
@@ -97,7 +99,7 @@ public class CarnotRemoteInvocationExecutor implements RemoteInvocationExecutor
          {
             InvokerPrincipalUtils.removeCurrent();
          }
-         
+
          if (setUserId)
          {
             //SpringRemoteUserIdentityInterceptor.resetUserId();

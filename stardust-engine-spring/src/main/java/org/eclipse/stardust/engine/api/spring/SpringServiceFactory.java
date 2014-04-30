@@ -26,10 +26,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServic
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 /**
@@ -174,7 +176,7 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
                }
                else
                {
-                  InvokerPrincipalUtils.setCurrent(user.getUserId(), user.getProperties());
+                  InvokerPrincipalUtils.setCurrent(new InvokerPrincipal(user.getUserId(), user.getProperties()));
                }
             }
             else

@@ -44,6 +44,7 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -1242,12 +1243,20 @@ public class JcrVfsRepositoryService
 
       try
       {
-         ExtensionService.initializeModuleExtensions(Modules.DMS);
+         GlobalParameters globals = GlobalParameters.globals();
+
+         final String extensionId = Modules.class.getName() + "." + Modules.DMS.getId();
+         if (!Parameters.instance().getBoolean(extensionId, false))
+         {
+            ExtensionService.initializeModuleExtensions(Modules.DMS);
+
+            globals.getOrInitialize(extensionId, "true");
+         }
 
          IDocumentRepositoryService vfs = RepositoryProviderUtils.isAdminSessionFlagEnabled()
                ? getAdminVfsInternal()
                : getVfsInternal();
- 
+
          return vfsOperation.withVfs(vfs);
       }
       catch (PublicException e)

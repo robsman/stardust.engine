@@ -16,6 +16,8 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.extensions.ExtensibleExtensionsManager;
 import org.eclipse.stardust.common.config.extensions.ExtensionsManager;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -56,6 +58,11 @@ public class PartitionAwareExtensionsManager implements ExtensionsManager
             configurationProperty);
    }
 
+   public boolean flushPartition(String partitionId)
+   {
+      return perTenantExtensionsManagers.remove(partitionId) != null;
+   }
+
    private ExtensionsManager getCurrentExtensionManager()
    {
       String tenantId = getPartitionId();
@@ -74,6 +81,32 @@ public class PartitionAwareExtensionsManager implements ExtensionsManager
       else
       {
          return globalExtensionsManager;
+      }
+   }
+
+   public static class FlushPartitionPredicate implements Predicate<ExtensionsManager>
+   {
+      private final String partitionId;
+
+      public FlushPartitionPredicate(String partitionId)
+      {
+         if (StringUtils.isEmpty(partitionId))
+         {
+            throw new IllegalArgumentException("Partition ID must neither be null nor empty.");
+         }
+
+         this.partitionId = partitionId;
+      }
+
+      @Override
+      public boolean accept(ExtensionsManager extManager)
+      {
+         if ( !(extManager instanceof PartitionAwareExtensionsManager))
+         {
+            return false;
+         }
+
+         return ((PartitionAwareExtensionsManager) extManager).flushPartition(partitionId);
       }
    }
 }

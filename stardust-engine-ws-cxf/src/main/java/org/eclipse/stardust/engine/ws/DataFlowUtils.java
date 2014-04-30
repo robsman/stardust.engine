@@ -54,6 +54,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -845,6 +847,7 @@ public class DataFlowUtils
          else
          {
             trace.warn("Access point of unsupported type: " + ap.getId());
+            throw new WebApplicationException(Status.BAD_REQUEST);
          }
       }
 
@@ -1556,8 +1559,15 @@ public class DataFlowUtils
       }
       else if (Type.Timestamp == targetType)
       {
-         Calendar cal = parseDateTime(value);
-         return cal.getTime();
+         if (StringUtils.isNotEmpty(value))
+         {
+            Calendar cal = parseDateTime(value);
+            return cal.getTime();
+         }
+         else
+         {
+            return null;
+         }
       }
       else if (Type.Char == targetType)
       {
@@ -1794,7 +1804,8 @@ public class DataFlowUtils
          value = (Serializable) ((List< ? >) value).get(0);
       }
 
-      if (value instanceof Map)
+      // Map in case of Structure and String in case of Structure As Enum
+      if (value instanceof Map || value instanceof String)
       {
          String typeDeclarationId = (String) ap.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
 
@@ -1946,6 +1957,10 @@ public class DataFlowUtils
          String typeDeclarationId = (String) ap.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
 
          result = unmarshalStructValue(model, typeDeclarationId, null, value);
+      }
+      else if (value instanceof String) // Struct As Enum
+      {
+         result = (String)value;
       }
       else if (null != value)
       {

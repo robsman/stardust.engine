@@ -15,12 +15,14 @@ import java.security.Principal;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.httpinvoker.HttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerRequestExecutor;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.remoting.support.RemoteInvocationResult;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 /**
@@ -32,7 +34,7 @@ public class CarnotHttpInvokerRequestExecutor implements HttpInvokerRequestExecu
    private static final Logger trace = LogManager.getLogger(CarnotHttpInvokerRequestExecutor.class);
 
    private HttpInvokerRequestExecutor requestExecutor = new SimpleHttpInvokerRequestExecutor();
-   
+
    private PrincipalProvider principalProvider;
 
    public HttpInvokerRequestExecutor getRequestExecutor()

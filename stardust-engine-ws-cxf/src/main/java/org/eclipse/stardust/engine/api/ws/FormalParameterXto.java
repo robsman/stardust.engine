@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.namespace.QName;
 import org.eclipse.stardust.common.Direction;
 
 
@@ -26,6 +27,7 @@ import org.eclipse.stardust.common.Direction;
  *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="direction" type="{http://eclipse.org/stardust/ws/v2012a/api}Direction" minOccurs="0"/>
+ *         &lt;element name="type" type="{http://www.w3.org/2001/XMLSchema}QName" minOccurs="0"/>
  *         &lt;element name="typeId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="dataId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="attributes" type="{http://eclipse.org/stardust/ws/v2012a/api}Attributes" minOccurs="0"/>
@@ -42,6 +44,7 @@ import org.eclipse.stardust.common.Direction;
     "id",
     "name",
     "direction",
+    "type",
     "typeId",
     "dataId",
     "attributes"
@@ -55,6 +58,7 @@ public class FormalParameterXto {
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(Adapter1 .class)
     protected Direction direction;
+    protected QName type;
     @XmlElement(required = true)
     protected String typeId;
     @XmlElement(required = true)
@@ -131,6 +135,30 @@ public class FormalParameterXto {
      */
     public void setDirection(Direction value) {
         this.direction = value;
+    }
+
+    /**
+     * Gets the value of the type property.
+     *
+     * @return
+     *     possible object is
+     *     {@link QName }
+     *
+     */
+    public QName getType() {
+        return type;
+    }
+
+    /**
+     * Sets the value of the type property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link QName }
+     *
+     */
+    public void setType(QName value) {
+        this.type = value;
     }
 
     /**

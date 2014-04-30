@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.stardust.common.config.GlobalParameters;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -35,6 +36,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.FastCachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
@@ -46,7 +48,6 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.api.util.WaitTimeout;
-import org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest.ProcessExecutor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -64,13 +65,15 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class TransientProcessInstanceProfilingTest
+public class TransientProcessInstanceProfilingTest extends AbstractTransientProcessInstanceTest
 {
    private static final Log LOG = LogFactory.getLog(TransientProcessInstanceProfilingTest.class);
 
    private static final String SEQUENCE_BATCH_SIZE_STRING = "5000";
 
    private static final Long SEQUENCE_BATCH_SIZE = Long.valueOf(SEQUENCE_BATCH_SIZE_STRING);
+
+   private static final String PK_SEQUENCE_ANNOTATION = "PK_SEQUENCE";
 
    private static final String DEFER_JDBC_CONNECTION_RETRIEVAL_PROPERTY_KEY = "Carnot.Engine.Tuning.Spring.DeferJdbcConnectionRetrieval";
 
@@ -98,7 +101,7 @@ public class TransientProcessInstanceProfilingTest
    @BeforeClass
    public static void setUpOnce() throws SQLException
    {
-      System.setProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY, TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_VALUE);
+      System.setProperty(HAZELCAST_LOGGING_TYPE_KEY, HAZELCAST_LOGGING_TYPE_VALUE);
 
       final GlobalParameters params = GlobalParameters.globals();
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
@@ -115,7 +118,12 @@ public class TransientProcessInstanceProfilingTest
    @AfterClass
    public static void tearDownOnce()
    {
-      System.clearProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY);
+      System.clearProperty(HAZELCAST_LOGGING_TYPE_KEY);
+   }
+
+   public TransientProcessInstanceProfilingTest()
+   {
+      super(testClassSetup);
    }
 
    @Test
@@ -133,40 +141,34 @@ public class TransientProcessInstanceProfilingTest
 
    private static void incrementDbSequenceSize() throws SQLException
    {
-      final Connection connection = testClassSetup.dataSource().getConnection();
-      final Statement stmt = connection.createStatement();
-      stmt.addBatch("ALTER SEQUENCE activity_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE activity_instance_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE act_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE trans_inst_seq  INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE trans_token_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE daemon_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE department_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE event_binding_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE log_entry_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE timer_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE usergroup_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE user_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE user_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE wfuser_session_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE user_participant_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE user_usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE process_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE proc_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE structured_data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE domain_hierarchy_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE wfuser_domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE wfuser_realm_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE clob_data_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE model_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE STRING_DATA_SEQ INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE partition_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.addBatch("ALTER SEQUENCE link_type_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-      stmt.executeBatch();
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = testClassSetup.dataSource().getConnection();
+         stmt = connection.createStatement();
+
+         for (final Class<?> clazz : Constants.PERSISTENT_RUNTIME_CLASSES)
+         {
+            final String sequenceName = (String) Reflect.getStaticFieldValue(clazz, PK_SEQUENCE_ANNOTATION);
+            if (sequenceName != null)
+            {
+               stmt.addBatch("ALTER SEQUENCE " + sequenceName + " INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+            }
+         }
+         stmt.executeBatch();
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
    }
 
    private static void injectSequenceGenerator(final GlobalParameters params)
@@ -189,14 +191,15 @@ public class TransientProcessInstanceProfilingTest
    {
       final int nThreads = 100;
 
-      final Set<ProcessExecutor> processExecutors = TransientProcessInstanceTest.initProcessExecutors(nThreads, sf.getWorkflowService());
+      final Set<ProcessExecutor> processExecutors = initProcessExecutors(nThreads, sf.getWorkflowService());
 
-      final List<Future<Long>> piOids = TransientProcessInstanceTest.executeProcesses(nThreads, processExecutors);
+      final List<Future<Long>> piOids = executeProcesses(nThreads, processExecutors);
 
       ProcessInstanceStateBarrier.instance().setTimeout(new WaitTimeout(1, TimeUnit.MINUTES));
       for (final Future<Long> f : piOids)
       {
          ProcessInstanceStateBarrier.instance().await(f.get(), ProcessInstanceState.Completed);
       }
+      ProcessInstanceStateBarrier.instance().setTimeout(null);
    }
 }

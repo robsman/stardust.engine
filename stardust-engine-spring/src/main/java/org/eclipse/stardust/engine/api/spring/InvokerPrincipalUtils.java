@@ -10,98 +10,46 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.spring;
 
-import java.lang.management.ManagementFactory;
-import java.util.Arrays;
 import java.util.Map;
 
-import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.security.HMAC;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
 /**
  * @author rsauer
  * @version $Revision$
+ *
+ * @deprecated use {@link org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils} instead
  */
+@Deprecated
 public class InvokerPrincipalUtils
 {
-   private static final ThreadLocal CURRENT = new ThreadLocal();
-
-   private static final String SECRET;
-
-   static
-   {
-      String secret = Parameters.instance().getString(SecurityProperties.PRINCIPAL_SECRET);
-      if (secret == null)
-      {
-         String name = ManagementFactory.getRuntimeMXBean().getName();
-         String startTime = String.valueOf(ManagementFactory.getRuntimeMXBean().getStartTime());
-         secret = name + startTime;
-      }
-
-      SECRET = secret;
-   }
-
    public static InvokerPrincipal getCurrent()
    {
-      return (InvokerPrincipal) CURRENT.get();
+      return org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.getCurrent();
    }
 
    public static void setCurrent(String name, Map properties)
    {
-      setCurrent(generateSignedPrincipal(name, properties));
+      org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.setCurrent(name, properties);
    }
 
    public static void setCurrent(InvokerPrincipal principal)
    {
-      CURRENT.set(principal);
+      org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.setCurrent(principal);
    }
 
    public static void removeCurrent()
    {
-      CURRENT.remove();
+      org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.removeCurrent();
    }
 
-   static InvokerPrincipal generateSignedPrincipal(String name, Map properties)
+   public static InvokerPrincipal generateSignedPrincipal(String name, Map properties)
    {
-      byte[] signature = generateSignature(name, properties);
-      return new InvokerPrincipal(name, properties, signature);
+      return org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.generateSignedPrincipal(name, properties);
    }
 
    public static boolean checkPrincipalSignature(InvokerPrincipal principal)
    {
-      byte[] signature = generateSignature(principal.getName(), principal.getProperties());
-      return Arrays.equals(signature, principal.getSignature());
-   }
-
-   private static byte[] generateSignature(String name, Map properties)
-   {
-      String partition = (String) properties.get(SecurityProperties.PARTITION);
-      String domain = (String) properties.get(SecurityProperties.DOMAIN);
-      String realm = (String) properties.get(SecurityProperties.REALM);
-
-      StringBuffer sb = new StringBuffer();
-      sb.append(name);
-      if (partition != null)
-      {
-         sb.append(partition);
-      }
-      if (domain != null)
-      {
-         sb.append(domain);
-      }
-      if (realm != null)
-      {
-         sb.append(realm);
-      }
-      try
-      {
-         HMAC hmac = new HMAC(HMAC.MD5);
-         return hmac.hash(SECRET.getBytes(), sb.toString().getBytes());
-      }
-      catch (Exception e)
-      {
-         throw new InternalException(e);
-      }
+      return org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils.checkPrincipalSignature(principal);
    }
 }

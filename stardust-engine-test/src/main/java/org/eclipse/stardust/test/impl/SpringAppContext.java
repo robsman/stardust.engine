@@ -38,7 +38,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: 55261 $
+ * @version $Revision$
  */
 public class SpringAppContext
 {

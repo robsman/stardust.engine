@@ -344,8 +344,9 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
                   IUser result = ((UserUserGroupLink) source).getUser();
                   if (result == null)
                   {
-                     trace.warn("Dangling link for user '" + getOID() + "', userOID = '"
-                           + ((UserUserGroupLink) source).getPersistenceController());
+                     trace.warn("Dangling link with OID "
+                           + ((UserUserGroupLink) source).getOID() + "  for user group'"
+                           + getOID());
                   }
                   return result;
                }

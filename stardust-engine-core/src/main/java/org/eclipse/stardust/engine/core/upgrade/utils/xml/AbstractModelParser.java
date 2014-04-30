@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.core.upgrade.utils.xml;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 
@@ -10,25 +11,24 @@ import javax.xml.transform.sax.SAXSource;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import org.eclipse.stardust.engine.core.model.parser.info.IModelInfo;
+import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 
 public abstract class AbstractModelParser<T extends IModelInfo>
 {
    protected JAXBContext instance;
 
-   public T getIModelInfo(String xml) throws SAXException, JAXBException
+   public T getIModelInfo(String xml) throws SAXException, JAXBException, IOException
    {
-      XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-      SAXSource source = new SAXSource(xmlReader, new InputSource(new StringReader(xml)));
-      Class<T> parameterClass = getParameterClass();
+      InputSource inputSource = new InputSource(new StringReader(xml));
+      SAXSource saxInputSource = ModelInfoRetriever.getModelSource(inputSource);
 
+      Class<T> parameterClass = getParameterClass();
       JAXBContext context = JAXBContext
             .newInstance(parameterClass);
       Unmarshaller um = context.createUnmarshaller();
-      return (T) um.unmarshal(source);
+      return (T) um.unmarshal(saxInputSource);
    }
 
    protected abstract String[] getStopConditions();

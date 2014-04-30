@@ -176,7 +176,6 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
          }
 
          EventUtils.detachAll(pi);
-         MonitoringUtils.processExecutionMonitors().processAborted(pi);
          ProcessInstanceUtils.cleanupProcessInstance(pi);
 
          AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info(

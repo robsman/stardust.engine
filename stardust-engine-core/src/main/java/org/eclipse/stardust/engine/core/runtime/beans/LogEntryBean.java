@@ -50,7 +50,7 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
    public static final FieldRef FR__USER = new FieldRef(LogEntryBean.class, FIELD__USER);
    public static final FieldRef FR__PARTITION = new FieldRef(LogEntryBean.class, FIELD__PARTITION);
 
-   private static final String TABLE_NAME = "log_entry";
+   public static final String TABLE_NAME = "log_entry";
    public static final String DEFAULT_ALIAS = "le";
    private static final String PK_FIELD = FIELD__OID;
    private static final String PK_SEQUENCE = "log_entry_seq";
@@ -61,7 +61,7 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
 
    static final boolean type_USE_LITERALS = true;
    static final boolean code_USE_LITERALS = true;
-   
+
    private int type;
    private int code;
 

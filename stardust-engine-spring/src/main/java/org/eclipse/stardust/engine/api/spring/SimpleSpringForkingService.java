@@ -22,7 +22,6 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.IActionCarrier;
-import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -146,7 +145,7 @@ public class SimpleSpringForkingService extends AbstractSpringForkingServiceBean
             }
             finally
             {
-               
+
             }
          }
          else

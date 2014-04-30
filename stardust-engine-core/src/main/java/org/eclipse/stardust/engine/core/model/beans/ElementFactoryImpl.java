@@ -1436,7 +1436,7 @@ public class ElementFactoryImpl implements ElementFactory
 
       private final IModel model;
 
-      private IModel[] referencedModel;
+      private final IModel referencedModel;
 
       public ExternalPackageDefinition(String id, String name,
             Map<String, String> attributes, String href, IModel model)
@@ -1446,6 +1446,12 @@ public class ElementFactoryImpl implements ElementFactory
          this.attributes = attributes;
          this.href = href;
          this.model = model;
+         referencedModel = ModelRefBean.resolveModel(this);
+         trace.info(referencedModel == null ? "Reference '" + href
+               + "' could not be resolved for model '" + model.getId() + "' ["
+               + model.getModelOID() + "]." : "Reference '" + href
+               + "' was resolved for model '" + model.getId()
+               + "' to model with oid: " + referencedModel.getModelOID());
       }
 
       public String getId()
@@ -1475,17 +1481,7 @@ public class ElementFactoryImpl implements ElementFactory
 
       public IModel getReferencedModel() throws UnresolvedExternalReference
       {
-         if (referencedModel == null)
-         {
-            IModel resolvedModel = ModelRefBean.resolveModel(this);
-            trace.info(resolvedModel == null ? "Reference '" + href
-                  + "' could not be resolved for model '" + model.getId() + "' ["
-                  + model.getModelOID() + "]." : "Reference '" + href
-                  + "' was resolved for model '" + model.getId()
-                  + "' to model with oid: " + resolvedModel.getModelOID());
-            referencedModel = new IModel[] {resolvedModel};
-         }
-         return referencedModel[0];
+         return referencedModel;
       }
    }
 

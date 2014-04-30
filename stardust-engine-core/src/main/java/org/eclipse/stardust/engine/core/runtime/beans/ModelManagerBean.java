@@ -319,10 +319,7 @@ public class ModelManagerBean implements ModelManager
       else
       {
          managerPartition = new ModelManagerPartition(partitionOidValue, loaderFactory.instance(partitionOid));
-
-         // must be done after the complete initialization and inclusion into the list of partitions,
-         // otherwise we get an endless loop / stack overflow
-         managerPartition.resolveModelReferences();
+         managerPartitions.put(partitionOid, managerPartition);
       }
 
       return managerPartition;
@@ -751,12 +748,31 @@ public class ModelManagerBean implements ModelManager
 
       public ModelManagerPartition(Short partitionOid, ModelLoader loader)
       {
-         this.partitionOid = partitionOid;
-         this.models = CollectionUtils.newList();
-         this.orderedModelsByAge = CollectionUtils.newList();
-         this.loader = loader;
-         managerPartitions.put(partitionOid, this);
+         BpmRuntimeEnvironment env = PropertyLayerProviderInterceptor.getCurrent();
+         try
+         {
+            this.partitionOid = partitionOid;
+            this.models = CollectionUtils.newList();
+            this.orderedModelsByAge = CollectionUtils.newList();
+            this.loader = loader;
+            this.rtOidRegistry = new RuntimeOidRegistry(partitionOid);
 
+            // Reset runtime environment
+            BpmRuntimeEnvironment rtEnv = (BpmRuntimeEnvironment) PropertyLayerProviderInterceptor.
+                  BPM_RT_ENV_LAYER_FACTORY_NOPREDECESSOR.createPropertyLayer(null);
+            rtEnv.setModelManager(this);
+            PropertyLayerProviderInterceptor.setCurrent(rtEnv);
+
+            initialize(rtEnv);
+         }
+         finally
+         {
+            PropertyLayerProviderInterceptor.setCurrent(env);
+         }
+      }
+
+      private void initialize(BpmRuntimeEnvironment rtEnv)
+      {
          // sort with ascending model OID
          Map<Long, IModelPersistor> loadedModels = new TreeMap();
          for (Iterator i = loader.loadModels(); i.hasNext();)
@@ -765,9 +781,13 @@ public class ModelManagerBean implements ModelManager
             loadedModels.put(persistor.getModelOID(), persistor);
          }
 
+         Map<String, IModel> overrides = CollectionUtils.newMap();
+         rtEnv.setModelOverrides(overrides);
          for (IModelPersistor persistor : loadedModels.values())
          {
             IModel model = persistor.fetchModel();
+            resolveModelReferences(model);
+            overrides.put(model.getId(), model);
             orderedModelsByAge.add(model);
          }
          Collections.reverse(orderedModelsByAge);
@@ -813,7 +833,6 @@ public class ModelManagerBean implements ModelManager
             }
          }
 
-         this.rtOidRegistry = new RuntimeOidRegistry(partitionOid);
          loader.loadRuntimeOidRegistry(rtOidRegistry);
 
          if (loader instanceof RuntimeModelLoader)
@@ -900,8 +919,10 @@ public class ModelManagerBean implements ModelManager
 
          this.elementsByRtOid = new ElementByRtOidCache[(int) (maxModelOid + 1)];
 
-         for (IModel model : models)
+         for (int i = models.size() - 1; i >= 0; i--)
          {
+            IModel model = models.get(i);
+
             elementsByRtOid[model.getModelOID()] = new ElementByRtOidCache();
             ElementByRtOidCache byRtOid = this.elementsByRtOid[model.getModelOID()];
 
@@ -955,9 +976,6 @@ public class ModelManagerBean implements ModelManager
                   }
                }
             }
-         }
-         for (IModel model : models)
-         {
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
       }
@@ -994,22 +1012,20 @@ public class ModelManagerBean implements ModelManager
          }
       }
 
-      private void resolveModelReferences()
+      private void resolveModelReferences(IModel model)
       {
-         for (IModel model : models)
+         for (IExternalPackage pkg : model.getExternalPackages())
          {
-            for (IExternalPackage pkg : model.getExternalPackages())
+            try
             {
-               try
-               {
-                  pkg.getReferencedModel();
-               }
-               catch (UnresolvedExternalReference ex)
-               {
-                  // ignore.
-               }
+               pkg.getReferencedModel();
+            }
+            catch (UnresolvedExternalReference ex)
+            {
+               // ignore.
             }
          }
+         // TODO: the rest
       }
 
       public short getPartitionOid()
@@ -1720,6 +1736,14 @@ public class ModelManagerBean implements ModelManager
          {
             String[] fqId = rtOidRegistry.getFqId(
                   IRuntimeOidRegistry.STRUCTURED_DATA_XPATH, runtimeOid);
+            //Fix for CRNT-28089
+            //In case of model debugging this array is empty, because the necessary rtOIDs are only
+            //created when model gets deployed, which is not the case when in debug mode.
+            if (fqId.length == 0)
+            {
+               return null;
+            }
+            //Fix end
             data = model.findData(fqId[fqId.length - 2]);
          }
 

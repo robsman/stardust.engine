@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.J2eeSecurityL
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalProvider;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
@@ -34,11 +35,11 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
 {
    private static final long serialVersionUID = 1L;
-   
+
    private static final Logger trace = LogManager.getLogger(SessionBeanLoginInterceptor.class);
 
    private final EJBContext context;
-   
+
    private final boolean stateless;
 
    public SessionBeanLoginInterceptor(EJBContext context)
@@ -67,7 +68,7 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
       {
          trace.warn("Failed to determine if EJB is stateful or stateless due to an unavailable EJB context, assuming stateful.");
       }
-      
+
       this.stateless = isStateless;
    }
 
@@ -78,7 +79,10 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
-      final boolean useInvokerPrincipal = (null != InvokerPrincipalUtils.getCurrent());
+      InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
+      boolean useInvokerPrincipal = (null != principal)
+            && !isLoginCall(invocation.getMethod())
+            && !isLogoutCall(invocation.getMethod());
 
       final PropertyLayer props = useInvokerPrincipal //
             ? PropertyLayerProviderInterceptor.getCurrent()

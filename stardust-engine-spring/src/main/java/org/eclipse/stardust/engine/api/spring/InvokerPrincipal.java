@@ -11,57 +11,52 @@
 package org.eclipse.stardust.engine.api.spring;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 
-import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
 
 
 /**
  * @author rsauer
  * @version $Revision$
+ *
+ * @deprecated use {@link org.eclipse.stardust.engine.core.security.InvokerPrincipal} instead
  */
+@Deprecated
 public class InvokerPrincipal implements PrincipalWithProperties, Serializable
 {
-   static final String PRP_SIGNED_PRINCIPAL = InvokerPrincipal.class.getName() + ".SignedPrincipal";
-
    private static final long serialVersionUID = 7344238080033531281L;
 
-   private final String name;
+   private org.eclipse.stardust.engine.core.security.InvokerPrincipal delegate;
 
-   private final Map properties;
-
-   private final byte[] signature;
+   public InvokerPrincipal(String name, Map properties)
+   {
+      this.delegate = new org.eclipse.stardust.engine.core.security.InvokerPrincipal(name, properties);
+   }
 
    public InvokerPrincipal(String name, Map properties, byte[] signature)
    {
-      this.name = name;
-      this.properties = properties;
-      this.signature = signature;
+      this.delegate = new org.eclipse.stardust.engine.core.security.InvokerPrincipal(name, properties, signature);
    }
 
    public String getName()
    {
-      return name;
+      return delegate.getName();
    }
 
    public Map getProperties()
    {
-      return properties;
+      return delegate.getProperties();
    }
 
    public byte[] getSignature()
    {
-      return signature;
+      return delegate.getSignature();
    }
 
    public boolean equals(Object obj)
    {
-      return (obj instanceof InvokerPrincipal)
-            && CompareHelper.areEqual(getName(), ((InvokerPrincipal) obj).getName())
-            && CompareHelper.areEqual(getProperties(), ((InvokerPrincipal) obj).getProperties())
-            && Arrays.equals(getSignature(), ((InvokerPrincipal) obj).getSignature());
+      return delegate.equals(obj);
    }
 
    public String toString()

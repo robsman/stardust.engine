@@ -18,8 +18,8 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.security.Principal;
 import java.util.Map;
 
-import org.eclipse.stardust.engine.api.spring.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.springframework.beans.factory.InitializingBean;
 

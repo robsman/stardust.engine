@@ -623,29 +623,32 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       List<DeployedDataInfo> deployedDataInfo
          = new ArrayList<DeployedDataInfo>();
 
-      StringBuffer collectDataOidsSql = new StringBuffer();
-      collectDataOidsSql.append("Select oid, id from ");
-      collectDataOidsSql.append(DatabaseHelper.getQualifiedName(DATA_TABLE));
-      collectDataOidsSql.append(" where model = ").append(modelOid);
-      collectDataOidsSql.append(" and id ");
-      collectDataOidsSql.append(DatabaseHelper.getInClause(dataIds));
-
-      try
+      if(!dataIds.isEmpty())
       {
-         ResultSet rs = DatabaseHelper.executeQuery(item, collectDataOidsSql.toString());
-         while(rs.next())
+         StringBuffer collectDataOidsSql = new StringBuffer();
+         collectDataOidsSql.append("Select oid, id from ");
+         collectDataOidsSql.append(DatabaseHelper.getQualifiedName(DATA_TABLE));
+         collectDataOidsSql.append(" where model = ").append(modelOid);
+         collectDataOidsSql.append(" and id ");
+         collectDataOidsSql.append(DatabaseHelper.getInClause(dataIds));
+
+         try
          {
-            Long dataOid = rs.getLong(1);
-            String dataId = rs.getString(2);
+            ResultSet rs = DatabaseHelper.executeQuery(item, collectDataOidsSql.toString());
+            while(rs.next())
+            {
+               Long dataOid = rs.getLong(1);
+               String dataId = rs.getString(2);
 
-            DeployedDataInfo ddi
-               = new DeployedDataInfo(dataId, dataOid, modelOid);
-            deployedDataInfo.add(ddi);
+               DeployedDataInfo ddi
+                  = new DeployedDataInfo(dataId, dataOid, modelOid);
+               deployedDataInfo.add(ddi);
+            }
          }
-      }
-      catch (SQLException e)
-      {
-         throw new RuntimeException("Exception occured during collecting data oids from auditrail.", e);
+         catch (SQLException e)
+         {
+            throw new RuntimeException("Exception occured during collecting data oids from auditrail.", e);
+         }
       }
 
       return deployedDataInfo;

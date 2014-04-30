@@ -17,6 +17,7 @@ import static org.eclipse.stardust.common.config.extensions.ServiceProviderResol
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.config.extensions.ExtensibleExtensionsManager;
 import org.eclipse.stardust.common.config.extensions.ExtensionsManager;
 
@@ -54,6 +55,16 @@ public class ExtensionProviderUtils
 
       return extensionsManager.getFirstExtensionProvider(providerIntfc,
             configurationProperty);
+   }
+
+   public static void forEachExtensionsManager(Predicate<ExtensionsManager> predicate)
+   {
+      GlobalParameters globals = GlobalParameters.globals();
+      ConcurrentMap<ClassLoader, ExtensionsManager> classLoaderMap = getExtensionsManagerCache(globals);
+      for (ExtensionsManager extManager : classLoaderMap.values())
+      {
+         predicate.accept(extManager);
+      }
    }
 
    public static <T> ExtensionsManager getExtensionsManager()
@@ -104,5 +115,4 @@ public class ExtensionProviderUtils
    {
       // utility class
    }
-
 }

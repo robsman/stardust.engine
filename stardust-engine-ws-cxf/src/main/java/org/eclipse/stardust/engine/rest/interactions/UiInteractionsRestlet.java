@@ -24,8 +24,11 @@ import static org.eclipse.stardust.engine.ws.DataFlowUtils.isStructuredType;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalPrimitiveValue;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalStructValue;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -42,13 +45,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Variant;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.utils.io.CloseableUtil;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.Data;
@@ -58,9 +67,6 @@ import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.core.interactions.Interaction;
 import org.eclipse.stardust.engine.core.interactions.InteractionRegistry;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
 
 
 
@@ -129,6 +135,44 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
       else
       {
          throw new WebApplicationException(Status.NO_CONTENT);
+      }
+   }
+
+   @Path("ippMashupAuthProxy.html")
+   @GET
+   @Produces(MediaType.TEXT_HTML)
+   public Response getAuthProxyPage()
+   {
+      final URL authProxyUri = getClass().getClassLoader().getResource("META-INF/xhtml/common/controller/mashup/ippMashupAuthProxy.html");
+      if (null != authProxyUri)
+      {
+         return Response.ok(new StreamingOutput()
+         {
+            @Override
+            public void write(OutputStream os) throws IOException, WebApplicationException
+            {
+               InputStream is = authProxyUri.openStream();
+               try
+               {
+                  int nBytesRead = 0;
+                  byte[] buffer = new byte[4096];
+                  while (0 < (nBytesRead = is.read(buffer)))
+                  {
+                     os.write(buffer, 0, nBytesRead);
+                  }
+
+                  os.flush();
+               }
+               finally
+               {
+                  CloseableUtil.closeQuietly(is);
+               }
+            }
+         }).build();
+      }
+      else
+      {
+         return Response.status(Status.NOT_FOUND).build();
       }
    }
 
@@ -321,7 +365,22 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
    public void setOutDataValueFromText(@PathParam("parameterId") String parameterId,
          String value)
    {
-      setOutDataValue(parameterId, value);
+      try
+      {
+         setOutDataValue(parameterId, value);
+      }
+      catch(Exception e)
+      {
+         trace.error(e);
+         if (e instanceof WebApplicationException)
+         {
+            throw (WebApplicationException)e;
+         }
+         else
+         {
+            throw new WebApplicationException(e, Status.BAD_REQUEST);
+         }
+      }
    }
 
    @Path("outData/{parameterId}")

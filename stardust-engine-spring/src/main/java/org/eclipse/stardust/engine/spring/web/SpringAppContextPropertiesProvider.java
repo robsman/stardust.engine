@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.spring.web;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,12 @@ public class SpringAppContextPropertiesProvider implements PropertyProvider
    {
       WebApplicationContext webApplicationContext = ContextLoader
             .getCurrentWebApplicationContext();
+
+      if (webApplicationContext == null)
+      {
+         return Collections.emptyMap();
+      }
+
       Map properties = new HashMap();
       properties.put(SpringConstants.PRP_CACHED_APPLICATION_CONTEXT,
             webApplicationContext);

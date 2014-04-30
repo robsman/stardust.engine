@@ -5,7 +5,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -21,24 +21,24 @@
          This project allows for writing functional tests against 'Stardust Engine'.
       </description>
    </info>
-	
+
    <!-- Configurations -->
    <configurations>
       <conf name="default" visibility="public" description="Stardust Engine Test" extends="compile" />
       <conf name="sources" visibility="public" description="Stardust Engine Test - Sources" />
       <conf name="test" visibility="public" description="Test Configuration" extends="compile" />
-   
+
       <conf name="compile" visibility="private" description="Compile Configuration" />
 
       <conf name="all" visibility="private" extends="compile, test" />
    </configurations>
-   
+
    <!-- Publications -->
    <publications>
       <artifact name="stardust-engine-test" type="jar" ext="jar" conf="default" />
       <artifact name="stardust-engine-test" type="source" ext="jar" conf="sources" m:classifier="sources" />
    </publications>
-   
+
    <!-- Dependencies -->
    <dependencies>
       <!-- 'compile' configuration -->
@@ -53,8 +53,9 @@
          <exclude org="org.hamcrest" module="hamcrest-core" />
       </dependency>
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="compile->default" />
+      <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="compile->default" />
-      
+
       <!-- 'test' configuration -->
       <dependency org="com.hazelcast" name="hazelcast" rev="${hazelcast.version}" conf="test->default" />
       <dependency org="com.hazelcast" name="hazelcast-ra" rev="${hazelcast-ra.version}" conf="test->default">
@@ -70,7 +71,6 @@
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="${org.eclipse.emf.common.version}" transitive="false" conf="test->default"/>
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="${org.eclipse.emf.ecore.version}" transitive="false" conf="test->default"/>
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="${org.eclipse.emf.ecore.xmi.version}" transitive="false" conf="test->default"/>
-      <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="test->default" />
    </dependencies>
 </ivy-module>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,13 +17,18 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 
 
 /**
+ * Interface to Activity Instance State Changes.
  * 
  * @author thomas.wolfram
- * 
  */
-
-@SPI(useRestriction = UseRestriction.Internal, status = Status.Experimental)
+@SPI(useRestriction = UseRestriction.Public, status = Status.Stable)
 public interface IActivityInstanceMonitor
 {
+   /**
+    * Propagate a change of the Activity Instance State.
+    *
+    * @param activity Activity Instance.
+    * @param newState The new Activity Instance State.
+    */
    void activityInstanceStateChanged(IActivityInstance activity, int newState);
 }

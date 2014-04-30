@@ -11,8 +11,8 @@
 package org.eclipse.stardust.test.multimodel;
 
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_NAME;
-import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_MODEL_NAME;
+import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_ID;
+import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_MODEL_ID;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -28,7 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * </p>
  *
  * @author Robert Sauer
- * @version $Revision: 56996 $
+ * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -39,5 +39,5 @@ public class MultiModelTestSuite
    /* test suite */
 
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, PROVIDER_MODEL_NAME, CONSUMER_MODEL_NAME);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, PROVIDER_MODEL_ID, CONSUMER_MODEL_ID);
 }

@@ -1619,9 +1619,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          List<IModel> allModels = null;
          if (StringUtils.isEmpty(filter.getModelId()))
          {
-            allModels = CollectionUtils.newListFromIterator(context.getEvaluationContext()
-                  .getModelManager()
-                  .getAllAliveModels());
+            allModels = context.getEvaluationContext().getModelManager()
+                  .findActiveModels();
 
          }
          else

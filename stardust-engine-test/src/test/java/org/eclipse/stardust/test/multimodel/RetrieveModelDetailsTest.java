@@ -10,19 +10,12 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.multimodel;
 
-import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_MODEL_NAME;
-import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_NAME;
+import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_MODEL_ID;
+import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
@@ -33,6 +26,11 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMod
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -40,7 +38,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  * </p>
  *
  * @author Robert Sauer
- * @version $Revision: 66675 $
+ * @version $Revision$
  */
 public class RetrieveModelDetailsTest
 {
@@ -50,21 +48,16 @@ public class RetrieveModelDetailsTest
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, PROVIDER_MODEL_NAME, CONSUMER_MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, PROVIDER_MODEL_ID, CONSUMER_MODEL_ID);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf);
 
-   @Before
-   public void setUp()
-   {
-   }
-
    @Test
    public void testProviderModelDetailsCanBeRetrievedWithFullDetails()
    {
-      Models models = adminSf.getQueryService().getModels(DeployedModelQuery.findActiveForId(PROVIDER_MODEL_NAME));
+      Models models = adminSf.getQueryService().getModels(DeployedModelQuery.findActiveForId(PROVIDER_MODEL_ID));
 
       assertThat(models.size(), is(1));
 
@@ -76,7 +69,7 @@ public class RetrieveModelDetailsTest
    @Test
    public void testConsumerModelDetailsCanBeRetrievedWithFullDetails()
    {
-      Models models = adminSf.getQueryService().getModels(DeployedModelQuery.findActiveForId(CONSUMER_MODEL_NAME));
+      Models models = adminSf.getQueryService().getModels(DeployedModelQuery.findActiveForId(CONSUMER_MODEL_ID));
 
       assertThat(models.size(), is(1));
 
@@ -93,7 +86,7 @@ public class RetrieveModelDetailsTest
       DeployedModelDescription provider = (DeployedModelDescription) adminSf
             .getWorkflowService().execute(
                   RetrieveModelDetailsCommand
-                        .retrieveActiveModelById(PROVIDER_MODEL_NAME));
+                        .retrieveActiveModelById(PROVIDER_MODEL_ID));
 
       assertThat(provider.getConsumerModels().size(), is(0));
    }
@@ -104,7 +97,7 @@ public class RetrieveModelDetailsTest
       DeployedModelDescription consumer = (DeployedModelDescription) adminSf
             .getWorkflowService().execute(
                   RetrieveModelDetailsCommand
-                        .retrieveActiveModelById(CONSUMER_MODEL_NAME));
+                        .retrieveActiveModelById(CONSUMER_MODEL_ID));
 
       assertThat(consumer, is(notNullValue()));
 

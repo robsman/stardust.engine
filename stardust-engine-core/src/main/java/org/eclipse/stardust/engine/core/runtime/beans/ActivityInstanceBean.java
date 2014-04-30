@@ -184,6 +184,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private transient Long lastModifyingUser;
 
+   private transient int index;
+
    private int state;
 
    private long startTime;
@@ -401,6 +403,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       return "Activity instance '" + activity.getId() + "',  oid: " + getOID()
             + " (process instance = " + getProcessInstanceOID() + ") "
             + ModelUtils.getExtendedVersionString(model);
+   }
+
+   void setIndex(int index)
+   {
+      this.index = index;
    }
 
    public ActivityInstanceState getOriginalState()
@@ -1398,7 +1405,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          String instanceType = applicationType.getStringAttribute(PredefinedConstants.APPLICATION_INSTANCE_CLASS_ATT);
          ApplicationInstance result = SpiUtils.createApplicationInstance(instanceType);
-         result.bootstrap(new ActivityInstanceDetails(this));
+         result.bootstrap(new LazilyLoadingActivityInstanceDetails(this));
          return result;
       }
       catch (Exception e)
@@ -1649,11 +1656,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       String inputParameterId = null;
       String counterParameterId = null;
-      int index = -1;
       ILoopCharacteristics loop = activity.getLoopCharacteristics();
       if (loop instanceof IMultiInstanceLoopCharacteristics)
       {
-         index = TransitionTokenBean.getMultiInstanceIndex(getOID());
          inputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
          counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
          if (counterParameterId != null)
@@ -1759,11 +1764,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       String inputParameterId = null;
       String counterParameterId = null;
       String parameterContext = null;
-      int index = -1;
       ILoopCharacteristics loop = activity.getLoopCharacteristics();
       if (loop instanceof IMultiInstanceLoopCharacteristics)
       {
-         index = TransitionTokenBean.getMultiInstanceIndex(getOID());
          counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
          if (counterParameterId != null)
          {
@@ -1894,7 +1897,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (outputParameterId != null && outputParameterId.equals(activityAccessPointId) && parameterContext.equals(mapping.getContext()))
          {
-            int index = TransitionTokenBean.getMultiInstanceIndex(getOID());
             if (index >= 0)
             {
                try

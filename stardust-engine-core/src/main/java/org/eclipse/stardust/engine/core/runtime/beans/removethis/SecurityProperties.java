@@ -165,6 +165,9 @@ public final class SecurityProperties
 
    public static final String PRINCIPAL_SECRET = "Security.Principal.Secret";
 
+   public static final String PRINCIPAL_VALIDATOR_PROPERTY = "Security.Principal.Validator";
+   public static final String PRINCIPAL_VALIDATOR_DEFAULT_VALUE = "org.eclipse.stardust.engine.core.spi.security.AlwaysValidPrincipalValidator";
+
    public static boolean isInternalAuthentication()
    {
       final String syncProviderClassName = Parameters.instance().getString(

@@ -435,9 +435,11 @@
 
                <include name="org/eclipse/stardust/engine/core/spi/jms/IQueueConnectionProvider.java" />
 
+               <include name="org/eclipse/stardust/engine/core/spi/security/AlwaysValidPrincipalValidator.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/DynamicParticipantSynchronizationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/DynamicParticipantSynchronizationStrategy.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalDepartmentConfiguration.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/security/PrincipalValidator.java" />
                <include name="org/eclipse/stardust/engine/core/spi/cluster/ClusterSafeObjectProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IActivityInstanceMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IProcessExecutionMonitor.java" />

@@ -156,6 +156,7 @@
    <!-- execute-all-test-suites (macro) -->
    <macrodef name="execute-all-test-suites">
       <sequential>
+	<execute-test-suite name="Administration Operation" class="org.eclipse.stardust.test.admin.AdministrationOperationTestSuite" />
          <execute-test-suite name="Boundary Events" class="org.eclipse.stardust.test.boundaryevent.BoundaryEventTestSuite" />
          <execute-test-suite name="Example" class="org.eclipse.stardust.test.examples.MyTestSuite" />
          <execute-test-suite name="Basic Workflow" class="org.eclipse.stardust.test.workflow.BasicWorkflowTestSuite" />

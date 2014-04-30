@@ -18,6 +18,8 @@ import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -35,23 +37,23 @@ public class AuditTrailLogger implements Logger
    private Object context;
    private LogCode code;
    private LoggingBehaviour loggingBehaviour = LoggingBehaviour.SAME_TRANSACTION;
-   
+
    public static enum LoggingBehaviour {
       SAME_TRANSACTION,
       SEPARATE_TRANSACTION_SYNCHRONOUS
    }
-   
+
    public static AuditTrailLogger getInstance(LogCode code, Object context, LoggingBehaviour loggingBehaviour)
    {
       return new AuditTrailLogger(code, context, loggingBehaviour);
    }
-   
+
    public static AuditTrailLogger getInstance(LogCode code, Object context)
    {
       final Parameters params = Parameters.instance();
       ITransactionStatus txStatus = TransactionUtils.getCurrentTxStatus(params);
       final LoggingBehaviour loggingBehaviour;
-      
+
       if(txStatus.isRollbackOnly())
       {
          loggingBehaviour = LoggingBehaviour.SEPARATE_TRANSACTION_SYNCHRONOUS;
@@ -60,7 +62,7 @@ public class AuditTrailLogger implements Logger
       {
          loggingBehaviour = LoggingBehaviour.SAME_TRANSACTION;
       }
-      
+
       return getInstance(code, context, loggingBehaviour);
    }
 
@@ -68,7 +70,7 @@ public class AuditTrailLogger implements Logger
    {
       return getInstance(code, null);
    }
-   
+
    private AuditTrailLogger(LogCode code, Object context, LoggingBehaviour loggingBehaviour)
    {
       this.context = context;
@@ -152,10 +154,14 @@ public class AuditTrailLogger implements Logger
             (context instanceof IActivityInstance ? ((IActivityInstance) context).getOID() : 0);
       long processInstance =
             (context instanceof IProcessInstance ? ((IProcessInstance) context).getOID() : 0);
-      if (!Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
+      if ( !Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
       {
-         short partitionOid = SecurityProperties.getPartitionOid();
-         logToAuditTrailDataBase(severity, message, processInstance, activityInstance, partitionOid);
+         boolean isTransientExecutionScenario = isTransientExecutionScenario(context);
+         if ( !isTransientExecutionScenario)
+         {
+            short partitionOid = SecurityProperties.getPartitionOid();
+            logToAuditTrailDataBase(severity, message, processInstance, activityInstance, partitionOid);
+         }
       }
       message = message + " (" + SecurityProperties.getUser() + ")";
       if (throwable != null)
@@ -207,9 +213,23 @@ public class AuditTrailLogger implements Logger
          }
       }
    }
-   
-   private void logToAuditTrailDataBase(final LogType severity, 
-                                        final String message, 
+
+   private boolean isTransientExecutionScenario(final Object context)
+   {
+      if (context instanceof IActivityInstance)
+      {
+         return ActivityInstanceUtils.isTransientExecutionScenario((IActivityInstance) context);
+      }
+      if (context instanceof IProcessInstance)
+      {
+         return ProcessInstanceUtils.isTransientExecutionScenario((IProcessInstance) context);
+      }
+
+      return false;
+   }
+
+   private void logToAuditTrailDataBase(final LogType severity,
+                                        final String message,
                                         final long processInstance,
                                         final long activityInstance,
                                         final short partitionOid)
@@ -239,7 +259,7 @@ public class AuditTrailLogger implements Logger
             finally
             {
                fsf.release(fs);
-            } 
+            }
             break;
          default:
             break;

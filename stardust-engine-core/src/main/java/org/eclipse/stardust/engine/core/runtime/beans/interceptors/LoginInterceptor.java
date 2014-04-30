@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 public class LoginInterceptor extends AbstractLoginInterceptor
 {
    private LoggedInUser loggedInUser;
-   
+
    protected boolean isStatefulService()
    {
       return true;
@@ -39,7 +39,7 @@ public class LoginInterceptor extends AbstractLoginInterceptor
    protected LoggedInUser performLoginCall(MethodInvocation invocation)
    {
       LoggedInUser loggedInUser = super.performLoginCall(invocation);
-      
+
       if (isStatefulService())
       {
          this.loggedInUser = loggedInUser;

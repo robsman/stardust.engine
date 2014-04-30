@@ -121,7 +121,7 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
                {
                   loginMethod.invoke(inner, new Object[]{userName, password, getProperties()});
                }
-               catch (InvocationTargetException e) 
+               catch (InvocationTargetException e)
                {
                   Throwable t = e.getTargetException();
                   if(t instanceof WorkflowException &&
@@ -138,10 +138,9 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
             if (inner instanceof TunnelingService)
             {
                String principalName = J2EEUtils.getPrincipalName(principal);
-               tunneledContext = new TunneledContext(new InvokerPrincipal(principalName,
-                     getProperties()));
+               tunneledContext = new TunneledContext(new InvokerPrincipal(principalName, getProperties()));
             }
-         }            
+         }
 
          result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
                new Class[]{service, ManagedService.class},

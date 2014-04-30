@@ -764,6 +764,7 @@
 			<element name="id" type="string" />
 			<element name="name" type="string" />
 			<element name="direction" type="tns:Direction" minOccurs="0" />
+            <element name="type" type="QName" minOccurs="0" />
 			<element name="typeId" type="string" />
 			<element name="dataId" type="string" />
 			<element name="attributes" type="tns:Attributes" minOccurs="0" />

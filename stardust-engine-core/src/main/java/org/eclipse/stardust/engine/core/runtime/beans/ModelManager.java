@@ -19,8 +19,6 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
-import org.eclipse.stardust.engine.core.struct.beans.IXPath;
-
 
 /**
  *
@@ -61,30 +59,30 @@ public interface ModelManager
 
    Iterator<IModel> getAllModels();
    Iterator<IModel> getAllModelsForId(String id);
-   
+
    /**
     * @deprecated
     */
    org.eclipse.stardust.engine.core.model.utils.ModelElement lookupObjectByOID(long oid);
-   
+
    IModelParticipant findModelParticipant(long modelOid, long runtimeOid);
    IModelParticipant findModelParticipant(ModelParticipantInfo info);
    IData findData(long modelOid, long runtimeOid);
    IProcessDefinition findProcessDefinition(long modelOid, long runtimeOid);
    IActivity findActivity(long modelOid, long runtimeOid);
    ITransition findTransition(long modelOid, long runtimeOid);
-   
+
    /**
     * Looks up the IData object which is referenced by given structured data.
-    * 
+    *
     * @param modelOid The model oid of the model the data / structured data belongs to.
     * @param runtimeOid The runtime oid of the structured data.
-    * 
+    *
     * @return The IData object referenced by given structured data.
     */
    IData findDataForStructuredData(long modelOid, long runtimeOid);
    IEventHandler findEventHandler(long modelOid, long runtimeOid);
-   
+
    long getRuntimeOid(IdentifiableElement modelElement);
 
    long getRuntimeOid(IData data, String xPath);
@@ -94,17 +92,17 @@ public interface ModelManager
    void deleteAllModels();
 
    Iterator getAllAliveModels();
-   
+
    void resetLastDeployment();
 
    long getLastDeployment();
 
    boolean isAlive(IModel model);
-   
+
    IModel findModel(Predicate predicate);
 
    IModel findModel(long modelOID);
-   
+
    IModel findModel(long modelOID, String modelId);
 
    boolean isActive(IModel model);
@@ -121,7 +119,7 @@ public interface ModelManager
 
    List<IModel> getModels();
    List<IModel> getModelsForId(String id);
-   
+
    List<IModel> findActiveModels();
 
    IModel getFirstByPriority(List<IModel> candidates);

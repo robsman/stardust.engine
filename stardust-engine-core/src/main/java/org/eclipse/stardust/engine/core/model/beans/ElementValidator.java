@@ -170,11 +170,14 @@ public class ElementValidator
       }
       else if (type == null)
       {
-         String name = element.getName();
-         if (!isValidElementName(name))
+         if(((XSDElementDeclaration) element).getResolvedElementDeclaration() == null)
          {
-            BpmValidationError error = BpmValidationError.VAL_INVALID_IDENTIFIER.raise(name);
-            messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
+            String name = element.getName();
+            if (!isValidElementName(name))
+            {
+               BpmValidationError error = BpmValidationError.VAL_INVALID_IDENTIFIER.raise(name);
+               messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
+            }
          }
       }
    }

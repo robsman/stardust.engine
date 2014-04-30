@@ -852,13 +852,13 @@ public class XmlAdapterUtils
       res.setEventHandlers(toWs(pd.getAllEventHandlers(),
             new EventHandlerDefinitionsXto()));
 
-      res.setDeclaredProcessInterface(marshallProcessInterface(pd.getDeclaredProcessInterface()));
-      res.setImplementedProcessInterface(marshallProcessInterface(pd.getImplementedProcessInterface()));
+      res.setDeclaredProcessInterface(marshallProcessInterface(model, pd.getDeclaredProcessInterface()));
+      res.setImplementedProcessInterface(marshallProcessInterface(model, pd.getImplementedProcessInterface()));
 
       return res;
    }
 
-   private static ProcessInterfaceXto marshallProcessInterface(
+   private static ProcessInterfaceXto marshallProcessInterface(Model model,
          ProcessInterface processInterface)
    {
       ProcessInterfaceXto ret = null;
@@ -871,14 +871,14 @@ public class XmlAdapterUtils
          if (processInterface.getFormalParameters() != null)
          {
 
-            ret.setFormalParameters(marshalFormalParamaeters(processInterface.getFormalParameters()));
+            ret.setFormalParameters(marshalFormalParamaeters(model, processInterface.getFormalParameters()));
          }
       }
 
       return ret;
    }
 
-   private static FormalParametersXto marshalFormalParamaeters(
+   private static FormalParametersXto marshalFormalParamaeters(Model model,
          List<FormalParameter> parameters)
    {
       FormalParametersXto parametersXto = null;
@@ -887,14 +887,14 @@ public class XmlAdapterUtils
          parametersXto = new FormalParametersXto();
          for (FormalParameter parameter : parameters)
          {
-            FormalParameterXto parameterXto = marshallFormalParameter(parameter);
+            FormalParameterXto parameterXto = marshallFormalParameter(model, parameter);
             parametersXto.getFormalParameter().add(parameterXto);
          }
       }
       return parametersXto;
    }
 
-   private static FormalParameterXto marshallFormalParameter(FormalParameter parameter)
+   private static FormalParameterXto marshallFormalParameter(Model model, FormalParameter parameter)
    {
       FormalParameterXto ret = null;
       if (parameter != null)
@@ -906,6 +906,11 @@ public class XmlAdapterUtils
          ret.setId(parameter.getId());
          ret.setName(parameter.getName());
          ret.setTypeId(parameter.getTypeId());
+         String structTypeDefId = (String) parameter.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         if (structTypeDefId != null)
+         {
+            ret.setType(getStructuredTypeName(model, structTypeDefId));
+         }
       }
       return ret;
    }

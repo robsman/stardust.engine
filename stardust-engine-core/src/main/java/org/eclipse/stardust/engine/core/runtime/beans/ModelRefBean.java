@@ -46,7 +46,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
    {
       USES, IMPLEMENTS
    }
-   
+
    private static final long serialVersionUID = 1L;
 
    private static final Logger trace = LogManager.getLogger(ModelRefBean.class);
@@ -72,25 +72,25 @@ public class ModelRefBean extends PersistentBean implements Serializable
    public static final String[] model_ref_idx1_UNIQUE_INDEX = new String[]{FIELD__CODE, FIELD__MODEL_OID, FIELD__ID, FIELD__DEPLOYMENT};
    public static final String[] model_ref_idx2_UNIQUE_INDEX = new String[]{FIELD__CODE, FIELD__MODEL_OID, FIELD__REF_OID, FIELD__DEPLOYMENT};
 
-   private static final boolean DEPLOY_AGAINST_ACTIVE_MODEL = false;
+   //private static final boolean DEPLOY_AGAINST_ACTIVE_MODEL = false;
 
    /**
     * Contains the entry type, either USES or IMPLEMENTS
     */
    private int code;
-   
+
    /**
     * Depending on the code, it is either the using model oid or the interface oid
     */
    private long modelOid;
-   
+
    /**
-    * Depending on the code, it is either the used model id, or the id of the model providing the primary implementation. 
+    * Depending on the code, it is either the used model id, or the id of the model providing the primary implementation.
     */
    private String id;
-   
+
    /**
-    * Depending on the code, it is either the resolved model oid, or the runtime oid of the process definition defining the process interface. 
+    * Depending on the code, it is either the resolved model oid, or the runtime oid of the process definition defining the process interface.
     */
    private long refOid;
 
@@ -111,7 +111,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       this.refOid = refOid;
       this.deployment = deployment;
    }
-   
+
    public String toString()
    {
       if (code == 0)
@@ -123,7 +123,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
          return "Primary implementation: " + modelOid + '[' + refOid + "]=" + id + '/' + deployment;
       }
    }
-   
+
    public static void setResolvedModel(IExternalPackage reference, IModel used, long deployment)
    {
       if (reference == null)
@@ -192,7 +192,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       }
       return false;
    }
-   
+
    public static List<IProcessDefinition> getProcessInterfaces(IModel model)
    {
       List<IProcessDefinition> result = CollectionUtils.newList();
@@ -207,7 +207,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       }
       return result;
    }
-     
+
    public static void setPrimaryImplementation(IProcessDefinition process, String implementationId, long deployment)
    {
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(new ModelRefBean(
@@ -249,7 +249,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
          QueryUtils.closeResultSet(resultSet);
       }
    }
-   
+
    public static List<IModel> getUsingModels(IModel model)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -303,9 +303,10 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          throw new UnresolvedExternalReference(reference.getHref());
       }
-      return resolveModel(reference.getModel().getModelOID(), reference.getHref());
+      return null;
+      //return resolveModel(reference.getModel().getModelOID(), reference.getHref());
    }
-   
+
    public static IProcessDefinition getPrimaryImplementation(IProcessDefinition process, IData data, String dataPath)
    {
       BpmRuntimeEnvironment env = PropertyLayerProviderInterceptor.getCurrent();
@@ -337,7 +338,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       }
       int interfaceOid = process.getModel().getModelOID();
       QName processQID = new QName(process.getModel().getId(), process.getId());
-      
+
       String implementationId = null;
       // 1. get the implementation model id from the data value
       if (data != null && processInstance != null)
@@ -345,7 +346,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
          IProcessInstance scopeProcessInstance = processInstance.getScopeProcessInstance();
          implementationId = (String) scopeProcessInstance.getInDataValue(data, dataPath);
       }
-      // 2. get the implementation model id from the primary implementation 
+      // 2. get the implementation model id from the primary implementation
       if (StringUtils.isEmpty(implementationId))
       {
          long runtimeProcessOid = ModelManagerFactory.getCurrent().getRuntimeOid(process);
@@ -415,7 +416,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          pId = qname.getLocalPart();
       }
-      
+
       boolean sameModel = mId.equals(processId.getNamespaceURI());
       String localPart = processId.getLocalPart();
       ModelManager manager = ModelManagerFactory.getCurrent();
@@ -430,7 +431,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
                   typePredicate, modelPredicate, deploymentPredicate, validFromPredicate}));
       query.getQueryExtension().addOrderBy(FR__DEPLOYMENT, false);
       query.innerJoin(ModelDeploymentBean.class).on(FR__DEPLOYMENT, ModelDeploymentBean.FIELD__OID);
-      
+
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       ResultSet resultSet = session.executeQuery(query);
       try
@@ -444,7 +445,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
                IProcessDefinition process = null;
                if (sameModel)
                {
-                  process = candidate.findProcessDefinition(pId == null ? localPart : pId);  
+                  process = candidate.findProcessDefinition(pId == null ? localPart : pId);
                }
                else
                {
@@ -487,7 +488,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       }
    }
 
-   private static IModel resolveModel(long modelOid, String refId)
+   /*private static IModel resolveModel(long modelOid, String refId)
    {
       ModelManager manager = ModelManagerFactory.getCurrent();
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -520,7 +521,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          QueryUtils.closeResultSet(resultSet);
       }
-   }
+   }*/
 
    public static void deleteForModel(long modelOid, Session session)
    {
@@ -550,7 +551,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       }
 
       session.delete(ModelRefBean.class, Predicates.andTerm(typePredicate, modelPredicate), false);
-      
+
       if (deployment >= 0)
       {
          ComparisonTerm deploymentPredicate = Predicates.isEqual(FR__DEPLOYMENT, deployment);

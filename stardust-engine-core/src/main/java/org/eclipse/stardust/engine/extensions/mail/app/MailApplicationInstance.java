@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousAppli
 
 
 /**
- * 
+ *
  */
 public class MailApplicationInstance implements AsynchronousApplicationInstance
 {
@@ -46,8 +46,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private static final String MAIL_SERVER = "mailServer";
 
-   private static final String JNDI_SESSION = "jndiSession";   
-   
+   private static final String JNDI_SESSION = "jndiSession";
+
    private static final String FROM_ADDRESS = "fromAddress";
 
    private static final String TO_ADDRESS = "toAddress";
@@ -72,8 +72,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private String mailServer;
 
-   private String jndiSession;   
-   
+   private String jndiSession;
+
    private String urlPrefix;
 
    private String plainTextTemplate;
@@ -136,8 +136,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
             .getAttribute(MailConstants.DEFAULT_MAIL_SERVER);
 
       this.jndiSession = (String) application
-      .getAttribute(MailConstants.DEFAULT_JNDI_SESSION);      
-      
+      .getAttribute(MailConstants.DEFAULT_JNDI_SESSION);
+
       this.urlPrefix = (String) application.getAttribute(MailConstants.URL_PREFIX);
       if (StringUtils.isEmpty(this.urlPrefix))
       {
@@ -298,7 +298,7 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
       try
       {
          String actualMailServer = retrieveParam(MAIL_SERVER, mailServer);
-         String actualJndiSession = retrieveParam(JNDI_SESSION, jndiSession);         
+         String actualJndiSession = retrieveParam(JNDI_SESSION, jndiSession);
          String actualFromAddress = retrieveParam(FROM_ADDRESS, defaultFromAddress);
          String actualToAddress = retrieveParam(TO_ADDRESS, defaultToAddress);
          String actualCC = retrieveParam(CC_ADDRESS, defaultCC);
@@ -327,12 +327,12 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
          actualSubject = includeUniqueIdentified ? "[" + processInstanceOID + "#"
                + activityInstanceOID + "] " + actualSubject + "(Activity " + activityName
                + ")" : actualSubject;
-         
+
          MailAssembler assembler = newMailAssembler(actualMailServer, actualJndiSession, actualFromAddress,
                actualToAddress, actualCC, actualBCC,
                actualPriority, actualSubject, inValues,
                attList);
-                  
+
          assembler.sendMail();
 
          if (trace.isDebugEnabled())
@@ -347,7 +347,7 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
          throw new InvocationTargetException(me);
       }
    }
-   
+
    /* package-private */ MailAssembler newMailAssembler(final String actualMailServer,
          final String actualJndiSession,
          final String actualFromAddress,
@@ -366,7 +366,7 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
             urlPrefix + "/mail-confirmation", processInstanceOID, activityInstanceOID,
             attList);
    }
-   
+
    public Map receive(Map data, Iterator outDataTypes)
    {
       // receiving is currently handled at servlet
@@ -375,7 +375,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private String retrieveParam(String key, String defaultValue)
    {
-      return String.valueOf(retrieveParamObject(key, defaultValue));
+      Object paramObject = retrieveParamObject(key, defaultValue);
+      return paramObject != null ? String.valueOf(paramObject) : null;
    }
 
    private Object retrieveParamObject(String key, Object defaultValue)
@@ -387,10 +388,10 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
       } else {
         return defaultValue;
       }
-   }   
-   
+   }
+
    /**
-    * 
+    *
     * @param outDataTypes
     * @return
     * @throws InvocationTargetException
@@ -398,18 +399,18 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
    /*
     * private Map doGetOutAccessPointValues(Set outDataTypes) throws
     * InvocationTargetException { Map result = new HashMap();
-    * 
+    *
     * for (Iterator i = outDataMappingOrder.iterator(); i.hasNext();) { String name =
     * (String) i.next();
-    * 
+    *
     * if (outDataTypes.contains(name)) { result.put(name, doGetOutAccessPointValue(name,
     * true)); } }
-    * 
+    *
     * return result; }
     */
 
    /**
-    * 
+    *
     * @param name
     * @param allowReturnValue
     * @return
@@ -422,7 +423,7 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
    }
 
    /**
-    * 
+    *
     * @param name
     * @return
     */

@@ -10,21 +10,29 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.util.*;
-
-import javax.persistence.Basic;
-import javax.persistence.Embedded;
-import javax.persistence.FetchType;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 
 public class ProcessInstanceHierarchyBean extends PersistentBean implements
       IProcessInstanceHierarchy
@@ -80,6 +88,14 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_PROCESS_INSTANCE_OID.raise(0), 0);
       }
+
+      /* return if it's a transient process instance since there are no persistents */
+      /* in the database for transient process instances                            */
+      if (isTransientExecutionScenario(oid))
+      {
+         return null;
+      }
+
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       QueryExtension query = QueryExtension.where(new AndTerm().add(
@@ -87,7 +103,7 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
             Predicates.notEqual(FR__PROCESS_INSTANCE, oid)));
 
       query.setOrderCriteria(new OrderCriteria(FR__PROCESS_INSTANCE, false));
-      
+
       IProcessInstance pi = null;
       ResultIterator<ProcessInstanceHierarchyBean> itr = session.getIterator(ProcessInstanceHierarchyBean.class, query);
       try
@@ -108,6 +124,21 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
       }
 
       return pi;
+   }
+
+   private static boolean isTransientExecutionScenario(long oid)
+   {
+      if ( !ProcessInstanceUtils.isTransientPiSupportEnabled())
+      {
+         return false;
+      }
+
+      ProcessInstanceBean pi = ProcessInstanceBean.findByOID(oid);
+      if (pi.isCaseProcessInstance() || pi.getRootProcessInstance().isCaseProcessInstance())
+      {
+         return false;
+      }
+      return ProcessInstanceUtils.isTransientExecutionScenario(pi);
    }
 
    public static List<IProcessInstance> findChildren(IProcessInstance pi)
@@ -132,13 +163,13 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
       else
       {
          final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-   
+
          QueryExtension query = QueryExtension.where(new AndTerm().add(
                Predicates.isEqual(FR__PROCESS_INSTANCE, oid)).add(
                Predicates.notEqual(FR__SUB_PROCESS_INSTANCE, oid)));
-   
+
          query.setOrderCriteria(new OrderCriteria(FR__PROCESS_INSTANCE, false));
-   
+
          pihIter = session.getIterator(
                ProcessInstanceHierarchyBean.class, query);
       }
@@ -155,7 +186,7 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
       }
       return pis;
    }
-   
+
    public static boolean isSubprocess(IProcessInstance parent, IProcessInstance sub)
    {
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -173,7 +204,7 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
 
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       boolean isJdbc = session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-      
+
       // delete from session
       if (isJdbc)
       {
@@ -196,7 +227,7 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
             }
          }
       }
-      
+
       // delete from audit trail
       if (!isJdbc || !pi.getPersistenceController().isCreated())
       {

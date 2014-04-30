@@ -50,7 +50,7 @@ import org.h2.tools.Server;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: 54310 $
+ * @version $Revision$
  */
 public class H2Server
 {

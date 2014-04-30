@@ -18,6 +18,7 @@ import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.DateUtils;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 
@@ -29,7 +30,7 @@ import org.eclipse.stardust.common.error.PublicException;
 public class Options
 {
    public static String NO_SHORTNAME = null;
-   
+
    public static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd");
 
    public static final DateFormat ISO_TIME_MINUTES = new SimpleDateFormat("HH:mm");
@@ -39,11 +40,11 @@ public class Options
    public static final DateFormat ISO_DATETIME_MINUTES = new SimpleDateFormat("yyyy-MM-dd HH:mm");
    public static final DateFormat ISO_DATETIME_SECONDS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
    public static final DateFormat ISO_DATETIME_MILLISECONDS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-   
+
    public static final DateFormat ISO_DATETIME_T_MINUTES = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
    public static final DateFormat ISO_DATETIME_T_SECONDS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
    public static final DateFormat ISO_DATETIME_T_MILLISECONDS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS");
-   
+
    private TreeMap longnames = new TreeMap();
    private Map shortnames = new HashMap();
    private List rules = CollectionUtils.newList();
@@ -51,11 +52,11 @@ public class Options
    public Options()
    {
    }
-   
+
    public static Long getLongValue(Map options, String key)
    {
       Long result = null;
-      
+
       Object rawValue = options.get(key);
 
       if (rawValue instanceof String)
@@ -66,7 +67,8 @@ public class Options
          }
          catch (ParseException e)
          {
-            throw new PublicException("Invalid numeric argument.", e);
+            throw new PublicException(
+                  BaseErrorCase.BASE_INVALID_NUMERIC_ARGUMENT.raise(), e);
          }
       }
 
@@ -74,7 +76,7 @@ public class Options
       {
          result = new Long(((Number) rawValue).longValue());
       }
-      
+
       return result;
    }
 
@@ -86,7 +88,7 @@ public class Options
       if (rawValue instanceof String)
       {
          result = new ArrayList();
-         
+
          StringTokenizer tkr = new StringTokenizer((String) rawValue, ", ");
          while (tkr.hasMoreTokens())
          {
@@ -99,15 +101,16 @@ public class Options
             }
             catch (ParseException e)
             {
-               throw new PublicException("Illegal '" + key + "' option value: " + t
-                     + " is not a long value.", e);
+               throw new PublicException(
+                     BaseErrorCase.BASE_ILLEGAL_OPTION_VALUE_IS_NOT_A_LONG_VALUE.raise(
+                           key, t), e);
             }
          }
       }
-      
+
       return result;
    }
-   
+
    public static boolean getBooleanValue(Map options, String key)
    {
       Object rawValue = options.get(key);
@@ -119,11 +122,11 @@ public class Options
       }
       return result;
    }
-   
+
    public static Date getDateValue(Map options, String key)
    {
       Date result = null;
-      
+
       Object rawValue = options.get(key);
 
       if (rawValue instanceof String)
@@ -154,10 +157,10 @@ public class Options
       {
          result = (Date) rawValue;
       }
-      
+
       return result;
    }
-   
+
    public void register(String longname, String shortname, String keyname, String summary,
          boolean hasArg)
    {
@@ -168,7 +171,7 @@ public class Options
                "Option with long name '" + longname + "' already registered.");
       }
       longnames.put(longname, o);
-      
+
       if (NO_SHORTNAME != shortname)
       {
          if (shortnames.containsKey(shortname))

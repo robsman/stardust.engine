@@ -15,8 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.security.DesEncrypter;
 
 
 public final class Encrypter {
@@ -25,31 +25,32 @@ public final class Encrypter {
 		                            { 't', 'h', 'e', '*', 'g', 'r', 'e', 'a', 't', '*', 'i', 'p', 'p', '*', 'e' ,'n' ,'c', 'r', 'y', 'p', 't', 'i', 'o', 'n',
 		                                  '*', 'k', 'e', 'y'});
 	}
-	
+
 	public static String encrypt(String stringToEncrypt) {
-        DesEncrypter encrypter = new DesEncrypter(getKey());        
+        DesEncrypter encrypter = new DesEncrypter(getKey());
         return encrypter.encrypt(stringToEncrypt);
 	}
-	
+
 	public static String decrypt(String stringToDecrypt) {
-        DesEncrypter encrypter = new DesEncrypter(getKey());        
+        DesEncrypter encrypter = new DesEncrypter(getKey());
         return encrypter.decrypt(stringToDecrypt);
 	}
-	
+
 	public static String decryptFromFile(String path) {
 		String result = null;
+		BufferedReader in = null;
 		try {
-			BufferedReader in  = new BufferedReader(new FileReader(path));
+			in  = new BufferedReader(new FileReader(path));
 			result = in.readLine();
 			return Encrypter.decrypt(result);
 		} catch (FileNotFoundException e) {
 			throw new PublicException(
-	                  "The password file could not be found at the specified location.");	                  
+	                  BaseErrorCase.BASE_PASSWORD_FILE_COULD_NOT_BE_FOUND_AT_THE_SPECIFIED_LOCATION.raise());
 		} catch (IOException e) {
-			throw new PublicException(
-            		  "The password file could not be read.");
+         throw new PublicException(
+               BaseErrorCase.BASE_PASSWORD_FILE_COULD_NOT_BE_READ.raise());
 		}
 	}
-	
+
 
 }

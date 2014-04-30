@@ -10,7 +10,20 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.utils.xml;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -35,15 +48,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.constants.BaseXmlConstants;
-import org.eclipse.stardust.common.constants.BasePredefinedConstants;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,6 +61,17 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.constants.BasePredefinedConstants;
+import org.eclipse.stardust.common.constants.BaseXmlConstants;
+import org.eclipse.stardust.common.error.BaseErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
+
 
 
 /**
@@ -68,7 +83,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class BaseXmlUtils
 {
    private static final Logger trace = LogManager.getLogger(BaseXmlUtils.class);
-   
+
    public static final String STREAM_ENCODING_ISO_8859_1 = "ISO8859_1";
 
    private static final String YES = "yes";
@@ -90,7 +105,7 @@ public class BaseXmlUtils
 
    private static final String SAXON_INDENT =
          "{http://saxon.sf.net/}indent-spaces";
-   
+
    private static final String PRP_CACHED_DOM_BUILDER_PREFIX = BaseXmlUtils.class.getName() + ".CachedDomBuilder.";
 
    /**
@@ -136,8 +151,8 @@ public class BaseXmlUtils
          {
             return domBuilder;
          }
-         
-         final DocumentBuilderFactory domBuilderFactory = 
+
+         final DocumentBuilderFactory domBuilderFactory =
             newDocumentBuilderFactory(validating, true);
 
          domBuilderFactory.setNamespaceAware(namespaceAware);
@@ -146,35 +161,35 @@ public class BaseXmlUtils
          domBuilder.setErrorHandler(new DefaultHandler());
 
          cacheDocumentBuilder(cacheKey, domBuilder);
-         
+
          return domBuilder;
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
       }
    }
 
    /**
     * Gets the cached {@link DocumentBuilder} - if any is available
-    * @param cacheKey 
+    * @param cacheKey
     * @return the cached {@link DocumentBuilder} instance
     */
    protected static DocumentBuilder getCachedDocumentBuilder(String cacheKey)
    {
       return null;
    }
-   
+
    /**
-    * Caches the create {@link DocumentBuilder} 
-    * @param cacheKey 
+    * Caches the create {@link DocumentBuilder}
+    * @param cacheKey
     * @param domBuilder the {@link DocumentBuilder} to cache
     */
    protected static void cacheDocumentBuilder(String cacheKey, DocumentBuilder domBuilder)
    {
-      
+
    }
-   
+
    /**
     * Returns a XML parser producing a DOM document.
     *
@@ -220,14 +235,14 @@ public class BaseXmlUtils
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
       }
    }
-   
+
    public static SAXParserFactory newSaxParserFactory(boolean validating)
    {
       SAXParserFactory result = null;
-      
+
       String parserFactoryOverride;
       if (validating)
       {
@@ -239,14 +254,14 @@ public class BaseXmlUtils
          parserFactoryOverride = Parameters.instance().getString(
                XmlProperties.NONVALIDATING_SAX_PARSER_FACTORY);
       }
-      
+
       if ( !StringUtils.isEmpty(parserFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(parserFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof SAXParserFactory)
             {
                result = (SAXParserFactory) rawResult;
@@ -266,18 +281,18 @@ public class BaseXmlUtils
                   ie);
          }
       }
-      
+
       if (null == result)
       {
          result = SAXParserFactory.newInstance();
       }
-      
+
       result.setNamespaceAware(true);
       result.setValidating(validating);
-      
+
       return result;
    }
-   
+
    public static XMLReader newXmlReader(boolean validating)
    {
       try
@@ -294,11 +309,11 @@ public class BaseXmlUtils
       }
       catch (SAXException se)
       {
-         throw new PublicException("Invalid JAXP setup.", se);
+         throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), se);
       }
       catch (ParserConfigurationException pce)
       {
-         throw new PublicException("Invalid JAXP setup.", pce);
+         throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), pce);
       }
    }
 
@@ -307,7 +322,7 @@ public class BaseXmlUtils
    {
       // TODO process readOnly flag
       DocumentBuilderFactory result = null;
-      
+
       String domBuilderFactoryOverride;
       if (validating)
       {
@@ -324,14 +339,14 @@ public class BaseXmlUtils
          domBuilderFactoryOverride = Parameters.instance().getString(
                XmlProperties.VALIDATING_DOM_BUILDER_FACTORY);
       }
-      
+
       if ( !StringUtils.isEmpty(domBuilderFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(domBuilderFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof DocumentBuilderFactory)
             {
                result = (DocumentBuilderFactory) rawResult;
@@ -352,33 +367,33 @@ public class BaseXmlUtils
                   + " can not be instantiated.", ie);
          }
       }
-      
+
       if (null == result)
       {
          result = DocumentBuilderFactory.newInstance();
       }
-      
+
       result.setNamespaceAware(true);
       result.setValidating(validating);
-      
+
       return result;
    }
-   
+
    public static TransformerFactory newTransformerFactory()
    {
       TransformerFactory result = null;
-      
+
       String traxFactoryOverride = Parameters.instance().getString(
             XmlProperties.XSLT_TRANSFORMER_FACTORY/*,
             XmlProperties.XSLT_TRANSFORMER_FACTORY_XALAN*/);
-      
+
       if ( !StringUtils.isEmpty(traxFactoryOverride))
       {
          try
          {
             Object rawResult = Reflect.createInstance(traxFactoryOverride,
                   Thread.currentThread().getContextClassLoader());
-            
+
             if (rawResult instanceof TransformerFactory)
             {
                result = (TransformerFactory) rawResult;
@@ -395,12 +410,12 @@ public class BaseXmlUtils
                   + " can not be instantiated.", ie);
          }
       }
-      
+
       if (null == result)
       {
          result = TransformerFactory.newInstance();
       }
-      
+
       return result;
    }
 
@@ -543,7 +558,7 @@ public class BaseXmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
          }
       }
 
@@ -572,10 +587,11 @@ public class BaseXmlUtils
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error during XML serialization.", e);
+         throw new PublicException(
+               BaseErrorCase.BASE_ERROR_DURING_XML_SERIALIZATION.raise(), e);
       }
    }
-   
+
    public static void transform(Source source, Transformer transformation,
          Result result, String cdataElements, int indent, String encoding)
    {
@@ -588,7 +604,7 @@ public class BaseXmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
          }
       }
 
@@ -614,7 +630,8 @@ public class BaseXmlUtils
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error during XML serialization.", e);
+         throw new PublicException(
+               BaseErrorCase.BASE_ERROR_DURING_XML_SERIALIZATION.raise(), e);
       }
    }
 
@@ -642,7 +659,7 @@ public class BaseXmlUtils
             }
          }
       }
-         
+
       return result;
    }
 
@@ -650,10 +667,10 @@ public class BaseXmlUtils
    {
       return toString(doc, null);
    }
-   
+
    /**
     * A DOM node will be stringified into XML.
-    * 
+    *
     * @param doc The DOM node or document.
     * @param transformProperties Additional properties which will change the default behavior
     * of the internally used {@link Transformer}. These properties set new or overwrite default
@@ -667,7 +684,7 @@ public class BaseXmlUtils
     * "{http://xml.apache.org/xalan}indent-amount" = "2" <br>
     * and additionally if doc is no instance of {@link Document} then <br>
     * {@link OutputKeys#OMIT_XML_DECLARATION} = "yes"
-    * 
+    *
     * @return The stringified DOM node/document or null if doc is null.
     */
    public static String toString(Node doc, Properties transformProperties)
@@ -686,9 +703,9 @@ public class BaseXmlUtils
          }
          catch (TransformerConfigurationException e)
          {
-            throw new PublicException("Invalid JAXP setup.", e);
+            throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
          }
-         
+
          if (doc instanceof Document)
          {
             // setting of the encoding will automatically enforce the xml declaration, regardless
@@ -702,7 +719,7 @@ public class BaseXmlUtils
 
          transformation.setOutputProperty(OutputKeys.INDENT, YES);
          transformation.setOutputProperty(OutputKeys.METHOD, OUTPUT_METHOD_XML);
-         
+
          transformation.setOutputProperty(XALAN_INDENT, Integer.toString(2));
          transformation.setOutputProperty(SAXON_INDENT, Integer.toString(2));
 
@@ -711,19 +728,20 @@ public class BaseXmlUtils
             for (Iterator i = transformProperties.entrySet().iterator(); i.hasNext();)
             {
                Map.Entry entry = (Map.Entry) i.next();
-               
+
                transformation.setOutputProperty((String) entry.getKey(), (String) entry
                      .getValue());
             }
          }
-         
+
          try
          {
             transformation.transform(new DOMSource(doc), result);
          }
          catch (TransformerException e)
          {
-            throw new PublicException("Error during XML serialization.", e);
+            throw new PublicException(
+                  BaseErrorCase.BASE_ERROR_DURING_XML_SERIALIZATION.raise(), e);
          }
 
          string = writer.toString();
@@ -747,13 +765,13 @@ public class BaseXmlUtils
    {
       return parseString(text, entityResolver, false, false);
    }
-   
+
    public static Document parseString(String text, EntityResolver entityResolver,
          boolean validating)
    {
       return parseString(text, entityResolver, validating, false);
    }
-   
+
    private static Document parseString(String text, EntityResolver entityResolver,
          boolean validating, boolean ignoreWhiteSpace)
    {
@@ -761,7 +779,7 @@ public class BaseXmlUtils
       inputSource.setSystemId("");
       return parseSource(inputSource, entityResolver, validating, ignoreWhiteSpace);
    }
-   
+
    public static Document parseStream(InputStream stream)
    {
       // force validating parser for compatibility
@@ -798,13 +816,13 @@ public class BaseXmlUtils
    {
       return parseSource(inputSource, entityResolver, false, false);
    }
-   
+
    public static Document parseSource(InputSource inputSource,
          EntityResolver entityResolver, boolean validating)
    {
       return parseSource(inputSource, entityResolver, validating, false);
    }
-   
+
    private static Document parseSource(InputSource inputSource,
          EntityResolver entityResolver, boolean validating, boolean ignoreWhiteSpace)
    {
@@ -818,7 +836,7 @@ public class BaseXmlUtils
          {
             domBuilder.setEntityResolver(entityResolver);
          }
-         
+
          return domBuilder.parse(inputSource);
       }
       catch (SAXException e)
@@ -847,7 +865,7 @@ public class BaseXmlUtils
       }
       catch (ParserConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup.", e);
+         throw new PublicException(BaseErrorCase.BASE_INVALID_JAXP_SETUP.raise(), e);
       }
       domBuilder.setErrorHandler(new DefaultHandler());
       domBuilder.setEntityResolver(new EntityResolver() {
@@ -932,27 +950,27 @@ public class BaseXmlUtils
       {
          trace.warn(formatParseException("Warning", exception));
       }
-   
+
       public void error(SAXParseException exception) throws SAXException
       {
          trace.error(formatParseException("Error", exception));
       }
-   
+
       public void fatalError(SAXParseException exception) throws SAXException
       {
          trace.error(formatParseException("Fatal Error", exception));
       }
-   
+
       private String formatParseException(String label,
             SAXParseException e)
       {
          StringBuffer buffer = new StringBuffer(100);
-   
+
          buffer.append(label).append(" (").append(e.getLineNumber()).append(", ").append(
                e.getColumnNumber()).append(") ");
-   
+
          buffer.append(e.getMessage());
-   
+
          return buffer.toString();
       }
    }
@@ -965,15 +983,15 @@ public class BaseXmlUtils
       }
       catch (FileNotFoundException e)
       {
-         throw new PublicException("File not found: '" + fileName + ".");
+         throw new PublicException(BaseErrorCase.BASE_FILE_NOT_FOUND.raise(fileName));
       }
    }
-      
+
    public static String getXMLString(byte[] content)
    {
       return getXMLString(new InputSource(new ByteArrayInputStream(content)));
    }
-   
+
    public static String getXMLString(InputSource input, EntityResolver entityResolver)
    {
       try
@@ -985,33 +1003,33 @@ public class BaseXmlUtils
          {
             xmlReader.setEntityResolver(entityResolver);
          }
-         
+
          SAXSource source = new SAXSource(xmlReader, input);
-         
+
          StringWriter writer = new StringWriter();
          StreamResult target = new StreamResult(writer);
-         
+
          TransformerFactory factory = BaseXmlUtils.newTransformerFactory();
          Transformer transformer = factory.newTransformer();
          transformer.transform(source, target);
-         
+
          return writer.toString();
       }
       catch (TransformerConfigurationException e)
       {
-         throw new PublicException("Error reading xml.", e);
+         throw new PublicException(BaseErrorCase.BASE_ERROR_READING_XML.raise(), e);
       }
       catch (TransformerException e)
       {
-         throw new PublicException("Error reading xml.", e);
+         throw new PublicException(BaseErrorCase.BASE_ERROR_READING_XML.raise(), e);
       }
    }
-   
+
    public static String getXMLString(InputSource input)
    {
       return getXMLString(input, null);
    }
-   
+
    public static byte[] getContent(String fileName) throws IOException
    {
       return getContent(new File(fileName));
@@ -1034,7 +1052,7 @@ public class BaseXmlUtils
       }
       return content;
    }
-      
+
    public static byte[] getContent(InputStream in) throws FileNotFoundException, IOException
    {
       byte[] buffer = new byte[512];
@@ -1048,7 +1066,7 @@ public class BaseXmlUtils
       is.close();
       return content.toByteArray();
    }
-      
+
    public static String getOldXMLString(String fileName)
    {
       BufferedReader inStream = null;
@@ -1058,7 +1076,7 @@ public class BaseXmlUtils
       }
       catch (FileNotFoundException e)
       {
-         throw new PublicException("File not found: '" + fileName + ".");
+         throw new PublicException(BaseErrorCase.BASE_FILE_NOT_FOUND.raise(fileName));
       }
       try
       {
@@ -1076,7 +1094,7 @@ public class BaseXmlUtils
          throw new InternalException(e);
       }
    }
-   
+
    public static void main(String[] args)
    {
       String source = "C:\\development\\branches\\trunk\\runtime-New_configuration\\test\\models\\WorkflowModel.xpdl";

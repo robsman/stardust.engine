@@ -20,6 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -151,7 +152,8 @@ public class ClassPath
       {
          if (!addEntryFromURL(new URL(urlString)))
          {
-            throw new PublicException(urlString+" can not be loaded.");
+            throw new PublicException(
+                  BaseErrorCase.BASE_URL_CANNOT_BE_LOADED.raise(urlString));
          }
 
          trace.debug( urlString + " added.");

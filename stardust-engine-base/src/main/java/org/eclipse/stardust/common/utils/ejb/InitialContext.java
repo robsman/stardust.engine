@@ -15,6 +15,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -276,8 +277,10 @@ public class InitialContext implements Context
       }
       catch (Exception x)
       {
-         throw new PublicException("Failed to create or retrieve instance of \"fake\" home class \""
-               + _path + "\". Reason: " + x.getMessage());
+         throw new PublicException(
+               BaseErrorCase.BASE_FAILED_TO_CREATE_OR_RETRIEVE_INSTANCE_OF_FAKE_CLASS
+                     .raise(_path),
+               x);
       }
    }
 

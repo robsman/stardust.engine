@@ -14,18 +14,32 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.log4j.*;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.xml.BaseXmlUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import org.eclipse.stardust.common.error.BaseErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.utils.xml.BaseXmlUtils;
 
 
 /**
@@ -433,8 +447,9 @@ public class ClientLogManager
             }
          }
 
-         throw new PublicException("The entry '" + value + "' for the property '"
-               + name + "'\n can neither be mapped to 'true' nor to 'false'.");
+         throw new PublicException(
+               BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE
+                     .raise(value, name));
       }
 
       public Collection getStrings(String name)

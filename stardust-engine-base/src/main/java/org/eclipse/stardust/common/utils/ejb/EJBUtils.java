@@ -18,6 +18,7 @@ import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -34,10 +35,10 @@ import org.eclipse.stardust.common.log.Logger;
 public class EJBUtils
 {
    private static final Logger trace = LogManager.getLogger(EJBUtils.class);
-   
+
    public static final String SERVER_VENDOR_PROPERTY = EjbProperties.SERVER_VENDOR_PROPERTY;
    public static final String BORLAND = "BORLAND";
-   
+
    public static final String INITIAL_CONTEXT_FACTORY = EjbProperties.INITIAL_CONTEXT_FACTORY;
    public static final String JNDI_URL = EjbProperties.JNDI_URL;
    public static final String USER_NAME = EjbProperties.USER_NAME;
@@ -45,7 +46,7 @@ public class EJBUtils
    public static final String PKG_PREFIXES = EjbProperties.PKG_PREFIXES;
    public static final String CONTAINER_TYPE = EjbProperties.CONTAINER_TYPE;
 
-   // legacy support for pre 3.6.0 agent configurations 
+   // legacy support for pre 3.6.0 agent configurations
    public static final String AGENT_LEGACY_JNDI_URL = "JNDI.ServerURL";
    public static final String AGENT_LEGACY_USER_NAME = "JNDI.UserName";
    public static final String AGENT_LEGACY_USER_PASS = "JNDI.UserPassword";
@@ -61,14 +62,14 @@ public class EJBUtils
    {
       return getInitialContext(isLocal, isLivingInContainer, false);
    }
-   
+
    /**
     * Returns the initial context either on server or on client side
     * @param isLocal true, if running in fake mode, false if using real ejb mode
     * @param isLivingInContainer true, if context is provided by the container, false,
     *                          if the context is retrieved from the client
     * @param jndiPropertyCompatibility true, if alternative jndi property names shall be
-    *                                  used when new property names do not find anything. 
+    *                                  used when new property names do not find anything.
     * @return the initial context
     */
    public static Context getInitialContext(boolean isLocal, boolean isLivingInContainer,
@@ -102,7 +103,8 @@ public class EJBUtils
       if (factoryName == null)
       {
          throw new PublicException(
-               "You have not supplied the correct " + INITIAL_CONTEXT_FACTORY + " parameter in properties");
+               BaseErrorCase.BASE_YOU_HAVE_NOT_SUPPLIED_THE_CORRECT_PARAMETER_IN_PROPERTIES
+                     .raise(INITIAL_CONTEXT_FACTORY));
       }
 
       trace.debug("Initial context factory is " + factoryName);
@@ -121,7 +123,7 @@ public class EJBUtils
          setProperty(USER_NAME, Context.SECURITY_PRINCIPAL, properties);
          setProperty(USER_PASS, Context.SECURITY_CREDENTIALS, properties);
       }
-      
+
       setProperty(PKG_PREFIXES, Context.URL_PKG_PREFIXES, properties);
 
       try
@@ -130,11 +132,11 @@ public class EJBUtils
       }
       catch (Exception e)
       {
-         throw new InternalException("Failed to connect to server '" + 
+         throw new InternalException("Failed to connect to server '" +
             properties.getProperty(JNDI_URL) + "'.", e);
       }
    }
-   
+
    private static void setProperty(String sourceName, String targetName,
          Properties properties)
    {
@@ -196,7 +198,7 @@ public class EJBUtils
       catch (Exception x)
       {
          throw new PublicException(
-               "Cannot lookup object via JNDI path '" + jndiPath + "'.", x);
+               BaseErrorCase.BASE_CANNOT_LOOKUP_OBJECT_VIA_JNDI_PATH.raise(jndiPath), x);
       }
    }
 

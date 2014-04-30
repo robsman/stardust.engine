@@ -12,9 +12,13 @@
 package org.eclipse.stardust.common.config;
 
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -34,7 +38,7 @@ public abstract class Parameters
    private static final String CARNOT_CURRENT_VERSION = "CARNOT version: " + CurrentVersion.getBuildVersionName();
    private static final String[] TRUE_WORDS = {"true", "enabled", "on"};
    private static final String[] FALSE_WORDS = {"false", "disabled", "off"};
-   
+
    private static final Logger trace = LogManager.getLogger(Parameters.class);
 
    /**
@@ -88,7 +92,7 @@ public abstract class Parameters
     *
     */
    public abstract Object get(String name);
-   
+
    public <T> T getObject(String name)
    {
       return (T) get(name);
@@ -184,8 +188,9 @@ public abstract class Parameters
       }
       catch (NumberFormatException x)
       {
-         throw new PublicException("The entry '" + value + "' for the property " + "'"
-               + name + "'\n cannot be mapped to an integer.");
+         throw new PublicException(
+               BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER.raise(
+                     value, name));
       }
    }
 
@@ -234,14 +239,15 @@ public abstract class Parameters
       }
       catch (NumberFormatException x)
       {
-         throw new PublicException("The entry '" + value + "' for the property " + "'"
-               + name + "'\n cannot be mapped to an integer.");
+         throw new PublicException(
+               BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER.raise(
+                     value, name));
       }
    }
 
    /**
     * Gets the value of the property.
-    * 
+    *
     * @param name
     *           the name of the property
     * @param defaultValue
@@ -271,11 +277,12 @@ public abstract class Parameters
       }
       catch (NumberFormatException x)
       {
-         throw new PublicException("The entry '" + value + "' for the property " + "'"
-               + name + "'\n cannot be mapped to a double.");
+         throw new PublicException(
+               BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_DOUBLE.raise(
+                     value, name));
       }
    }
-   
+
    /**
     *
     */
@@ -293,7 +300,7 @@ public abstract class Parameters
       }
 
       String value = obj.toString().toLowerCase().trim();
-      
+
       if (StringUtils.isEmpty(value))
       {
          return defaultValue;
@@ -315,8 +322,9 @@ public abstract class Parameters
          }
       }
 
-      throw new PublicException("The entry '" + value + "' for the property '" + name
-            + "'\n can neither be mapped to 'true' nor to 'false'.");
+      throw new PublicException(
+            BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE
+                  .raise(value, name));
    }
 
    /**
@@ -372,8 +380,9 @@ public abstract class Parameters
       }
       catch (Exception x)
       {
-         throw new PublicException("The entry '" + value + "' for the property '" + name
-               + "'\n cannot be mapped to a valid date.");
+         throw new PublicException(
+               BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_VALID_DATE
+                     .raise(value, name));
       }
    }
 

@@ -32,9 +32,13 @@ public class BaseErrorCase extends ErrorCase
    public static final Args3 BASE_DATE_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT = newArgs3("BASE01010", BaseErrorCaseMessages.getString("BASE01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BASE_INVALID_NUMERIC_ARGUMENT = newArgs0("BASE01011", BaseErrorCaseMessages.getString("BASE01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BASE_ILLEGAL_OPTION_VALUE_IS_NOT_A_LONG_VALUE = newArgs2("BASE01012", BaseErrorCaseMessages.getString("BASE01012")); //$NON-NLS-1$ //$NON-NLS-2$
-
-   public static final Args2 BASE_YOU_HAVE_NOT_SUPPLIED_THE_CORRECT_PARAMETER_IN_PROPERTIES = newArgs2("BASE01012", BaseErrorCaseMessages.getString("BASE01012")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args1 BASE_YOU_HAVE_NOT_SUPPLIED_THE_CORRECT_PARAMETER_IN_PROPERTIES = newArgs1("BASE01013", BaseErrorCaseMessages.getString("BASE01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BASE_CANNOT_LOOKUP_OBJECT_VIA_JNDI_PATH = newArgs1("BASE01014", BaseErrorCaseMessages.getString("BASE01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BASE_FAILED_TO_CREATE_OR_RETRIEVE_INSTANCE_OF_FAKE_CLASS = newArgs1("BASE01015", BaseErrorCaseMessages.getString("BASE01015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_INVALID_JAXP_SETUP = newArgs0("BASE01016", BaseErrorCaseMessages.getString("BASE01016")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_ERROR_DURING_XML_SERIALIZATION = newArgs0("BASE01017", BaseErrorCaseMessages.getString("BASE01017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BASE_FILE_NOT_FOUND = newArgs1("BASE01018", BaseErrorCaseMessages.getString("BASE01018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BASE_ERROR_READING_XML = newArgs0("BASE01019", BaseErrorCaseMessages.getString("BASE01019")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

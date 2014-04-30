@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.eclipse.stardust.common.DateUtils;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -40,7 +41,7 @@ public abstract class ConsoleCommand
    public abstract int run(Map options);
 
    public abstract String getSummary();
-   
+
    public void preprocessOptions(Map options)
    {
    }
@@ -124,9 +125,9 @@ public abstract class ConsoleCommand
          catch (ParseException e)
          {
             throw new PublicException(
-                  "Date value '" + (String) options.get(name)
-                  + "' for option '" + name + "' is not in correct format. Format has to be "
-                  + DateUtils.getNoninteractiveDateFormat().toPattern());
+                  BaseErrorCase.BASE_DATE_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT
+                        .raise((String) options.get(name), name, DateUtils
+                              .getNoninteractiveDateFormat().toPattern()));
          }
       }
       return null;

@@ -46,7 +46,7 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
-         if (to == ENGINE_DEFAULT)
+         if (to == ENGINE_DEFAULT || to == TRANSIENT)
          {
             throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
          }
@@ -64,7 +64,7 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
-         if (to == ENGINE_DEFAULT)
+         if (to == ENGINE_DEFAULT || to == DEFERRED)
          {
             throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
          }

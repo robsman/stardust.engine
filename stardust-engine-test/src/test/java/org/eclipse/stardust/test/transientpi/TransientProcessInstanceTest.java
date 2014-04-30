@@ -2208,6 +2208,56 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#TRANSIENT} to
+    * {@link AuditTrailPersistence#ENGINE_DEFAULT} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromTransientToEngineDefault() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#TRANSIENT} to
+    * {@link AuditTrailPersistence#TRANSIENT} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromTransientToTransient() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#TRANSIENT} to
     * {@link AuditTrailPersistence#DEFERRED} works correctly.
     * </p>
     */
@@ -2266,6 +2316,31 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#DEFERRED} to
+    * {@link AuditTrailPersistence#ENGINE_DEFAULT} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromDeferredToEngineDefault() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#DEFERRED} to
     * {@link AuditTrailPersistence#TRANSIENT} works correctly.
     * </p>
     */
@@ -2284,6 +2359,31 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#DEFERRED} to
+    * {@link AuditTrailPersistence#DEFERRED} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromDeferredToDeferred() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }
@@ -2324,6 +2424,31 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#IMMEDIATE} to
+    * {@link AuditTrailPersistence#ENGINE_DEFAULT} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromImmediateToEngineDefault() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#IMMEDIATE} to
     * {@link AuditTrailPersistence#TRANSIENT} is denied.
     * </p>
     */
@@ -2336,6 +2461,10 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -2357,5 +2486,34 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#IMMEDIATE} to
+    * {@link AuditTrailPersistence#IMMEDIATE} is denied.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceFromImmediateToImmediate() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }
 }

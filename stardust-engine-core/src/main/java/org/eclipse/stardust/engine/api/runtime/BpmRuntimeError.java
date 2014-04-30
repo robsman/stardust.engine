@@ -704,8 +704,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE = newArgs0("DIAG01007", BpmRuntimeErrorMessages.getString("DIAG01007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_COLON = newArgs0("DIAG01008", BpmRuntimeErrorMessages.getString("DIAG01008")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_CANNOT_LOAD_IMAGE_ICON = newArgs0("DIAG01009", BpmRuntimeErrorMessages.getString("DIAG01009")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 DIAG_RESOURCE_FOR_OBJECT_COULD_NOT_BE_LOADED = newArgs2("DIAG01009", BpmRuntimeErrorMessages.getString("DIAG01009")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args2 DIAG_RESOURCE_FOR_OBJECT_COULD_NOT_BE_LOADED = newArgs2("DIAG01010", BpmRuntimeErrorMessages.getString("DIAG01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_DOUBLE = newArgs2("DIAG01011", BpmRuntimeErrorMessages.getString("DIAG01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_VALID_DATE = newArgs2("DIAG01012", BpmRuntimeErrorMessages.getString("DIAG01012")); //$NON-NLS-1$ //$NON-NLS-2$
 
    ////JDBC related
 

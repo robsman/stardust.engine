@@ -27,16 +27,16 @@ import org.junit.runners.Suite.SuiteClasses;
  * which allows for storing data in a JCR compliant repository (refer to the Stardust
  * documentation for details about <i>Document Management</i>).
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class})
+@SuiteClasses({ DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class})
 public class DmsTestSuite
 {
    /* test suite */
-   
+
    @ClassRule
    public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_MODEL_NAME);
 }

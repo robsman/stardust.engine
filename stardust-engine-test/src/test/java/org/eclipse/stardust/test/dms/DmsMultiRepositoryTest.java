@@ -151,6 +151,15 @@ public class DmsMultiRepositoryTest
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+
+      Preferences preferences = sf.getQueryService().getPreferences(
+            PreferenceScope.PARTITION,
+            RepositoryProviderUtils.MODULE_ID_REPOSITORY_MANAGER,
+            RepositoryProviderUtils.PREFERENCES_ID_SETTINGS);
+      Assert.assertEquals(
+            TEST_REPO_ID,
+            preferences.getPreferences().get(
+                  RepositoryProviderUtils.DEFAULT_REPOSITORY_ID));
    }
 
    @Test
@@ -165,6 +174,15 @@ public class DmsMultiRepositoryTest
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+
+      Preferences preferences = sf.getQueryService().getPreferences(
+            PreferenceScope.PARTITION,
+            RepositoryProviderUtils.MODULE_ID_REPOSITORY_MANAGER,
+            RepositoryProviderUtils.PREFERENCES_ID_SETTINGS);
+      Assert.assertEquals(
+            SYSTEM_REPO_ID,
+            preferences.getPreferences().get(
+                  RepositoryProviderUtils.DEFAULT_REPOSITORY_ID));
    }
 
    @Test(expected=DocumentManagementServiceException.class)

@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
-import static org.eclipse.stardust.test.dms.RepositoryTestUtils.DEFAULT_REPO_ID;
+import static org.eclipse.stardust.test.dms.RepositoryTestUtils.SYSTEM_REPO_ID;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
@@ -135,7 +135,7 @@ public class DmsMultiRepositoryTest
       Document doc = getDms().createDocument(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
 
@@ -149,7 +149,7 @@ public class DmsMultiRepositoryTest
       Document doc = getDms().createDocument("/", DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
 
@@ -163,7 +163,7 @@ public class DmsMultiRepositoryTest
       Document doc = getDms().createDocument(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
 

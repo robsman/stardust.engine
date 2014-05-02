@@ -6,10 +6,11 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 
 public class RepositoryTestUtils
 {
-   public static final String DEFAULT_REPO_ID = "default";
+   public static final String SYSTEM_REPO_ID = RepositoryManager.SYSTEM_REPOSITORY_ID;
 
    public static final String TEST_REPO_ID = "testRepo";
 

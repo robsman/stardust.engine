@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
-import static org.eclipse.stardust.test.dms.RepositoryTestUtils.DEFAULT_REPO_ID;
+import static org.eclipse.stardust.test.dms.RepositoryTestUtils.SYSTEM_REPO_ID;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
@@ -81,18 +81,18 @@ public class DmsCrossRepositoryMoveTest
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
       Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), TEST_REPO_ID)));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
 
       // move from testRepo to default
       Document movedDoc = getDms().moveDocument(doc.getId(),
-            RepositoryIdUtils.addRepositoryId("/", DEFAULT_REPO_ID));
+            RepositoryIdUtils.addRepositoryId("/", SYSTEM_REPO_ID));
 
       Assert.assertNull(getDms().getDocument(doc.getId()));
-      Assert.assertEquals(DEFAULT_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc.getId()));
+      Assert.assertEquals(SYSTEM_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc.getId()));
       Assert.assertNotNull(getDms().getDocument(movedDoc.getId()));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), TEST_REPO_ID)));
-      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), null)));
 
       // move from default to testRepo
@@ -103,7 +103,7 @@ public class DmsCrossRepositoryMoveTest
       Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc2.getId()));
       Assert.assertNotNull(getDms().getDocument(movedDoc2.getId()));
       Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), TEST_REPO_ID)));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), null)));
    }
 

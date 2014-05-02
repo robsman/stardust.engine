@@ -44,12 +44,12 @@ public class TransientUser implements IUser
 
    public Map getAllPropertyValues()
    {
-      return null;
+      return Collections.EMPTY_MAP;
    }
 
    public Map getAllProperties()
    {
-      return null;
+      return Collections.EMPTY_MAP;
    }
 
    public Serializable getPropertyValue(String name)

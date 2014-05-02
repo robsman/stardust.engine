@@ -1,6 +1,7 @@
 package org.eclipse.stardust.engine.extensions.dms.data;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -27,12 +28,12 @@ public class TransientRealm implements IUserRealm
 
    public Map getAllPropertyValues()
    {
-      return null;
+      return Collections.EMPTY_MAP;
    }
 
    public Map getAllProperties()
    {
-      return null;
+      return Collections.EMPTY_MAP;
    }
 
    public Serializable getPropertyValue(String name)

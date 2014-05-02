@@ -79,18 +79,8 @@
                      </ArtifactItem>
                      <ArtifactItem>
                         <groupId>p2.osgi.bundle</groupId>
-                        <artifactId>org.eclipse.core.jobs</artifactId>
-                        <version>${org.eclipse.core.jobs.version}</version>
-                     </ArtifactItem>
-                     <ArtifactItem>
-                        <groupId>p2.osgi.bundle</groupId>
                         <artifactId>org.eclipse.core.runtime</artifactId>
                         <version>${org.eclipse.core.runtime.version}</version>
-                     </ArtifactItem>
-                     <ArtifactItem>
-                        <groupId>p2.osgi.bundle</groupId>
-                        <artifactId>org.eclipse.core.resources</artifactId>
-                        <version>${org.eclipse.core.resources.version}</version>
                      </ArtifactItem>
                      <ArtifactItem>
                         <groupId>p2.osgi.bundle</groupId>
@@ -194,19 +184,6 @@
                </configuration>
             </execution>
             <execution>
-               <id>install-core-jobs</id>
-               <phase>install</phase>
-               <goals>
-                  <goal>install-file</goal>
-               </goals>
-               <configuration>
-                  <file>${dependency.target.dir}/org.eclipse.core.jobs.jar</file>
-                  <groupId>org.eclipse.core</groupId>
-                  <artifactId>org.eclipse.core.jobs</artifactId>
-                  <version>${org.eclipse.core.jobs.version}</version>
-               </configuration>
-            </execution>
-            <execution>
                <id>install-core-runtime</id>
                <phase>install</phase>
                <goals>
@@ -217,19 +194,6 @@
                   <groupId>org.eclipse.core</groupId>
                   <artifactId>org.eclipse.core.runtime</artifactId>
                   <version>${org.eclipse.core.runtime.version}</version>
-               </configuration>
-            </execution>
-            <execution>
-               <id>install-core-resources</id>
-               <phase>install</phase>
-               <goals>
-                  <goal>install-file</goal>
-               </goals>
-               <configuration>
-                  <file>${dependency.target.dir}/org.eclipse.core.resources.jar</file>
-                  <groupId>org.eclipse.core</groupId>
-                  <artifactId>org.eclipse.core.resources</artifactId>
-                  <version>${org.eclipse.core.resources.version}</version>
                </configuration>
             </execution>
             <execution>
@@ -348,19 +312,6 @@
                </configuration>
             </execution>
             <execution>
-               <id>deploy-core-jobs</id>
-               <phase>deploy</phase>
-               <goals>
-                  <goal>deploy-file</goal>
-               </goals>
-               <configuration>
-                  <file>${dependency.target.dir}/org.eclipse.core.jobs.jar</file>
-                  <groupId>org.eclipse.core</groupId>
-                  <artifactId>org.eclipse.core.jobs</artifactId>
-                  <version>${org.eclipse.core.jobs.version}</version>
-               </configuration>
-            </execution>
-            <execution>
                <id>deploy-core-runtime</id>
                <phase>deploy</phase>
                <goals>
@@ -371,19 +322,6 @@
                   <groupId>org.eclipse.core</groupId>
                   <artifactId>org.eclipse.core.runtime</artifactId>
                   <version>${org.eclipse.core.runtime.version}</version>
-               </configuration>
-            </execution>
-            <execution>
-               <id>deploy-core-resources</id>
-               <phase>deploy</phase>
-               <goals>
-                  <goal>deploy-file</goal>
-               </goals>
-               <configuration>
-                  <file>${dependency.target.dir}/org.eclipse.core.resources.jar</file>
-                  <groupId>org.eclipse.core</groupId>
-                  <artifactId>org.eclipse.core.resources</artifactId>
-                  <version>${org.eclipse.core.resources.version}</version>
                </configuration>
             </execution>
             <execution>

@@ -59,6 +59,8 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
@@ -352,7 +354,7 @@ public final class DocumentTypeUtils
     *
     * @param data
     * @param document
-    * @param documentManagementService 
+    * @param documentManagementService
     * @return
     *
     * @throws InvalidValueException if a incompatible document type is set on the document.
@@ -367,9 +369,9 @@ public final class DocumentTypeUtils
             if (inputDocumentType == null)
             {
                document.setDocumentType(inferredDocumentType);
-               
+
                dms.updateDocument(document, false, null, null, false);
-               
+
                if (trace.isInfoEnabled())
                {
                   trace.info("Inferred document type of document '"
@@ -932,8 +934,9 @@ public final class DocumentTypeUtils
     */
    public static String getXsdFolderPath(String schemaLocation)
    {
-
-      return "/documentTypes/schemas/" + encodeUrl(schemaLocation);
+      // Path is always in system repository.
+      return RepositoryIdUtils.addRepositoryId("/documentTypes/schemas/"
+            + encodeUrl(schemaLocation), RepositoryManager.SYSTEM_REPOSITORY_ID);
    }
 
 }

@@ -44,7 +44,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
 import org.eclipse.stardust.vfs.impl.jcr.web.AbstractVfsContentServlet;
 
@@ -111,7 +111,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      // provide its content
                      try
                      {
-                        RepositoryProviderManager provider = RepositoryProviderManager.getInstance();
+                        RepositoryManager provider = RepositoryManager.getInstance();
                         IRepositoryService service = provider.getImplicitService();
                         Document document = service.getDocument(request.resourceId);
                         if (null != document)
@@ -139,13 +139,13 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      catch (RepositoryOperationFailedException rofe)
                      {
                         throw new PublicException(
-                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE
+                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_DOCUMENT
                                     .raise(request.resourceId), rofe);
                      }
                      catch (IOException ioe)
                      {
                         throw new PublicException(
-                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE
+                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_DOCUMENT
                                     .raise(request.resourceId), ioe);
                      }
 
@@ -207,7 +207,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
 
                      try
                      {
-                        RepositoryProviderManager provider = RepositoryProviderManager.getInstance();
+                        RepositoryManager provider = RepositoryManager.getInstance();
                         IRepositoryService service = provider.getImplicitService();
                         Document document = service.getDocument(request.resourceId);
                         if (null != document)
@@ -225,7 +225,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      catch (RepositoryOperationFailedException rofe)
                      {
                         throw new PublicException(
-                              BpmRuntimeError.DMS_FAILED_UPDATING_CONTENT_FOR_FILE
+                              BpmRuntimeError.DMS_FAILED_UPDATING_CONTENT_FOR_DOCUMENT
                                     .raise(request.resourceId), rofe);
                      }
                   }

@@ -35,9 +35,9 @@ import org.eclipse.stardust.engine.api.runtime.Documents;
 public class FederatedSearchHandler
 {
 
-   private RepositoryProviderManager manager;
+   private RepositoryManager manager;
 
-   public FederatedSearchHandler(RepositoryProviderManager manager)
+   public FederatedSearchHandler(RepositoryManager manager)
    {
       this.manager = manager;
    }

@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 
 public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositoryProvider.Factory
 {
@@ -47,7 +47,7 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
 
       Map<String, Serializable> defaultInstance = CollectionUtils.newHashMap();
       defaultInstance.put(IRepositoryConfiguration.PROVIDER_ID, PROVIDER_ID);
-      defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, RepositoryProviderManager.SYSTEM_REPOSITORY_ID);
+      defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, RepositoryManager.SYSTEM_REPOSITORY_ID);
       defaultInstance.put(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY, "true");
       defaultInstance.put(JcrVfsRepositoryConfiguration.JNDI_NAME, getDefaultJndiName());
       configurations.add(new JcrVfsRepositoryConfiguration(defaultInstance));

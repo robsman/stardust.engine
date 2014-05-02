@@ -42,7 +42,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 
 /**
  * @author rsauer, roland.stamm
@@ -57,9 +57,9 @@ public class DocumentManagementServiceImpl
    {
    }
 
-   private RepositoryProviderManager getProvider()
+   private RepositoryManager getProvider()
    {
-      return RepositoryProviderManager.getInstance();
+      return RepositoryManager.getInstance();
    }
 
    @Override

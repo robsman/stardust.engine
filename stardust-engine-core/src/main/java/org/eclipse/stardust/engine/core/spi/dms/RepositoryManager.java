@@ -24,13 +24,26 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceExceptio
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider.Factory;
 
-public class RepositoryProviderManager
+/**
+ * Manages access and lifecycle for all registered {@link IRepositoryProvider}.
+ * <p>
+ * Via {@link #getImplicitService()} a {@link IRepositoryService} can be retrieved that
+ * chooses the correct {@link IRepositoryInstance} implicitly by the repositoryId that is contained in
+ * documentId or folderId of the method call parameters.
+ *
+ * @author Roland.Stamm
+ */
+public class RepositoryManager
 {
-   public static String SYSTEM_REPOSITORY_ID = "default";
+   /**
+    * The repositoryId of the system repository.
+    * Only one repository can register as the system repository using this repositoryId.
+    */
+   public static String SYSTEM_REPOSITORY_ID = "System";
 
-   private static Logger trace = LogManager.getLogger(RepositoryProviderManager.class);
+   private static Logger trace = LogManager.getLogger(RepositoryManager.class);
 
-   private static RepositoryProviderManager INSTANCE;
+   private static RepositoryManager INSTANCE;
 
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
 
@@ -40,7 +53,7 @@ public class RepositoryProviderManager
 
    private RepositoryIdMediator repositoryIdMediator;
 
-   public RepositoryProviderManager()
+   public RepositoryManager()
    {
       ServiceLoader<IRepositoryProvider.Factory> loader = ServiceLoader.load(IRepositoryProvider.Factory.class);
       Iterator<Factory> loaderIterator = loader.iterator();
@@ -60,15 +73,15 @@ public class RepositoryProviderManager
       loadConfigurations();
    }
 
-   public static RepositoryProviderManager getInstance()
+   public static RepositoryManager getInstance()
    {
       if (INSTANCE == null)
       {
-         synchronized (RepositoryProviderManager.class)
+         synchronized (RepositoryManager.class)
          {
             if (INSTANCE == null)
             {
-               INSTANCE = new RepositoryProviderManager();
+               INSTANCE = new RepositoryManager();
             }
          }
       }

@@ -36,11 +36,11 @@ import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 
 public class RepositoryIdMediator implements ILegacyRepositoryService
 {
-   private RepositoryProviderManager manager;
+   private RepositoryManager manager;
    private FederatedSearchHandler federatedSearchHandler;
    private ResourceSyncHandler syncHandler;
 
-   public RepositoryIdMediator(RepositoryProviderManager manager)
+   public RepositoryIdMediator(RepositoryManager manager)
    {
       this.manager = manager;
       this.federatedSearchHandler = new FederatedSearchHandler(manager);
@@ -85,7 +85,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
@@ -107,7 +107,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
@@ -178,7 +178,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
@@ -201,7 +201,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUserContext());
@@ -540,7 +540,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          boolean evaluateTotalCount) throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
@@ -553,7 +553,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws ObjectNotFoundException
    {
       // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
+      String repositoryId = RepositoryManager.getInstance()
             .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
@@ -572,7 +572,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       else
       {
          // fallback to default
-         String repositoryId = RepositoryProviderManager.getInstance()
+         String repositoryId = RepositoryManager.getInstance()
                .getDefaultRepository();
 
          IRepositoryInstance defaultRepositoryInstance = manager.getInstance(repositoryId);

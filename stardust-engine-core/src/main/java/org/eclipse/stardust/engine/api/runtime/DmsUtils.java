@@ -27,10 +27,10 @@ import javax.activation.MimetypesFileTypeMap;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
-
 import org.eclipse.stardust.vfs.IFolder;
 import org.eclipse.stardust.vfs.VfsUtils;
 
@@ -38,18 +38,18 @@ import org.eclipse.stardust.vfs.VfsUtils;
 
 /**
  * Utility class for operating {@link DocumentManagementService}
- * 
+ *
  * @author rsauer
  * @version $Revision$
  */
 public class DmsUtils
 {
    private static final String PI_OID_PREFIX = "pi-";
-   
+
    /**
     * Creates a new <code>DocumentInfo</code> object that can be filled with additional
     * information.
-    * 
+    *
     * @param name
     *           the document name
     * @return the document info object
@@ -67,7 +67,7 @@ public class DmsUtils
     * Creates a new <code>DocumentInfo</code> object that can be filled with additional
     * information. This method allows assigning the document ID for the case where no DMS
     * backend is used (the caller must ensure the uniqueness of IDs)
-    * 
+    *
     * @param name
     *           the document name
     * @param id
@@ -87,7 +87,7 @@ public class DmsUtils
    /**
     * Creates a new <code>FolderInfo</code> object that can be filled with additional
     * information.
-    * 
+    *
     * @param name
     *           the folder name
     * @return the folder info object
@@ -126,11 +126,11 @@ public class DmsUtils
          documents.remove(doc);
       }
    }
-   
+
    /**
     * Initialize default path based on the scope process instance OID and its start time.
     * Example: "/process-instances/2001/02/03/04/pi-567"
-    * 
+    *
     * @param scopeProcessInstanceStartTime
     * @param scopeProcessInstanceOID
     * @return path starting with / and ending with a process instance specific folder name
@@ -179,7 +179,7 @@ public class DmsUtils
 
    /**
     * Backup a folder to a zip stream
-    * 
+    *
     * @param rootFolder
     *           folder to backup
     * @param outputStream
@@ -212,7 +212,7 @@ public class DmsUtils
 
    /**
     * Load a folder from an inputStream
-    * 
+    *
     * @param rootFolderPath
     *           loaded data is saved to this repository path
     * @param inputStream
@@ -243,7 +243,7 @@ public class DmsUtils
          // now iterate through each item in the stream. The get next
          // entry call will return a ZipEntry for each file in the
          // stream
-         ZipEntry entry;         
+         ZipEntry entry;
          while ((entry = stream.getNextEntry()) != null)
          {
             // take care of Windows paths
@@ -448,7 +448,7 @@ public class DmsUtils
    {
       // recursion: find/create a processinstance-specific folder (hierarchical)
 
-      if (StringUtils.isEmpty(folderPath))
+      if (StringUtils.isEmpty(RepositoryIdUtils.stripRepositoryId(folderPath)))
       {
          // special handling for root folder, because vfs.getFolder("", or
          // vfs.getFolder("/", returns null

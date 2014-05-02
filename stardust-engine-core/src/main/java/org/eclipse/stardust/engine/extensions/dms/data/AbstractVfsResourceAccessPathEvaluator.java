@@ -29,7 +29,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
@@ -84,13 +84,13 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                      TransientUser.getInstance());
             }
 
-            RepositoryProviderManager repositoryProviderManager = RepositoryProviderManager.getInstance();
+            RepositoryManager repositoryProviderManager = RepositoryManager.getInstance();
             String repositoryId = RepositoryIdUtils.extractRepositoryId(documentId);
             Document prefixedDocument = document;
             // synchronization for legacy documents has to point to RepositoryProviderManager.DEFAULT_REPOSITORY_ID.
             if (repositoryId == null)
             {
-               repositoryId = RepositoryProviderManager.SYSTEM_REPOSITORY_ID;
+               repositoryId = RepositoryManager.SYSTEM_REPOSITORY_ID;
                documentId = RepositoryIdUtils.addRepositoryId(documentId, repositoryId);
                prefixedDocument = RepositoryIdUtils.addRepositoryId(document, repositoryId);
             }

@@ -37,7 +37,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
@@ -880,7 +880,7 @@ public class QueryServiceImpl implements QueryService, Serializable
    {
       query.setPolicy(new SubsetPolicy(1));
 
-      RepositoryProviderManager instance = RepositoryProviderManager.getInstance();
+      RepositoryManager instance = RepositoryManager.getInstance();
       Documents documents = instance.getImplicitService().findDocuments(query);
       if (documents.iterator().hasNext())
       {
@@ -895,7 +895,7 @@ public class QueryServiceImpl implements QueryService, Serializable
 
    public Documents getAllDocuments(DocumentQuery query)
    {
-      RepositoryProviderManager instance = RepositoryProviderManager.getInstance();
+      RepositoryManager instance = RepositoryManager.getInstance();
       return instance.getImplicitService().findDocuments(query);
    }
 

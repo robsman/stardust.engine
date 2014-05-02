@@ -28,6 +28,12 @@ public class RepositoryProviderUtils
 {
    public static final String MODULE_ID_REPOSITORY_CONFIGURATIONS = "RepositoryConfigurations";
 
+   public static final String MODULE_ID_REPOSITORY_MANAGER = "RepositoryManager";
+
+   public static final String PREFERENCES_ID_SETTINGS = "Settings";
+
+   public static final String DEFAULT_REPOSITORY_ID = "defaultRepositoryId";
+
    public static final String DMS_ADMIN_SESSION = RepositoryProviderUtils.class.getName() + ".AdminSessionFlag";
 
    public RepositoryProviderUtils()
@@ -97,6 +103,27 @@ public class RepositoryProviderUtils
       preferenceStore.savePreferences(new Preferences(PreferenceScope.PARTITION,
             MODULE_ID_REPOSITORY_CONFIGURATIONS, repositoryId, Collections.EMPTY_MAP),
             false);
+   }
+
+   public static void saveDefaultRepositoryId(String defaultRepositoryId)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      preferenceStore.savePreferences(
+            new Preferences(PreferenceScope.PARTITION, MODULE_ID_REPOSITORY_MANAGER,
+                  PREFERENCES_ID_SETTINGS, Collections.singletonMap(
+                        DEFAULT_REPOSITORY_ID, (Serializable) defaultRepositoryId)),
+            false);
+   }
+
+   public static String loadDefaultRepositoryId()
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      Preferences preferences = preferenceStore.getPreferences(PreferenceScope.PARTITION,
+            MODULE_ID_REPOSITORY_MANAGER, PREFERENCES_ID_SETTINGS);
+
+      return (String) preferences.getPreferences().get(DEFAULT_REPOSITORY_ID);
    }
 
 

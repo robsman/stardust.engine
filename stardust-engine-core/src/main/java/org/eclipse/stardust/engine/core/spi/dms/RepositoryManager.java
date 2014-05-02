@@ -49,7 +49,7 @@ public class RepositoryManager
 
    private RepositoryInstanceCache instances;
 
-   private String defaultRepositoryId = SYSTEM_REPOSITORY_ID;
+   private String defaultRepositoryId;
 
    private RepositoryIdMediator repositoryIdMediator;
 
@@ -125,6 +125,7 @@ public class RepositoryManager
 
    private void loadConfigurations()
    {
+      // load and bind all repository configurations.
       List<IRepositoryConfiguration> configurations = RepositoryProviderUtils.getAllConfigurations();
 
       for (IRepositoryConfiguration configuration : configurations)
@@ -138,6 +139,10 @@ public class RepositoryManager
             trace.error("IRepositoryConfiguration could not be loaded.", e);
          }
       }
+
+      // load default repository Id
+      String defaultRepoId = RepositoryProviderUtils.loadDefaultRepositoryId();
+      this.defaultRepositoryId = defaultRepoId == null ? SYSTEM_REPOSITORY_ID : defaultRepoId;
    }
 
    public void bindRepository(IRepositoryConfiguration configuration)
@@ -217,6 +222,7 @@ public class RepositoryManager
       this.defaultRepositoryId = repositoryId == null
             ? SYSTEM_REPOSITORY_ID
             : repositoryId;
+      RepositoryProviderUtils.saveDefaultRepositoryId(this.defaultRepositoryId);
    }
 
    public IRepositoryService getImplicitService()

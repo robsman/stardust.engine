@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 71517 
+ * Generated from Revision: 71724 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author rsauer
- * @version 71517
+ * @version 71724
  */
 public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IDocumentManagementService
 {
@@ -515,18 +515,6 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
       return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             serviceProxy).getDefaultRepository();
-   }
-
-   /**
-    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getSchemaDefinition(java.lang.String schemaLocation, java.lang.String repositoryId)
-    */
-   public byte[] getSchemaDefinition(
-         java.lang.String schemaLocation, java.lang.String repositoryId)
-         throws org.eclipse.stardust.common.error.ObjectNotFoundException
-   {
-      return
-            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
-            serviceProxy).getSchemaDefinition(schemaLocation, repositoryId);
    }
 
    /**

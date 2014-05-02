@@ -381,7 +381,9 @@ public class DocumentManagementServiceImpl
    public byte[] getSchemaDefinition(String schemaLocation)
          throws ObjectNotFoundException
    {
-      return getProvider().getImplicitService().getSchemaDefinition(schemaLocation);
+      return getProvider().getInstance(RepositoryManager.SYSTEM_REPOSITORY_ID)
+            .getService(getUserContext())
+            .getSchemaDefinition(schemaLocation);
    }
 
    // ************************************************
@@ -461,16 +463,12 @@ public class DocumentManagementServiceImpl
 
    @Override
    public RepositoryMigrationReport migrateRepository(int batchSize,
-         boolean evaluateTotalCount, String repositoryId) throws DocumentManagementServiceException
+         boolean evaluateTotalCount, String repositoryId)
+         throws DocumentManagementServiceException
    {
-      return getProvider().getInstance(repositoryId).getService(getUserContext()).migrateRepository(batchSize, evaluateTotalCount);
-   }
-
-   @Override
-   public byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
-         throws ObjectNotFoundException
-   {
-      return getProvider().getInstance(repositoryId).getService(getUserContext()).getSchemaDefinition(schemaLocation);
+      return getProvider().getInstance(repositoryId)
+            .getService(getUserContext())
+            .migrateRepository(batchSize, evaluateTotalCount);
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////

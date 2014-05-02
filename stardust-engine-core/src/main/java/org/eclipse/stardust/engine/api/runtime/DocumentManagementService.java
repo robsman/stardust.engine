@@ -89,7 +89,7 @@ public interface DocumentManagementService extends Service
     */
    @Deprecated
    List<Document> findDocuments(String xpathQuery) throws DocumentManagementServiceException;
-   
+
    /**
     * Retrieves all documents satisfying the criteria specified in the provided query.
     *
@@ -538,13 +538,12 @@ public interface DocumentManagementService extends Service
     * @throws ObjectNotFoundException
     *            if the specified schema location cannot be found
     */
-   // TODO deprecate?
    byte[] getSchemaDefinition(String schemaLocation) throws ObjectNotFoundException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Repository Management.
    ///////////////////////////////////////////////////////////////////////////////////////
-   
+
    void bindRepository(IRepositoryConfiguration configuration);
 
    void unbindRepository(String repositoryId);
@@ -552,19 +551,15 @@ public interface DocumentManagementService extends Service
    List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
 
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
-   
+
    void setDefaultRepository(String repositoryId);
-   
+
    String getDefaultRepository();
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Repository specific methods.
-   ///////////////////////////////////////////////////////////////////////////////////////   
-   
-   // TODO needed?
-   byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
-         throws ObjectNotFoundException;
-   
+   ///////////////////////////////////////////////////////////////////////////////////////
+
    RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount, String repositoryId)
          throws DocumentManagementServiceException;
 

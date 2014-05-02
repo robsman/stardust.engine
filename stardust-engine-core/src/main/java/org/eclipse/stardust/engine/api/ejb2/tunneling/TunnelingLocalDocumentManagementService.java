@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 71517 
+ * Generated from  Revision: 71724 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author rsauer
- * @version 71517
+ * @version 71724
  */
 public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -1075,18 +1075,6 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
      */
     public java.lang.String
          getDefaultRepository(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
-         
-    /**
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
-     *
-     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getSchemaDefinition(
-     *     java.lang.String schemaLocation, java.lang.String repositoryId)
-     */
-    public byte[] getSchemaDefinition(
-         java.lang.String schemaLocation, java.lang.String repositoryId,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          

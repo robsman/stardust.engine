@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 71517 
+ * Generated from  Revision: 71724 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * </ul>
  *
  * @author rsauer
- * @version 71517
+ * @version 71724
  */
 public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
@@ -1653,33 +1653,6 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
          return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             service).getDefaultRepository();
-      }
-      catch(org.eclipse.stardust.common.error.PublicException e)
-      {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
-      }
-      catch(org.eclipse.stardust.common.error.ResourceException e)
-      {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
-      }
-    }
-
-    /**
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
-     *
-     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getSchemaDefinition(
-     *     java.lang.String schemaLocation, java.lang.String repositoryId)
-     */
-    public byte[] getSchemaDefinition(
-         java.lang.String schemaLocation, java.lang.String repositoryId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
-    {
-      try
-      {
-         return
-            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
-            service).getSchemaDefinition(schemaLocation, repositoryId);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.query.RepositoryPolicy;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
@@ -279,11 +280,47 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    public Document moveDocument(String documentId, String targetPath)
          throws DocumentManagementServiceException
    {
-      // TODO cross repository move?
-      IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      Document movedDocument = instance.getService(getUserContext()).moveDocument(stripRepositoryId(documentId),
-            stripRepositoryId(targetPath));
-      return addRepositoryId(movedDocument, instance.getRepositoryId());
+      String sourceRepositoryId = extractRepositoryId(documentId);
+      String targetRepositoryId = extractRepositoryId(targetPath);
+      IRepositoryInstance sourceInstance = manager.getInstance(sourceRepositoryId);
+      final IRepositoryService sourceService = sourceInstance.getService(getUserContext());
+      final String strippedSourceDocumentId = stripRepositoryId(documentId);
+      String strippedTargetPath = stripRepositoryId(targetPath);
+      if (sourceRepositoryId != null && sourceRepositoryId.equals(targetRepositoryId)
+            || sourceRepositoryId == null && targetRepositoryId == null)
+      {
+         // Same repository move.
+         Document movedDocument = sourceService.moveDocument(strippedSourceDocumentId,
+               strippedTargetPath);
+         return addRepositoryId(movedDocument, sourceInstance.getRepositoryId());
+      }
+      else
+      {
+         // Cross repository move.
+         IRepositoryInstance targetInstance = manager.getInstance(targetRepositoryId);
+         IRepositoryService targetService = targetInstance.getService(getUserContext());
+
+         // Copy head revision meta data and content.
+         Document sourceDocument = sourceService.getDocument(strippedSourceDocumentId);
+         byte[] content = sourceService.retrieveDocumentContent(strippedSourceDocumentId);
+         Document targetDocument = targetService.createDocument(strippedTargetPath,
+               sourceDocument, content, sourceDocument.getEncoding());
+
+         // Verify content size.
+         Document movedDocument = targetService.getDocument(targetDocument.getId());
+         if (targetDocument.getSize() == movedDocument.getSize())
+         {
+            // Delete source document if file size matches.
+            sourceService.removeDocument(strippedSourceDocumentId);
+         }
+         else
+         {
+            throw new DocumentManagementServiceException(
+                  BpmRuntimeError.DMS_FAILED_UPDATING_CONTENT_FOR_DOCUMENT.raise(documentId));
+         }
+
+         return addRepositoryId(movedDocument, targetRepositoryId);
+      }
    }
 
    @Deprecated

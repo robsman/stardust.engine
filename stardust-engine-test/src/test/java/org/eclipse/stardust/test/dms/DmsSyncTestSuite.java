@@ -38,7 +38,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class, DmsSyncDocumentMultiRepositoryTest.class })
+@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class, DmsSyncDocumentMultiRepositoryTest.class, DmsSyncTypedDocumentMultiRepositoryTest.class })
 public class DmsSyncTestSuite
 {
    /* test suite */

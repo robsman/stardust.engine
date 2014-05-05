@@ -386,6 +386,7 @@
                <include name="org/eclipse/stardust/engine/api/query/Query.java" />
                <include name="org/eclipse/stardust/engine/api/query/QueryResult.java" />
                <include name="org/eclipse/stardust/engine/api/query/ScopedFilter.java" />
+               <include name="org/eclipse/stardust/engine/api/query/RepositoryPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/StartingUserFilter.java" />
                <include name="org/eclipse/stardust/engine/api/query/SubsetPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/SubFolderPolicy.java" />

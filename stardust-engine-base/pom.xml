@@ -152,13 +152,18 @@
                   <include>error/ApplicationException.java</include>
                   <include>error/ConcurrencyException.java</include>
                   <include>error/ErrorCase.java</include>
+                  <include>error/ExpectedFailureException.java</include>
                   <include>error/InternalException.java</include>
                   <include>error/InvalidArgumentException.java</include>
                   <include>error/InvalidValueException.java</include>
+                  <include>error/LoginFailedExceptionException.java</include>
                   <include>error/ObjectNotFoundException.java</include>
                   <include>error/PublicException.java</include>
                   <include>error/ServiceCommandException.java</include>
-   
+                  <include>error/ValidationException.java</include>
+
+                  <include>config/Parameters.java</include>
+
                   <include>security/InvalidPasswordException.java</include>
                   <include>security/authentication/DefaultCallbackHandler.java</include>
                   <include>security/authentication/LoginFailedException.java</include>

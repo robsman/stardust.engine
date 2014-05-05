@@ -648,6 +648,8 @@
                   <!-- org/eclipse/stardust/engine/core/compatibility/spi/security -->
                   <include>core/compatibility/spi/security/DefaultPrincipalNameProvider.java</include>
                   <include>core/compatibility/spi/security/PrincipalNameProvider.java</include>
+                  <include>core/compatibility/spi/security/DefaultPrincipalNameProvider.java</include>
+                  <include>core/compatibility/spi/security/PrincipalNameProvider.java</include>
                   <!-- org/eclipse/stardust/engine/core/persistence -->
                   <include>core/persistence/Operator.java</include>
                   <!-- org/eclipse/stardust/engine/api/web -->
@@ -703,6 +705,7 @@
                   <include>api/model/Inconsistency.java</include>
                   <include>api/model/Model.java</include>
                   <include>api/model/ModelElement.java</include>
+                  <include>api/model/ModelParsingException.java</include>
                   <include>api/model/ModelParticipant.java</include>
                   <include>api/model/ModelParticipantInfo.java</include>
                   <include>api/model/Organization.java</include>
@@ -770,11 +773,12 @@
                   <include>api/runtime/PasswordRules.java</include>
                   <include>api/runtime/Permission.java</include>
                   <include>api/runtime/PermissionState.java</include>
+                  <include>api/runtime/ProcessDefinitions.java</include>
                   <include>api/runtime/ProcessInstance.java</include>
                   <include>api/runtime/ProcessInstanceLinkType.java</include>
                   <include>api/runtime/ProcessInstancePriority.java</include>
                   <include>api/runtime/ProcessInstanceState.java</include>
-                  <include>api/runtime/QualityAssuranceUtils/QualityAssuranceState.java</include>
+                  <include>api/runtime/QualityAssuranceUtils.java</include>
                   <include>api/runtime/QueryService.java</include>
                   <include>api/runtime/ReconfigurationInfo.java</include>
                   <include>api/runtime/RepositoryMigrationJobInfo.java</include>
@@ -791,6 +795,7 @@
                   <include>api/runtime/ServiceNotAvailableException.java</include>
                   <include>api/runtime/SpawnOptions.java</include>
                   <include>api/runtime/SubprocessSpawnInfo.java</include>
+                  <include>api/runtime/TransitionInfo.java</include>
                   <include>api/runtime/TransitionOptions.java</include>
                   <include>api/runtime/TransitionTarget.java</include>
                   <include>api/runtime/User.java</include>
@@ -800,6 +805,7 @@
                   <include>api/runtime/UserGroupInfo.java</include>
                   <include>api/runtime/UserInfo.java</include>
                   <include>api/runtime/UserRealm.java</include>
+                  <include>api/runtime/UserRealmExistsException.java</include>
                   <include>api/runtime/UserService.java</include>
                   <include>api/runtime/WorkflowService.java</include>
                   <!-- org/eclipse/stardust/engine/core/runtime/beans -->
@@ -820,6 +826,7 @@
                   <include>api/dto/ContextKind.java</include>
                   <include>api/dto/HistoricalState.java</include>
                   <include>api/dto/Note.java</include>
+                  <include>api/dto/ProcessDefinitionDetailsLevel.java</include>
                   <include>api/dto/ProcessInstanceAttributes.java</include>
                   <include>api/dto/ProcessInstanceDetails.java</include>
                   <include>api/dto/ProcessInstanceDetailsLevel.java</include>
@@ -828,7 +835,6 @@
                   <include>api/dto/QualityAssuranceInfo.java</include>
                   <include>api/dto/QualityAssuranceResultImpl.java</include>
                   <include>api/dto/QualityAssuranceResult.java</include>
-                  <include>api/dto/RuntimeEnvironmentInfoDetails.java</include>
                   <include>api/dto/UserDetailsLevel.java</include>
                   <!-- org/eclipse/stardust/engine/api/pojo -->
                   <include>api/pojo/AuditTrailPartitionManager.java</include>
@@ -864,6 +870,7 @@
                   <include>api/query/LinkDirection.java</include>
                   <include>api/query/LogEntryQuery.java</include>
                   <include>api/query/LogEntries.java</include>
+                  <include>api/query/ModelPolicy.java</include>
                   <include>api/query/ModelVersionPolicy.java</include>
                   <include>api/query/OrderCriteria.java</include>
                   <include>api/query/OrderCriterion.java</include>
@@ -876,6 +883,7 @@
                   <include>api/query/PerformingOnBehalfOfFilter.java</include>
                   <include>api/query/PerformingUserFilter.java</include>
                   <include>api/query/PreferenceQuery.java</include>
+                  <include>api/query/ProcessDefinitionDetailsPolicy.java</include>
                   <include>api/query/ProcessDefinitionFilter.java</include>
                   <include>api/query/ProcessDefinitionQuery.java</include>
                   <include>api/query/ProcessInstanceDetailsPolicy.java</include>
@@ -904,6 +912,17 @@
                   <include>api/query/Worklist.java</include>
                   <include>api/query/WorklistLayoutPolicy.java</include>
                   <include>api/query/WorklistQuery.java</include>
+
+                  <include>core/spi/dms/IRepositoryCapabilities.java</include>
+                  <include>core/spi/dms/IRepositoryConfiguration.java</include>
+                  <include>core/spi/dms/IRepositoryInstance.java</include>
+                  <include>core/spi/dms/IRepositoryInstanceInfo.java</include>
+                  <include>core/spi/dms/IRepositoryProvider.java</include>
+                  <include>core/spi/dms/IRepositoryProviderInfo.java</include>
+                  <include>core/spi/dms/IRepositoryService.java</include>
+                  <include>core/spi/dms/RepositoryIdUtils.java</include>
+                  <include>core/spi/dms/RepositoryResourceUtils.java</include>
+
                   <!-- org/eclipse/stardust/engine/core/spi/extensions/model -->
                   <include>core/spi/extensions/model/AccessPoint.java</include>
                   <include>core/spi/extensions/model/AccessPointProvider.java</include>
@@ -924,15 +943,21 @@
                   <include>core/spi/extensions/runtime/EventActionInstance.java</include>
                   <include>core/spi/extensions/runtime/SynchronousApplicationInstance.java</include>
                   <include>core/spi/extensions/runtime/UnrecoverableExecutionException.java</include>
+
+                  <include>core/spi/jms/IQueueConnectionProvider.java</include>
+
                   <!-- org/eclipse/stardust/engine/core/spi -->
+                  <include>core/spi/security/AlwaysValidPrincipalValidator.java</include>
                   <include>core/spi/security/DynamicParticipantSynchronizationProvider.java</include>
                   <include>core/spi/security/DynamicParticipantSynchronizationStrategy.java</include>
                   <include>core/spi/security/ExternalDepartmentConfiguration.java</include>
+                  <include>core/spi/security/PrincipalValidator.java</include>
                   <include>core/spi/cluster/ClusterSafeObjectProvider.java</include>
+                  <include>core/spi/monitoring/IActivityInstanceMonitor.java</include>
                   <include>core/spi/monitoring/IProcessExecutionMonitor.java</include>
-                  <include>core/spi/monitoring/IWorklistMonitor.java</include>
                   <include>core/spi/monitoring/IPartitionMonitor.java</include>
                   <include>core/spi/preferences/IStaticConfigurationProvider.java</include>
+
                   <include>core/spi/security/ExternalLoginProvider.java</include>
                   <include>core/spi/security/ExternalLoginResult.java</include>
                   <include>core/spi/security/ExternalUserConfiguration.java</include>

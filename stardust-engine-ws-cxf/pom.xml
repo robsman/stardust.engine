@@ -50,7 +50,7 @@
                <artifactId>stax-api</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>org.eclipse.stardust.engine</groupId>
+               <groupId>org.eclipse.stardust.components</groupId>
                <artifactId>jcr-vfs</artifactId>
             </exclusion>
          </exclusions>

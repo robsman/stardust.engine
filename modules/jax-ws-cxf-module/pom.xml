@@ -171,12 +171,19 @@
          <scope>runtime</scope>
          <exclusions>
             <exclusion>
-               <groupId>activation</groupId>
-               <artifactId>activation</artifactId>
-            </exclusion>
-            <exclusion>
                <groupId>javax.xml.soap</groupId>
                <artifactId>saaj-api</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>javax.xml.soap</groupId>
+         <artifactId>saaj-api</artifactId>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>activation</groupId>
+               <artifactId>activation</artifactId>
             </exclusion>
          </exclusions>
       </dependency>

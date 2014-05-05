@@ -124,7 +124,7 @@
            org.eclipse.stardust.engine.core.preferences.permissions, org.eclipse.stardust.engine.extensions.dms.data,
            org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument, org.eclipse.stardust.engine.api.web.dms,
            org.eclipse.stardust.engine.cli.security.authentication, org.eclipse.stardust.engine.core.spi.cluster,
-           org.eclipse.stardust.engine.core.spi.jms, org.eclipse.stardust.engine.core.spi.monitoring, org.eclipse.stardust.engine.core.spi.preferences,
+      	  org.eclipse.stardust.engine.core.spi.dms, org.eclipse.stardust.engine.core.spi.jms, org.eclipse.stardust.engine.core.spi.monitoring, org.eclipse.stardust.engine.core.spi.preferences,
            org.eclipse.stardust.engine.core.compatibility.ui.preferences.spi, org.eclipse.stardust.engine.core.compatibility.spi.security">
          <classpaths>
             <classpath>

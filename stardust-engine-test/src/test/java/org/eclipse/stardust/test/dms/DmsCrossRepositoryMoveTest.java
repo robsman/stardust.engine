@@ -36,6 +36,11 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+/**
+ * Tests move operations across repository borders.
+ *
+ * @author Roland.Stamm
+ */
 @FixMethodOrder(MethodSorters.JVM)
 public class DmsCrossRepositoryMoveTest
 {

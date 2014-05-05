@@ -45,6 +45,11 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+/**
+ * Tests binding and unbinding repository instances and separation of documents.
+ *
+ * @author Roland.Stamm
+ */
 @FixMethodOrder(MethodSorters.JVM)
 public class DmsMultiRepositoryTest
 {

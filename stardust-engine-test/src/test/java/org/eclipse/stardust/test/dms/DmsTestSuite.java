@@ -28,11 +28,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * documentation for details about <i>Document Management</i>).
  * </p>
  *
- * @author Nicolas.Werlein
+ * @author Nicolas.Werlein, Roland.Stamm
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class})
+@SuiteClasses({ DmsSanityTest.class,  DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class})
 public class DmsTestSuite
 {
    /* test suite */

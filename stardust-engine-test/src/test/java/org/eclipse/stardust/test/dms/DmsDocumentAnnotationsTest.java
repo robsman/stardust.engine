@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.PrintDocumentAnnotationsImpl;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.Stamp;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.TextStyle;
+import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -60,23 +61,23 @@ import org.junit.rules.TestRule;
 public class DmsDocumentAnnotationsTest
 {
  private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
+   private final TestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-   
+
    @Test
    public void testAssignDocumentAnnotations1()
    {
       DocumentManagementService dms = sf.getDocumentManagementService();
       dms.removeDocument("/docAnnotations1.txt");
-      
+
       DocumentInfo doc = new DmsDocumentBean();
       doc.setName("docAnnotations1.txt");
       doc.setContentType("text/plain");
@@ -89,7 +90,7 @@ public class DmsDocumentAnnotationsTest
 
       Map<String, Serializable> map = AnnotationUtils.toMap(printDocumentAnnotations);
       Map<String, Serializable> map2 = AnnotationUtils.toMap(createdDocumentAnnotations);
-      
+
       assertNotNull(createdDocumentAnnotations);
       assertEquals(map, map2);
 
@@ -181,7 +182,7 @@ public class DmsDocumentAnnotationsTest
 
       Map<String, Serializable> map = AnnotationUtils.toMap(printDocumentAnnotations);
       Map<String, Serializable> map2 = AnnotationUtils.toMap(createdDocumentAnnotations);
-      
+
       assertNotNull(createdDocumentAnnotations);
       assertEquals(map, map2);
 
@@ -285,10 +286,10 @@ public class DmsDocumentAnnotationsTest
 
       Map<String, Serializable> map = AnnotationUtils.toMap(printDocumentAnnotations);
       Map<String, Serializable> map2 = AnnotationUtils.toMap(createdDocumentAnnotations);
-      
+
       assertNotNull(createdDocumentAnnotations);
       assertEquals(map, map2);
-      
+
    }
 
    private static DocumentAnnotations getPrintDocumentAnnotationsEmpty()

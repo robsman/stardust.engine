@@ -34,11 +34,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * Audit Trail database.
  * </p>
  *
- * @author Nicolas.Werlein
+ * @author Nicolas.Werlein, Roland.Stamm
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class, DmsSyncDocumentMultiRepositoryTest.class, DmsSyncTypedDocumentMultiRepositoryTest.class })
+@SuiteClasses({ DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class, DmsSyncDocumentMultiRepositoryTest.class, DmsSyncTypedDocumentMultiRepositoryTest.class })
 public class DmsSyncTestSuite
 {
    /* test suite */

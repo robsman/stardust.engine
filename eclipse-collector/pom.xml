@@ -231,7 +231,6 @@
             <packaging>jar</packaging>
             <description>Generated POM from ${project.artifactId} project</description>
             <url>${eclipse.dependencies.url}</url>
-            <repositoryId>stardust-3rdparty-eclipse-repo</repositoryId>
          </configuration>
          <executions>
             <execution>

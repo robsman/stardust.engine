@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
+import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
@@ -142,6 +143,29 @@ public class DmsMultiRepositoryTest
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+   }
+
+   @Test
+   public void testFolderHierarchyIds()
+   {
+      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createFolderInfo("testFolder"));
+      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID), DmsUtils.createFolderInfo("subFolder"));
+      getDms().createDocument(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
+
+      Folder testFolder = getDms().getFolder(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID));
+      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(testFolder.getId()));
+
+      Folder subFolder = testFolder.getFolders().get(0);
+      Assert.assertEquals("subFolder", subFolder.getName());
+      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(subFolder.getId()));
+
+      Document actualDocInFolder = testFolder.getDocuments().get(0);
+      Assert.assertEquals("test.txt", actualDocInFolder.getName());
+      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(actualDocInFolder));
+
+      Assert.assertNotNull(getDms().getFolder(subFolder.getId()));
+      Assert.assertNotNull(getDms().getDocument(actualDocInFolder.getId()));
+
    }
 
    @Test

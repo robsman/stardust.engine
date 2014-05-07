@@ -54,7 +54,7 @@ public interface Document extends DocumentInfo, Resource
     *
     * @return all labels assigned to the revision represented by this <code>Document</code> object.
     */
-   List /*<String>*/ getVersionLabels();
+   List<String> getVersionLabels();
 
    /**
     * Gets the encoding of the document content.

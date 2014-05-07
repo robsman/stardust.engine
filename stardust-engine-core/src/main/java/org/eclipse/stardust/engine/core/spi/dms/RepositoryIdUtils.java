@@ -18,6 +18,7 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 
 /**
@@ -147,6 +148,12 @@ public class RepositoryIdUtils
          if (resource instanceof DmsResourceBean)
          {
             ((DmsResourceBean) resource).setId(prefixedId);
+         }
+         if (resource instanceof DmsFolderBean)
+         {
+            Folder folder = (Folder) resource;
+            addRepositoryId(folder.getFolders(), repositoryId);
+            addRepositoryId(folder.getDocuments(), repositoryId);
          }
       }
       return resource;

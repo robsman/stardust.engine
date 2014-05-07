@@ -1998,7 +1998,85 @@
 			<element name="fromVersion" type="int" />
 			<element name="toVersion" type="int"  />
 		</sequence>
-	 </complexType>
+	</complexType>
+
+	<complexType name="RepositoryConfiguration">
+		<annotation>
+			<documentation>
+			Represents a repository configuration.
+			The attributes 'repositoryId' and 'providerId' are keys that are always required for a valid configuration.
+            Each specific repository configuration may require additional keys for e.g. connection URL, jndiName, etc.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="attributes" type="tns:Map" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RepositoryInstanceInfos">
+		<sequence>
+			<element name="repositoryInstanceInfo" type="tns:RepositoryInstanceInfo" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RepositoryInstanceInfo">
+		<annotation>
+			<documentation>
+				Contains information about the repository instance which are relevant to a
+				client.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:RepositoryCapabilities">
+				<sequence>
+					<element name="providerId" type="string" />
+					<element name="repositoryId" type="string" />
+					<element name="repositoryName" type="string" minOccurs="0" />
+					<element name="repositoryVersion" type="string" minOccurs="0" />
+					<element name="repositoryType" type="string" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="RepositoryProviderInfos">
+		<sequence>
+			<element name="repositoryproviderInfo" type="tns:RepositoryProviderInfo" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RepositoryProviderInfo">
+		<annotation>
+			<documentation>
+				Provides information about a repository provider.
+				A repository provider supplies a configurationTemplate to expose
+				which information is needed
+				to bind a new repository instance.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:RepositoryCapabilities">
+				<sequence>
+					<element name="providerId" type="string" />
+					<element name="providerName" type="string" minOccurs="0" />
+					<element name="configurationTemplate" type="tns:RepositoryConfiguration"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="RepositoryCapabilities">
+		<sequence>
+			<element name="fullTextSearchSupported" type="boolean" />
+			<element name="metaDataSearchSupported" type="boolean" />
+			<element name="metaDataWriteSupported" type="boolean" />
+			<element name="versioningSupported" type="boolean" />
+			<element name="transactionSupported" type="boolean" />
+			<element name="accessControlPolicySupported" type="boolean" />
+			<element name="writeSupported" type="boolean" />
+		</sequence>
+	</complexType>
 
 	<complexType name="PasswordRules">
 		<annotation>

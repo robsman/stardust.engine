@@ -607,14 +607,14 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    }
 
    public RepositoryMigrationReportXto migrateRepository(int batchSize,
-         boolean evaluateTotalCount) throws BpmFault
+         boolean evaluateTotalCount, String repositoryId) throws BpmFault
    {
       WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
       DocumentManagementService dms = wsEnv.getServiceFactory()
             .getDocumentManagementService();
       try
       {
-        return toWs(dms.migrateRepository(batchSize, evaluateTotalCount));
+        return toWs(dms.migrateRepository(batchSize, evaluateTotalCount, repositoryId));
       }
       catch (ApplicationException e)
       {
@@ -687,5 +687,115 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
       return xto;
    }
+
+   @Override
+   public void bindRepository(RepositoryConfigurationXto repositoryConfiguration)
+         throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      try
+      {
+         dms.bindRepository(fromWs(repositoryConfiguration));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
+
+   @Override
+   public void unbindRepository(String repositoryId) throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      try
+      {
+         dms.unbindRepository(repositoryId);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
+
+   @Override
+   public RepositoryInstanceInfosXto getRepositoryInstanceInfos() throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      RepositoryInstanceInfosXto xto = null;
+      try
+      {
+         xto = XmlAdapterUtils.marshalRepositoryInstanceInfos(dms.getRepositoryInstanceInfos());
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return xto;
+   }
+
+   @Override
+   public RepositoryProviderInfosXto getRepositoryProviderInfos() throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      RepositoryProviderInfosXto xto = null;
+      try
+      {
+         xto = XmlAdapterUtils.marshalRepositoryProviderInfos(dms.getRepositoryProviderInfos());
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return xto;
+   }
+
+   @Override
+   public void setDefaultRepository(String repositoryId) throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      try
+      {
+         dms.setDefaultRepository(repositoryId);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
+
+   @Override
+   public String getDefaultRepository() throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      DocumentManagementService dms = wsEnv.getServiceFactory()
+            .getDocumentManagementService();
+
+      String repositoryId = null;
+      try
+      {
+         repositoryId = dms.getDefaultRepository();
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return repositoryId;
+   }
+
 
 }

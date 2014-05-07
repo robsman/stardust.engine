@@ -445,6 +445,7 @@
    <wsdl:message name="findModelsResponse">
       <wsdl:part element="impl:findModelsResponse" name="parameters"/>
    </wsdl:message>
+
    <!-- DocumentManagement -->
 
    <wsdl:message name="createDocumentRequest">
@@ -639,6 +640,54 @@
       <wsdl:part element="impl:getDocumentTypeSchemaResponse" name="parameters"/>
    </wsdl:message>
 
+   <wsdl:message name="bindRepositoryRequest">
+      <wsdl:part element="impl:bindRepository" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="bindRepositoryResponse">
+      <wsdl:part element="impl:bindRepositoryResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="unbindRepositoryRequest">
+      <wsdl:part element="impl:unbindRepository" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="unbindRepositoryResponse">
+      <wsdl:part element="impl:unbindRepositoryResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRepositoryInstanceInfosRequest">
+      <wsdl:part element="impl:getRepositoryInstanceInfos" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRepositoryInstanceInfosResponse">
+      <wsdl:part element="impl:getRepositoryInstanceInfosResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRepositoryProviderInfosRequest">
+      <wsdl:part element="impl:getRepositoryProviderInfos" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRepositoryProviderInfosResponse">
+      <wsdl:part element="impl:getRepositoryProviderInfosResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setDefaultRepositoryRequest">
+      <wsdl:part element="impl:setDefaultRepository" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setDefaultRepositoryResponse">
+      <wsdl:part element="impl:setDefaultRepositoryResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDefaultRepositoryRequest">
+      <wsdl:part element="impl:getDefaultRepository" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDefaultRepositoryResponse">
+      <wsdl:part element="impl:getDefaultRepositoryResponse" name="parameters"/>
+   </wsdl:message>
+
    <!-- UserService -->
 
    <wsdl:message name="isInternalAuthenticationRequest">
@@ -721,7 +770,6 @@
       <wsdl:part element="impl:getUserGroupResponse" name="parameters"/>
    </wsdl:message>
 
-
    <wsdl:message name="modifyUserGroupRequest">
       <wsdl:part element="impl:modifyUserGroup" name="parameters"/>
    </wsdl:message>
@@ -761,16 +809,16 @@
    <wsdl:message name="getUserRealmsResponse">
       <wsdl:part element="impl:getUserRealmsResponse" name="parameters"/>
    </wsdl:message>
-   
+
    <!-- Deputy -->
    <wsdl:message name="addDeputyRequest">
    	  <wsdl:part element="impl:addDeputy" name="parameters" />
    </wsdl:message>
-   
+
    <wsdl:message name="addDeputyResponse">
    	  <wsdl:part element="impl:addDeputyResponse" name="parameters" />
    </wsdl:message>
-   
+
    <wsdl:message name="modifyDeputyRequest">
    	  <wsdl:part element="impl:modifyDeputy" name="parameters" />
    </wsdl:message>
@@ -782,27 +830,27 @@
    <wsdl:message name="removeDeputyRequest">
    	  <wsdl:part element="impl:removeDeputy" name="parameters" />
    </wsdl:message>
-   
+
    <wsdl:message name="removeDeputyResponse">
    	  <wsdl:part element="impl:removeDeputyResponse" name="parameters" />
-   </wsdl:message>   
+   </wsdl:message>
 
    <wsdl:message name="getDeputiesRequest">
    	  <wsdl:part element="impl:getDeputies" name="parameters" />
    </wsdl:message>
-   
+
    <wsdl:message name="getDeputiesResponse">
    	  <wsdl:part element="impl:getDeputiesResponse" name="parameters" />
-   </wsdl:message>   
+   </wsdl:message>
 
    <wsdl:message name="getUsersBeingDeputyForRequest">
    	  <wsdl:part element="impl:getUsersBeingDeputyFor" name="parameters" />
    </wsdl:message>
-   
+
    <wsdl:message name="getUsersBeingDeputyForResponse">
    	  <wsdl:part element="impl:getUsersBeingDeputyForResponse" name="parameters" />
    </wsdl:message>
-   
+
    <!-- Administration Service -->
 
    <wsdl:message name="getPasswordRulesRequest">
@@ -1897,6 +1945,67 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
+      <wsdl:operation name="bindRepository" parameterOrder="parameters">
+         <wsdl:documentation>
+         Binds a new repository instance. The repository id supplied via the RepositoryConfiguration can be
+ freely chosen but has to differ from currently bound repository ids. The provider id supplied via RepositoryConfiguration has to
+ match a registered repository provider. A template RepositoryConfiguration can be retrieved from
+ RepositoryProviderInfo. This template contains keys and template values that are required for the configuration of an new repository instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:bindRepositoryRequest" />
+         <wsdl:output message="impl:bindRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="unbindRepository" parameterOrder="parameters">
+         <wsdl:documentation>
+         Unbinds a previously bound repository.
+         </wsdl:documentation>
+         <wsdl:input message="impl:unbindRepositoryRequest" />
+         <wsdl:output message="impl:unbindRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getRepositoryInstanceInfos" parameterOrder="parameters">
+         <wsdl:documentation>
+         Provides information about all bound repositories.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getRepositoryInstanceInfosRequest" />
+         <wsdl:output message="impl:getRepositoryInstanceInfosResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getRepositoryProviderInfos" parameterOrder="parameters">
+         <wsdl:documentation>
+         Provides information about all available repository providers.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getRepositoryProviderInfosRequest" />
+         <wsdl:output message="impl:getRepositoryProviderInfosResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setDefaultRepository" parameterOrder="parameters">
+         <wsdl:documentation>
+         Allows to set a bound repository as default repository.
+         Path based access targets the default repository.
+         Id based access targets the repository contained in the id. An id provided by the
+         system is always prefixed with a repository id. If the id is not provided by the
+         system and is not prefixed with a repository id the default repository is targeted.
+         </wsdl:documentation>
+         <wsdl:input message="impl:setDefaultRepositoryRequest" />
+         <wsdl:output message="impl:setDefaultRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDefaultRepository" parameterOrder="parameters">
+         <wsdl:documentation>
+         Allows to identify the currently set default repository.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDefaultRepositoryRequest" />
+         <wsdl:output message="impl:getDefaultRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
    </wsdl:portType>
 
    <wsdl:portType name="IUserService">
@@ -2057,9 +2166,9 @@ The MigrationReport returned by each call contains information about: Total reso
 		 </wsdl:documentation>
          <wsdl:input message="impl:addDeputyRequest" />
          <wsdl:output message="impl:addDeputyResponse" />
-         <wsdl:fault message="impl:bpmFault" name="fault" />        
+         <wsdl:fault message="impl:bpmFault" name="fault" />
 	  </wsdl:operation>
-	  
+
 	  <wsdl:operation name="modifyDeputy" parameterOrder="parameters">
 		 <wsdl:documentation>
          Modifies an existing deputy user for a given user. This deputy user inherits for the
@@ -2068,8 +2177,8 @@ The MigrationReport returned by each call contains information about: Total reso
 		 </wsdl:documentation>
          <wsdl:input message="impl:modifyDeputyRequest" />
          <wsdl:output message="impl:modifyDeputyResponse" />
-         <wsdl:fault message="impl:bpmFault" name="fault" />        
-	  </wsdl:operation>	  
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+	  </wsdl:operation>
 
 	  <wsdl:operation name="removeDeputy" parameterOrder="parameters">
 		 <wsdl:documentation>
@@ -2079,8 +2188,8 @@ The MigrationReport returned by each call contains information about: Total reso
 		 </wsdl:documentation>
          <wsdl:input message="impl:removeDeputyRequest" />
          <wsdl:output message="impl:removeDeputyResponse" />
-         <wsdl:fault message="impl:bpmFault" name="fault" />        
-	  </wsdl:operation>	  
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+	  </wsdl:operation>
 
 	  <wsdl:operation name="getDeputies" parameterOrder="parameters">
 		 <wsdl:documentation>
@@ -2088,7 +2197,7 @@ The MigrationReport returned by each call contains information about: Total reso
 		 </wsdl:documentation>
          <wsdl:input message="impl:getDeputiesRequest" />
          <wsdl:output message="impl:getDeputiesResponse" />
-         <wsdl:fault message="impl:bpmFault" name="fault" />        
+         <wsdl:fault message="impl:bpmFault" name="fault" />
 	  </wsdl:operation>
 
 	  <wsdl:operation name="getUsersBeingDeputyFor" parameterOrder="parameters">
@@ -2097,7 +2206,7 @@ The MigrationReport returned by each call contains information about: Total reso
 		 </wsdl:documentation>
          <wsdl:input message="impl:getUsersBeingDeputyForRequest" />
          <wsdl:output message="impl:getUsersBeingDeputyForResponse" />
-         <wsdl:fault message="impl:bpmFault" name="fault" />        
+         <wsdl:fault message="impl:bpmFault" name="fault" />
 	  </wsdl:operation>
 
    </wsdl:portType>
@@ -2427,8 +2536,8 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:input message="impl:setGlobalPermissionsRequest" />
          <wsdl:output message="impl:setGlobalPermissionsResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
-      </wsdl:operation>	 
-	  
+      </wsdl:operation>
+
    </wsdl:portType>
 
    <wsdl:binding name="IWorkflowServiceSoapBinding" type="impl:IWorkflowService">
@@ -3544,6 +3653,84 @@ The MigrationReport returned by each call contains information about: Total reso
          </wsdl:fault>
       </wsdl:operation>
 
+      <wsdl:operation name="bindRepository">
+         <wsdlsoap:operation soapAction="bindRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="unbindRepository">
+         <wsdlsoap:operation soapAction="unbindRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getRepositoryInstanceInfos">
+         <wsdlsoap:operation soapAction="getRepositoryInstanceInfos" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getRepositoryProviderInfos">
+         <wsdlsoap:operation soapAction="getRepositoryProviderInfos" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setDefaultRepository">
+         <wsdlsoap:operation soapAction="setDefaultRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDefaultRepository">
+         <wsdlsoap:operation soapAction="getDefaultRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
    </wsdl:binding>
 
    <wsdl:binding name="IUserServiceSoapBinding" type="impl:IUserService">
@@ -3770,7 +3957,7 @@ The MigrationReport returned by each call contains information about: Total reso
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
       </wsdl:operation>
-      
+
       <wsdl:operation name="modifyDeputy">
          <wsdlsoap:operation soapAction="modifyDeputy" style="document"/>
          <wsdl:input>
@@ -3782,8 +3969,8 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault name="fault">
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
-      </wsdl:operation>      
-      
+      </wsdl:operation>
+
       <wsdl:operation name="removeDeputy">
          <wsdlsoap:operation soapAction="removeDeputy" style="document"/>
          <wsdl:input>
@@ -3795,8 +3982,8 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault name="fault">
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
-      </wsdl:operation>      
-      
+      </wsdl:operation>
+
       <wsdl:operation name="getDeputies">
          <wsdlsoap:operation soapAction="getUserRealms" style="document"/>
          <wsdl:input>
@@ -3808,8 +3995,8 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault name="fault">
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
-      </wsdl:operation>  
-      
+      </wsdl:operation>
+
       <wsdl:operation name="getUsersBeingDeputyFor">
          <wsdlsoap:operation soapAction="getUsersBeingDeputyFor" style="document"/>
          <wsdl:input>
@@ -3821,7 +4008,7 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault name="fault">
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
-      </wsdl:operation>          
+      </wsdl:operation>
 
    </wsdl:binding>
 

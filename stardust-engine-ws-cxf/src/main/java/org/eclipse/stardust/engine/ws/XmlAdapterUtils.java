@@ -222,6 +222,10 @@ import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryCapabilities;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
@@ -4631,9 +4635,36 @@ public static DataPathXto toWs(DataPath dp, Model model)
       final Map<T, U> map = new HashMap<T, U>();
       for (final ItemXto item : xto.getItem())
       {
-         map.put((T) item.getKey(), (U) item.getValue());
+         Object key = item.getKey();
+         Object value = item.getValue();
+
+         // unwrap elements as string if no xsi:type was given
+         if (key instanceof Element && value instanceof Element)
+         {
+            key = ((Element)key).getTextContent();
+            value = ((Element)value).getTextContent();
+         }
+
+         map.put((T) key, (U) value);
       }
       return map;
+   }
+
+   public static <K, V> MapXto marshalMap(Map<K,V> map)
+   {
+      MapXto xto = null;
+      if (map != null)
+      {
+         xto = new MapXto();
+         for (Map.Entry<K, V> entry: map.entrySet())
+         {
+            ItemXto item = new ItemXto();
+            item.setKey(entry.getKey());
+            item.setValue(entry.getValue());
+            xto.getItem().add(item);
+         }
+      }
+      return xto;
    }
 
    private static enum TypeKey {
@@ -5525,5 +5556,106 @@ public static DataPathXto toWs(DataPath dp, Model model)
       }
 
       return deputiesXto;
+   }
+
+   public static IRepositoryConfiguration fromWs(RepositoryConfigurationXto xto)
+   {
+      if (xto != null)
+      {
+         final Map<String, Serializable> map = unmarshalMap(xto.getAttributes(), String.class, Serializable.class);
+         return new IRepositoryConfiguration()
+         {
+            @Override
+            public Map<String, Serializable> getAttributes()
+            {
+               return map;
+            }
+         };
+      }
+      return null;
+   }
+
+   private static RepositoryConfigurationXto marshalRepositoryConfiguration(
+         IRepositoryConfiguration configurationTemplate)
+   {
+      RepositoryConfigurationXto xto = null;
+      if (configurationTemplate != null)
+      {
+         xto = new RepositoryConfigurationXto();
+
+         xto.setAttributes(marshalMap(configurationTemplate.getAttributes()));
+      }
+      return xto;
+   }
+
+   public static RepositoryInstanceInfosXto marshalRepositoryInstanceInfos(
+         List<IRepositoryInstanceInfo> repositoryInstanceInfos)
+   {
+      RepositoryInstanceInfosXto xto = null;
+      if (repositoryInstanceInfos != null)
+      {
+         xto = new RepositoryInstanceInfosXto();
+         for (IRepositoryInstanceInfo iRepositoryInstanceInfo : repositoryInstanceInfos)
+         {
+            xto.getRepositoryInstanceInfo().add(marshalRepositoryInstanceInfo(iRepositoryInstanceInfo));
+         }
+      }
+      return xto;
+   }
+
+   private static RepositoryInstanceInfoXto marshalRepositoryInstanceInfo(
+         IRepositoryInstanceInfo iRepositoryInstanceInfo)
+   {
+      RepositoryInstanceInfoXto xto = new RepositoryInstanceInfoXto();
+      marshalRepositoryCapabilities(iRepositoryInstanceInfo, xto);
+
+      xto.setProviderId(iRepositoryInstanceInfo.getProviderId());
+      xto.setRepositoryId(iRepositoryInstanceInfo.getRepositoryId());
+      xto.setRepositoryName(iRepositoryInstanceInfo.getRepositoryName());
+      xto.setRepositoryType(iRepositoryInstanceInfo.getRepositoryType());
+      xto.setRepositoryVersion(iRepositoryInstanceInfo.getRepositoryVersion());
+
+      return xto;
+   }
+
+   public static RepositoryProviderInfosXto marshalRepositoryProviderInfos(
+         List<IRepositoryProviderInfo> repositoryProviderInfos)
+   {
+      RepositoryProviderInfosXto xto = null;
+      if (repositoryProviderInfos != null)
+      {
+         xto = new RepositoryProviderInfosXto();
+         for (IRepositoryProviderInfo iRepositoryProviderInfo : repositoryProviderInfos)
+         {
+            xto.getRepositoryproviderInfo().add(marshalRepositoryProviderInfo(iRepositoryProviderInfo));
+         }
+      }
+      return xto;
+   }
+
+   private static RepositoryProviderInfoXto marshalRepositoryProviderInfo(
+         IRepositoryProviderInfo iRepositoryProviderInfo)
+   {
+      RepositoryProviderInfoXto xto = new RepositoryProviderInfoXto();
+      marshalRepositoryCapabilities(iRepositoryProviderInfo, xto);
+
+      xto.setProviderId(iRepositoryProviderInfo.getProviderId());
+      xto.setProviderName(iRepositoryProviderInfo.getProviderName());
+
+      xto.setConfigurationTemplate(marshalRepositoryConfiguration(iRepositoryProviderInfo.getConfigurationTemplate()));
+
+      return xto;
+   }
+
+   private static void marshalRepositoryCapabilities(
+         IRepositoryCapabilities capabilities, RepositoryCapabilitiesXto xto)
+   {
+      xto.setAccessControlPolicySupported(capabilities.isAccessControlPolicySupported());
+      xto.setFullTextSearchSupported(capabilities.isFullTextSearchSupported());
+      xto.setMetaDataSearchSupported(capabilities.isMetaDataSearchSupported());
+      xto.setMetaDataWriteSupported(capabilities.isMetaDataWriteSupported());
+      xto.setTransactionSupported(capabilities.isTransactionSupported());
+      xto.setVersioningSupported(capabilities.isVersioningSupported());
+      xto.setWriteSupported(capabilities.isWriteSupported());
    }
 }

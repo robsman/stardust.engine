@@ -1010,6 +1010,7 @@
 			<sequence>
 				<element name="batchSize" type="xsd:int" />
 				<element name="evaluateTotalCount" type="xsd:boolean" />
+				<element name="repositoryId" type="xsd:string" minOccurs="0" />
 			</sequence>
 		</complexType>
 	</element>
@@ -1051,6 +1052,96 @@
 		<complexType>
 			<sequence>
 				<element name="schmema" type="bat:XmlValue" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="bindRepository">
+		<complexType>
+			<sequence>
+				<element name="repositoryConfiguration" type="bat:RepositoryConfiguration" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="bindRepositoryResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="unbindRepository">
+		<complexType>
+			<sequence>
+				<element name="repositoryId" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="unbindRepositoryResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getRepositoryInstanceInfos">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getRepositoryInstanceInfosResponse">
+		<complexType>
+			<sequence>
+				<element name="repositoryInstanceInfos" type="bat:RepositoryInstanceInfos" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getRepositoryProviderInfos">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getRepositoryProviderInfosResponse">
+		<complexType>
+			<sequence>
+				<element name="repositoryProviderInfos" type="bat:RepositoryProviderInfos" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setDefaultRepository">
+		<complexType>
+			<sequence>
+				<element name="repositoryId" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setDefaultRepositoryResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDefaultRepository">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDefaultRepositoryResponse">
+		<complexType>
+			<sequence>
+				<element name="repositoryId" type="xsd:string" />
 			</sequence>
 		</complexType>
 	</element>
@@ -1738,7 +1829,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<element name="addDeputy">
 		<complexType>
 			<sequence>
@@ -1748,7 +1839,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<element name="addDeputyResponse">
 		<complexType>
 			<sequence>
@@ -1756,7 +1847,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<element name="modifyDeputy">
 		<complexType>
 			<sequence>
@@ -1805,7 +1896,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<element name="getUsersBeingDeputyFor">
 		<complexType>
 			<sequence>
@@ -1821,7 +1912,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<!-- AdministrationService -->
 
 	<element name="getPasswordRules">

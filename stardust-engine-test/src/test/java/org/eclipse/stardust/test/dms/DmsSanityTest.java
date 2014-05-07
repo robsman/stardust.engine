@@ -82,6 +82,29 @@ public class DmsSanityTest
    {
    }
 
+   @Test
+   public void testGetFolderByPath()
+   {
+      getDms().createFolder("/", DmsUtils.createFolderInfo("test"));
+
+      Assert.assertNotNull(getDms().getFolder("/test"));
+      Assert.assertNotNull(getDms().getFolder("/test/"));
+   }
+
+   @Test
+   public void testGetNonExistingDocument()
+   {
+      Assert.assertNull(getDms().getDocument("nonexisting"));
+   }
+
+   @Test
+   public void testGetNonExistingFolder()
+   {
+      Assert.assertNull(getDms().getFolder("nonexisting"));
+      Assert.assertNull(getDms().getFolder("/nonexisting"));
+      Assert.assertNull(getDms().getFolder("/nonexisting/"));
+   }
+
    @Test(expected = DocumentManagementServiceException.class)
    public void testSameNameSiblingsForbidden()
    {

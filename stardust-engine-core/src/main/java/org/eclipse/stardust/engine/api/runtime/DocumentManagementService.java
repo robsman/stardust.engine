@@ -544,16 +544,67 @@ public interface DocumentManagementService extends Service
    // Repository Management.
    ///////////////////////////////////////////////////////////////////////////////////////
 
+   /**
+    * Binds a new repository instance.
+    * <p>
+    * The repository id supplied via {@link IRepositoryConfiguration#REPOSITORY_ID} can be
+    * freely chosen but has to differ from currently bound repository ids. <br>
+    * The provider id supplied via {@link IRepositoryConfiguration#PROVIDER_ID} has to
+    * match a registered repository provider.
+    * <p>
+    * A template {@link IRepositoryConfiguration} can be retrieved from
+    * {@link IRepositoryProviderInfo#getConfigurationTemplate()}.<br>
+    * This template contains keys and template values that are required for the
+    * configuration of an new repository instance.
+    *
+    * @param configuration
+    *           The configuration for the repository to bind.
+    */
    void bindRepository(IRepositoryConfiguration configuration);
 
+   /**
+    * Unbinds a previously bound repository.
+    *
+    * @param repositoryId The id of the repository instance to unbind.
+    */
    void unbindRepository(String repositoryId);
 
+   /**
+    * Provides information about all bound repositories.
+    *
+    * @return Repository instance information.
+    */
    List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
 
+   /**
+    * Provides information about all available repository providers.
+    * <p>
+    * The {@link IRepositoryProviderInfo#getProviderId()} is used to select a repository
+    * provider when binding a new repository instance with
+    * {@link #bindRepository(IRepositoryConfiguration)}.
+    *
+    * @return Repository provider information.
+    */
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
 
+   /**
+    * Allows to set a bound repository as default repository.
+    * <p>
+    * Path based access targets the default repository. <br>
+    * Id based access targets the repository contained in the id. An id provided by the
+    * system is always prefixed with a repository id. If the id is not provided by the
+    * system and is not prefixed with a repository id the default repository is targeted.
+    *
+    * @param repositoryId
+    *           The id of the repository instance.
+    */
    void setDefaultRepository(String repositoryId);
 
+   /**
+    * Allows to identify the currently set default repository.
+    *
+    * @return The id of the currently set default repository.
+    */
    String getDefaultRepository();
 
    ///////////////////////////////////////////////////////////////////////////////////////

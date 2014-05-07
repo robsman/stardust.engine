@@ -12,7 +12,10 @@ package org.eclipse.stardust.engine.core.spi.dms;
 
 /**
  * Provides information about a {@link IRepositoryProvider}.
- * 
+ * <p>
+ * A repository provider supplies a configurationTemplate to expose which information is
+ * needed to bind a new repository instance.
+ *
  * @author Roland.Stamm
  */
 public interface IRepositoryProviderInfo extends IRepositoryCapabilities
@@ -33,15 +36,15 @@ public interface IRepositoryProviderInfo extends IRepositoryCapabilities
     * Also values can be provided as templates to make configuration more intuitive.
     * <p>
     * Example:
-    * 
+    *
     * <pre>
     *    key   : jndiName
     *    value : java:/jcr/repository
-    *    
+    *
     *    key   : serverURL
     *    value : https://host:port/context/repository
     * </pre>
-    * 
+    *
     * @return A configuration template.
     */
    public IRepositoryConfiguration getConfigurationTemplate();

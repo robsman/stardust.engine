@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 71724 
+ * Generated from  Revision: 72326 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  * </ul>
  *
  * @author rsauer
- * @version 71724
+ * @version 72326
  */
 public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
@@ -1774,6 +1774,21 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Binds a new repository instance.
+     * <p>
+     * The repository id supplied via {@link IRepositoryConfiguration#REPOSITORY_ID} can be
+     * freely chosen but has to differ from currently bound repository ids. <br>
+     * The provider id supplied via {@link IRepositoryConfiguration#PROVIDER_ID} has to
+     * match a registered repository provider.
+     * <p>
+     * A template {@link IRepositoryConfiguration} can be retrieved from
+     * {@link IRepositoryProviderInfo#getConfigurationTemplate()}.<br>
+     * This template contains keys and template values that are required for the
+     * configuration of an new repository instance.
+     *
+     * @param configuration
+     *               The configuration for the repository to bind.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1808,6 +1823,10 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Unbinds a previously bound repository.
+     *
+     * @param repositoryId The id of the repository instance to unbind.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1841,6 +1860,10 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Provides information about all bound repositories.
+     *
+     * @return Repository instance information.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1876,6 +1899,14 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Provides information about all available repository providers.
+     * <p>
+     * The {@link IRepositoryProviderInfo#getProviderId()} is used to select a repository
+     * provider when binding a new repository instance with
+     * {@link #bindRepository(IRepositoryConfiguration)}.
+     *
+     * @return Repository provider information.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1911,6 +1942,16 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Allows to set a bound repository as default repository.
+     * <p>
+     * Path based access targets the default repository. <br>
+     * Id based access targets the repository contained in the id. An id provided by the
+     * system is always prefixed with a repository id. If the id is not provided by the
+     * system and is not prefixed with a repository id the default repository is targeted.
+     *
+     * @param repositoryId
+     *               The id of the repository instance.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1944,6 +1985,10 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Allows to identify the currently set default repository.
+     *
+     * @return The id of the currently set default repository.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *

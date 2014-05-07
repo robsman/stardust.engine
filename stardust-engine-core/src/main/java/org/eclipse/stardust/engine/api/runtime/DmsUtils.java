@@ -27,6 +27,7 @@ import javax.activation.MimetypesFileTypeMap;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
@@ -468,7 +469,7 @@ public class DmsUtils
             Folder parentFolder = ensureFolderHierarchyExists(parentPath, dms);
             if (null == parentFolder)
             {
-               return dms.createFolder(VfsUtils.REPOSITORY_ROOT,
+               return dms.createFolder(RepositoryConstants.ROOT_FOLDER_PATH,
                      createFolderInfo(childName));
             }
             else

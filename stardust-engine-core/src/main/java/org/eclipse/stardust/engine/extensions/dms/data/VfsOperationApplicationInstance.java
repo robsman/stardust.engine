@@ -33,8 +33,8 @@ import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
-import org.eclipse.stardust.vfs.VfsUtils;
 
 
 /**
@@ -264,7 +264,6 @@ public class VfsOperationApplicationInstance
 
             Map legoDocumentInfo = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT);
 
-            // TODO (RST) verify if new DmsDocumentBean(lego) is sufficient
             Document newFile = dms.createDocument(parentFolder.getId(),
                   new DmsDocumentBean(legoDocumentInfo));
 
@@ -272,8 +271,7 @@ public class VfsOperationApplicationInstance
             {
                // version the newly created document
                String revisionComment = getVersionLabel();
-               // TODO (RST) CHECK TOMORROW
-               newFile = dms.versionDocument(newFile.getId(), revisionComment);
+               newFile = dms.versionDocument(newFile.getId(), null, revisionComment);
             }
 
             if (outDataTypes.contains(VfsOperationAccessPointProvider.AP_ID_DOCUMENT))
@@ -383,51 +381,12 @@ public class VfsOperationApplicationInstance
                result.put(VfsOperationAccessPointProvider.AP_ID_FOLDER, folder);
             }
          }
-//         else if (DmsOperation.OP_LOCK_DOCUMENT == operation)
-//         {
-//            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
-//            if (dms instanceof DocumentManagementServiceImpl)
-//            {
-//               ((DocumentManagementServiceImpl) dms).lockDocument(id);
-//            }
-//            else
-//            {
-//               throw new InternalException(
-//                     "Lock document not available for implementation: " + dms.getClass());
-//            }
-//         }
-//         else if (DmsOperation.OP_UNLOCK_DOCUMENT == operation)
-//         {
-//            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
-//            if (dms instanceof DocumentManagementServiceImpl)
-//            {
-//               ((DocumentManagementServiceImpl) dms).unlockDocument(id);
-//            }
-//            else
-//            {
-//               throw new InternalException(
-//                     "Unlock document not available for implementation: "
-//                           + dms.getClass());
-//            }
-//         }
-         else if (DmsOperation.OP_LOCK_FOLDER == operation)
-         {
-            throw new RuntimeException("lockFolder is not implemented yet");
-            // String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
-            // vfs.lockFolder(id);
-         }
-         else if (DmsOperation.OP_UNLOCK_FOLDER == operation)
-         {
-            throw new RuntimeException("unlockFolder is not implemented yet");
-            // String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
-            // vfs.unlockFolder(id);
-         }
          else if (DmsOperation.OP_VERSION_DOCUMENT == operation)
          {
             Map legoDocument = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT);
             String versionLabel = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_VERSION_LABEL);
             String documentId = (String) legoDocument.get(AuditTrailUtils.RES_ID);
-            Document versionedDocument = dms.versionDocument(documentId, versionLabel);
+            Document versionedDocument = dms.versionDocument(documentId, null, versionLabel);
 
             if (outDataTypes.contains(VfsOperationAccessPointProvider.AP_ID_DOCUMENT))
             {
@@ -481,8 +440,6 @@ public class VfsOperationApplicationInstance
    private Folder getDefaultFolder()
    {
       Folder folder = DmsUtils.ensureFolderHierarchyExists(this.defaultPath, dms);
-      // TODO (ab) maybe cache the default folder (in the transaction?)
-      // put it to the properties
       return folder;
    }
 
@@ -500,9 +457,9 @@ public class VfsOperationApplicationInstance
          }
          else
          {
-            if ( !folderPath.startsWith(VfsUtils.REPOSITORY_PATH_PREFIX))
+            if ( !folderPath.startsWith(RepositoryConstants.PATH_SEPARATOR))
             {
-               folderPath = VfsUtils.REPOSITORY_PATH_PREFIX + folderPath;
+               folderPath = RepositoryConstants.PATH_SEPARATOR + folderPath;
             }
 
             Folder targetFolder = dms.getFolder(folderPath, Folder.LOD_NO_MEMBERS);

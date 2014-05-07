@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
@@ -35,7 +36,7 @@ public class DataCopyUtils
    private DataCopyUtils()
    {
    }
-   
+
    protected static void copyNotes(IProcessInstance srcProcessInstance,
          IProcessInstance processInstance)
    {
@@ -447,7 +448,7 @@ public class DataCopyUtils
    private static boolean isVersioned(Document doc)
    {
       boolean result = true;
-      if (VfsUtils.VERSION_UNVERSIONED.equals(doc.getRevisionId()))
+      if (RepositoryConstants.VERSION_UNVERSIONED.equals(doc.getRevisionId()))
       {
          result = false;
       }
@@ -772,7 +773,7 @@ public class DataCopyUtils
          Set<String> translated = CollectionUtils.newSet();
          IProcessDefinition pd = pi.getProcessDefinition();
          IModel model = (IModel) pd.getModel();
-         
+
          for (Map.Entry<String, String> entry : translation.entrySet())
          {
             String newDataId = entry.getKey();

@@ -35,7 +35,7 @@ public class RepositoryIdUtils
    /**
     * The prefix that is used to identify a repositoryId.
     */
-   public final static String REPOSITORY_ID_PREFIX = "{urn:repositoryId:";
+   public static final String REPOSITORY_ID_PREFIX = "{urn:repositoryId:";
 
    public static String extractRepositoryId(String prefixedId)
    {

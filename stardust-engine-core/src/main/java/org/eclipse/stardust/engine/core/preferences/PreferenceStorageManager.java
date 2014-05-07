@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.extensions.dms.data.TransientUser;
 
 
 
@@ -185,7 +186,8 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
 
       String realmId = null;
       String userId = null;
-      if (user != null)
+      // TransientUser is always Admin, follow up Issue will prevent creating details objects
+      if (user != null && !(user instanceof TransientUser))
       {
          User userDetails = (User) DetailsFactory.create(SecurityProperties.getUser(),
                IUser.class, UserDetails.class);

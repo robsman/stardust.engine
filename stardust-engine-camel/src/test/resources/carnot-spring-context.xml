@@ -1,144 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<!--
-	- Application context for a Infinity Process Engine client.
--->
+<!-- - Application context with IPP services for a Infinity Process Engine client. -->
 <beans>
+   <import resource="classpath:carnot-spring-jta-jencks-context.xml" />
 
-   <!-- Infinity Process Platform Global Configuration -->
-
-   <!-- Resolves ${...} placeholders from carnot.properties -->
-   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-      <property name="location" value="classpath:carnot.properties" />
-   </bean>
-   
    <bean id="carnotXaAuditTrailDataSource" class="org.apache.derby.jdbc.EmbeddedXADataSource">
       <property name="databaseName" value="target/ipp-test-DB" />
       <property name="user" value="carnot" />
       <property name="password" value="ag" />
-      <property name="createDatabase" value="create"/>
+      <property name="createDatabase" value="create" />
    </bean>
 
-	<bean id="carnotDataSourceTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="carnotXaAuditTrailDataSource" />
-	</bean>
+   <bean id="carnotWorkflowService" parent="abstractPublicCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />
 
-   <!-- adjust to whatever TX manager is required -->
-   <!-- alias alias="carnotTxManager" name="carnotDataSourceTxManager" /> -->
-   <alias alias="carnotTxManager" name="jtaTxManager" />
+   <bean id="carnotUserService" parent="abstractPublicCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.UserServiceBean" />
 
-	<!-- NOTE: changed for testing setup! Compare to original and revert for server deployment. -->
-	<bean name="carnotDefaultDmsProvider" class="org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean">
+   <bean id="carnotQueryService" parent="abstractPublicCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.QueryServiceBean" />
 
-      <!-- Resolve session factory by name to enable lazy initialization. -->
-      <property name="sessionFactoryName" value="jcrSessionFactory" /> 
+   <bean id="carnotAdministrationService" parent="abstractPublicCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.AdministrationServiceBean" />
 
-	</bean>
+   <bean id="carnotDocumentManagementService" parent="abstractPublicCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.DocumentManagementServiceBean" />
 
-	<!-- Can be used to override settings from carnot.properties -->
-	<bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<!-- 
-            <prop key="AuditTrail.Type">DERBY</prop>
- -->
-			</props>
-		</property>
-	</bean>
+   <bean abstract="true" id="abstractCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
+      <property name="carnotProperties" ref="customCarnotProperties" />
+      <property name="transactionManager" ref="carnotTxManager" />
+      <property name="dataSource" ref="xaAuditTrailConnectionFactory" />
+      <property name="jcaResourceProvider" ref="carnotJcaResourceResolver" />
+      <!-- <property name="jmsResourceProvider" ref="carnotJmsResourceResolver" /> -->
+   </bean>
 
-	<!-- Infinity Process Platform API -->
-	<bean id="carnotWorkflowService" parent="abstractPublicCarnotService" class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />
+   <bean name="carnotJcaResourceResolver"
+      class="org.eclipse.stardust.engine.spring.integration.jca.DefaultJcaResourceResolver" />
 
-	<bean id="carnotUserService" parent="abstractPublicCarnotService" class="org.eclipse.stardust.engine.api.spring.UserServiceBean" />
+<!--    <bean name="carnotJmsResourceResolver"
+      class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" /> -->
 
-	<bean id="carnotQueryService" parent="abstractPublicCarnotService" class="org.eclipse.stardust.engine.api.spring.QueryServiceBean" />
+   <bean abstract="true" name="abstractPublicCarnotService" parent="abstractCarnotService">
+      <!--property name="principalProvider" ref="whatever" / -->
+   </bean>
 
-	<bean id="carnotAdministrationService" parent="abstractPublicCarnotService" class="org.eclipse.stardust.engine.api.spring.AdministrationServiceBean" />
-
-	<bean id="carnotDocumentManagementService" parent="abstractPublicCarnotService" class="org.eclipse.stardust.engine.api.spring.DocumentManagementServiceBean" />
-
-
-	<!-- Infinity Process Platform Internals -->
-
-
-	<bean abstract="true" id="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
-
-		<property name="carnotProperties" ref="customCarnotProperties" />
-
-		<property name="transactionManager" ref="carnotTxManager" />
-
-		<property name="dataSource" ref="xaAuditTrailConnectionFactory" />
-		<property name="dmsProvider" ref="carnotDefaultDmsProvider" />
-	</bean>
-
-	<bean abstract="true" name="abstractPublicCarnotService" parent="abstractCarnotService">
-		<!--property name="principalProvider" ref="whatever" /-->
-	</bean>
-
-   <!-- IMPORTANT for testing setup: lazy-init the forking service or it might try to communicate with the
-   		AuditTrail DB before the test setup has had a chance to create the schema! -->
-   <bean id="carnotForkingService" parent="abstractCarnotService"
-      class="org.eclipse.stardust.engine.api.spring.QueuedSpringForkingService"
-      lazy-init="true">
+   <bean id="localForkingService" parent="abstractCarnotService"
+      class="org.eclipse.stardust.engine.api.spring.QueuedSpringForkingService">
       <property name="jobManager" ref="carnotAsyncJobManager" />
    </bean>
-	<bean id="carnotAsyncJobManager" class="org.eclipse.stardust.engine.spring.threading.FiFoJobManager" singleton="true">
-		<property name="maxParallelJobs" value="10" />
-		<property name="useShutdownHook" value="true" />
-	</bean>
 
-	<!-- JTA TX manager for i.e. Tomcat -->
+   <!-- Replace jmsForkingService by 'localForkingService' in a non-jms environment. Using 
+      a jms environment it should be replaced by 'jmsForkingService'. -->
+   <alias name="localForkingService" alias="carnotForkingService" />
 
-	<bean id="jtaTxManager" class="org.springframework.transaction.jta.JtaTransactionManager">
-		<property name="userTransaction" ref="xaTransactionManager" />
-	</bean>
+   <bean id="carnotAsyncJobManager" class="org.eclipse.stardust.engine.spring.threading.FiFoJobManager"
+      singleton="true">
+      <property name="maxParallelJobs" value="10" />
+      <property name="useShutdownHook" value="true" />
+   </bean>
 
-	<bean name="xaTransactionManager" class="org.jencks.factory.TransactionManagerFactoryBean" />
-
-	<bean id="jencksConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
-
-		<property name="transactionManager" ref="xaTransactionManager" />
-
-		<property name="transaction" value="xa" />
-
-		<!--property name="connectionTracker">
-         <bean class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator" />
-      </property-->
-	</bean>
-
-	<bean id="xaAuditTrailConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean">
-		<property name="managedConnectionFactory">
-			<bean class="org.eclipse.stardust.engine.core.persistence.jca.XaDataSourceMCF">
-				<constructor-arg index="0" ref="carnotXaAuditTrailDataSource" />
-			</bean>
-		</property>
-		<property name="connectionManager" ref="jencksConnectionManager" />
-	</bean>
-
-	<!--   <bean id="hibernatePropertiesBean"-->
-	<!--		class="org.springframework.beans.factory.config.PropertiesFactoryBean" lazy-init="true" >-->
-	<!--		<property name="properties">-->
-	<!--			<props>-->
-	<!--				<prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>-->
-	<!--				<prop key="hibernate.connection.autocommit">false</prop>-->
-	<!--				<prop key="hibernate.hbm2ddl.auto">update</prop>-->
-	<!--			</props>-->
-	<!--		</property>    -->
-	<!--	</bean>-->
-
-	<!--	<bean id="hibernateSessionFactory"-->
-	<!--		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" lazy-init="true"> -->
-	<!--		<property name="dataSource">-->
-	<!-- 			<ref bean="carnotXaAuditTrailDataSource" />-->
-	<!--		</property>-->
-	<!--        <property name="jtaTransactionManager">-->
-	<!--            <bean factory-bean="jtaTxManager" factory-method="getTransactionManager"/>-->
-	<!--        </property>-->
-	<!--		<property name="mappingLocations">-->
-	<!--			<value>classpath:**/*.hbm.xml</value>-->
-	<!--		</property>-->
-	<!--		<property name="hibernateProperties" ref="hibernatePropertiesBean" />-->
-	<!--	</bean>-->
-
+   <!-- Can be used to override settings from carnot.properties -->
+   <bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+      <property name="properties">
+         <props>
+            <!-- <prop key="AuditTrail.Type">DERBY</prop> -->
+         </props>
+      </property>
+   </bean>
 </beans>

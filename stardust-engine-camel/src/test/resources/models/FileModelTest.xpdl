@@ -533,7 +533,7 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://C:\DEV\workspace7.0LogginService_LMBranche7.2Voorhees\product_trunk_trunk\stardust\engine\stardust-engine-camel\target\FileDirectory\SplitTest?fileName=SplitFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&amp;amp;noop=false&amp;amp;delete=true&quot;/&gt;&lt;split &gt;&lt;tokenize token=&quot;\n&quot; /&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;&lt;/split&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://.\target\FileDirectory\SplitTest?fileName=SplitFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&amp;amp;noop=false&amp;amp;delete=true&quot;/&gt;&lt;split &gt;&lt;tokenize token=&quot;\n&quot; /&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;&lt;/split&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SplitData"/>

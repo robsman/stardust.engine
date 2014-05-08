@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+	- Application context with TX-manager definition for a Infinity Process Engine client.
+-->
+<beans>
+	<alias alias="carnotTxManager" name="jtaTxManager" />
+
+	<bean id="jtaTxManager"
+		class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="userTransaction" ref="xaTransactionManager" />
+	</bean>
+
+	<bean name="xaTransactionManager"
+		class="org.jencks.factory.TransactionManagerFactoryBean" />
+
+	<bean id="jencksConnectionManager"
+		class="org.jencks.factory.ConnectionManagerFactoryBean">
+
+		<property name="transactionManager" ref="xaTransactionManager" />
+		<property name="transaction" value="xa" />
+		<property name="poolMinSize" value="20" />
+		<property name="poolMaxSize" value="50" />
+
+	</bean>
+
+	<bean id="xaAuditTrailConnectionFactory"
+		class="org.springframework.jca.support.LocalConnectionFactoryBean">
+		<property name="managedConnectionFactory">
+			<bean class="org.eclipse.stardust.engine.core.persistence.jca.XaDataSourceMCF">
+				<constructor-arg index="0"
+					ref="carnotXaAuditTrailDataSource" />
+			</bean>
+		</property>
+		<property name="connectionManager"
+			ref="jencksConnectionManager" />
+	</bean>
+</beans>

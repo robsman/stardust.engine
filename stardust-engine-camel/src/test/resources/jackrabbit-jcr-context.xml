@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
@@ -7,27 +18,28 @@
       <constructor-arg index="0" value="jcr-password" />
    </bean>
 
-   <!-- must be lazy-init="true" as the Jackrabbit startup servlet will be executed after the Spring context listener -->
-   <!-- 
-   <bean lazy-init="true" id="carnotJackrabbitRepository" class="org.springframework.jndi.JndiObjectFactoryBean">
-      <property name="jndiName" value="jackrabbit.repository" />
+   <!-- Repository startup and binding to jndi -->
+   <bean id="carnotJackrabbitRepository" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
+      <property name="jndiName" value="jcr/ContentRepository" />
+      <property name="repositoryConfig" value="repository.xml" />
+	  <property name="repositoryHome" value="./target/tmp/repository" />
+     <property name="bindToJndi" value="false" />
+     
    </bean>
- 	-->
+   
+   <!-- Make the XA transaction enabled jcrSessionFactory available as JcaResource -->
+   <bean class="org.eclipse.stardust.engine.spring.integration.jca.JcaResourceBinding">
+      <property name="name" value="jcr/ContentRepository" />
+      <property name="resource" ref="jcrSessionFactory" />
+   </bean>
 
-	<!-- JackRabbit JCA specific configuration -->
-	<bean id="jcrManagedConnectionFactory"
-		class="org.apache.jackrabbit.jca.JCAManagedConnectionFactory">
+   <bean lazy-init="true"
+         name="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory">
 
-		<property name="homeDir" value="./target/jcr-test-repository" />
-		<property name="configFile" value="classpath:repository.xml" />
-		<property name="bindSessionToTransaction" value="true" />
+      <property name="repository" ref="xaJcrConnectionFactory" />
 
-	</bean>
-
-   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory" lazy-init="true">
-      <property name="repository" ref="jcrRepository" />
       <property name="credentials">
-         <bean id="creds" class="javax.jcr.SimpleCredentials">
+         <bean class="javax.jcr.SimpleCredentials">
             <constructor-arg index="0" value="jcr-user" />
             <constructor-arg index="1">
                <bean factory-bean="jcrPassword" factory-method="toCharArray" />
@@ -37,15 +49,24 @@
    </bean>
 
    <!-- Wrap Jackrabbit repository as JCA resource to hook into JTA TX management. -->
-   <bean lazy-init="true"
-         id="jcrRepository" class="org.springframework.jca.support.LocalConnectionFactoryBean">
 
-      <property name="managedConnectionFactory" ref="jcrManagedConnectionFactory" />
+   <bean lazy-init="true"
+         id="xaJcrConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean">
+
+      <property name="managedConnectionFactory">
+         <bean
+            class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
+            <property name="repository" ref="carnotJackrabbitRepository" />
+            <property name="bindSessionToTransaction" value="true" />
+         </bean>
+		</property>
 
       <property name="connectionManager">
          <bean class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="xa" />
+            <!-- http://docs.codehaus.org/display/JCA/notcm+Connection+Manager -->
+            <property name="partitionStrategy" value="by-connector-properties"/>
          </bean>
       </property>
 	</bean>

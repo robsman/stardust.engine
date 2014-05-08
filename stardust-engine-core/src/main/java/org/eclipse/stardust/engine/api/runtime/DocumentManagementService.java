@@ -135,7 +135,7 @@ public interface DocumentManagementService extends Service
     * Retrieves a folder and lists its members.
     *
     * @param folderId The ID or path expression identifying the folder to be retrieved.
-    * @return The resolved folder.
+    * @return The resolved folder if no folder with such ID (or path) exists.
     * @throws DocumentManagementServiceException on DMS specific errors
     *
     * @see Folder#LOD_LIST_MEMBERS
@@ -272,31 +272,16 @@ public interface DocumentManagementService extends Service
 
    /**
     * Moves the document to the target path.
+    * <p>
+    * If the targetPath or folderId points to a different repository than the source
+    * document is located in only the latest version is moved to the targeted repository.
     *
     * @param documentId The document to be moved.
-    * @param targetPath The path to move the document to.
+    * @param targetPath The path or folderId to move the document to.
     * @return The moved Document.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
    Document moveDocument(final String documentId, final String targetPath) throws DocumentManagementServiceException;
-
-   /**
-    * Locks the document for exclusive access.
-    *
-    * @param documentId ID or path of the document to be locked
-    * @return the locked document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-//   Document lockDocument(String documentId) throws DocumentManagementServiceException;
-
-   /**
-    * Unlocks the document previously locked by <code>lockDocument</code>.
-    *
-    * @param documentId ID or path of the document to be locked
-    * @return the unlocked document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   //Document unlockDocument(String documentId) throws DocumentManagementServiceException;
 
    /**
     * Updates document (except document content).

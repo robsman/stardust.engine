@@ -79,6 +79,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
@@ -568,9 +569,18 @@ public class JcrVfsRepositoryService
 
             if (file != null)
             {
-               if ( !pathWithPrefix.endsWith("/"))
+               if (!pathWithPrefix.startsWith(RepositoryConstants.PATH_SEPARATOR))
                {
-                  pathWithPrefix += "/";
+                  IFolder folder = vfs.getFolder(targetPath);
+                  if (folder!=null)
+                  {
+                     pathWithPrefix = folder.getPath();
+                  }
+               }
+
+               if ( !pathWithPrefix.endsWith(RepositoryConstants.PATH_SEPARATOR))
+               {
+                  pathWithPrefix += RepositoryConstants.PATH_SEPARATOR;
                }
                pathWithPrefix += file.getName();
             }

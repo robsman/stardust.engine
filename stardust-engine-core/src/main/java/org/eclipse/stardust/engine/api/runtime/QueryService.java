@@ -45,7 +45,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
  * to set {@link SessionProperties.DS_NAME_READ_ONLY}
  * used in {@link DataValueBean}
  */
-@TransientState                        
+@TransientState
 public interface QueryService extends Service
 {
    /**
@@ -681,7 +681,7 @@ public interface QueryService extends Service
     * having any changes. If a department does not exist in audit trail but is present in
     * external repository the department will not be created in audit trail on
     * synchronization with external repository.
-    * 
+    *
     * @param parent
     *           the parent department.
     * @param organization
@@ -719,7 +719,7 @@ public interface QueryService extends Service
     * will be created in audit trail if it is not already present there but exists in
     * external repository. If the department exists in audit trail it will be updated on
     * synchronization if there are any changes.
-    * 
+    *
     * @param parent
     *           the search scope. It can be null, in which case the search scope is the
     *           top level.
@@ -756,7 +756,9 @@ public interface QueryService extends Service
     * @param query the document query.
     *
     * @return a List of Document objects.
+    * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
     */
+   @Deprecated
    Documents getAllDocuments(DocumentQuery query);
 
    /**

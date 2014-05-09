@@ -27,8 +27,8 @@ public interface EventHandlerOwner extends ModelElement
     */
    Iterator getAllEventHandlers();
 
-   ModelElementList getEventHandlers();
-   
+   ModelElementList<IEventHandler> getEventHandlers();
+
    void removeFromEventHandlers(IEventHandler handler);
 
    void addToEventHandlers(IEventHandler handler);

@@ -13,10 +13,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 /**
  * @author ubirkemeyer
@@ -27,19 +26,14 @@ public class POJOServiceFactory extends AbstractSessionAwareServiceFactory
    private String password;
    private String username;
 
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      String serviceName = service.getName();
-      int dot = serviceName.lastIndexOf(".");
-      String packageName = serviceName.substring(0, dot).replace(".api.", ".core.");
-      String className = serviceName.substring(dot + 1);
+      IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
+      InvocationManager invocationHandler = new POJOInvocationManager(provider.getInstance(),
+            provider.getServiceName());
 
-      Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
-
-      InvocationManager invocationHandler = new POJOInvocationManager(inner, serviceName);
-
-      Service result = (Service) Proxy.newProxyInstance(
-            service.getClassLoader(), new Class[] {service, ManagedService.class}, invocationHandler);
+      T result = (T) Proxy.newProxyInstance(
+            type.getClassLoader(), new Class[] {type, ManagedService.class}, invocationHandler);
 
       ((ManagedService)result).login(username, password, getProperties());
 

@@ -23,12 +23,11 @@ import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingService;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingUtils;
@@ -36,11 +35,11 @@ import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
-
-
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 /**
  * Retrieves IPP service homes from the EJB environment's JNDI context. Supports both
@@ -57,7 +56,6 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 
    private String userName;
    private String password;
-
 
    public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException,
          LoginFailedException
@@ -85,14 +83,11 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
     * @return An instance of the requested service, either freshly created or retrieved
     *         from the service factorie's pool.
     */
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      Service result = null;
       try
       {
-         String serviceName = service.getName();
-         int dot = serviceName.lastIndexOf(".");
-         String className = serviceName.substring(dot + 1);
+         IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
 
          Context context = new InitialContext();
          Context javacomp = (Context) context.lookup("java:comp/env");
@@ -104,13 +99,13 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          Pair homePair;
          try
          {
-            homePair = getLocalHome(javacomp, className);
-            trace.info("Using local interface for service " + className);
+            homePair = getLocalHome(javacomp, provider);
+            trace.info("Using local interface for service " + provider.getName());
          }
          catch (NameNotFoundException x)
          {
-            homePair = getRemoteHome(javacomp, className);
-            trace.info("Using remote interface for service " + className);
+            homePair = getRemoteHome(javacomp, provider);
+            trace.info("Using remote interface for service " + provider.getName());
          }
 
          Class homeClass = (Class) homePair.getFirst();
@@ -121,7 +116,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          LogUtils.traceObject(inner, false);
 
          TunneledContext tunneledContext = null;
-         if ( !SecurityProperties.isPrincipalBasedLogin())
+         if (!SecurityProperties.isPrincipalBasedLogin())
          {
             if (inner instanceof TunnelingService)
             {
@@ -142,11 +137,10 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
             else
             {
                Method loginMethod = inner.getClass().getMethod("login",
-                     new Class[] { String.class, String.class, Map.class });
+                     new Class[] {String.class, String.class, Map.class});
                try
                {
-                  loginMethod.invoke(inner, new Object[] { userName, password,
-                        getProperties() });
+                  loginMethod.invoke(inner, new Object[] {userName, password, getProperties()});
                }
                catch (InvocationTargetException e)
                {
@@ -161,25 +155,25 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
             }
          }
 
-         ClientInvocationHandler invocationHandler = new ClientInvocationHandler(inner, tunneledContext);
-         result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-               new Class[]{service, ManagedService.class}, invocationHandler);
+         return (T) Proxy.newProxyInstance(type.getClassLoader(),
+               new Class[] {type, ManagedService.class},
+               new ClientInvocationHandler(inner, tunneledContext));
       }
       catch (Exception e)
       {
          LogUtils.traceException(e, true);
       }
 
-      return result;
+      // (fh) this line is never reached, but won't compile without it.
+      return null;
    }
 
-   private Pair getRemoteHome(Context javacomp, String className) throws NamingException
+   private Pair getRemoteHome(Context javacomp, IServiceProvider<?> provider) throws NamingException
    {
-      Object rawHome = javacomp.lookup("ejb/" + className);
+      Object rawHome = javacomp.lookup("ejb/" + provider.getName());
       LogUtils.traceObject(rawHome, false);
 
-      String homeClassName = "org.eclipse.stardust.engine.api.ejb2.Remote" + className + "Home";
-      Class homeClass = Reflect.getClassFromClassName(homeClassName);
+      Class homeClass = provider.getEJBHomeClass();
       Object home;
       try
       {
@@ -207,13 +201,12 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
       return new Pair(homeClass, home);
    }
 
-   private Pair getLocalHome(Context javacomp, String className) throws NamingException
+   private Pair getLocalHome(Context javacomp, IServiceProvider<?> provider) throws NamingException
    {
-      Object rawHome = javacomp.lookup("ejb/Local" + className);
+      Object rawHome = javacomp.lookup("ejb/" + provider.getLocalName());
       LogUtils.traceObject(rawHome, false);
-      String homeClassName = "org.eclipse.stardust.engine.api.ejb2.Local" + className + "Home";
-      Class homeClass = Reflect.getClassFromClassName(homeClassName);
-      if ( !homeClass.isInstance(rawHome))
+      Class homeClass = provider.getLocalHomeClass();
+      if (!homeClass.isInstance(rawHome))
       {
          Pair tunnelingHome = TunnelingUtils.castToTunnelingLocalServiceHome(rawHome, homeClass);
          if (null != tunnelingHome)

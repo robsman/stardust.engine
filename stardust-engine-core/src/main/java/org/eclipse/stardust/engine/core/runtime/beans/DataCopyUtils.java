@@ -27,7 +27,6 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.stardust.vfs.VfsUtils;
 
 public class DataCopyUtils
 {
@@ -306,7 +305,7 @@ public class DataCopyUtils
                document.setProperties(Collections.EMPTY_MAP);
                document.setDocumentType(null);
 
-               if ( !isVersioned(document))
+               if (!isVersioned(document))
                {
                   dms.versionDocument(document.getId(), null, null);
                }
@@ -327,7 +326,7 @@ public class DataCopyUtils
                   document.setProperties(Collections.EMPTY_MAP);
                   document.setDocumentType(null);
 
-                  if ( !isVersioned(document))
+                  if (!isVersioned(document))
                   {
                      dms.versionDocument(document.getId(), null, null);
                   }
@@ -447,12 +446,7 @@ public class DataCopyUtils
 
    private static boolean isVersioned(Document doc)
    {
-      boolean result = true;
-      if (RepositoryConstants.VERSION_UNVERSIONED.equals(doc.getRevisionId()))
-      {
-         result = false;
-      }
-      return result;
+      return !RepositoryConstants.VERSION_UNVERSIONED.equals(doc.getRevisionId());
    }
 
    private static Map<String, DataCopyMappingRule> createCopyDataHeuristicRules(

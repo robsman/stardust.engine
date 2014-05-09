@@ -22,7 +22,9 @@ import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 
 /**
@@ -43,46 +45,37 @@ public class RemoteServiceFactory extends AbstractSessionAwareServiceFactory
                   "org.eclipse.stardust.engine.api.ejb2.InternallyAuthentifiedSecureSessionFactory"));
    }
 
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      String serviceName = service.getName();
-      int dot = serviceName.lastIndexOf(".");
-      String className = serviceName.substring(dot + 1);
-      Class home = Reflect.getClassFromClassName("org.eclipse.stardust.engine.api.ejb2.Remote"
-            + className + "Home");
-      Class remote = Reflect.getClassFromClassName("org.eclipse.stardust.engine.api.ejb2.Remote"
-            + className);
+      IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
 
       EJBObject inner;
-      TunneledContext tunneledContext;
+      TunneledContext tunneledContext = null;
       if (secureSessionFactory instanceof TunnelingAwareSecureSessionFactory)
       {
          TunnelingAwareSecureSessionFactory.SecureSession session = ((TunnelingAwareSecureSessionFactory) secureSessionFactory).getSecureSession(
                Parameters.instance().getString(
-                     Reflect.getHumanReadableClassName(service) + ".JndiName",
-                     service.getName()), //
-               home, remote, new Class[] {}, new Object[] {}, //
+                     provider.getJndiPropertyName(),
+                     provider.getServiceName()),
+               provider.getEJBHomeClass(), provider.getEJBRemoteClass(), new Class[] {}, new Object[] {},
                credentials, getProperties());
-         
+
          inner = (EJBObject) session.endpoint;
          tunneledContext = session.tunneledContext;
       }
       else
       {
-         inner = (EJBObject) secureSessionFactory.get(Parameters.instance()
-               .getString(Reflect.getHumanReadableClassName(service) + ".JndiName",
-                     service.getName()),
-                     home, remote, new Class[]{}, new Object[]{}, credentials, getProperties());
-
-         // no tunneling
-         tunneledContext = null;
+         inner = (EJBObject) secureSessionFactory.get(
+               Parameters.instance().getString(
+                     provider.getJndiPropertyName(),
+                     provider.getServiceName()),
+               provider.getEJBHomeClass(), provider.getEJBRemoteClass(), new Class[] {}, new Object[] {},
+               credentials, getProperties());
       }
 
-      Service result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-            new Class[]{service, ManagedService.class},
+      return (T) Proxy.newProxyInstance(type.getClassLoader(),
+            new Class[] {type, ManagedService.class},
             new ClientInvocationHandler(inner, tunneledContext));
-      
-      return result;
    }
 
    public void setCredentials(Map credentials)

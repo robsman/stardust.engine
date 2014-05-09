@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
@@ -32,6 +33,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 
 /**
@@ -84,46 +86,38 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
       this.properties = properties;
    }
 
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      String serviceName = service.getName();
-      int dot = serviceName.lastIndexOf(".");
-      String className = serviceName.substring(dot + 1);
+      IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
 
       ApplicationContext appContext = getApplicationContext();
       if (null == appContext)
       {
          appContext = SpringUtils.getApplicationContext();
       }
-      Object serviceBean = appContext.getBean("carnot" + className, service);
 
-      Service result;
-      if ((SecurityProperties.isPrincipalBasedLogin() && (null == userPrincipal))
-            || ((serviceBean instanceof AbstractSpringServiceBean)
-               && (null != ((AbstractSpringServiceBean) serviceBean).getPrincipalProvider())))
+      T serviceBean = appContext.getBean(provider.getSpringBeanName(), type);
+      if (SecurityProperties.isPrincipalBasedLogin() && userPrincipal == null
+            || serviceBean instanceof AbstractSpringServiceBean
+               && ((AbstractSpringServiceBean) serviceBean).getPrincipalProvider() != null)
       {
-         result = (Service) serviceBean;
+         return serviceBean;
+      }
+
+      LoggedInUser loggedInUser;
+      if (null != userPrincipal)
+      {
+         loggedInUser = new LoggedInUser(J2EEUtils.getPrincipalName(userPrincipal),
+               Collections.EMPTY_MAP);
       }
       else
       {
-         LoggedInUser loggedInUser;
-         if (null != userPrincipal)
-         {
-            loggedInUser = new LoggedInUser(J2EEUtils.getPrincipalName(userPrincipal),
-                  Collections.EMPTY_MAP);
-         }
-         else
-         {
-            loggedInUser = ((ManagedService) serviceBean).login(username, password,
-                  properties);
-         }
-
-         result = (Service) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {
-               service, ManagedService.class}, new SpringServiceInvocationHandler(
-               serviceBean, loggedInUser));
+         loggedInUser = ((ManagedService) serviceBean).login(username, password, properties);
       }
 
-      return result;
+      return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class[] {type, ManagedService.class},
+            new SpringServiceInvocationHandler(serviceBean, loggedInUser));
    }
 
    public void setCredentials(Map credentials)

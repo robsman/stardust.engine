@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
@@ -26,6 +25,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 public class EmbeddedServiceFactory extends DefaultServiceFactory
 {
@@ -91,18 +91,12 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
      this.autoFlush = autoFlush;
    }
 
-   public <T extends Service> T getService(Class<T> service) throws ServiceNotAvailableException,
-         LoginFailedException
+   public <T extends Service> T getService(Class<T> service)
+         throws ServiceNotAvailableException, LoginFailedException
    {
-      String serviceName = service.getName();
-      int dot = serviceName.lastIndexOf(".");
-      String packageName = serviceName.substring(0, dot).replace(".api.", ".core.");
-      String className = serviceName.substring(dot + 1);
-
-      Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
-
-      InvocationManager invocationHandler = new EmbeddedInvocationManager(inner,
-            serviceName, withPropertyLayer, withLogin, autoFlush);
+      IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(service);
+      InvocationManager invocationHandler = new EmbeddedInvocationManager(provider.getInstance(),
+            provider.getServiceName(), withPropertyLayer, withLogin, autoFlush);
 
       T result = (T) Proxy.newProxyInstance(service.getClassLoader(),
             new Class[] {service, ManagedService.class}, invocationHandler);

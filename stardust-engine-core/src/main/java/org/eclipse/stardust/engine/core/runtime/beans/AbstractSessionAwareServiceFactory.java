@@ -41,7 +41,7 @@ public abstract class AbstractSessionAwareServiceFactory extends DefaultServiceF
       this.clientId = clientId;
    }
 
-   protected abstract Service getNewServiceInstance(Class type)
+   protected abstract <T extends Service> T getNewServiceInstance(Class<T> type)
          throws ServiceNotAvailableException, LoginFailedException;
 
    public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException,
@@ -62,7 +62,7 @@ public abstract class AbstractSessionAwareServiceFactory extends DefaultServiceF
       T result = getServiceFromPool(type);
       if (null == result)
       {
-         result = (T) getNewServiceInstance(type);
+         result = getNewServiceInstance(type);
          putServiceToPool(type, result);
       }
       return result;

@@ -18,7 +18,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.IteratorUtils;
-
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -714,7 +713,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       return eventHandlers.iterator();
    }
 
-   public ModelElementList getEventHandlers()
+   public ModelElementList<IEventHandler> getEventHandlers()
    {
       return eventHandlers;
    }

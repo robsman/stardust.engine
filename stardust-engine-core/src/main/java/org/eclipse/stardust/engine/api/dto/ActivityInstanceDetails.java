@@ -27,7 +27,6 @@ import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
@@ -38,8 +37,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-
-
 
 /**
  * A client side view of an activity instance.
@@ -369,13 +366,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
     */
    public String toString()
    {
-	  StringBuffer sb = new StringBuffer();
-	  sb.append(processDefinitionName);
-	  sb.append(": ");
-	  sb.append(getActivity().getName());
-	  sb.append(" (");
-	  sb.append(new SimpleDateFormat(DATE_FORMAT).format(getStartTime()));
-	  sb.append(") ");
+   StringBuffer sb = new StringBuffer();
+   sb.append(processDefinitionName);
+   sb.append(": ");
+   sb.append(getActivity().getName());
+   sb.append(" (");
+   sb.append(new SimpleDateFormat(DATE_FORMAT).format(getStartTime()));
+   sb.append(") ");
 
       return sb.toString();
    }
@@ -637,7 +634,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                   .getCache(LogEntryBean.class).iterator();
          }
 
-         ModelElementList<ModelElement> eventHandlers = null;
+         ModelElementList<IEventHandler> eventHandlers = null;
          while (lIter != null && lIter.hasNext())
          {
             PersistenceController pc = (PersistenceController) lIter.next();
@@ -697,8 +694,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
     * @param logEntry the LogEntry which currently is inspected
     * @return
     */
-   private ModelElementList<ModelElement> addHistoricalEventExecution(
-         IActivityInstance activityInstance, ModelElementList<ModelElement> eventHandlers,
+   private ModelElementList<IEventHandler> addHistoricalEventExecution(
+         IActivityInstance activityInstance, ModelElementList<IEventHandler> eventHandlers,
          ILogEntry logEntry)
    {
       // retrieve event handlers for current AI once in this loop
@@ -722,23 +719,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
 
       //try to fetch event handler by event handler model element oid
-      if(handler == null)
+      if (handler == null)
       {
          matcher = handlerModelElementOidPattern.matcher(subject);
-         if(matcher.find())
+         if (matcher.find())
          {
             long eventHandlerModelElementOid = Long.valueOf(matcher.group(1));
-            if(eventHandlerModelElementOid != Event.OID_UNDEFINED)
+            if (eventHandlerModelElementOid != Event.OID_UNDEFINED)
             {
                handler = EventUtils.getEventHandler(eventHandlers, eventHandlerModelElementOid);
             }
          }
       }
 
-      if(handler != null)
+      if (handler != null)
       {
-         EventHandler eventHandlerDetails = new EventHandlerDetails(
-               handler);
+         EventHandler eventHandlerDetails = new EventHandlerDetails(handler);
          HistoricalEvent histEvent = new HistoricalEventDetails(
                HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
                HistoricalEventDetails.getUser(logEntry.getUserOID()),

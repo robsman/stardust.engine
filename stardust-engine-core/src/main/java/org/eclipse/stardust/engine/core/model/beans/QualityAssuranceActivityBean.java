@@ -129,7 +129,7 @@ public class QualityAssuranceActivityBean implements IActivity
       delegate.addReference(reference);
    }
 
-   public ModelElementList getEventHandlers()
+   public ModelElementList<IEventHandler> getEventHandlers()
    {
       return delegate.getEventHandlers();
    }

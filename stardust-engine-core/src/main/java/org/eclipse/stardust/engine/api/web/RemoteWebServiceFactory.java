@@ -25,7 +25,6 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogUtils;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.ejb2.ClientInvocationHandler;
 import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
@@ -34,10 +33,10 @@ import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingUtils;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
-
-
 
 /**
  * @author ubirkemeyer
@@ -49,16 +48,11 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
    private String password;
    private Principal principal;
 
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      Service result = null;
       try
       {
-         String serviceName = service.getName();
-         int dot = serviceName.lastIndexOf(".");
-         String className = serviceName.substring(dot + 1);
-         Class homeClass = Reflect.getClassFromClassName("org.eclipse.stardust.engine.api.ejb2.Remote"
-               + className + "Home");
+         IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
 
          Context context = new InitialContext();
          Context javacomp = (Context) context.lookup("java:comp/env");
@@ -66,8 +60,11 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
          {
             throw new InternalException("java:comp/env context is null.");
          }
-         Object rawHome = javacomp.lookup("ejb/" + className);
+
+         Class<?> homeClass = provider.getEJBHomeClass();
+         Object rawHome = javacomp.lookup("ejb/" + provider.getName());
          LogUtils.traceObject(rawHome, false);
+
          Object home;
          try
          {
@@ -116,18 +113,18 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
             else
             {
                Method loginMethod = inner.getClass().getMethod("login",
-                  new Class[]{String.class, String.class, Map.class});
+                  new Class[] {String.class, String.class, Map.class});
                try
                {
-                  loginMethod.invoke(inner, new Object[]{userName, password, getProperties()});
+                  loginMethod.invoke(inner, new Object[] {userName, password, getProperties()});
                }
                catch (InvocationTargetException e)
                {
                   Throwable t = e.getTargetException();
-                  if(t instanceof WorkflowException &&
+                  if (t instanceof WorkflowException &&
                         t.getCause() instanceof PublicException)
                   {
-                     throw (PublicException)t.getCause();
+                     throw (PublicException) t.getCause();
                   }
                   throw e;
                }
@@ -142,8 +139,8 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
             }
          }
 
-         result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-               new Class[]{service, ManagedService.class},
+         return (T) Proxy.newProxyInstance(type.getClassLoader(),
+               new Class[] {type, ManagedService.class},
                new ClientInvocationHandler(inner, tunneledContext));
       }
       catch (Exception e)
@@ -151,7 +148,8 @@ public class RemoteWebServiceFactory extends AbstractSessionAwareServiceFactory
          LogUtils.traceException(e, true);
       }
 
-      return result;
+      // (fh) this line is never reached, but won't compile without it.
+      return null;
    }
 
    public void setCredentials(Map credentials)

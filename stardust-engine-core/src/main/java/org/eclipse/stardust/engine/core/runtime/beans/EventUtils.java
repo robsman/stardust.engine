@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.MapUtils;
@@ -28,25 +24,13 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.api.dto.EventBindingDetails;
-import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IAction;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IBindAction;
-import org.eclipse.stardust.engine.api.model.IEventAction;
-import org.eclipse.stardust.engine.api.model.IEventActionType;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.IUnbindAction;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.EventActionBinding;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampBinder;
 import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -57,12 +41,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.PropertyUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventBinder;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExecutionException;
-
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 
 /**
  * @author ubirkemeyer
@@ -91,18 +70,16 @@ public class EventUtils
       return null;
    }
    
-   public static IEventHandler getEventHandler(ModelElementList<ModelElement> eventHandlers,
+   public static IEventHandler getEventHandler(ModelElementList<IEventHandler> eventHandlers,
          long eventHandlerModelElementOid)
    {
-      for(ModelElement eventHandler: eventHandlers)
+      for (IEventHandler eventHandler : eventHandlers)
       {
-         if(eventHandler.getOID() == eventHandlerModelElementOid 
-               && eventHandler instanceof IEventHandler)
+         if (eventHandler.getOID() == eventHandlerModelElementOid)
          {
             return (IEventHandler) eventHandler;
          }
       }
-
       return null;
    }
    
@@ -346,8 +323,8 @@ public class EventUtils
    }
 
    private static void checkForDeactivation(
-	         final AttributedIdentifiablePersistent context, final IEventHandler handler,
-	         final IEventAction action)
+            final AttributedIdentifiablePersistent context, final IEventHandler handler,
+            final IEventAction action)
    {
       ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(
             EngineProperties.FORKING_SERVICE_HOME);

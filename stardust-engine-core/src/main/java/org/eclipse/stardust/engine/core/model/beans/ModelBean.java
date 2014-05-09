@@ -98,8 +98,8 @@ public class ModelBean extends RootElementBean
       implements IModel
 {
    private static final String REFERENCED_MODEL_NOT_IN_BUNDLE = "Model ''{0}'' is referenced but not part of this deployment.\n" +
-         		"Please make sure that all required process models have already been deployed\n" +
-         		"or deploy all interdependent artifacts in a single bundle.";
+               "Please make sure that all required process models have already been deployed\n" +
+               "or deploy all interdependent artifacts in a single bundle.";
    private static final String UNRESOLVED_MODEL_REFERENCE = "Unresolved reference to model ''{0}''.";
    private static final long serialVersionUID = 3L;
 
@@ -235,19 +235,8 @@ public class ModelBean extends RootElementBean
             // validate id
             for (IQualityAssuranceCode code : allCodes)
             {
-               boolean isValidId = true;
-               if (StringUtils.isEmpty(code.getCode()))
+               if (!StringUtils.isValidIdentifier(code.getCode()))
                {
-                  isValidId = false;
-               }
-               else if (!StringUtils.isValidIdentifier(code.getCode()))
-               {
-                  isValidId = false;
-               }
-
-               if (!isValidId)
-               {
-                  BpmRuntimeError error = BpmRuntimeError.MDL_INVALID_QA_CODE_ID.raise(code.getCode());
                   BpmValidationError inc = BpmValidationError.MDL_INVALID_QA_CODE_ID.raise(code.getCode());
                   inconsistencies.add(new Inconsistency(inc, this, Inconsistency.ERROR));
                }
@@ -256,16 +245,13 @@ public class ModelBean extends RootElementBean
             // validate duplicates
             Map<IQualityAssuranceCode, Integer> duplicatesInfo = validateQaCodeDuplicates(allCodes);
             if (!duplicatesInfo.isEmpty())
-               {
+            {
                for (IQualityAssuranceCode qaCode : duplicatesInfo.keySet())
                {               
                   Integer duplicatesCount = duplicatesInfo.get(qaCode);
                   String code = qaCode.getCode();
 
-                  BpmRuntimeError error = BpmRuntimeError.MDL_DUPLICATE_QA_CODE.raise(
-                        code, duplicatesCount);
-                  BpmValidationError inc = BpmValidationError.MDL_DUPLICATE_QA_CODE.raise(
-                        code, duplicatesCount);
+                  BpmValidationError inc = BpmValidationError.MDL_DUPLICATE_QA_CODE.raise(code, duplicatesCount);
                   inconsistencies.add(new Inconsistency(inc, this, Inconsistency.ERROR));
                }
             }
@@ -875,7 +861,7 @@ public class ModelBean extends RootElementBean
       return participants.iterator();
    }
 
-   public ModelElementList getParticipants()
+   public ModelElementList<IModelParticipant> getParticipants()
    {
       return participants;
    }

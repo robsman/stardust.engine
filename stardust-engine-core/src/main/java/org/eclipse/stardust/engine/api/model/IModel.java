@@ -213,7 +213,7 @@ public interface IModel extends SymbolTable, RootElement, ConfigurationVariableD
     *
     * @see #getAllParticipants
     */
-   ModelElementList getParticipants();
+   ModelElementList<IModelParticipant> getParticipants();
 
    /**
     * Returns all participants participating in workflow execution.

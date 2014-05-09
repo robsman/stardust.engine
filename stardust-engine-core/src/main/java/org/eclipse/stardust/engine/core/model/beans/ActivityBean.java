@@ -1064,7 +1064,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       return eventHandlers.iterator();
    }
 
-   public ModelElementList getEventHandlers()
+   public ModelElementList<IEventHandler> getEventHandlers()
    {
       return eventHandlers;
    }

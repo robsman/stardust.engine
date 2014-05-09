@@ -16,12 +16,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
-
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 /**
  * @author ubirkemeyer
@@ -33,25 +33,20 @@ public class PlainWebServiceFactory extends AbstractSessionAwareServiceFactory
    private String userName;
    private String password;
 
-   protected Service getNewServiceInstance(Class service)
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      String serviceName = service.getName();
-      int dot = serviceName.lastIndexOf(".");
-      String packageName = serviceName.substring(0, dot).replace(".api.", ".core.");
-      String className = serviceName.substring(dot + 1);
+      IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
+      InvocationManager invocationHandler = new PlainWebInvocationManager(provider.getInstance(),
+            provider.getServiceName(), principal);
 
-      Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
-
-      InvocationManager invocationHandler = new PlainWebInvocationManager(inner, serviceName, principal);
-
-      Service result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-            new Class[]{service, ManagedService.class}, invocationHandler);
+      T result = (T) Proxy.newProxyInstance(type.getClassLoader(),
+            new Class[]{type, ManagedService.class}, invocationHandler);
 
       if (principal == null)
       {
          ((ManagedService) result).login(userName, password, getProperties());
       }
-      
+
       return result;
    }
 

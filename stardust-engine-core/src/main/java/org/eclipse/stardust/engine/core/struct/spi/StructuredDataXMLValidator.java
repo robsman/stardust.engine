@@ -180,7 +180,9 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
                         .getStringAttribute("carnot:engine:dataType");
                   if (thisType != null && rhsType != null)
                   {
-                     if ( !thisType.equals(rhsType))
+                     rhsType = removeExternalQualifier(rhsType);
+                     thisType = removeExternalQualifier(thisType);
+                     if (!thisType.equals(rhsType))
                      {
                         return false;
                      }
@@ -189,6 +191,15 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
             }
             return Reflect.isAssignable(getEndClass(), rhs.getEndClass());
          }
+      }
+
+      private String removeExternalQualifier(String type)
+      {
+         if (type.startsWith("typeDeclaration:"))
+         {
+            type = type.substring(type.indexOf("}" + 1), type.length());
+         }
+         return type;
       }
    }
 }

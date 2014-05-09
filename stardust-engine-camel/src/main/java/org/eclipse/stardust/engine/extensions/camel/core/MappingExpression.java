@@ -1,4 +1,4 @@
-package org.eclipse.stardust.engine.extensions.camel;
+package org.eclipse.stardust.engine.extensions.camel.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;

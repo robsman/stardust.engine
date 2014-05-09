@@ -67,6 +67,7 @@ public final class CamelConstants
    public static final String INVOCATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ""+COLON+"invocationPattern";
    public static final String PROCESS_CONTEXT_HEADERS_EXT_ATT = CAMEL_SCOPE + ""+COLON+"processContextHeaders";
    public static final String INCLUDE_ATTRIBUTES_AS_HEADERS_EXT_ATT = CAMEL_SCOPE + ""+COLON+"includeAttributesAsHeaders";
+   public static final String TRANSACTED_ROUTE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"transactedRoute";
 
    public static final String DEFAULT_CAMEL_CONTEXT_ID = "defaultCamelContext";
    

@@ -2,52 +2,101 @@ package org.eclipse.stardust.engine.extensions.camel;
 
 import static org.junit.Assert.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.core.model.beans.ApplicationBean;
-import org.eclipse.stardust.engine.core.model.beans.ApplicationTypeBean;
-import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.junit.Test;
+
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
+import org.eclipse.stardust.engine.extensions.camel.core.CamelTriggerRouteContext;
+import org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder;
 
 public class CamelTriggerRouteBuilderTest
 {
-   private static final Logger logger = LogManager.getLogger(CamelTriggerRouteBuilderTest.class.getCanonicalName());
-
    @Test
-   public void testRouteGenerationExampleWithSplit()
+   public void testRouteGenerationTransactedEANotPresent()
    {
-      StringBuilder actual = new StringBuilder(
-            "<route id=\"Consumer290263333\" autoStartup=\"true\"><from uri=\"file:c:/temp\"/><transacted ref=\"required\" /><split><token/><setHeader headerName=\"ippOrigin\"><constant>triggerConsumer</constant></setHeader><setHeader headerName=\"ippPassword\"><constant>motu</constant></setHeader><setHeader headerName=\"ippUser\"><constant>motu</constant></setHeader><setHeader headerName=\"ippPartition\"><constant>default</constant></setHeader><to uri=\"ipp:authenticate:setCurrent\" /><to uri=\"ipp:process:start?modelId=dummyModel&amp;processId=dummyProcess\"/></split>");
-      actual.append("\n</route>");
-
-      StringBuilder providedRouteDefinition = new StringBuilder("<from   uri=\"file:c:/temp\" />");
-      providedRouteDefinition.append("<split>");
-      providedRouteDefinition.append("<token/>");
-      providedRouteDefinition.append("<to  uri=\"ipp:direct\" />");
-      providedRouteDefinition.append("</split>");
+      IModel model = new ModelBean("TEST_MODEL", "TEST_MODEL", "");
+      model.createTriggerType("camel", "camel", false, false, 0);
+      // IProcessDefinition processDefinition=new ProcessDefinitionBean("TEST_PROCESS",
+      // "TEST_PROCESS", "");
+      IProcessDefinition processDefinition = model.createProcessDefinition(
+            "TEST_PROCESS", "TEST_PROCESS", "", false, 0);
+      ITrigger trigger = processDefinition.createTrigger("test_trigger", "test_trigger",
+            model.findTriggerType("camel"), 0);
+      trigger.setAttribute("carnot:engine:camel::username", "${camelTriggerUsername}");
+      trigger.setAttribute("carnot:engine:camel::password", "${camelTriggerPassword}");
+      trigger.setAttribute("carnot:engine:camel::camelContextId", "defaultCamelContext");
+      trigger
+            .setAttribute("carnot:engine:camel::camelRouteExt",
+                  "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
+      StringBuilder expected = new StringBuilder(
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
       assertEquals(
-            actual.toString(),
-            RouteDefinitionBuilder.createRouteDefintionForCamelTrigger(providedRouteDefinition.toString(), "default",
-                  "dummyModel", "dummyProcess", "dummyTrigger", "motu", "motu", new MappingExpression()).toString());
+            expected.toString(),
+            RouteDefinitionBuilder
+                  .createRouteDefintionForCamelTrigger(
+                        new CamelTriggerRouteContext(trigger, "default",
+                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
    }
-
+   
    @Test
-   public void testRouteGenerationBasicExample()
+   public void testRouteGenerationTransactedEASetToTrue()
    {
-      StringBuilder actual = new StringBuilder(
-            "<route id=\"Consumer290263333\" autoStartup=\"true\"><from uri=\"file:c:/temp\"/><transacted ref=\"required\" /><setHeader headerName=\"ippOrigin\"><constant>triggerConsumer</constant></setHeader><setHeader headerName=\"ippPassword\"><constant>motu</constant></setHeader><setHeader headerName=\"ippUser\"><constant>motu</constant></setHeader><setHeader headerName=\"ippPartition\"><constant>default</constant></setHeader><to uri=\"ipp:authenticate:setCurrent\" /><to uri=\"ipp:process:start?modelId=dummyModel&amp;processId=dummyProcess\"/>");
-      actual.append("\n</route>");
-
-      StringBuilder providedRouteDefinition = new StringBuilder("<from   uri=\"file:c:/temp\" />");
-      providedRouteDefinition.append("<to  uri=\"ipp:direct\" />");
+      IModel model = new ModelBean("TEST_MODEL", "TEST_MODEL", "");
+      model.createTriggerType("camel", "camel", false, false, 0);
+      // IProcessDefinition processDefinition=new ProcessDefinitionBean("TEST_PROCESS",
+      // "TEST_PROCESS", "");
+      IProcessDefinition processDefinition = model.createProcessDefinition(
+            "TEST_PROCESS", "TEST_PROCESS", "", false, 0);
+      ITrigger trigger = processDefinition.createTrigger("test_trigger", "test_trigger",
+            model.findTriggerType("camel"), 0);
+      trigger.setAttribute("carnot:engine:camel::username", "${camelTriggerUsername}");
+      trigger.setAttribute("carnot:engine:camel::password", "${camelTriggerPassword}");
+      trigger.setAttribute("carnot:engine:camel::camelContextId", "defaultCamelContext");
+      trigger.setAttribute(CamelConstants.TRANSACTED_ROUTE_EXT_ATT, true);
+      trigger
+            .setAttribute("carnot:engine:camel::camelRouteExt",
+                  "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
+      StringBuilder expected = new StringBuilder(
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
       assertEquals(
-            actual.toString(),
-            RouteDefinitionBuilder.createRouteDefintionForCamelTrigger(providedRouteDefinition.toString(), "default",
-                  "dummyModel", "dummyProcess", "dummyTrigger", "motu", "motu", new MappingExpression()).toString());
+            expected.toString(),
+            RouteDefinitionBuilder
+                  .createRouteDefintionForCamelTrigger(
+                        new CamelTriggerRouteContext(trigger, "default",
+                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
+   }
+   
+   @Test
+   public void testRouteGenerationTransactedEASetToFalse()
+   {
+      IModel model = new ModelBean("TEST_MODEL", "TEST_MODEL", "");
+      model.createTriggerType("camel", "camel", false, false, 0);
+      // IProcessDefinition processDefinition=new ProcessDefinitionBean("TEST_PROCESS",
+      // "TEST_PROCESS", "");
+      IProcessDefinition processDefinition = model.createProcessDefinition(
+            "TEST_PROCESS", "TEST_PROCESS", "", false, 0);
+      ITrigger trigger = processDefinition.createTrigger("test_trigger", "test_trigger",
+            model.findTriggerType("camel"), 0);
+      trigger.setAttribute("carnot:engine:camel::username", "${camelTriggerUsername}");
+      trigger.setAttribute("carnot:engine:camel::password", "${camelTriggerPassword}");
+      trigger.setAttribute("carnot:engine:camel::camelContextId", "defaultCamelContext");
+      trigger.setAttribute(CamelConstants.TRANSACTED_ROUTE_EXT_ATT, false);
+      trigger
+            .setAttribute("carnot:engine:camel::camelRouteExt",
+                  "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
+      StringBuilder expected = new StringBuilder(
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
+      assertEquals(
+            expected.toString(),
+            RouteDefinitionBuilder
+                  .createRouteDefintionForCamelTrigger(
+                        new CamelTriggerRouteContext(trigger, "default",
+                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
    }
 
 }

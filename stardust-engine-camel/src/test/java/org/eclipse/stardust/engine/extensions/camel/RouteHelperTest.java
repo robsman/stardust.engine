@@ -155,13 +155,6 @@ public class RouteHelperTest
 
    }
 
-   @Test
-   @Ignore
-   public void testCreateRouteForApplication()
-   {
-
-   }
-
    private Exchange createExchange()
    {
       Exchange exchange = new DefaultExchange(new DefaultCamelContext());

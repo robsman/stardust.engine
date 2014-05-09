@@ -150,7 +150,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
     * @throws IOException
     * @throws Exception
     */
-   public void deployModel() throws IOException, Exception
+   public DeploymentInfo deployModel() throws IOException, Exception
    {
       String modelXml = null;
       try
@@ -173,7 +173,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
                + " You can either specify a Spring @Resource via the modelFile property or place"
                + " a model into the 'models' folder on the classpath and specify its name via"
                + " the modelFilename property.");
-         return;
+         return null;
       }
 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -190,6 +190,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
          // Save the deployed model OID for this test run
          testProcessModelOID = deploymentInfo.getModelOID();
          log.info("Deployed model ID: " + deploymentInfo.getId() + " with OID: " + deploymentInfo.getModelOID());
+         return  deploymentInfo;
       }
       finally
       {

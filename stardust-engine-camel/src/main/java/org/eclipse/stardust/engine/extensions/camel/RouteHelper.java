@@ -2,8 +2,8 @@ package org.eclipse.stardust.engine.extensions.camel;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
-import static org.eclipse.stardust.engine.extensions.camel.RouteDefinitionBuilder.createProducerXmlConfiguration;
-import static org.eclipse.stardust.engine.extensions.camel.RouteDefinitionBuilder.createConsumerXmlConfiguration;
+import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder.createProducerXmlConfiguration;
+import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder.createConsumerXmlConfiguration;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +17,7 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
+
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -24,6 +25,9 @@ import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.extensions.camel.core.ConsumerRouteContext;
+import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContext;
+
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.Format;
@@ -201,8 +205,6 @@ public class RouteHelper
    {
       ProducerRouteContext routeContext = new ProducerRouteContext(application, partition, context.getName());
       String routeId = routeContext.getRouteId();
-      // String route = (String)
-      // application.getAttribute(CamelConstants.PRODUCER_ROUTE_ATT);
 
       RouteDefinition runningRoute = ((ModelCamelContext) context).getRouteDefinition(routeId);
       if (runningRoute != null)

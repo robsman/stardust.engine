@@ -301,8 +301,8 @@ public class CodeGen
    public static void main(String[] args) throws IOException, ClassNotFoundException
    {
       String root = ".";
-      //String destPackage = "/org/eclipse/stardust/engine/api/ejb3/generated/";
-      String destPackage = "/generated/";
+      String destPackage = "/org/eclipse/stardust/engine/api/ejb3/beans/";
+      
       
       if (args.length > 0)
       {

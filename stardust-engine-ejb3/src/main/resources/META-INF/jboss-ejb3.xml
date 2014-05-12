@@ -72,6 +72,23 @@
         <res-ref-name>jcr/ContentRepository</res-ref-name>
         <jndi-name>java:/jcr/jackrabbit</jndi-name>
       </resource-ref>
+      <resource-ref>
+        <res-ref-name>jms/CarnotXAConnectionFactory</res-ref-name>
+        <jndi-name>java:/CarnotConnectionFactory</jndi-name>
+        <!--jndi-name>java:/JmsXa</jndi-name-->
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>
+        <jndi-name>queue/CarnotSystemQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
+        <jndi-name>queue/CarnotApplicationQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotDaemonQueue</resource-env-ref-name>
+        <jndi-name>queue/CarnotDaemonQueue</jndi-name>
+      </resource-env-ref>      
     </session>
   </enterprise-beans>
 </jboss:ejb-jar>

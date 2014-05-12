@@ -64,16 +64,16 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.api.ejb3.
    @Resource
 	protected SessionContext sessionContext;
    
-   @Resource(mappedName="java:/AuditTrail.DataSource")
+   @Resource(mappedName="jdbc/AuditTrail.DataSource")
    protected DataSource dataSource;
    
-   @Resource(mappedName = "java:/JmsXA")
+   @Resource(mappedName = "jms/CarnotXAConnectionFactory")
    private QueueConnectionFactory queueConnectionFactory;
    
-   @Resource(mappedName = "java:/queue/CarnotSystemQueue")
+   @Resource(mappedName = "jms/CarnotSystemQueue")
    private Queue messageQueue;
    
-   @Resource(mappedName = "java:/queue/CarnotDaemonQueue")
+   @Resource(mappedName = "jms/CarnotDaemonQueue")
    private Queue daemonQueue;
    
    @Resource(mappedName="jcr/ContentRepository")
@@ -87,16 +87,7 @@ private ActionRunner serviceInstance;
 
    public ForkingServiceImpl()
    {
-	   serviceInstance = new ForkingServiceActionRunner();
-	   	   
-	   
-	   // TODO: use client view
- 
-//	   manager = new ExecuteActionInvocationManager(sessionContext, serviceInstance, this);
-//	   
-//	   this.service = (ActionRunner) Proxy.newProxyInstance(
-//			   ActionRunner.class.getClassLoader(),
-//			   new Class[]{ActionRunner.class}, manager);
+	   serviceInstance = new ForkingServiceActionRunner();	   	  
 
    }
    

@@ -287,20 +287,10 @@ public class RouteDefinitionBuilder
                    + "to uri=\"ipp:data:"
                    + producerOutboundConversionMethodName + "\" /"
                    + GREATER_THAN_SIGN;
-          int firstToEndpointIndex = route.indexOf("<to");
-          if(firstToEndpointIndex > 0) {
-              String beforefirstToEndpoint = route.substring(0, firstToEndpointIndex);
-              if(beforefirstToEndpoint.contains("setHeader")) {
-                  buffer.append(route.substring(0, firstToEndpointIndex)); 
-                  buffer.append(injectedOutboundConversionRoute); 
-                  buffer.append(route.substring(firstToEndpointIndex, route.length())); 
-              }
-          }           
           
-          else {
-              buffer.append(injectedOutboundConversionRoute); 
-              buffer.append(route);
-          }
+          buffer.append(injectedOutboundConversionRoute); 
+          buffer.append(route);
+
       }
       
       if(producerInboundConversionMethodName != null && !producerInboundConversionMethodName.equals("None")) {

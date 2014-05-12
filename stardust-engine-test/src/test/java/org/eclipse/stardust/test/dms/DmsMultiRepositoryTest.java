@@ -113,21 +113,8 @@ public class DmsMultiRepositoryTest
    }
 
    @Test
-   public void testConfigurationTemplateI18N()
+   public void testConfigurationTemplateI18NByConstants()
    {
-      List<IRepositoryProviderInfo> providerInfos = getDms().getRepositoryProviderInfos();
-
-      IRepositoryProviderInfo jcrVfsProviderInfo = getJcrVfs(providerInfos);
-      IRepositoryConfiguration jcrVfsConfigurationTemplate = jcrVfsProviderInfo.getConfigurationTemplate();
-
-      Map<String, Serializable> attributes = jcrVfsConfigurationTemplate.getAttributes();
-      String providerId = (String) attributes.get(JcrVfsRepositoryConfiguration.PROVIDER_ID);
-      String repositoryId = (String) attributes.get(JcrVfsRepositoryConfiguration.REPOSITORY_ID);
-      String jndiName = (String) attributes.get(JcrVfsRepositoryConfiguration.JNDI_NAME);
-      Assert.assertNotNull(providerId);
-      Assert.assertNotNull(repositoryId);
-      Assert.assertNotNull(jndiName);
-
       ResourceBundle resourceBundle = sf.getQueryService().getResourceBundle(
             RepositoryResourceBundle.MODULE_ID,
             JcrVfsRepositoryProvider.PROVIDER_ID, Locale.ENGLISH);
@@ -156,6 +143,35 @@ public class DmsMultiRepositoryTest
             + JcrVfsRepositoryConfiguration.JNDI_NAME);
       Assert.assertNotNull(jndiNameName);
       Assert.assertNotNull(jndiNameDefaultValue);
+   }
+
+   @Test
+   public void testConfigurationTemplateI18ByRuntimeObject()
+   {
+      List<IRepositoryProviderInfo> providerInfos = getDms().getRepositoryProviderInfos();
+      IRepositoryProviderInfo jcrVfsProviderInfo = getJcrVfs(providerInfos);
+      IRepositoryConfiguration jcrVfsConfigurationTemplate = jcrVfsProviderInfo.getConfigurationTemplate();
+
+      ResourceBundle resourceBundle = sf.getQueryService().getResourceBundle(
+            RepositoryResourceBundle.MODULE_ID,
+            jcrVfsProviderInfo.getProviderId(), Locale.ENGLISH);
+
+      Assert.assertEquals(Locale.ENGLISH, resourceBundle.getLocale());
+
+      Map<String, Serializable> resources = resourceBundle.getResources();
+      Assert.assertFalse(resources.isEmpty());
+      Map<String, Serializable> attributes = jcrVfsConfigurationTemplate.getAttributes();
+      Assert.assertFalse(attributes.isEmpty());
+
+      for (Map.Entry<String,Serializable> entry : attributes.entrySet())
+      {
+         String name = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_NAME
+               + entry.getKey());
+         String value = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_VALUE
+               + entry.getKey());
+         Assert.assertNotNull(name);
+         Assert.assertNotNull(value);
+      }
    }
 
    @Test

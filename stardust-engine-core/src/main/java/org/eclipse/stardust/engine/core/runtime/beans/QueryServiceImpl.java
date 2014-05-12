@@ -15,18 +15,94 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.MultiIterator;
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.DataDetails;
+import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
+import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
+import org.eclipse.stardust.engine.api.dto.LogEntryDetails;
+import org.eclipse.stardust.engine.api.dto.ModelDetails;
+import org.eclipse.stardust.engine.api.dto.ModelDetailsWithAliveness;
+import org.eclipse.stardust.engine.api.dto.OrganizationDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.RoleDetails;
+import org.eclipse.stardust.engine.api.dto.RtDetailsFactory;
+import org.eclipse.stardust.engine.api.dto.RuntimeEnvironmentInfoDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.model.Data;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.OrganizationInfo;
+import org.eclipse.stardust.engine.api.model.Participant;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.DataQuery;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.query.DocumentQuery;
+import org.eclipse.stardust.engine.api.query.EvaluateByWorkitemsPolicy;
+import org.eclipse.stardust.engine.api.query.EvaluationContext;
+import org.eclipse.stardust.engine.api.query.GenericQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.LogEntries;
+import org.eclipse.stardust.engine.api.query.LogEntryQuery;
+import org.eclipse.stardust.engine.api.query.PreferenceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessDefinitionDetailsPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
+import org.eclipse.stardust.engine.api.query.QueryResultFactory;
+import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
+import org.eclipse.stardust.engine.api.query.RawQueryResult;
+import org.eclipse.stardust.engine.api.query.RuntimeInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.SubsetPolicy;
+import org.eclipse.stardust.engine.api.query.UserGroupQuery;
+import org.eclipse.stardust.engine.api.query.UserGroups;
+import org.eclipse.stardust.engine.api.query.UserQuery;
+import org.eclipse.stardust.engine.api.query.Users;
+import org.eclipse.stardust.engine.api.query.WorkItemQueryEvaluator;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.Documents;
+import org.eclipse.stardust.engine.api.runtime.LogEntry;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.Permission;
+import org.eclipse.stardust.engine.api.runtime.ProcessDefinitions;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.ResourceBundle;
+import org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserGroup;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
@@ -36,7 +112,11 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.WorkItemAuthorizationForAIQuery2Predicate;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
@@ -918,6 +998,14 @@ public class QueryServiceImpl implements QueryService, Serializable
    public RuntimeEnvironmentInfo getRuntimeEnvironmentInfo()
    {
       return new RuntimeEnvironmentInfoDetails();
+   }
+
+   public ResourceBundle getResourceBundle(String moduleId, String bundleName,
+         Locale locale)
+   {
+      ResourceBundle resourcebundle = ResourceBundleLocator.getInstance().getResourceBundle(moduleId, bundleName, locale);
+
+      return resourcebundle;
    }
 
    private static boolean isFilteringWorkitemsOnly(ActivityInstanceQuery query)

@@ -1086,6 +1086,8 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
      *
      * @return a List of Document objects.
      *
+     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1167,6 +1169,27 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
      */
     public org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo
          getRuntimeEnvironmentInfo(
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * Retrieves a resource bundle from a specified moduleId.
+     *
+     * @param moduleId The id of the engine resource bundle module.
+     * @param bundleName The name of the bundle.
+     * @param locale The to retrieve the resource bundle for.
+     *
+     * @return The ResourceBundle or null if no ResourceBundle was found.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(
+     *     java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ResourceBundle
+         getResourceBundle(
+         java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          }

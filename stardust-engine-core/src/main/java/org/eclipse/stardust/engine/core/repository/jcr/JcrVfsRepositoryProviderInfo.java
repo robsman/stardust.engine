@@ -26,9 +26,9 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    {
       Map<String, Serializable> configurationTemplate = new TreeMap<String, Serializable>();
       configurationTemplate.put(IRepositoryConfiguration.PROVIDER_ID, JcrVfsRepositoryProvider.PROVIDER_ID);
-      configurationTemplate.put(IRepositoryConfiguration.REPOSITORY_ID, "newJcrRepository");
-      configurationTemplate.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "java:/jcr/newJcrRepository");
-      
+      configurationTemplate.put(IRepositoryConfiguration.REPOSITORY_ID, "NewJcrRepository");
+      configurationTemplate.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "java:/jcr/NewJcrRepository");
+
       return new JcrVfsRepositoryConfiguration(configurationTemplate);
    }
 
@@ -61,7 +61,7 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    {
       return true;
    }
-   
+
    @Override
    public boolean isMetaDataWriteSupported()
    {
@@ -79,7 +79,7 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    {
       return true;
    }
-   
+
    @Override
    public boolean isWriteSupported()
    {
@@ -113,5 +113,5 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
       builder.append("]");
       return builder.toString();
    }
-   
+
 }

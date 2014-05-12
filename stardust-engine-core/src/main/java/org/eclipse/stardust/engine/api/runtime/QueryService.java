@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
@@ -793,4 +794,14 @@ public interface QueryService extends Service
     */
    /* No execution permission needed */
    RuntimeEnvironmentInfo getRuntimeEnvironmentInfo();
+
+   /**
+    * Retrieves a resource bundle from a specified moduleId.
+    *
+    * @param moduleId The id of the engine resource bundle module.
+    * @param bundleName The name of the bundle.
+    * @param locale The to retrieve the resource bundle for.
+    * @return The ResourceBundle or null if no ResourceBundle was found.
+    */
+   ResourceBundle getResourceBundle(String moduleId, String bundleName, Locale locale);
 }

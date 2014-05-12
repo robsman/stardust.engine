@@ -32,8 +32,6 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
-import org.eclipse.stardust.vfs.IFolder;
-import org.eclipse.stardust.vfs.VfsUtils;
 
 
 
@@ -354,7 +352,7 @@ public class DmsUtils
          DocumentManagementService documentManagementService, String folderPath)
    {
       Folder folder = documentManagementService.getFolder(folderPath,
-            IFolder.LOD_NO_MEMBERS);
+            Folder.LOD_NO_MEMBERS);
 
       if (null == folder)
       {
@@ -444,7 +442,7 @@ public class DmsUtils
       return dmsDocumentBean;
    }
 
-   public static Folder ensureFolderHierarchyExists(String folderPath,
+   public static Folder ensureFolderHierarchyExists(final String folderPath,
          DocumentManagementService dms)
    {
       // recursion: find/create a processinstance-specific folder (hierarchical)
@@ -459,7 +457,7 @@ public class DmsUtils
       }
       else
       {
-         Folder folder = dms.getFolder(folderPath, IFolder.LOD_NO_MEMBERS);
+         Folder folder = dms.getFolder(folderPath, Folder.LOD_NO_MEMBERS);
 
          if (null == folder)
          {
@@ -469,8 +467,10 @@ public class DmsUtils
             Folder parentFolder = ensureFolderHierarchyExists(parentPath, dms);
             if (null == parentFolder)
             {
-               return dms.createFolder(RepositoryConstants.ROOT_FOLDER_PATH,
-                     createFolderInfo(childName));
+               String repositoryId = RepositoryIdUtils.extractRepositoryId(folderPath);
+               String rootPath = RepositoryIdUtils.addRepositoryId(
+                     RepositoryConstants.ROOT_FOLDER_PATH, repositoryId);
+               return dms.createFolder(rootPath, createFolderInfo(childName));
             }
             else
             {

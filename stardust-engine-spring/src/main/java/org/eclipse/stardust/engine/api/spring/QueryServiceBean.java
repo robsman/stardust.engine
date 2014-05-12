@@ -507,6 +507,17 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
             serviceProxy).getRuntimeEnvironmentInfo();
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ResourceBundle
+         getResourceBundle(
+         java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getResourceBundle(moduleId, bundleName, locale);
+   }
+
 	public QueryServiceBean()
 	{
       super(org.eclipse.stardust.engine.api.runtime.QueryService.class,

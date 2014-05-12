@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72326 
+ * Generated from  Revision: 72466 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * </ul>
  *
  * @author rsauer
- * @version 72326
+ * @version 72466
  */
 public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
@@ -332,7 +332,7 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
      *
      * @param folderId The ID or path expression identifying the folder to be retrieved.
      *
-     * @return The resolved folder.
+     * @return The resolved folder if no folder with such ID (or path) exists.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
      *     specific errors
@@ -762,9 +762,12 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
 
     /**
      * Moves the document to the target path.
+     * <p>
+     * If the targetPath or folderId points to a different repository than the source
+     * document is located in only the latest version is moved to the targeted repository.
      *
      * @param documentId The document to be moved.
-     * @param targetPath The path to move the document to.
+     * @param targetPath The path or folderId to move the document to.
      *
      * @return The moved Document.
      *

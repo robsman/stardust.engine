@@ -44,10 +44,10 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
  * <h3>Default Instances</h3><br>
  * If a configuration is supplied via {@link #getDefaultConfigurations()} the repository
  * instances are created after the provider is loaded.
- * 
+ *
  * @author Roland.Stamm
  */
-@SPI(status = Status.Experimental, useRestriction = UseRestriction.Public)
+@SPI(status = Status.Stable, useRestriction = UseRestriction.Public)
 public interface IRepositoryProvider
 {
 
@@ -67,7 +67,7 @@ public interface IRepositoryProvider
    /**
     * Optionally configurations that should be used to create repository instances after
     * the provider has loaded can be specified.
-    * 
+    *
     * @return repository configurations that should be used to implicitly create
     *         repository instances.
     */
@@ -75,7 +75,7 @@ public interface IRepositoryProvider
 
    /**
     * This is used to create a {@link IRepositoryInstance}.
-    * 
+    *
     * @param configuration
     *           The configuration for the instance.
     * @param partitionId
@@ -88,7 +88,7 @@ public interface IRepositoryProvider
    /**
     * This is called when a {@link IRepositoryInstance} is destroyed and should cleanup
     * the used resources.
-    * 
+    *
     * @param instance
     *           The instance to be destroyed.
     */

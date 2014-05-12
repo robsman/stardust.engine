@@ -14,8 +14,11 @@ import static org.eclipse.stardust.test.dms.RepositoryTestUtils.SYSTEM_REPO_ID;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
@@ -23,6 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.api.runtime.ResourceBundle;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
@@ -32,6 +36,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryResourceBundle;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -54,23 +59,38 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class DmsMultiRepositoryTest
 {
- private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
+         MOTU, MOTU);
 
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
-   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
+   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(
+         ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DmsModelConstants.DMS_MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(
+         ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING,
+         DmsModelConstants.DMS_MODEL_NAME);
 
    @Rule
-   public final TestRule chain = RuleChain.outerRule(testMethodSetup)
-                                          .around(sf);
-
+   public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
    private DocumentManagementService getDms()
    {
       return sf.getDocumentManagementService();
+   }
+
+   private IRepositoryProviderInfo getJcrVfs(List<IRepositoryProviderInfo> providerInfos)
+   {
+      for (IRepositoryProviderInfo iRepositoryProviderInfo : providerInfos)
+      {
+         if (JcrVfsRepositoryProvider.PROVIDER_ID.equals(iRepositoryProviderInfo.getProviderId()))
+         {
+            return iRepositoryProviderInfo;
+         }
+      }
+      Assert.fail(JcrVfsRepositoryProvider.PROVIDER_ID + " provider not found.");
+      return null;
    }
 
    @Test
@@ -92,17 +112,50 @@ public class DmsMultiRepositoryTest
 
    }
 
-   private IRepositoryProviderInfo getJcrVfs(List<IRepositoryProviderInfo> providerInfos)
+   @Test
+   public void testConfigurationTemplateI18N()
    {
-      for (IRepositoryProviderInfo iRepositoryProviderInfo : providerInfos)
-      {
-         if (JcrVfsRepositoryProvider.PROVIDER_ID.equals(iRepositoryProviderInfo.getProviderId()))
-         {
-            return iRepositoryProviderInfo;
-         }
-      }
-      Assert.fail(JcrVfsRepositoryProvider.PROVIDER_ID + " provider not found.");
-      return null;
+      List<IRepositoryProviderInfo> providerInfos = getDms().getRepositoryProviderInfos();
+
+      IRepositoryProviderInfo jcrVfsProviderInfo = getJcrVfs(providerInfos);
+      IRepositoryConfiguration jcrVfsConfigurationTemplate = jcrVfsProviderInfo.getConfigurationTemplate();
+
+      Map<String, Serializable> attributes = jcrVfsConfigurationTemplate.getAttributes();
+      String providerId = (String) attributes.get(JcrVfsRepositoryConfiguration.PROVIDER_ID);
+      String repositoryId = (String) attributes.get(JcrVfsRepositoryConfiguration.REPOSITORY_ID);
+      String jndiName = (String) attributes.get(JcrVfsRepositoryConfiguration.JNDI_NAME);
+      Assert.assertNotNull(providerId);
+      Assert.assertNotNull(repositoryId);
+      Assert.assertNotNull(jndiName);
+
+      ResourceBundle resourceBundle = sf.getQueryService().getResourceBundle(
+            RepositoryResourceBundle.MODULE_ID,
+            JcrVfsRepositoryProvider.PROVIDER_ID, Locale.ENGLISH);
+
+      Assert.assertEquals(Locale.ENGLISH, resourceBundle.getLocale());
+
+      Map<String, Serializable> resources = resourceBundle.getResources();
+
+      String providerIdName = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_NAME
+            + JcrVfsRepositoryConfiguration.PROVIDER_ID);
+      String providerIdDefaultValue = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_VALUE
+            + JcrVfsRepositoryConfiguration.PROVIDER_ID);
+      Assert.assertNotNull(providerIdName);
+      Assert.assertNotNull(providerIdDefaultValue);
+
+      String repositoryIdName = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_NAME
+            + JcrVfsRepositoryConfiguration.REPOSITORY_ID);
+      String repositoryIdDefaultValue = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_VALUE
+            + JcrVfsRepositoryConfiguration.REPOSITORY_ID);
+      Assert.assertNotNull(repositoryIdName);
+      Assert.assertNotNull(repositoryIdDefaultValue);
+
+      String jndiNameName = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_NAME
+            + JcrVfsRepositoryConfiguration.JNDI_NAME);
+      String jndiNameDefaultValue = (String) resources.get(RepositoryResourceBundle.REPOSITORY_CONFIGURATION_VALUE
+            + JcrVfsRepositoryConfiguration.JNDI_NAME);
+      Assert.assertNotNull(jndiNameName);
+      Assert.assertNotNull(jndiNameDefaultValue);
    }
 
    @Test
@@ -111,7 +164,9 @@ public class DmsMultiRepositoryTest
       IRepositoryConfiguration config = RepositoryTestUtils.createTestRepoConfig();
       getDms().bindRepository(config);
 
-      Preferences preferences = sf.getQueryService().getPreferences(PreferenceScope.PARTITION, RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
+      Preferences preferences = sf.getQueryService().getPreferences(
+            PreferenceScope.PARTITION,
+            RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
       Assert.assertEquals(config.getAttributes(), preferences.getPreferences());
    }
 
@@ -136,32 +191,46 @@ public class DmsMultiRepositoryTest
    @Test
    public void testSeparation()
    {
-      getDms().removeDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
+      getDms().removeDocument(
+            RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
 
-      Document doc = getDms().createDocument(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
+      Document doc = getDms().createDocument(
+            RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
+            DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
 
    @Test
    public void testFolderHierarchyIds()
    {
-      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createFolderInfo("testFolder"));
-      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID), DmsUtils.createFolderInfo("subFolder"));
-      getDms().createDocument(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
+      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
+            DmsUtils.createFolderInfo("testFolder"));
+      getDms().createFolder(
+            RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID),
+            DmsUtils.createFolderInfo("subFolder"));
+      getDms().createDocument(
+            RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID),
+            DmsUtils.createDocumentInfo("test.txt"));
 
-      Folder testFolder = getDms().getFolder(RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID));
-      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(testFolder.getId()));
+      Folder testFolder = getDms().getFolder(
+            RepositoryIdUtils.addRepositoryId("/testFolder", TEST_REPO_ID));
+      Assert.assertEquals(TEST_REPO_ID,
+            RepositoryIdUtils.extractRepositoryId(testFolder.getId()));
 
       Folder subFolder = testFolder.getFolders().get(0);
       Assert.assertEquals("subFolder", subFolder.getName());
-      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(subFolder.getId()));
+      Assert.assertEquals(TEST_REPO_ID,
+            RepositoryIdUtils.extractRepositoryId(subFolder.getId()));
 
       Document actualDocInFolder = testFolder.getDocuments().get(0);
       Assert.assertEquals("test.txt", actualDocInFolder.getName());
-      Assert.assertEquals(TEST_REPO_ID, RepositoryIdUtils.extractRepositoryId(actualDocInFolder));
+      Assert.assertEquals(TEST_REPO_ID,
+            RepositoryIdUtils.extractRepositoryId(actualDocInFolder));
 
       Assert.assertNotNull(getDms().getFolder(subFolder.getId()));
       Assert.assertNotNull(getDms().getDocument(actualDocInFolder.getId()));
@@ -178,8 +247,10 @@ public class DmsMultiRepositoryTest
       Document doc = getDms().createDocument("/", DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
-      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
 
       Preferences preferences = sf.getQueryService().getPreferences(
             PreferenceScope.PARTITION,
@@ -196,13 +267,18 @@ public class DmsMultiRepositoryTest
    {
       getDms().setDefaultRepository(null);
 
-      getDms().removeDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
+      getDms().removeDocument(
+            RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
 
-      Document doc = getDms().createDocument(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
+      Document doc = getDms().createDocument(
+            RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
+            DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
-      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
 
       Preferences preferences = sf.getQueryService().getPreferences(
             PreferenceScope.PARTITION,
@@ -214,7 +290,7 @@ public class DmsMultiRepositoryTest
                   RepositoryProviderUtils.DEFAULT_REPOSITORY_ID));
    }
 
-   @Test(expected=DocumentManagementServiceException.class)
+   @Test(expected = DocumentManagementServiceException.class)
    public void testSetInvalidDefaultRepository()
    {
       getDms().setDefaultRepository("invalid");
@@ -222,7 +298,7 @@ public class DmsMultiRepositoryTest
       Assert.fail();
    }
 
-   @Test(expected=DocumentManagementServiceException.class)
+   @Test(expected = DocumentManagementServiceException.class)
    public void testBindAlreadyExisting()
    {
       getDms().bindRepository(RepositoryTestUtils.createTestRepoConfig());
@@ -233,7 +309,9 @@ public class DmsMultiRepositoryTest
    {
       getDms().unbindRepository(TEST_REPO_ID);
 
-      Preferences preferences = sf.getQueryService().getPreferences(PreferenceScope.PARTITION, RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
+      Preferences preferences = sf.getQueryService().getPreferences(
+            PreferenceScope.PARTITION,
+            RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
       Assert.assertEquals(Collections.EMPTY_MAP, preferences.getPreferences());
    }
 
@@ -244,11 +322,10 @@ public class DmsMultiRepositoryTest
       getDms().unbindRepository(TEST_REPO_ID);
    }
 
-   @Test(expected=PublicException.class)
+   @Test(expected = PublicException.class)
    public void testRequestDocumentNonExistingRepository()
    {
-      getDms().getDocument(RepositoryIdUtils.addRepositoryId("/test.txt",
-            TEST_REPO_ID));
+      getDms().getDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
       Assert.fail("Exception should be thrown.");
    }
 

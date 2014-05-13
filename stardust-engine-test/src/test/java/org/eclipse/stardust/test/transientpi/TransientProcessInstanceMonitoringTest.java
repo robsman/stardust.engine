@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
-import static org.eclipse.stardust.test.impl.monitoring.Operation.SELECT;
+import static org.eclipse.stardust.test.api.monitoring.Operation.SELECT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ALTERNATIVE_IMPL_MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_BIG_DATA_ACCESS;
@@ -38,14 +38,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
+import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
+import org.eclipse.stardust.test.api.monitoring.TableOperation;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.impl.monitoring.DatabaseOperationMonitoring;
-import org.eclipse.stardust.test.impl.monitoring.TableOperation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

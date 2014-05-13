@@ -67,9 +67,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
+import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.util.JmsConstants;
-import org.eclipse.stardust.test.impl.monitoring.DatabaseOperationMonitoring;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.jta.JtaTransactionManager;

@@ -31,7 +31,6 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
@@ -147,8 +146,8 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testFindAll()
    {
-      QueryService qs = sf.getQueryService();
-      Documents docs = qs.getAllDocuments(getFederatedQuery());
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      Documents docs = dms.findDocuments(getFederatedQuery());
 
       assertEquals("Total Documents", TOTAL_DOCS, docs.size());
    }
@@ -161,7 +160,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.ID.isEqual(DOC1_ID));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       DocumentManagementService dms = sf.getDocumentManagementService();
       dms.removeDocument("/" + DOC_NAME_TEMP);
@@ -172,12 +171,12 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testSubSet1()
    {
-      QueryService qs = sf.getQueryService();
+      DocumentManagementService dms = sf.getDocumentManagementService();
 
       DocumentQuery dq = getFederatedQuery();
 
       dq.setPolicy(new SubsetPolicy( 1000, 1));
-      Documents docs = qs.getAllDocuments(dq);
+      Documents docs = dms.findDocuments(dq);
 
       assertEquals("SubsetPolicy( 1000, 1) Documents", TOTAL_DOCS - 1, docs.size());
    }
@@ -185,12 +184,12 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testSubSet2()
    {
-      QueryService qs = sf.getQueryService();
+      DocumentManagementService dms = sf.getDocumentManagementService();
 
       DocumentQuery dq = getFederatedQuery();
 
       dq.setPolicy(new SubsetPolicy(Integer.MAX_VALUE, 2));
-      Documents docs = qs.getAllDocuments(dq);
+      Documents docs = dms.findDocuments(dq);
 
       assertEquals("SubsetPolicy(Integer.MAX_VALUE, 2) Documents", TOTAL_DOCS - 2, docs.size());
    }
@@ -198,12 +197,12 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testSubSet3()
    {
-      QueryService qs = sf.getQueryService();
+      DocumentManagementService dms = sf.getDocumentManagementService();
 
       DocumentQuery dq = getFederatedQuery();
 
       dq.setPolicy(new SubsetPolicy(2, 0));
-      Documents docs = qs.getAllDocuments(dq);
+      Documents docs = dms.findDocuments(dq);
 
       assertEquals("SubSetPolicy(2, 0) Documents", 2, docs.size());
    }
@@ -211,12 +210,12 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testSubSet4()
    {
-      QueryService qs = sf.getQueryService();
+      DocumentManagementService dms = sf.getDocumentManagementService();
 
       DocumentQuery dq = getFederatedQuery();
 
       dq.setPolicy(new SubsetPolicy(4, 1));
-      Documents docs = qs.getAllDocuments(dq);
+      Documents docs = dms.findDocuments(dq);
 
       assertEquals("SubSetPolicy(4, 1) Documents", 4, docs.size());
    }
@@ -224,12 +223,12 @@ public class DmsFederatedDocumentSearchTest
    @Test
    public void testSubSet5()
    {
-      QueryService qs = sf.getQueryService();
+      DocumentManagementService dms = sf.getDocumentManagementService();
 
       DocumentQuery dq = getFederatedQuery();
 
       dq.setPolicy(new SubsetPolicy(6, 3));
-      Documents docs = qs.getAllDocuments(dq);
+      Documents docs = dms.findDocuments(dq);
 
       assertEquals("SubSetPolicy(6, 3) Documents", TOTAL_DOCS - 3, docs.size());
    }
@@ -240,7 +239,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.DATE_CREATED.greaterOrEqual("2010-10-13T09:57:31.381+02:00"));
       query.orderBy(DocumentQuery.DATE_CREATED);
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Total Documents", TOTAL_DOCS, docs.size());
    }
@@ -259,7 +258,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.DATE_CREATED.between(date.getTime(), date2.getTime()));
       query.orderBy(DocumentQuery.DATE_CREATED);
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Total Documents", TOTAL_DOCS, docs.size());
    }
@@ -270,7 +269,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.OWNER.isNotNull());
       query.orderBy(DocumentQuery.DATE_CREATED);
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Owner != null Documents", TOTAL_DOCS - 2, docs.size());
    }
@@ -281,7 +280,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.OWNER.isNull());
       query.orderBy(DocumentQuery.DATE_CREATED);
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Owner == null Documents", 2, docs.size());
    }
@@ -292,7 +291,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.OWNER.isEqual(OWNER1));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -303,7 +302,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.CONTENT_TYPE.isEqual(CONTENT_TYPE1));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -318,7 +317,7 @@ public class DmsFederatedDocumentSearchTest
       orTerm.add(DocumentQuery.NAME.isEqual(DOC_NAME1)) //
             .add(DocumentQuery.NAME.isEqual(DOC_NAME2));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", TOTAL_DOCS-2, docs.size());
    }
@@ -329,7 +328,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.META_DATA.withName(META_KEY1).like(META_VALUE1+"*"));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -340,7 +339,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.META_DATA.withName(META_KEY3).isEqual(META_VALUE3));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -352,7 +351,7 @@ public class DmsFederatedDocumentSearchTest
       // META_DATA.any() only supports LIKE with jackrabbit.
       query.where(DocumentQuery.META_DATA.any().like(META_VALUE1 + "*"));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -365,7 +364,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.CONTENT_TYPE.isEqual("text/plain"))
       .and(DocumentQuery.NAME.like("*.txt"));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 2, docs.size());
    }
@@ -379,13 +378,13 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.CONTENT.like("this is a test content"));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
       /* full text search indexers run asnychronously, and we don't have a means to determine   */
       /* when they are completed ==> wait and retry seems dirty, but is the only option we have */
       for (int i=0; docs.size() != expectedDocSize && i<retryCount; i++)
       {
          Thread.sleep(1000L);
-         docs = sf.getQueryService().getAllDocuments(query);
+         docs = sf.getDocumentManagementService().findDocuments(query);
       }
 
       assertEquals("Documents", expectedDocSize, docs.size());
@@ -400,7 +399,7 @@ public class DmsFederatedDocumentSearchTest
       // MetaData content should produce no hits.
       query.where(DocumentQuery.CONTENT.like(META_VALUE1));
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", 0, docs.size());
    }
@@ -411,7 +410,7 @@ public class DmsFederatedDocumentSearchTest
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.CONTENT.isNotNull());
 
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
 
       assertEquals("Documents", TOTAL_DOCS, docs.size());
    }
@@ -421,7 +420,7 @@ public class DmsFederatedDocumentSearchTest
    {
       DocumentQuery query = getFederatedQuery();
       query.orderBy(DocumentQuery.NAME,true);
-      Documents docs = sf.getQueryService().getAllDocuments(query);
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
       Document result1= docs.get(0);
 
       assertEquals("Document Name","test.html", result1.getName());
@@ -429,7 +428,7 @@ public class DmsFederatedDocumentSearchTest
       query = getFederatedQuery();
       query.orderBy(DocumentQuery.NAME,false);
 
-      docs = sf.getQueryService().getAllDocuments(query);
+      docs = sf.getDocumentManagementService().findDocuments(query);
       Document result2= docs.get(0);
 
       assertEquals("Document Name", "test.txt",result2.getName());

@@ -748,7 +748,9 @@ public interface QueryService extends Service
     * @return the first matching document.
     *
     * @throws ObjectNotFoundException if no matching document is found.
+    * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
     */
+   @Deprecated
    Document findFirstDocument(DocumentQuery query) throws ObjectNotFoundException;
 
    /**

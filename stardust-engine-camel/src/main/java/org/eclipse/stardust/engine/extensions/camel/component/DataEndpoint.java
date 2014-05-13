@@ -1,4 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CSV_DELIMITER_KEY;
+import java.util.Map;
 
 import org.apache.camel.Consumer;
 
@@ -15,7 +17,31 @@ public class DataEndpoint extends AbstractIppEndpoint
    @Override
    public Producer createProducer() throws Exception
    {
-      return new DataEndpointProducer(this);
+	   Map<String, Object> parameters = ((DataEndpointConfiguration) this.getEndpointConfiguration()).getParams();
+	   if(this.subCommand.equals("fromCSV"))
+      {
+    	 if(parameters.size() > 1)
+    	 {
+    		 throw new IllegalArgumentException("This Endpoint accept only one option > delimiter");
+    	 }
+    	 if(!isValidDelimiter((String) parameters.get(CSV_DELIMITER_KEY)))
+    	 {
+    		 throw new IllegalArgumentException("Delimiter must have a length of one");
+    	 }
+      }
+      
+      if(this.subCommand.equals("toCSV"))
+      {
+    	  if(parameters.size() > 2)
+     	 {
+     		 throw new IllegalArgumentException("This Endpoint accept only two option > delimiter , autogenHeaders");
+     	 }
+     	 if(!isValidDelimiter((String) parameters.get(CSV_DELIMITER_KEY)))
+     	 {
+     		 throw new IllegalArgumentException("Delimiter must have a length of one");
+     	 }
+      }
+	   return new DataEndpointProducer(this);
    }
 
    @Override
@@ -37,5 +63,10 @@ public class DataEndpoint extends AbstractIppEndpoint
    public boolean isLenientProperties()
    {
       return true;
+   }
+   
+   private static boolean isValidDelimiter(String delimiter)
+   {
+	   return delimiter == null || delimiter.toCharArray().length == 1 ? true : false;
    }
 }

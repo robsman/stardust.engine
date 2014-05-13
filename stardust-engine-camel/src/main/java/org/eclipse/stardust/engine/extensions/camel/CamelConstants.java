@@ -88,6 +88,11 @@ public final class CamelConstants
 
    public static final String CAMEL_DOCUMENT_NAME_KEY = "camelDocumentName";
    public static final String CAMEL_DOCUMENT_CONTENT_KEY = "camelDocumentContent";
+   public static final String IPP_ENDPOINT_PROPERTIES = "IPP_ENDPOINT_PROPERTIES";
+   public static final char CSV_DEFAULT_DELIMITER = ',';
+   public static final String CSV_DELIMITER_KEY = "delimiter";
+   public static final String CSV_AUTOGENHEADERS_KEY = "autogenHeaders";
+   
 
    /**
     * Returns the key of a value in the map

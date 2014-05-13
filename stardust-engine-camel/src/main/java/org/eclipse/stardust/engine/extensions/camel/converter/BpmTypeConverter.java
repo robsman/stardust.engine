@@ -1,5 +1,5 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
-
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_ENDPOINT_PROPERTIES;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.Property;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
@@ -77,6 +78,16 @@ public class BpmTypeConverter
    public void toList(Exchange exchange) throws Exception
    {
       processMarshalling(exchange, new ListTypeConverter(exchange));
+   }
+  
+   public void fromCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES) Map<String,Object> parameters) throws Exception
+   {
+      processUnmarshalling(exchange, new CsvTypeConverter(exchange, parameters));
+   }
+   
+   public void toCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES) Map<String,Object> parameters) throws Exception
+   {
+	   processMarshalling(exchange, new CsvTypeConverter(exchange, parameters));
    }
 
    @SuppressWarnings("unchecked")

@@ -18,6 +18,7 @@ import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
+import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -89,6 +90,29 @@ public class DmsSanityTest
 
       Assert.assertNotNull(getDms().getFolder("/test"));
       Assert.assertNotNull(getDms().getFolder("/test/"));
+   }
+
+   @Test
+   public void testHierarchy()
+   {
+      Folder folder = getDms().createFolder("/", DmsUtils.createFolderInfo("test"));
+      Document document = getDms().createDocument("/test", DmsUtils.createDocumentInfo("test.txt"));
+      Folder subFolder = getDms().createFolder("/test", DmsUtils.createFolderInfo("test2"));
+      Document subDocument = getDms().createDocument("/test/test2", DmsUtils.createDocumentInfo("test2.txt"));
+
+      Assert.assertNotNull(getDms().getFolder("/test"));
+      Assert.assertNotNull(getDms().getFolder("/test/test2"));
+      Assert.assertNotNull(getDms().getFolder(folder.getId()));
+      Assert.assertNotNull(getDms().getFolder(subFolder.getId()));
+      Assert.assertNotNull(getDms().getFolder(folder.getPath()));
+      Assert.assertNotNull(getDms().getFolder(subFolder.getPath()));
+
+      Assert.assertNotNull(getDms().getDocument("/test/test.txt"));
+      Assert.assertNotNull(getDms().getDocument("/test/test2/test2.txt"));
+      Assert.assertNotNull(getDms().getDocument(document.getId()));
+      Assert.assertNotNull(getDms().getDocument(subDocument.getId()));
+      Assert.assertNotNull(getDms().getDocument(document.getPath()));
+      Assert.assertNotNull(getDms().getDocument(subDocument.getPath()));
    }
 
    @Test

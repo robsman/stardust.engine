@@ -165,6 +165,8 @@
          <execute-test-suite name="Department" class="org.eclipse.stardust.test.department.DepartmentTestSuite" />
          <execute-test-suite name="Document Management" class="org.eclipse.stardust.test.dms.DmsTestSuite" />
          <execute-test-suite name="Document Management Synchronization" class="org.eclipse.stardust.test.dms.DmsSyncTestSuite" />
+         <execute-test-suite name="Document Management Application" class="org.eclipse.stardust.test.dms.DmsApplicationTestSuite" />
+         <execute-test-suite name="Document Management Concurrency" class="org.eclipse.stardust.test.dms.DmsConcurrencyTestSuite" />
          <execute-test-suite name="Join Process" class="org.eclipse.stardust.test.join.JoinProcessTestSuite" />
          <execute-test-suite name="Multi-Model" class="org.eclipse.stardust.test.multimodel.MultiModelTestSuite" />
          <execute-test-suite name="Quality Control" class="org.eclipse.stardust.test.qc.QualityControlTestSuite" />

@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceI
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 
 
@@ -244,7 +245,7 @@ public class VfsOperationApplicationInstance
             Map legoFolder = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER);
             Boolean recursive = (Boolean) getOptionalArgument(VfsOperationAccessPointProvider.AP_ID_RECURSIVE);
             String folderPath = (String) legoFolder.get(AuditTrailUtils.RES_PATH);
-            dms.removeFolder(folderPath, (recursive == null)
+            dms.removeFolder(RepositoryIdUtils.addRepositoryId(folderPath, this.dmsId), (recursive == null)
                   ? false
                   : recursive.booleanValue());
          }
@@ -341,7 +342,7 @@ public class VfsOperationApplicationInstance
          {
             Map legoDocument = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT);
             String documentPath = (String) legoDocument.get(AuditTrailUtils.RES_PATH);
-            dms.removeDocument(documentPath);
+            dms.removeDocument(RepositoryIdUtils.addRepositoryId(documentPath, this.dmsId));
          }
          else if (DmsOperation.OP_GET_DOCUMENTS == operation)
          {
@@ -439,7 +440,8 @@ public class VfsOperationApplicationInstance
 
    private Folder getDefaultFolder()
    {
-      Folder folder = DmsUtils.ensureFolderHierarchyExists(this.defaultPath, dms);
+      Folder folder = DmsUtils.ensureFolderHierarchyExists(
+            RepositoryIdUtils.addRepositoryId(this.defaultPath, this.dmsId), dms);
       return folder;
    }
 
@@ -462,7 +464,7 @@ public class VfsOperationApplicationInstance
                folderPath = RepositoryConstants.PATH_SEPARATOR + folderPath;
             }
 
-            Folder targetFolder = dms.getFolder(folderPath, Folder.LOD_NO_MEMBERS);
+            Folder targetFolder = dms.getFolder(RepositoryIdUtils.addRepositoryId(folderPath,this.dmsId), Folder.LOD_NO_MEMBERS);
 
             if (targetFolder == null)
             {

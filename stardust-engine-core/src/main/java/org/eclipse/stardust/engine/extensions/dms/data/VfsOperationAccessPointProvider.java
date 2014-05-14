@@ -16,9 +16,9 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ModelAware;
 
@@ -31,19 +31,19 @@ public class VfsOperationAccessPointProvider implements AccessPointProvider, Mod
 {
 
    public static final String AP_ID_DMS_ID = "dmsId";
-   
+
    public static final String AP_ID_TARGET_FOLDER = "targetFolder";
-   
+
    public static final String AP_ID_FOLDER = "folder";
-   
+
    public static final String AP_ID_FOLDER_INFO = "folderInfo";
-   
+
    public static final String AP_ID_DOCUMENT = "document";
-   
+
    public static final String AP_ID_DOCUMENT_INFO = "documentInfo";
-   
+
    public static final String AP_ID_VERSIONING = "versioning";
-   
+
    public static final String AP_ID_EXPRESSION = "expression";
 
    public static final String AP_ID_DOCUMENT_LIST = "documentList";
@@ -51,37 +51,39 @@ public class VfsOperationAccessPointProvider implements AccessPointProvider, Mod
    public static final String AP_ID_FOLDER_LIST = "folderList";
 
    public static final String AP_ID_DOCUMENT_ID = "documentId";
-   
+
    public static final String AP_ID_FOLDER_ID = "folderId";
-   
+
    public static final String AP_ID_DOCUMENT_IDS = "documentIds";
-   
+
    public static final String AP_ID_FOLDER_IDS = "folderIds";
 
    public static final String AP_ID_VERSION_LABEL = "versionLabel";
 
    public static final String AP_ID_RECURSIVE = "recursive";
-   
+
    private IModel model;
-   
+
    public void setModel(IModel model)
    {
       this.model = model;
    }
 
-   public Iterator createIntrinsicAccessPoints(Map context, Map typeAttributes)
+   public Iterator<AccessPoint> createIntrinsicAccessPoints(Map context, Map typeAttributes)
    {
-      final String dmsId = (String) context.get(DmsConstants.PRP_OPERATION_DMS_ID);
-      
-      if ( StringUtils.isEmpty(dmsId))
-      {
-         // TODO (post 4.6) dynamically define DMS ID
-      }
-
+      final String dmsIdSource = (String) context.get(DmsConstants.PRP_DMS_ID_SOURCE);
       final DmsOperation operation = DmsOperation.fromId((String) context.get(DmsConstants.PRP_OPERATION_NAME));
       final Object runtimeDefinedTargetFolder = context.get(DmsConstants.PRP_RUNTIME_DEFINED_TARGET_FOLDER);
-      
+
       List result = CollectionUtils.newLinkedList();
+
+      if ( DmsConstants.DMS_ID_SOURCE_RUNTIME.equals(dmsIdSource))
+      {
+         // Is runtime defined repository, add access point.
+         result.add(JavaDataTypeUtils.createIntrinsicAccessPoint(AP_ID_DMS_ID, null,
+               String.class.getName(), Direction.IN, true, null));
+      }
+
       if (DmsOperation.OP_CREATE_FOLDER == operation)
       {
          if (Boolean.TRUE.equals(runtimeDefinedTargetFolder))

@@ -14,10 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 
@@ -145,11 +147,21 @@ public class RepositoryIdUtils
       if (resource != null)
       {
          String prefixedId = addRepositoryId(resource.getId(), repositoryId);
+
          if (resource instanceof DmsResourceBean)
          {
             ((DmsResourceBean) resource).setId(prefixedId);
          }
-         if (resource instanceof DmsFolderBean)
+         if (resource instanceof DmsDocumentBean)
+         {
+            String revisionId = ((Document) resource).getRevisionId();
+            if (!StringUtils.isEmpty(revisionId) && !RepositoryConstants.VERSION_UNVERSIONED.equals(revisionId))
+            {
+               String prefixedRevisionId = addRepositoryId(revisionId, repositoryId);
+               ((DmsDocumentBean) resource).setRevisionId(prefixedRevisionId);
+            }
+         }
+         else if (resource instanceof DmsFolderBean)
          {
             Folder folder = (Folder) resource;
             addRepositoryId(folder.getFolders(), repositoryId);

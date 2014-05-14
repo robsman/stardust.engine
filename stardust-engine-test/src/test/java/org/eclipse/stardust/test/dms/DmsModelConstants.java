@@ -15,7 +15,7 @@ package org.eclipse.stardust.test.dms;
  * This class contains constants related to the model
  * used for the DMS tests.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -25,13 +25,17 @@ package org.eclipse.stardust.test.dms;
     * the name of the model for common DMS tests
     */
    /* package-private */ static final String DMS_MODEL_NAME = "DmsModel";
-   
+
    /**
     * the name of the model for synchronization tests
     */
    /* package-private */ static final String DMS_SYNC_MODEL_NAME = "DmsSyncModel";
-   
-   
+
+   /**
+    * the name of the model for dms application tests
+    */
+   /* package-private */ static final String DMS_APPLICATION_MODEL_NAME = "DmsApplicationModel";
+
    /**
     * a role used in the test case
     */

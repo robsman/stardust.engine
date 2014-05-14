@@ -32,7 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsSanityTest.class,  DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class})
+@SuiteClasses({ DmsSanityTest.class,  DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class, DmsApplicationTest.class})
 public class DmsTestSuite
 {
    /* test suite */

@@ -37,7 +37,13 @@ package org.eclipse.stardust.test.dms;
    /* package-private */ static final String DMS_APPLICATION_MODEL_NAME = "DmsApplicationModel";
 
    /**
+    * the name of the model for dms concurrency tests
+    */
+   public static final String DMS_CONCURRENT_MODEL_NAME = "DmsConcurrentModel";
+
+   /**
     * a role used in the test case
     */
    /* package-private */ static final String ROLE_ID = "MyRole";
+
 }

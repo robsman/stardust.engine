@@ -645,16 +645,16 @@
          <!-- Icon is not available from Carnot -->
          <!-- Documentation is not available from Carnot -->
 
-         <xsl:if test="@split='AND' or @join='AND' or @split='XOR' or @join='XOR'">
+         <xsl:if test="@split='AND' or @join='AND' or @split='XOR' or @join='XOR' or @split='OR' or @join='OR'">
             <TransitionRestrictions>
-               <xsl:if test="@join='AND' or @join='XOR'">
+               <xsl:if test="@join='AND' or @join='XOR' or @join='OR'">
                   <TransitionRestriction>
                      <Join>
                         <xsl:attribute name="Type"><xsl:value-of select="@join"/></xsl:attribute>
                      </Join>
                   </TransitionRestriction>
                </xsl:if>
-               <xsl:if test="@split='AND' or @split='XOR'">
+               <xsl:if test="@split='AND' or @split='XOR' or @split='OR'">
                   <TransitionRestriction>
                      <Split>
                         <xsl:attribute name="Type"><xsl:value-of select="@split"/></xsl:attribute>

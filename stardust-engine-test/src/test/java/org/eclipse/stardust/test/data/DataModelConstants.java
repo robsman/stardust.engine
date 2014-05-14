@@ -16,10 +16,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.DateUtils;
-
 /**
  * <p>
  * This class contains constants related to the model
@@ -31,8 +27,6 @@ import org.eclipse.stardust.common.DateUtils;
  */
 /* package-private */ class DataModelConstants
 {
-  private static final Log LOG = LogFactory.getLog(DataModelConstants.class);
-  
    static
    {
       final Calendar calendar = Calendar.getInstance();

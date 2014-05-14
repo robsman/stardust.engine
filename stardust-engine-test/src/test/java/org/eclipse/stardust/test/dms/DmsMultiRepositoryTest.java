@@ -215,10 +215,49 @@ public class DmsMultiRepositoryTest
             DmsUtils.createDocumentInfo("test.txt"));
 
       Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertEquals(TEST_REPO_ID, getDms().getDocument(doc.getId()).getRepositoryId());
       Assert.assertNull(getDms().getDocument(
             RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
       Assert.assertNull(getDms().getDocument(
             RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+   }
+
+   @Test
+   public void testSeparationWithVersioning()
+   {
+      getDms().removeDocument(
+            RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
+
+      Document doc = getDms().createDocument(
+            RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
+            DmsUtils.createDocumentInfo("test.txt"));
+
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertEquals(TEST_REPO_ID, getDms().getDocument(doc.getId()).getRepositoryId());
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+
+      Document v0 = getDms().versionDocument(doc.getId(), "v0", "v0");
+      Assert.assertNotEquals(v0.getRevisionId(), doc.getRevisionId());
+
+      Assert.assertNotNull(getDms().getDocument(v0.getRevisionId()));
+      Assert.assertEquals(TEST_REPO_ID, getDms().getDocument(v0.getRevisionId()).getRepositoryId());
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(v0.getRevisionId(), SYSTEM_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(v0.getRevisionId(), null)));
+
+      Document v1 = getDms().versionDocument(doc.getId(), "v1", "v1");
+      Assert.assertNotEquals(v1.getRevisionId(), v0.getRevisionId());
+
+      Assert.assertNotNull(getDms().getDocument(v1.getRevisionId()));
+      Assert.assertEquals(TEST_REPO_ID, getDms().getDocument(v1.getRevisionId()).getRepositoryId());
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(v1.getRevisionId(), SYSTEM_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(
+            RepositoryIdUtils.replaceRepositoryId(v1.getRevisionId(), null)));
    }
 
    @Test

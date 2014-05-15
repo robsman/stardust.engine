@@ -47,9 +47,9 @@ public class Version implements Comparable<Version>, Serializable
       mapStardust2Ipp.put(Version.createFixedVersion(1, 1, 0), Version.createFixedVersion(7, 2, 0));
       mapStardust2Ipp.put(Version.createFixedVersion(1, 1, 1), Version.createFixedVersion(7, 2, 0));
       mapStardust2Ipp.put(Version.createFixedVersion(1, 1, 2), Version.createFixedVersion(7, 2, 0));
-      mapStardust2Ipp.put(Version.createFixedVersion(2, 0, 0), Version.createFixedVersion(7, 3, 0));
+      mapStardust2Ipp.put(Version.createFixedVersion(2, 0, 0), Version.createFixedVersion(8, 0, 0));
       // map DEV builds to latest IPP release
-      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(7, 3, 0));
+      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(8, 0, 0));
    }
 
    // some Versions coded in product are fixed and are not allowed to be altered during compare

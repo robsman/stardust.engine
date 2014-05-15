@@ -33,10 +33,10 @@ public class RuntimeJobs
          if (CurrentVersion.getProductName().matches(".*[Ee]clipse.*"))
          {
             jobs.add(new AT1_1_0from1_0_0RuntimeJob());
+            jobs.add(new AT2_0_0from1_1_0RuntimeJob());
          }
          else
          {
-            jobs = new LinkedList();
             jobs.add(new R3_0_6from3_0_1RuntimeJob());
             jobs.add(new R3_2_0from3_0_6RuntimeJob());
             jobs.add(new R3_6_0from3_2_0RuntimeJob());

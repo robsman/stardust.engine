@@ -144,7 +144,18 @@ public class CamelApplicationTest
       resultEndpoint.assertIsSatisfied();
       resultEndpoint.reset();
    }
-
+   
+   @Test
+   public void testBodyInDataMappingPrimitiveNonTransacted() throws Exception
+   {
+      ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      String expectedBody = "Non Transacted Data";
+      resultEndpoint.expectedBodiesReceived(expectedBody);
+      sf.getWorkflowService().startProcess("testBodyInDataMappingPrimitiveNonTransacted", null, true);
+      resultEndpoint.assertIsSatisfied();
+      resultEndpoint.reset();
+   }
+   
    @Test
    public void testBodyInDataMappingSDT() throws Exception
    {

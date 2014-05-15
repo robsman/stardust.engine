@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="CamelApplicationTestModel" Name="CamelApplicationTestModel">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="CamelApplicationTestModel" Name="CamelApplicationTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -10,8 +11,8 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1">
-      <xpdl:TypeDeclaration Id="Person" Name="Person">
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="Person" Name="Person">
          <xpdl:ExtendedAttributes>
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
@@ -29,7 +30,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-      <xpdl:TypeDeclaration Id="Address" Name="Address">
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="Address" Name="Address">
          <xpdl:ExtendedAttributes>
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
@@ -47,7 +48,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-   </xpdl:TypeDeclarations>
+   </TypeDeclarations>
    <carnot:qualityControl xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1"/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -81,6 +82,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;mock:result&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="send"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -426,6 +428,33 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Application>
+      <Application Id="testBodyInDataMappingPrimitiveNonTransacted" Name="testBodyInDataMappingPrimitiveNonTransacted">
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="1141" Type="camelSpringProducerApplication">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="1143" Id="input1" Name="input1" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="send"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="false" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;mock:result&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="input1"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
    </Applications>
    <DataFields>
       <DataField Id="PROCESS_ID" Name="Process OID" IsArray="FALSE">
@@ -619,6 +648,22 @@
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="NonTransactedData" Name="NonTransactedData" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Non Transacted Data</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="1154" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Non Transacted Data"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -1785,6 +1830,73 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="testBodyInDataMappingPrimitiveNonTransacted" Name="testBodyInDataMappingPrimitiveNonTransacted" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="testBodyInDataMappingPrimitiveNonTransacted" Name="testBodyInDataMappingPrimitiveNonTransacted">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="testBodyInDataMappingPrimitiveNonTransacted">
+                        <ActualParameters>
+                           <ActualParameter>NonTransactedData</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1148" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="1158" Id="NonTransactedData" Name="NonTransactedData" Direction="IN" Context="application">
+                              <carnot:DataRef Id="NonTransactedData"/>
+                              <carnot:AccessPointRef Id="input1"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="1144">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="1147" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="1146" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="410" Height="670" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="1145" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="376" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="1146">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="1149" X="128" Y="166" Width="180" Height="50" ModelElement="testBodyInDataMappingPrimitiveNonTransacted"/>
+                                       <carnot:Symbol Kind="DATA" Oid="1155" X="44" Y="93" Width="100" Height="70" ModelElement="NonTransactedData"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="1157" SourceSymbol="1155" TargetSymbol="1149" SourceAnchor="bottom" TargetAnchor="left"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -2002,7 +2114,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Sat Jun 01 16:05:46 CEST 2013"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed May 14 16:20:00 WAT 2014"/>
                <carnot:Attribute Name="auto_id_generation" Value="false"/>
                <carnot:Attribute Name="carnot:simulation:configuration:nextSimulationConfigurationId" Value="1"/>
                <carnot:Attribute Name="project-planning:effortParameter[0]:scope" Value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>

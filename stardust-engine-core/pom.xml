@@ -895,6 +895,7 @@
                   <include>api/query/Query.java</include>
                   <include>api/query/QueryResult.java</include>
                   <include>api/query/ScopedFilter.java</include>
+                  <include>api/query/RepositoryPolicy.java</include>
                   <include>api/query/StartingUserFilter.java</include>
                   <include>api/query/SubsetPolicy.java</include>
                   <include>api/query/SubFolderPolicy.java</include>
@@ -920,6 +921,7 @@
                   <include>core/spi/dms/IRepositoryProvider.java</include>
                   <include>core/spi/dms/IRepositoryProviderInfo.java</include>
                   <include>core/spi/dms/IRepositoryService.java</include>
+                  <include>core/spi/dms/RepositoryConstants.java</include>
                   <include>core/spi/dms/RepositoryIdUtils.java</include>
                   <include>core/spi/dms/RepositoryResourceUtils.java</include>
 

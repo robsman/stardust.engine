@@ -156,9 +156,9 @@ public interface AdministrationService extends Service
 
    /**
     * Overwrites the specified model.
-    * 
+    *
     * @param deploymentElement   The model to be overwritten.
-    * @param modelOID         The modelOID of the model to be overwritten. 
+    * @param modelOID         The modelOID of the model to be overwritten.
     * @param options          The deployment options. Can be null, in which case default deployment options will be used.
     * @return depoymentInfo   Deployment information information, including possible errors or warning
     * @throws DeploymentException   Exception if the overwrite operation could not be performed.
@@ -172,6 +172,8 @@ public interface AdministrationService extends Service
     * The deployment operation is transactional, that means either all models in the group are deployed or none of them.
     * Model references will be resolved first within the group, and only if there is no corresponding model in the group
     * the already deployed models will be considered.
+    * Note: It is possible to deploy an empty set of models. This will not necessarily mean that audit trail is not being changed.
+    * If the PredefinedModel is not already present in audit trail this means it will be deployed in any case.
     *
     * @param deploymentElements The models to be deployed. Each model in the set must have a unique ID.
     * @param options            The deployment options. Can be null, in which case default deployment options will be used.
@@ -295,7 +297,7 @@ public interface AdministrationService extends Service
     * In that case the returned ProcessInstance will already be in state ABORTED.
     *
     * <em>This method also aborts all super process instances.</em>
-    * 
+    *
     * <p>State changes:
     * <ul><li>Process state before: active, interrupted</li>
     * <li>State after: The state of root process, all sub-processes and activities that are not yet completed changes to aborted.</li></ul>
@@ -432,7 +434,7 @@ public interface AdministrationService extends Service
 
    /**
     * Determines key indicators of audit trail health.
-    * 
+    *
     * @param countOnly
     *           Determines if report should include the process instances oids or just the
     *           total count of oids. If countOnly is set to true the total count of
@@ -461,7 +463,7 @@ public interface AdministrationService extends Service
     * if the synchronously parameter is set to false.However, even if the synchronously parameter is true,
     * the execution of activities is performed in the calling thread only up to the first transition marked
     * with "Fork on Traversal", from that point on execution is asynchronous.
-    * 
+    *
     * <p>State changes:
     * <ul>
     * <li>Process state after: active</li>
@@ -488,7 +490,7 @@ public interface AdministrationService extends Service
    /**
     * Forces the completion of a non-interactive activity instance. A map of access points maybe provided.
     * This way this method can mimic precisely the behavior of a normal completion of the activity.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application, suspended, hibernated</li>
     * <li>Process state before: active, interrupted</li>
@@ -524,7 +526,7 @@ public interface AdministrationService extends Service
     * Forces an activity instance to be suspended. It will be added to the worklist of
     * the default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application, suspended, hibernated</li>
     * <li>Process state before: active, interrupted</li>
@@ -740,7 +742,7 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
    ConfigurationVariables getConfigurationVariables(String modelId);
-   
+
    /**
     * Retrieves merged configuration variables from all models matching the specified modelId.
     * The contained descriptions and default values are taken from the newest model version the configuration variable exists in.
@@ -752,7 +754,7 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
    ConfigurationVariables getConfigurationVariables(String modelId, boolean all);
-   
+
    /**
     * Retrieves merged configuration variables from all models matching the specified modelIds (without Password type).
     * The contained descriptions and default values are taken from the newest model version the configuration variable exists in.

@@ -17,8 +17,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 
 
 /**
- * Interface to Activity Instance State Changes.
- * 
+ * Interface to monitor activity instance state changes.
+ *
  * @author thomas.wolfram
  */
 @SPI(useRestriction = UseRestriction.Public, status = Status.Stable)

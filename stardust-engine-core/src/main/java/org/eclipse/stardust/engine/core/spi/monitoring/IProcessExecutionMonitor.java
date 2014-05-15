@@ -16,7 +16,7 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 /**
- * Interface to Monitor Process Execution.
+ * Interface to monitor process execution.
  *
  * @author sauer
  * @version $Revision: $
@@ -30,26 +30,26 @@ public interface IProcessExecutionMonitor
     * @param process Process Instance.
     */
    void processStarted(IProcessInstance process);
-   
+
    /**
     * Propagate that the Process has been completed.
     *
     * @param process Process Instance.
     */
    void processCompleted(IProcessInstance process);
-   
+
    /**
     * Propagate that the Process has been aborted.
     *
     * @param process Process Instance.
     */
    void processAborted(IProcessInstance process);
-   
+
    /**
     * Propagate that the Process has been interrupted.
     *
     * @param process Process Instance.
     */
    void processInterrupted(IProcessInstance process);
-   
+
 }

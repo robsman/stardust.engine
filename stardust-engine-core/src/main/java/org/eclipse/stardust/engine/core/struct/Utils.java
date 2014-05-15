@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.eclipse.stardust.common.Period;
@@ -90,6 +91,10 @@ public class Utils
       else if (xPath.getType() == BigData.PERIOD)
       {
          clazz = Period.class;
+      }
+      else if(xPath.getType() == BigData.DECIMAL)
+      {
+         clazz = BigDecimal.class;
       }
       else
       {

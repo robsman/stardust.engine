@@ -973,7 +973,6 @@
       <ipp:mvn-install pomFile="${build.lib}/jta-jencks-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/qdox-module.pom" />
-      <ipp:mvn-install pomFile="${build.lib}/swing-client-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/web-client-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/xerces-module.pom" />
 
@@ -1002,7 +1001,6 @@
       <ipp:mvn-deploy pomFile="${build.lib}/jta-jencks-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/qdox-module.pom" />
-      <ipp:mvn-deploy pomFile="${build.lib}/swing-client-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/web-client-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/xerces-module.pom" />
    </target>

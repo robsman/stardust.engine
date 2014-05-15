@@ -5,7 +5,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -18,9 +18,9 @@
    <condition property="jackrabbit.core.conf.counterpart" value="jackrabbit-core-with-full-text-search" else="jackrabbit-core-without-full-text-search">
      <equals arg1="${jackrabbit.core.conf}" arg2="jackrabbit-core-without-full-text-search" />
    </condition>
-   
+
    <target name="dependencies:init" depends="-ivy-init" />
-   
+
    <target name="dependencies:initClasspath" depends="-ivy-classpath-init" />
 
    <target name="dependencies:publish-local" depends="-ivy-publish-local" />
@@ -60,11 +60,11 @@
          <path refid="test.classpath" />
          <path refid="run.test" />
       </path>
-      
+
       <path id="jarjar.classpath">
          <path refid="ant.build.deps" />
       </path>
-      
+
       <path id="cp.publicJavadoc">
          <path refid="servlet.deps" />
          <path refid="ejb.deps" />
@@ -81,7 +81,7 @@
 
    <target name="-ivy-resolve" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init">
       <ivy:resolve file="${project.dir}/ivy.xml" refresh="true" conf="*,!${jackrabbit.core.conf.counterpart}"/>
-      
+
       <ivy:cachepath pathid="compile.secret" conf="compile-secret" />
       <ivy:cachepath pathid="hazelcast.cache.provider" conf="hazelcast-provider-compile" />
       <ivy:cachepath pathid="jencks.jta.provider" conf="jencks-provider-runtime" />
@@ -92,7 +92,7 @@
 
       <ivy:cachepath pathid="activemq.jms.provider" conf="activemq-provider-runtime" />
       <ivy:cachepath pathid="cache.interface" conf="2nd-level-cache-interface-compile" />
-      
+
       <ivy:cachepath pathid="ant.build.deps" conf="ant-build-runtime" />
 
       <ivy:cachepath pathid="qdox.deps" conf="qdox-provider-compile" />
@@ -111,20 +111,20 @@
       <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true">
          <artifacts pattern="${build.lib}/[artifact].[ext]"/>
       </ivy:publish>
-      
+
       <!-- Publish created JARs and their POMs (ivy.xml) -->
       <ivy:resolve file="${project.dir}/ivy.xml" conf="*,!${jackrabbit.core.conf.counterpart}" />
       <ivy:deliver deliverpattern="${build.lib}/[artifact].[ext]" merge="false" conf="*,!${jackrabbit.core.conf.counterpart}" />
       <ivy-make-carnot-engine-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" conf="*,!${jackrabbit.core.conf.counterpart}" />
       <echo message="Publishing JARs and POMs ..." />
-      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true" 
+      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true"
          srcivypattern="${project.dir}/ivy.xml" update="true" merge="false">
          <artifacts pattern="${build.lib}/[artifact](-[classifier]).[ext]"/>
       </ivy:publish>
-      
+
       <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
-         conf="base-provider-compile,base-provider-runtime,swing-client-provider-compile,
+         conf="base-provider-compile,base-provider-runtime,
             2nd-level-cache-interface-compile,emf-xsd-provider-compile,
             build-lib,jcr-interface-compile,jcr-vfs-provider-compile,web-client-interface-provided,
             web-client-provider-runtime,ant-provider-runtime,logging-slf4j-log4j-provider-compile" />
@@ -145,11 +145,11 @@
       <ivy:resolve file="${project.dir}/module-ivy.xml" conf="*,!${jackrabbit.core.conf.counterpart}" />
       <ivy:deliver deliverpattern="${build.lib}/module-[artifact].[ext]" merge="false" conf="*,!${jackrabbit.core.conf.counterpart}"/>
       <ivy-make-carnot-engine-module-poms ivyFile="${build.lib}/module-ivy.xml" pomFilePath="${build.lib}" />
-      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true" 
+      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true"
          srcivypattern="${project.dir}/module-ivy.xml" update="true" merge="false">
          <artifacts pattern="${build.lib}/[artifact].[ext]"/>
       </ivy:publish>
-      
+
       <antcall target="-polish-up-dependencies"/>
    </target>
 

@@ -5,7 +5,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -18,7 +18,7 @@
       <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
          extendType="all" location="interface-ivy.xml"/>
    </info>
-   
+
    <configurations>
       <conf name="client-module-compile" description="IPP Engine - Client Module - Compile Scope" />
       <conf name="client-module-runtime" extends="client-module-compile" description="IPP Engine - Client Module - Runtime Scope" />
@@ -29,9 +29,6 @@
       <conf name="web-client-module-compile" extends="engine-module-compile, web-client-provider-runtime" description="IPP Engine - Web Client Module - Compile Scope" />
       <conf name="web-client-module-runtime" extends="web-client-module-compile, engine-module-runtime" description="IPP Engine - Web Client Module - Runtime Scope" />
       <conf name="web-client-module-provided" extends="web-client-interface-provided" description="IPP Engine - Web Client Module - Provided Scope" />
-
-      <conf name="swing-client-module-compile" extends="engine-module-compile, swing-client-provider-compile" description="IPP Engine - Swing Client Module - Compile Scope" />
-      <conf name="swing-client-module-runtime" extends="swing-client-module-compile, engine-module-runtime" description="IPP Engine - Swing Client Module - Runtime Scope" />
 
       <conf name="logging-slf4j-log4j-module-compile" extends="logging-slf4j-log4j-provider-compile" description="IPP Engine - slf4j-log4j Module - Compile Scope" />
       <conf name="logging-slf4j-log4j-module-runtime" extends="logging-slf4j-log4j-module-compile" description="IPP Engine - slf4j-log4j Module - Runtime Scope" />
@@ -45,24 +42,24 @@
       <conf name="jcr-api-module-compile" extends="jcr-interface-compile" description="IPP Engine - JCR Module - Compile Scope" />
       <conf name="jcr-api-module-runtime" extends="jcr-api-module-compile" description="IPP Engine - JCR Module - Runtime Scope" />
 
-      <conf name="jcr-jackrabbit-module-runtime" extends="jcr-api-module-runtime, jackrabbit-provider-runtime" 
+      <conf name="jcr-jackrabbit-module-runtime" extends="jcr-api-module-runtime, jackrabbit-provider-runtime"
          description="IPP Engine - JCR Jackrabbit Module - Runtime Scope" />
-      <conf name="jcr-jackrabbit-webapp-module-runtime" extends="jackrabbit-webapp-provider-runtime, jcr-api-module-runtime" 
+      <conf name="jcr-jackrabbit-webapp-module-runtime" extends="jackrabbit-webapp-provider-runtime, jcr-api-module-runtime"
          description="IPP Engine - JCR Jackrabbit Module for Web Deployments - Runtime Scope" />
 
       <conf name="jcr-vfs-module-compile" extends="jcr-interface-compile, jcr-vfs-provider-compile" description="IPP Engine - JCR VFS Module - Compile Scope" />
       <conf name="jcr-vfs-module-runtime" extends="jcr-vfs-module-compile" description="IPP Engine - JCR VFS Module - Runtime Scope" />
 
       <conf name="jms-activemq-module-compile" description="IPP Engine - JMS ActiveMQ Module - Compile Scope" />
-      <conf name="jms-activemq-module-runtime" extends="jms-activemq-module-compile,jms-interface-runtime,activemq-provider-runtime" 
+      <conf name="jms-activemq-module-runtime" extends="jms-activemq-module-compile,jms-interface-runtime,activemq-provider-runtime"
          description="IPP Engine - JMS ActiveMQ Module - Runtime Scope" />
 
       <conf name="jms-api-module-compile" extends="jms-interface-runtime" description="IPP Engine - JMS API Module - Compile Scope" />
       <conf name="jms-api-module-runtime" extends="jms-api-module-compile" description="IPP Engine - JMS API Module - Runtime Scope" />
 
-      <conf name="2nd-level-cache-hazelcast-module-compile" extends="hazelcast-provider-compile, 2nd-level-cache-interface-compile" 
+      <conf name="2nd-level-cache-hazelcast-module-compile" extends="hazelcast-provider-compile, 2nd-level-cache-interface-compile"
          description="IPP Engine - Hazelcast 2nd Level Cache Module - Compile Scope" />
-      <conf name="2nd-level-cache-hazelcast-module-runtime" extends="2nd-level-cache-hazelcast-module-compile" 
+      <conf name="2nd-level-cache-hazelcast-module-runtime" extends="2nd-level-cache-hazelcast-module-compile"
          description="IPP Engine - Hazelcast 2nd Level Cache Module - Runtime Scope" />
 
       <conf name="ejb21-module-compile" extends="ejb21-interface-provided" description="IPP Engine - EJB 2.1 Module - Compile Scope" />
@@ -77,7 +74,7 @@
       <conf name="xerces-module-runtime" extends="xerces-provider-runtime" description="IPP Engine - Xerces Module - Runtime Scope"/>
 
       <conf name="qdox-module-compile" extends="qdox-provider-compile" description="IPP Engine - Qdox Module - Compile Scope"/>
-      
+
       <!-- ********** -->
       <!--    POMs    -->
       <!-- ********** -->
@@ -86,24 +83,23 @@
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="provided" visibility="private" extends="web-client-module-provided" />
       <conf name="compile" visibility="private" extends="client-module-compile, engine-module-compile, web-client-module-compile,
-         swing-client-module-compile, logging-slf4j-log4j-module-compile, jta-jencks-module-compile, jta-api-module-compile,
-         jcr-api-module-compile, jcr-vfs-module-compile, jms-activemq-module-compile, jms-api-module-compile, 
+         logging-slf4j-log4j-module-compile, jta-jencks-module-compile, jta-api-module-compile,
+         jcr-api-module-compile, jcr-vfs-module-compile, jms-activemq-module-compile, jms-api-module-compile,
          2nd-level-cache-hazelcast-module-compile, ejb21-module-compile, ejb30-module-compile,
          ant-module-compile, qdox-module-compile" />
       <conf name="runtime" visibility="private" extends="client-module-runtime, engine-module-runtime, web-client-module-runtime,
-         swing-client-module-runtime, logging-slf4j-log4j-module-runtime, jta-jencks-module-runtime, jta-api-module-runtime, 
-         jcr-api-module-runtime, jcr-jackrabbit-module-runtime, jcr-jackrabbit-webapp-module-runtime, jcr-vfs-module-runtime, 
-         jms-activemq-module-runtime, jms-api-module-runtime, 2nd-level-cache-hazelcast-module-runtime, ejb21-module-runtime, 
+         logging-slf4j-log4j-module-runtime, jta-jencks-module-runtime, jta-api-module-runtime,
+         jcr-api-module-runtime, jcr-jackrabbit-module-runtime, jcr-jackrabbit-webapp-module-runtime, jcr-vfs-module-runtime,
+         jms-activemq-module-runtime, jms-api-module-runtime, 2nd-level-cache-hazelcast-module-runtime, ejb21-module-runtime,
          ejb30-module-runtime, ant-module-runtime, xerces-module-runtime" />
       <conf name="all" visibility="private" extends="provided, compile, runtime" />
-      
+
    </configurations>
-   
+
    <publications>
       <artifact name="client-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="engine-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="web-client-module" type="pom" conf="module-pom" ext="pom" />
-      <artifact name="swing-client-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="logging-slf4j-log4j-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="jta-jencks-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="jta-api-module" type="pom" conf="module-pom" ext="pom" />
@@ -120,13 +116,13 @@
       <artifact name="xerces-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="qdox-module" type="pom" conf="module-pom" ext="pom" />
    </publications>
-   
+
    <dependencies>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-compile->carnot-client-compile"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
-      
+
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->

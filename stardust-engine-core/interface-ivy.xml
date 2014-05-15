@@ -49,7 +49,7 @@
       <conf name="2nd-level-cache-interface-compile" visibility="private"/>
 
       <conf name="j2ee-mgmt-interface-provided" visibility="private"/>
-      
+
       <conf name="ejb21-interface-provided" visibility="private"/>
 
       <conf name="ejb30-interface-compile" visibility="private"/>
@@ -64,8 +64,6 @@
 
       <conf name="web-client-provider-runtime" visibility="private"/>
 
-      <conf name="swing-client-provider-compile" visibility="private"/>
-
       <conf name="jencks-provider-runtime" visibility="private"/>
 
       <conf name="jcr-vfs-provider-compile" visibility="private"/>
@@ -77,19 +75,19 @@
       <conf name="ant-provider-runtime" visibility="private"/>
 
       <conf name="qdox-provider-compile" visibility="private"/>
-      
+
       <conf name="js-provider-runtime" visibility="private"/>
-      
+
       <conf name="xerces-provider-runtime" visibility="private"/>
-      
+
       <conf name="emf-xsd-provider-compile" visibility="private"/>
-      
-      <!-- we have to make 'Jackrabbit Full Text Search' configurable due to license issues (see CRNT-24293) -->      
+
+      <!-- we have to make 'Jackrabbit Full Text Search' configurable due to license issues (see CRNT-24293) -->
       <conf name="jackrabbit-provider-runtime" extends="${jackrabbit.core.conf}" visibility="private" />
-      
+
       <conf name="jackrabbit-core-with-full-text-search" visibility="private" />
       <conf name="jackrabbit-core-without-full-text-search" visibility="private" />
-      
+
       <conf name="jackrabbit-webapp-provider-runtime" visibility="private"/>
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
@@ -97,7 +95,7 @@
          ejb21-interface-provided"/>
       <conf name="interface-compile" visibility="private" extends="jta-interface-compile, jcr-interface-compile, emf-xsd-provider-compile,
          2nd-level-cache-interface-compile, ejb30-interface-compile, base-provider-compile, logging-slf4j-log4j-provider-compile,
-         swing-client-provider-compile, jcr-vfs-provider-compile, hazelcast-provider-compile, qdox-provider-compile"/>
+         jcr-vfs-provider-compile, hazelcast-provider-compile, qdox-provider-compile"/>
       <conf name="interface-runtime" visibility="private" extends="jms-interface-runtime, base-provider-runtime, web-client-provider-runtime,
          jencks-provider-runtime, activemq-provider-runtime, ant-provider-runtime, js-provider-runtime,
          xerces-provider-runtime, jackrabbit-provider-runtime, jackrabbit-webapp-provider-runtime"/>
@@ -105,15 +103,15 @@
       <conf name="interface-all" visibility="private" extends="interface-provided, interface-compile, interface-runtime"/>
 
    </configurations>
-   
+
    <publications/>
 
    <dependencies>
-   
+
       <!-- **************************** -->
       <!--    Interface Dependencies    -->
       <!-- **************************** -->
-      
+
       <!-- web-client-interface-provided -->
       <dependency org="javax.servlet" name="servlet-api" rev="${servlet-api.version}" conf="web-client-interface-provided->default" />
       <dependency org="javax.servlet" name="jsp-api" rev="${jsp-api.version}" conf="web-client-interface-provided->default"/>
@@ -129,7 +127,7 @@
 
       <!-- j2ee-mgmt-interface-provided -->
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="j2ee-mgmt-interface-provided->default" />
-      
+
       <!-- ejb21-interface-provided -->
       <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="${geronimo-ejb_2.1_spec.version}" conf="ejb21-interface-provided->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" conf="ejb21-interface-provided->default" />
@@ -140,7 +138,7 @@
       <!-- *************************** -->
       <!--    Provider Dependencies    -->
       <!-- *************************** -->
-      
+
       <!-- base-provider-compile -->
       <dependency org="javax.xml.bind" name="jaxb-api" rev="${jaxb-api.version}" conf="base-provider-compile->default">
          <exclude org="javax.xml.stream" module="stax-api"/>
@@ -168,9 +166,6 @@
 
       <!-- web-client-provider-runtime -->
       <dependency org="commons-fileupload" name="commons-fileupload" rev="${commons-fileupload.version}" conf="web-client-provider-runtime->default"/>
-
-      <!-- swing-client-provider-compile -->
-      <dependency org="jgoodies" name="forms" rev="${forms.version}" conf="swing-client-provider-compile->default" />
 
       <!-- jencks-provider-runtime -->
       <dependency org="org.tranql" name="tranql-connector" rev="${tranql-connector.version}" conf="jencks-provider-runtime->default" />
@@ -259,15 +254,15 @@
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="${org.eclipse.emf.common.version}" transitive="false" conf="emf-xsd-provider-compile->default"/>
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="${org.eclipse.emf.ecore.version}" transitive="false" conf="emf-xsd-provider-compile->default"/>
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="${org.eclipse.emf.ecore.xmi.version}" transitive="false" conf="emf-xsd-provider-compile->default"/>
-      
+
       <!-- qdox-provider-compile -->
       <dependency org="com.thoughtworks.qdox" name="qdox" rev="${qdox.version}" conf="qdox-provider-compile->default"/>
-      
+
       <!-- xerces-provider-runtime -->
       <dependency org="xerces" name="xercesImpl" rev="${xercesImpl.version}" conf="xerces-provider-runtime->default">
          <exclude org="xml-apis" module="xml-apis"/>
       </dependency>
-      
+
       <!-- jackrabbit-core-with-full-text-search -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
@@ -283,11 +278,11 @@
          <exclude org="org.slf4j" module="slf4j-api"/>
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>
       </dependency>
-      
+
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-with-full-text-search->default" />
       <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-with-full-text-search->default" />
-      
+
       <dependency org="org.apache.tika" name="tika-parsers" rev="${tika-parsers.version}" conf="jackrabbit-core-with-full-text-search,jackrabbit-core-without-full-text-search->default">
          <exclude org="org.gagravarr" module="vorbis-java-tika"/>
          <exclude org="org.gagravarr" module="vorbis-java-core"/>
@@ -309,7 +304,7 @@
          <exclude org="org.apache.james" module="apache-mime4j-dom"/>
          <exclude org="com.drewnoakes" module="metadata-extractor" />
       </dependency>
-      
+
       <dependency org="org.apache.poi" name="poi" rev="${poi.version}" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="commons-codec" module="commons-codec"/>
       </dependency>
@@ -328,7 +323,7 @@
       <dependency org="org.apache.james" name="apache-mime4j-core" rev="${apache-mime4j-core.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       <dependency org="org.apache.james" name="apache-mime4j-dom" rev="${apache-mime4j-dom.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       <dependency org="com.drewnoakes" name="metadata-extractor" rev="${metadata-extractor.version}" conf="jackrabbit-core-with-full-text-search->default">
-         <exclude org="xerces" module="xercesImpl"/>   
+         <exclude org="xerces" module="xercesImpl"/>
       </dependency>
 
       <!-- jackrabbit-core-without-full-text-search -->
@@ -347,14 +342,14 @@
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
          <exclude org="org.slf4j" module="slf4j-api"/>
-         <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
       <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-without-full-text-search->default" />
       <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-without-full-text-search->default">
          <exclude org="org.slf4j" module="slf4j-api"/>
       </dependency>
-      
+
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="jackrabbit-provider-runtime->default">
          <exclude org="commons-codec" module="commons-codec"/>
@@ -375,10 +370,10 @@
          <exclude org="ch.qos.logback" module="logback-classic"/>
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>
          <exclude org="commons-codec" module="commons-codec"/>
-         <exclude org="org.apache.tika" module="tika-parsers"/>         
+         <exclude org="org.apache.tika" module="tika-parsers"/>
          <exclude org="com.drewnoakes" module="metadata-extractor"/>
       </dependency>
-      
+
       <!-- jackrabbit-webapp-provider-runtime -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="${jackrabbit-webapp.version}" conf="jackrabbit-webapp-provider-runtime->default">
          <artifact name="jackrabbit-webapp" type="jar"/>
@@ -401,9 +396,9 @@
          <exclude org="org.tukaani" module="xz"/>
          <exclude org="edu.ucar" module="netcdf"/>
          <exclude org="org.slf4j" module="slf4j-api"/>
-         <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>
          <exclude org="org.apache.tika" module="tika-parsers"/>
-         <exclude org="org.apache.tika" module="tika-core"/> 
+         <exclude org="org.apache.tika" module="tika-core"/>
       </dependency>
       <!-- force correct revision in POM -->
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-webapp-provider-runtime->default"/>

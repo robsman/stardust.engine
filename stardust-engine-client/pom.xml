@@ -520,16 +520,6 @@
          <type>pom</type>
          <optional>true</optional>
       </dependency>
-      <!--
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>swing-client-module</artifactId>
-         <version>${project.version}</version>
-         <scope>compile</scope>
-         <type>pom</type>
-         <optional>true</optional>
-      </dependency>
-      -->
       <dependency>
          <groupId>org.eclipse.emf</groupId>
          <artifactId>org.eclipse.emf.common</artifactId>

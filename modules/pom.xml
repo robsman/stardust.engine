@@ -45,7 +45,6 @@
       <module>logging-slf4j-log4j-module</module>
       <module>qdox-module</module>
       <module>spring-module</module>
-      <module>swing-client-module</module>
       <module>web-client-module</module>
       <module>xerces-module</module>
    </modules>

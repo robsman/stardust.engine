@@ -519,16 +519,6 @@
          <type>pom</type>
          <optional>true</optional>
       </dependency>
-      <!--
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>swing-client-module</artifactId>
-         <version>${project.version}</version>
-         <scope>compile</scope>
-         <type>pom</type>
-         <optional>true</optional>
-      </dependency>
-      -->
       <dependency>
          <groupId>org.eclipse.emf</groupId>
          <artifactId>org.eclipse.emf.common</artifactId>
@@ -956,8 +946,9 @@
                   <include>core/spi/security/PrincipalValidator.java</include>
                   <include>core/spi/cluster/ClusterSafeObjectProvider.java</include>
                   <include>core/spi/monitoring/IActivityInstanceMonitor.java</include>
-                  <include>core/spi/monitoring/IProcessExecutionMonitor.java</include>
                   <include>core/spi/monitoring/IPartitionMonitor.java</include>
+                  <include>core/spi/monitoring/IProcessExecutionMonitor.java</include>
+                  <include>core/spi/monitoring/IRuntimeEnvironmentMonitor.java</include>
                   <include>core/spi/preferences/IStaticConfigurationProvider.java</include>
 
                   <include>core/spi/security/ExternalLoginProvider.java</include>

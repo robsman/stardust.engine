@@ -192,6 +192,10 @@ public class DmsConcurrencyTest
          {
             Document document = dms.getDocument("/Document" + i + " " + j + ".txt");
             Assert.assertNotNull(document);
+            List<Document> documentVersions = dms.getDocumentVersions(document.getId());
+            Assert.assertNotNull("Document should be versioned", documentVersions);
+            Assert.assertEquals("Document '" + document.getName() + "' should have 1 version", 1,
+                  documentVersions.size());
          }
       }
       sf.close();

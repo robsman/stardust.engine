@@ -230,7 +230,7 @@ public class CsvUtil {
 	private static Map<String, Object> createMap(Set sdtKeys, String firstLine, String secondLine, char delimiter, boolean ignoreChildXPath)
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
-		String[] keys = firstLine.split(CharUtils.toString(delimiter));
+		String[] keys = stringToCsv(firstLine, delimiter);
 		String[] values = stringToCsv(secondLine, delimiter);
 		if(keys.length != values.length)
 		{

@@ -76,7 +76,7 @@ public class DmsConcurrencyTest
    /**
     * Count of parallel threads.
     */
-   private static final int THREADS = 50;
+   private static final int THREADS = 30;
 
    private CountDownLatch countDownLatch;
 
@@ -354,19 +354,7 @@ public class DmsConcurrencyTest
 
             dms.versionDocument(createDocument.getId(), "v0", "v0");
 
-   //         try
-   //         {
-   //            Thread.sleep(1000);
-   //         }
-   //         catch (InterruptedException e)
-   //         {
-   //         }
-
             dms.versionDocument(createDocument.getId(), "v1", "v1");
-   //         dms.updateDocument(createDocument, "this is the updated content.".getBytes(),
-   //               null, true, "v1", false);
-   //         dms.updateDocument(createDocument, "this is the updated content2.".getBytes(),
-   //               null, true, "v2", false);
          }
       }
 

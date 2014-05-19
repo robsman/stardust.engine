@@ -36,6 +36,7 @@
          <bean id="connectionManagerFactoryNoSec" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="xa" />
+            <property name="poolMaxSize" value="50" />
             <property name="partitionStrategy" value="by-connector-properties"/>
          </bean>
       </property>

@@ -16,7 +16,6 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RoutesDefinition;
-import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
 
 import org.eclipse.stardust.common.Action;
@@ -37,7 +36,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
 
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 

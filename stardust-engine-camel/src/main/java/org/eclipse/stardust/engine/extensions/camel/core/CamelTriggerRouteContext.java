@@ -224,7 +224,13 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       }
       return null;
    }
-
+   /**
+    * Will create the data mapping for ipp:process:start endpoint according to the trigger
+    * configuration.
+    * 
+    * @param accessList
+    * @param mappingExpression
+    */
    private void buildMappingExpression(List<AccessPointProperties> accessList,
          MappingExpression mappingExpression)
    {
@@ -234,18 +240,16 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       mappingExpression.getBodyExpression().append("&amp;data=");
       for (AccessPointProperties accessPtProps : accessList)
       {
-         if (!mappingExpression.getBodyExpression().toString().endsWith("=")) // not
-            // the
-            // first
-            // data
+         // not the first data
+         if (!mappingExpression.getBodyExpression().toString().endsWith("="))
             mappingExpression.getBodyExpression().append(",");
+
          mappingExpression.getBodyExpression().append(accessPtProps.getData().getId());
 
          if (!StringUtils.isEmpty(accessPtProps.getDataPath()))
             mappingExpression.getBodyExpression().append(
                   "." + accessPtProps.getDataPath());
 
-         // String bodyPathType = extractBodyPathType(accessPtProps.getDataPath());
          String bodyMainType = extractBodyMainType(accessPtProps.getData());
          mappingExpression.getBodyExpression().append("::$simple{");
 
@@ -277,26 +281,15 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
             }
             else if (accessPtProps.getData().getType().getId().equals("struct"))
             {
+               if (!StringUtils.isEmpty(accessPtProps.getDataPath())){
+                  mappingExpression.getBodyExpression().append("header.");
+                  mappingExpression.getBodyExpression().append(headerName);
+                  mappingExpression.getBodyExpression().append("}");
+               }else{
                mappingExpression.getBodyExpression().append("headerAs(");
                mappingExpression.getBodyExpression().append(headerName);
                mappingExpression.getBodyExpression().append("\\,java.util.Map)}");
-               // mappingExpression.getHeaderExpression().put(
-               // headerName,
-               // "bean:sdtFileConverter?method=genericXSDToSDT(&quot;" +
-               // accessPtProps.getXsdName()
-               // + "&quot; , &quot;" +
-               // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-               // + "&quot;)");
-               //
-               //
-               // //
-               // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
-               // // +
-               // // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-               // // + "\" , \"$simple{body}\")");
-               // //
-               // mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
-               // mappingExpression.getBodyExpression().append("header."+headerName+"}");
+               }
             }
             else if (accessPtProps.getData().getType().getId().equals("primitive"))
                mappingExpression.getBodyExpression().append(
@@ -308,39 +301,11 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
             else if (accessPtProps.getData().getType().getId().equals("serializable")
                   && bodyMainType != null)
             {
-               // mappingExpression.getBodyExpression().append("bodyAs(");
-               // mappingExpression.getBodyExpression().append(bodyMainType + ")");
                mappingExpression.getBodyExpression().append(
                      "headerAs(" + headerName + "\\,"
                            + bodyMainType.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
                            + ")}");
             }
-
-            // if (bodyMainType != null)
-            // mappingExpression.getHeaderExpression().put("IsSerializable", "true");
-            // mappingExpression.getBodyExpression().append("bodyAs(");
-            // mappingExpression.getBodyExpression().append(bodyPathType + ")");
-
-            // mappingExpression.getHeaderExpression().put(headerName + "_Converted",
-            // "headersAs(" + headerName + "," + bodyMainType + ")");
-            // if (bodyPathType == null && bodyMainType == null)
-            // mappingExpression.getBodyExpression().append("header.");
-            // else
-            // mappingExpression.getBodyExpression().append("headerAs(");
-            //
-            //
-            //
-            // if (bodyPathType != null)
-            // mappingExpression.getBodyExpression().append("," + bodyPathType + ")");
-            // else if (bodyMainType != null)
-            // mappingExpression.getBodyExpression().append("," + bodyMainType + ")");
-            // mappingExpression.getBodyExpression().append("}");
-            // /*
-            // * if(bodyType != null) mappingExpression.getBodyExpression().append("::"
-            // +
-            // * bodyType + "::");$
-            // */
-
          }
          else if (accessPtProps.getAccessPointLocation().equals(ACCESS_POINT_MESSAGE))
          {
@@ -359,21 +324,8 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                         + DOCUMENT_LIST);
                else
                {
-                  for (DataConverter converter : dataConverters)
-                  {
-                     // if
-                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
-                     // //&&
-                     // converter.getTargetType().equals(DOCUMENT_LIST))
-                     // {
-                     mappingExpression.getBeanExpression().add(
-                           "bean:" + converter.getClass().getCanonicalName());
-                     // break;
-                     // }
-                  }
                   mappingExpression.getBodyExpression().append("body");
                   mappingExpression.getBodyExpression().append("}");
-                  // return;
                }
             }
             else if (accessPtProps.getAccessPointType().equals(DOCUMENT))
@@ -389,53 +341,17 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                         + DOCUMENT);
                else
                {
-                  for (DataConverter converter : availableConvertersForDocumentType)
-                  {
-                     // if
-                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
-                     // //&&
-                     // //converter.getTargetType().equals(DOCUMENT))
-                     // {
-                     mappingExpression.getBeanExpression().add(
-                           "bean:" + converter.getClass().getCanonicalName());
-                     // break;
-                     // }
-                  }
                   mappingExpression.getBodyExpression().append("body");
                   mappingExpression.setIncludeMoveEndpoint(true);
-
-                  // mappingExpression.getBodyExpression().append("}");
-                  // return;
                }
             }
-            // if (bodyPathType == null)
-            // {
             if (accessPtProps.getData().getType().getId().equals("struct"))
             {
-               if (accessPtProps.getData().getExternalReference() != null)
-               {
-                  mappingExpression.getBeanExpression().add(
-                        "bean:sdtFileConverter?method=genericXSDToSDT(&quot;"
-                              + accessPtProps.getXsdName() + "&quot; , &quot;"
-                              + accessPtProps.getData().getExternalReference().getId()
-                              + "&quot;)");
-
-               }
+               if (!StringUtils.isEmpty(accessPtProps.getDataPath()))
+                  mappingExpression.getBodyExpression().append("body");
                else
-               {
-
-                  mappingExpression.getBeanExpression().add(
-                        "bean:sdtFileConverter?method=genericXSDToSDT(&quot;"
-                              + accessPtProps.getXsdName()
-                              + "&quot; , &quot;"
-                              + accessPtProps.getData().getStringAttribute(
-                                    "carnot:engine:dataType") + "&quot;)");
-               }
-               // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
-               // +
-               // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-               // + "\" , \"$simple{body}\")");
                mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
+               
             }
             else if (accessPtProps.getData().getType().getId().equals("primitive"))
                mappingExpression.getBodyExpression().append(
@@ -447,18 +363,9 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                mappingExpression.getBodyExpression().append("bodyAs(");
                mappingExpression.getBodyExpression().append(bodyMainType + ")");
             }
-            // }
-            // else
-            // {
-            // if (bodyMainType != null)
-            // mappingExpression.getHeaderExpression().put("IsSerializable", "true");
-            // mappingExpression.getBodyExpression().append("bodyAs(");
-            // mappingExpression.getBodyExpression().append(bodyPathType + ")");
-            // }
             mappingExpression.getBodyExpression().append("}");
          }
       }
-      // }
    }
    private static String getNonPrimitiveType(String type)
    {

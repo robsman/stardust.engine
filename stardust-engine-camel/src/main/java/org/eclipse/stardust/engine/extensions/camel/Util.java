@@ -344,7 +344,6 @@ public class Util
                + isProducer + ">");
       }
       String type = isProducer ? "Producer" : "Consumer";
-      // StringBuffer buffer = new StringBuffer(200);
       StringBuilder routeId = new StringBuilder();
       routeId.append(partition);
       routeId.append("|");
@@ -357,21 +356,6 @@ public class Util
       }
       routeId.append(modelElementId);
       return type + routeId.toString().hashCode();
-      //
-      // buffer.append(partition);
-      // buffer.append("|");
-      // buffer.append(modelId);
-      // buffer.append("|");
-      //
-      // if (parentModelElementId != null)
-      // {
-      // buffer.append(parentModelElementId);
-      // buffer.append("|");
-      // }
-      //
-      // buffer.append(modelElementId);
-
-      // return type + buffer.toString().hashCode();
    }
 
    /**

@@ -219,6 +219,12 @@ public class RouteHelper
       }
 
       String routeDefinition = createProducerXmlConfiguration(routeContext);
+      
+      if (logger.isDebugEnabled())
+      {
+         logger.debug("Starting Producer Route " + routeId + "  will be added to " + context.getName() + " for partition " + partition);
+         logger.debug("Route Content "+routeDefinition);
+      }
       loadRouteDefinition(routeDefinition, context);
    }
 

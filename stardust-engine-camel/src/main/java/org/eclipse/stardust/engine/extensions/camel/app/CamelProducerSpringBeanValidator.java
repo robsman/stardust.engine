@@ -177,7 +177,6 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 	               {
 	                  if (runningRoute.getId().equalsIgnoreCase(
 	                        getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application)
-	//                              application.getType().getId().equalsIgnoreCase("camelSpringProducerApplication")
 	                              )))
 	                  {
 	                     routesToBeStopped.add(runningRoute);
@@ -187,8 +186,6 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 	               // stop running routes to sync up with the deployed model
 	               for (Route runningRoute : routesToBeStopped)
 	               {
-
-	                  // camelContext.removeRoute(runningRoute.getId());
 	                  stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
 	                  if (logger.isDebugEnabled())
 	                  {

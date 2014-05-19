@@ -312,7 +312,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
       if (null != this.processId)
       {
          if (logger.isInfoEnabled())
-            logger.info("Simple Expression detected for ProcessId attribute, Expression evaluated to  <"
+            logger.debug("Simple Expression detected for ProcessId attribute, Expression evaluated to  <"
                   + this.processId.evaluate(exchange, String.class) + ">");
          return this.processId.evaluate(exchange, String.class);
       }
@@ -324,7 +324,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
             throw new IllegalStateException("Missing required process ID.");
          }
          if (logger.isInfoEnabled())
-            logger.info("Process ID value will be retrieved from exchange header <" + MessageProperty.PROCESS_ID
+            logger.debug("Process ID value will be retrieved from exchange header <" + MessageProperty.PROCESS_ID
                   + ">, found <" + id + ">");
          return id;
       }

@@ -72,9 +72,6 @@ public class CamelMessageHelper
                if (tempPair != null)
                {
                   inHeaders.put(((Pair) tempPair).getFirst().toString(), ((Pair) tempPair).getSecond());
-
-                  // accessPointIds.append(ap.getId());
-                  // accessPointIds.append(",");
                }
             }
          }
@@ -180,11 +177,8 @@ public class CamelMessageHelper
             DataMapping mapping = outDataMappings.next();
 
             AccessPoint accessPoint = mapping.getApplicationAccessPoint();
-
-            if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint)) // TODO
-                                                                                    // context
-                                                                                    // not
-                                                                                    // application
+         // TODO context not application
+            if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint)) 
             {
                Object bodyOutAP = getBodyOutAccessPoint(application) != null
                      ? getBodyOutAccessPoint(application)

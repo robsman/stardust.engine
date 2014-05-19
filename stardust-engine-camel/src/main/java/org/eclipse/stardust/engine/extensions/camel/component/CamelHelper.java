@@ -28,11 +28,6 @@ import org.eclipse.stardust.common.log.Logger;
  */
 public final class CamelHelper
 {
-//   public static String extractTokenFromExpression(String input)
-//   {
-//      return input.substring(2, input.length() - 1);
-//   }
-
    private static final transient Logger LOG = LogManager.getLogger(CamelHelper.class);
 
    /**
@@ -53,7 +48,8 @@ public final class CamelHelper
     * @param exchange
     * @return Map object
     */
-   public static Map<String, Object> createStructuredDataMap(String data, Exchange exchange)
+   public static Map<String, Object> createStructuredDataMap(String data,
+         Exchange exchange)
    {
       return createTypedMap(splitDataField(data), exchange, true);
    }
@@ -70,6 +66,7 @@ public final class CamelHelper
 
       return response;
    }
+
    /**
     * @see #createStructuredDataMap(String, Exchange)
     * 
@@ -77,7 +74,8 @@ public final class CamelHelper
     * @param exchange
     * @return Map object
     */
-   public static Map<String, Object> createStructuredDataMap(String[] data, Exchange exchange)
+   public static Map<String, Object> createStructuredDataMap(String[] data,
+         Exchange exchange)
    {
       return createTypedMap(data, exchange, true);
    }
@@ -99,7 +97,8 @@ public final class CamelHelper
     * @param exchange
     * @return
     */
-   public static Map<String, Object> createFlatDataMap(String dataFilters, Exchange exchange)
+   public static Map<String, Object> createFlatDataMap(String dataFilters,
+         Exchange exchange)
    {
       return createTypedMap(dataFilters.split(","), exchange, false);
    }
@@ -117,27 +116,60 @@ public final class CamelHelper
    }
 
    @SuppressWarnings("unchecked")
-   public static void replaceExpressionValues(Map<String, Object> keyValueMap, Exchange exchange)
+   public static void replaceExpressionValues(Map<String, Object> keyValueMapInput,
+         Exchange exchange)
    {
-      for (String key : keyValueMap.keySet())
+      if (keyValueMapInput != null)
       {
-         Object value = keyValueMap.get(key);
-         if (value instanceof String && StringHelper.hasStartToken((String) value, "simple"))
+         if (keyValueMapInput instanceof Map)
          {
-            keyValueMap.put(key, SimpleLanguage.simple((String) value).evaluate(exchange, Object.class));
-         }
-         else if (value instanceof Map< ? , ? >)
-         {
-            try
+            Map<String, Object> keyValueMap = (Map) keyValueMapInput;
+
+            for (String key : keyValueMap.keySet())
             {
-               replaceExpressionValues((Map<String, Object>) keyValueMap.get(key), exchange);
-            }
-            catch (ClassCastException e)
-            {
-               // can happen since exact generic type check was not possible
-               LOG.warn("ClassCastException while replacing Expression values in Map.");
+               Object value = keyValueMap.get(key);
+               if (value instanceof String
+                     && StringHelper.hasStartToken((String) value, "simple"))
+               {
+                  keyValueMap.put(key, evaluateExpression((String)value,exchange));
+                        
+               }
+               else if (value instanceof Map< ? , ? >)
+               {
+                  try
+                  {
+                     replaceExpressionValues((Map<String, Object>) keyValueMap.get(key),
+                           exchange);
+                  }
+                  catch (ClassCastException e)
+                  {
+                     // can happen since exact generic type check was not possible
+                     LOG.warn("ClassCastException while replacing Expression values in Map.");
+                  }
+               }
+               else if (value instanceof List)
+               {
+                  List copy=new ArrayList();
+                  for (Object elemt : (List) value)
+                  {
+                     if (elemt instanceof Map){
+                        replaceExpressionValues((Map<String, Object>) elemt, exchange);
+                        copy.add(elemt);
+                     }
+                     else if(elemt instanceof String)
+                     {
+                        copy.add( evaluateExpression((String)elemt,exchange));
+                        
+                     }else{
+                        copy.add(elemt);
+                     }
+                  }
+                  keyValueMap.put(key,copy);
+               }
             }
          }
+      }else{
+         System.out.println(keyValueMapInput);
       }
    }
 
@@ -151,10 +183,11 @@ public final class CamelHelper
     * @param endpoint
     * @param exchange
     * @return a service factory
-    * @throws PublicException if no ServiceFactory could be found.
+    * @throws PublicException
+    *            if no ServiceFactory could be found.
     */
-   public static ServiceFactory getServiceFactory(AbstractIppEndpoint endpoint, Exchange exchange)
-         throws PublicException
+   public static ServiceFactory getServiceFactory(AbstractIppEndpoint endpoint,
+         Exchange exchange) throws PublicException
    {
       // TODO move credential attributes of AuthenticationEndpoint to AbstractIppEndpoint
       // to implement SF retrievel based on the individual exchange
@@ -169,15 +202,16 @@ public final class CamelHelper
       }
    }
 
-/**
- * Retrieves data and put them into a Map
- * 
- * @param data
- * @param exchange
- * @param structured
- * @return a Map object
- */
-private static Map<String, Object> createTypedMap(String[] data, Exchange exchange, boolean structured)
+   /**
+    * Retrieves data and put them into a Map
+    * 
+    * @param data
+    * @param exchange
+    * @param structured
+    * @return a Map object
+    */
+   private static Map<String, Object> createTypedMap(String[] data, Exchange exchange,
+         boolean structured)
    {
       Map<String, Object> result = new HashMap<String, Object>();
       List<String> keyValuePairs = new ArrayList<String>();
@@ -194,38 +228,47 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
             remainder = entry.substring(idx + KeyValueList.PARTS_SEPARATOR.length());
             if (StringUtils.isEmpty(remainder))
             {
-               throw new IllegalArgumentException("The entry's format is illegal. It must not end with "
-                     + "a reserved separator '" + KeyValueList.PARTS_SEPARATOR + "': " + entry);
+               throw new IllegalArgumentException(
+                     "The entry's format is illegal. It must not end with "
+                           + "a reserved separator '" + KeyValueList.PARTS_SEPARATOR
+                           + "': " + entry);
             }
-            
-            // an expression that is not a SDT and does not have conversion instructions can be added directly
-            if( StringHelper.hasStartToken(remainder, "simple") &&
-                nameKey.indexOf(KeyValueList.STRUCT_PATH_DELIMITER) == -1 &&
-                remainder.indexOf(KeyValueList.PARTS_SEPARATOR) == -1)
+            // an expression that is not a SDT and does not have conversion instructions
+            // can be added directly
+            if (StringHelper.hasStartToken(remainder, "simple")
+                  && nameKey.indexOf(KeyValueList.STRUCT_PATH_DELIMITER) == -1
+                  && remainder.indexOf(KeyValueList.PARTS_SEPARATOR) == -1)
             {
                evaluateAndAddToResult(remainder, exchange, result, nameKey);
             }
-            // otherwise it goes through the KeyValueList first and any expressions are evaluated later
+            // otherwise it goes through the KeyValueList first and any expressions are
+            // evaluated later
             else
             {
-               if( StringHelper.hasStartToken(remainder, "simple") && remainder.indexOf(KeyValueList.PARTS_SEPARATOR) != -1 )
+               if (StringHelper.hasStartToken(remainder, "simple")
+                     && remainder.indexOf(KeyValueList.PARTS_SEPARATOR) != -1)
                {
-                  LOG.warn("A Camel expression was detected with an additional conversion instruction: "+remainder+
-                        ". It is recommended to use Camel conversions instead! E.g. ${headerAs(headerKey,java.lang.Integer}");
-                  Object key = SimpleLanguage.simple(nameKey).evaluate(exchange, Object.class);
-                  Object value = SimpleLanguage.simple(remainder).evaluate(exchange, Object.class);
-                  keyValuePairs.add(key+KeyValueList.PARTS_SEPARATOR+value);
+                  LOG.warn("A Camel expression was detected with an additional conversion instruction: "
+                        + remainder
+                        + ". It is recommended to use Camel conversions instead! E.g. ${headerAs(headerKey,java.lang.Integer}");
+                  Object key = SimpleLanguage.simple(nameKey).evaluate(exchange,
+                        Object.class);
+                  Object value = SimpleLanguage.simple(remainder).evaluate(exchange,
+                        Object.class);
+                  keyValuePairs.add(key + KeyValueList.PARTS_SEPARATOR + value);
                }
                else
                {
-            	   if( StringHelper.hasStartToken(nameKey, "simple"))
-            	   {
-            		   Object key = SimpleLanguage.simple(nameKey).evaluate(exchange, Object.class);
-            		   Object value = SimpleLanguage.simple(remainder).evaluate(exchange, Object.class);
-            		   keyValuePairs.add(key+KeyValueList.PARTS_SEPARATOR+value);
-            	   }
-            	   else
-            		   keyValuePairs.add(entry);
+                  if (StringHelper.hasStartToken(nameKey, "simple"))
+                  {
+                     Object key = SimpleLanguage.simple(nameKey).evaluate(exchange,
+                           Object.class);
+                     Object value = SimpleLanguage.simple(remainder).evaluate(exchange,
+                           Object.class);
+                     keyValuePairs.add(key + KeyValueList.PARTS_SEPARATOR + value);
+                  }
+                  else
+                     keyValuePairs.add(entry);
                }
             }
          }
@@ -245,17 +288,19 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
                   nameKey = simple.substring(idx + 1);
                else
                   nameKey = simple;
-               
                evaluateAndAddToResult(entry, exchange, result, nameKey);
             }
             else
             {
-               throw new IllegalArgumentException("Unable to derive a named key from the expression '"+entry+"'! The entry will be ignored!");
+               throw new IllegalArgumentException(
+                     "Unable to derive a named key from the expression '" + entry
+                           + "'! The entry will be ignored!");
             }
          }
          else
          {
-            throw new IllegalArgumentException("Unable to parse entry '"+entry+"'! The entry will be ignored!");
+            throw new IllegalArgumentException("Unable to parse entry '" + entry
+                  + "'! The entry will be ignored!");
          }
       }
 
@@ -272,9 +317,10 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
          {
             // use flat nameKey and process values individually for flat map
             keyValueMap = new HashMap<String, Object>(keyValuePairs.size());
-            
+
             // TODO switch to pattern in KeyValueList
-            final Pattern separatorPattern = Pattern.compile(KeyValueList.PARTS_SEPARATOR); 
+            final Pattern separatorPattern = Pattern
+                  .compile(KeyValueList.PARTS_SEPARATOR);
             String[] values;
             for (String entry : keyValuePairs)
             {
@@ -282,9 +328,11 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
                // we know at this point that there is at least one parts separator,
                // otherwise the entry would not have been in the list.
                if (values.length > 2)
-                  keyValueMap.put(values[0], KeyValueList.createTypedValue(values[2], values[1]));
+                  keyValueMap.put(values[0],
+                        KeyValueList.createTypedValue(values[2], values[1]));
                else
-                  keyValueMap.put(values[0], KeyValueList.createTypedValue(null, values[1]));
+                  keyValueMap.put(values[0],
+                        KeyValueList.createTypedValue(null, values[1]));
             }
          }
 
@@ -296,39 +344,46 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
       return result;
    }
 
-private static Object evaluateExpression(String entry, Exchange exchange){
-   Expression expression= SimpleLanguage.simple(entry);
-   if(expression ==null)
-      expression=BeanLanguage.bean(entry);
-   
-   return expression.evaluate(exchange, Object.class);
-}
+   private static Object evaluateExpression(String entry, Exchange exchange)
+   {
+      Expression expression = SimpleLanguage.simple(entry);
+      if (expression == null)
+         expression = BeanLanguage.bean(entry);
+
+      return expression.evaluate(exchange, Object.class);
+   }
 
    /**
-    * Evaluates the given entry using the Exchange and adds the result to the Map under the specified nameKey.
+    * Evaluates the given entry using the Exchange and adds the result to the Map under
+    * the specified nameKey.
     * 
     * @param entry
     * @param exchange
     * @param result
     * @param nameKey
     */
-   private static void evaluateAndAddToResult(String entry, Exchange exchange, Map<String, Object> resultMap, String nameKey)
+   private static void evaluateAndAddToResult(String entry, Exchange exchange,
+         Map<String, Object> resultMap, String nameKey)
    {
-      addToResult(resultMap, nameKey,evaluateExpression(entry,exchange) );
+      addToResult(resultMap, nameKey, evaluateExpression(entry, exchange));
    }
 
    /**
-    * Addes the object to the Map under the specified nameKey. In case the key exists already, a warning will be issues.
+    * Addes the object to the Map under the specified nameKey. In case the key exists
+    * already, a warning will be issues.
     * 
     * @param resultMap
     * @param nameKey
     * @param value
     */
-   private static void addToResult(Map<String, Object> resultMap, String nameKey, Object value)
+   private static void addToResult(Map<String, Object> resultMap, String nameKey,
+         Object value)
    {
-      if( resultMap.containsKey(nameKey) ) {
-         LOG.warn("Key: "+nameKey+" already exists in result Map! Current value '"+resultMap.get(nameKey)+
-                  "' will be replaced with new value '"+value+"'.");
+      if (resultMap.containsKey(nameKey))
+      {
+         LOG.warn("Key: " + nameKey + " already exists in result Map! Current value '"
+               + resultMap.get(nameKey) + "' will be replaced with new value '" + value
+               + "'.");
       }
       resultMap.put(nameKey, value);
    }

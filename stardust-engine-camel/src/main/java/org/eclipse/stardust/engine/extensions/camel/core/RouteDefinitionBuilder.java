@@ -39,7 +39,7 @@ public class RouteDefinitionBuilder
    {
       StringBuilder route = new StringBuilder();
       MappingExpression mappingExpression=routeContext.getMappingExpression();
-     // String providedRouteDefinition=routeContext.getProvidedRouteConfiguration();
+
       route.append(route(routeContext.getRouteId(), routeContext.autoStartRoute()));
 
       StringBuilder replacementString = new StringBuilder();
@@ -315,7 +315,7 @@ public class RouteDefinitionBuilder
   }
    
    private static String injectConsumerBpmTypeConverter(ConsumerRouteContext routeContext, String route) {
-       String consumerInboundConversionMethodName = routeContext.getConsumerInboundConversion(); //(String) application.getAttribute(CamelConstants.CONSUMER_INBOUND_CONVERSION);
+       String consumerInboundConversionMethodName = routeContext.getConsumerInboundConversion(); 
        if(consumerInboundConversionMethodName != null && !consumerInboundConversionMethodName.equals("None")) {
             String injectedInboundConversionRoute = LESS_THAN_SIGN
                     + "to uri=\"ipp:data:"
@@ -382,7 +382,7 @@ public class RouteDefinitionBuilder
       buffer.append(fromEndpoint);
       if(routeContext.markTransacted())
          buffer.append(transacted("required")); 
-     // buffer.append(authenticationEndpoint);
+
       buffer.append(routeDefinitionEndpoints);
 
       return buffer.toString();

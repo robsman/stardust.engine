@@ -348,14 +348,11 @@
          <artifactId>org.eclipse.xsd</artifactId>
          <scope>compile</scope>
       </dependency>
-
-
-      <!-- scope test needed for 7.3.0 only - not 8.0 -->
-      <!-- <dependency> <groupId>org.eclipse.stardust.engine</groupId> <artifactId>jms-activemq-module</artifactId> 
-         <version>${project.version}</version> <type>pom</type> <scope>test</scope> </dependency> -->
-      <!-- scope test from original pom -->
-      <!-- <dependency> <groupId>org.apache.camel</groupId> <artifactId>camel-test</artifactId> 
-         <scope>test</scope> </dependency> -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test</artifactId>
+         <scope>test</scope>
+      </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.engine</groupId>
          <artifactId>jcr-vfs-module</artifactId>
@@ -401,8 +398,6 @@
             </exclusion>
          </exclusions>
       </dependency>
-
-      <!-- test dependencies from generated pom -->
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
@@ -449,10 +444,6 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-               <skip>true</skip>
-               <failIfNoTests>false</failIfNoTests>
-            </configuration>
          </plugin>
       </plugins>
 

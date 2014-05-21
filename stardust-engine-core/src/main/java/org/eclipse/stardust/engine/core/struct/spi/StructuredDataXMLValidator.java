@@ -197,7 +197,7 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
       {
          if (type.startsWith("typeDeclaration:"))
          {
-            type = type.substring(type.indexOf("}" + 1), type.length());
+            type = type.substring(type.indexOf("}") + 1, type.length());
          }
          return type;
       }

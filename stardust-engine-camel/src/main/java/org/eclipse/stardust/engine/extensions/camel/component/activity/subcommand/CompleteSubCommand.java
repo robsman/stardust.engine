@@ -35,14 +35,14 @@ public class CompleteSubCommand extends AbstractSubCommand
       Map<String, ? > dataOutput = endpoint.evaluateDataOutput(exchange);
       if (null == dataOutput)
       {
-         dataOutput = Collections.EMPTY_MAP;// CamelConstants.EMPTY_MAP;
+         dataOutput = Collections.EMPTY_MAP;
       }
 
       WorkflowService wf = sf.getWorkflowService();
       for (ActivityInstance ai : result)
       {
 
-         boolean force = false; // TODO
+         boolean force = false; 
          if (dataOutput.isEmpty())
          {
             dataOutput = force ? CamelMessageHelper.getOutDataAccessPoints(exchange.getIn(), ai) : CamelMessageHelper

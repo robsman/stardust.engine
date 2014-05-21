@@ -15,7 +15,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 /**
  * Singleton class representing a Spring-based client environment.
  * 
- * TODO shutdown scenario should be considered to finally close the cached SFs.
+ * 
  * 
  * @author JanHendrik.Scheufen
  */

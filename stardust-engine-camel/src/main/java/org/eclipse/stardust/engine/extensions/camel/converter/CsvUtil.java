@@ -67,27 +67,29 @@ public class CsvUtil {
 	{
 		Map<String, Object> sdt = new HashMap<String, Object>();
 		String[] data = csv.split("\r\n|\r|\n");
-		if (data.length == 2) 
-		{
-			// convert to SDT
-			String firstLine = data[0];
-			String secondLine = data[1];
-			sdt = CsvUtil.createMap(sdtKeys, firstLine, secondLine, delimiter, false);
-		} else if (data.length > 2) 
-		{
-			// convert to List of SDT
-			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-			String firstLine = data[0];
-			int i = 1;
-			while (i < data.length) 
-			{
-				String secondLine = data[i];
-				Map<String, Object> map = CsvUtil.createMap(sdtKeys, firstLine, secondLine, delimiter, true);
-				list.add(map);
-				i++;
-			}
-			sdt.put(mapping.getApplicationAccessPoint().getId(), list);
-		} else
+		if (data.length > 2 || (data.length == 2 && isSdtListExpected(sdtKeys))) 
+      {
+         // convert to List of SDT
+         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+         String firstLine = data[0];
+         int i = 1;
+         while (i < data.length) 
+         {
+            String secondLine = data[i];
+            Map<String, Object> map = CsvUtil.createMap(sdtKeys, firstLine, secondLine, delimiter, true);
+            list.add(map);
+            i++;
+         }
+         sdt.put(mapping.getApplicationAccessPoint().getId(), list);
+         
+      } else if (data.length == 2) 
+      {
+         // convert to SDT
+         String firstLine = data[0];
+         String secondLine = data[1];
+         sdt = CsvUtil.createMap(sdtKeys, firstLine, secondLine, delimiter, false);
+         
+      } else
 		{
 			logger.info("The CSV input must contain more than one Line");
 		}
@@ -97,7 +99,7 @@ public class CsvUtil {
 	private static String unmarshalPrimitive(String csv, char delimiter)
 	{
 		String primitive = StringUtils.EMPTY;
-		String[] data = csv.split("\n");
+		String[] data = csv.split("\r\n|\r|\n");
 		if(data.length == 1)
 		{
 			primitive = unescapeCsv(data[0], delimiter);
@@ -409,5 +411,25 @@ public class CsvUtil {
 	{
 		return typedXPath.getXPath().contains("/") || !typedXPath.getChildXPaths().isEmpty();
 	}
-
+	
+	@SuppressWarnings({"unchecked", "rawtypes"})
+   private static boolean isSdtListExpected(Set sdtKeys)
+   {
+      Iterator<TypedXPath> it = sdtKeys.iterator();
+      while(it.hasNext())
+      {
+         TypedXPath typedXPath = it.next();
+         if(typedXPath.getXPath().isEmpty() || typedXPath.getXPath().contains("/")
+               || typedXPath.getParentXPath().isList() || typedXPath.isList())
+         {
+            continue;
+         }
+         else
+         {
+            return false;
+         }
+      }
+      return true;
+   }
+	
 }

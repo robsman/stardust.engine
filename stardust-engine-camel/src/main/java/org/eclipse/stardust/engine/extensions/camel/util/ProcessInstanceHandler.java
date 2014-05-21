@@ -74,7 +74,6 @@ public ProcessInstanceHandler(ServiceFactory factory)
       }
       catch (ServiceNotAvailableException e)
       {
-         // TODO Auto-generated catch block
          throw e;
       }
    }

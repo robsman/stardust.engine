@@ -57,7 +57,6 @@ public class ActivityEndpointTest
       }
       catch (Exception e)
       {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
       
@@ -237,9 +236,6 @@ public class ActivityEndpointTest
 
       // send corrupt input
       ProducerTemplate fullRouteProducerTemplate=defaultCamelContext.createProducerTemplate();
-//      ProducerTemplate fullRouteProducerTemplate = new DefaultProducerTemplate(defaultCamelContext);
-//      fullRouteProducerTemplate.setDefaultEndpointUri(FULL_ROUTE_BEGIN);
-//      fullRouteProducerTemplate.start();
       fullRouteProducerTemplate.sendBodyAndHeader(FULL_ROUTE_BEGIN,id + "," + firstname + "," + lastname, "myPiOid", pi.getOID());
       MockEndpoint fullRouteResult= defaultCamelContext.getEndpoint(FULL_ROUTE_END, MockEndpoint.class);
 
@@ -264,24 +260,6 @@ public class ActivityEndpointTest
     	  assertEquals( ai.getProcessInstanceOID(), pi1.getOID());
       }
     }
-
-
-//   @Before
-//   public void setUp() throws Exception
-//   {
-//     
-//      if (!initiated){
-//         defaultCamelContext.addRoutes(createFullRoute());
-//         setUpGlobal();
-//      }
-//   }
-//
-//   public void setUpGlobal() throws Exception
-//   {
-//      // initiate environment
-//      testUtils.setUpGlobal();
-//      initiated = true;
-//   }
 
    public static RouteBuilder createFullRoute()
    {

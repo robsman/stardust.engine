@@ -66,7 +66,7 @@ public class CsvUtil {
 	private static Map<String, Object> unmarshalSDT(DataMapping mapping, String csv, Set sdtKeys, char delimiter)
 	{
 		Map<String, Object> sdt = new HashMap<String, Object>();
-		String[] data = csv.split("\n");
+		String[] data = csv.split("\r\n|\r|\n");
 		if (data.length == 2) 
 		{
 			// convert to SDT

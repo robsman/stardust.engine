@@ -23,12 +23,9 @@ public class ClientEnvironment
 {
 
    private static final ThreadLocal<ServiceFactory> CURRENT = new ThreadLocal<ServiceFactory>();
-
-   // TODO switch to slf4j logging in all classes
    private static Logger LOG = LogManager.getLogger(ClientEnvironment.class);
    protected static final ServiceFactoryCache _sfCache;
    protected static ServiceFactoryAccess factoryAccess;
-//   protected static final ModelCache modelCache;
    protected static ClientEnvironment _instance = new ClientEnvironment();
    private static Map<UserIdentificationKey, UserSecurityProperties> predefinedUsers = new HashMap<UserIdentificationKey, UserSecurityProperties>();
 
@@ -42,15 +39,6 @@ public class ClientEnvironment
       {
          _sfCache = null;
       }
-
-//      if (Parameters.instance().getBoolean("IPP.ClientEnvironment.UseModelCache", true))
-//      {
-//         modelCache = new ModelCache();
-//      }
-//      else
-//      {
-//         modelCache = null;
-//      }
    }
 
    /**

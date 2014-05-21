@@ -66,7 +66,7 @@ public class FederatedSearchHandler
             // Optimization: If only one repository is selected no special handling is required.
             IRepositoryInstance instance = manager.getInstance(repositoryIds.get(0));
             IRepositoryService service = instance.getService(getUserContext());
-            return service.findDocuments(query);
+            return RepositoryIdUtils.addRepositoryId(service.findDocuments(query), instance.getRepositoryId());
          }
          else
          {

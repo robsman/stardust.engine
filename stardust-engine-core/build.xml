@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2011 SunGard CSA LLC and others.
+    Copyright (c) 2011, 2014 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -223,6 +223,7 @@
                <include name="org/eclipse/stardust/engine/api/runtime/AdministrationService.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/AuditTrailHealthReport.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/BindingException.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/BpmRuntimeError.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/Daemon.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/DaemonExecutionState.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/DataCopyOptions.java" />

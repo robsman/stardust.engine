@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ import org.eclipse.stardust.common.error.PublicException;
 
 
 /**
+ * Defines constants for parameterized error codes with messages prepared for I18N.
+ *
  * @author sauer
  * @version $Revision: $
  */
@@ -355,6 +357,9 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_DAEMON_IS_NOT_RESPONDING = newArgs1("BPMRT01503", BpmRuntimeErrorMessages.getString("BPMRT01503")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   /**
+    * Data value for given data ID cannot be created due to concurrency issues.
+    */
    public static final Args1 BPMRT_FAILED_CREATING_DATA_VALUE = newArgs1("BPMRT02121", BpmRuntimeErrorMessages.getString("BPMRT02121")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_DAEMON_ALREADY_RUNNING = newArgs1("CONC03100", BpmRuntimeErrorMessages.getString("CONC03100")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1026,6 +1031,11 @@ public class BpmRuntimeError extends ErrorCase
       protected BpmRuntimeError buildError(Object[] args)
       {
          return new BpmRuntimeError(errorCode, defaultMessage, args);
+      }
+
+      public String getErrorCode()
+      {
+         return errorCode;
       }
    }
 

@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
@@ -159,10 +160,10 @@ public class DmsConcurrencyTest
    }
 
    /**
-    * One versioning operation always works
+    * Create Document operation always works
     */
    @Test
-   public void testCreateDocumentsOneVersion()
+   public void testCreateDocuments()
    {
       List<Runnable> runnables = new LinkedList<Runnable>();
 
@@ -191,11 +192,8 @@ public class DmsConcurrencyTest
          for (int j = 0; j < COUNT; j++ )
          {
             Document document = dms.getDocument("/Document" + i + " " + j + ".txt");
-            Assert.assertNotNull(document);
-            List<Document> documentVersions = dms.getDocumentVersions(document.getId());
-            Assert.assertNotNull("Document should be versioned", documentVersions);
-            Assert.assertEquals("Document '" + document.getName() + "' should have 1 version", 1,
-                  documentVersions.size());
+            Assert.assertNotNull("/Document" + i + " " + j + ".txt should exist!", document);
+            Assert.assertEquals(RepositoryConstants.VERSION_UNVERSIONED, document.getRevisionId());
          }
       }
       sf.close();
@@ -204,6 +202,10 @@ public class DmsConcurrencyTest
 
    /**
     *  Two versioning operations cause NPE on jackrabbit-2.2.5
+    *  With jackrabbit-2.6.1 concurrent version operations fail often for a fresh repository
+    *  but failure rate gets eliminated with repeated execution.
+    *
+    *  TODO Enable version tests if newer jackrabbit version is stable on concurrent versioning.
     */
 //   @Test
    public void testCreateDocumentsTwoVersions()
@@ -330,11 +332,8 @@ public class DmsConcurrencyTest
                + ".txt");
          docInfo.setContentType("text/plain");
          docInfo.setOwner(id);
-         Document createDocument = dms.createDocument("/", docInfo,
+         dms.createDocument("/", docInfo,
                ("this is content no# " + i).getBytes(), null);
-
-         dms.versionDocument(createDocument.getId(), null, null);
-
       }
    }
 

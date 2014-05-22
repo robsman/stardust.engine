@@ -1350,6 +1350,36 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
       }
     }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ResourceBundle
+         getResourceBundle(
+         java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getResourceBundle(moduleId, bundleName, locale);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
 	public QueryServiceImpl()
 	{
       this.serviceType=org.eclipse.stardust.engine.api.runtime.QueryService.class;

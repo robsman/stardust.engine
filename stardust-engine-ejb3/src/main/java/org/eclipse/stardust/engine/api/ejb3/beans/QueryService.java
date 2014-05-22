@@ -412,4 +412,13 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
          getRuntimeEnvironmentInfo(
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
+    */
+    public org.eclipse.stardust.engine.api.runtime.ResourceBundle
+         getResourceBundle(
+         java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
          }

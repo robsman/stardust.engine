@@ -49,7 +49,7 @@
       <resource-ref>
         <res-ref-name>jcr/ContentRepository</res-ref-name>
         <jndi-name>java:/jcr/jackrabbit</jndi-name>
-      </resource-ref>      
+      </resource-ref>
     </session>
     <session>
       <ejb-name>QueryServiceImpl</ejb-name>
@@ -79,16 +79,16 @@
       </resource-ref>
       <resource-env-ref>
         <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>
-        <jndi-name>queue/CarnotSystemQueue</jndi-name>
+        <jndi-name>java:/queue/CarnotSystemQueue</jndi-name>
       </resource-env-ref>
       <resource-env-ref>
         <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
-        <jndi-name>queue/CarnotApplicationQueue</jndi-name>
+        <jndi-name>java:/queue/CarnotApplicationQueue</jndi-name>
       </resource-env-ref>
       <resource-env-ref>
         <resource-env-ref-name>jms/CarnotDaemonQueue</resource-env-ref-name>
-        <jndi-name>queue/CarnotDaemonQueue</jndi-name>
-      </resource-env-ref>      
+        <jndi-name>java:/queue/CarnotDaemonQueue</jndi-name>
+      </resource-env-ref>
     </session>
   </enterprise-beans>
 </jboss:ejb-jar>

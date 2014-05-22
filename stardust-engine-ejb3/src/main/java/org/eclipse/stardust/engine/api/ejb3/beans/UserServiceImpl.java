@@ -847,7 +847,161 @@ public class UserServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans.
       }
     }
 
-   public UserServiceImpl()
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#addDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Deputy
+         addDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            service).addDeputy(user, deputyUser, options);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Deputy
+         modifyDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            service).modifyDeputy(user, deputyUser, options);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#removeDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+   public void removeDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         ((org.eclipse.stardust.engine.api.runtime.UserService)
+            service).removeDeputy(user, deputyUser);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
+    */
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getDeputies(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            service).getDeputies(user);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getUsersBeingDeputyFor(org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getUsersBeingDeputyFor(
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            service).getUsersBeingDeputyFor(deputyUser);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+	public UserServiceImpl()
 	{
       this.serviceType=org.eclipse.stardust.engine.api.runtime.UserService.class;
       this.serviceTypeImpl=org.eclipse.stardust.engine.core.runtime.beans.UserServiceImpl.class;

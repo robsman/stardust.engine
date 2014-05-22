@@ -262,4 +262,52 @@ public interface UserService extends org.eclipse.stardust.engine.api.ejb3.beans.
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
          
-}
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#addDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+    public org.eclipse.stardust.engine.api.runtime.Deputy
+         addDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+    public org.eclipse.stardust.engine.api.runtime.Deputy
+         modifyDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#removeDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+    public void removeDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
+    */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getDeputies(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getUsersBeingDeputyFor(org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getUsersBeingDeputyFor(
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         }

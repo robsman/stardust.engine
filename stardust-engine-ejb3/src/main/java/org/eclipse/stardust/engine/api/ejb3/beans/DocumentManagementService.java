@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 56243 
+ * Generated from Revision: 72466 
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -17,7 +17,7 @@ import javax.ejb.Local;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version 72466
  */
 @Local
 public interface DocumentManagementService extends org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service
@@ -35,7 +35,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocumentVersions(java.lang.String documentId)
     */
-    public java.util.List getDocumentVersions(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         getDocumentVersions(
          java.lang.String documentId, org.eclipse.stardust.engine.api.ejb3.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -43,7 +44,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocuments(java.util.List documentIds)
     */
-    public java.util.List getDocuments(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         getDocuments(
          java.util.List documentIds, org.eclipse.stardust.engine.api.ejb3.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -51,7 +53,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocumentsByName(java.lang.String namePattern)
     */
-    public java.util.List findDocumentsByName(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         findDocumentsByName(
          java.lang.String namePattern,
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -59,9 +62,19 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(java.lang.String xpathQuery)
     */
-    public java.util.List findDocuments(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         findDocuments(
          java.lang.String xpathQuery, org.eclipse.stardust.engine.api.ejb3.TunneledContext
          __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
+    */
+    public org.eclipse.stardust.engine.api.runtime.Documents
+         findDocuments(
+         org.eclipse.stardust.engine.api.query.DocumentQuery query,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
          
    /**
@@ -101,7 +114,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolders(java.util.List folderIds, int levelOfDetail)
     */
-    public java.util.List getFolders(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         getFolders(
          java.util.List folderIds, int levelOfDetail,
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -109,7 +123,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFoldersByName(java.lang.String namePattern, int levelOfDetail)
     */
-    public java.util.List findFoldersByName(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         findFoldersByName(
          java.lang.String namePattern, int levelOfDetail,
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -117,7 +132,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFolders(java.lang.String xpathQuery, int levelOfDetail)
     */
-    public java.util.List findFolders(
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         findFolders(
          java.lang.String xpathQuery, int levelOfDetail,
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
@@ -325,6 +341,66 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.a
     */
     public byte[] getSchemaDefinition(
          java.lang.String schemaLocation,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#bindRepository(org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
+    */
+    public void
+         bindRepository(
+         org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#unbindRepository(java.lang.String repositoryId)
+    */
+    public void unbindRepository(
+         java.lang.String repositoryId,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryInstanceInfos()
+    */
+    public
+         java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo>
+         getRepositoryInstanceInfos(
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryProviderInfos()
+    */
+    public
+         java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo>
+         getRepositoryProviderInfos(
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(java.lang.String repositoryId)
+    */
+    public void setDefaultRepository(
+         java.lang.String repositoryId,
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository()
+    */
+    public java.lang.String
+         getDefaultRepository(
+         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#migrateRepository(int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
+    */
+    public org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport
+         migrateRepository(
+         int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId,
          org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
          }

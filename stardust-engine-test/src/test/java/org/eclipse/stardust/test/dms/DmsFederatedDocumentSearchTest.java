@@ -169,6 +169,22 @@ public class DmsFederatedDocumentSearchTest
    }
 
    @Test
+   public void testFindByIDTestRepo()
+   {
+      final String DOC1_ID = initDocument(DOC_NAME_TEMP, OWNER1, CONTENT_TYPE1, META_DATA1, TEST_REPO_ID);
+
+      DocumentQuery query = getFederatedQuery();
+      query.where(DocumentQuery.ID.isEqual(DOC1_ID));
+
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
+
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      dms.removeDocument(RepositoryIdUtils.addRepositoryId("/" + DOC_NAME_TEMP, TEST_REPO_ID));
+
+      assertEquals("Documents", 1, docs.size());
+   }
+
+   @Test
    public void testSubSet1()
    {
       DocumentManagementService dms = sf.getDocumentManagementService();

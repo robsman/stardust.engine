@@ -337,7 +337,6 @@ public final class CamelHelper
          }
 
          replaceExpressionValues(keyValueMap, exchange);
-         // TODO check if anything would be overwritten before putAll call
          result.putAll(keyValueMap);
       }
 

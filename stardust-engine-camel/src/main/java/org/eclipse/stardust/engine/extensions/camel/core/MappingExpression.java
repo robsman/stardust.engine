@@ -10,6 +10,7 @@ public class MappingExpression
    private StringBuffer bodyExpression = new StringBuffer();
 
    private Boolean includeMoveEndpoint = false;
+   private boolean includeConversionStrategy = false;
 
    private List<String> beanExpression = new ArrayList<String>();
 
@@ -59,4 +60,15 @@ public class MappingExpression
       this.includeMoveEndpoint = includeMoveEndpoint;
    }
 
+   public boolean isIncludeConversionStrategy()
+   {
+      return includeConversionStrategy;
+   }
+
+   public void setIncludeConversionStrategy(boolean includeConversionStrategy)
+   {
+      this.includeConversionStrategy = includeConversionStrategy;
+   }
+
+   
 }

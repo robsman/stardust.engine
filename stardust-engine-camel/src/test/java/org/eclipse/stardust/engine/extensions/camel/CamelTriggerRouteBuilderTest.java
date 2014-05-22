@@ -34,7 +34,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder
@@ -62,7 +62,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder
@@ -90,7 +90,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><to uri=\"ipp:process:start?modelId=TEST_MODEL&amp;processId=TEST_PROCESS\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder

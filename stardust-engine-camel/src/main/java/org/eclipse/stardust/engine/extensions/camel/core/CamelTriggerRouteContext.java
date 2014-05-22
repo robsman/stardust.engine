@@ -5,6 +5,7 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DOCUMENT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DOCUMENT_LIST;
 import static org.eclipse.stardust.engine.extensions.camel.Util.extractBodyMainType;
+import static org.eclipse.stardust.engine.extensions.camel.Util.performParameterMapping;
 
 import java.io.IOException;
 import java.util.*;
@@ -12,21 +13,17 @@ import java.util.*;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IParameterMapping;
-import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.model.ITrigger;
-import org.eclipse.stardust.engine.core.model.beans.*;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
-import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
 
 public class CamelTriggerRouteContext extends TriggerRouteContext
 {
-   private static final Logger logger = LogManager.getLogger(CamelTriggerRouteContext.class);
+   private static final Logger logger = LogManager
+         .getLogger(CamelTriggerRouteContext.class);
+
    private static final Map<String, Class< ? >> primitiveClasses = new HashMap<String, Class< ? >>();
    static
    {
@@ -41,17 +38,20 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       primitiveClasses.put("short", Short.class);
       primitiveClasses.put("char", Character.class);
       primitiveClasses.put("character", Character.class);
+      primitiveClasses.put("Timestamp", Date.class);
+      
    }
-   private MappingExpression mappingExpression=new MappingExpression();
+
+
    private List<DataConverter> dataConverters;
-   
+
    public CamelTriggerRouteContext(ITrigger trigger, String partitionId,
-         String camelContextId,List<DataConverter> dataConverters)
+         String camelContextId, List<DataConverter> dataConverters)
    {
       this.trigger = trigger;
       this.partitionId = partitionId;
       this.camelContextId = camelContextId;
-      this.dataConverters=dataConverters;
+      this.dataConverters = dataConverters;
    }
 
    @Override
@@ -60,170 +60,37 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       return Util.getRouteId(partitionId, getModelId(), getProcessId(), getId(), false);
    }
 
+   /**
+    * will contains the trigger mapping expressions
+    * 
+    * @return
+    */
    public MappingExpression getMappingExpression()
    {
+      MappingExpression mappingExpression = new MappingExpression();
       try
       {
-         List<AccessPointProperties> accessPointList = performParameterMapping();
+         List<AccessPointProperties> accessPointList = performParameterMapping(this.trigger);
          buildMappingExpression(accessPointList, mappingExpression);
       }
       catch (IOException e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         throw new RuntimeException(e);
       }
-      
+
       return mappingExpression;
    }
-   
-   
-   public boolean autoStartRoute(){
+
+   /**
+    * Always start route automatically
+    * 
+    * @return
+    */
+   public boolean autoStartRoute()
+   {
       return true;
    }
-   
-   
-   @SuppressWarnings({"rawtypes"})
-   private List<AccessPointProperties> performParameterMapping() throws IOException
-   {
-      Map<String, String> schemaRefs = new HashMap<String, String>();
-      List<AccessPointProperties> accessPointList = new ArrayList<AccessPointProperties>();
-      ModelElementList parameterMappings = this.trigger.getParameterMappings();
 
-      Link typeBean = ((Link) ((ModelBean) this.trigger.getModel()).getTypeDeclarations());
-      if (!typeBean.isEmpty())
-      {
-
-         Iterator iter = typeBean.iterator();
-         while (iter.hasNext())
-         {
-            TypeDeclarationBean extType = (TypeDeclarationBean) iter.next();
-
-            if (extType.getXpdlType() instanceof ExternalReferenceBean)
-            {
-               ExternalReferenceBean xpdlType = ((ExternalReferenceBean) extType
-                     .getXpdlType());
-               schemaRefs.put(extType.getId(), xpdlType.getLocation().replace('.', '*'));
-
-            }
-            else
-            {
-               schemaRefs.put(extType.getId(),
-                     "internal:" + ((ModelBean) this.trigger.getModel()).getId() + "::"
-                           + extType.getId());
-            }
-
-            // the last replace is to overcome a camel bug in parsing of bean
-            // name when the
-            // method/param
-            // contains a . character
-
-         }
-      }
-      else
-      {// check for external references
-         for (Object parameter : parameterMappings)
-         {
-            ParameterMappingBean parameterMapping = (ParameterMappingBean) parameter;
-            if (parameterMapping != null && parameterMapping.getData() != null)
-            {
-               if (parameterMapping.getData().getExternalReference() != null)
-               {
-                  IReference ref = parameterMapping.getData().getExternalReference();
-
-                  schemaRefs.put(ref.getId(), "reference:"
-                        + ref.getExternalPackage().getReferencedModel().getId() + "::"
-                        + ref.getId());
-               }
-               else if ((parameterMapping.getData().getStringAttribute(
-                     "carnot:engine:dataType") != null)
-                     && (((ModelBean) parameterMapping.getData().getParent()).getId() != null))
-               {
-
-                  schemaRefs.put(
-                        parameterMapping.getData().getStringAttribute(
-                              "carnot:engine:dataType"),
-                        "reference:"
-                              + ((ModelBean) parameterMapping.getData().getParent())
-                                    .getId()
-                              + "::"
-                              + parameterMapping.getData().getStringAttribute(
-                                    "carnot:engine:dataType"));
-               }
-
-            }
-         }
-
-      }
-
-      for (int i = 0; i < parameterMappings.size(); ++i)
-      {
-
-         IParameterMapping mapping = (IParameterMapping) parameterMappings.get(i);
-         AccessPointProperties accessPtProps = new AccessPointProperties();
-
-         String outBodyAccesPoint = (String) this.trigger.getAllAttributes().get(
-               "carnot:engine:camel::outBodyAccessPoint");
-         if ((outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping
-               .getParameterId()))
-               || (mapping != null && mapping.getParameterId() != null && mapping
-                     .getParameterId().equalsIgnoreCase(ACCESS_POINT_MESSAGE)))
-         {
-            accessPtProps.setAccessPointLocation(ACCESS_POINT_MESSAGE);
-            accessPtProps.setAccessPointPath(mapping.getParameterPath());
-         }
-         else
-         {
-            accessPtProps.setAccessPointLocation(ACCESS_POINT_HEADERS);
-            accessPtProps
-                  .setAccessPointPath("get"
-                        + getOutAccessPointNameUsingDataMappingName((ParameterMappingBean) mapping)
-                        + "()");
-         }
-         // accessPtProps.setAccessPointLocation(mapping.getParameterId());
-
-         accessPtProps.setData(mapping.getData());
-         accessPtProps.setDataPath(mapping.getDataPath());
-         if (mapping.getData() != null
-               && mapping.getData().getExternalReference() != null)
-            accessPtProps.setXsdName(schemaRefs.get(mapping.getData()
-                  .getExternalReference().getId()));
-         else
-         {
-
-            accessPtProps.setXsdName(schemaRefs.get(mapping.getData().getStringAttribute(
-                  "carnot:engine:dataType")));
-         }
-         /*
-          * if(mapping.getData().getAllAttributes().containsKey(
-          * "carnot:engine:dms:resourceMetadataSchema")) { if(! accessPtProps.
-          * getAccessPointType().startsWith(STARDUST_ENGINE_CLASS))
-          * accessPtProps.setAccessPointType(DOCUMENT_LIST); }
-          */
-         accessPtProps.setAccessPointType(mapping.getData().getType().getId());
-         // accessPtProps.setEndPoint(endpoint);
-         accessPointList.add(accessPtProps);
-      }
-      return accessPointList;
-   }
-   @SuppressWarnings("rawtypes")
-   private String getOutAccessPointNameUsingDataMappingName(ParameterMappingBean mapping)
-   {
-      if (mapping != null
-            && ((TriggerBean) mapping.getParent()).getAllOutAccessPoints() != null)
-      {
-         Iterator itr = ((TriggerBean) mapping.getParent()).getAllOutAccessPoints();
-         while (itr.hasNext())
-         {
-            AccessPointBean accessPoint = (AccessPointBean) itr.next();
-            if (accessPoint.getId().equalsIgnoreCase(mapping.getParameterId()))
-            {
-               return accessPoint.getName();
-            }
-         }
-
-      }
-      return null;
-   }
    /**
     * Will create the data mapping for ipp:process:start endpoint according to the trigger
     * configuration.
@@ -237,7 +104,7 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       if (accessList == null || accessList.isEmpty())
          return;
 
-      mappingExpression.getBodyExpression().append("&amp;data=");
+      mappingExpression.getBodyExpression().append("data=");
       for (AccessPointProperties accessPtProps : accessList)
       {
          // not the first data
@@ -276,7 +143,7 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
 
                mappingExpression.getPostHeadersExpression().add(
                      "<setHeader headerName=\"" + headerName
-                           + "\"><simple>$simple{body}</simple></setHeader>");// As(org.eclipse.stardust.engine.api.runtime.Document)
+                           + "\"><simple>$simple{body}</simple></setHeader>");
                mappingExpression.setIncludeMoveEndpoint(true);
             }
             else if (accessPtProps.getData().getType().getId().equals("struct"))
@@ -290,6 +157,7 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                mappingExpression.getBodyExpression().append(headerName);
                mappingExpression.getBodyExpression().append("\\,java.util.Map)}");
                }
+               mappingExpression.setIncludeConversionStrategy(true);
             }
             else if (accessPtProps.getData().getType().getId().equals("primitive"))
                mappingExpression.getBodyExpression().append(
@@ -324,8 +192,21 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                         + DOCUMENT_LIST);
                else
                {
+                  for (DataConverter converter : dataConverters)
+                  {
+                     // if
+                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
+                     // //&&
+                     // converter.getTargetType().equals(DOCUMENT_LIST))
+                     // {
+                     mappingExpression.getBeanExpression().add(
+                           "bean:" + converter.getClass().getCanonicalName());
+                     // break;
+                     // }
+                  }
                   mappingExpression.getBodyExpression().append("body");
                   mappingExpression.getBodyExpression().append("}");
+                  // return;
                }
             }
             else if (accessPtProps.getAccessPointType().equals(DOCUMENT))
@@ -341,8 +222,23 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                         + DOCUMENT);
                else
                {
+                  for (DataConverter converter : availableConvertersForDocumentType)
+                  {
+                     // if
+                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
+                     // //&&
+                     // //converter.getTargetType().equals(DOCUMENT))
+                     // {
+                     mappingExpression.getBeanExpression().add(
+                           "bean:" + converter.getClass().getCanonicalName());
+                     // break;
+                     // }
+                  }
                   mappingExpression.getBodyExpression().append("body");
                   mappingExpression.setIncludeMoveEndpoint(true);
+
+                  // mappingExpression.getBodyExpression().append("}");
+                  // return;
                }
             }
             if (accessPtProps.getData().getType().getId().equals("struct"))
@@ -351,7 +247,7 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                   mappingExpression.getBodyExpression().append("body");
                else
                mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
-               
+               mappingExpression.setIncludeConversionStrategy(true);
             }
             else if (accessPtProps.getData().getType().getId().equals("primitive"))
                mappingExpression.getBodyExpression().append(
@@ -367,6 +263,7 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
          }
       }
    }
+
    private static String getNonPrimitiveType(String type)
    {
       if (type.equals("String") || type.equals("java.lang.String"))
@@ -375,7 +272,8 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       return nonPrimitivetype;
 
    }
-   private List<DataConverter> getConverterForType(String type,
+
+   private static List<DataConverter> getConverterForType(String type,
          List<DataConverter> converters)
    {
       List<DataConverter> selectedConverters = new ArrayList<DataConverter>();
@@ -386,4 +284,5 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
       }
       return selectedConverters;
    }
+
 }

@@ -7,7 +7,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.language.bean.BeanLanguage;
 import org.apache.camel.util.CamelContextHelper;
-
+import static org.eclipse.stardust.engine.extensions.camel.Util.copyInToOut;
 public class DataEndpointProducer extends AbstractIppProducer
 {
 
@@ -28,7 +28,6 @@ public class DataEndpointProducer extends AbstractIppProducer
       Expression exp = BeanLanguage.bean(
             CamelContextHelper.lookup(this.getEndpoint().getCamelContext(), "bpmTypeConverter"), methodName);
       Object response = exp.evaluate(exchange, Object.class);
-      exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-      exchange.getOut().setBody(response);
+      copyInToOut(exchange,response);
    }
 }

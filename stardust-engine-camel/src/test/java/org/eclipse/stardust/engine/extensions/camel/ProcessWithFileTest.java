@@ -12,6 +12,7 @@ import java.io.IOException;
 import javax.annotation.Resource;
 
 import org.apache.camel.CamelContext;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -23,6 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
+
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -54,7 +56,6 @@ public class ProcessWithFileTest {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		try {
@@ -83,6 +84,8 @@ public class ProcessWithFileTest {
 		ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
 				ProcessInstanceQuery
 						.findAlive("{FileModelTest}PrimitiveDataProcess"));
+		if(pis.size()>1)
+         throw new RuntimeException("Please clean the audit Trial");
 		ProcessInstance pi = pis.get(0);
 		Object response = sf.getWorkflowService().getInDataPath(pi.getOID(),"FileContent");
 		trace.info("FileContent = " + response);
@@ -99,12 +102,14 @@ public class ProcessWithFileTest {
 	
 	@Test
 	public void testStructuredDataWithFileTrigger() throws Exception {
-		createFile("./target/FileDirectory/SDT", "Person.xml","<person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
+		createFile("./target/FileDirectory/SDT", "Person.xml","<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
 		Thread.sleep(5000);
 		ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
 		ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
 				ProcessInstanceQuery
 						.findAlive("{FileModelTest}StructuredDataProcess"));
+		if(pis.size()>1)
+		   throw new RuntimeException("Please clean the audit Trial");
 		ProcessInstance pi = pis.get(0);
 		Object firstName = sf.getWorkflowService().getInDataPath(pi.getOID(),"FirstName");
 		trace.info("FirstName = " + firstName);
@@ -131,6 +136,8 @@ public class ProcessWithFileTest {
 		ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
 				ProcessInstanceQuery
 						.findAlive("{FileModelTest}DocumentProcess"));
+		if(pis.size()>1)
+         throw new RuntimeException("Please clean the audit Trial");
 		ProcessInstance pi = pis.get(0);
 		Object documentFileContent = sf.getWorkflowService().getInDataPath(pi.getOID(),"DocumentFile");
 		Document document = (Document) sf.getWorkflowService().getInDataPath(pi.getOID(),"DocumentFile");

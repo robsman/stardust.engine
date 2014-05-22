@@ -84,8 +84,6 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
                application, Inconsistency.ERROR));
       }
 
-      // check if route has been specified
-      //String routeDefinition = getProvidedRouteConfiguration(application);
 
       String invocationPattern = getInvocationPattern(application);
       String invocationType = getInvocationType(application);
@@ -195,10 +193,8 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 
 	               Action< ? > action = new CreateApplicationRouteAction(bpmRt, partitionId, applicationContext,
 	                     application);
-
-	               action.execute();
-
-	            }
+		               action.execute();
+		            }
             }
          }
          catch (Exception e)

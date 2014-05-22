@@ -38,14 +38,25 @@ public abstract class TriggerRouteContext extends RouteContext
    {
       return Util.getCurrentPartition(this.partitionId);
    }
-   
-   public String getProvidedRouteConfiguration(){
-     return Util.getProvidedRouteConfiguration(this.trigger);
+
+   public String getProvidedRouteConfiguration()
+   {
+      return Util.getProvidedRouteConfiguration(this.trigger);
    }
-   
+
+   public boolean includeConversionStrategy()
+   {
+      return Util.includeConversionStrategy(this.trigger);
+   }
+
+   public String getConversionStrategy()
+   {
+      return Util.getConversionStrategy(this.trigger);
+   }
+
    /**
     * mark route as transacted by default
-    *
+    * 
     * @return
     */
    public boolean markTransacted()
@@ -61,5 +72,4 @@ public abstract class TriggerRouteContext extends RouteContext
 
    }
 
-   
 }

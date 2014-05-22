@@ -5,6 +5,8 @@ import org.eclipse.stardust.engine.api.model.IData;
 public class AccessPointProperties
 {
 
+   private String paramId;
+   
    private String accessPointType;
 
    private String accessPointPath;
@@ -76,4 +78,25 @@ public class AccessPointProperties
    {
       this.xsdName = xsdName;
    }
+
+   public String getParamId()
+   {
+      return paramId;
+   }
+
+   public void setParamId(String paramId)
+   {
+      this.paramId = paramId;
+   }
+
+   @Override
+   public String toString()
+   {
+      return "AccessPointProperties [accessPointType=" + accessPointType
+            + ", accessPointPath=" + accessPointPath + ", accessPointLocation="
+            + accessPointLocation + ", data=" + data + ", dataPath=" + dataPath
+            + ", xsdName=" + xsdName + "]";
+   }
+   
+   
 }

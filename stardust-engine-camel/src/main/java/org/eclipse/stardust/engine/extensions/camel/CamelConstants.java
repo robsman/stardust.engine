@@ -204,6 +204,7 @@ public final class CamelConstants
          public static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";//TODO use constant for attachments key declared in IPP
          public static final String ACTIVITY_ID = "ippActivityId";
          public static final String APPLICATION_ID = "ippApplicationId";
+		 public static final String TRIGGER_ID = "ippTriggerId";
          public static final String DATA_ID = "ippDataId";
          public static final String DATA_MAP_ID = "ippDataFilterMap";
          public static final String ATTRIBUTE_NAME= "ippAttributeName";

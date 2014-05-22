@@ -11,18 +11,52 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRODUCER_ROUTE_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_FOOTER;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_HEADER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_HEADERS;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_MESSAGE;
+
+
+
+
+import java.io.IOException;
+import java.util.*;
+
+import org.apache.camel.Exchange;
+
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.core.model.beans.*;
+import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 
 public class Util
 {
    public static final Logger logger = LogManager.getLogger(Util.class);
 
+   
+   /**
+    * copy the content of the exchange from In to Out
+    * @param exchange
+    */
+   public static void copyInToOut(Exchange exchange)
+   {
+      exchange.getOut().setAttachments(exchange.getIn().getAttachments());
+      exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+      exchange.getOut().setBody(exchange.getIn().getBody());
+   }
+   
+   public static void copyInToOut(Exchange exchange, Object outBOdy)
+   {
+      exchange.getOut().setAttachments(exchange.getIn().getAttachments());
+      exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+      exchange.getOut().setBody(outBOdy);
+   }
+   
    /**
     * if partition is populated then its value is returned; otherwise lookup to
     * SecurityProperties.DEFAULT_PARTITION from the context
@@ -129,6 +163,42 @@ public class Util
       return isConsumer;
    }
 
+   /**
+    * return the value of carnot:engine:camel::producerBpmTypeConverter attribute defined in the trigger.
+    * 
+    * @param trigger
+    * @return
+    */
+   public static boolean includeConversionStrategy(final ITrigger trigger)
+   {
+     
+      Object includeConverter= trigger.getAllAttributes().get("carnot:engine:camel::producerBpmTypeConverter");
+     if(includeConverter!=null){
+        Boolean includeConversionStrategy=Boolean.parseBoolean(includeConverter.toString());
+        return includeConversionStrategy;
+     }
+        return false;
+     
+   }
+   
+   
+   /**
+    * return the value of carnot:engine:camel::producerInboundConversion attribute defined in the trigger.
+    * otherwise fromXML as a default value
+    * @param trigger
+    * @return
+    */
+   public static String getConversionStrategy(final ITrigger trigger)
+   {
+     
+      String strategy= (String) trigger.getAllAttributes().get("carnot:engine:camel::producerInboundConversion");
+     if(StringUtils.isNotEmpty(strategy) && !strategy.equalsIgnoreCase("None")){
+        return strategy;
+     }
+        return "fromXML";
+     
+   }
+   
    /**
     * According to the application instance type; the provided route configuration will be
     * returned. if the application is a producer application then the value of
@@ -402,4 +472,159 @@ public class Util
       }
       return providedRouteDefinition;
    }
+
+   /**
+    * Returns list of AccessPointProperties; based on the provided trigger configuration
+    * @return
+    * @throws IOException
+    */
+   @SuppressWarnings({"rawtypes"})
+   public static List<AccessPointProperties> performParameterMapping(ITrigger trigger)
+         throws IOException
+   {
+      Map<String, String> schemaRefs = new HashMap<String, String>();
+      List<AccessPointProperties> accessPointList = new ArrayList<AccessPointProperties>();
+      ModelElementList parameterMappings = trigger.getParameterMappings();
+
+      Link typeBean = ((Link) ((ModelBean) trigger.getModel()).getTypeDeclarations());
+      if (!typeBean.isEmpty())
+      {
+
+         Iterator iter = typeBean.iterator();
+         while (iter.hasNext())
+         {
+            TypeDeclarationBean extType = (TypeDeclarationBean) iter.next();
+
+            if (extType.getXpdlType() instanceof ExternalReferenceBean)
+            {
+               ExternalReferenceBean xpdlType = ((ExternalReferenceBean) extType
+                     .getXpdlType());
+               schemaRefs.put(extType.getId(), xpdlType.getLocation().replace('.', '*'));
+
+            }
+            else
+            {
+               schemaRefs.put(extType.getId(),
+                     "internal:" + ((ModelBean) trigger.getModel()).getId() + "::"
+                           + extType.getId());
+            }
+
+            // the last replace is to overcome a camel bug in parsing of
+            // bean
+            // name when the
+            // method/param
+            // contains a . character
+
+         }
+      }
+      else
+      {// check for external references
+         for (Object parameter : parameterMappings)
+         {
+            ParameterMappingBean parameterMapping = (ParameterMappingBean) parameter;
+            if (parameterMapping != null && parameterMapping.getData() != null)
+            {
+               if (parameterMapping.getData().getExternalReference() != null)
+               {
+                  IReference ref = parameterMapping.getData().getExternalReference();
+
+                  schemaRefs.put(ref.getId(), "reference:"
+                        + ref.getExternalPackage().getReferencedModel().getId() + "::"
+                        + ref.getId());
+               }
+               else if ((parameterMapping.getData().getStringAttribute(
+                     "carnot:engine:dataType") != null)
+                     && (((ModelBean) parameterMapping.getData().getParent()).getId() != null))
+               {
+
+                  schemaRefs.put(
+                        parameterMapping.getData().getStringAttribute(
+                              "carnot:engine:dataType"),
+                        "reference:"
+                              + ((ModelBean) parameterMapping.getData().getParent())
+                                    .getId()
+                              + "::"
+                              + parameterMapping.getData().getStringAttribute(
+                                    "carnot:engine:dataType"));
+               }
+
+            }
+         }
+
+      }
+
+      for (int i = 0; i < parameterMappings.size(); ++i)
+      {
+
+         IParameterMapping mapping = (IParameterMapping) parameterMappings.get(i);
+         AccessPointProperties accessPtProps = new AccessPointProperties();
+         accessPtProps.setParamId(mapping.getParameterId());
+         String outBodyAccesPoint = (String) trigger.getAllAttributes().get(
+               "carnot:engine:camel::outBodyAccessPoint");
+         if ((outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping
+               .getParameterId()))
+               || (mapping != null && mapping.getParameterId() != null && mapping
+                     .getParameterId().equalsIgnoreCase(ACCESS_POINT_MESSAGE)))
+         {
+            accessPtProps.setAccessPointLocation(ACCESS_POINT_MESSAGE);
+            accessPtProps.setAccessPointPath(mapping.getParameterPath());
+         }
+         else
+         {
+            accessPtProps.setAccessPointLocation(ACCESS_POINT_HEADERS);
+            accessPtProps
+                  .setAccessPointPath("get"
+                        + getOutAccessPointNameUsingDataMappingName((ParameterMappingBean) mapping)
+                        + "()");
+         }
+         // accessPtProps.setAccessPointLocation(mapping.getParameterId());
+
+         accessPtProps.setData(mapping.getData());
+         accessPtProps.setDataPath(mapping.getDataPath());
+         if (mapping.getData() != null
+               && mapping.getData().getExternalReference() != null)
+            accessPtProps.setXsdName(schemaRefs.get(mapping.getData()
+                  .getExternalReference().getId()));
+         else
+         {
+
+            accessPtProps.setXsdName(schemaRefs.get(mapping.getData().getStringAttribute(
+                  "carnot:engine:dataType")));
+         }
+         /*
+          * if(mapping.getData().getAllAttributes().containsKey(
+          * "carnot:engine:dms:resourceMetadataSchema")) { if(! accessPtProps.
+          * getAccessPointType().startsWith(STARDUST_ENGINE_CLASS))
+          * accessPtProps.setAccessPointType(DOCUMENT_LIST); }
+          */
+         accessPtProps.setAccessPointType(mapping.getData().getType().getId());
+         // accessPtProps.setEndPoint(endpoint);
+         accessPointList.add(accessPtProps);
+      }
+      return accessPointList;
+   }
+
+   //
+
+   @SuppressWarnings("rawtypes")
+   private static String getOutAccessPointNameUsingDataMappingName(
+         ParameterMappingBean mapping)
+   {
+      if (mapping != null
+            && ((TriggerBean) mapping.getParent()).getAllOutAccessPoints() != null)
+      {
+         Iterator itr = ((TriggerBean) mapping.getParent()).getAllOutAccessPoints();
+         while (itr.hasNext())
+         {
+            AccessPointBean accessPoint = (AccessPointBean) itr.next();
+            if (accessPoint.getId().equalsIgnoreCase(mapping.getParameterId()))
+            {
+               return accessPoint.getName();
+            }
+         }
+
+      }
+      return null;
+   }
+
 }

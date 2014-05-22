@@ -11,10 +11,10 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 
-public class ListTypeConverter extends AbstractBpmTypeConverter
+public class ListTypeConverter extends AbstractIApplicationTypeConverter
 {
 
-   protected ListTypeConverter(Exchange exchange)
+   public ListTypeConverter(Exchange exchange)
    {
       super(exchange);
    }

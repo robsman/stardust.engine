@@ -1,6 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel.core;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.BLANK_SPACE;
+
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ENDPOINT_PREFIX;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ENDPOINT_SUFFIX;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GREATER_THAN_SIGN;
@@ -9,6 +10,9 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.NEW_LI
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.QUOTATION;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTE_FOOTER;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ORIGIN;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.MODEL_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TRIGGER_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PARTITION;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PASSWORD;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.USER;
@@ -39,7 +43,7 @@ public class RouteDefinitionBuilder
    {
       StringBuilder route = new StringBuilder();
       MappingExpression mappingExpression=routeContext.getMappingExpression();
-
+     // String providedRouteDefinition=routeContext.getProvidedRouteConfiguration();
       route.append(route(routeContext.getRouteId(), routeContext.autoStartRoute()));
 
       StringBuilder replacementString = new StringBuilder();
@@ -73,9 +77,12 @@ public class RouteDefinitionBuilder
 
       }
 
-      replacementString.append("ipp:process:start?");
-      replacementString.append(buildMultiModelDeploymentId(routeContext));
-      replacementString.append(mappingExpression.getBodyExpression());
+      replacementString.append("ipp:process:start");
+     
+      if(mappingExpression.getBodyExpression()!=null && mappingExpression.getBodyExpression().length()!=0){
+         replacementString.append("?");
+         replacementString.append(mappingExpression.getBodyExpression());
+      }
       replacementString.append(QUOTATION);
 
       String authenticationEndpoint = buildHeadersExpression(routeContext);
@@ -95,13 +102,23 @@ public class RouteDefinitionBuilder
          }
          authenticationEndpoint += headersFragment;
       }
-   String   providedRouteDefinition = injectAuthenticationEndpoint(routeContext, authenticationEndpoint);
-      route.append(replaceSymbolicEndpoint(providedRouteDefinition, replacementString.toString()));
+      String   providedRouteDefinition = injectAuthenticationEndpoint(routeContext, authenticationEndpoint);
+
+      if((routeContext.includeConversionStrategy() &&routeContext.getConversionStrategy()!=null)|| routeContext.getMappingExpression().isIncludeConversionStrategy() )
+         {
+         String internalRoute=includeUnMarshallConverter(providedRouteDefinition,routeContext);
+         route.append(replaceSymbolicEndpoint(internalRoute, replacementString.toString()));
+         }else{
+            route.append(replaceSymbolicEndpoint(providedRouteDefinition, replacementString.toString()));
+         }
       route.append(NEW_LINE);
       route.append(SPRING_XML_ROUTE_FOOTER);
       return route;
    }
 
+   private static String includeUnMarshallConverter(final String providedRoute, CamelTriggerRouteContext routeContext){
+      return providedRoute.replace("<to uri=\"ipp:direct\"/>", "<to uri=\"ipp:data:"+routeContext.getConversionStrategy()+"\"/><to uri=\"ipp:direct\"/>");
+   }
    /**
     * Creates the Xml configuration of a consumer Route
     * 
@@ -315,7 +332,7 @@ public class RouteDefinitionBuilder
   }
    
    private static String injectConsumerBpmTypeConverter(ConsumerRouteContext routeContext, String route) {
-       String consumerInboundConversionMethodName = routeContext.getConsumerInboundConversion(); 
+       String consumerInboundConversionMethodName = routeContext.getConsumerInboundConversion(); //(String) application.getAttribute(CamelConstants.CONSUMER_INBOUND_CONVERSION);
        if(consumerInboundConversionMethodName != null && !consumerInboundConversionMethodName.equals("None")) {
             String injectedInboundConversionRoute = LESS_THAN_SIGN
                     + "to uri=\"ipp:data:"
@@ -382,7 +399,7 @@ public class RouteDefinitionBuilder
       buffer.append(fromEndpoint);
       if(routeContext.markTransacted())
          buffer.append(transacted("required")); 
-
+     // buffer.append(authenticationEndpoint);
       buffer.append(routeDefinitionEndpoints);
 
       return buffer.toString();
@@ -391,7 +408,7 @@ public class RouteDefinitionBuilder
    private static String buildHeadersExpression(CamelTriggerRouteContext routeContext)
    {
       StringBuffer buffer = new StringBuffer();
-      buffer.append(buildAuthenticationEndpoint(routeContext.getPartitionId(), routeContext.getUserName(), routeContext.getPassword()));
+      buffer.append(buildAuthenticationEndpoint(routeContext));
       buffer.append(insertPostHeaders(routeContext.getMappingExpression()));
       return buffer.toString();
    }
@@ -404,13 +421,22 @@ public class RouteDefinitionBuilder
     * @param password
     * @return
     */
-   private static String buildAuthenticationEndpoint(String partition, String user, String password)
+   private static String buildAuthenticationEndpoint(CamelTriggerRouteContext routeContext)
    {
       StringBuffer buffer = new StringBuffer();
       buffer.append(setHeader(ORIGIN, buildConstantExpression(CamelConstants.OriginValue.TRIGGER_CONSUMER)));
-      buffer.append(setHeader(PASSWORD, buildConstantExpression(EndpointHelper.sanitizeUri(password))));
-      buffer.append(setHeader(USER, buildConstantExpression(EndpointHelper.sanitizeUri(user))));
-      buffer.append(setHeader(PARTITION, buildConstantExpression(partition)));
+      if(StringUtils.isNotEmpty(routeContext.getModelId()))
+      buffer.append(setHeader(MODEL_ID, buildConstantExpression(routeContext.getModelId())));
+      if(StringUtils.isNotEmpty(routeContext.getProcessId()))
+      buffer.append(setHeader(PROCESS_ID, buildConstantExpression(routeContext.getProcessId())));
+      if(StringUtils.isNotEmpty(routeContext.getId()))
+         buffer.append(setHeader(TRIGGER_ID, buildConstantExpression(routeContext.getId())));
+      if(StringUtils.isNotEmpty(routeContext.getPassword()))
+      buffer.append(setHeader(PASSWORD, buildConstantExpression(EndpointHelper.sanitizeUri(routeContext.getPassword()))));
+      if(StringUtils.isNotEmpty(routeContext.getUserName()))
+      buffer.append(setHeader(USER, buildConstantExpression(EndpointHelper.sanitizeUri(routeContext.getUserName()))));
+      if(StringUtils.isNotEmpty(routeContext.getPartitionId()))
+      buffer.append(setHeader(PARTITION, buildConstantExpression(routeContext.getPartitionId())));
       buffer.append(to("ipp:authenticate:setCurrent"));
       return buffer.toString();
    }
@@ -511,7 +537,11 @@ public class RouteDefinitionBuilder
 
       return header.toString();
    }
-
+   /**
+    * 
+    * 
+    * @deprecated
+    */
    private static String buildMultiModelDeploymentId(CamelTriggerRouteContext routeContext)
    {
 

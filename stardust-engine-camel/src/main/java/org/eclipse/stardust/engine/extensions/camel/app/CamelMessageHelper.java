@@ -177,7 +177,7 @@ public class CamelMessageHelper
             DataMapping mapping = outDataMappings.next();
 
             AccessPoint accessPoint = mapping.getApplicationAccessPoint();
-         // TODO context not application
+      
             if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint)) 
             {
                Object bodyOutAP = getBodyOutAccessPoint(application) != null

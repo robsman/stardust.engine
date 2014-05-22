@@ -49,7 +49,7 @@ public class ProcessWithExternalXsdTest
          ((ModelCamelContext) camelContext).addRouteDefinition(routeDefinition);
          ProducerTemplate fileProducer = camelContext.createProducerTemplate();
          fileProducer.sendBody("direct:/createFile",
-               "<person><firstname>SG</firstname><lastname>SG</lastname></person>");
+               "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><firstname>SG</firstname><lastname>SG</lastname></person>");
          testUtils.deployModel();
 
       }

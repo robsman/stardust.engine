@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 
-public class JavaScriptTypeConverter extends JsonTypeConverter
+public class JavaScriptTypeConverter extends JsonTypeConverter.ApplicationTypeConverter
 {
    public JavaScriptTypeConverter(Exchange exchange, String dateFormat)
    {

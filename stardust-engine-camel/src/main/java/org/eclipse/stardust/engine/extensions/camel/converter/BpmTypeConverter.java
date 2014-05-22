@@ -1,5 +1,16 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
+
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_ENDPOINT_PROPERTIES;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.MODEL_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PARTITION;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ORIGIN;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TRIGGER_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.OriginValue.TRIGGER_CONSUMER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_TRIGGER_TYPE;
+import static org.eclipse.stardust.engine.extensions.camel.Util.performParameterMapping;
+import static org.eclipse.stardust.engine.extensions.camel.Util.copyInToOut;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,65 +20,83 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Property;
+import org.apache.camel.spring.SpringCamelContext;
+
+import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.LoginUtils;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
+import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 
 public class BpmTypeConverter
 {
    public static final Logger logger = LogManager.getLogger(BpmTypeConverter.class);
 
-   private static final Map<String, Class< ? >> primitiveClasses = new HashMap<String, Class< ? >>();
-
-   static
-   {
-      primitiveClasses.put("byte", byte.class);
-      primitiveClasses.put("short", short.class);
-      primitiveClasses.put("char", char.class);
-      primitiveClasses.put("int", int.class);
-      primitiveClasses.put("long", long.class);
-      primitiveClasses.put("float", float.class);
-      primitiveClasses.put("double", double.class);
-   }
+   private ForkingService forkingService;
 
    public void toJSON(Exchange exchange) throws Exception
    {
-      processMarshalling(exchange, new JsonTypeConverter(exchange));
+      processMarshalling(exchange, new JsonTypeConverter.ApplicationTypeConverter(exchange));
    }
 
    public void fromJSON(Exchange exchange) throws Exception
    {
-      processUnmarshalling(exchange, new JsonTypeConverter(exchange));
+      //processUnmarshalling(exchange, new JsonTypeConverter(exchange));
+      final String origin = extractOrigin(exchange);
+      if (origin != null && StringUtils.isNotEmpty(origin)
+            && origin.equalsIgnoreCase(TRIGGER_CONSUMER))
+      {
+         processUnmarshalling(exchange, new JsonTypeConverter.TriggerTypeConverter(exchange));
+      }
+      else
+      {
+         processUnmarshalling(exchange, new JsonTypeConverter.ApplicationTypeConverter(exchange));
+      }
+      
    }
 
    public void toNativeObject(Exchange exchange) throws Exception
    {
-      processMarshalling(exchange, new JavaScriptTypeConverter(exchange, JsonTypeConverter.LONG_DATA_FORMAT));
+      processMarshalling(exchange, new JavaScriptTypeConverter(exchange,
+            JsonTypeConverter.LONG_DATA_FORMAT));
    }
 
    public void fromNativeObject(Exchange exchange) throws Exception
    {
-      processUnmarshalling(exchange, new JavaScriptTypeConverter(exchange, JsonTypeConverter.ISO_DATE_FORMAT));
+      processUnmarshalling(exchange, new JavaScriptTypeConverter(exchange,
+            JsonTypeConverter.ISO_DATE_FORMAT));
    }
 
    public void fromXML(Exchange exchange) throws Exception
    {
-      processUnmarshalling(exchange, new XmlTypeConverter(exchange));
+      final String origin = extractOrigin(exchange);
+      if (origin != null && StringUtils.isNotEmpty(origin)
+            && origin.equalsIgnoreCase(TRIGGER_CONSUMER))
+      {
+         processUnmarshalling(exchange, new XmlTypeConverter.TriggerTypeConverter(exchange));
+      }
+      else
+      {
+         processUnmarshalling(exchange, new XmlTypeConverter.ApplicationTypeConverter(exchange));
+      }
    }
-
+   
    public void toXML(Exchange exchange) throws Exception
    {
-      processMarshalling(exchange, new XmlTypeConverter(exchange));
+      processMarshalling(exchange, new XmlTypeConverter.ApplicationTypeConverter(exchange));
    }
 
    public void fromList(Exchange exchange) throws Exception
@@ -79,85 +108,205 @@ public class BpmTypeConverter
    {
       processMarshalling(exchange, new ListTypeConverter(exchange));
    }
+
+   public void fromCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES)
+   Map<String, Object> parameters) throws Exception
+   {
+     // processUnmarshalling(exchange, new CsvTypeConverter(exchange, parameters));
+      
+      final String origin = extractOrigin(exchange);
+      if (origin != null && StringUtils.isNotEmpty(origin)
+            && origin.equalsIgnoreCase(TRIGGER_CONSUMER))
+      {
+         processUnmarshalling(exchange, new CsvTypeConverter.TriggerTypeConverter(exchange, parameters));
+      }
+      else
+      {
+         processUnmarshalling(exchange, new CsvTypeConverter.ApplicationTypeConverter(exchange, parameters));
+      }
+   }
+
+   public void toCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES)
+   Map<String, Object> parameters) throws Exception
+   {
+      processMarshalling(exchange, new CsvTypeConverter.ApplicationTypeConverter(exchange, parameters));
+   }
+
+   private void processUnmarshalling(Exchange exchange, ITriggerTypeConverter converter)
+         throws Exception
+   {
+      copyInToOut(exchange);
+      final String partitionId = extractPartitionId(exchange);
+      final String modelId = extractModelId(exchange);
+      final String processId = extractProcessId(exchange);
+      final String triggerId = extractTriggerId(exchange);
+      org.springframework.context.ApplicationContext applicationContext = ((SpringCamelContext) exchange
+            .getContext()).getApplicationContext();
+
+      forkingService = (ForkingService) applicationContext
+            .getBean("carnotForkingService");
+      IModel model = extractModel(partitionId, modelId);
+      ITrigger trigger = extractTriggerDefinitionFromModel(model, processId, triggerId);
+      List<AccessPointProperties> accessPointList = performParameterMapping(trigger);
+
+      for (AccessPointProperties accessPoint : accessPointList)
+      {
+         if (accessPoint.getAccessPointType().equalsIgnoreCase("struct"))
+            converter.unmarshal(model, accessPoint);
+         else
+            logger.debug("ignoring conversion for "+accessPoint);
+            
+      }
+   }
+
+   @SuppressWarnings("unchecked")
+   private void processMarshalling(Exchange exchange, IApplicationTypeConverter converter)
+         throws Exception
+   {
+      copyInToOut(exchange);
+
+      List<ActivityInstance> instances = lookupActivityInstance(exchange);
+      for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
+      {
+         ActivityInstance activityInstance = i.next();
+         ApplicationContext ctx = lookupApplicationContext(activityInstance);
+
+         Map<String, Object> extendedAttributes = activityInstance.getActivity()
+               .getApplication().getAllAttributes();
+
+         List<DataMapping> dataMappings = new ArrayList<DataMapping>();
+         dataMappings = activityInstance.getActivity().getApplicationContext(ctx.getId())
+               .getAllInDataMappings();
+         for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
+         {
+            DataMapping mapping = ai.next();
+            if (!(mapping.getMappedType().getName().equals(Document.class.getName())))
+            {
+               converter.marshal(mapping, extendedAttributes);
+            }
+            else
+            {
+               if (converter instanceof AbstractIApplicationTypeConverter)
+               {
+                  if (((AbstractIApplicationTypeConverter) converter)
+                        .isStuctured(mapping))
+                  {
+                     Object dataMap = ((AbstractIApplicationTypeConverter) converter)
+                           .findDataValue(mapping, extendedAttributes);
+                     ((AbstractIApplicationTypeConverter) converter).replaceDataValue(
+                           mapping, dataMap, extendedAttributes);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   private IModel extractModel(final String partitionId, final String modelId)
+   {
+      return (IModel) this.forkingService.isolate(new Action<IModel>()
+      {
+         public IModel execute()
+         {
+            BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
+            Map<String, String> properties = new HashMap<String, String>();
+            properties.put(SecurityProperties.PARTITION, partitionId);
+            LoginUtils.mergeDefaultCredentials(Parameters.instance(), properties);
+            AbstractLoginInterceptor.setCurrentPartitionAndDomain(Parameters.instance(),
+                  bpmRt, properties);
+            return ModelManagerFactory.getCurrent().findActiveModel(modelId);
+         }
+      });
+   }
+
+   private ITrigger extractTriggerDefinitionFromModel(IModel model, String processId,
+         String triggerId)
+   {
+
+      ModelElementList<IProcessDefinition> processes = model.getProcessDefinitions();
+      for (int pd = 0; pd < processes.size(); pd++)
+      {
+
+         IProcessDefinition process = model.getProcessDefinitions().get(pd);
+         if (process.getId().equalsIgnoreCase(processId))
+         {
+            for (int i = 0; i < process.getTriggers().size(); i++)
+            {
+
+               ITrigger trigger = (ITrigger) process.getTriggers().get(i);
+
+               if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId())
+                     && trigger.getId().equalsIgnoreCase(triggerId))
+               {
+                  return trigger;
+
+               }
+            }
+         }
+         continue;
+      }
+      return null;
+   }
+
+   @SuppressWarnings("unchecked")
+   private void processUnmarshalling(Exchange exchange,
+         IApplicationTypeConverter converter) throws Exception
+   {
+      copyInToOut(exchange);
+      List<ActivityInstance> instances = lookupActivityInstance(exchange);
+      for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
+      {
+         ActivityInstance activityInstance = i.next();
+         ApplicationContext ctx = lookupApplicationContext(activityInstance);
+         Map<String, Object> extendedAttributes = activityInstance.getActivity()
+               .getApplication().getAllAttributes();
+         List<DataMapping> dataMappings = new ArrayList<DataMapping>();
+         dataMappings = activityInstance.getActivity().getApplicationContext(ctx.getId())
+               .getAllOutDataMappings();
+         for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
+         {
+            DataMapping mapping = ai.next();
+            if (!(mapping.getMappedType().getName().equals(Document.class.getName())))
+            {
+               converter.unmarshal(mapping, extendedAttributes);
+            }
+         }
+      }
+   }
+
   
-   public void fromCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES) Map<String,Object> parameters) throws Exception
+   private String extractPartitionId(Exchange exchange)
    {
-      processUnmarshalling(exchange, new CsvTypeConverter(exchange, parameters));
-   }
-   
-   public void toCSV(Exchange exchange, @Property(IPP_ENDPOINT_PROPERTIES) Map<String,Object> parameters) throws Exception
-   {
-	   processMarshalling(exchange, new CsvTypeConverter(exchange, parameters));
+      return (String) exchange.getIn().getHeader(PARTITION);
    }
 
-   @SuppressWarnings("unchecked")
-   private void processMarshalling(Exchange exchange, IBpmTypeConverter converter) throws Exception
+   private String extractModelId(Exchange exchange)
    {
-      this.copyInToOut(exchange);
-
-      List<ActivityInstance> instances = lookupActivityInstance(exchange);
-      for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
-      {
-         ActivityInstance activityInstance = i.next();
-         ApplicationContext ctx = lookupApplicationContext(activityInstance);
-
-         Map<String, Object> extendedAttributes = activityInstance.getActivity().getApplication().getAllAttributes();
-
-         List<DataMapping> dataMappings = new ArrayList<DataMapping>();
-         dataMappings = activityInstance.getActivity().getApplicationContext(ctx.getId()).getAllInDataMappings();
-         for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
-         {
-            DataMapping mapping = ai.next();
-            if(!(mapping.getMappedType().getName().equals(Document.class.getName()))){
-            converter.marshal(mapping, extendedAttributes);
-            }else{
-            	if (((AbstractBpmTypeConverter)converter).isStuctured(mapping))
-                {
-                   Object dataMap = ((AbstractBpmTypeConverter)converter).findDataValue(mapping, extendedAttributes);
-                   ((AbstractBpmTypeConverter)converter).replaceDataValue(mapping, dataMap, extendedAttributes);
-                }
-            }
-         }
-      }
+      return (String) exchange.getIn().getHeader(MODEL_ID);
    }
 
-   @SuppressWarnings("unchecked")
-   private void processUnmarshalling(Exchange exchange, IBpmTypeConverter converter) throws Exception
+   private String extractProcessId(Exchange exchange)
    {
-      this.copyInToOut(exchange);
-
-      List<ActivityInstance> instances = lookupActivityInstance(exchange);
-      for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
-      {
-         ActivityInstance activityInstance = i.next();
-         ApplicationContext ctx = lookupApplicationContext(activityInstance);
-
-         Map<String, Object> extendedAttributes = activityInstance.getActivity().getApplication().getAllAttributes();
-
-         List<DataMapping> dataMappings = new ArrayList<DataMapping>();
-         dataMappings = activityInstance.getActivity().getApplicationContext(ctx.getId()).getAllOutDataMappings();
-         for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
-         {
-            DataMapping mapping = ai.next();
-            if(!(mapping.getMappedType().getName().equals(Document.class.getName()))){
-            converter.unmarshal(mapping, extendedAttributes);
-            }
-         }
-      }
+      return (String) exchange.getIn().getHeader(PROCESS_ID);
    }
 
-   private void copyInToOut(Exchange exchange)
+   private String extractOrigin(Exchange exchange)
    {
-      exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-      exchange.getOut().setBody(exchange.getIn().getBody());
+      return (String) exchange.getIn().getHeader(ORIGIN);
    }
 
-   public static ApplicationContext lookupApplicationContext(ActivityInstance activityInstance)
+   private String extractTriggerId(Exchange exchange)
+   {
+      return (String) exchange.getIn().getHeader(TRIGGER_ID);
+   }
+
+   public static ApplicationContext lookupApplicationContext(
+         ActivityInstance activityInstance)
    {
 
-      return activityInstance.getActivity().getApplicationContext("application") != null ? activityInstance
-            .getActivity().getApplicationContext("application") : activityInstance.getActivity().getApplicationContext(
-            "default");
+      return activityInstance.getActivity().getApplicationContext("application") != null
+            ? activityInstance.getActivity().getApplicationContext("application")
+            : activityInstance.getActivity().getApplicationContext("default");
    }
 
    public static List<ActivityInstance> lookupActivityInstance(Exchange exchange)
@@ -172,7 +321,8 @@ public class BpmTypeConverter
 
          IActivityInstance activityInstance = bpmRt.getCurrentActivityInstance();
 
-         instances.add(DetailsFactory.create(activityInstance, IActivityInstance.class, ActivityInstanceDetails.class));
+         instances.add(DetailsFactory.create(activityInstance, IActivityInstance.class,
+               ActivityInstanceDetails.class));
       }
       else
       {
@@ -188,7 +338,8 @@ public class BpmTypeConverter
             message = exchange.getOut();
          }
 
-         activityInstances = (ActivityInstances) message.getHeader(CamelConstants.MessageProperty.ACTIVITY_INSTANCES);
+         activityInstances = (ActivityInstances) message
+               .getHeader(CamelConstants.MessageProperty.ACTIVITY_INSTANCES);
 
          return activityInstances;
 

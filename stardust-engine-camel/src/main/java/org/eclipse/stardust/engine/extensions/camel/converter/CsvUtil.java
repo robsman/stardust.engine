@@ -33,7 +33,7 @@ public class CsvUtil {
 	private static final String CSV_QUOTE_STR = String.valueOf(CSV_QUOTE);
 	
 	@SuppressWarnings("rawtypes")
-	public static Object unmarshal(DataMapping mapping, String csv, Set sdtKeys, char delimiter) 
+	public static Object unmarshal(String mapping, String csv, Set sdtKeys, char delimiter) 
 	{
 		Object result = null;
 		if(sdtKeys != null)
@@ -63,7 +63,7 @@ public class CsvUtil {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private static Map<String, Object> unmarshalSDT(DataMapping mapping, String csv, Set sdtKeys, char delimiter)
+	private static Map<String, Object> unmarshalSDT(String mapping, String csv, Set sdtKeys, char delimiter)
 	{
 		Map<String, Object> sdt = new HashMap<String, Object>();
 		String[] data = csv.split("\r\n|\r|\n");
@@ -80,7 +80,7 @@ public class CsvUtil {
             list.add(map);
             i++;
          }
-         sdt.put(mapping.getApplicationAccessPoint().getId(), list);
+         sdt.put(mapping, list);
          
       } else if (data.length == 2) 
       {

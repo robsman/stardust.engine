@@ -156,6 +156,19 @@ public class UserServiceImpl implements UserService, Serializable
       return SecurityProperties.isInternalAuthorization();
    }
 
+   public IUser internalGetUser(String realm, String account) throws ObjectNotFoundException
+   {
+      Map<String, Object> properties = new HashMap<String, Object>();
+      properties.put(SecurityProperties.REALM, realm);
+      properties.put(SecurityProperties.DOMAIN, SecurityProperties.getUserDomain().getId());
+      properties.put(SecurityProperties.PARTITION, SecurityProperties.getPartition().getId());
+
+      return SynchronizationService.synchronize(account,
+            getModel(),
+            Parameters.instance().getBoolean(SecurityProperties.AUTHORIZATION_SYNC_ADMIN_PROPERTY, true),
+            properties);
+   }
+
    public User getUser()
    {
       return (User) DetailsFactory.create(SecurityProperties.getUser(),
@@ -331,7 +344,7 @@ public class UserServiceImpl implements UserService, Serializable
                   {
                      addToParticipants(modelManager, user, participant, department);
                      // (fh) since the grants are model agnostic, we add only the
-                     // first matching participant, respecting the constraints associated with it. 
+                     // first matching participant, respecting the constraints associated with it.
                      break;
                   }
                }
@@ -402,12 +415,12 @@ public class UserServiceImpl implements UserService, Serializable
 
    public void generatePasswordResetToken(String account)
    {
-	   IUserRealm realm = SecurityProperties.getUserRealm();
-	   IUser user = UserBean.findByAccount(account, realm);
-	   
-	   SecurityUtils.generatePasswordResetToken(user);
+      IUserRealm realm = SecurityProperties.getUserRealm();
+      IUser user = UserBean.findByAccount(account, realm);
+
+      SecurityUtils.generatePasswordResetToken(user);
    }
-   
+
    public void resetPassword(String account, Map properties, String token) throws ConcurrencyException,
          ObjectNotFoundException, IllegalOperationException
    {
@@ -482,7 +495,7 @@ public class UserServiceImpl implements UserService, Serializable
    public User createUser(String realm, String account, String firstName,
          String lastName, String description, String password, String eMail,
          Date validFrom, Date validTo)
-   {      
+   {
       if (StringUtils.isEmpty(realm))
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("realm"));
@@ -503,9 +516,9 @@ public class UserServiceImpl implements UserService, Serializable
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("password"));
       }
-      
+
       checkInternalAuthentified();
-      
+
       ExtensionService.initializeRealmExtensions();
 
       IAuditTrailPartition partition = SecurityProperties.getPartition();
@@ -554,20 +567,12 @@ public class UserServiceImpl implements UserService, Serializable
          IllegalOperationException
    {
       String realm = SecurityProperties.getUserRealm().getId();
-
       return getUser(realm, account);
    }
 
    public User getUser(String realm, String account) throws ObjectNotFoundException
    {
-      Map properties = new HashMap();
-      properties.put(SecurityProperties.REALM, realm);
-      properties.put(SecurityProperties.DOMAIN, SecurityProperties.getUserDomain().getId());
-      properties.put(SecurityProperties.PARTITION, SecurityProperties.getPartition().getId());
-
-      IUser user = SynchronizationService.synchronize(account, getModel(), Parameters
-            .instance().getBoolean(SecurityProperties.AUTHORIZATION_SYNC_ADMIN_PROPERTY,
-                  true), properties);
+      IUser user = internalGetUser(realm, account);
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
 
@@ -670,7 +675,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("description","null"));
       }
-			
+
       try
       {
          UserGroupBean.findById(id, SecurityProperties.getPartitionOid());
@@ -865,10 +870,10 @@ public class UserServiceImpl implements UserService, Serializable
    {
       return UserGroupDetailsLevel.Full == changes.getDetailsLevel();
    }
-   
-	@Override
-	public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
-	{
+
+   @Override
+   public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
+   {
       if (isAllowedToAddDeputy(user) && user.getOID() != deputyUser.getOID())
       {
          if (options == null)
@@ -889,31 +894,31 @@ public class UserServiceImpl implements UserService, Serializable
 
          return db.createDeputyDetails(deputyUser);
       }
-	   else
-	   {
+      else
+      {
          throw new InvalidArgumentException(
                BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getOID()));
-	   }
-	}
-	
-	private boolean isAllowedToAddDeputy(UserInfo user)
-	{
-	   IUser addingUser = SecurityProperties.getUser(); 
-	   if (addingUser.getOID() == user.getOID())
-	   {
-	      return true;
-	   }
-	   else
-	   {
+      }
+   }
+
+   private boolean isAllowedToAddDeputy(UserInfo user)
+   {
+      IUser addingUser = SecurityProperties.getUser();
+      if (addingUser.getOID() == user.getOID())
+      {
+         return true;
+      }
+      else
+      {
          throw new AccessForbiddenException(
                BpmRuntimeError.ATDB_ADDING_DEPUTY_FORBIDDEN.raise(user.getOID(),
                      addingUser.getOID()));
-	   }
-	}
-	
+      }
+   }
+
    private boolean isAllowedToModifyDeputy(UserInfo user)
    {
-      IUser modifyingUser = SecurityProperties.getUser(); 
+      IUser modifyingUser = SecurityProperties.getUser();
       if (modifyingUser.getOID() == user.getOID())
       {
          return true;
@@ -928,7 +933,7 @@ public class UserServiceImpl implements UserService, Serializable
 
    private boolean isAllowedToRemoveDeputy(UserInfo user)
    {
-      IUser modifyingUser = SecurityProperties.getUser(); 
+      IUser modifyingUser = SecurityProperties.getUser();
       if (modifyingUser.getOID() == user.getOID())
       {
          return true;
@@ -940,18 +945,18 @@ public class UserServiceImpl implements UserService, Serializable
                      modifyingUser.getOID()));
       }
    }
-   
-   
+
+
    @Override
    public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
    {
       if (isAllowedToModifyDeputy(user))
-      {            
+      {
          if (options == null)
          {
             options = DeputyOptions.DEFAULT;
          }
-         
+
          List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
          for (Deputy deputy : deputies)
          {
@@ -960,9 +965,9 @@ public class UserServiceImpl implements UserService, Serializable
                removeDeputy(user, deputyUser);
                return addDeputy(user, deputyUser, options);
             }
-         }   
+         }
       }
-      
+
       throw new ObjectNotFoundException(
             BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getOID(),
                   user.getOID()));
@@ -972,19 +977,19 @@ public class UserServiceImpl implements UserService, Serializable
    public void removeDeputy(UserInfo user, UserInfo deputyUser)
    {
       if (isAllowedToRemoveDeputy(user))
-      {      
+      {
          UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
          UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
-         
+
          UserUtils.updateDeputyGrants(deputyUserBean);
       }
    }
 
-	@Override
-	public List<Deputy> getDeputies(UserInfo user)
-	{
+   @Override
+   public List<Deputy> getDeputies(UserInfo user)
+   {
       UserBean userBean = UserBean.findByOid(user.getOID());
-      
+
       String likeOpPattern = MessageFormat.format(
             UserUtils.IS_DEPUTY_OF_PROP_PREFIX_PATTERN,
             new Object[] {Long.valueOf(userBean.getOID()).toString()});
@@ -1014,13 +1019,13 @@ public class UserServiceImpl implements UserService, Serializable
 
       }
 
-		return CollectionUtils.newArrayList(deputyMap.values());
+      return CollectionUtils.newArrayList(deputyMap.values());
 
-	}
+   }
 
-	@Override
-	public List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser)
-	{
+   @Override
+   public List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser)
+   {
       List<Deputy> result = CollectionUtils.newArrayList();
 
       UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
@@ -1032,5 +1037,5 @@ public class UserServiceImpl implements UserService, Serializable
       }
 
       return result;
-	}
+   }
 }

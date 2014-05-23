@@ -78,7 +78,6 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
       return new EmbeddedServiceFactory(false, true, false);
    }
 
-   //@Deprecated
    public EmbeddedServiceFactory()
    {
       this(true, true, false);
@@ -95,8 +94,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          throws ServiceNotAvailableException, LoginFailedException
    {
       IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(service);
-      InvocationManager invocationHandler = new EmbeddedInvocationManager(provider.getInstance(),
-            provider.getServiceName(), withPropertyLayer, withLogin, autoFlush);
+      InvocationManager invocationHandler = createInvocationManager(provider, withPropertyLayer, withLogin, autoFlush);
 
       T result = (T) Proxy.newProxyInstance(service.getClassLoader(),
             new Class[] {service, ManagedService.class}, invocationHandler);
@@ -119,6 +117,45 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
       return result;
    }
 
+   protected <T extends Service> EmbeddedInvocationManager createInvocationManager(
+         IServiceProvider<T> provider, boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
+   {
+      return new EmbeddedInvocationManager(provider.getInstance(),
+            setupInterceptors(provider.getServiceName(), withPropertyLayer, withLogin, autoFlush));
+   }
+
+   protected List<MethodInterceptor> setupInterceptors(String serviceName,
+         boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
+   {
+      List<MethodInterceptor> interceptors = new ArrayList<MethodInterceptor>();
+
+      if (withPropertyLayer)
+      {
+         interceptors.add(new PropertyLayerProviderInterceptor());
+      }
+      if (autoFlush)
+      {
+         interceptors.add(new FlushInterceptor());
+      }
+      interceptors.add(getLoginInterceptor(withLogin));
+      interceptors.add(new GuardingInterceptor(serviceName));
+      interceptors.add(new RuntimeExtensionsInterceptor());
+      interceptors.add(new CallingInterceptor());
+      return interceptors;
+   }
+
+   protected MethodInterceptor getLoginInterceptor(boolean withLogin)
+   {
+      if (withLogin)
+      {
+         return new LoginInterceptor();
+      }
+      else
+      {
+         return new CurrentUserInterceptor();
+      }
+   }
+
    public void setCredentials(Map credentials)
    {
       username = (String) credentials.get(SecurityProperties.CRED_USER);
@@ -129,37 +166,9 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
    {
       private static final long serialVersionUID = 1L;
 
-      public EmbeddedInvocationManager(Object service, String serviceName,
-            boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
+      public EmbeddedInvocationManager(Object service, List<MethodInterceptor> interceptors)
       {
-         super(service, setupInterceptors(serviceName, withPropertyLayer, withLogin, autoFlush));
-      }
-
-      private static List setupInterceptors(String serviceName,
-            boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
-      {
-         List interceptors = new ArrayList();
-
-         if (withPropertyLayer)
-         {
-            interceptors.add(new PropertyLayerProviderInterceptor());
-         }
-         if (autoFlush)
-         {
-            interceptors.add(new FlushInterceptor());
-         }
-         if (withLogin)
-         {
-            interceptors.add(new LoginInterceptor());
-         }
-         else
-         {
-            interceptors.add(new CurrentUserInterceptor());
-         }
-         interceptors.add(new GuardingInterceptor(serviceName));
-         interceptors.add(new RuntimeExtensionsInterceptor());
-         interceptors.add(new CallingInterceptor());
-         return interceptors;
+         super(service, interceptors);
       }
    }
 

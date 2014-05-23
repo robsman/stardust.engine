@@ -202,7 +202,7 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
                   pq.getPreferencesId(), realmId, userId);
          }
       }
-      else
+      else if(!(user instanceof TransientUser))
       {
          throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
       }

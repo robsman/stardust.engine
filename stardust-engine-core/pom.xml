@@ -723,6 +723,7 @@
                   <include>api/runtime/AdministrationService.java</include>
                   <include>api/runtime/AuditTrailHealthReport.java</include>
                   <include>api/runtime/BindingException.java</include>
+                  <include>api/runtime/BpmRuntimeError.java</include>
                   <include>api/runtime/Daemon.java</include>
                   <include>api/runtime/DaemonExecutionState.java</include>
                   <include>api/runtime/DataCopyOptions.java</include>

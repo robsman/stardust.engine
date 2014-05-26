@@ -151,7 +151,7 @@ public class BpmTypeConverter
 
       for (AccessPointProperties accessPoint : accessPointList)
       {
-         if (accessPoint.getAccessPointType().equalsIgnoreCase("struct"))
+         if (accessPoint.getAccessPointType().equalsIgnoreCase("struct") && StringUtils.isEmpty(accessPoint.getDataPath()))
             converter.unmarshal(model, accessPoint);
          else
             logger.debug("ignoring conversion for "+accessPoint);

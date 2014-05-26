@@ -126,9 +126,10 @@ public class CsvTypeConverter
       @Override
       public void unmarshal(IModel iModel, AccessPointProperties accessPoint)
       {
-         String csv = (String) findDataValue(accessPoint);
-        
-         if (csv != null)
+         Object value =  findDataValue(accessPoint);
+         String csvInput = exchange.getContext().getTypeConverter()
+               .convertTo(String.class, value);
+         if (csvInput != null)
          {
             Set sdtKeys = null;
             if (accessPoint.getAccessPointType().equalsIgnoreCase("struct"))
@@ -137,7 +138,7 @@ public class CsvTypeConverter
                      .getId());
                sdtKeys = converter.getxPathMap().getAllXPaths();
             }
-            Object result = CsvUtil.unmarshal(accessPoint.getParamId(), csv, sdtKeys, delimiter);
+            Object result = CsvUtil.unmarshal(accessPoint.getParamId(), csvInput, sdtKeys, delimiter);
             replaceDataValue(accessPoint, result);
          }
       }

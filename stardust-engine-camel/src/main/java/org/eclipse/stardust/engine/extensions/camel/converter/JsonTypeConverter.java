@@ -152,12 +152,17 @@ public class JsonTypeConverter
       {
          if (accessPoint.getAccessPointType().equalsIgnoreCase("struct"))
          {
-            String value = (String) findDataValue(accessPoint);
-            SDTConverter converter = new SDTConverter(iModel, accessPoint.getData()
-                  .getId());
-            Map<String, Object> complexType = parseJson(converter, value, accessPoint.getParamId());
-            replaceDataValue(accessPoint, complexType);
-
+            Object value = findDataValue(accessPoint);
+            String jsonInput = exchange.getContext().getTypeConverter()
+                  .convertTo(String.class, value);
+            if (jsonInput != null)
+            {
+               SDTConverter converter = new SDTConverter(iModel, accessPoint.getData()
+                     .getId());
+               Map<String, Object> complexType = parseJson(converter, jsonInput,
+                     accessPoint.getParamId());
+               replaceDataValue(accessPoint, complexType);
+            }
          }
          else if (accessPoint.getAccessPointType().equalsIgnoreCase("primitive"))
          {

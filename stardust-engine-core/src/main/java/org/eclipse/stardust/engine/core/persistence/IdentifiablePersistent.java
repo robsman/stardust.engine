@@ -26,4 +26,6 @@ public interface IdentifiablePersistent extends Persistent
    public void setOID(long oid);
 
    void lock() throws ConcurrencyException;
+
+   void lock(int timeout) throws ConcurrencyException;
 }

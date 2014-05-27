@@ -147,10 +147,16 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       {
          try
          {
-            // TODO reload state attribute to reduce need to lock in case of concurrent
-            // completion
+            int dbLockTimeout = Parameters.instance().getInteger(KernelTweakingProperties.DB_LOCK_TIMEOUT, 1);
+            if (dbLockTimeout > 0)
+            {
+               pi.lock(dbLockTimeout);
+            }
+            else
+            {
+               pi.lock();
+            }
 
-            pi.lock();
             try
             {
                ProcessInstanceState state = pi.getState();

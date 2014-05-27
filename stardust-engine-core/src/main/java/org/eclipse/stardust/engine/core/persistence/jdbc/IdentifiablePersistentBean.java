@@ -47,14 +47,31 @@ public class IdentifiablePersistentBean extends PersistentBean
 
    public void lock() throws ConcurrencyException
    {
+      lockInternal(null);
+   }
+
+   public void lock(int timeout) throws ConcurrencyException
+   {
+      lockInternal(Integer.valueOf(timeout));
+   }
+
+   private void lockInternal(Integer timeout) throws ConcurrencyException
+   {
       final PersistenceController pc = getPersistenceController();
-      
+
       // in state CREATED, the entity is not yet in the DB
       if (isPersistent() && !pc.isCreated())
       {
          if ( !pc.isLocked())
          {
-            pc.getSession().lock(getClass(), getOID());
+            if (timeout != null)
+            {
+               pc.getSession().lock(getClass(), getOID(), timeout.intValue());
+            }
+            else
+            {
+               pc.getSession().lock(getClass(), getOID());
+            }
 
             // no concurrency exception, object is exclusively locked in this session now
             pc.markLocked();

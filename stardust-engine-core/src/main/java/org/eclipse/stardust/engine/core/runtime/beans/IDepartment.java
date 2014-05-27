@@ -21,15 +21,15 @@ import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 public interface IDepartment extends IdentifiablePersistent
 {
    String getId();
-   
+
    String getName();
 
    IDepartment getParentDepartment();
-   
+
    String getDescription();
-   
+
    long getRuntimeOrganizationOID();
-   
+
    public static final IDepartment NULL = new IDepartment()
    {
       public String getDescription() {return null;}
@@ -39,6 +39,7 @@ public interface IDepartment extends IdentifiablePersistent
       public long getRuntimeOrganizationOID() {return 0;}
       public long getOID() {return 0;}
       public void lock() throws ConcurrencyException {}
+      public void lock(int timeout) throws ConcurrencyException {}
       public void setOID(long oid) {}
       public void delete() {}
       public void delete(boolean writeThrough) {}

@@ -24,13 +24,13 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
 public final class KernelTweakingProperties
 {
    public static final String XPDL_MODEL_DEPLOYMENT = "Carnot.Engine.Deployment.XPDL";
-   
+
    public static final String RELOAD_MODEL_MANAGER_AFTER_MODEL_OPERATION =
       "Carnot.Engine.ReloadModelManagerAfterModelOperation";
-   
+
    public static final String EJB_ROLLBACK_ON_ERROR =
       "Carnot.Engine.Ejb.RollbackOnError";
-   
+
    public static final String EJB_ROLLBACK_ON_ERROR_ALWAYS =
       "always";
    public static final String EJB_ROLLBACK_ON_ERROR_LENIENT =
@@ -40,15 +40,15 @@ public final class KernelTweakingProperties
 
    public static final String APPLICATION_EXCEPTION_PROPAGATION =
       "Carnot.Engine.ErrorHandling.ApplicationExceptionPropagation";
-   
+
    public static final String APPLICATION_EXCEPTION_PROPAGATION_NEVER = "never";
    public static final String APPLICATION_EXCEPTION_PROPAGATION_ON_ROLLBACK = "onRollback";
    public static final String APPLICATION_EXCEPTION_PROPAGATION_ALWAYS = "always";
-   
+
    /* boolean property */
    public static final String ASYNC_PROCESS_COMPLETION =
          "Carnot.Engine.Threading.AsyncProcessCompletion";
-   
+
    public static final String AUTOMATIC_TOKEN_CLEANUP =
       "Carnot.Engine.Tuning.ProcessCompletionTokenCleanup";
 
@@ -59,7 +59,7 @@ public final class KernelTweakingProperties
     * TODO: describe
     */
    public static final String ACTIVITY_THREAD_RETRY_COUNT = "Carnot.Engine.Tuning.ActivityThread.Retries";
-   
+
    /**
     * TODO: describe
     */
@@ -73,13 +73,13 @@ public final class KernelTweakingProperties
 
    public static final String SLOW_STATEMENT_TRACING_THRESHOLD =
          "Carnot.Engine.Tuning.DB.slowStatementTracingThreshold";
-   
+
    public static final String CLOB_READ_BUFFER_SIZE =
          "Carnot.Engine.Tuning.DB.clobReadBufferSize";
 
    public static final String SERVICE_CALL_TRACING_THRESHOLD =
          "Carnot.Engine.Tuning.ServiceCallTracingThreshold";
-   
+
    public static final String DATA_FILTER_HINT =
          "Carnot.Engine.Tuning.DB.dataFilterHint";
 
@@ -113,7 +113,7 @@ public final class KernelTweakingProperties
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchStructIndex";
 
    public static final String QUERY_LOCK_TIMEOUT = "Infinity.Engine.Tuning.Query.LockTimeout";
-   
+
    /**
     * Perform prefetch of data values using existing data cluster tables. Default: false.
     */
@@ -128,7 +128,7 @@ public final class KernelTweakingProperties
 
    /**
     * Do NOT use in properties file, will be used internally only!
-    * 
+    *
     * @deprecated
     */
    public static final String DESCRIPTOR_PREFETCHED_RTOID_SET =
@@ -147,72 +147,74 @@ public final class KernelTweakingProperties
    public static final String CACHE_DOMAINS = "Carnot.Engine.Tuning.CacheDomains";
 
    public static final String SHARED_CONTEXT_CACHE = "Carnot.Engine.Tuning.SharedContextCache";
-   
+
    public static final String SEQUENCE_BATCH_SIZE = "Carnot.Engine.Tuning.SequenceBatchSize";
 
    public static final String SINGLE_NODE_DEPLOYMENT = "Carnot.Engine.Tuning.SingleNodeDeployment";
-   
+
    public static final String GET_COUNT_DEFAULT_TIMEOUT = "Carnot.Engine.Tuning.GetCountDefaultTimeout";
-   
+
    public static final String RUNTIME_TIMESTAMP_PROVIDER = "Carnot.Engine.RuntimeTimestampProvider";
-   
+
    public static final String USE_CONTEXT_CLASSLOADER = "Carnot.Engine.Classloading.UseContextClassloader";
 
    public static final String OPTIMIZE_COUNT_ONLY_SUBSET_POLICY =
       "Carnot.Engine.Tuning.Query.SubsetPolicy.OptimizeCountOnly";
 
-   public static final String DELETE_PI_STMT_BATCH_SIZE = 
+   public static final String DELETE_PI_STMT_BATCH_SIZE =
          "Carnot.Engine.Tuning.DeleteProcessInstances.StatementBatchSize";
-   
+
    /**
-    * With this property the column length for string columns can be configured. 
-    * The property format is 
+    * With this property the column length for string columns can be configured.
+    * The property format is
     * <code>Carnot.Db.ColumnLength.&lt;table_name&gt;.&lt;column_name&gt;=&lt;int value&gt;</code>.
     */
-   public static final String STRING_COLUMN_LENGTH_PREFIX = 
+   public static final String STRING_COLUMN_LENGTH_PREFIX =
       "Carnot.Db.ColumnLength.";
-   
+
    public static final String CONTENT_STREAMING_THRESHOLD = "Carnot.Configuration.ContentStreamingThreshold";
-   
+
    public static final String CONFIGURATION_CACHE_TTL = "Carnot.Configuration.CacheTTL";
-   
+
    public static final String CONFIGURATION_MAXIMUM_CACHE_ITEMS = "Carnot.Configuration.MaximumCacheItems";
-   
-   // Only used for white box tests. Setting this to TRUE will set AIs/PIs to state ABORTING 
+
+   // Only used for white box tests. Setting this to TRUE will set AIs/PIs to state ABORTING
    // but will not run code to set it to ABORTED afterwards.
    public static final String PREVENT_ABORTING_TO_ABORTED_STATE_CHANGE = "Infinity.Engine.Threading.PreventAbortion";
-   
+
    public static final String SORT_ACTIVITIES_IN_TRANSITION_ORDER = "Infinity.Engine.Process.SortActivitiesInTransitionOrder";
-   
+
    public static final String EXTERNAL_CACHING = "Infinity.Engine.Caching";
-   
+
    public static final String SHARED_CACHING = "Infinity.Engine.Caching.Shared";
 
    public static final String CACHE_FACTORY_OVERRIDE = "Infinity.Engine.Caching.CacheFactory";
-   
+
    public static final String SUPPORT_TRANSIENT_PROCESSES = "Carnot.Engine.Tuning.SupportTransientProcesses";
-   
+
    public static final String SUPPORT_TRANSIENT_PROCESSES_ON = "on";
    public static final String SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT = "alwaysTransient";
    public static final String SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED = "alwaysDeferred";
    public static final String SUPPORT_TRANSIENT_PROCESSES_OFF = "off";
-   
+
    public static final String TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE = "Carnot.Engine.Tuning.TransientProcesses.ExposeInMemStorage";
    public static final boolean TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE = true;
-   
+
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";
-   
+
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(HazelcastJcaConnectionFactoryProvider.class)
    public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
-   
-   public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";   
+
+   public static final String DB_LOCK_TIMEOUT = "Carnot.Engine.Tuning.Db.Lock.Timeout";
+
+   public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";
 
    public static final String INFINITY_DMS_SHARED_DATA_EXIST = "Infinity.Dms.SharedDataExist";
-   
+
    public static final String ENGINE_EXCLUDE_USER_EVALUATION = "Stardust.Engine.Tuning.Query.ExcludeUser.Evaluation";
-   
+
    public static final String EXCLUDE_USER_MAX_WORKLIST_COUNT = "Stardust.Engine.Tuning.Query.ExcludeUser.MaximumWorklistCount";
 }

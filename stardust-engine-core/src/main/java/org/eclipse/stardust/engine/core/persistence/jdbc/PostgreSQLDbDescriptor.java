@@ -138,7 +138,7 @@ public class PostgreSQLDbDescriptor extends SequenceDbDriver
       buffer.append(getNextValForSeqString(schemaName, pkSequence));
       return buffer.toString();
    }
-   
+
    public String getCreatePKStatement(final String schemaName, final String pkSequence, int sequenceCount)
    {
       // TODO CRNT-26274 take care of sequenceCount (current implementation only returns one sequence)
@@ -173,6 +173,22 @@ public class PostgreSQLDbDescriptor extends SequenceDbDriver
       return buffer.toString();
    }
 
+   public String getLockRowWithTimeoutStatementString(SqlUtils sqlUtils, TypeDescriptor type,
+         boolean tryToUseDistinctLockTable, String predicate, int timeout)
+   {
+      final ITableDescriptor table = tryToUseDistinctLockTable ? type
+            .getLockTableDescriptor() : type;
+
+      StringBuffer buffer = new StringBuffer(200);
+
+      buffer.append("SELECT * FROM ");
+      sqlUtils.appendTableRef(buffer, table);
+      buffer.append(" WHERE ").append(predicate);
+      buffer.append(" FOR UPDATE");
+
+      return buffer.toString();
+   }
+
    public boolean useQueryTimeout()
    {
       return false;
@@ -196,11 +212,11 @@ public class PostgreSQLDbDescriptor extends SequenceDbDriver
    /**
     * Overrides the base class implementation because PostgresSQL doesn't need schema
     * name to prefix the index name. From PostgresSQL documentation for CREATE INDEX:
-    * 
+    *
     * <pre>
     * The name of the index to be created. No schema name can be included here; the index is always created in the same schema as its parent table.
     * </pre>
-    * 
+    *
     */
    public String getCreateIndexStatement(String schemaName, String tableName,
          IndexDescriptor indexDescriptor)

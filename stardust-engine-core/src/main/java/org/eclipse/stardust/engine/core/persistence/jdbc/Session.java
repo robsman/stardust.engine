@@ -2440,15 +2440,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return processedRows;
    }
 
-   private ResultSet executeLockQuery(Class type, long oid) throws SQLException
+   private ResultSet executeLockQuery(Class type, long oid, Integer timeout) throws SQLException
    {
       List bindValueList = isUsingPreparedStatements(type) ? new ArrayList() : null;
       DmlManager dmlManager = getDMLManager(type);
 
-      String statementString = dmlManager.getLockRowStatementString(oid,
-            isUsingLockTables(), bindValueList);
+      String statementString = timeout != null ? dmlManager.getLockWithTimeoutRowStatementString(oid, isUsingLockTables(), bindValueList, timeout.intValue())
+                                               : dmlManager.getLockRowStatementString(oid, isUsingLockTables(), bindValueList);
 
-      boolean useQueryTimeout = getDBDescriptor().useQueryTimeout();
+      boolean useQueryTimeout = timeout != null ? true
+                                                : getDBDescriptor().useQueryTimeout();
       ResultSet resultSet = null;
 
       long startTime;
@@ -2471,7 +2472,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(getLockQueryTimeout());
+               statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2508,7 +2509,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(getLockQueryTimeout());
+               statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2533,15 +2534,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return resultSet;
    }
 
-   private int executeLockUpdate(Class type, long oid) throws SQLException
+   private int executeLockUpdate(Class type, long oid, Integer timeout) throws SQLException
    {
       List bindValueList = isUsingPreparedStatements(type) ? new ArrayList() : null;
       DmlManager dmlManager = getDMLManager(type);
 
-      String statementString = dmlManager.getLockRowStatementString(oid,
-            isUsingLockTables(), bindValueList);
+      String statementString = timeout != null ? dmlManager.getLockWithTimeoutRowStatementString(oid, isUsingLockTables(), bindValueList, timeout.intValue())
+                                               : dmlManager.getLockRowStatementString(oid, isUsingLockTables(), bindValueList);
 
-      boolean useQueryTimeout = getDBDescriptor().useQueryTimeout();
+      boolean useQueryTimeout = timeout != null ? true
+                                                : getDBDescriptor().useQueryTimeout();
       int processedRows = 0;
       Statement statement = null;
 
@@ -2563,7 +2565,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(getLockQueryTimeout());
+               statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2584,7 +2586,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(getLockQueryTimeout());
+               statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -3283,6 +3285,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    public void lock(Class type, long oid) throws ConcurrencyException
    {
+      lockInternal(type, oid, null);
+   }
+
+   public void lock(Class type, long oid, int timeout) throws ConcurrencyException
+   {
+      lockInternal(type, oid, Integer.valueOf(timeout));
+   }
+
+   private void lockInternal(Class type, long oid, Integer timeout) throws ConcurrencyException
+   {
       DmlManager dmlManager = getDMLManager(type);
 
       try
@@ -3292,7 +3304,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             ResultSet rs = null;
             try
             {
-               rs = executeLockQuery(type, oid);
+               rs = executeLockQuery(type, oid, timeout);
 
                if ( !rs.next())
                {
@@ -3314,7 +3326,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
          else
          {
-            int processedRows = executeLockUpdate(type, oid);
+            int processedRows = executeLockUpdate(type, oid, timeout);
 
             if (processedRows == 0)
             {

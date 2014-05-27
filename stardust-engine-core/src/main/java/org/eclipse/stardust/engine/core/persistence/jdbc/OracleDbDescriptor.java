@@ -108,7 +108,24 @@ public class OracleDbDescriptor extends SequenceDbDriver
 
       return buffer.toString();
    }
-   
+
+   public String getLockRowWithTimeoutStatementString(SqlUtils sqlUtils,
+         TypeDescriptor type, boolean tryToUseDistinctLockTable, String predicate, int timeout)
+   {
+      final ITableDescriptor table = tryToUseDistinctLockTable
+            ? type.getLockTableDescriptor()
+            : type;
+
+      StringBuffer buffer = new StringBuffer(200);
+
+      buffer.append("SELECT * FROM ");
+      sqlUtils.appendTableRef(buffer, table);
+      buffer.append(" WHERE ").append(predicate)
+            .append(" FOR UPDATE WAIT ").append(timeout);
+
+      return buffer.toString();
+   }
+
    public String getCreatePKStatement(String schemaName, String pkSequence)
    {
       return getCreatePKStatement(schemaName, pkSequence, 1);
@@ -117,11 +134,11 @@ public class OracleDbDescriptor extends SequenceDbDriver
    public String getCreatePKStatement(String schemaName, String pkSequence, int sequenceCount)
    {
       // uses SQL "union" to retrieve multiple sequence numbers
-      
+
       StringBuffer buffer = new StringBuffer(sequenceCount*50);
 
       buffer.append("SELECT ");
-      
+
       if ( !StringUtils.isEmpty(schemaName))
       {
          buffer.append(schemaName).append(".");
@@ -138,15 +155,15 @@ public class OracleDbDescriptor extends SequenceDbDriver
             {
                buffer.append(" UNION ALL ");
             }
-         }  
-         
+         }
+
          buffer.append(")");
       }
       else
       {
          buffer.append(" FROM DUAL");
       }
-      
+
       return buffer.toString();
    }
 
@@ -195,12 +212,12 @@ public class OracleDbDescriptor extends SequenceDbDriver
    {
       return true;
    }
-   
+
    public boolean supportsMultiColumnUpdates()
    {
       return true;
    }
-   
+
    /*public void throwIfUniqueConstraintViolated(SQLException exception)
          throws UniqueConstraintViolatedException
    {

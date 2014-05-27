@@ -1997,8 +1997,17 @@ public class DmlManager
       return dbDescriptor.isLockRowStatementSQLQuery();
    }
 
-   public String getLockRowStatementString(long oid, boolean tryToUseDistinctLockTable,
-         List<Pair<Class<?>, ?>> bindValueList)
+   public String getLockRowStatementString(long oid, boolean tryToUseDistinctLockTable, List<Pair<Class<?>, ?>> bindValueList)
+   {
+      return getLockRowStatementStringInternal(oid, tryToUseDistinctLockTable, bindValueList, null);
+   }
+
+   public String getLockWithTimeoutRowStatementString(long oid, boolean tryToUseDistinctLockTable, List<Pair<Class<?>, ?>> bindValueList, int timeout)
+   {
+      return getLockRowStatementStringInternal(oid, tryToUseDistinctLockTable, bindValueList, Integer.valueOf(timeout));
+   }
+
+   private String getLockRowStatementStringInternal(long oid, boolean tryToUseDistinctLockTable, List<Pair<Class<?>, ?>> bindValueList, Integer timeout)
    {
       final ITableDescriptor table = tryToUseDistinctLockTable
             ? typeDescriptor.getLockTableDescriptor()
@@ -2007,8 +2016,8 @@ public class DmlManager
       StringBuffer predicateBuffer = buildWhereClause(Predicates.isEqual(
             table.fieldRef(IdentifiablePersistentBean.FIELD__OID), oid),
             bindValueList, FieldRefResolver.NONE, false, false);
-      String statement = dbDescriptor.getLockRowStatementString(sqlUtils,
-            getTypeDescriptor(), tryToUseDistinctLockTable, predicateBuffer.toString());
+      String statement = timeout != null ? dbDescriptor.getLockRowWithTimeoutStatementString(sqlUtils, getTypeDescriptor(), tryToUseDistinctLockTable, predicateBuffer.toString(), timeout.intValue())
+                                         : dbDescriptor.getLockRowStatementString(sqlUtils, getTypeDescriptor(), tryToUseDistinctLockTable, predicateBuffer.toString());
 
       if (trace.isDebugEnabled())
       {

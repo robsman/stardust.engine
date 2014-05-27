@@ -75,6 +75,10 @@ public class TransientRealm implements IUserRealm
    {
    }
 
+   public void lock(int timeout) throws ConcurrencyException
+   {
+   }
+
    public void delete()
    {
    }

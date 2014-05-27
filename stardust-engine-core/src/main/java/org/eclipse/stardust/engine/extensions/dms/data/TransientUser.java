@@ -91,6 +91,10 @@ public class TransientUser implements IUser
    {
    }
 
+   public void lock(int timeout) throws ConcurrencyException
+   {
+   }
+
    public void delete()
    {
    }

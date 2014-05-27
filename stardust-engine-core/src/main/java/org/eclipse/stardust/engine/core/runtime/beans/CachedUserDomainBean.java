@@ -93,6 +93,11 @@ public class CachedUserDomainBean implements IUserDomain
       throw new UnsupportedOperationException();
    }
 
+   public void lock(int timeout) throws ConcurrencyException
+   {
+      throw new UnsupportedOperationException();
+   }
+
    public void delete()
    {
       throw new UnsupportedOperationException();
@@ -122,7 +127,7 @@ public class CachedUserDomainBean implements IUserDomain
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public void markModified(String fieldName)
    {
       throw new UnsupportedOperationException();

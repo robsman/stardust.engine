@@ -34,7 +34,7 @@ public class CachedUserRealmBean implements IUserRealm
    private final String description;
 
    private final IAuditTrailPartition partition;
-   
+
    private final Map properties;
 
    public CachedUserRealmBean(IUserRealm delegate,
@@ -46,7 +46,7 @@ public class CachedUserRealmBean implements IUserRealm
       this.description = delegate.getDescription();
 
       this.partition = partition;
-      
+
       this.properties = Collections.unmodifiableMap(new HashMap(
             delegate.getAllProperties()));
    }
@@ -119,18 +119,18 @@ public class CachedUserRealmBean implements IUserRealm
    public void setPropertyValue(String name, Serializable value, boolean force)
    {
       throw new UnsupportedOperationException();
-   }   
-   
+   }
+
    public void setPropertyValue(String name, Serializable value)
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public void removeProperty(String name)
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public void removeProperty(String name, Serializable value)
    {
       throw new UnsupportedOperationException();
@@ -145,6 +145,11 @@ public class CachedUserRealmBean implements IUserRealm
    }
 
    public void lock() throws ConcurrencyException
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void lock(int timeout) throws ConcurrencyException
    {
       throw new UnsupportedOperationException();
    }
@@ -183,7 +188,7 @@ public class CachedUserRealmBean implements IUserRealm
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public PersistenceController getPersistenceController()
    {
       throw new UnsupportedOperationException();

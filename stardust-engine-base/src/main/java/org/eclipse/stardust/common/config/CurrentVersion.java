@@ -41,8 +41,16 @@ public class CurrentVersion
       ResourceBundle versionBundle = ResourceBundle.getBundle(
             CurrentVersion.class.getPackage().getName() + ".version",
             Locale.getDefault(), CurrentVersion.class.getClassLoader());
-      VERSION = versionBundle.getString("version");
-      BUILD = versionBundle.getString("build");
+      String version = versionBundle.getString("version");
+      VERSION = version.replaceFirst("-.*SNAPSHOT", "");
+      StringBuilder build = new StringBuilder(versionBundle.getString("build"));
+      // if the version contains a snapshot identifier like -RC1-SNAPSHOT...
+      if(!VERSION.equals(version))
+      { 
+         // ..put it to the build identifier so that the info isn't lost
+         build.append(" (").append(version.replace(VERSION, "").substring(1)).append(")");
+      }
+      BUILD = build.toString();
       COPYRIGHT_MESSAGE = versionBundle.getString("copyright.message");
       VENDOR_NAME = versionBundle.getString("vendor.name");
       PRODUCT_NAME = versionBundle.getString("product.name");

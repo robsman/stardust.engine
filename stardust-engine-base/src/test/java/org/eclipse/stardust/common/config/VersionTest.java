@@ -5,37 +5,65 @@ import static org.junit.Assert.assertEquals;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.xml.ws.ServiceMode;
-
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class VersionTest
 {
-   ResourceBundle versionBundle;
+   protected static String SNAPSHOT_ALIAS_VAL;
+   protected static String BASE_VERSION_VAL;
+   protected static String BUILD_VAL;
+   protected static String COPYRIGHT_VAL;
+   protected static String VENDOR_VAL;
+   protected static String PRODUCT_VAL;
    
-   @Before
-   public void tearUp()
+   @BeforeClass
+   public static void loadPropertyValues()
    {
-      versionBundle = ResourceBundle.getBundle(
+      // Take care that the version.properties of the src/test/resources folder is loaded
+      ResourceBundle versionBundle = ResourceBundle.getBundle(
             CurrentVersion.class.getPackage().getName() + ".version",
             Locale.getDefault(), CurrentVersion.class.getClassLoader());
+      PRODUCT_VAL = versionBundle.getString("product.name");
+      VENDOR_VAL = versionBundle.getString("vendor.name");
+      COPYRIGHT_VAL = versionBundle.getString("copyright.message");
+      BUILD_VAL = versionBundle.getString("build");
+      SNAPSHOT_ALIAS_VAL = versionBundle.getString("snapshot.alias");
+      BASE_VERSION_VAL = versionBundle.getString("base.version");
    }
-   
+      
    @Test
    public void testCopyRight()
    {
-      String copyRightMsg = versionBundle.getString("copyright.message");
-      assertEquals(copyRightMsg, CurrentVersion.COPYRIGHT_MESSAGE);
+      assertEquals(COPYRIGHT_VAL,
+            CurrentVersion.COPYRIGHT_MESSAGE);
    }
    
    @Test
    public void testVersion()
    {
-      Version currentVersion = CurrentVersion.getVersion();
-      String plainVersion = versionBundle.getString("version");
-      plainVersion = plainVersion.replaceAll("-.*SNAPSHOT", "");
-      Version createdVersion = new Version(plainVersion);
-      assertEquals(createdVersion, currentVersion);
+      Version createdVersion = new Version(BASE_VERSION_VAL + "-" + SNAPSHOT_ALIAS_VAL);
+      assertEquals(createdVersion, CurrentVersion.getVersion());
+   }
+   
+   @Test
+   public void testBuildVersionName()
+   {
+      String version = BASE_VERSION_VAL + "." + BUILD_VAL + " (" + SNAPSHOT_ALIAS_VAL + ")";
+      assertEquals(version, CurrentVersion.getBuildVersionName());
+   }
+   
+   @Test
+   public void testProductName()
+   {
+      assertEquals(PRODUCT_VAL, 
+            CurrentVersion.getProductName()); 
+   }
+   
+   @Test
+   public void testVendorName()
+   {
+      assertEquals(VENDOR_VAL, 
+            CurrentVersion.getVendorName()); 
    }
 }

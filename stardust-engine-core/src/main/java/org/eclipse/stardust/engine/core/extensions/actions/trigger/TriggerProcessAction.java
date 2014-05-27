@@ -14,9 +14,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
@@ -37,6 +40,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExec
  */
 public class TriggerProcessAction implements EventActionInstance
 {
+   private static final String QUALIFIER_SCOPE = "processDefinition:";
+
    private static final Logger trace = LogManager.getLogger(TriggerProcessAction.class);
 
    private Map actionAttributes = Collections.EMPTY_MAP;
@@ -50,22 +55,44 @@ public class TriggerProcessAction implements EventActionInstance
    {
       try
       {
-         String processId = (String) actionAttributes
-               .get(PredefinedConstants.TRIGGER_ACTION_PROCESS_ATT);
-
+         String processId = (String) actionAttributes.get(PredefinedConstants.TRIGGER_ACTION_PROCESS_ATT);
          IProcessInstance processInstance = EventUtils.getProcessInstance(event);
          try
          {
             // @todo (france, ub): is this kosher?
-            boolean synchronously = Parameters.instance().getString(
-                  EngineProperties.NOTIFICATION_THREAD_MODE, "asynchronous").compareTo(
-                  "synchronous") == 0;
+            String threadMode = Parameters.instance().getString(
+                  EngineProperties.NOTIFICATION_THREAD_MODE, "asynchronous");
+            IModel model = (IModel) processInstance.getProcessDefinition().getModel();
+
+            int ix = processId == null ? -1 : processId.indexOf('{');
+            if (ix >= 0)
+            {
+               if (ix == 0 || processId.substring(0, ix).equals(QUALIFIER_SCOPE))
+               {
+                  try
+                  {
+                     QName qname = QName.valueOf(processId.substring(ix));
+                     IExternalPackage pkg = model.findExternalPackage(qname.getNamespaceURI());
+                     if (pkg != null)
+                     {
+                        IModel otherModel = pkg.getReferencedModel();
+                        if (otherModel != null)
+                        {
+                           model = otherModel;
+                           processId = qname.getLocalPart();
+                        }
+                     }
+                  }
+                  catch (Exception ex)
+                  {
+                     // (fh) do nothing here
+                  }
+               }
+            }
 
             AdministrationService administrationService = new AdministrationServiceImpl();
-            IModel model = (IModel) processInstance.getProcessDefinition().getModel();
-            // @todo (france, ub): panel could offer 'real data mappings'?
             administrationService.startProcess(model.getModelOID(), processId,
-                  processInstance.getExistingDataValues(false), synchronously);
+                  processInstance.getExistingDataValues(false), threadMode.equals("synchronous"));
 
          }
          catch (Exception x)

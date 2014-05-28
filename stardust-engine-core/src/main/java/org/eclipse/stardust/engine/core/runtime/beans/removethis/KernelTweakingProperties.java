@@ -208,7 +208,7 @@ public final class KernelTweakingProperties
    @PropertyValueType(HazelcastJcaConnectionFactoryProvider.class)
    public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
 
-   public static final String DB_LOCK_TIMEOUT = "Carnot.Engine.Tuning.Db.Lock.Timeout";
+   public static final String DB_LOCK_TIMEOUT = "Carnot.Engine.Tuning.DB.LockTimeout";
 
    public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";
 

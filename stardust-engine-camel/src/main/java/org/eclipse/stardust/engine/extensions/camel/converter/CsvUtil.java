@@ -91,7 +91,7 @@ public class CsvUtil {
          
       } else
 		{
-			logger.info("The CSV input must contain more than one Line");
+			logger.warn("The CSV input must contain more than one Line");
 		}
 		return sdt;
 	}
@@ -236,11 +236,11 @@ public class CsvUtil {
 		String[] values = stringToCsv(secondLine, delimiter);
 		if(keys.length != values.length)
 		{
-			logger.info("Header line must contain the same number of fields as the records in"
+			logger.warn("Header line must contain the same number of fields as the records in"
 						+"the rest of the CSV input");
-			logger.info("Header line: " + firstLine);
-			logger.info("Wrong line: " + secondLine);
-			logger.info("CSV Unmarshalling is ignored for this line: " + secondLine);
+			logger.warn("Header line: " + firstLine);
+			logger.warn("Wrong line: " + secondLine);
+			logger.warn("CSV Unmarshalling is ignored for this line: " + secondLine);
 
 			return map;
 		}

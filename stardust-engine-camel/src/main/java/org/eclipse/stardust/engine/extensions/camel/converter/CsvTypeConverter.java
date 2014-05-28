@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -106,7 +107,7 @@ public class CsvTypeConverter
       {
          this.delimiter = CharUtils.toChar((String) params.get(CSV_DELIMITER_KEY) == null
                ? ","
-               : (String) params.get(CSV_DELIMITER_KEY));
+               : StringEscapeUtils.unescapeJava((String) params.get(CSV_DELIMITER_KEY)));
          this.autogenHeaders = params.get(CSV_AUTOGENHEADERS_KEY) == null
                ? true
                : Boolean.valueOf((String) params.get(CSV_AUTOGENHEADERS_KEY));
@@ -146,7 +147,7 @@ public class CsvTypeConverter
       {
          this.delimiter = CharUtils.toChar((String) params.get(CSV_DELIMITER_KEY) == null
                ? ","
-               : (String) params.get(CSV_DELIMITER_KEY));
+               : StringEscapeUtils.unescapeJava((String) params.get(CSV_DELIMITER_KEY)));
        
       }
    }

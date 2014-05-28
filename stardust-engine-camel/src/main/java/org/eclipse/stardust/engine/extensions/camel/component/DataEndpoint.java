@@ -6,6 +6,7 @@ import org.apache.camel.Consumer;
 
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class DataEndpoint extends AbstractIppEndpoint
 {
@@ -67,6 +68,7 @@ public class DataEndpoint extends AbstractIppEndpoint
    
    private static boolean isValidDelimiter(String delimiter)
    {
-	   return delimiter == null || delimiter.toCharArray().length == 1 ? true : false;
+      delimiter = StringEscapeUtils.unescapeJava(delimiter);
+      return delimiter == null || delimiter.toCharArray().length == 1 ? true : false;
    }
 }

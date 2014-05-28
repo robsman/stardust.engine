@@ -118,7 +118,7 @@
            org.eclipse.stardust.engine.core.runtime.command, org.eclipse.stardust.engine.core.runtime.beans,
            org.eclipse.stardust.engine.api.dto, org.eclipse.stardust.engine.core.spi.extensions.model,
            org.eclipse.stardust.engine.core.spi.extensions.model.gui, org.eclipse.stardust.engine.core.spi.extensions.runtime,
-           org.eclipse.stardust.engine.core.compatibility.gui.security, org.eclipse.stardust.engine.core.spi.security,
+           org.eclipse.stardust.engine.core.compatibility.gui.security, org.eclipse.stardust.engine.core.spi.resources, org.eclipse.stardust.engine.core.spi.security,
            org.eclipse.stardust.engine.api.query, org.eclipse.stardust.engine.core.preferences,
            org.eclipse.stardust.engine.core.preferences.configurationvariables,
            org.eclipse.stardust.engine.core.preferences.permissions, org.eclipse.stardust.engine.extensions.dms.data,
@@ -275,6 +275,7 @@
                <include name="org/eclipse/stardust/engine/api/runtime/RepositoryMigrationJobInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/RepositoryMigrationReport.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/Resource.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/ResourceBundle.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ResourceInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/RuntimeEnvironmentInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/RuntimeObject.java" />
@@ -452,6 +453,7 @@
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/DefaultPrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/PrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/ui/preferences/spi/IStaticConfigurationProvider.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/resources/IResourceBundleProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalLoginProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalLoginResult.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalUserConfiguration.java" />

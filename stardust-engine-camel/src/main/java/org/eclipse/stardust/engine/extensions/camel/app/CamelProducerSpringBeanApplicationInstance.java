@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -30,7 +31,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelProducerSpringBeanApplicationInstance
       implements SynchronousApplicationInstance, AsynchronousApplicationInstance
-{
+{ 
 
    public static final Logger logger = LogManager.getLogger(CamelProducerSpringBeanApplicationInstance.class
          .getCanonicalName());
@@ -221,9 +222,27 @@ public class CamelProducerSpringBeanApplicationInstance
             }
          }
       }
-      catch (Exception e)
+      catch (Exception e) 
       {
-         throw new InvocationTargetException(e);
+    	 Throwable t = e.getCause();
+    	 
+    	 if (t != null && t instanceof CamelExecutionException)
+    	 {
+    		 Exchange exchange = ((CamelExecutionException) t).getExchange();
+    		 
+    		 if (exchange != null && exchange.getException() != null)
+    		 {
+    			 throw new InvocationTargetException(exchange.getException());
+    		 }
+    		 else
+    		 {
+    			 throw new InvocationTargetException(t.getCause());
+    		 }
+    	 }
+    	 else
+    	 {
+    		 throw new InvocationTargetException(e);
+    	 }
       }
    }
 }

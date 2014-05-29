@@ -37,7 +37,32 @@ import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointPropertie
 public class Util
 {
    public static final Logger logger = LogManager.getLogger(Util.class);
-
+   
+   private static String extractModelIdFromFullyQualifiedName(String fullyQualifiedId){
+	   if(StringUtils.isNotEmpty(fullyQualifiedId)){
+		 int  startIndex=fullyQualifiedId.indexOf('{');
+		 int endIndex=fullyQualifiedId.indexOf('}');
+		 return fullyQualifiedId.substring(startIndex+1, endIndex);
+		   
+	   }
+	   return null;
+   }
+      /**
+    * returns "direct:partitionId_modelId_applicationId"
+    * @return
+    */
+   public static String getEndpoint(ActivityInstance activityInstance){
+	 String partitionId=activityInstance.getActivity().getApplication().getPartitionId();
+	 String modelId=extractModelIdFromFullyQualifiedName(activityInstance.getActivity().getApplication().getQualifiedId());  
+	 String activityId=activityInstance.getActivity().getApplication().getId();
+	 if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
+		return partitionId+"_"+modelId+"_"+activityId;
+	 if( StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
+			return modelId+"_"+activityId;
+	 if( StringUtils.isNotEmpty(activityId))
+			return activityId;
+	 return null ; 
+   }
    
    /**
     * copy the content of the exchange from In to Out

@@ -74,7 +74,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenUserConfigurationIsProvided()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,false,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute, actual);
@@ -100,7 +100,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenPartitionIdIsMissing()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1823120922\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1823120922\" autoStartup=\"true\"><from uri=\"direct://dummyModel_dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,false,null), null, "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute, actual);
@@ -114,7 +114,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenIncludeAttributesAsHeadersIsFalse()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><transacted ref=\"required\" /><to uri=\"file:c:/temp\"/></route></routes>";
 
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,false,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
@@ -129,7 +129,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenIncludeAttributesAsHeadersIsTrue()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
 
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,true,false,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
@@ -144,7 +144,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenIncludeProcessContextAsHeadersIsTrue()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
 
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,true,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
@@ -158,7 +158,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenTransactedEAIsTrue()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><transacted ref=\"required\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
       
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,true,true), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
@@ -171,7 +171,7 @@ public class ProducerAppRouteBuilderTest
    public void testProducerAppWhenTransactedEAIsFalse()
    {
       String userConfiguration="<to uri=\"file:c:/temp\"/>";
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyAppId\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
+      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><from uri=\"direct://dummyPartitionId_dummyModel_dummyAppId\" /><process ref=\"mapAppenderProcessor\" /><to uri=\"file:c:/temp\"/></route></routes>";
       
       String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new ProducerRouteContext(createProducerApplication("dummyAppId",userConfiguration,false,true,false), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);

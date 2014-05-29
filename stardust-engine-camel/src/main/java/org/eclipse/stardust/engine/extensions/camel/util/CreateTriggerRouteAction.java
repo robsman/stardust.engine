@@ -7,7 +7,6 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_FOOTER;
 import static org.eclipse.stardust.engine.extensions.camel.Util.createSpringFileContent;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.restartCamelContext;
 
 import java.util.HashMap;
 import java.util.List;
@@ -170,7 +169,7 @@ public class CreateTriggerRouteAction implements Action<Object>
          {
             loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null),
                   (AbstractApplicationContext) springContext);
-            restartCamelContext(camelContext, (AbstractApplicationContext) springContext);
+          
          }
 
          CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger, dataConverters, SecurityProperties

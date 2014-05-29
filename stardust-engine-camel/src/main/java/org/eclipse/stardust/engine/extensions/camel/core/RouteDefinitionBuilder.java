@@ -229,7 +229,15 @@ public class RouteDefinitionBuilder
 
       return routeDefinition.toString().replace("&", "&amp;");
    }
-
+	private static String getEndpoint(ProducerRouteContext routeContext){
+		if(StringUtils.isNotEmpty(routeContext.getPartitionId()) && StringUtils.isNotEmpty(routeContext.getModelId()) && StringUtils.isNotEmpty(routeContext.getId()))
+			return routeContext.getPartitionId()+"_"+routeContext.getModelId()+"_"+routeContext.getId();
+		 if( StringUtils.isNotEmpty(routeContext.getModelId()) && StringUtils.isNotEmpty(routeContext.getId()))
+				return routeContext.getModelId()+"_"+routeContext.getId();
+		 if( StringUtils.isNotEmpty(routeContext.getId()))
+				return routeContext.getId();
+		 return null ; 
+	}
    /**
     * Creates the route configuration of a Producer Route
     * 
@@ -261,7 +269,7 @@ public class RouteDefinitionBuilder
             throw new RuntimeException("From element should not be present in the route configuration");
          }
 
-         String endpointName = "direct://" + applicationId;
+         String endpointName = "direct://" + getEndpoint(routeContext);
 
          if (!providedRoute.contains("<from"))
          {

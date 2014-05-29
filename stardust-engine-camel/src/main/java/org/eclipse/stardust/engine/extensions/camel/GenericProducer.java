@@ -3,7 +3,7 @@ package org.eclipse.stardust.engine.extensions.camel;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationTypes.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationPatterns.*;
-
+import static org.eclipse.stardust.engine.extensions.camel.Util.getEndpoint;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public class GenericProducer
          this.template = camelContext.createProducerTemplate();
 
          this.camelContext = camelContext;
-         this.endpointName = DIRECT_ENDPOINT + activityInstance.getActivity().getApplication().getId();
+         this.endpointName = DIRECT_ENDPOINT + getEndpoint(activityInstance);
 
          this.producerMethodName = (String) activityInstance.getActivity().getApplication()
                .getAttribute(PRODUCER_METHOD_NAME_ATT);

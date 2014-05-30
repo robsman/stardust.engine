@@ -6,6 +6,7 @@ import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionB
 import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder.createConsumerXmlConfiguration;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
@@ -378,5 +379,22 @@ public class RouteHelper
          throw new RuntimeException("Exception creating route for application " + application.getId(), e);
       }
    }
-
+   public static void removeRouteDefinitionWithoutRunningRoute(ModelCamelContext camelContext, String routeId){
+      //using e.getCause() since e is RTE thrown by the Action class
+        if(camelContext!=null && !camelContext.getRouteDefinitions().isEmpty()){
+           List<RouteDefinition> routesDefinitions=new ArrayList<RouteDefinition>();
+           routesDefinitions.addAll(camelContext.getRouteDefinitions());
+           
+           for(RouteDefinition routeDefinition:routesDefinitions){
+              try{
+              if(routeDefinition.getId().equalsIgnoreCase(routeId))
+                 camelContext.removeRouteDefinition(routeDefinition);
+              }
+              catch (Exception e1)
+              {
+                 throw new RuntimeException(e1);
+              }
+           }
+        }
+     }
 }

@@ -2,14 +2,14 @@ package org.eclipse.stardust.engine.extensions.camel.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
-
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.camel.CamelContext;
 import org.apache.camel.Route;
+import org.apache.camel.model.ModelCamelContext;
+
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -26,13 +26,14 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidato
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateApplicationRouteAction;
+
 import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelProducerSpringBeanValidator implements ApplicationValidator, ApplicationValidatorEx
 {
 
    private static final transient Logger logger = LogManager.getLogger(CamelProducerSpringBeanValidator.class);
-
+   private ModelCamelContext camelContext;
    /**
     * Checks if the application has valid attributes (routes entries and camelContextId).
     * 
@@ -138,7 +139,8 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
          {
             logger.debug("No inconsistencies found for application: " + application);
          }
-
+         String partitionId = SecurityProperties.getPartition().getId();
+         String routeId=getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application));
          try
          {
 
@@ -159,9 +161,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 	            if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
 	            {
 
-	               String partitionId = SecurityProperties.getPartition().getId();
-
-	               CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);
+	                camelContext = (ModelCamelContext) applicationContext.getBean(camelContextId);
 
 	               if (logger.isDebugEnabled())
 	               {
@@ -173,9 +173,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 	               // select routes that are running in the current partition
 	               for (Route runningRoute : camelContext.getRoutes())
 	               {
-	                  if (runningRoute.getId().equalsIgnoreCase(
-	                        getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application)
-	                              )))
+	                  if (runningRoute.getId().equalsIgnoreCase(routeId))
 	                  {
 	                     routesToBeStopped.add(runningRoute);
 	                  }
@@ -198,8 +196,18 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
             }
          }
          catch (Exception e)
-         {
-            throw new RuntimeException(e);
+         {//using e.getCause() since e is RTE thrown by the Action class
+            try{
+            removeRouteDefinitionWithoutRunningRoute(camelContext,routeId );
+            }
+            catch (Exception e1)
+            {
+               //throw new RuntimeException(e);
+               inconsistencies.add(new Inconsistency(e1.getCause().getMessage(), application, Inconsistency.ERROR));
+            }
+            
+            
+            inconsistencies.add(new Inconsistency(e.getCause().getMessage(), application, Inconsistency.ERROR));
          }
       }
 

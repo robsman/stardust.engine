@@ -16,15 +16,15 @@ import static org.eclipse.stardust.engine.extensions.camel.Util.getModelId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getProcessId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
-
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Route;
+import org.apache.camel.model.ModelCamelContext;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.EndpointHelper;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateTriggerRouteAction;
+
 import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelTriggerValidator implements TriggerValidator,
@@ -57,7 +58,7 @@ public class CamelTriggerValidator implements TriggerValidator,
 
     private String ctu;
     private String ctp;
-
+    private  ModelCamelContext camelContext;
     @SuppressWarnings("rawtypes")
     public Collection validate(Map attributes, Iterator accessPoints) {
         throw new UnsupportedOperationException();
@@ -141,7 +142,8 @@ public class CamelTriggerValidator implements TriggerValidator,
                   "User ID/ Password is not set for " + trigger.getName(),
                     trigger, Inconsistency.ERROR));
         }
-
+        String partitionId = SecurityProperties.getPartition().getId();
+        String routeId=getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false);
         if (inconsistencies.isEmpty()) {
             
             if (logger.isDebugEnabled()) {
@@ -166,11 +168,7 @@ public class CamelTriggerValidator implements TriggerValidator,
 	                // OID is 0))
 	                if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
 	                {
-
-	                    String partitionId = SecurityProperties.getPartition()
-	                            .getId();
-
-	                    CamelContext camelContext = (CamelContext) applicationContext
+	                    camelContext = (ModelCamelContext) applicationContext
 	                            .getBean(camelContextId);
 
 	                    if (logger.isDebugEnabled()) {
@@ -182,7 +180,7 @@ public class CamelTriggerValidator implements TriggerValidator,
 
 	                    // select routes that are running in the current partition
 	                    for (Route runningRoute : camelContext.getRoutes()) {
-	                        if (runningRoute.getId().startsWith(getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false))) {
+	                        if (runningRoute.getId().startsWith(routeId)) {
 	                            routesToBeStopped.add(runningRoute);
 	                        }
 	                    }
@@ -210,7 +208,18 @@ public class CamelTriggerValidator implements TriggerValidator,
 	                }
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+             //using e.getCause() since e is RTE thrown by the Action class
+               try{
+               removeRouteDefinitionWithoutRunningRoute(camelContext,routeId );
+               }
+               catch (Exception e1)
+               {
+                  //throw new RuntimeException(e);
+                  inconsistencies.add(new Inconsistency(e1.getCause().getMessage(), trigger, Inconsistency.ERROR));
+               }
+               
+               
+               inconsistencies.add(new Inconsistency(e.getCause().getMessage(), trigger, Inconsistency.ERROR));
             }
         }
 

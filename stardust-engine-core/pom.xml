@@ -775,6 +775,7 @@
                   <include>api/runtime/RepositoryMigrationJobInfo.java</include>
                   <include>api/runtime/RepositoryMigrationReport.java</include>
                   <include>api/runtime/Resource.java</include>
+                  <include>api/runtime/ResourceBundle.java</include>
                   <include>api/runtime/ResourceInfo.java</include>
                   <include>api/runtime/RuntimeEnvironmentInfo.java</include>
                   <include>api/runtime/RuntimeObject.java</include>
@@ -951,6 +952,8 @@
                   <include>core/spi/monitoring/IProcessExecutionMonitor.java</include>
                   <include>core/spi/monitoring/IRuntimeEnvironmentMonitor.java</include>
                   <include>core/spi/preferences/IStaticConfigurationProvider.java</include>
+
+                  <include>core/spi/resources/IResourceBundleProvider.java</include>
 
                   <include>core/spi/security/ExternalLoginProvider.java</include>
                   <include>core/spi/security/ExternalLoginResult.java</include>

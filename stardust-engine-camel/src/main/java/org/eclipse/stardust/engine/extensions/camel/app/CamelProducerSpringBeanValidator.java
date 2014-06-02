@@ -34,6 +34,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 
    private static final transient Logger logger = LogManager.getLogger(CamelProducerSpringBeanValidator.class);
    private ModelCamelContext camelContext;
+   private String routeId;
    /**
     * Checks if the application has valid attributes (routes entries and camelContextId).
     * 
@@ -129,7 +130,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 
          }
       }
-
+     
       // TODO : consumer route validation
 
       if (inconsistencies.isEmpty())
@@ -139,8 +140,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
          {
             logger.debug("No inconsistencies found for application: " + application);
          }
-         String partitionId = SecurityProperties.getPartition().getId();
-         String routeId=getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application));
+         
          try
          {
 
@@ -160,7 +160,8 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 	            // OID is 0))
 	            if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
 	            {
-
+	               String partitionId = SecurityProperties.getPartition().getId();
+	               routeId=getRouteId(partitionId, application.getModel().getId(), null, application.getId(), isProducerApplication(application));
 	                camelContext = (ModelCamelContext) applicationContext.getBean(camelContextId);
 
 	               if (logger.isDebugEnabled())

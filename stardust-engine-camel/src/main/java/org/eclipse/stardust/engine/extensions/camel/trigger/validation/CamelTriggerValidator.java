@@ -17,6 +17,7 @@ import static org.eclipse.stardust.engine.extensions.camel.Util.getProcessId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import org.apache.camel.Route;
 import org.apache.camel.model.ModelCamelContext;
+
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -59,6 +61,7 @@ public class CamelTriggerValidator implements TriggerValidator,
     private String ctu;
     private String ctp;
     private  ModelCamelContext camelContext;
+    private  String routeId;
     @SuppressWarnings("rawtypes")
     public Collection validate(Map attributes, Iterator accessPoints) {
         throw new UnsupportedOperationException();
@@ -142,8 +145,7 @@ public class CamelTriggerValidator implements TriggerValidator,
                   "User ID/ Password is not set for " + trigger.getName(),
                     trigger, Inconsistency.ERROR));
         }
-        String partitionId = SecurityProperties.getPartition().getId();
-        String routeId=getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false);
+       
         if (inconsistencies.isEmpty()) {
             
             if (logger.isDebugEnabled()) {
@@ -161,13 +163,15 @@ public class CamelTriggerValidator implements TriggerValidator,
 	                IModel model = (IModel) trigger.getModel();
 
 	                IModel activeModel = bpmRt.getModelManager().findActiveModel(model.getId());
-
+	               
 	                // only start the contained routes if this model (the one being validated) is
 	                // intended to be active (aka it has the same model OID as the currently
 	                // active model with the same ID or is the first version to be deployed (model
 	                // OID is 0))
 	                if (model.getModelOID() == 0 || model.getModelOID() == activeModel.getModelOID())
 	                {
+	                   String partitionId = SecurityProperties.getPartition().getId();
+	                   routeId=getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false);
 	                    camelContext = (ModelCamelContext) applicationContext
 	                            .getBean(camelContextId);
 

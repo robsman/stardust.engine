@@ -52,7 +52,7 @@ public class TestMethodSetup extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(TestMethodSetup.class);
 
-   private static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
+   protected static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
 
    private static final String NATIVE_THREADING_JOB_MANAGER_BEAN_ID = "carnotAsyncJobManager";
 

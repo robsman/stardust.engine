@@ -170,6 +170,7 @@ public class CodeGen
       }
       catch (Exception e)
       {
+         e.printStackTrace();
       }
       JavaSource src = builder.getSources()[0];
 

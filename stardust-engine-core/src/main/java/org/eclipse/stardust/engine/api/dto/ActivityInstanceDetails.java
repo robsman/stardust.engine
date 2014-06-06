@@ -177,9 +177,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       if (activityInstance.getCurrentUserPerformer() != null)
          try
          {
-            Map<String, Object> props = new HashMap<String, Object>();
-            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            // Do not overwrite level if explicitly set (not null!).
+            if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
+            {
+               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
             layer = ParametersFacade.pushLayer(props);
+            }
+
             userPerformer = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
          }
          finally

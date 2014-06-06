@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
@@ -231,6 +232,8 @@ public class ProcessQueryPostprocessor
    {
       RawQueryResult queryResult = findMatchingProcessInstances(query, rawResult);
 
+      UserDetailsPolicy userDetailsPolicy = (UserDetailsPolicy) query
+            .getPolicy(UserDetailsPolicy.class);
       DescriptorPolicy descriptorPolicy = (DescriptorPolicy) query.getPolicy(DescriptorPolicy.class);
       if (null == descriptorPolicy)
       {
@@ -263,6 +266,12 @@ public class ProcessQueryPostprocessor
                prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query), eventPolicy);
             }
          }
+
+         if(userDetailsPolicy != null)
+         {
+            props.setProperty(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsPolicy.getLevel());
+         }
+
          props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS,
                Boolean.valueOf(descriptorPolicy.includeDescriptors()));
          props.setProperty(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, level);
@@ -458,6 +467,8 @@ public class ProcessQueryPostprocessor
    {
       RawQueryResult queryResult = findMatchingActivityInstances(query, rawResult);
 
+      UserDetailsPolicy userDetailsPolicy = (UserDetailsPolicy) query
+            .getPolicy(UserDetailsPolicy.class);
       DescriptorPolicy descriptorPolicy = (DescriptorPolicy) query
             .getPolicy(DescriptorPolicy.class);
       if (null == descriptorPolicy)
@@ -493,6 +504,12 @@ public class ProcessQueryPostprocessor
                      eventPolicy);
             }
          }
+
+         if(userDetailsPolicy != null)
+         {
+            props.setProperty(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsPolicy.getLevel());
+         }
+
          props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, Boolean
                .valueOf(descriptorPolicy.includeDescriptors()));
          props.setProperty(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, statesPolicy);

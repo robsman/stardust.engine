@@ -148,9 +148,21 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
          try
          {
-            Map<String, Object> props = new HashMap<String, Object>();
-            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+            if (userDetailsLevel.equals(UserDetailsLevel.Core))
+            {
+               // Do not overwrite level if explicitly set (not null!).
+               if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
+               {
+                  Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
             layer = ParametersFacade.pushLayer(props);
+               }
+            }
+            else
+            {
+               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+               layer = ParametersFacade.pushLayer(props);
+            }
+
             startingUserDetails = DetailsFactory.createUser(startingUser);
          }
          finally

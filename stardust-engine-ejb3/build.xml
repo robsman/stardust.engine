@@ -4,7 +4,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -33,7 +33,7 @@
       <property name="build.classes" value="${build.dir}/classes" />
       <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.report" location="${build.dir}/report" />
-      
+
       <property name="javac.debuglevel" value="lines,vars,source" />
    </target>
 
@@ -107,14 +107,14 @@
 
       <ivy:retrieve file="ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" type="jar" transitive="false"
          conf="carnot-ejb3-provided, carnot-ejb3-runtime" module="stardust-engine-ejb3"/>
-      
+
       <delete>
          <fileset dir="${build.lib}">
             <include name="carnot-engine-${ipp.version.full}.jar" />
          </fileset>
       </delete>
    </target>
-   
+
    <target name="initCodegen" depends="init, initIvy" xmlns:ivy="antlib:org.apache.ivy.ant">
       <property name="codegen.build.dir" value="${build.dir}/codegen" />
       <property name="codegen.build.classes" value="${codegen.build.dir}/classes" />
@@ -123,13 +123,13 @@
       <mkdir dir="${codegen.build.dir}" />
       <mkdir dir="${codegen.build.classes}" />
       <mkdir dir="${codegen.build.dir.src}" />
-      
+
       <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
       <ivy:cachepath pathid="stardust-engine-ejb3.deps" conf="ejb3-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="carnot-ejb3-module" revision="${ipp.version.full}"/>
    </target>
-   
+
    <target name="codegen" depends="initCodegen, compileEjb3FacadeGenerator">
       <property name="stardust-engine.home" location="${project.dir}/../stardust-engine-core" />
       <property name="stardust-engine.java" location="${stardust-engine.home}/src/main/java" />
@@ -143,7 +143,7 @@
          <arg line="${project.src}" />
       </java>
    </target>
-   
+
    <target name="compileEjb3FacadeGenerator" depends="copyEjb3FacadeGeneratorSourceFiles" description="compiles codegen classes"
       unless="skip.compile">
       <javac srcdir="${codegen.build.dir.src}" destdir="${codegen.build.classes}" debug="true" deprecation="no" includes="**/ejb3/**/*.java">
@@ -162,45 +162,14 @@
       </copy>
    </target>
 
-   <target name="initMoonglowHome" unless="moonglow.home">
-      <property name="moonglow.home" value="${project.dir}/../../../moonglow" />
-      <available file="${moonglow.home}" property="moonglow.home.present" type="dir" />
-   </target>
-
-   <target name="dist" depends="build, initMoonglowHome">
-      <property name="stardust.home" location="../../" />
-      <property name="wst-portals-facet.lib.dir" value="${stardust.home}/ide.wst/org.eclipse.stardust.ide.wst.facet.portal/lib" />
-      <property name="rt-ejb3-ide.lib.dir" value="${stardust.home}/ide/engine/org.eclipse.stardust.ide.engine.ejb3/lib" />
-      <mkdir dir="${wst-portals-facet.lib.dir}" />
-      <mkdir dir="${rt-ejb3-ide.lib.dir}" />
-      <copy todir="${wst-portals-facet.lib.dir}" overwrite="true" verbose="true">
-         <fileset dir="${build.lib}">
-            <include name="${carnot-ejb3.jarfile}" />
-         </fileset>
-      </copy>
-      <copy todir="${rt-ejb3-ide.lib.dir}" overwrite="true" verbose="true">
-         <fileset dir="${build.lib}">
-            <include name="${carnot-ejb3.jarfile}" />
-         </fileset>
-      </copy>
-      <antcall target="dist-moonglow" inheritall="true" />
-   </target>
-   
-   <target name="dist-moonglow" if="moonglow.home.present">
-      <property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/ag.carnot.workflow.modeling.hibernate/lib" />
-      <mkdir dir="${hib-modeling-ide.lib.dir}" />
-      <copy todir="${hib-modeling-ide.lib.dir}" overwrite="true" verbose="true" >
-         <fileset dir="${build.lib}">
-            <include name="${carnot-ejb3.jarfile}" />
-         </fileset>
-      </copy>
+   <target name="dist" depends="build">
    </target>
 
    <target name="deploy" depends="build, dependencies:report" />
 
    <target name="install" if="maven.localRepository" depends="initBuild"
       description="installs the artifacts into a local Maven repository">
-      
+
       <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
       <ipp:mvn-install file="${carnot-ejb3.jar}" pomFile="${build.lib}/carnot-ejb3.pom" />
    </target>
@@ -211,9 +180,9 @@
       <ipp:init-mvn />
       <ipp:mvn-deploy file="${carnot-ejb3.jar}" pomFile="${build.lib}/carnot-ejb3.pom" />
    </target>
-   
+
    <target name="dependencies:report" depends="init,initIvy" xmlns:ivy="antlib:org.apache.ivy.ant">
       <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
    </target>
-   
+
 </project>

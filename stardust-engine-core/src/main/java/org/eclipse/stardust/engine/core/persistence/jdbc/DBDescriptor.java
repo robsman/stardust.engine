@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -508,4 +508,15 @@ public abstract class DBDescriptor
    {
       return ";";
    }
+
+   /**
+    * For some DBs it can be configured with setting property AuditTrail.EnforceUnicode
+    * if unicode should be enforced. Default is false for all DBs.
+    *
+    * @return true if unicode should be enforced, otherwise false. Default is false.
+    */
+   public boolean isUnicodeEnforced()
+   {
+      return false;
+}
 }

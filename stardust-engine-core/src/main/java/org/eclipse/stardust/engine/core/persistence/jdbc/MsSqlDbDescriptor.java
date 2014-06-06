@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 import java.util.Date;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 
 
@@ -22,6 +23,9 @@ import org.eclipse.stardust.common.error.InternalException;
  */
 public class MsSqlDbDescriptor extends IdentityColumnDbDriver
 {
+   private static final String KEY_ENFORCE_UNICODE = SessionProperties.DS_NAME_AUDIT_TRAIL
+         + SessionProperties.DS_ENFORCE_UNICODE_SUFFIX;
+
    @Override
    public DBMSKey getDbmsKey()
    {
@@ -48,9 +52,12 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
       }
       else if (type == String.class)
       {
+         final String unicodePrefix = isUnicodeEnforced() ? "N" : "";
+
          if (length == Integer.MAX_VALUE)
          {
-            return "TEXT";
+            // deprecated type? Check if proposed VARCHAR(max)/NVARCHAR(max) syntax is working
+            return unicodePrefix + "TEXT";
          }
          else
          {
@@ -58,7 +65,7 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
             {
                length = 300;
             }
-            return "VARCHAR(" + length + ")";
+            return unicodePrefix + "VARCHAR(" + length + ")";
          }
       }
 
@@ -97,7 +104,7 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
 
       return buffer.toString();
    }
-   
+
    public String getIdentityColumnQualifier()
    {
       return "IDENTITY";
@@ -107,12 +114,12 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
    {
       return "SELECT SCOPE_IDENTITY()";
    }
-   
+
    public boolean supportsSubselects()
    {
       return true;
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getUseLockTablesDefault()
     */
@@ -120,7 +127,7 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
    {
       return true;
    }
-   
+
    public String getCreateIndexStatement(String schemaName, String tableName, IndexDescriptor indexDescriptor)
    {
       StringBuffer buffer = new StringBuffer(200);
@@ -158,6 +165,12 @@ public class MsSqlDbDescriptor extends IdentityColumnDbDriver
       buffer.append(") WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS = OFF)");
 
       return buffer.toString();
+   }
+
+   @Override
+   public boolean isUnicodeEnforced()
+   {
+      return Parameters.instance().getBoolean(KEY_ENFORCE_UNICODE, false);
    }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,4 +37,6 @@ public interface SessionProperties
 
    final String DS_CONNECTION_HOOK_SUFFIX = ".ConnectionHookClassName";
    final String DS_ASSERT_READ_COMMITTED_SUFFIX = ".AssertReadCommitted";
+
+   final String DS_ENFORCE_UNICODE_SUFFIX = ".EnforceUnicode";
 }

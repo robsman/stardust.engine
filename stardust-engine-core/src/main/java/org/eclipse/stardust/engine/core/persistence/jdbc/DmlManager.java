@@ -18,12 +18,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -156,6 +151,8 @@ public class DmlManager
             return SQL_NULL;
          }
 
+         final String unicodePrefix = dbDescriptor.isUnicodeEnforced() ? "N" : "";
+
          int sqPos = string.indexOf('\'');
          if ( -1 != sqPos)
          {
@@ -169,11 +166,11 @@ public class DmlManager
                }
                ++sqPos;
             }
-            return "'" + buffer.toString() + "'";
+            return unicodePrefix + "'" + buffer.toString() + "'";
          }
          else
          {
-            return "'" + string + "'";
+            return unicodePrefix + "'" + string + "'";
          }
       }
       else
@@ -301,7 +298,16 @@ public class DmlManager
             if (stringLength > 2000)
             {
                StringReader stringReader = new StringReader(string.toString());
+               if (dbDescriptor.isUnicodeEnforced())
+               {
+                  // statement.setNCharacterStream(index, stringReader, stringLength);
+                  // jTDS does throw hardcoded exception - unsing normal version
                statement.setCharacterStream(index, stringReader, stringLength);
+            }
+            else
+            {
+                  statement.setCharacterStream(index, stringReader, stringLength);
+               }
             }
             else
             {
@@ -313,8 +319,17 @@ public class DmlManager
                }
                else
                {
+                  if (dbDescriptor.isUnicodeEnforced())
+                  {
+                     // statement.setNString(index, (String) value);
+                     // jTDS does throw hardcoded exception - unsing normal version
                   statement.setString(index, (String) value);
                }
+                  else
+                  {
+                     statement.setString(index, (String) value);
+            }
+         }
             }
          }
          else

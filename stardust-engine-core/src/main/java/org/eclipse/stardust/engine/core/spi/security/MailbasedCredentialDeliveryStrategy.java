@@ -10,7 +10,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.MailHelper;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
- * 
+ *
  * @author Thomas.Wolfram
  *
  */
@@ -19,8 +19,8 @@ public class MailbasedCredentialDeliveryStrategy implements
 
 	Logger trace = LogManager
 			.getLogger(MailbasedCredentialDeliveryStrategy.class);
-	
-	
+
+
 	@Override
 	public void deliverPasswordResetToken(IUser user, String token) {
 		if(!StringUtils.isEmpty(user.getEMail()))
@@ -29,7 +29,7 @@ public class MailbasedCredentialDeliveryStrategy implements
 			{
 				String resetUrl = getResetServletUrl();
 				String message = "Dear user '" + user.getAccount() + "'!\n\n" +
-				"a password reset request has been made for your account. In order to complete the password reset request please please follow the link below. \n" +
+				"A password reset request has been made for your account. In order to complete the password reset request please follow the link below. \n" +
 				"If you did not initiate a password reset please login as usual. This will abort the password reset request. \n\n";
 				if(!StringUtils.isEmpty(resetUrl))
 				{
@@ -48,7 +48,7 @@ public class MailbasedCredentialDeliveryStrategy implements
 	@Override
 	public void deliverNewPassword(IUser user, String password) {
 	     if(!StringUtils.isEmpty(user.getEMail()))
-	      {      
+	      {
 	         try
 	         {
 	            String loginUrl = getLoginUrl();
@@ -58,8 +58,8 @@ public class MailbasedCredentialDeliveryStrategy implements
 	            if(!StringUtils.isEmpty(loginUrl))
 	            {
 	               message += loginUrl;
-	            }            
-	            
+	            }
+
 	            MailHelper.sendSimpleMessage(new String[] {user.getEMail()}, "Password has been changed!", message);
 	         }
 	         catch (PublicException e)
@@ -69,11 +69,11 @@ public class MailbasedCredentialDeliveryStrategy implements
 	      }
 
 	}
-	
+
 	private static String getLoginUrl() {
 		return Parameters.instance().getString(SecurityUtils.LOGIN_DIALOG_URL, "").trim();
-	}	
-	
+	}
+
 	private static String getResetServletUrl()
 	{
 		return Parameters.instance().getString(SecurityUtils.RESET_SERVLET_URL, "").trim();

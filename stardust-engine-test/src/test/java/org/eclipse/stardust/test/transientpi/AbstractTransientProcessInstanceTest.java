@@ -496,7 +496,7 @@ public class AbstractTransientProcessInstanceTest
 
       public String writeData()
       {
-         final StringBuffer sb = new StringBuffer();
+         final StringBuilder sb = new StringBuilder();
          for (int i = 0; i < CHUNK_SIZE * 2; i++)
          {
             sb.append("x");

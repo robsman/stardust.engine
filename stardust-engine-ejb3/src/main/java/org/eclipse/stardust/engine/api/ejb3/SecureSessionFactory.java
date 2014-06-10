@@ -21,8 +21,8 @@ import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
  */
 public interface SecureSessionFactory
 {
-   Object get(String jndiName, Class homeClass,
-         Class remoteClass, Class[] creationArgTypes, Object[] creationArgs,
-         Map credentials, Map properties)
+   Object get(String jndiName, Class<?> remoteClass,
+         Class<?>[] creationArgTypes, Object[] creationArgs,
+         Map<?, ?> credentials, Map<?, ?> properties)
          throws ServiceNotAvailableException;
 }

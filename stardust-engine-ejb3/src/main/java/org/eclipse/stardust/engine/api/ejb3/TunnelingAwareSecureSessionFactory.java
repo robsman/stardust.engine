@@ -22,16 +22,15 @@ import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
  */
 public interface TunnelingAwareSecureSessionFactory extends SecureSessionFactory
 {
-
-   SecureSession getSecureSession(String jndiName, Class homeClass,
-         Class remoteClass, Class[] creationArgTypes, Object[] creationArgs,
-         Map credentials, Map properties)
+   SecureSession getSecureSession(String jndiName, Class<?> remoteClass,
+         Class<?>[] creationArgTypes, Object[] creationArgs,
+         Map<?, ?> credentials, Map<?, ?> properties)
          throws ServiceNotAvailableException;
 
    class SecureSession
    {
       public final Object endpoint;
-      
+
       public final TunneledContext tunneledContext;
 
       public SecureSession(Object endpoint, TunneledContext tunneledContext)

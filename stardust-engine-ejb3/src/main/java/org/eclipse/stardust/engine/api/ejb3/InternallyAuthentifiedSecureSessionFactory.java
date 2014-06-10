@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogUtils;
@@ -27,66 +28,62 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  * @version $Revision: 60059 $
  */
 public class InternallyAuthentifiedSecureSessionFactory implements
-		SecureSessionFactory, TunnelingAwareSecureSessionFactory {
+      SecureSessionFactory, TunnelingAwareSecureSessionFactory
+{
+   public Object get(String jndiName, Class<?> remoteClass,
+         Class<?>[] creationArgTypes, Object[] creationArgs,
+         Map<?, ?> credentials, Map<?, ?> properties)
+   {
+      // invoke new contract, to determine if deployment uses tunneling or not
+      SecureSession result = getSecureSession(jndiName, remoteClass, creationArgTypes,
+            creationArgs, credentials, properties);
+      if (result.tunneledContext != null) {
+         // no way to propagate tunneled context via old contract
+         throw new ServiceNotAvailableException(
+               "Service is only available for tunneling invocations, but service factory does not seem to be aware.");
+      }
 
-	public Object get(String jndiName, Class homeClass, Class remoteClass,
-			Class[] creationArgTypes, final Object[] creationArgs,
-			Map credentials, Map properties) {
-		// invoke new contract, to determine if deployment uses tunneling or not
-		SecureSession result = getSecureSession(jndiName, homeClass,
-				remoteClass, creationArgTypes, creationArgs, credentials,
-				properties);
+      return result.endpoint;
+   }
 
-		if (null != result.tunneledContext) {
-			// no way to propagate tunneled context via old contract
-			throw new ServiceNotAvailableException(
-					"Service is only available for tunneling invocations, but service factory does not seem to be aware.");
-		}
+   public SecureSession getSecureSession(String jndiName, Class<?> remoteClass,
+         Class<?>[] creationArgTypes, Object[] creationArgs,
+         Map<?, ?> credentials, Map<?, ?> properties)
+         throws ServiceNotAvailableException
+   {
+      Object service = null;
 
-		return result.endpoint;
-	}
+      // first obtain the service.
+      try
+      {
+         Context context = EJBUtils.getInitialContext(false, false);
 
-	public SecureSession getSecureSession(String jndiName, Class homeClass,
-			Class remoteClass, Class[] creationArgTypes, Object[] creationArgs,
-			Map credentials, Map properties)
-			throws ServiceNotAvailableException {
-		// work for florin
-		// bug #3099: extract invocation of login method in a separate try/catch
-		Object endpoint = null;
+         Object rawObject = context.lookup(jndiName);
+         LogUtils.traceObject(rawObject, false);
 
-		TunneledContext tunneledContext = null;
+         service = PortableRemoteObject.narrow(rawObject, remoteClass);
+         LogUtils.traceObject(service, false);
+      }
+      catch (NamingException e)
+      {
+         throw new ServiceNotAvailableException(e.getMessage(), e);
+      }
+      catch (Exception e)
+      {
+         throw new InternalException("Failed to create session bean.", e);
+      }
 
-		// first obtain the service.
-		try {
-			Context context = EJBUtils.getInitialContext(false, false);
-			Object rawService = context.lookup(jndiName);
-			LogUtils.traceObject(rawService, false);
+      // now attempt to login
+      try {
 
-			endpoint = rawService;
-			
-			homeClass = TunnelingUtils.getTunnelingHomeClass(homeClass);
-			LogUtils.traceObject(homeClass, false);
-
-			LogUtils.traceObject(endpoint, false);
-		} catch (NamingException e) {
-			throw new ServiceNotAvailableException(e.getMessage(), e);
-		} catch (Exception e) {
-			throw new InternalException("Failed to create session bean.", e);
-		}
-
-		// now attempt to login
-		try {
-
-			tunneledContext = TunnelingUtils.performTunnelingLogin(
-					(Ejb3Service) endpoint,
-					(String) credentials.get(SecurityProperties.CRED_USER),
-					(String) credentials.get(SecurityProperties.CRED_PASSWORD),
-					properties);
-
-		} catch (Exception e) {
-			throw ClientInvocationHandler.unwrapException(e);
-		}
-
-		return new SecureSession(endpoint, tunneledContext);
-	}
+         TunneledContext tunneledContext = TunnelingUtils.performTunnelingLogin(
+               (Ejb3Service) service, (String) credentials.get(SecurityProperties.CRED_USER),
+               (String) credentials.get(SecurityProperties.CRED_PASSWORD), properties);
+         return new SecureSession(service, tunneledContext);
+      }
+      catch (Exception e)
+      {
+         throw ClientInvocationHandler.unwrapException(e);
+      }
+   }
 }

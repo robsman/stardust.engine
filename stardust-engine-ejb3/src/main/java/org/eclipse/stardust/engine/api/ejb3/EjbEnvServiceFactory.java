@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.ejb3;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
@@ -19,9 +17,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -33,19 +30,19 @@ import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
-
-
+import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 /**
  * Retrieves IPP service homes from the EJB environment's JNDI context. Supports both
  * login- and principal-based authentication scenarios.
- * 
+ *
  * @author rsauer
  * @version $Revision: 56255 $
- * 
+ *
  * @see org.eclipse.stardust.engine.api.ejb2.ServiceFactoryLocator
  */
 public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
@@ -54,9 +51,8 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 
    private String userName;
    private String password;
-   
-   
-   public Service getService(Class type) throws ServiceNotAvailableException,
+
+   public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException,
          LoginFailedException
    {
       InvokerPrincipal current = InvokerPrincipalUtils.removeCurrent();
@@ -69,155 +65,126 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          InvokerPrincipalUtils.setCurrent(current);
       }
    }
-   
+
    /**
     * Retrieves an IPP session bean home from the EJB environment. If no implicit caller
     * principal propagation is to be used, an explicit login will be performed on any
     * freshly created session bean instance.
-    * First it tries to lookup local home object from "ejb/Local<ServiceName>". 
+    * First it tries to lookup local home object from "ejb/Local<ServiceName>".
     * If this fails it falls back to lookup remote home object from "ejb/<ServiceName>".
-    * 
-    * @param service
+    *
+    * @param type
     *           The interface type defining the service to be retrieved.
     * @return An instance of the requested service, either freshly created or retrieved
     *         from the service factorie's pool.
     */
-   protected Service getNewServiceInstance(Class service)
+   @SuppressWarnings("unchecked")
+   protected <T extends Service> T getNewServiceInstance(Class<T> type)
    {
-      Service result = null;
       try
       {
-         String serviceName = service.getName();
-         int dot = serviceName.lastIndexOf(".");
-         String className = serviceName.substring(dot + 1);
-         
-         Context context = new InitialContext();
+         IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(type);
 
-         
-         Pair homePair;
+         Context context = new InitialContext();
+         Object service;
          try
          {
-            homePair = getLocalService(context, className);
-            trace.info("Using local interface for service " + className);
+            service = getLocalService(context, provider);
+            trace.info("Using local interface for service " + provider.getName());
          }
          catch (NameNotFoundException x)
          {
-            homePair = getRemoteService(context, className);
-            trace.info("Using remote interface for service " + className);
+            service = getRemoteService(context, provider);
+            trace.info("Using remote interface for service " + provider.getName());
          }
-         
-         Class homeClass = (Class) homePair.getFirst();
-         Object home = homePair.getSecond();
-         
-//         Method creationMethod = homeClass.getMethod("create", new Class[]{});
-//         Object inner = creationMethod.invoke(home, new Object[]{});
-//         LogUtils.traceObject(inner, false);
 
          TunneledContext tunneledContext = null;
-         if ( !SecurityProperties.isPrincipalBasedLogin())
+         if (!SecurityProperties.isPrincipalBasedLogin())
          {
-            if (home  instanceof Ejb3Service)
+            try
             {
-               try
-               {
-                  tunneledContext = TunnelingUtils.performTunnelingLogin(
-                        (Ejb3Service) home, userName, password, getProperties());
-               }
-               catch (WorkflowException wfe)
-               {
-                  if (wfe.getCause() instanceof PublicException)
-                  {
-                     throw (PublicException) wfe.getCause();
-                  }
-                  throw wfe;
-               }
+               tunneledContext = TunnelingUtils.performTunnelingLogin(
+                     (Ejb3Service) service, userName, password, getProperties());
             }
-            else
+            catch (WorkflowException wfe)
             {
-               Method loginMethod = home.getClass().getMethod("login",
-                     new Class[] { String.class, String.class, Map.class });
-               try
+               if (wfe.getCause() instanceof PublicException)
                {
-                  loginMethod.invoke(home, new Object[] { userName, password,
-                        getProperties() });
+                  throw (PublicException) wfe.getCause();
                }
-               catch (InvocationTargetException e)
-               {
-                  Throwable t = e.getTargetException();
-                  if (t instanceof WorkflowException
-                        && t.getCause() instanceof PublicException)
-                  {
-                     throw (PublicException) t.getCause();
-                  }
-                  throw e;
-               }
+               throw wfe;
             }
          }
-         
-         result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-               new Class[]{service, ManagedService.class},
-               new ClientInvocationHandler(home, tunneledContext));
+
+         return (T) Proxy.newProxyInstance(type.getClassLoader(),
+               new Class[]{type, ManagedService.class},
+               new ClientInvocationHandler(service, tunneledContext));
       }
       catch (Exception e)
       {
          LogUtils.traceException(e, true);
       }
 
-      return result;
+      // (fh) this line is never reached, but won't compile without it.
+      return null;
    }
-   
-	private Pair getRemoteService(Context context, String className)
-			throws NamingException {
 
-		String homeClassName = "java:app/carnot-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans.Remote" + className;
-		//String homeClassName = className + "Impl";
-		
-		Object rawHome = context.lookup(homeClassName);
-		LogUtils.traceObject(rawHome, false);
-
-		Class homeClass = Reflect.getClassFromClassName("org.eclipse.stardust.engine.api.ejb3.beans.Remote" + className);
-
-		Object home;
-
-		Pair tunnelingHome = TunnelingUtils.castToTunnelingRemoteServiceHome(
-				rawHome, homeClass);
-
-		homeClass = (Class) tunnelingHome.getFirst();
-		home = tunnelingHome.getSecond();
-		LogUtils.traceObject(home, false);
-
-		return new Pair(homeClass, home);
-	}
-
-   private Pair getLocalService(Context context, String className) throws NamingException
+   private <T extends Service> Object getRemoteService(Context context, IServiceProvider<T> provider)
+         throws NamingException
    {
-	   String homeClassName = "java:app/carnot-ejb3/" + className + "Impl!org.eclipse.stardust.engine.api.ejb3.beans." + className;
-	   //String homeClassName = className + "Impl";
-	   
-      Object rawHome = context.lookup(homeClassName);
-      LogUtils.traceObject(rawHome, false);
-      
-      Class homeClass = Reflect.getClassFromClassName("org.eclipse.stardust.engine.api.ejb3.beans." + className);
-      
-      if ( !homeClass.isInstance(rawHome))
+      String remoteEJB3ClassName = provider.getRemoteEJB3ClassName();
+      String remoteJndiName = "java:app/carnot-ejb3/" + provider.getName() + "Impl!" + remoteEJB3ClassName;
+
+      Object rawObject = context.lookup(remoteJndiName);
+      LogUtils.traceObject(rawObject, false);
+
+      Class<?> remoteClass = Reflect.getClassFromClassName(remoteEJB3ClassName);
+      try
       {
-         Pair tunnelingHome = TunnelingUtils.castToTunnelingLocalServiceHome(rawHome, homeClass);
-         if (null != tunnelingHome)
+         Object service = PortableRemoteObject.narrow(rawObject, remoteClass);
+         LogUtils.traceObject(service, false);
+         return service;
+      }
+      catch (ClassCastException cce)
+      {
+         if (trace.isDebugEnabled())
          {
-            return tunnelingHome;
+            trace.debug("Failed resolving remote service with class " + remoteClass, cce);
          }
       }
+      return rawObject;
+   }
 
-      return new Pair(homeClass, rawHome);
+   private <T extends Service> Object getLocalService(Context context, IServiceProvider<T> provider) throws NamingException
+   {
+      String localEJB3ClassName = provider.getLocalEJB3ClassName();
+      String localJndiName = "java:app/carnot-ejb3/" + provider.getName() + "Impl!" + localEJB3ClassName;
+
+      Object rawObject = context.lookup(localJndiName);
+      LogUtils.traceObject(rawObject, false);
+
+      Class<?> localClass = Reflect.getClassFromClassName(localEJB3ClassName);
+      if (localClass.isInstance(rawObject))
+      {
+         return rawObject;
+      }
+      else
+      {
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Failed resolving local service with class " + localClass);
+         }
+      }
+      return rawObject;
    }
 
    /**
     * Retrieves <code>username</code> and <code>password</code> credentials, if available,
     * for later use.
-    * 
+    *
     * @param credentials The credentials available in the current configuration.
     */
-   public void setCredentials(Map credentials)
+   public void setCredentials(@SuppressWarnings("rawtypes") Map credentials)
    {
       this.userName = (String) credentials.get("user");
       this.password = (String) credentials.get("password");

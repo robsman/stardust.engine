@@ -52,7 +52,7 @@ public class TestMethodSetup extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(TestMethodSetup.class);
 
-   protected static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
+   private static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
 
    private static final String NATIVE_THREADING_JOB_MANAGER_BEAN_ID = "carnotAsyncJobManager";
 
@@ -88,7 +88,7 @@ public class TestMethodSetup extends ExternalResource
    /**
     * @return the service factory this object has been initialized with
     */
-   protected ServiceFactory serviceFactory()
+   protected final ServiceFactory serviceFactory()
    {
       return sf;
    }
@@ -96,7 +96,7 @@ public class TestMethodSetup extends ExternalResource
    /**
     * @return the name of the test method currently executed
     */
-   public String testMethodName()
+   public final String testMethodName()
    {
       return testMethodName;
    }
@@ -104,7 +104,7 @@ public class TestMethodSetup extends ExternalResource
    /* (non-Javadoc)
     * @see org.junit.rules.ExternalResource#apply(org.junit.runners.model.Statement, org.junit.runner.Description)
     */
-   public Statement apply(final Statement base, final Description description) {
+   public final Statement apply(final Statement base, final Description description) {
       testMethodName = description.getMethodName();
 
       return super.apply(base, description);
@@ -118,9 +118,19 @@ public class TestMethodSetup extends ExternalResource
    @Override
    protected void before()
    {
+      logBeforeTestMethod();
+
+      setUpServiceFactory();
+   }
+
+   protected final void logBeforeTestMethod()
+   {
       LOG.info(LOG_EYE_CATCHER);
       LOG.info("--> " + testMethodName);
+   }
 
+   protected final void setUpServiceFactory()
+   {
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
 
@@ -135,9 +145,19 @@ public class TestMethodSetup extends ExternalResource
       logRunningActivityThreads();
       RtEnvHome.cleanUpRuntime(sf.getAdministrationService());
 
+      tearDownServiceFactory();
+
+      logAfterTestMethod();
+   }
+
+   protected final void tearDownServiceFactory()
+   {
       sf.close();
       sf = null;
+   }
 
+   protected final void logAfterTestMethod()
+   {
       LOG.info("<-- " + testMethodName);
       LOG.info(LOG_EYE_CATCHER);
    }

@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.eclipse.stardust.common.*;
@@ -111,9 +112,12 @@ public class Reflect
       {
          return Period.class;
       }
+      else if ("decimal".equals(className))
+      {
+         return BigDecimal.class;
+      }
       return getClassFromClassName(className);
    }
-
 
    public static String getAbbreviatedName(Class clazz)
    {
@@ -152,6 +156,10 @@ public class Reflect
       else if (clazz == Double.class || clazz == Double.TYPE)
       {
          return "double";
+      }
+      else if (clazz == BigDecimal.class)
+      {
+         return "decimal";
       }
       else if (clazz == Money.class)
       {
@@ -214,7 +222,7 @@ public class Reflect
                break;
             }
          }
-         
+
          className = getRawClassName(className);
          try
          {
@@ -1002,7 +1010,7 @@ public class Reflect
          throw new InternalException(e);
       }
    }
-   
+
    public static void setFieldValue(Object instance, String name, Object value)
    {
       Field field = getField(instance.getClass(), name);
@@ -1024,9 +1032,9 @@ public class Reflect
       catch (Exception e)
       {
          throw new InternalException(e);
-      }      
+      }
    }
-   
+
    public static Collection getFields(Class type)
    {
       List result;

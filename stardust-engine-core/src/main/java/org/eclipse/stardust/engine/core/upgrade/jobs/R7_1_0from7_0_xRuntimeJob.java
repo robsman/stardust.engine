@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,10 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.text.MessageFormat;
 import java.util.Set;
 
-import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.PublicException;
@@ -32,33 +32,35 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradableItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeObserver;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeTask;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+
    private int batchSize = 500;
+
+   // Structured Data Table
+   private static final String SD_TABLE = "structured_data";
+   private static final String SD_ALIAS = "sd";
+   private static final String SD_OID = "oid";
+   private static final String SD_DATA = "data";
+   private static final String SD_MODEL = "model";
+
    // Structured Data Value Table
    private static final String SDV_TABLE = "structured_data_value";
    private static final String SDV_OID = "oid";
-   private static final String SDV_TYPE_KEY = "type_key";
-   private static final String SDV_PROCESS_INSTANCE = "processInstance";
-   private static final String SDV_XPATH = "xpath";
    private static final String SDV_STRING_VALUE = "string_value";
    private static final String SDV_DOUBLE_VALUE = "double_value";
+
+   // tmp table
+   private static final String TMP_XPATH_DEC_TABLE = "tmp_xpath_dec";
+   private static final String TMP_XPATH_DEC_OID = "oid";
+   private static final String TMP_XPATH_DEC_MODEL = "model";
 
    // Data Value Table
    private static final String DV_TABLE = "data_value";
@@ -114,7 +116,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       initFinalizeSchemaTasks(item);
    }
 
-   private void initUpgradeSchemaTasks(RuntimeItem item)
+   private void initUpgradeSchemaTasks(final RuntimeItem item)
    {
       //oid & double value are both the same for table data_value and
       //structured_data_value
@@ -125,6 +127,44 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             .addUpgradeSchemaTask(getDoubleValueUpgradeTask(DV_TABLE, oidColumn, doubleValueColumn));
       upgradeTaskExecutor
             .addUpgradeSchemaTask(getDoubleValueUpgradeTask(SDV_TABLE, oidColumn, doubleValueColumn));
+
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            createTmpTable();
+         }
+      });
+   }
+
+   private void createTmpTable()
+   {
+      DatabaseHelper.createTable(item, new CreateTableInfo(TMP_XPATH_DEC_TABLE)
+      {
+         private final FieldInfo OID = new FieldInfo(TMP_XPATH_DEC_OID, Long.TYPE, 0, false);
+         private final FieldInfo MODEL = new FieldInfo(TMP_XPATH_DEC_MODEL, Long.TYPE, 0, false);
+
+         private final IndexInfo IDX1 = new IndexInfo("tmp_idx1", true, new FieldInfo[] {OID, MODEL});
+
+         @Override
+         public FieldInfo[] getFields()
+         {
+            return new FieldInfo[] {OID, MODEL};
+         }
+
+         @Override
+         public IndexInfo[] getIndexes()
+         {
+            return new IndexInfo[] {IDX1};
+         }
+
+         @Override
+         public String getSequenceName()
+         {
+            return null;
+         }
+      }, this);
    }
 
    private UpgradeTask getDoubleValueUpgradeTask(final String tableName, final FieldInfo oidColumn, final FieldInfo doubleValueColumn)
@@ -161,8 +201,19 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       };
    }
 
-   private void initFinalizeSchemaTasks(RuntimeItem item)
-   {}
+   private void initFinalizeSchemaTasks(final RuntimeItem item)
+   {
+      upgradeTaskExecutor.addFinalizeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            DatabaseHelper.dropTable(item, new DropTableInfo(TMP_XPATH_DEC_TABLE, null),
+                  R7_1_0from7_0_xRuntimeJob.this);
+
+         }
+      });
+   }
 
    private void initMigrateDataTasks(RuntimeItem item)
    {
@@ -210,32 +261,18 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       };
    }
 
-   private Double getDecimalValue(IData theData, long xpathOid, String value)
+   private boolean isDecimalCandidate(IData theData, long xpathOid)
    {
+      boolean tryParseDouble = true;
+
       try
       {
-         boolean tryParseDouble = false;
          if (theData != null)
          {
             IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
             TypedXPath typedXPath = xPathMap.getXPath(xpathOid);
             String xsdTypeName = typedXPath.getXsdTypeName();
             tryParseDouble = "decimal".equals(xsdTypeName);
-         }
-         else
-         {
-            tryParseDouble = true;
-         }
-
-         if (tryParseDouble)
-         {
-            try
-            {
-               return Double.parseDouble(value);
-            }
-            catch (NumberFormatException x)
-            {
-            }
          }
       }
       catch (Exception e)
@@ -248,8 +285,11 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          errorMsg.append(theData.getId());
          errorMsg.append(" for xpath oid ");
          errorMsg.append(xpathOid);
+
          if (ignoreXsdErrors)
          {
+            tryParseDouble = false;
+
             errorMsg.append(" - ignoring record.");
             trace.warn(errorMsg.toString());
          }
@@ -261,9 +301,24 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       }
 
-      return null;
+      return tryParseDouble;
    }
 
+
+   private String createInsertTmpXpathDecimalStmnt()
+   {
+      StringBuilder insertSql = new StringBuilder();
+      insertSql.append(INSERT_INTO)
+            .append(DatabaseHelper.getQualifiedName(TMP_XPATH_DEC_TABLE))
+            .append(BRACKET_OPEN)
+               .append(TMP_XPATH_DEC_OID).append(COMMA).append(TMP_XPATH_DEC_MODEL)
+            .append(BRACKET_CLOSE)
+            .append(VALUES)
+            .append(BRACKET_OPEN)
+               .append(PLACEHOLDER).append(COMMA).append(PLACEHOLDER)
+            .append(BRACKET_CLOSE);
+      return insertSql.toString();
+   }
 
    private String createUpdateDecStructValStmnt()
    {
@@ -290,7 +345,9 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    @Override
    protected void finalizeSchema(boolean recover) throws UpgradeException
-   {}
+   {
+      upgradeTaskExecutor.executeFinalizeSchemaTasks();
+   }
 
    @Override
    protected void printUpgradeSchemaInfo()
@@ -385,61 +442,152 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       Utils.initCarnotEngine(partitionInfo.getId(), getRtJobEngineProperties());
 
-      StringBuilder structOidStmnt = new StringBuilder();
-      structOidStmnt
-            .append(SELECT)
-               .append("sdv.").append(SDV_OID).append(COMMA)
-               .append(SDV_XPATH).append(COMMA)
-               .append(SDV_PROCESS_INSTANCE).append(COMMA)
-               .append(SDV_STRING_VALUE)
-            .append(FROM)
-               .append(DatabaseHelper.getQualifiedName(SDV_TABLE, "sdv"))
-            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(PI_TABLE, "pi"))
-               .append(ON).append("(sdv.processInstance = pi.oid)")
-            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(M_TABLE, "m"))
-               .append(ON).append("(m.oid = pi.model)")
-            .append(WHERE)
-               .append(SDV_TYPE_KEY).append(EQUALS).append(BigData.STRING)
-               .append(AND).append("m.partition").append(EQUALS).append(partitionInfo.getOid());
-      ModelManager modelManager = ModelManagerFactory.getCurrent();
-      Map<Long, Double> structValMap = CollectionUtils.newMap();
       try
       {
-         ResultSet resultSet = DatabaseHelper.executeQuery(item,
-               structOidStmnt.toString());
-         while (resultSet.next())
-         {
-            long structValOid = resultSet.getLong(1);
-            long xpathOid = resultSet.getLong(2);
-            long piOid = resultSet.getLong(3);
-            String value = resultSet.getString(4);
-            long modelOid = ProcessInstanceBean.findByOID(piOid)
-                  .getProcessDefinition().getModel().getModelOID();
-
-            IData theData = modelManager.findDataForStructuredData(modelOid, xpathOid);
-            Double decimalValue = getDecimalValue(theData, xpathOid, value);
-            if(decimalValue != null)
-            {
-               structValMap.put(structValOid, decimalValue);
-            }
-         }
+         prepareTmpTableForPartition(partitionInfo);
 
          PreparedStatement updateStmnt = item.getConnection().prepareStatement(
                createUpdateDecStructValStmnt());
-         for (Long structValOid : structValMap.keySet())
-         {
-            updateStmnt.setDouble(1, structValMap.get(structValOid));
-            updateStmnt.setLong(2, structValOid);
-            updateStmnt.addBatch();
-         }
+         StringBuilder structOidStmnt = createFetchSdvDecimalCandidates();
 
-         updateStmnt.executeBatch();
-         updateStmnt.close();
+         ResultSet resultSet = null;
+         try
+         {
+            resultSet = DatabaseHelper.executeQuery(item,
+                  structOidStmnt.toString());
+
+            int batchCounter = 0;
+            while (resultSet.next())
+            {
+               long structValOid = resultSet.getLong(1);
+               String value = resultSet.getString(2);
+
+               Double decimalValue = Unknown.DOUBLE;
+               try
+               {
+                  decimalValue = Double.parseDouble(value);
+               }
+               catch (NumberFormatException x)
+               {
+                  trace.warn(
+                        MessageFormat
+                              .format(
+                                    "Value {0} for SDV with oid {1} cannot be converted. Will be ignored.",
+                                    new Object[] { value, structValOid }), x);
+               }
+
+               updateStmnt.setDouble(1, decimalValue);
+               updateStmnt.setLong(2, structValOid);
+               updateStmnt.addBatch();
+               ++batchCounter;
+
+               if (batchCounter >= batchSize)
+               {
+                  batchCounter = 0;
+                  updateStmnt.executeBatch();
+               }
+            }
+
+            // As it might be expensive to check for resultSet.isLast()
+            // the batch is being executed last time once the loop has been left
+            if (batchCounter != 0)
+            {
+               updateStmnt.executeBatch();
+            }
+         }
+         finally
+         {
+            resultSet.close();
+            updateStmnt.close();
+         }
       }
       catch (SQLException e)
       {
          reportExeption(e, "Could not update double value.");
       }
+   }
+
+   private void prepareTmpTableForPartition(final PartitionInfo partitionInfo)
+         throws SQLException
+   {
+      // First clean-up this table as it might be filled with data
+      // from another partition or previously failed run
+      StringBuffer deleteCmd = new StringBuffer();
+      deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(TMP_XPATH_DEC_TABLE));
+      DatabaseHelper.executeUpdate(item, deleteCmd.toString());
+
+      // add xpath oids to tmp table for all xpaths which are decimal
+      // these will be used later in order to reduce result set of next query used for updates
+      final ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+      final String sdStmnt = createSelectSdForPartition(partitionInfo);
+      ResultSet resultSet = DatabaseHelper.executeQuery(item, sdStmnt);
+
+      PreparedStatement insertStmnt = item.getConnection().prepareStatement(
+            createInsertTmpXpathDecimalStmnt());
+      try
+      {
+         while (resultSet.next())
+         {
+            long xpathOid = resultSet.getLong(1);
+            long data = resultSet.getLong(2);
+            long modelOid = resultSet.getLong(3);
+
+            IData theData = modelManager.findData(modelOid, data);
+            if (isDecimalCandidate(theData, xpathOid))
+            {
+               insertStmnt.setLong(1, xpathOid);
+               insertStmnt.setLong(2, modelOid);
+               insertStmnt.addBatch();
+            }
+         }
+
+         insertStmnt.executeBatch();
+
+         // is this wise / necessary?
+         item.commit();
+      }
+      finally
+      {
+         insertStmnt.close();
+         resultSet.close();
+      }
+   }
+
+   private String createSelectSdForPartition(final PartitionInfo partitionInfo)
+   {
+      StringBuilder sdStmnt = new StringBuilder();
+
+      sdStmnt
+         .append(SELECT)
+         .append(DatabaseHelper.getQualifiedColName(SD_ALIAS, SD_OID)).append(COMMA)
+         .append(DatabaseHelper.getQualifiedColName(SD_ALIAS, SD_DATA)).append(COMMA)
+         .append(DatabaseHelper.getQualifiedColName(SD_ALIAS, SD_MODEL))
+         .append(FROM).append(DatabaseHelper.getQualifiedName(SD_TABLE, SD_ALIAS))
+         .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(M_TABLE, "m"))
+         // TODO: use constants.
+         .append(ON).append("(m.oid = sd.model)")
+         .append(WHERE).append("m.partition").append(EQUALS).append(partitionInfo.getOid());
+
+      return sdStmnt.toString();
+   }
+
+   private StringBuilder createFetchSdvDecimalCandidates()
+   {
+      StringBuilder structOidStmnt = new StringBuilder();
+      structOidStmnt
+            .append(SELECT)
+               .append(DatabaseHelper.getQualifiedColName("sdv", SDV_OID)).append(COMMA)
+               .append(SDV_STRING_VALUE)
+            .append(FROM)
+               .append(DatabaseHelper.getQualifiedName(SDV_TABLE, "sdv"))
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(PI_TABLE, "pi"))
+               .append(ON).append("(sdv.processInstance = pi.oid)")
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(TMP_XPATH_DEC_TABLE, "tmp"))
+               // TODO: use constants
+               .append(ON).append("(tmp.oid = sdv.xpath AND tmp.model = pi.model)");
+
+      return structOidStmnt;
    }
 
    @Override

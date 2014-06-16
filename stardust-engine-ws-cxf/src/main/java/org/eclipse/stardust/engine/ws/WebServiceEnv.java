@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,21 +20,21 @@ import java.util.Map;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
-
-
 
 /**
  * @author Robert.Sauer
  * @version $Revision: $
  */
-public class WebServiceEnv
+public class WebServiceEnv implements ModelResolver
 {
    private static final ThreadLocal<WebServiceEnvBuilder> CURRENT_WEB_ENV_BUILDER = new ThreadLocal<WebServiceEnvBuilder>();
    private static final ThreadLocal<WebServiceEnv> CURRENT_WEB_ENV = new ThreadLocal<WebServiceEnv>();
@@ -64,6 +64,22 @@ public class WebServiceEnv
    }
 
    private final ServiceFactory serviceFactory;
+
+   private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter()
+   {
+      protected Model getModel(long oid)
+      {
+         return WebServiceEnv.this.getModel((int) oid);
+      }
+   };
+
+   private void registerSchemaLocator(Model model)
+   {
+      if (model instanceof ModelDetails)
+      {
+         ((ModelDetails) model).setSchemaLocatorAdapter(schemaLocator);
+      }
+   }
 
    public static WebServiceEnv currentWebServiceEnvironment()
    {
@@ -151,29 +167,36 @@ public class WebServiceEnv
       return getModel(PredefinedConstants.ACTIVE_MODEL);
    }
 
-   public Model getModel(int modelOid)
+   public Model getActiveModel(String modelId)
+   {
+      return fetchModel(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
+   }
+
+   public Model getModel(long modelOid)
    {
       Model model = null;
 
-      if (null != modelCache)
+      if (modelCache != null)
       {
          model = modelCache.getModel(modelOid);
       }
 
-      if (null == model)
+      if (model == null)
       {
-         DeployedModel deployedModel = (DeployedModel) serviceFactory
-               .getWorkflowService().execute(
-                     RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
-
-         if ((null != deployedModel) && (null != modelCache))
-         {
-            modelCache.putModel(deployedModel);
-         }
-
-         model = modelCache.getModel(modelOid);
+         model = fetchModel(RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
       }
 
+      return model;
+   }
+
+   private Model fetchModel(RetrieveModelDetailsCommand command)
+   {
+      Model model = (Model) serviceFactory.getWorkflowService().execute(command);
+      registerSchemaLocator(model);
+      if (model instanceof DeployedModel && modelCache != null)
+      {
+         modelCache.putModel((DeployedModel) model);
+      }
       return model;
    }
 

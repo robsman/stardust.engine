@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,11 @@ package org.eclipse.stardust.engine.ws;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalInitialDataValues;
 import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.checkProcessAttachmentSupport;
 import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.unmarshalInputDocument;
 import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.unmarshalInputDocuments;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
@@ -29,32 +29,17 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.ServiceCommandException;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.ws.DocumentInfoXto;
 import org.eclipse.stardust.engine.api.ws.InputDocumentXto;
 import org.eclipse.stardust.engine.api.ws.InputDocumentsXto;
-import org.eclipse.stardust.engine.api.ws.ParametersXto;
-import org.eclipse.stardust.engine.core.runtime.beans.DataUsageEvaluator;
-import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.QueryServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-
 
 public class WsApiStartProcessCommand implements ServiceCommand
 {
@@ -64,7 +49,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
    private final String processId;
 
-   private final ParametersXto parameters;
+   private Map<String, Serializable> initialDataValues;
 
    private final Boolean startSynchronously;
 
@@ -72,11 +57,12 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
    private final DataUsageEvaluator dataUsageEvaluator;
 
-   public WsApiStartProcessCommand(String processId, ParametersXto parameters,
+   @SuppressWarnings("unchecked")
+   public WsApiStartProcessCommand(String processId, Map<String, ? extends Serializable> parameters,
          Boolean startSynchronously, InputDocumentsXto attachments)
    {
       this.processId = processId;
-      this.parameters = parameters;
+      initialDataValues = (Map<String, Serializable>) parameters;
       this.startSynchronously = startSynchronously;
       this.attachments = attachments;
       this.dataUsageEvaluator = new DataUsageEvaluator();
@@ -111,11 +97,6 @@ public class WsApiStartProcessCommand implements ServiceCommand
             qs = null;
          }
 
-
-         @SuppressWarnings("unchecked")
-         Map<String, Object> initialDataValues = (Map) unmarshalInitialDataValues(
-               unqualifiedProcessId, parameters, model);
-
          boolean eagerlyStoreAttachments = true;
          boolean allToAttachments = true;
          if (attachments != null)
@@ -131,14 +112,13 @@ public class WsApiStartProcessCommand implements ServiceCommand
             if (allToAttachments && eagerlyStoreAttachments)
             {
                checkProcessAttachmentSupport(unqualifiedProcessId, model);
-               List<Document> theAttachments = unmarshalInputDocuments(attachments, sf,
-                     model, null);
+               List<Document> theAttachments = unmarshalInputDocuments(attachments, sf, model, null);
 
                if (null == initialDataValues)
                {
                   initialDataValues = newHashMap();
                }
-               initialDataValues.put(PROCESS_ATTACHMENTS, theAttachments);
+               initialDataValues.put(PROCESS_ATTACHMENTS, (Serializable) theAttachments);
             }
          }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -655,7 +655,7 @@ public class StructuredDataConverter
 
          Pair<String, TypedXPath> childXPath = composeChildXPath(xPath, key, ignoreUnknownXPaths);
 
-         if (childXPath != null && childXPath.getSecond().getAnnotations().isPersistent())
+         if (childXPath.getSecond() != null && childXPath.getSecond().getAnnotations().isPersistent())
          {
             processObject(value, key, childXPath, node, namespaceAware, ignoreUnknownXPaths);
          }

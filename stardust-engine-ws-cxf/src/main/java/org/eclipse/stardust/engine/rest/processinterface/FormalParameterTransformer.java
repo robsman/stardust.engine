@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -29,18 +27,10 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.FormalParameter;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ProcessInterface;
-import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
-import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.ws.DataFlowUtils;
@@ -65,36 +55,32 @@ import org.w3c.dom.NodeList;
  */
 public class FormalParameterTransformer
 {
-   private final ServiceFactory sf;
-   private final String qualifiedProcessId;
-
-   private ConcurrentMap<Long, Model> modelCache = new ConcurrentHashMap<Long, Model>();
-
-   private ConcurrentMap<String, Model> activeModelCache = new ConcurrentHashMap<String, Model>();
+   private ModelResolver resolver;
+   private ProcessDefinition pd;
 
    /**
     * Creates a new formal parameter transformer.
     *
     * @param serviceFactory the service factory
-    * @param qualifiedProcessId the qualified process ID
+    * @param pd the process definition
     */
-   public FormalParameterTransformer(final ServiceFactory serviceFactory, final String qualifiedProcessId)
+   public FormalParameterTransformer(ModelResolver resolver, ProcessDefinition pd)
    {
-      if (serviceFactory == null)
+      if (resolver == null)
       {
-         throw new NullPointerException("Service Factory must not be null.");
+         throw new NullPointerException("Model resolver must not be null.");
       }
-      if (qualifiedProcessId == null)
+      if (pd == null)
       {
          throw new NullPointerException("Process ID must not be null.");
       }
-      if ("".equals(qualifiedProcessId))
+      if ("".equals(pd))
       {
          throw new IllegalArgumentException("Process ID must not be empty.");
       }
 
-      this.sf = serviceFactory;
-      this.qualifiedProcessId = qualifiedProcessId;
+      this.resolver = resolver;
+      this.pd = pd;
    }
 
    /**
@@ -126,63 +112,40 @@ public class FormalParameterTransformer
 
       Element root = (Element) doc.appendChild(doc.createElementNS(ProcessesRestlet.TYPES_NS, ProcessesRestlet.RESULTS_ELEMENT_NAME));
 
-      QName qualifiedProcessId = QName.valueOf(this.qualifiedProcessId);
-
+      QName qualifiedProcessId = QName.valueOf(pd.getQualifiedId());
       String processId = processInstance.getProcessID();
 
-      Model implModel = resolveModel(processInstance.getModelOID());
-      ProcessDefinition implProcessDefinition = implModel.getProcessDefinition(processId);
+      Model model = resolver.getModel(processInstance.getModelOID());
+      ProcessDefinition processDefinition = model.getProcessDefinition(processId);
 
-      ProcessInterface implementedProcessInterface = implProcessDefinition.getImplementedProcessInterface();
-      QName resolvedProcessId = null;
-
+      ProcessInterface implementedProcessInterface = processDefinition.getImplementedProcessInterface();
       if (implementedProcessInterface != null)
       {
-         resolvedProcessId = implementedProcessInterface.getDeclaringProcessDefinitionId();
-      }
-      else
-      {
-         resolvedProcessId = QName.valueOf(implProcessDefinition.getQualifiedId());
-      }
-
-      if ( !qualifiedProcessId.equals(resolvedProcessId))
-      {
-         final String errorMsg = "Target path incorrect. The target Process definition '"
-               + qualifiedProcessId
-               + "' is not compatible with Process instance OID '" + processInstance.getOID()
-               + "'. The correct Process definition is '" + resolvedProcessId
-               + "'. Please correct the request path.";
-         throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-               .entity(errorMsg)
-               .build());
-      }
-
-      Model model = resolveActiveModel(qualifiedProcessId.getNamespaceURI());
-      if (null == model)
-      {
-         throw new WebApplicationException(Status.NOT_FOUND);
-      }
-
-      ProcessDefinition processDefinition = null;
-      if (model.getModelOID() == implModel.getModelOID()
-            && implProcessDefinition.getQualifiedId().equals(qualifiedProcessId))
-      {
-         model = implModel;
-         processDefinition = implProcessDefinition;
-      }
-      else
-      {
+         QName resolvedProcessId = implementedProcessInterface.getDeclaringProcessDefinitionId();
+         if (!qualifiedProcessId.equals(resolvedProcessId))
+         {
+            final String errorMsg = "Target path incorrect. The target Process definition '"
+                  + qualifiedProcessId
+                  + "' is not compatible with Process instance OID '" + processInstance.getOID()
+                  + "'. The correct Process definition is '" + resolvedProcessId
+                  + "'. Please correct the request path.";
+            throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(errorMsg).build());
+         }
+         model = resolver.getModel(model.getResolvedModelOid(qualifiedProcessId.getNamespaceURI()));
+         if (null == model)
+         {
+            throw new WebApplicationException(Status.NOT_FOUND);
+         }
          processDefinition = model.getProcessDefinition(qualifiedProcessId.getLocalPart());
       }
 
-      final List<FormalParameter> fParameters = findFormalParametersFor(processDefinition);
-
+      List<FormalParameter> fParameters = findFormalParametersFor(processDefinition);
       for (FormalParameter f : fParameters)
       {
-            if (f.getDirection().equals(Direction.OUT) || f.getDirection().equals(Direction.IN_OUT))
-            {
-               addMarshalledValue(root, f, model, returnValues.get(f.getId()));
-            }
+         if (f.getDirection().equals(Direction.OUT) || f.getDirection().equals(Direction.IN_OUT))
+         {
+            addMarshalledValue(root, f, model, returnValues.get(f.getId()));
+         }
       }
 
       return doc;
@@ -210,9 +173,8 @@ public class FormalParameterTransformer
    {
       final Map<String, Serializable> parameters = new HashMap<String, Serializable>();
 
-      final ProcessDefinition pd = sf.getQueryService().getProcessDefinition(qualifiedProcessId);
       final List<FormalParameter> fParameters = findFormalParametersFor(pd);
-      final Model model = resolveModel(pd.getModelOID());
+      final Model model = resolver.getModel(pd.getModelOID());
 
       final NodeList nodes = doc.getDocumentElement().getChildNodes();
       for (int i=0; i<nodes.getLength(); i++)
@@ -241,11 +203,10 @@ public class FormalParameterTransformer
       {
          // resolve external reference
          Data data = model.getData(fp.getDataId());
-
          if (data != null && data.getReference() != null)
          {
             Reference reference = data.getReference();
-            resolvedModel = resolveModel(reference.getModelOid());
+            resolvedModel = resolver.getModel(reference.getModelOid());
             typeDeclarationId = reference.getId();
          }
       }
@@ -262,7 +223,8 @@ public class FormalParameterTransformer
       }
       else
       {
-         value = DataFlowUtils.unmarshalStructValue(resolvedModel, typeDeclarationId, null, getFirstChildElement(element));
+         TypeDeclaration typeDeclaration = resolvedModel.getTypeDeclaration(typeDeclarationId);
+         value = DataFlowUtils.unmarshalStructValue(resolvedModel, typeDeclaration, null, getFirstChildElement(element));
       }
       return value;
    }
@@ -294,7 +256,7 @@ public class FormalParameterTransformer
          if (data != null && data.getReference() != null)
          {
             Reference reference = data.getReference();
-            resolvedModel = resolveModel(reference.getModelOid());
+            resolvedModel = resolver.getModel(reference.getModelOid());
             typeDeclarationId = reference.getId();
          }
       }
@@ -358,47 +320,6 @@ public class FormalParameterTransformer
    private Type getPrimitiveType(final FormalParameter fp)
    {
       return (Type) fp.getAttribute(PredefinedConstants.TYPE_ATT);
-   }
-
-   private Model resolveModel(long modelOid)
-   {
-      Model model = modelCache.get(modelOid);
-      if (null == model)
-      {
-         DeployedModel deployedModel = (DeployedModel) sf.getWorkflowService().execute(
-               RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
-         if (null != deployedModel)
-         {
-            modelCache.putIfAbsent(modelOid, deployedModel);
-            if (deployedModel.isActive())
-            {
-               activeModelCache.putIfAbsent(deployedModel.getId(), deployedModel);
-            }
-         }
-
-         model = modelCache.get(modelOid);
-      }
-
-      return model;
-   }
-
-   private Model resolveActiveModel(String modelId)
-   {
-      Model model = activeModelCache.get(modelId);
-      if (null == model)
-      {
-         DeployedModel deployedModel = (DeployedModel) sf.getWorkflowService().execute(
-               RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
-         if (null != deployedModel)
-         {
-            activeModelCache.putIfAbsent(modelId, deployedModel);
-            modelCache.putIfAbsent((long) deployedModel.getModelOID(), deployedModel);
-         }
-
-         model = activeModelCache.get(modelId);
-      }
-
-      return model;
    }
 }
 

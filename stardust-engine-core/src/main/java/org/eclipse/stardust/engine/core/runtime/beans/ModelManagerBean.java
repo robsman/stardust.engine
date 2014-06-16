@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -760,6 +760,9 @@ public class ModelManagerBean implements ModelManager
             // Reset runtime environment
             BpmRuntimeEnvironment rtEnv = (BpmRuntimeEnvironment) PropertyLayerProviderInterceptor.
                   BPM_RT_ENV_LAYER_FACTORY_NOPREDECESSOR.createPropertyLayer(null);
+            IAuditTrailPartition partition = SecurityProperties.getPartition();
+            rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION, partition);
+            rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION_OID, partitionOid);
             rtEnv.setModelManager(this);
             PropertyLayerProviderInterceptor.setCurrent(rtEnv);
 

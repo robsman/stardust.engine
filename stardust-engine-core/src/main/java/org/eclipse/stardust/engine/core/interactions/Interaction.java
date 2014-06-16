@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.Reference;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.User;
@@ -51,6 +52,8 @@ public class Interaction
 
    private ServiceFactory serviceFactory;
 
+   private ModelResolver resolver;
+
    public static String getInteractionId(ActivityInstance ai)
    {
       StringBuilder buffer = new StringBuilder();
@@ -60,7 +63,7 @@ public class Interaction
 
       String token = new String(Base64.encode(buffer.toString().getBytes()));
 
-      if (true || trace.isDebugEnabled())
+      if (trace.isInfoEnabled())
       {
          trace.info("Resolved interaction ID for " + ai + " to " + token);
       }
@@ -83,6 +86,12 @@ public class Interaction
       this.status = Status.Active;
    }
 
+   public Interaction(User owner, ActivityInstance activityInstance, String contextId, ModelResolver resolver)
+   {
+      this(owner, resolver.getModel(activityInstance.getModelOID()), activityInstance, contextId, resolver.getServiceFactory());
+      this.resolver = resolver;
+   }
+
    public String getId()
    {
       return id;
@@ -101,6 +110,16 @@ public class Interaction
    public ApplicationContext getDefinition()
    {
       return activityInstance.getActivity().getApplicationContext(contextId);
+   }
+
+   public Reference getCrossModelReference()
+   {
+      return activityInstance.getActivity().getReference();
+   }
+
+   public ModelResolver getResolver()
+   {
+      return resolver;
    }
 
    public Map<String, ? extends Serializable> getInDataValues()

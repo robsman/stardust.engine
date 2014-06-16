@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class Reflect
 {
    private static final Logger trace = LogManager.getLogger(Reflect.class);
 
-   private static Map singletons = new HashMap();
+   private static Map<String, Object> singletons = new HashMap<String, Object>();
 
    /**
     * Retrieves a class object from an abbreviated class name. The lookup rules are:
@@ -58,7 +58,7 @@ public class Reflect
     *
     * @see #getClassFromClassName(java.lang.String)
     */
-   public static Class getClassFromAbbreviatedName(String className)
+   public static Class<?> getClassFromAbbreviatedName(String className)
    {
       if (StringUtils.isEmpty(className) || "String".equals(className))
       {
@@ -119,7 +119,7 @@ public class Reflect
       return getClassFromClassName(className);
    }
 
-   public static String getAbbreviatedName(Class clazz)
+   public static String getAbbreviatedName(Class<?> clazz)
    {
       if (clazz == String.class)
       {
@@ -190,7 +190,7 @@ public class Reflect
     *
     * @see #getClassFromAbbreviatedName(java.lang.String)
     */
-   public static Class getClassFromClassName(String className)
+   public static Class<?> getClassFromClassName(String className)
    {
       return getClassFromClassName(className, true);
    }
@@ -207,9 +207,9 @@ public class Reflect
     *
     * @see #getClassFromAbbreviatedName(java.lang.String)
     */
-   public static Class getClassFromClassName(String className, boolean isMandatory)
+   public static Class<?> getClassFromClassName(String className, boolean isMandatory)
    {
-      Class clazz = null;
+      Class<?> clazz = null;
       if ( !StringUtils.isEmpty(className))
       {
          List<ITypeNameResolver> typeNameResolvers = ExtensionProviderUtils.getExtensionProviders(ITypeNameResolver.class);
@@ -301,7 +301,7 @@ public class Reflect
       try
       {
          className = getRawClassName(className);
-         Class clazz = Class.forName(className, true, loader);
+         Class<?> clazz = Class.forName(className, true, loader);
          return clazz.newInstance();
       }
       catch (Exception e)
@@ -327,14 +327,14 @@ public class Reflect
       return createInstance(className, null, null);
    }
 
-   public static Object createInstance(String className, Class[] argTypes, Object[] args)
+   public static Object createInstance(String className, Class<?>[] argTypes, Object[] args)
    {
-      Class clazz = Reflect.getClassFromClassName(className);
+      Class<?> clazz = Reflect.getClassFromClassName(className);
 
       return createInstance(clazz, argTypes, args);
    }
 
-   public static Object createInstance(Class clazz, Class[] argTypes, Object[] args)
+   public static Object createInstance(Class<?> clazz, Class<?>[] argTypes, Object[] args)
    {
       try
       {
@@ -344,7 +344,7 @@ public class Reflect
          }
          else
          {
-            Constructor ctor = clazz.getConstructor(argTypes);
+            Constructor<?> ctor = clazz.getConstructor(argTypes);
             return ctor.newInstance(args);
          }
       }
@@ -381,9 +381,9 @@ public class Reflect
       return instance;
    }
 
-   public static Class getWrapperClassFromPrimitiveClassName(Class primitiveClass)
+   public static Class<?> getWrapperClassFromPrimitiveClassName(Class<?> primitiveClass)
    {
-      Class wrapperClass = null;
+      Class<?> wrapperClass = null;
       if ((null != primitiveClass) &&  isPrimitive(primitiveClass))
       {
          final String className = primitiveClass.getName();
@@ -427,7 +427,7 @@ public class Reflect
    /**
     *
     */
-   public static boolean isAssignable(Class sourceClass, Class destinationClass)
+   public static boolean isAssignable(Class<?> sourceClass, Class<?> destinationClass)
    {
       try
       {
@@ -450,7 +450,7 @@ public class Reflect
       }
    }
 
-   public static boolean isPrimitive(Class clazz)
+   public static boolean isPrimitive(Class<?> clazz)
    {
       return (Boolean.TYPE == clazz) || (Byte.TYPE == clazz) || (Character.TYPE == clazz)
             || (Short.TYPE == clazz) || (Integer.TYPE == clazz) || (Long.TYPE == clazz)
@@ -461,9 +461,9 @@ public class Reflect
     * collects all methods starting with "get", having a corresponding "set"
     * method, having a primtive or string return type and taking no parameters
     */
-   public static List collectGetSetMethods(Class clazz)
+   public static List<Method[]> collectGetSetMethods(Class<?> clazz)
    {
-      List foundGetSetMethods = new ArrayList();
+      List<Method[]> foundGetSetMethods = new ArrayList<Method[]>();
 
       Method[] allPublicMethods = clazz.getMethods();
 
@@ -488,7 +488,7 @@ public class Reflect
 
             String setMethodName = "s" + getMethodName.substring(1);
 
-            Class[] args = {getMethod.getReturnType()};
+            Class<?>[] args = {getMethod.getReturnType()};
 
             try
             {
@@ -508,7 +508,7 @@ public class Reflect
    /**
     * Retrieves the class name in java syntax.
     */
-   public static String getHumanReadableClassName(Class type)
+   public static String getHumanReadableClassName(Class<?> type)
    {
       return getHumanReadableClassName(type, false);
    }
@@ -516,7 +516,7 @@ public class Reflect
    /**
     * Retrieves the class name in java syntax.
     */
-   public static String getHumanReadableClassName(Class type, boolean fullyQualified)
+   public static String getHumanReadableClassName(Class<?> type, boolean fullyQualified)
    {
       if (type == null)
       {
@@ -559,7 +559,7 @@ public class Reflect
     * @return the Method object found
     * @throws InternalException if no match was found.
     */
-   public static Method decodeMethod(Class type, String encodedMethod)
+   public static Method decodeMethod(Class<?> type, String encodedMethod)
          throws InternalException
    {
       if (StringUtils.isEmpty(encodedMethod))
@@ -569,7 +569,7 @@ public class Reflect
 
       MethodDescriptor descriptor = describeEncodedMethod(encodedMethod);
       String name = descriptor.getName();
-      Class[] args = descriptor.getArgumentTypeArray();
+      Class<?>[] args = descriptor.getArgumentTypeArray();
       try
       {
          Method method = null;
@@ -578,7 +578,7 @@ public class Reflect
          for (int i = 0; i < methods.length; i++)
          {
             Method mtd = methods[i];
-            Class[] params = mtd.getParameterTypes();
+            Class<?>[] params = mtd.getParameterTypes();
             if (mtd.getName().equals(name) && params.length == args.length)
             {
                int match = match(params, args);
@@ -630,7 +630,7 @@ public class Reflect
       }
    }
 
-   private static int match(Class[] params, Class[] args)
+   private static int match(Class<?>[] params, Class<?>[] args)
    {
       int match = 0;
       for (int i = 0; i < params.length; i++)
@@ -651,7 +651,7 @@ public class Reflect
    }
 
 
-   public static Constructor decodeConstructor(Class type, String constructorName)
+   public static <T> Constructor<T> decodeConstructor(Class<T> type, String constructorName)
    {
       if (StringUtils.isEmpty(constructorName))
       {
@@ -670,16 +670,17 @@ public class Reflect
       {
          throw new InternalException("Constructor name doesn't match class name.");
       }
-      Class[] args = descriptor.getArgumentTypeArray();
+      Class<?>[] args = descriptor.getArgumentTypeArray();
       try
       {
-         Constructor constructor = null;
+         Constructor<T> constructor = null;
          int currentMatch = 0;
-         Constructor[] constructors = type.getConstructors();
+         @SuppressWarnings("unchecked")
+         Constructor<T>[] constructors = (Constructor<T>[]) type.getConstructors();
          for (int i = 0; i < constructors.length; i++)
          {
-            Constructor ctor = constructors[i];
-            Class[] params = ctor.getParameterTypes();
+            Constructor<T> ctor = constructors[i];
+            Class<?>[] params = ctor.getParameterTypes();
             // constructors have no names
             if (/*ctor.getName().equals(name) &&*/ params.length == args.length)
             {
@@ -724,7 +725,7 @@ public class Reflect
 
       result.append(method.getName() + "(");
 
-      Class[] parameters = method.getParameterTypes();
+      Class<?>[] parameters = method.getParameterTypes();
 
       for (int i = 0; i < parameters.length; i++)
       {
@@ -756,7 +757,7 @@ public class Reflect
    {
       try
       {
-         Class type = Reflect.getClassFromAbbreviatedName(classname);
+         Class<?> type = Reflect.getClassFromAbbreviatedName(classname);
 
          if (null == value)
          {
@@ -794,7 +795,7 @@ public class Reflect
          }
          else
          {
-            Constructor constructor = type.getConstructor(new Class[]{String.class});
+            Constructor<?> constructor = type.getConstructor(new Class[]{String.class});
             return constructor.newInstance(new Object[]{value});
          }
       }
@@ -829,13 +830,13 @@ public class Reflect
 
 
 
-   public static String getSortableConstructorName(Constructor constructor)
+   public static String getSortableConstructorName(Constructor<?> constructor)
    {
       StringBuffer result = new StringBuffer();
 
       result.append(getHumanReadableClassName(constructor.getDeclaringClass()) + "(");
 
-      Class[] parameters = constructor.getParameterTypes();
+      Class<?>[] parameters = constructor.getParameterTypes();
 
       for (int i = 0; i < parameters.length; i++)
       {
@@ -852,7 +853,7 @@ public class Reflect
       return result.toString();
    }
 
-   public static Object encodeConstructor(Constructor constructor)
+   public static Object encodeConstructor(Constructor<?> constructor)
    {
       Assert.isNotNull(constructor, "Method is not null.");
 
@@ -861,17 +862,17 @@ public class Reflect
             constructor.getParameterTypes());
    }
 
-   public static Collection getAnnotatedFields(Class clazz)
+   public static Collection<AnnotatedField> getAnnotatedFields(Class<?> clazz)
    {
-      List result;
+      List<AnnotatedField> result;
 
       if (clazz == null)
       {
-         result = Collections.EMPTY_LIST;
+         result = Collections.emptyList();
       }
       else
       {
-         result = new ArrayList();
+         result = new ArrayList<AnnotatedField>();
 
          Field[] fields = clazz.getDeclaredFields();
 
@@ -940,7 +941,7 @@ public class Reflect
       return prefix.toString();
    }
 
-   public static Field getField(Class clazz, String name)
+   public static Field getField(Class<?> clazz, String name)
    {
       Field field = null;
 
@@ -967,7 +968,7 @@ public class Reflect
       return field;
    }
 
-   public static Object getStaticFieldValue(Class clazz, String name)
+   public static Object getStaticFieldValue(Class<?> clazz, String name)
    {
       Object value = null;
 
@@ -1035,17 +1036,17 @@ public class Reflect
       }
    }
 
-   public static Collection getFields(Class type)
+   public static Collection<Field> getFields(Class<?> type)
    {
-      List result;
+      List<Field> result;
 
       if (type == null)
       {
-         result = Collections.EMPTY_LIST;
+         result = Collections.emptyList();
       }
       else
       {
-         result = new ArrayList();
+         result = new ArrayList<Field>();
 
          Field[] fields = type.getDeclaredFields();
 
@@ -1066,7 +1067,7 @@ public class Reflect
       return result;
    }
 
-   public static Method getSetterMethod(Class type, String name, Class parameterType)
+   public static Method getSetterMethod(Class<?> type, String name, Class<?> parameterType)
    {
       Method result = null;
 
@@ -1076,7 +1077,7 @@ public class Reflect
          Method method = methods[i];
          if (method.getName().equals(name))
          {
-            Class[] parameters = method.getParameterTypes();
+            Class<?>[] parameters = method.getParameterTypes();
             if (1 == parameters.length)
             {
                if (parameterType == null || isAssignable(parameters[0], parameterType))
@@ -1123,7 +1124,7 @@ public class Reflect
       else
       {
          String parameterString = encodedMethod.substring(lparenIndex + 1, rparenIndex);
-         List argumentTypes = new ArrayList();
+         List<Class<?>> argumentTypes = new ArrayList<Class<?>>();
 
          if (trace.isDebugEnabled())
          {
@@ -1131,18 +1132,16 @@ public class Reflect
                   + "'.");
          }
 
-         Iterator classNamesIter = StringUtils.split(parameterString, ",");
-
+         Iterator<String> classNamesIter = StringUtils.split(parameterString, ",");
          if (parameterString.indexOf('<') > 0)
          {
-            List classNames = getRawParamNames(parameterString);
+            List<String> classNames = getRawParamNames(parameterString);
             classNamesIter = classNames.iterator();
          }
 
-         for (Iterator i = classNamesIter; i.hasNext();)
+         for (Iterator<String> i = classNamesIter; i.hasNext();)
          {
             String className = ((String) i.next()).trim();
-
             try
             {
                argumentTypes.add(getClassFromClassName(className));
@@ -1161,10 +1160,10 @@ public class Reflect
       return method;
    }
 
-   private static List getRawParamNames(String parameterString)
+   private static List<String> getRawParamNames(String parameterString)
    {
       boolean endOfMtd = false;
-      List /* <String> */classNames = new ArrayList();
+      List<String> classNames = new ArrayList<String>();
       int lsplitIdx = 0;
       int rsplitIdx = parameterString.indexOf(',');
       if (rsplitIdx < 0)
@@ -1208,7 +1207,7 @@ public class Reflect
       return classNames;
    }
 
-   public static Object castValue(Object value, Class targetType)
+   public static Object castValue(Object value, Class<?> targetType)
          throws InvalidValueException
    {
       Object result;
@@ -1277,7 +1276,9 @@ public class Reflect
       }
       else if ((value instanceof String) && isAssignable(Enum.class, targetType))
       {
-         result = Enum.valueOf(targetType, (String) value);
+         @SuppressWarnings({"unchecked", "rawtypes"})
+         Enum<?> e = Enum.valueOf((Class<? extends Enum>) targetType, (String) value);
+         result = e;
       }
       else
       {

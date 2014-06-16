@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,8 +25,6 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModel;
  */
 public class ModelCache
 {
-   private final long expirationInterval = 10L * 60L * 1000L; // 10m
-
    private ConcurrentHashMap<Long, CachedModel> cache = new ConcurrentHashMap<Long, CachedModel>();
 
    public void reset()
@@ -34,46 +32,38 @@ public class ModelCache
       cache.clear();
    }
 
-   public DeployedModel getModel(int modelOid)
+   public DeployedModel getModel(long modelOid)
    {
-      Long key = new Long(modelOid);
-
-      CachedModel cachedModel = cache.get(key);
-
-      if ((null == cachedModel)
-            || (System.currentTimeMillis() > cachedModel.expirationDate))
-      {
-         return null;
-      }
-      else
-      {
-         return cachedModel.model;
-      }
+      CachedModel cachedModel = cache.get(modelOid);
+      return cachedModel == null ? null : cachedModel.getModel();
    }
 
    public void putModel(DeployedModel model)
    {
-      CachedModel cachedModel = new CachedModel(model, System.currentTimeMillis()
-            + expirationInterval);
-
-      cache.put(new Long(model.getModelOID()), cachedModel);
-
+      CachedModel cachedModel = new CachedModel(model);
+      cache.put((long) model.getModelOID(), cachedModel);
       if (model.isActive())
       {
-         cache.put(new Long(PredefinedConstants.ACTIVE_MODEL), cachedModel);
+         cache.put((long) PredefinedConstants.ACTIVE_MODEL, cachedModel);
       }
    }
 
    private static class CachedModel
    {
-      final DeployedModel model;
+      private final long expirationInterval = 10L * 60L * 1000L; // 10m
 
-      final long expirationDate;
+      private DeployedModel model;
+      private long expirationDate;
 
-      public CachedModel(DeployedModel model, long expirationDate)
+      public CachedModel(DeployedModel model)
       {
          this.model = model;
-         this.expirationDate = expirationDate;
+         expirationDate = System.currentTimeMillis() + expirationInterval;
+      }
+
+      public DeployedModel getModel()
+      {
+         return System.currentTimeMillis() < expirationDate ? model : null;
       }
    }
 }

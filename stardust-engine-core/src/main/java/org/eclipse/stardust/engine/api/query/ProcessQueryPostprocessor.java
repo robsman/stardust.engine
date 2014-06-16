@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.api.query;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.Map.Entry;
+
+import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.OneElementIterator;
@@ -1162,6 +1164,21 @@ public class ProcessQueryPostprocessor
       }
    }
 
+   private static String getFullQualifiedId(IData structuredData)
+   {
+      String id = structuredData.getId();
+      String modelId = structuredData.getModel().getId();
+
+      //check if already qualified
+      QName fullQualifiedId = QName.valueOf(id);
+      if(!modelId.equals(fullQualifiedId.getNamespaceURI()))
+      {
+         fullQualifiedId = new QName(modelId, id);
+      }
+
+      return fullQualifiedId.toString();
+   }
+
    private static void performPrefetchNonStructuredFromDataCluster(
          final Map<Long, IData> dataRtOids, Collection<Long> piSet,
          int prefetchNParallelInstances, final IProcessDefinition pd, int timeout,
@@ -1221,7 +1238,7 @@ public class ProcessQueryPostprocessor
                IData data = entry.getValue();
                Long dataRtOid = entry.getKey();
 
-               DataSlot slot = cluster.getSlot(data.getId(), "");
+               DataSlot slot = cluster.getSlot(getFullQualifiedId(data), "");
                if (slot != null)
                {
                   ITableDescriptor typeDescr = addDataClusterSlot(cluster, slot, slotCount,
@@ -1325,8 +1342,8 @@ public class ProcessQueryPostprocessor
 
       // init value mapper in order the persistent mapper will provide it
 
-      // fields
-      // oid
+      // Fields of DataValueBean. The order has to be the same as in bean class.
+      // oid (inherited from super class)
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 1);
       // model
       addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, Long.valueOf(data.getModel().getModelOID()));
@@ -1346,12 +1363,14 @@ public class ProcessQueryPostprocessor
          // string_value default: null
          addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, null);
          // number_value from DB
+         addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 3);
       }
-      addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 3);
+      // double_value; default: null - only important for SQL order by
+      addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, null);
       // type_key
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 2);
 
-      // links
+      // Links of DataValueBean, i.e processInstance. Links always come after the fields, but order is still important.
       // processInstance
       addCustomIndexEntry(fieldIndexValueList, ValueType.GLOBAL_RS_INDEX, 1);
 

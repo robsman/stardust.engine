@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,35 +13,21 @@ package org.eclipse.stardust.engine.ws.processinterface;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.TYPE_ATT;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.FormalParameter;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ProcessInterface;
-import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.ws.XmlValueXto;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
-import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.ws.DataFlowUtils;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-
 
 /**
  * <p>
@@ -93,7 +79,7 @@ public class FormalParameterConverter
    private static List<FormalParameter> getFormalParameterMappings(final String modelId,
          final String processId)
    {
-      final Model activeModelForId = getActiveModelForId(modelId);
+      final Model activeModelForId = WebServiceEnv.currentWebServiceEnvironment().getActiveModel(modelId);
       final ProcessDefinition pd = activeModelForId.getProcessDefinition(processId);
       final ProcessInterface dpi = pd.getDeclaredProcessInterface();
       final List<FormalParameter> fParameterMappings = dpi.getFormalParameters();
@@ -170,7 +156,8 @@ public class FormalParameterConverter
       if (StructuredTypeRtUtils.isStructuredType(typeId))
       {
          String typeDeclarationId = (String) mapping.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         Model resolvedModel = getActiveModelForId(modelId);
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         Model resolvedModel = wsEnv.getActiveModel(modelId);
          if (typeDeclarationId == null)
          {
             // try to resolve external reference
@@ -182,7 +169,7 @@ public class FormalParameterConverter
                if (reference != null)
                {
                   typeDeclarationId = reference.getId();
-                  resolvedModel = getModelForOid(reference.getModelOid());
+                  resolvedModel = wsEnv.getModel(reference.getModelOid());
                }
             }
          }
@@ -197,9 +184,8 @@ public class FormalParameterConverter
                structuredDataElement = (Element) item;
             }
          }
-
-         value = DataFlowUtils.unmarshalStructValue(resolvedModel,
-               typeDeclarationId, "", structuredDataElement);
+         TypeDeclaration typeDeclaration = resolvedModel.getTypeDeclaration(typeDeclarationId);
+         value = DataFlowUtils.unmarshalStructValue(resolvedModel, typeDeclaration, "", structuredDataElement);
       }
       else if (PredefinedConstants.PRIMITIVE_DATA.equals(typeId))
       {
@@ -214,20 +200,6 @@ public class FormalParameterConverter
                + "'.");
       }
       return value;
-   }
-
-   private static Model getModelForOid(int modelOid)
-   {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-
-      return wsEnv.getModel(modelOid);
-   }
-
-   private static Model getActiveModelForId(String modelId)
-   {
-      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
-      WorkflowService wfService = currentWebServiceEnvironment.getServiceFactory().getWorkflowService();
-      return (Model) wfService.execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
    }
 
    private static void marshalMapValue(Document targetDoc, Element targetElement,
@@ -263,7 +235,7 @@ public class FormalParameterConverter
       if (StructuredTypeRtUtils.isStructuredType(typeId))
       {
          String typeDeclarationId = (String) mapping.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         Model resolvedModel = getActiveModelForId(modelId);
+         Model resolvedModel = WebServiceEnv.currentWebServiceEnvironment().getActiveModel(modelId);
          if (typeDeclarationId == null)
          {
             // try to resolve external reference
@@ -275,7 +247,7 @@ public class FormalParameterConverter
                if (reference != null)
                {
                   typeDeclarationId = reference.getId();
-                  resolvedModel = getModelForOid(reference.getModelOid());
+                  resolvedModel = WebServiceEnv.currentWebServiceEnvironment().getModel(reference.getModelOid());
                }
             }
          }

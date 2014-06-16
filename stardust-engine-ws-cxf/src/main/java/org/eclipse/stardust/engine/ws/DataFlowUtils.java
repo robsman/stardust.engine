@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,24 +14,7 @@
  */
 package org.eclipse.stardust.engine.ws;
 
-import static javax.xml.bind.DatatypeConverter.parseBoolean;
-import static javax.xml.bind.DatatypeConverter.parseByte;
-import static javax.xml.bind.DatatypeConverter.parseDateTime;
-import static javax.xml.bind.DatatypeConverter.parseDouble;
-import static javax.xml.bind.DatatypeConverter.parseFloat;
-import static javax.xml.bind.DatatypeConverter.parseInt;
-import static javax.xml.bind.DatatypeConverter.parseLong;
-import static javax.xml.bind.DatatypeConverter.parseShort;
-import static javax.xml.bind.DatatypeConverter.parseString;
-import static javax.xml.bind.DatatypeConverter.printBoolean;
-import static javax.xml.bind.DatatypeConverter.printByte;
-import static javax.xml.bind.DatatypeConverter.printDateTime;
-import static javax.xml.bind.DatatypeConverter.printDouble;
-import static javax.xml.bind.DatatypeConverter.printFloat;
-import static javax.xml.bind.DatatypeConverter.printInt;
-import static javax.xml.bind.DatatypeConverter.printLong;
-import static javax.xml.bind.DatatypeConverter.printShort;
-import static javax.xml.bind.DatatypeConverter.printString;
+import static javax.xml.bind.DatatypeConverter.*;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.PRIMITIVE_DATA;
@@ -44,18 +27,12 @@ import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.fromXto;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -64,60 +41,20 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
 
-import org.eclipse.stardust.common.Base64;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.Money;
-import org.eclipse.stardust.common.Serialization;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.DataMappingDetails;
-import org.eclipse.stardust.engine.api.dto.Note;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.api.ws.DocumentXto;
-import org.eclipse.stardust.engine.api.ws.DocumentsXto;
-import org.eclipse.stardust.engine.api.ws.FolderXto;
-import org.eclipse.stardust.engine.api.ws.FoldersXto;
-import org.eclipse.stardust.engine.api.ws.InstancePropertiesXto;
-import org.eclipse.stardust.engine.api.ws.NoteXto;
-import org.eclipse.stardust.engine.api.ws.ObjectFactory;
-import org.eclipse.stardust.engine.api.ws.ParameterXto;
-import org.eclipse.stardust.engine.api.ws.ParametersXto;
-import org.eclipse.stardust.engine.api.ws.XmlValueXto;
+import org.eclipse.stardust.engine.api.dto.*;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.ws.*;
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.core.struct.sxml.Text;
@@ -163,7 +100,8 @@ public class DataFlowUtils
 
    public static InstancePropertiesXto marshalInstanceProperties(ActivityInstance ai)
    {
-      Model model = currentWebServiceEnvironment().getModel(ai.getModelOID());
+      WebServiceEnv wsEnv = currentWebServiceEnvironment();
+      Model model = wsEnv.getModel(ai.getModelOID());
 
       InstancePropertiesXto instanceProperties = null;
       List<DataPath> descriptorDefinitions = ai.getDescriptorDefinitions();
@@ -176,7 +114,7 @@ public class DataFlowUtils
             IDescriptorProvider descriptorProvider = (IDescriptorProvider) ai;
 
             ParameterXto parameterXto = marshalDescriptorValue(descriptorProvider, model,
-                  dataPath);
+                  dataPath, wsEnv);
 
             if (parameterXto != null)
             {
@@ -203,13 +141,14 @@ public class DataFlowUtils
 
    public static InstancePropertiesXto marshalInstanceProperties(ProcessInstance pi, boolean includeDescriptors)
    {
-      Model model = currentWebServiceEnvironment().getModel(pi.getModelOID());
+      WebServiceEnv wsEnv = currentWebServiceEnvironment();
+      Model model = wsEnv.getModel(pi.getModelOID());
 
-      return marshalInstanceProperties(pi, includeDescriptors, model);
+      return marshalInstanceProperties(pi, includeDescriptors, model, wsEnv);
    }
 
    public static InstancePropertiesXto marshalInstanceProperties(ProcessInstance pi,
-         boolean includeDescriptors, Model model)
+         boolean includeDescriptors, Model model, ModelResolver resolver)
    {
       InstancePropertiesXto instanceProperties = null;
       if (pi instanceof ProcessInstanceDetails)
@@ -233,7 +172,7 @@ public class DataFlowUtils
                for (DataPath dataPath : descriptorDefinitions)
                {
                   ParameterXto parameterXto = marshalDescriptorValue(descriptorProvider,
-                        model, dataPath);
+                        model, dataPath, resolver);
 
                   if (parameterXto != null)
                   {
@@ -261,11 +200,12 @@ public class DataFlowUtils
    public static InstancePropertiesXto marshalProcessInstanceProperties(
          long processInstanceOid, Map<String, Serializable> dataPaths)
    {
-      ServiceFactory sf = currentWebServiceEnvironment().getServiceFactory();
+      WebServiceEnv wsEnv = currentWebServiceEnvironment();
+      ServiceFactory sf = wsEnv.getServiceFactory();
       WorkflowService wfs = sf.getWorkflowService();
 
       ProcessInstance pi = wfs.getProcessInstance(processInstanceOid);
-      Model model = currentWebServiceEnvironment().getModel(pi.getModelOID());
+      Model model = wsEnv.getModel(pi.getModelOID());
       ProcessDefinition process = model.getProcessDefinition(pi.getProcessID());
 
       List<DataPath> descriptorDefinitions = null;
@@ -291,7 +231,7 @@ public class DataFlowUtils
                   if (descriptorDataPath.getId().equals(dataPathId))
                   {
                      parameterXto = marshalDescriptorValue(descriptorProvider, model,
-                           descriptorDataPath);
+                           descriptorDataPath, wsEnv);
                      break;
                   }
                }
@@ -299,7 +239,7 @@ public class DataFlowUtils
             else
             {
                parameterXto = marshalInDataValue(model, dataPath,
-                     dataPaths.get(dataPath.getId()));
+                     dataPaths.get(dataPath.getId()), wsEnv);
             }
 
             if (parameterXto != null)
@@ -331,7 +271,7 @@ public class DataFlowUtils
    }
 
    private static ParameterXto marshalDescriptorValue(IDescriptorProvider pid,
-         Model model, DataPath dataPath)
+         Model model, DataPath dataPath, ModelResolver resolver)
    {
       Serializable descriptorValue = (Serializable) pid.getDescriptorValue(dataPath.getId());
       ParameterXto parameterXto = null;
@@ -343,7 +283,7 @@ public class DataFlowUtils
       }
       else
       {
-         parameterXto = marshalInDataValue(model, dataPath, descriptorValue);
+         parameterXto = marshalInDataValue(model, dataPath, descriptorValue, resolver);
       }
       return parameterXto;
    }
@@ -426,7 +366,7 @@ public class DataFlowUtils
    }
 
    public static ParametersXto marshalInDataValues(Model model, Activity activity,
-         String contextId, Map<String, ? extends Serializable> params)
+         String contextId, Map<String, ? extends Serializable> params, ModelResolver resolver)
    {
       ApplicationContext context = null;
       if (activity != null)
@@ -435,21 +375,21 @@ public class DataFlowUtils
                ? PredefinedConstants.DEFAULT_CONTEXT
                : contextId);
       }
-      return marshalInDataValues(model, context, params);
+      return marshalInDataValues(model, context, params, resolver);
    }
 
    public static ParametersXto marshalInDataValues(Model model,
-         ApplicationContext context, Map<String, ? extends Serializable> params)
+         ApplicationContext context, Map<String, ? extends Serializable> params, ModelResolver resolver)
    {
       ParametersXto res = new ParametersXto();
 
-      marshalInDataValues(model, context, params, res);
+      marshalInDataValues(model, context, params, res, resolver);
 
       return res;
    }
 
    public static void marshalInDataValues(Model model, ApplicationContext context,
-         Map<String, ? extends Serializable> params, ParametersXto res)
+         Map<String, ? extends Serializable> params, ParametersXto res, ModelResolver resolver)
    {
       if ((null != context) && (null != model) && (null != params))
       {
@@ -459,18 +399,14 @@ public class DataFlowUtils
             // through all data mappings in order to find the correct Aceespoint
             if (PredefinedConstants.EXTERNALWEBAPP_CONTEXT == context.getId())
             {
-               Iterator<DataMappingDetails> mappings = context.getAllInDataMappings()
-                     .iterator();
-               while (mappings.hasNext())
+               @SuppressWarnings("unchecked")
+               List<DataMappingDetails> mappings = context.getAllInDataMappings();
+               for (DataMappingDetails mapping : mappings)
                {
-                  DataMappingDetails mapping = mappings.next();
-                  if (CompareHelper.areEqual(mapping.getApplicationAccessPoint().getId(),
-                        entry.getKey()))
+                  if (CompareHelper.areEqual(mapping.getApplicationAccessPoint().getId(), entry.getKey()))
                   {
-                     DataMapping dm = context.getDataMapping(Direction.IN,
-                           mapping.getId());
-                     ParameterXto inDataValue = marshalInDataValue(model, dm,
-                           entry.getValue());
+                     DataMapping dm = context.getDataMapping(Direction.IN, mapping.getId());
+                     ParameterXto inDataValue = marshalInDataValue(model, dm, entry.getValue(), resolver);
                      if (inDataValue != null)
                      {
                         res.getParameter().add(inDataValue);
@@ -489,7 +425,7 @@ public class DataFlowUtils
             else
             {
                DataMapping dm = context.getDataMapping(Direction.IN, entry.getKey());
-               ParameterXto inDataValue = marshalInDataValue(model, dm, entry.getValue());
+               ParameterXto inDataValue = marshalInDataValue(model, dm, entry.getValue(), resolver);
                if (inDataValue != null)
                {
                   res.getParameter().add(inDataValue);
@@ -507,21 +443,21 @@ public class DataFlowUtils
    }
 
    public static ParameterXto marshalInDataValue(Model model, DataMapping dm,
-         Serializable param)
+         Serializable param, ModelResolver resolver)
    {
       return marshalInDataValue(model, model.getData(dm.getDataId()), dm.getId(),
-            dm.getDataPath(), dm.getMappedType(), param);
+            dm.getDataPath(), dm.getMappedType(), param, resolver);
    }
 
    public static ParameterXto marshalInDataValue(Model model, DataPath dp,
-         Serializable param)
+         Serializable param, ModelResolver resolver)
    {
       return marshalInDataValue(model, model.getData(dp.getData()), dp.getId(),
-            dp.getAccessPath(), dp.getMappedType(), param);
+            dp.getAccessPath(), dp.getMappedType(), param, resolver);
    }
 
    private static ParameterXto marshalInDataValue(Model model, Data data, String paramId,
-         String rootXPath, Class< ? > mappedType, Serializable param)
+         String rootXPath, Class<?> mappedType, Serializable param, ModelResolver resolver)
    {
       ParameterXto res = null;
 
@@ -533,11 +469,11 @@ public class DataFlowUtils
          }
          else if (isStructuredType(model, data))
          {
-            res = marshalStructValue(model, data, paramId, rootXPath, param);
+            res = marshalStructValue(model, data, paramId, rootXPath, param, resolver);
          }
          else if (isDmsType(model, data))
          {
-            res = marshalDmsValue(model, data, paramId, param);
+            res = marshalDmsValue(model, data, paramId, param, resolver);
          }
          else if (isSerializableType(model, data))
          {
@@ -652,16 +588,20 @@ public class DataFlowUtils
    }
 
    public static Map<String, ? extends Serializable> unmarshalInitialDataValues(
-         String processID, ParametersXto params)
+         String processID, ParametersXto params, WebServiceEnv wsEnv)
    {
-      // TODO get model via qualified processId
-      Model model = WebServiceEnv.currentWebServiceEnvironment().getActiveModel();
-
-      return unmarshalInitialDataValues(processID, params, model);
+      Model model = wsEnv.getActiveModel();
+      QName qName = QName.valueOf(processID);
+      if (!XMLConstants.NULL_NS_URI.equals(qName.getNamespaceURI()))
+      {
+         model = wsEnv.getActiveModel(qName.getNamespaceURI());
+         processID = qName.getLocalPart();
+      }
+      return unmarshalInitialDataValues(processID, params, model, wsEnv);
    }
 
    public static Map<String, ? extends Serializable> unmarshalInitialDataValues(
-         String processID, ParametersXto params, Model model)
+         String processID, ParametersXto params, Model model, ModelResolver resolver)
    {
       Map<String, Serializable> res = null;
       if ((null != params) && !params.getParameter().isEmpty())
@@ -679,7 +619,7 @@ public class DataFlowUtils
                if (data != null)
                {
                   res.put(param.getName(),
-                        unmarshalDataValue(model, data, null, null, param));
+                        unmarshalDataValue(model, data, null, null, param, resolver));
                }
                else
                {
@@ -693,7 +633,7 @@ public class DataFlowUtils
    }
 
    public static Map<String, Serializable> unmarshalDataValues(Model model,
-         Direction direction, Activity activity, String contextId, ParametersXto params)
+         Direction direction, Activity activity, String contextId, ParametersXto params, ModelResolver resolver)
    {
       Map<String, Serializable> res = null;
       if ((null != params) && !params.getParameter().isEmpty())
@@ -725,7 +665,7 @@ public class DataFlowUtils
                      res.put(
                            param.getName(),
                            unmarshalDataValue(model, data, dm.getDataPath(),
-                                 dm.getMappedType(), param));
+                                 dm.getMappedType(), param, resolver));
                   }
                   else
                   {
@@ -743,10 +683,9 @@ public class DataFlowUtils
    public static Map<String, ? extends Serializable> unmarshalProcessInstanceProperties(
          long processInstanceOid, List< ? extends ParameterXto> params)
    {
-      ServiceFactory sf = currentWebServiceEnvironment().getServiceFactory();
-
+      WebServiceEnv wsEnv = currentWebServiceEnvironment();
+      ServiceFactory sf = wsEnv.getServiceFactory();
       WorkflowService wfs = sf.getWorkflowService();
-
       ProcessInstance pi = wfs.getProcessInstance(processInstanceOid);
 
       Map<String, Serializable> res = null;
@@ -767,14 +706,14 @@ public class DataFlowUtils
             else if ( !NOTES_NAMESPACE.equals(new QName(param.getNamespace(),
                   param.getName())))
             {
-               Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(
+               Model model = wsEnv.getModel(
                      pi.getModelOID());
                // unmarshal DataValues
                res.put(
                      param.getName(),
                      unmarshalProcessDataValue(pi.getProcessID(),
                            ((ProcessInstanceDetails) pi).getDescriptorDefinitions(),
-                           model, param));
+                           model, param, wsEnv));
             }
             else
             {
@@ -800,7 +739,7 @@ public class DataFlowUtils
    }
 
    public static Serializable unmarshalProcessDataValue(String processId,
-         List<DataPath> descriptorDefinitions, Model model, ParameterXto param)
+         List<DataPath> descriptorDefinitions, Model model, ParameterXto param, ModelResolver resolver)
    {
       Serializable res = null;
 
@@ -813,7 +752,7 @@ public class DataFlowUtils
          if (data != null)
          {
             res = unmarshalDataValue(model, data, dp.getAccessPath(), dp.getMappedType(),
-                  param);
+                  param, resolver);
          }
          else
          {
@@ -830,7 +769,7 @@ public class DataFlowUtils
    }
 
    public static Serializable unmarshalOutDataValue(Model model, AccessPoint ap,
-         Object param)
+         Reference ref, Object param, ModelResolver resolver)
    {
       Serializable res = null;
 
@@ -842,7 +781,7 @@ public class DataFlowUtils
          }
          else if (isStructuredType(model, ap))
          {
-            res = unmarshalStructValue(model, ap, param);
+            res = unmarshalStructValue(model, ap, ref, param, resolver);
          }
          else
          {
@@ -855,7 +794,7 @@ public class DataFlowUtils
    }
 
    public static Serializable unmarshalOutDataValue(Model model, DataMapping dm,
-         Object param)
+         Object param, ModelResolver resolver)
    {
       Serializable res = null;
 
@@ -867,11 +806,11 @@ public class DataFlowUtils
          }
          else if (isStructuredType(model, dm))
          {
-            res = unmarshalStructValue(model, dm, param);
+            res = unmarshalStructValue(model, dm, param, resolver);
          }
          else if (isDmsType(model, dm))
          {
-            res = unmarshalDmsValue(model, dm, param);
+            res = unmarshalDmsValue(model, dm, param, resolver);
          }
       }
 
@@ -879,14 +818,14 @@ public class DataFlowUtils
    }
 
    public static Serializable unmarshalOutDataValue(Model model, DataMapping dm,
-         ParameterXto param)
+         ParameterXto param, ModelResolver resolver)
    {
       Data data = model.getData(dm.getDataId());
-      return unmarshalDataValue(model, data, dm.getDataPath(), dm.getMappedType(), param);
+      return unmarshalDataValue(model, data, dm.getDataPath(), dm.getMappedType(), param, resolver);
    }
 
    public static Serializable unmarshalDataValue(Model model, Data data,
-         String rootXPath, Class< ? > mappedType, ParameterXto param)
+         String rootXPath, Class< ? > mappedType, ParameterXto param, ModelResolver resolver)
    {
       Serializable unmarshalledValue = null;
 
@@ -916,13 +855,13 @@ public class DataFlowUtils
          if (null != param.getXml())
          {
             unmarshalledValue = unmarshalStructValue(model, data, rootXPath,
-                  param.getXml().getAny());
+                  param.getXml().getAny(), resolver);
          }
          // allow primitive==null if type points to a primitive struct data
          else if (null != param.getType())
          {
             unmarshalledValue = unmarshalStructValue(model, data, rootXPath,
-                  param.getPrimitive());
+                  param.getPrimitive(), resolver);
          }
          else
          {
@@ -936,7 +875,7 @@ public class DataFlowUtils
       {
          if (null != param.getXml())
          {
-            unmarshalledValue = unmarshalDmsValue(model, data, param.getXml().getAny());
+            unmarshalledValue = unmarshalDmsValue(model, data, param.getXml().getAny(), resolver);
          }
          else
          {
@@ -1097,6 +1036,7 @@ public class DataFlowUtils
       return ret;
    }
 
+   @SuppressWarnings("deprecation")
    public static QName marshalPrimitiveType(Type type)
    {
       QName result = null;
@@ -1280,7 +1220,6 @@ public class DataFlowUtils
       QName type = marshalPrimitiveType(primitiveType);
 
       param.setType(type);
-
       param.setPrimitive(marshalSimpleTypeXsdValue(value));
 
       return param;
@@ -1612,16 +1551,30 @@ public class DataFlowUtils
       return ret;
    }
 
-   public static QName getStructuredTypeName(Model model, String typeDeclarationId)
+   public static QName getStructuredTypeName(Model model, String typeDeclarationId, ModelResolver resolver)
    {
-      return getStructuredTypeName(model, typeDeclarationId, null);
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, typeDeclarationId, resolver);
+      return getStructuredTypeName(pair.getFirst(), pair.getSecond(), null);
    }
 
-   public static QName getStructuredTypeName(Model model, DataPath dp)
+   public static QName getStructuredTypeName(Model model, DataPath dp, ModelResolver resolver)
    {
       Data data = model.getData(dp.getData());
-      String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      return getStructuredTypeName(model, typeDeclarationId, dp.getAccessPath());
+      return getStructuredTypeName(model, data, dp.getAccessPath(), resolver);
+   }
+
+   public static QName getStructuredTypeName(Model model, Data data, String accessPath,
+         ModelResolver resolver)
+   {
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, data, resolver);
+      return getStructuredTypeName(pair.getFirst(), pair.getSecond(), accessPath);
+   }
+
+   public static QName getStructuredTypeName(Model model, AccessPoint ap, Reference ref,
+         String accessPath, ModelResolver resolver)
+   {
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, ap, ref, resolver);
+      return getStructuredTypeName(pair.getFirst(), pair.getSecond(), accessPath);
    }
 
    public static Set<TypedXPath> getXPaths(Model model, DataMapping dm)
@@ -1679,18 +1632,17 @@ public class DataFlowUtils
       }
    }
 
-   public static QName getStructuredTypeName(Model model, DataMapping dm)
+   public static QName getStructuredTypeName(Model model, DataMapping dm, ModelResolver resolver)
    {
       Data data = model.getData(dm.getDataId());
-      String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      return getStructuredTypeName(model, typeDeclarationId, dm.getDataPath());
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, data, resolver);
+      return getStructuredTypeName(pair.getFirst(), pair.getSecond(), dm.getDataPath());
    }
 
-   private static QName getStructuredTypeName(Model model, String typeDeclarationId,
+   private static QName getStructuredTypeName(Model model, TypeDeclaration typeDeclaration,
          String derefPath)
    {
-      TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-      Set xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
+      Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
       return getStructuredTypeName(xPaths, derefPath);
    }
 
@@ -1792,7 +1744,7 @@ public class DataFlowUtils
    }
 
    public static ParameterXto marshalStructValue(Model model, AccessPoint ap,
-         Serializable value)
+         Reference ref, Serializable value, ModelResolver resolver)
    {
       ParameterXto param = new ParameterXto();
       param.setName(ap.getId());
@@ -1807,10 +1759,8 @@ public class DataFlowUtils
       // Map in case of Structure and String in case of Structure As Enum
       if (value instanceof Map || value instanceof String)
       {
-         String typeDeclarationId = (String) ap.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
-         marshalStructValue(model, typeDeclarationId, null, value, param);
-
+         Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, ap, ref, resolver);
+         marshalStructValue(pair.getFirst(), pair.getSecond(), null, value, param);
       }
       else if (null != value)
       {
@@ -1821,22 +1771,22 @@ public class DataFlowUtils
    }
 
    public static ParameterXto marshalStructValue(Model model, DataMapping dm,
-         Serializable value)
+         Serializable value, ModelResolver resolver)
    {
 
       return marshalStructValue(model, model.getData(dm.getDataId()), dm.getId(),
-            dm.getDataPath(), value);
+            dm.getDataPath(), value, resolver);
    }
 
    public static ParameterXto marshalStructValue(Model model, DataPath dp,
-         Serializable value)
+         Serializable value, ModelResolver resolver)
    {
       return marshalStructValue(model, model.getData(dp.getData()), dp.getId(),
-            dp.getAccessPath(), value);
+            dp.getAccessPath(), value, resolver);
    }
 
    private static ParameterXto marshalStructValue(Model model, Data data, String paramId,
-         String rootXPath, Serializable value)
+         String rootXPath, Serializable value, ModelResolver resolver)
    {
       ParameterXto param = new ParameterXto();
       param.setName(paramId);
@@ -1848,34 +1798,82 @@ public class DataFlowUtils
          value = (Serializable) ((List< ? >) value).get(0);
       }
 
-      String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
-      marshalStructValue(model, typeDeclarationId, rootXPath, value, param);
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, data, resolver);
+      marshalStructValue(pair.getFirst(), pair.getSecond(), rootXPath, value, param);
 
       return param;
+   }
+
+   private static Pair<Model, TypeDeclaration> resolveTypeDeclaration(Model model,
+         AccessPoint accessPoint, Reference reference, ModelResolver resolver)
+   {
+      String typeDeclarationId = (String) accessPoint.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+      if (resolver != null && reference != null)
+      {
+         model = resolver.getModel(reference.getModelOid());
+      }
+      return resolveTypeDeclaration(model, typeDeclarationId, resolver);
+   }
+
+   private static Pair<Model, TypeDeclaration> resolveTypeDeclaration(Model model,
+         Data data, ModelResolver resolver)
+   {
+      if (resolver != null && data.getModelOID() != model.getModelOID())
+      {
+         model = resolver.getModel((long) data.getModelOID());
+      }
+      String typeDeclarationId = null;
+      Reference reference = data.getReference();
+      if (resolver != null && reference != null)
+      {
+         model = resolver.getModel(reference.getModelOid());
+         typeDeclarationId = reference.getId();
+      }
+      else
+      {
+         typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+      }
+      return resolveTypeDeclaration(model, typeDeclarationId, resolver);
+   }
+
+   private static Pair<Model, TypeDeclaration> resolveTypeDeclaration(Model model,
+         String typeDeclarationId, ModelResolver resolver)
+   {
+      if (resolver != null && typeDeclarationId != null && typeDeclarationId.startsWith("typeDeclaration:"))
+      {
+         // For data created in current model, Structured type in different model
+         try
+         {
+            String parts[] = typeDeclarationId.split("\\{")[1].split("\\}");
+            typeDeclarationId = parts[1];
+            Model referencedModel = resolver.getModel(model.getResolvedModelOid(parts[0]));
+            model = referencedModel != null ? referencedModel : model;
+         }
+         catch (Exception e)
+         {
+            trace.error("Error occured in Type declaration parsing", e);
+         }
+      }
+      return new Pair<Model, TypeDeclaration>(model, model.getTypeDeclaration(typeDeclarationId));
    }
 
    public static XmlValueXto marshalStructValue(Model model, String typeDeclarationId,
          String derefPath, Serializable value)
    {
-      XmlValueXto result = null;
-
       TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
                model, typeDeclaration));
 
-         result = marshalStructValue(xPathMap, derefPath, value);
+         return marshalStructValue(xPathMap, derefPath, value);
       }
-
-      return result;
+      return null;
    }
 
-   public static void marshalStructValue(Model model, String typeDeclarationId,
+   private static void marshalStructValue(Model model, TypeDeclaration typeDeclaration,
          String derefPath, Serializable value, ParameterXto parameterXto)
    {
-      TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
@@ -1947,85 +1945,70 @@ public class DataFlowUtils
    }
 
    public static Serializable unmarshalStructValue(Model model, AccessPoint ap,
-         Object value)
+         Reference reference, Object value, ModelResolver resolver)
    {
-      Serializable result = null;
-
       if (value instanceof Element)
       {
-         // TODO directly retrieve XPathMap from data?
-         String typeDeclarationId = (String) ap.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
-         result = unmarshalStructValue(model, typeDeclarationId, null, value);
+         Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, ap, reference, resolver);
+         return unmarshalStructValue(pair.getFirst(), pair.getSecond(), null, value);
       }
       else if (value instanceof String) // Struct As Enum
       {
-         result = (String)value;
+         return (String) value;
       }
-      else if (null != value)
+      else if (value != null)
       {
          trace.debug("Unsupported type " + value.getClass() + " for " + ap.getId());
       }
-
-      return result;
+      return null;
    }
 
    public static Serializable unmarshalStructValue(Model model, DataMapping dm,
-         Object value)
+         Object value, ModelResolver resolver)
    {
       Data data = model.getData(dm.getDataId());
-
-      return unmarshalStructValue(model, data, dm.getDataPath(), value);
+      return unmarshalStructValue(model, data, dm.getDataPath(), value, resolver);
    }
 
-   public static Serializable unmarshalStructValue(Model model, DataPath dp, Object value)
+   public static Serializable unmarshalStructValue(Model model, DataPath dp,
+         Object value, ModelResolver resolver)
    {
       Data data = model.getData(dp.getData());
-
-      return unmarshalStructValue(model, data, dp.getAccessPath(), value);
+      return unmarshalStructValue(model, data, dp.getAccessPath(), value, resolver);
    }
 
    public static Serializable unmarshalStructValue(Model model, Data data,
-         String rootXPath, Object value)
+         String rootXPath, Object value, ModelResolver resolver)
    {
-      Serializable result = null;
-
-      // TODO directly retrieve XPathMap from data?
-      String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
-      result = unmarshalStructValue(model, typeDeclarationId, rootXPath, value);
-
-      return result;
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, data, resolver);
+      return unmarshalStructValue(pair.getFirst(), pair.getSecond(), rootXPath, value);
    }
 
    public static Serializable unmarshalStructValue(Model model, String typeDeclarationId,
-         String rootXPath, Object value)
+         String rootXPath, Object value, ModelResolver resolver)
    {
-      Serializable result = null;
+      Pair<Model, TypeDeclaration> pair = resolveTypeDeclaration(model, typeDeclarationId, resolver);
+      return unmarshalStructValue(pair.getFirst(), pair.getSecond(), rootXPath, value);
+   }
 
-      TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
+   public static Serializable unmarshalStructValue(Model model,
+         TypeDeclaration typeDeclaration, String rootXPath, Object value)
+   {
       if (null != typeDeclaration)
       {
-         @SuppressWarnings("unchecked")
-         Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model,
-               typeDeclaration);
-         result = unmarshalStructValue(xPaths, rootXPath, value);
+         Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
+         return unmarshalStructValue(xPaths, rootXPath, value);
       }
-      return result;
+      return null;
    }
 
    public static Serializable unmarshalStructValue(Set<TypedXPath> xPaths,
          String rootXPath, Object value)
    {
       Serializable result = null;
-      // TODO remove workaround (retrieve single element from list)
       if (value instanceof List)
       {
-         List list = (List) value;
-         if (list.size() == 1)
-         {
-            value = list.get(0);
-         }
+         value = unwrap((List< ? >) value);
       }
 
       if (value instanceof Element)
@@ -2043,11 +2026,10 @@ public class DataFlowUtils
             result = (Serializable) structConverter.toCollection(xomDoc.getRootElement(),
                   rootXPath, true);
 
-            // TODO check workaround: extract from List
-            if (result instanceof List && ((List) result).size() == 1
+            if (result instanceof List
             /* && ((List) result).get(0) instanceof Map */)
             {
-               result = (Serializable) ((List) result).get(0);
+               result = (Serializable) unwrap((List<?>) result);
             }
          }
          catch (IOException ioex)
@@ -2072,8 +2054,8 @@ public class DataFlowUtils
       }
       else if (value instanceof List)
       {
-         List<Serializable> list = new ArrayList<Serializable>(((List) value).size());
-         for (Object element : (List) value)
+         List<Serializable> list = new ArrayList<Serializable>(((List<?>) value).size());
+         for (Object element : (List<?>) value)
          {
             list.add(unmarshalStructValue(xPaths, rootXPath, element));
          }
@@ -2090,19 +2072,19 @@ public class DataFlowUtils
    }
 
    public static ParameterXto marshalDmsValue(Model model, DataMapping dm,
-         Serializable value)
+         Serializable value, ModelResolver resolver)
    {
 
-      return marshalDmsValue(model, model.getData(dm.getDataId()), dm.getId(), value);
+      return marshalDmsValue(model, model.getData(dm.getDataId()), dm.getId(), value, resolver);
    }
 
-   public static ParameterXto marshalDmsValue(Model model, DataPath dp, Serializable value)
+   public static ParameterXto marshalDmsValue(Model model, DataPath dp, Serializable value, ModelResolver resolver)
    {
-      return marshalDmsValue(model, model.getData(dp.getData()), dp.getId(), value);
+      return marshalDmsValue(model, model.getData(dp.getData()), dp.getId(), value, resolver);
    }
 
    public static ParameterXto marshalDmsValue(Model model, Data data, String paramId,
-         Serializable value)
+         Serializable value, ModelResolver resolver)
    {
       ParameterXto param = new ParameterXto();
       param.setName(paramId);
@@ -2112,12 +2094,12 @@ public class DataFlowUtils
       JAXBElement< ? > xtoWrapper = null;
       if (value instanceof Document)
       {
-         DocumentXto xto = XmlAdapterUtils.toWs((Document) value, model, metaDataTypeId);
+         DocumentXto xto = XmlAdapterUtils.toWs((Document) value, model, metaDataTypeId, resolver);
          xtoWrapper = WS_API_OBJECT_FACTORY.createDocument(xto);
       }
       else if (value instanceof Folder)
       {
-         FolderXto xto = XmlAdapterUtils.toWs((Folder) value, model, metaDataTypeId);
+         FolderXto xto = XmlAdapterUtils.toWs((Folder) value, model, metaDataTypeId, resolver);
          xtoWrapper = WS_API_OBJECT_FACTORY.createFolder(xto);
       }
       else if ((value instanceof List) && isDmsDocumentList(model, data))
@@ -2127,7 +2109,7 @@ public class DataFlowUtils
          List<Document> docList = (List<Document>) value;
          for (Document doc : docList)
          {
-            xto.getDocument().add(XmlAdapterUtils.toWs(doc, model, metaDataTypeId));
+            xto.getDocument().add(XmlAdapterUtils.toWs(doc, model, metaDataTypeId, resolver));
          }
          xtoWrapper = WS_API_OBJECT_FACTORY.createDocuments(xto);
       }
@@ -2138,7 +2120,7 @@ public class DataFlowUtils
          List<Folder> folderList = (List<Folder>) value;
          for (Folder folder : folderList)
          {
-            xto.getFolder().add(XmlAdapterUtils.toWs(folder, model, metaDataTypeId));
+            xto.getFolder().add(XmlAdapterUtils.toWs(folder, model, metaDataTypeId, resolver));
          }
          xtoWrapper = WS_API_OBJECT_FACTORY.createFolders(xto);
       }
@@ -2201,18 +2183,14 @@ public class DataFlowUtils
       return param;
    }
 
-   public static Serializable unmarshalDmsValue(Model model, Data data, Object value)
+   public static Serializable unmarshalDmsValue(Model model, Data data, Object value, ModelResolver resolver)
    {
       Serializable result = null;
 
       // TODO remove workaround (retrieve single element from list)
       if (value instanceof List)
       {
-         List list = (List) value;
-         if (list.size() == 1)
-         {
-            value = list.get(0);
-         }
+         value = unwrap((List<?>) value);
       }
 
       if (value instanceof Element)
@@ -2230,7 +2208,7 @@ public class DataFlowUtils
                if (xtoWrapper.getValue() instanceof DocumentXto)
                {
                   result = fromXto((DocumentXto) xtoWrapper.getValue(), model,
-                        metaDataTypeId, new DmsDocumentBean());
+                        metaDataTypeId, new DmsDocumentBean(), resolver);
                }
                else if (xtoWrapper.getValue() instanceof DocumentsXto)
                {
@@ -2240,7 +2218,7 @@ public class DataFlowUtils
                   for (DocumentXto docXto : docsXto.getDocument())
                   {
                      docs.add(fromXto(docXto, model, metaDataTypeId,
-                           new DmsDocumentBean()));
+                           new DmsDocumentBean(), resolver));
                   }
 
                   result = docs;
@@ -2248,7 +2226,7 @@ public class DataFlowUtils
                else if (xtoWrapper.getValue() instanceof FolderXto)
                {
                   result = fromXto((FolderXto) xtoWrapper.getValue(), model,
-                        metaDataTypeId, new DmsFolderBean());
+                        metaDataTypeId, new DmsFolderBean(), resolver);
                }
                else if (xtoWrapper.getValue() instanceof FoldersXto)
                {
@@ -2258,7 +2236,7 @@ public class DataFlowUtils
                   for (FolderXto folderXto : foldersXto.getFolder())
                   {
                      folders.add(fromXto(folderXto, model, metaDataTypeId,
-                           new DmsFolderBean()));
+                           new DmsFolderBean(), resolver));
                   }
 
                   result = folders;
@@ -2281,18 +2259,23 @@ public class DataFlowUtils
       return result;
    }
 
-   public static Serializable unmarshalDmsValue(Model model, DataMapping dm, Object value)
+   private static Object unwrap(List<?> value)
+   {
+      return value.size() == 1 ? value.get(0) : value;
+   }
+
+   public static Serializable unmarshalDmsValue(Model model, DataMapping dm, Object value, ModelResolver resolver)
    {
       Data data = model.getData(dm.getDataId());
 
-      return unmarshalDmsValue(model, data, value);
+      return unmarshalDmsValue(model, data, value, resolver);
    }
 
-   public static Serializable unmarshalDmsValue(Model model, DataPath dp, Object value)
+   public static Serializable unmarshalDmsValue(Model model, DataPath dp, Object value, ModelResolver resolver)
    {
       Data data = model.getData(dp.getData());
 
-      return unmarshalDmsValue(model, data, value);
+      return unmarshalDmsValue(model, data, value, resolver);
    }
 
    public static boolean isPrimitiveType(Model model, AccessPoint ap)

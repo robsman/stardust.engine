@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,15 +29,10 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.api.ws.ParametersXto;
-
-
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 
 public class InteractionDataFlowUtils
 {
@@ -55,13 +50,12 @@ public class InteractionDataFlowUtils
    }
 
    public static void marshalInteractionInDataValues(Model model, ApplicationContext context,
-         Map<String, ? extends Serializable> params, ParametersXto res)
+         Reference ref, Map<String, ? extends Serializable> params, ParametersXto res, ModelResolver resolver)
    {
       if ((null != context) && (null != model) && (null != params))
       {
          @SuppressWarnings("unchecked")
          List<AccessPoint> accessPoints = context.getAllAccessPoints();
-
          for (AccessPoint ap : accessPoints)
          {
             if ((Direction.IN == ap.getDirection()) && params.containsKey(ap.getId()))
@@ -72,7 +66,7 @@ public class InteractionDataFlowUtils
                }
                else if (isStructuredType(model, ap))
                {
-                  res.getParameter().add(marshalStructValue(model, ap, params.get(ap.getId())));
+                  res.getParameter().add(marshalStructValue(model, ap, ref, params.get(ap.getId()), resolver));
                }
                else
                {
@@ -84,7 +78,9 @@ public class InteractionDataFlowUtils
          // legacy support
          if (supportDataMappingIds())
          {
-            for (DataMapping dm : (List<DataMapping>) context.getAllInDataMappings())
+            @SuppressWarnings("unchecked")
+            List<DataMapping> allInDataMappings = (List<DataMapping>) context.getAllInDataMappings();
+            for (DataMapping dm : allInDataMappings)
             {
                if (isEmpty(dm.getApplicationPath()))
                {
@@ -97,11 +93,11 @@ public class InteractionDataFlowUtils
                      }
                      else if (isStructuredType(model, dm))
                      {
-                        res.getParameter().add(marshalStructValue(model, dm, params.get(paramId)));
+                        res.getParameter().add(marshalStructValue(model, dm, params.get(paramId), resolver));
                      }
                      else if (isDmsType(model, dm))
                      {
-                        res.getParameter().add(marshalDmsValue(model, dm, params.get(paramId)));
+                        res.getParameter().add(marshalDmsValue(model, dm, params.get(paramId), resolver));
                      }
                   }
                }
@@ -109,57 +105,44 @@ public class InteractionDataFlowUtils
          }
       }
    }
-   
+
    public static Map<String, Serializable> unmarshalDataValues(Model model,
-         ApplicationContext context, ParametersXto params)   
+         ApplicationContext context, ParametersXto params, ModelResolver resolver)
+   {
+      Map<String, Serializable> res = null;
+      if ((null != context) && (null != model) && (null != params))
+      {
+         res = new HashMap<String, Serializable>();
+         @SuppressWarnings("unchecked")
+         List<DataMapping> dataMappings = context.getAllOutDataMappings();
+         for (DataMapping dm : dataMappings)
          {
-            Map<String, Serializable> res = null;
-            
-            if ((null != context) && (null != model) && (null != params))
+            ParameterXto param = null;
+            // Iterator through params to find a matching one
+            for (int i = 0; i < params.getParameter().size(); ++i)
             {
-                              
-               res = new HashMap<String, Serializable>();                              
-
-               List<DataMapping> dataMappings = context.getAllOutDataMappings();
-                              
-               for (DataMapping dm : dataMappings)
+               param = params.getParameter().get(i);
+               if (param.getName().equals(dm.getApplicationAccessPoint().getId()))
                {
-                                          
-                     ParameterXto param = null;
-                     // Iterator through params to find a matching one
-                     for (int i = 0; i < params.getParameter().size(); ++i)
+                  if (null != dm)
+                  {
+                     Data data = model.getData(dm.getDataId());
+                     if (data != null)
                      {
-                        param = params.getParameter().get(i);
-                        if (param.getName().equals(dm.getApplicationAccessPoint().getId()))
-                        {
-                           if (null != dm)
-                           {
-                              Data data = model.getData(dm.getDataId());
-                              if (data != null)
-                              {
-                                 res.put(
-                                       param.getName(),
-                                       unmarshalDataValue(model, data, dm.getDataPath(),
-                                             dm.getMappedType(), param));
-                              }
-                              else
-                              {
-                                 throw new NullPointerException("Data not found in model for id: "
-                                       + param.getName());
-                              }                     
-                           
-                           break;
-                        }
-
-                     }                                                                  
-                     
+                        res.put(param.getName(),
+                              unmarshalDataValue(model, data, dm.getDataPath(),
+                                    dm.getMappedType(), param, resolver));
+                     }
+                     else
+                     {
+                        throw new NullPointerException("Data not found in model for id: " + param.getName());
+                     }
+                     break;
                   }
-                  
                }
             }
-            
-            return res;
          }
-   
-
+      }
+      return res;
+   }
 }

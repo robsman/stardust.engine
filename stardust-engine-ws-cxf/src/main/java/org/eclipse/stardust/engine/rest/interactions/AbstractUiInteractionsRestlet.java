@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,7 +84,7 @@ public abstract class AbstractUiInteractionsRestlet
       Interaction interaction = findInteraction();
 
       return toXto(interaction.getDefinition(), new InteractionDefinition(),
-            interaction.getModel());
+            interaction.getModel(), interaction.getCrossModelReference(), interaction.getResolver());
    }
 
    protected InteractionOwner getOwner() throws WebApplicationException
@@ -101,7 +101,8 @@ public abstract class AbstractUiInteractionsRestlet
       InDataValues result = new InDataValues();
 
       marshalInteractionInDataValues(interaction.getModel(), interaction.getDefinition(),
-            interaction.getInDataValues(), result);
+            interaction.getCrossModelReference(), interaction.getInDataValues(), result,
+            interaction.getResolver());
 
       return result;
    }
@@ -113,7 +114,7 @@ public abstract class AbstractUiInteractionsRestlet
       DataMapping dm = findDataFlow(interaction, parameterId, Direction.IN);
 
       ParameterXto result = marshalInDataValue(interaction.getModel(), dm,
-            interaction.getInDataValue(parameterId));
+            interaction.getInDataValue(parameterId), interaction.getResolver());
 
       if (null == result)
       {
@@ -146,7 +147,7 @@ public abstract class AbstractUiInteractionsRestlet
       Interaction interaction = findInteraction();
 
       interaction.setOutDataValues(InteractionDataFlowUtils.unmarshalDataValues(
-            interaction.getModel(), interaction.getDefinition(), outDataValues));
+            interaction.getModel(), interaction.getDefinition(), outDataValues, interaction.getResolver()));
 
    }
 
@@ -168,7 +169,8 @@ public abstract class AbstractUiInteractionsRestlet
          }
       }
 
-      Serializable decodedValue = unmarshalOutDataValue(interaction.getModel(), outParam, value);
+      Serializable decodedValue = unmarshalOutDataValue(interaction.getModel(), outParam,
+            interaction.getCrossModelReference(), value, interaction.getResolver());
       interaction.setOutDataValue(parameterId, decodedValue);
    }
 
@@ -192,7 +194,7 @@ public abstract class AbstractUiInteractionsRestlet
                   .getModel(data.getModelOID(), false);
          }
       }
-      Serializable decodedValue = unmarshalOutDataValue(model, dm, value);
+      Serializable decodedValue = unmarshalOutDataValue(model, dm, value, interaction.getResolver());
       if (null != decodedValue)
       {
          String outParamId = dm.getApplicationAccessPoint().getId();
@@ -225,7 +227,9 @@ public abstract class AbstractUiInteractionsRestlet
 
       if ((null != definition) && !isEmpty(parameterId))
       {
-         for (AccessPoint ap : (List<AccessPoint>) definition.getAllAccessPoints())
+         @SuppressWarnings("unchecked")
+         List<AccessPoint> allAccessPoints = (List<AccessPoint>) definition.getAllAccessPoints();
+         for (AccessPoint ap : allAccessPoints)
          {
             if ((direction.isCompatibleWith(ap.getDirection())) && parameterId.equals(ap.getId()))
             {
@@ -245,8 +249,7 @@ public abstract class AbstractUiInteractionsRestlet
 
       if ((null != definition) && !isEmpty(parameterId))
       {
-         AccessPoint outParam = findParameterDefinition(interaction, parameterId,
-               direction);
+         AccessPoint outParam = findParameterDefinition(interaction, parameterId, direction);
          if (null == outParam)
          {
             if (InteractionDataFlowUtils.supportDataMappingIds())
@@ -256,6 +259,7 @@ public abstract class AbstractUiInteractionsRestlet
          }
          else
          {
+            @SuppressWarnings("unchecked")
             List<DataMapping> allDataMappings = definition.getAllDataMappings();
             for (DataMapping dataMapping : allDataMappings)
             {

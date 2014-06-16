@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
@@ -41,7 +42,7 @@ import org.w3c.dom.Node;
 public class WebserviceApplicationInstance implements SynchronousApplicationInstance
 {
    public static final Logger trace = LogManager.getLogger(WebserviceApplicationInstance.class);
-   
+
    public static final String DYNAMIC_SERVICE_NAME = "DynamicService";
    public static final String DYNAMIC_PORT_NAME = "DynamicPort";
 
@@ -49,17 +50,17 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
          WSConstants.DYNAMIC_BOUND_SERVICE_QNAME.getNamespaceURI(), DYNAMIC_SERVICE_NAME);
    public static final QName DYNAMIC_PORT_QNAME = new QName(
          WSConstants.DYNAMIC_BOUND_SERVICE_QNAME.getNamespaceURI(), DYNAMIC_PORT_NAME);
-   
+
    private static final Set<String> primitiveTypes = new HashSet<String>();
    static {
       primitiveTypes.add(boolean.class.getName());
       primitiveTypes.add(Boolean.class.getName());
-      
+
       primitiveTypes.add(float.class.getName());
-      primitiveTypes.add(Float.class.getName());      
+      primitiveTypes.add(Float.class.getName());
 
       primitiveTypes.add(double.class.getName());
-      primitiveTypes.add(Double.class.getName());      
+      primitiveTypes.add(Double.class.getName());
 
       primitiveTypes.add(Integer.class.getName());
       primitiveTypes.add(String.class.getName());
@@ -72,27 +73,27 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
 
       primitiveTypes.add(Short.class.getName());
       primitiveTypes.add(short.class.getName());
-      
+
       primitiveTypes.add(byte.class.getName());
-      primitiveTypes.add(Byte.class.getName());      
+      primitiveTypes.add(Byte.class.getName());
    }
-   
+
    // both needed to instantiate the service.
    private QName serviceName;
    private String endpointName;
-   
+
    private String inputOrder;
    private String outputOrder;
 
    private HashMap<String,String> typeMappings;
    private HashMap<String,QName> namespaces;
-   
+
    private AuthenticationParameters auth;
    private EndpointReferenceType ref;
    private URL wsdlLocation;
 
    private Map<String, Object> inValues = new HashMap<String, Object>();
-   
+
    private String endpointAddress;
    private String soapAction;
    private String soapProtocol;
@@ -180,7 +181,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                   (WSConstants.WS_TEMPLATE_ATTR_PREFIX + "input:").length()), entry.getValue());
          }
       }
-      
+
       soapAction = properties.get(WSConstants.WS_SOAP_ACTION_URI_ATT);
       soapProtocol = properties.get(WSConstants.WS_SOAP_PROTOCOL_ATT);
       if (soapProtocol == null)
@@ -333,7 +334,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                   }
                }
             }
-/*            
+/*
             for (Iterator<DetailEntry> i = detail.getDetailEntries(); i.hasNext();)
             {
                DetailEntry entry = i.next();
@@ -383,7 +384,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       }
       return null;
    }
-   
+
    private Map<String, ?> processResponseMessage(SOAPMessage response, Set<String> outDataTypes) throws Exception
    {
       Map<String, Object> data = new HashMap<String, Object>();
@@ -392,14 +393,14 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
          String[] parts = outputOrder.split(",");
          Iterator<?> i = response.getSOAPBody().getChildElements();
          int j = 0;
-         
+
          while (i.hasNext() && j < parts.length)
          {
             String name = parts[j];
             Object value = i.next();
 
             // skip over non Element children
-            // see #CRNT-11857 : JBOSS may include non Element children. 
+            // see #CRNT-11857 : JBOSS may include non Element children.
             if (!(value instanceof Element))
             {
                continue;
@@ -421,12 +422,12 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                }
                data.put(name, value);
             }
-            
+
             if (outDataTypes.contains(name + WSConstants.STRUCT_POSTFIX))
             {
                data.put(name + WSConstants.STRUCT_POSTFIX, value);
             }
-            
+
             j++;
          }
       }
@@ -479,7 +480,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       return child.getNodeType() != Node.COMMENT_NODE &&
          child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
    }
-   
+
    @SuppressWarnings({"rawtypes", "unchecked"})
    private SOAPMessage createRequestMessage() throws Exception
    {
@@ -492,7 +493,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       {
          mf = MessageFactory.newInstance();
       }
-      
+
       SOAPFactory sf = SOAPFactory.newInstance(soapProtocol);
 
       SOAPMessage request = mf.createMessage();
@@ -503,9 +504,9 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       }
 
       WSSecurity.INSTANCE.setWSSHeaders(request.getSOAPHeader(), auth);
-      
+
       SOAPBody body = request.getSOAPBody();
-      
+
       if (inputOrder != null) // it may not have an input !
       {
          String[] parts = inputOrder.split(",");
@@ -553,39 +554,80 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       return request;
    }
 
-   private SOAPElement createElement(SOAPFactory sf, Element element)
+   private SOAPElement createElement(SOAPFactory sf, Element source)
          throws SOAPException
    {
-      if (element == null)
+      if (source == null)
       {
          return null;
       }
-      if (element instanceof SOAPElement)
+      if (source instanceof SOAPElement)
       {
-         return (SOAPElement) element;
+         return (SOAPElement) source;
       }
 
-      SOAPElement copy = sf.createElement(element.getLocalName(), element.getPrefix(),
-            element.getNamespaceURI());
+      SOAPElement copy = sf.createElement(source.getLocalName(), source.getPrefix(), source.getNamespaceURI());
+      copyContent(source, copy);
+      return copy;
+   }
 
-      Document ownerDoc = copy.getOwnerDocument();
+   private Node importNode(Element source, Document doc)
+   {
+      String namespace = source.getNamespaceURI();
+      Element copy = namespace == null || namespace.isEmpty()
+         ? doc.createElement(source.getTagName())
+         : doc.createElementNS(namespace, source.getTagName());
+      copyContent(source, copy);
+      return copy;
+   }
 
-      NamedNodeMap attrMap = element.getAttributes();
+   private void copyContent(Element source, Element target)
+   {
+      String namespace = target.getNamespaceURI();
+      if (namespace != null && !namespace.isEmpty())
+      {
+         String prefix = target.getPrefix();
+         if (prefix == null || prefix.isEmpty())
+         {
+            prefix = source.lookupPrefix(namespace);
+            if (prefix == null)
+            {
+               int c = 0;
+               String base = target.getLocalName();
+               if (base.length() > 3)
+               {
+                  base = base.substring(0, 3);
+               }
+               do
+               {
+                  prefix = c++ == 0 ? base : base + c;
+               }
+               while (source.lookupNamespaceURI(prefix) != null);
+               target.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ':' + prefix, namespace);
+            }
+            target.setPrefix(prefix);
+         }
+      }
+
+      Document doc = target.getOwnerDocument();
+
+      NamedNodeMap attrMap = source.getAttributes();
       for (int i = 0; i < attrMap.getLength(); i++)
       {
          Attr nextAttr = (Attr) attrMap.item(i);
-         Attr importedAttr = (Attr) ownerDoc.importNode(nextAttr, true);
-         copy.setAttributeNodeNS(importedAttr);
+         Attr importedAttr = (Attr) doc.importNode(nextAttr, true);
+         target.setAttributeNodeNS(importedAttr);
       }
 
-      NodeList nl = element.getChildNodes();
+      NodeList nl = source.getChildNodes();
       for (int i = 0; i < nl.getLength(); i++)
       {
          org.w3c.dom.Node next = nl.item(i);
-         org.w3c.dom.Node imported = ownerDoc.importNode(next, true);
-         copy.appendChild(imported);
+         org.w3c.dom.Node imported = next instanceof Element
+               ? importNode((Element) next, doc)
+               : doc.importNode(next, true);
+         target.appendChild(imported);
       }
-      return copy;
    }
 
    private boolean isPrimitive(String mapping)
@@ -596,7 +638,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
    private Element getAsElement(Object value)
    {
       Element element = null;
-      
+
       if (value instanceof Element)
       {
          element = (Element) value;
@@ -609,7 +651,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       {
          element = XmlUtils.parseString((String) value).getDocumentElement();
       }
-      
+
       return element;
    }
 
@@ -694,7 +736,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       auth = null;
       ref = null;
    }
-   
+
    private static String trim(String text)
    {
       if (text.length() > 0)

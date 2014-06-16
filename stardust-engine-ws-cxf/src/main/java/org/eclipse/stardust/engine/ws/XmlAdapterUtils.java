@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -211,6 +211,7 @@ import org.eclipse.stardust.engine.api.ws.UserQueryResultXto.UsersXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto;
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -668,7 +669,7 @@ public class XmlAdapterUtils
    }
 
    @SuppressWarnings("unchecked")
-   public static ModelXto toWs(DeployedModel model)
+   public static ModelXto toWs(DeployedModel model, ModelResolver resolver)
    {
       ModelXto xto = toWs(model, new ModelXto());
 
@@ -713,7 +714,7 @@ public class XmlAdapterUtils
             ProcessDefinition pd = (ProcessDefinition) model.getAllProcessDefinitions()
                   .get(i);
 
-            xto.getProcesses().getProcess().add(toWs(pd, model));
+            xto.getProcesses().getProcess().add(toWs(pd, model, resolver));
          }
       }
 
@@ -815,19 +816,18 @@ public class XmlAdapterUtils
    public static ProcessDefinitionsXto marshalProcessDefinitionList(
          List<ProcessDefinition> pdl)
    {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
       ProcessDefinitionsXto ret = new ProcessDefinitionsXto();
-
       for (ProcessDefinition processDefinition : pdl)
       {
-         Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(
-               processDefinition.getModelOID());
-         ret.getProcessDefinition().add(toWs(processDefinition, model));
+         Model model = wsEnv.getModel(processDefinition.getModelOID());
+         ret.getProcessDefinition().add(toWs(processDefinition, model, wsEnv));
       }
       return ret;
    }
 
    @SuppressWarnings("unchecked")
-   public static ProcessDefinitionXto toWs(ProcessDefinition pd, Model model)
+   public static ProcessDefinitionXto toWs(ProcessDefinition pd, Model model, ModelResolver resolver)
    {
       ProcessDefinitionXto res = toWs(pd, new ProcessDefinitionXto());
 
@@ -838,7 +838,7 @@ public class XmlAdapterUtils
 
       if ( !pd.getAllDataPaths().isEmpty())
       {
-         DataPathsXto dps = marshalDataPathList(pd.getAllDataPaths(), model);
+         DataPathsXto dps = marshalDataPathList(pd.getAllDataPaths(), model, resolver);
          res.setDataPaths(dps);
       }
 
@@ -850,20 +850,20 @@ public class XmlAdapterUtils
          {
             Activity ad = (Activity) pd.getAllActivities().get(i);
 
-            res.getActivities().getActivity().add(toWs(ad, model));
+            res.getActivities().getActivity().add(toWs(ad, model, resolver));
          }
       }
       res.setEventHandlers(toWs(pd.getAllEventHandlers(),
             new EventHandlerDefinitionsXto()));
 
-      res.setDeclaredProcessInterface(marshallProcessInterface(model, pd.getDeclaredProcessInterface()));
-      res.setImplementedProcessInterface(marshallProcessInterface(model, pd.getImplementedProcessInterface()));
+      res.setDeclaredProcessInterface(marshallProcessInterface(model, pd.getDeclaredProcessInterface(), resolver));
+      res.setImplementedProcessInterface(marshallProcessInterface(model, pd.getImplementedProcessInterface(), resolver));
 
       return res;
    }
 
    private static ProcessInterfaceXto marshallProcessInterface(Model model,
-         ProcessInterface processInterface)
+         ProcessInterface processInterface, ModelResolver resolver)
    {
       ProcessInterfaceXto ret = null;
 
@@ -875,7 +875,7 @@ public class XmlAdapterUtils
          if (processInterface.getFormalParameters() != null)
          {
 
-            ret.setFormalParameters(marshalFormalParamaeters(model, processInterface.getFormalParameters()));
+            ret.setFormalParameters(marshalFormalParamaeters(model, processInterface.getFormalParameters(), resolver));
          }
       }
 
@@ -883,7 +883,7 @@ public class XmlAdapterUtils
    }
 
    private static FormalParametersXto marshalFormalParamaeters(Model model,
-         List<FormalParameter> parameters)
+         List<FormalParameter> parameters, ModelResolver resolver)
    {
       FormalParametersXto parametersXto = null;
       if (parameters != null)
@@ -891,14 +891,14 @@ public class XmlAdapterUtils
          parametersXto = new FormalParametersXto();
          for (FormalParameter parameter : parameters)
          {
-            FormalParameterXto parameterXto = marshallFormalParameter(model, parameter);
+            FormalParameterXto parameterXto = marshallFormalParameter(model, parameter, resolver);
             parametersXto.getFormalParameter().add(parameterXto);
          }
       }
       return parametersXto;
    }
 
-   private static FormalParameterXto marshallFormalParameter(Model model, FormalParameter parameter)
+   private static FormalParameterXto marshallFormalParameter(Model model, FormalParameter parameter, ModelResolver resolver)
    {
       FormalParameterXto ret = null;
       if (parameter != null)
@@ -913,7 +913,7 @@ public class XmlAdapterUtils
          String structTypeDefId = (String) parameter.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
          if (structTypeDefId != null)
          {
-            ret.setType(getStructuredTypeName(model, structTypeDefId));
+            ret.setType(getStructuredTypeName(model, structTypeDefId, resolver));
          }
       }
       return ret;
@@ -940,7 +940,7 @@ public class XmlAdapterUtils
    }
 
    private static DataPathsXto marshalDataPathList(List<DataPath> dataPathList,
-         Model model)
+         Model model, ModelResolver resolver)
    {
       DataPathsXto dps = null;
       if (dataPathList != null)
@@ -948,7 +948,7 @@ public class XmlAdapterUtils
          dps = new DataPathsXto();
          for (DataPath dp : dataPathList)
          {
-            dps.getDataPath().add(toWs(dp, model));
+            dps.getDataPath().add(toWs(dp, model, resolver));
          }
       }
       return dps;
@@ -1023,7 +1023,7 @@ public class XmlAdapterUtils
    }
 
    @SuppressWarnings("unchecked")
-   public static ActivityDefinitionXto toWs(Activity ad, Model model)
+   public static ActivityDefinitionXto toWs(Activity ad, Model model, ModelResolver resolver)
    {
       ActivityDefinitionXto res = toWs(ad, new ActivityDefinitionXto());
 
@@ -1044,7 +1044,7 @@ public class XmlAdapterUtils
          {
             org.eclipse.stardust.engine.api.model.ApplicationContext ac = applicationContexts.get(i);
 
-            res.getInteractionContexts().getInteractionContext().add(toWs(ac, model));
+            res.getInteractionContexts().getInteractionContext().add(toWs(ac, model, resolver));
          }
       }
       res.setEventHandlers(toWs(ad.getAllEventHandlers(),
@@ -1060,7 +1060,9 @@ public class XmlAdapterUtils
       {
          ret = toWs(application, new ApplicationXto());
 
-         ret.setAccessPoints(marshalAccessPointList(application.getAllAccessPoints()));
+         @SuppressWarnings("unchecked")
+         List<AccessPoint> allAccessPoints = application.getAllAccessPoints();
+         ret.setAccessPoints(marshalAccessPointList(allAccessPoints));
 
          ret.setTypeAttributes(marshalAttributes(application.getAllTypeAttributes()));
       }
@@ -1174,13 +1176,13 @@ public class XmlAdapterUtils
       return ret;
    }
 
-   public static InteractionContextXto toWs(ApplicationContext ac, Model model)
+   public static InteractionContextXto toWs(ApplicationContext ac, Model model, ModelResolver resolver)
    {
-      return toWs(ac, new InteractionContextXto(), model);
+      return toWs(ac, new InteractionContextXto(), model, resolver);
    }
 
    public static <T extends InteractionContextXto> T toWs(ApplicationContext ac, T xto,
-         Model model)
+         Model model, ModelResolver resolver)
    {
       xto = toWs(ac, xto);
 
@@ -1198,7 +1200,7 @@ public class XmlAdapterUtils
          {
             DataMapping dm = inMappings.get(i);
 
-            xto.getInDataFlows().getDataFlow().add(toWs(dm, model));
+            xto.getInDataFlows().getDataFlow().add(toWs(dm, model, resolver));
          }
       }
 
@@ -1212,7 +1214,7 @@ public class XmlAdapterUtils
          {
             DataMapping dm = outMappings.get(i);
 
-            xto.getOutDataFlows().getDataFlow().add(toWs(dm, model));
+            xto.getOutDataFlows().getDataFlow().add(toWs(dm, model, resolver));
          }
       }
 
@@ -1221,13 +1223,12 @@ public class XmlAdapterUtils
 
    public static VariableDefinitionXto toWs(Data data)
    {
-      Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(
-            data.getModelOID());
-
-      return toWs(data, model);
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      Model model = wsEnv.getModel(data.getModelOID());
+      return toWs(data, model, wsEnv);
    }
 
-   public static VariableDefinitionXto toWs(Data data, Model model)
+   public static VariableDefinitionXto toWs(Data data, Model model, ModelResolver resolver)
    {
       VariableDefinitionXto xto = toWs(data, new VariableDefinitionXto());
 
@@ -1240,38 +1241,19 @@ public class XmlAdapterUtils
       }
       else if (isStructuredType(model, data))
       {
-         String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         xto.setType(getStructuredTypeName(model, typeDeclarationId));
+         xto.setType(getStructuredTypeName(model, data, null, resolver));
       }
       else if (isDmsType(model, data))
       {
          xto.setType(getDmsTypeName(model, data));
 
          String metaDataSchema = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
-         if ( !isEmpty(metaDataSchema))
+         if (!isEmpty(metaDataSchema))
          {
-         if (metaDataSchema.startsWith("typeDeclaration:"))
-         {
-            metaDataSchema = metaDataSchema.substring("typeDeclaration:".length());
-         }
-         QName qualifiedMetaDataSchema = QName.valueOf(metaDataSchema);
-         String typeDeclarationModelId = qualifiedMetaDataSchema.getNamespaceURI();
-
-         String modelId = model.getId();
-         Model modelWithTypeDeclaration;
-         if (typeDeclarationModelId != null && !typeDeclarationModelId.isEmpty() && !modelId.equals(typeDeclarationModelId))
-         {
-            modelWithTypeDeclaration = getActiveModel(typeDeclarationModelId);
-         }
-         else
-         {
-            modelWithTypeDeclaration = model;
-         }
-
             AttributeXto metaData = new AttributeXto();
             metaData.setName("metaDataType");
             metaData.setType(QNameConstants.QN_QNAME.toString());
-            metaData.setValue(getStructuredTypeName(modelWithTypeDeclaration, qualifiedMetaDataSchema.getLocalPart()).toString());
+            metaData.setValue(getStructuredTypeName(model, metaDataSchema, resolver).toString());
             xto.getAttributes().getAttribute().add(metaData);
          }
       }
@@ -1293,7 +1275,7 @@ public class XmlAdapterUtils
       return xto;
    }
 
-   private static Model getActiveModel(String modelId)
+/*   private static Model getActiveModel(String modelId)
    {
       Model model = null;
       WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
@@ -1305,9 +1287,9 @@ public class XmlAdapterUtils
          model = currentWebServiceEnvironment.getModel(deployedModelDescription.getModelOID());
       }
       return model;
-   }
+   }*/
 
-public static DataPathXto toWs(DataPath dp, Model model)
+   public static DataPathXto toWs(DataPath dp, Model model, ModelResolver resolver)
    {
       DataPathXto res = toWs(dp, new DataPathXto());
 
@@ -1330,7 +1312,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
          }
          else if (isStructuredType(model, dp))
          {
-            res.setType(getStructuredTypeName(model, dp));
+            res.setType(getStructuredTypeName(model, dp, resolver));
          }
          else if (isDmsType(model, dp))
          {
@@ -1355,7 +1337,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return res;
    }
 
-   public static DataFlowXto toWs(DataMapping dm, Model model)
+   public static DataFlowXto toWs(DataMapping dm, Model model, ModelResolver resolver)
    {
       DataFlowXto res = toWs(dm, new DataFlowXto());
 
@@ -1375,7 +1357,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
          }
          else if (isStructuredType(model, dm))
          {
-            res.setType(getStructuredTypeName(model, dm));
+            res.setType(getStructuredTypeName(model, dm, resolver));
          }
          else if (isDmsType(model, dm))
          {
@@ -1680,7 +1662,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return xto;
    }
 
-   @SuppressWarnings("unchecked")
    private static <T extends ModelParticipantXto> T toWs(ModelParticipant p, T xto,
          int traversalDepth)
    {
@@ -1707,7 +1688,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
    // *** END OF PARTICIPANT MARSHALING ***
 
-   @SuppressWarnings("unchecked")
    public static ProcessInstanceQueryResultXto toWs(ProcessInstances pis)
    {
       ProcessInstanceQueryResultXto ret = new ProcessInstanceQueryResultXto();
@@ -1716,9 +1696,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       ret.setTotalCountThreshold(pis.getTotalCountThreshold());
 
       ret.setProcessInstances(new ProcessInstancesXto());
-      for (Iterator iterator = pis.iterator(); iterator.hasNext();)
+      for (ProcessInstance pi : pis)
       {
-         ProcessInstance pi = (ProcessInstance) iterator.next();
          ret.getProcessInstances().getProcessInstance().add(toWs(pi, pis.getQuery()));
       }
       return ret;
@@ -1730,16 +1709,13 @@ public static DataPathXto toWs(DataPath dp, Model model)
       ret.setTotalCount(mapTotalCount(pds));
       ret.setHasMore(pds.hasMore());
       ret.setTotalCountThreshold(pds.getTotalCountThreshold());
-
       ret.setProcessDefinitions(new ProcessDefinitionsXto());
-      for (Iterator iterator = pds.iterator(); iterator.hasNext();)
+
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      for (ProcessDefinition pd : pds)
       {
-         ProcessDefinition pd = (ProcessDefinition) iterator.next();
-
-         Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(
-               pd.getModelOID());
-
-         ret.getProcessDefinitions().getProcessDefinition().add(toWs(pd, model));
+         Model model = wsEnv.getModel(pd.getModelOID());
+         ret.getProcessDefinitions().getProcessDefinition().add(toWs(pd, model, wsEnv));
       }
       return ret;
    }
@@ -1756,12 +1732,13 @@ public static DataPathXto toWs(DataPath dp, Model model)
     */
    public static ProcessInstanceXto toWs(ProcessInstance pi)
    {
-      Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      Model model = wsEnv.getModel(pi.getModelOID());
 
       // this adds NO descriptors to calls that cannot contain
       // DescriptorPolicy
       // because descriptors are NOT delivered by default for ProcessInstances
-      return toWs(pi, null, model);
+      return toWs(pi, null, model, wsEnv);
    }
 
    /**
@@ -1773,11 +1750,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
     *
     * @param pi
     * @param model model for lookups
+    * @param resolver required if the model contains references to other models, otherwise can be null
     * @return
     */
-   public static ProcessInstanceXto toWs(ProcessInstance pi, Model model)
+   public static ProcessInstanceXto toWs(ProcessInstance pi, Model model, ModelResolver resolver)
    {
-      return toWs(pi, null, model);
+      return toWs(pi, null, model, resolver);
    }
 
    /**
@@ -1790,9 +1768,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
     */
    public static ProcessInstanceXto toWs(ProcessInstance pi, Query query)
    {
-      Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
-
-      return toWs(pi,query, model);
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      Model model = wsEnv.getModel(pi.getModelOID());
+      return toWs(pi,query, model, wsEnv);
    }
 
    /**
@@ -1802,9 +1780,10 @@ public static DataPathXto toWs(DataPath dp, Model model)
     * @param pi
     * @param query
     * @param model model for lookups
+    * @param resolver
     * @return
     */
-   public static ProcessInstanceXto toWs(ProcessInstance pi, Query query, Model model)
+   public static ProcessInstanceXto toWs(ProcessInstance pi, Query query, Model model, ModelResolver resolver)
    {
       ProcessInstanceXto res = new ProcessInstanceXto();
 
@@ -1840,12 +1819,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
       if (model != null)
       {
          res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors,
-               model));
+               model, resolver));
 
          if (includeDescriptors)
          {
             res.setDescriptorDefinitions(marshalDataPathList(
-                  pi.getDescriptorDefinitions(), model));
+                  pi.getDescriptorDefinitions(), model, resolver));
          }
       }
 
@@ -1968,7 +1947,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return xto;
    }
 
-   @SuppressWarnings("unchecked")
    public static ActivityQueryResultXto toWs(ActivityInstances ais)
    {
       ActivityQueryResultXto ret = new ActivityQueryResultXto();
@@ -1977,10 +1955,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       ret.setTotalCountThreshold(ais.getTotalCountThreshold());
 
       ret.setActivityInstances(new ActivityInstancesXto());
-      for (Iterator iterator = ais.iterator(); iterator.hasNext();)
+      for (ActivityInstance ai : ais)
       {
-         ActivityInstance ai = (ActivityInstance) iterator.next();
-
          ret.getActivityInstances().getActivityInstance().add(toWs(ai, ais.getQuery()));
       }
       return ret;
@@ -2252,8 +2228,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
          }
          if (ai instanceof ActivityInstanceDetails)
          {
-            res.setPermissionStates(marshalPermissionStates((Map<String, PermissionState>) Reflect.getFieldValue(
-                  ai, "permissions")));
+            @SuppressWarnings("unchecked")
+            Map<String, PermissionState> permissionStates = (Map<String, PermissionState>) Reflect.getFieldValue(ai, "permissions");
+            res.setPermissionStates(marshalPermissionStates(permissionStates));
          }
 
          res.setProcessOid(ai.getProcessInstanceOID());
@@ -2298,10 +2275,11 @@ public static DataPathXto toWs(DataPath dp, Model model)
          {
             res.setInstanceProperties(marshalInstanceProperties(ai));
 
-            Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(
+            WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+            Model model = wsEnv.getModel(
                   ai.getModelOID());
             res.setDescriptorDefinitions(marshalDataPathList(
-                  ai.getDescriptorDefinitions(), model));
+                  ai.getDescriptorDefinitions(), model, wsEnv));
          }
 
          res.setHistoricalStates(marshalHistoricalStates(ai.getHistoricalStates()));
@@ -2558,6 +2536,10 @@ public static DataPathXto toWs(DataPath dp, Model model)
    private static ParticipantInfoXto marshalParticipantInfo(
          ParticipantInfo participantInfo, ParticipantInfoXto xto)
    {
+      if (participantInfo == null)
+      {
+         return null;
+      }
       xto.setId(participantInfo.getId());
       xto.setName(participantInfo.getName());
 
@@ -2921,12 +2903,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return xto;
    }
 
-   public static DocumentXto toWs(Document doc, Model model, String metaDataTypeId)
+   public static DocumentXto toWs(Document doc, Model model, String metaDataTypeId, ModelResolver resolver)
    {
       DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
 
       DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType);
+      marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
 
       return xto;
    }
@@ -2939,12 +2921,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
       ret.setTotalCountThreshold(documents.getTotalCountThreshold());
 
       ret.setDocuments(new DocumentsXto());
-      for (Iterator iterator = documents.iterator(); iterator.hasNext();)
+      for (Document document : documents)
       {
-         Document document = (Document) iterator.next();
-
-         ret.getDocuments()
-               .getDocument()
+         ret.getDocuments().getDocument()
                .add(toWs(document, (QName) null, (Set<TypedXPath>) null));
       }
       return ret;
@@ -2985,11 +2964,11 @@ public static DataPathXto toWs(DataPath dp, Model model)
    }
 
    public static Document fromXto(DocumentXto xto, Model model, String metaDataTypeId,
-         Document doc)
+         Document doc, ModelResolver resolver)
    {
       unmarshalDocumentXto(xto, doc);
 
-      unmarshalDmsMetaData(xto, doc, model, metaDataTypeId);
+      unmarshalDmsMetaData(xto, doc, model, metaDataTypeId, resolver);
 
       return doc;
    }
@@ -3050,12 +3029,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return ret;
    }
 
-   public static FolderXto toWs(Folder folder, Model model, String metaDataTypeId)
+   public static FolderXto toWs(Folder folder, Model model, String metaDataTypeId, ModelResolver resolver)
    {
       QName metaDataType = null;
       if (metaDataTypeId != null)
       {
-         metaDataType = getStructuredTypeName(model, metaDataTypeId);
+         metaDataType = getStructuredTypeName(model, metaDataTypeId, resolver);
       }
       return toWs(folder, model, null, metaDataType);
    }
@@ -3167,7 +3146,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return ret;
    }
 
-   public static Folder unmarshalFolder(FolderXto xto, Model model)
+   public static Folder unmarshalFolder(FolderXto xto, Model model, ModelResolver resolver)
    {
       Folder folder = new DmsFolderBean();
 
@@ -3195,21 +3174,21 @@ public static DataPathXto toWs(DataPath dp, Model model)
             internals.put(AuditTrailUtils.RES_PATH, xto.getPath());
          }
          internals.put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT, xto.getDocumentCount());
-         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, null));
+         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, null, resolver));
 
          internals.put(AuditTrailUtils.FOLDER_FOLDER_COUNT, xto.getFolderCount());
-         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, null));
+         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, null, resolver));
       }
 
       return folder;
    }
 
    public static Folder fromXto(FolderXto xto, Model model, String metaDataTypeId,
-         Folder folder)
+         Folder folder, ModelResolver resolver)
    {
       unmarshalFolderInfoXto(xto, folder);
 
-      unmarshalDmsMetaData(xto, folder, model, metaDataTypeId);
+      unmarshalDmsMetaData(xto, folder, model, metaDataTypeId, resolver);
 
       if (folder instanceof DmsFolderBean)
       {
@@ -3226,20 +3205,20 @@ public static DataPathXto toWs(DataPath dp, Model model)
          }
          internals.put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT,
                Integer.valueOf(xto.getDocumentCount()));
-         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, metaDataTypeId));
+         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, metaDataTypeId, resolver));
 
          internals.put(AuditTrailUtils.FOLDER_FOLDER_COUNT,
                Integer.valueOf(xto.getFolderCount()));
-         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, metaDataTypeId));
+         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, metaDataTypeId, resolver));
       }
 
       return folder;
    }
 
-   private static List<Map> fromXto(DocumentsXto documents, Model model,
-         String metaDataTypeId)
+   private static List<Map<?, ?>> fromXto(DocumentsXto documents, Model model,
+         String metaDataTypeId, ModelResolver resolver)
    {
-      List<Map> ret = null;
+      List<Map<?, ?>> ret = null;
 
       if (documents != null)
       {
@@ -3247,7 +3226,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
          for (DocumentXto document : documents.getDocument())
          {
-            DmsDocumentBean folderBean = (DmsDocumentBean) fromXto(document, model, metaDataTypeId, new DmsDocumentBean());
+            DmsDocumentBean folderBean = (DmsDocumentBean) fromXto(document, model, metaDataTypeId, new DmsDocumentBean(), resolver);
             ret.add(folderBean.vfsResource());
          }
       }
@@ -3255,9 +3234,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return ret;
    }
 
-   public static List<Map> fromXto(FoldersXto folders, Model model, String metaDataTypeId)
+   public static List<Map<?, ?>> fromXto(FoldersXto folders, Model model, String metaDataTypeId, ModelResolver resolver)
    {
-      List<Map> ret = null;
+      List<Map<?, ?>> ret = null;
 
       if (folders != null)
       {
@@ -3265,7 +3244,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
          for (FolderXto folder : folders.getFolder())
          {
-            DmsFolderBean folderBean = (DmsFolderBean) fromXto(folder, model, metaDataTypeId, new DmsFolderBean());
+            DmsFolderBean folderBean = (DmsFolderBean) fromXto(folder, model, metaDataTypeId, new DmsFolderBean(), resolver);
             ret.add(folderBean.vfsResource());
          }
       }
@@ -3392,10 +3371,11 @@ public static DataPathXto toWs(DataPath dp, Model model)
     * Document used in workflow, metaDataTypeId and model are known. Mainly used by
     * WorkflowService calls.
     * @param documentType Specifying documentType leads to a dms call in {@link WebServiceEnv}.
+    * @param resolver
     */
    public static ResourceInfoXto marshalDmsMetaData(ResourceInfo doc,
          ResourceInfoXto xto, Model model, String metaDataTypeId,
-         DocumentType documentType)
+         DocumentType documentType, ModelResolver resolver)
    {
       if (isEmpty(doc.getProperties()))
       {
@@ -3405,9 +3385,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          if ((null != model) && !isEmpty(metaDataTypeId))
          {
-            xto.setMetaDataType(getStructuredTypeName(model, metaDataTypeId));
-            xto.setMetaData(marshalStructValue(model, metaDataTypeId, null,
-                  (Serializable) doc.getProperties()));
+            xto.setMetaDataType(getStructuredTypeName(model, metaDataTypeId, resolver));
+            xto.setMetaData(marshalStructValue(model, metaDataTypeId, null, (Serializable) doc.getProperties()));
          }
          else
          {
@@ -3491,7 +3470,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       xto.setMetaDataType(new QName(namespace,
             DmsSchemaProvider.RESOURCE_PROPERTIES_COMPLEX_TYPE_NAME));
 
-      @SuppressWarnings("unchecked")
       final Set<TypedXPath> xPaths = XPathFinder.findAllXPaths(schema,
             DmsSchemaProvider.RESOURCE_PROPERTIES_COMPLEX_TYPE_NAME, false);
       final Map<String, List<Map<String, Serializable>>> schemaAwareMetaData = createSchemaAwareMetaData(metaData);
@@ -3543,7 +3521,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
    }
 
    public static ResourceInfo unmarshalDmsMetaData(ResourceInfoXto xto, ResourceInfo res,
-         Model model, String metaDataTypeId)
+         Model model, String metaDataTypeId, ModelResolver resolver)
    {
       if (xto.getMetaData() == null || xto.getMetaData().getAny() == null)
       {
@@ -3553,8 +3531,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          if ((null != model) && !isEmpty(metaDataTypeId))
          {
-            Serializable metaData = unmarshalStructValue(model, metaDataTypeId, null,
-                  xto.getMetaData().getAny());
+            Serializable metaData = unmarshalStructValue(model, metaDataTypeId, null, xto.getMetaData().getAny(), resolver);
             if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
             {
                res.setProperties((Map< ? , ? >) metaData);
@@ -3739,7 +3716,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
     * @param model the model to look up in.
     * @return Inferred XPaths.
     */
-   @SuppressWarnings("unchecked")
    public static Set<TypedXPath> inferStructDefinition(QName typeName, Model model)
    {
       Set<TypedXPath> xPaths = null;
@@ -4712,7 +4688,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
    }
 
    public static List<SubprocessSpawnInfo> unmarshalProcessSpawnInfos(
-         ProcessSpawnInfosXto processSpawnInfos)
+         ProcessSpawnInfosXto processSpawnInfos, WebServiceEnv wsEnv)
    {
       List<SubprocessSpawnInfo> ret = null;
       if (processSpawnInfos != null)
@@ -4723,18 +4699,18 @@ public static DataPathXto toWs(DataPath dp, Model model)
          {
             if (processSpawnInfoXto != null)
             {
-               ret.add(unmarshalProcessSpawnInfo(processSpawnInfoXto));
+               ret.add(unmarshalProcessSpawnInfo(processSpawnInfoXto, wsEnv));
             }
          }
       }
       return ret;
    }
 
-   private static SubprocessSpawnInfo unmarshalProcessSpawnInfo(ProcessSpawnInfoXto xto)
+   private static SubprocessSpawnInfo unmarshalProcessSpawnInfo(ProcessSpawnInfoXto xto, WebServiceEnv wsEnv)
    {
       String processId = xto.getProcessId();
       Map<String, ? > data = DataFlowUtils.unmarshalInitialDataValues(processId,
-            xto.getParameters());
+            xto.getParameters(), wsEnv);
       return new SubprocessSpawnInfo(processId, xto.isCopyData(), data);
    }
 
@@ -4796,10 +4772,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       xto.setTotalCountThreshold(dataQueryResult.getTotalCount());
 
       VariableDefinitionsXto varDefs = new VariableDefinitionsXto();
-      for (Iterator iterator = dataQueryResult.iterator(); iterator.hasNext();)
+      for (Data data : dataQueryResult)
       {
-         Data data = (Data) iterator.next();
-
          varDefs.getVariableDefinition().add(toWs(data));
       }
       xto.setVariableDefinitions(varDefs);
@@ -4871,7 +4845,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
          for (PreferenceEntryXto prefEntryXto : mapXto.getPreference())
          {
-            Class clazz = Reflect.getClassFromAbbreviatedName(prefEntryXto.getType());
+            Class<?> clazz = Reflect.getClassFromAbbreviatedName(prefEntryXto.getType());
 
             if (List.class.isAssignableFrom(clazz))
             {
@@ -4914,7 +4888,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
       Serializable pValue = value.toString();
       try
       {
-         Class typeClass = Reflect.getClassFromAbbreviatedName(type);
+         Class<?> typeClass = Reflect.getClassFromAbbreviatedName(type);
          if (Boolean.class.equals(typeClass))
          {
             pValue = Boolean.valueOf(value.toString());
@@ -4963,8 +4937,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
                if (value instanceof List)
                {
+                  @SuppressWarnings("unchecked")
                   List<Serializable> valueList = (List<Serializable>) value;
-
                   for (Serializable serializable : valueList)
                   {
                      if (serializable != null)

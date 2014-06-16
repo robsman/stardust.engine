@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,11 +16,7 @@ package org.eclipse.stardust.engine.rest.processinterface;
 
 import static org.eclipse.stardust.engine.rest.processinterface.TypeDeclarationRestletPathParameters.TYPE_DECL_ID;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -30,11 +26,8 @@ import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.SchemaType;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
-
+import org.eclipse.stardust.engine.ws.WebServiceEnv;
 import org.w3c.dom.Document;
-
 
 /**
  * <p>
@@ -55,39 +48,30 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
    @Produces(MediaType.APPLICATION_XML)
    public Document get()
    {
-      if (StringUtils.isEmpty(getModelId()) || StringUtils.isEmpty(typeDeclarationId))
+      try
       {
-         final String errorMsg = "No model ID and/or type declaration ID specified.";
-         throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(
-               errorMsg).build());
+         if (StringUtils.isEmpty(getModelId()) || StringUtils.isEmpty(typeDeclarationId))
+         {
+            final String errorMsg = "No model ID and/or type declaration ID specified.";
+            throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(
+                  errorMsg).build());
+         }
+
+         Model model = getModel();
+         final TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
+         if (typeDeclaration == null)
+         {
+            final String errorMsg = "Type Declaration not found.";
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(
+                  errorMsg).build());
+         }
+
+         return getXSDDocument(typeDeclaration.getXpdlType());
       }
-
-      final String modelId = getModelId();
-      final Model model = getModel(modelId);
-
-      final TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-      if (typeDeclaration == null)
+      finally
       {
-         final String errorMsg = "Type Declaration not found.";
-         throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(
-               errorMsg).build());
+         WebServiceEnv.removeCurrent();
       }
-
-      return getXSDDocument(typeDeclaration.getXpdlType());
-   }
-
-   private Model getModel(final String modelId)
-   {
-      DeployedModel model = (DeployedModel) serviceFactory().getWorkflowService()
-            .execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
-      if (null == model)
-      {
-         final String errorMsg = "No active model was found for modelId '" + modelId
-               + "'.";
-         throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(
-               errorMsg).build());
-      }
-      return model;
    }
 
    private Document getXSDDocument(final XpdlType xpdlType)

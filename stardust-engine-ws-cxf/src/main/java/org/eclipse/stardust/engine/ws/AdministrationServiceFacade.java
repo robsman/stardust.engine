@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -544,7 +544,7 @@ public class AdministrationServiceFacade implements IAdministrationService
          }
 
          ProcessInstance pi = sf.getAdministrationService().startProcess(modelOid,
-               processId, unmarshalInitialDataValues(processId, parameters),
+               processId, unmarshalInitialDataValues(processId, parameters, wsEnv),
                Boolean.TRUE.equals(startSynchronously));
 
          List<Document> theAttachments = unmarshalInputDocuments(attachments, sf,
@@ -579,7 +579,7 @@ public class AdministrationServiceFacade implements IAdministrationService
 
          Map<String, ? extends Serializable> outDataMappings = unmarshalDataValues(
                wsEnv.getModel(ai.getModelOID()), Direction.OUT, ai.getActivity(),
-               PredefinedConstants.APPLICATION_CONTEXT, outDataValues);
+               PredefinedConstants.APPLICATION_CONTEXT, outDataValues, wsEnv);
 
          ApplicationContext applicationContext = ai.getActivity().getApplicationContext(
                PredefinedConstants.APPLICATION_CONTEXT);
@@ -722,45 +722,45 @@ public class AdministrationServiceFacade implements IAdministrationService
          XmlAdapterUtils.handleBPMException(e);
       }
    }
-   
+
 	public PreferencesXto getPreferences(PreferenceScopeXto scope,
 			String moduleId, String preferencesId) throws BpmFault
 	{
-	
+
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
 		AdministrationService as = wsEnv.getServiceFactory()
 				.getAdministrationService();
-		try 
+		try
 		{
 			Preferences preferences = as.getPreferences(
 					XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId,
 					preferencesId);
 
 			return XmlAdapterUtils.toWs(preferences);
-		} 
-		catch (ApplicationException e) 
+		}
+		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
 		return null;
-		
+
 	}
 
 	public void savePreferences(PreferencesListXto preferenceList)
-			throws BpmFault 
+			throws BpmFault
 	{
-		try 
+		try
 		{
 			WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
 			AdministrationService as = wsEnv.getServiceFactory()
 					.getAdministrationService();
-			
+
 			as.savePreferences(XmlAdapterUtils.unmarshalPreferenceList(preferenceList));
-			
-		} 
-		catch (ApplicationException e) 
+
+		}
+		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
@@ -769,17 +769,17 @@ public class AdministrationServiceFacade implements IAdministrationService
 
 
 	public ConfigurationVariablesListXto getConfigurationVariables(
-			StringListXto modelIds, XmlValueXto modelXml) throws BpmFault 
+			StringListXto modelIds, XmlValueXto modelXml) throws BpmFault
 	{
 
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-		
+
 		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
-		
+
 		try
 		{
 			List<ConfigurationVariables> configList = CollectionUtils.newList();
-								
+
 			if (modelIds != null)
 			{
 				configList.addAll(as.getConfigurationVariables(modelIds.getValue()));
@@ -799,20 +799,20 @@ public class AdministrationServiceFacade implements IAdministrationService
 		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
-		}			
+		}
 		return null;
 	}
 
 
 	public ModelReconfigurationInfoListXto saveConfigurationVariables(
 			ConfigurationVariablesXto configurationVariables, boolean force)
-			throws BpmFault 
+			throws BpmFault
 	{
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-		
+
 		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
-		
-		try 
+
+		try
 		{
 			List<ModelReconfigurationInfo> modelReconfigInfoList = CollectionUtils
 					.newList();
@@ -822,23 +822,23 @@ public class AdministrationServiceFacade implements IAdministrationService
 							XmlAdapterUtils
 									.unmarshalConfigurationVariables(configurationVariables),
 							force);
-			
+
 			return XmlAdapterUtils.marshalReconfigurationInfoList(modelReconfigInfoList);
 		}
 		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
-		
+
 		return null;
 	}
 
-	public RuntimePermissionsXto getGlobalPermissions() throws BpmFault 
+	public RuntimePermissionsXto getGlobalPermissions() throws BpmFault
 	{
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-		
-		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();		
-		
+
+		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
 		try
 		{
 			return XmlAdapterUtils
@@ -849,27 +849,27 @@ public class AdministrationServiceFacade implements IAdministrationService
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
-		
+
 		return null;
 	}
 
 	public void setGlobalPermissions(RuntimePermissionsXto runtimePermissions)
-			throws BpmFault 
+			throws BpmFault
 	{
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-		
+
 		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
-		
+
 		try
 		{
 			as.setGlobalPermissions(XmlAdapterUtils
 					.unmarshalRuntimePermissions(runtimePermissions));
-		} 
-		catch (ApplicationException e) 
+		}
+		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
-		
+
 	}
 
 }

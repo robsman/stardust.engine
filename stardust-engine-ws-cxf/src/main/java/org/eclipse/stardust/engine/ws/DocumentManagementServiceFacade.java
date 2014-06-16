@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -499,7 +499,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(folder, wsEnv.getActiveModel(), null, null);
+      return toWs(folder, wsEnv.getActiveModel(), (QName) null, (QName) null);
    }
 
    public FolderXto updateFolder(FolderXto updateFolder) throws BpmFault
@@ -508,16 +508,17 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       DocumentManagementService dms = wsEnv.getServiceFactory()
             .getDocumentManagementService();
       Folder folder = null;
+      Model model = wsEnv.getActiveModel();
       try
       {
-         folder = dms.updateFolder(unmarshalFolder(updateFolder, wsEnv.getActiveModel()));
+         folder = dms.updateFolder(unmarshalFolder(updateFolder, model, wsEnv));
 
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(folder, wsEnv.getActiveModel(), null, updateFolder.getMetaDataType());
+      return toWs(folder, model, null, updateFolder.getMetaDataType());
    }
 
    public void removeFolder(String folderId, Boolean recursive) throws BpmFault

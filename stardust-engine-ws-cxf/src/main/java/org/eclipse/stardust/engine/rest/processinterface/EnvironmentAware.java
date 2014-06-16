@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,20 +23,19 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.stardust.common.Base64;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
-
-
 
 /**
  * <p>
@@ -83,7 +82,7 @@ public class EnvironmentAware
    @QueryParam("stardust-bpm-model")
    private String modelId;
 
-   private ServiceFactory serviceFactory;
+   private WebServiceEnv wsEnv;
 
    /**
     * Returns a service factory that has been created based on the parameters given with
@@ -91,14 +90,17 @@ public class EnvironmentAware
     *
     * @return the service factory
     */
-   protected final ServiceFactory serviceFactory()
+   protected final WebServiceEnv environment()
    {
-      if (serviceFactory == null)
+      if (wsEnv == null)
       {
+         WebServiceEnv.removeCurrent();
          final String[] userPwd = usernamePassword();
-         serviceFactory = ServiceFactoryLocator.get(userPwd[0], userPwd[1], properties());
+         WebServiceEnv.setCurrentCredentials(userPwd[0], userPwd[1]);
+         WebServiceEnv.setCurrentSessionProperties(properties());
+         wsEnv = WebServiceEnv.currentWebServiceEnvironment();
       }
-      return serviceFactory;
+      return wsEnv;
    }
 
    /**
@@ -106,29 +108,31 @@ public class EnvironmentAware
     */
    protected String getModelId()
    {
-      if (StringUtils.isEmpty(modelId))
-      {
-         return getDefaultModelId(getPartitionId());
-      }
-
-      return modelId;
+      return StringUtils.isEmpty(modelId) ? getDefaultModelId(getPartitionId()) : modelId;
    }
 
    protected String getPartitionId()
    {
-      String partitionId = partition;
-      if (StringUtils.isEmpty(partitionId))
-      {
-         partitionId = PredefinedConstants.DEFAULT_PARTITION_ID;
-      }
-      return partitionId;
+      return StringUtils.isEmpty(partition) ? PredefinedConstants.DEFAULT_PARTITION_ID : partition;
    }
 
    private String getDefaultModelId(String partitionId)
    {
       Map<String, Serializable> preferenceMap = getPreferenceMap(partitionId);
-
       return (String) preferenceMap.get("DynamicEndpoint.DefaultModelId");
+   }
+
+   protected Model getModel()
+   {
+      String modelId = getModelId();
+      Model model = environment().getActiveModel(modelId);
+      if (null == model)
+      {
+         String errorMsg = "No active model was found for modelId '" + modelId + "'.";
+         ResponseBuilder responseBuilder = Response.status(Status.NOT_FOUND).entity(errorMsg);
+         throw new WebApplicationException(responseBuilder.build());
+      }
+      return model;
    }
 
    private Map<String, Serializable> getPreferenceMap(String partitionId)
@@ -137,22 +141,13 @@ public class EnvironmentAware
       Preferences defaultPrefs = null;
       if (partitionId != null)
       {
-
-         try
-         {
-            prefs = serviceFactory().getQueryService().getPreferences(
-                  PreferenceScope.PARTITION, MODULE_ID_WEB_SERVICE,
-                  PREFERENCES_ID_PROCESS_INTERFACE);
-            defaultPrefs = serviceFactory().getQueryService().getPreferences(
-                  PreferenceScope.DEFAULT, MODULE_ID_WEB_SERVICE,
-                  PREFERENCES_ID_PROCESS_INTERFACE);
-         }
-         catch (RuntimeException e)
-         {
-            WebServiceEnv.removeCurrent();
-            throw e;
-         }
-
+         QueryService qs = environment().getServiceFactory().getQueryService();
+         prefs = qs.getPreferences(
+               PreferenceScope.PARTITION, MODULE_ID_WEB_SERVICE,
+               PREFERENCES_ID_PROCESS_INTERFACE);
+         defaultPrefs = qs.getPreferences(
+               PreferenceScope.DEFAULT, MODULE_ID_WEB_SERVICE,
+               PREFERENCES_ID_PROCESS_INTERFACE);
       }
       return mergePreferences(defaultPrefs, prefs);
    }
@@ -161,7 +156,6 @@ public class EnvironmentAware
          Preferences prefs)
    {
       Map<String, Serializable> ret = CollectionUtils.newMap();
-
       if (defaultPrefs != null)
       {
          ret.putAll(defaultPrefs.getPreferences());
@@ -188,7 +182,6 @@ public class EnvironmentAware
       {
          properties.put(SecurityProperties.DOMAIN, domain);
       }
-
       return properties;
    }
 
@@ -196,12 +189,10 @@ public class EnvironmentAware
    {
       final String decodedUsernamePwd = decodeHeader();
       final String[] usernamePwd = decodedUsernamePwd.split(":", -1);
-
       if (StringUtils.isEmpty(usernamePwd[0]) || usernamePwd.length < 2)
       {
          throw new UnauthorizedException();
       }
-
       return usernamePwd;
    }
 
@@ -216,7 +207,6 @@ public class EnvironmentAware
          final String errorMsg = "Only HTTP Basic Authentication supported";
          throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(errorMsg).build());
       }
-
       final String encodedUsernamePwd = authHeader.replaceFirst(BASIC_LITERAL, "").trim();
       final byte[] decodedUsernamePwd = Base64.decode(encodedUsernamePwd.getBytes());
       return new String(decodedUsernamePwd);

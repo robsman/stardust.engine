@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalInDataValues;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalDataValues;
+import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalInitialDataValues;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalProcessInstanceProperties;
 import static org.eclipse.stardust.engine.ws.QueryAdapterUtils.unmarshalWorklistQuery;
 import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
@@ -71,8 +72,10 @@ public class WorkflowServiceFacade implements IWorkflowService
          WebServiceEnv wsEnv = currentWebServiceEnvironment();
          ServiceFactory sf = wsEnv.getServiceFactory();
 
+         Map<String, ? extends Serializable> initialDataValues = unmarshalInitialDataValues(
+               processId, parameters, wsEnv);
          WsApiStartProcessCommand command = new WsApiStartProcessCommand(processId,
-               parameters, startSynchronously, attachments);
+               initialDataValues, startSynchronously, attachments);
 
          ProcessInstance pi = null;
          try
@@ -92,13 +95,12 @@ public class WorkflowServiceFacade implements IWorkflowService
                throw e;
             }
          }
-         
+
 
          Model model = null;
          try
          {
-            model = WebServiceEnv.currentWebServiceEnvironment().getModel(
-                  pi.getModelOID());
+            model = wsEnv.getModel(pi.getModelOID());
          }
          catch (Throwable e)
          {
@@ -107,8 +109,8 @@ public class WorkflowServiceFacade implements IWorkflowService
                   + "' without process properties. Could not access model information for marshaling. "
                   + e.getMessage());
          }
-         
-         return toWs(pi, model);
+
+         return toWs(pi, model, wsEnv);
       }
       catch (ApplicationException e)
       {
@@ -235,7 +237,6 @@ public class WorkflowServiceFacade implements IWorkflowService
       return null;
    }
 
-   @SuppressWarnings("unchecked")
    public InstancePropertiesXto getProcessProperties(long processInstanceOid,
          PropertyIdsXto ids) throws BpmFault
    {
@@ -245,11 +246,11 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
-         HashSet idsSet = null;
+         HashSet<String> idsSet = null;
          // TODO allow empty List?
          if (ids != null && !ids.getPropertyId().isEmpty())
          {
-            idsSet = new HashSet(ids.getPropertyId());
+            idsSet = new HashSet<String>(ids.getPropertyId());
          }
          Map<String, Serializable> inDataPaths = wfs.getInDataPaths(processInstanceOid,
                idsSet);
@@ -292,12 +293,11 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          ActivityInstance ai = wfs.getActivityInstance(activityOid);
 
-         @SuppressWarnings("unchecked")
          Map<String, ? extends Serializable> inDataValues = wfs.getInDataValues(
-               activityOid, context, ids != null ? new HashSet(ids.getDataId()) : null);
+               activityOid, context, ids != null ? new HashSet<String>(ids.getDataId()) : null);
 
          return marshalInDataValues(wsEnv.getModel(ai.getModelOID()), ai.getActivity(),
-               context, inDataValues);
+               context, inDataValues, wsEnv);
       }
       catch (ApplicationException e)
       {
@@ -321,7 +321,7 @@ public class WorkflowServiceFacade implements IWorkflowService
                .getInDataValues(activityOid, context, null);
 
          return marshalInDataValues(wsEnv.getModel(ai.getModelOID()), ai.getActivity(),
-               context, inDataValues);
+               context, inDataValues, wsEnv);
       }
       catch (ApplicationException e)
       {
@@ -368,7 +368,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
                Map<String, ? extends Serializable> outData = unmarshalDataValues(
                      wsEnv.getModel(tempAi.getModelOID()), Direction.OUT,
-                     tempAi.getActivity(), context, outDataValues);
+                     tempAi.getActivity(), context, outDataValues, wsEnv);
 
                ai = wfs.suspendToParticipant(activityOid, participant, new ContextData(
                      context, outData));
@@ -386,7 +386,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
                Map<String, ? extends Serializable> outData = unmarshalDataValues(
                      wsEnv.getModel(tempAi.getModelOID()), Direction.OUT,
-                     tempAi.getActivity(), context, outDataValues);
+                     tempAi.getActivity(), context, outDataValues, wsEnv);
 
                ai = wfs.suspend(activityOid, new ContextData(context, outData));
             }
@@ -417,7 +417,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          Map<String, ? extends Serializable> outData = unmarshalDataValues(
                wsEnv.getModel(ai.getModelOID()), Direction.OUT, ai.getActivity(),
-               context, outDataValues);
+               context, outDataValues, wsEnv);
 
          if (activate == null || !activate)
          {
@@ -450,7 +450,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          Map<String, ? extends Serializable> outData = unmarshalDataValues(
                wsEnv.getModel(ai.getModelOID()), Direction.OUT, ai.getActivity(),
-               context, outDataValues);
+               context, outDataValues, wsEnv);
 
          if (activate == null || !activate)
          {
@@ -840,7 +840,7 @@ public class WorkflowServiceFacade implements IWorkflowService
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
          List<ProcessInstance> pis = wfs.spawnSubprocessInstances(processInstanceOid,
-               XmlAdapterUtils.unmarshalProcessSpawnInfos(processSpawnInfos));
+               XmlAdapterUtils.unmarshalProcessSpawnInfos(processSpawnInfos, wsEnv));
 
          return XmlAdapterUtils.marshalProcessInstanceList(pis);
       }
@@ -861,7 +861,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
-         Map<String, ? extends Serializable> data = DataFlowUtils.unmarshalInitialDataValues(spawnProcessId, parameters);
+         Map<String, ? extends Serializable> data = DataFlowUtils.unmarshalInitialDataValues(spawnProcessId, parameters, wsEnv);
          ProcessInstance pi = wfs.spawnPeerProcessInstance(processInstanceOid, spawnProcessId, copyData, data, abortProcessInstance, comment);
 
          return toWs(pi);

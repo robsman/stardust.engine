@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,43 +61,43 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
    {
       REGISTRY.set(interactionsRegistry);
    }
-   
+
    public static InteractionRegistry unbindRegistry()
    {
       InteractionRegistry current = REGISTRY.get();
-      
+
       REGISTRY.remove();
-      
+
       return current;
    }
-   
+
    public InteractionContextXto getDefinition(String interactionId) throws BpmFault
    {
       Interaction interaction = findInteraction(interactionId);
-      
-      return toWs(interaction.getDefinition(), interaction.getModel());
+
+      return toWs(interaction.getDefinition(), interaction.getModel(), interaction.getResolver());
    }
 
    public UserXto getOwner(String interactionId) throws BpmFault
    {
       Interaction interaction = findInteraction(interactionId);
-      
+
       return toWs(interaction.getOwner());
    }
-   
+
    public ParametersXto getInputParameters(String interactionId) throws BpmFault
    {
       Interaction interaction = findInteraction(interactionId);
-      
+
       return marshalInDataValues(interaction.getModel(), interaction.getDefinition(),
-            interaction.getInDataValues());
+            interaction.getInDataValues(), interaction.getResolver());
    }
 
    public void setOutputParameters(String interactionId, ParametersXto outputParameters)
          throws BpmFault
    {
       Interaction interaction = findInteraction(interactionId);
-      
+
       if (null != outputParameters)
       {
          for (ParameterXto param : outputParameters.getParameter())
@@ -121,7 +121,7 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
                   && (null != param.getXml()))
             {
                Serializable decodedValue = unmarshalStructValue(interaction.getModel(),
-                     dm, param.getXml().getAny());
+                     dm, param.getXml().getAny(), interaction.getResolver());
                if (null != decodedValue)
                {
                   interaction.setOutDataValue(param.getName(), decodedValue);
@@ -142,7 +142,7 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
    protected Interaction findInteraction(String interactionId) throws BpmFault
    {
       InteractionRegistry interactionsRegistry = REGISTRY.get();
-      
+
       if ((null != interactionsRegistry)
             && (null != interactionsRegistry.getInteraction(interactionId)))
       {
@@ -153,12 +153,12 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
          throw newBpmInteractionFault(UNKNOWN_INTERACTION);
       }
    }
-   
+
    protected DataMapping findDataFlow(Interaction interaction, String parameterId,
          Direction direction) throws BpmFault
    {
       ApplicationContext definition = interaction.getDefinition();
-      
+
       if ((null != definition) && !isEmpty(parameterId)
             && (null != definition.getDataMapping(direction, parameterId)))
       {
@@ -169,7 +169,7 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
          throw newBpmInteractionFault(WRONG_PARAMETER, parameterId);
       }
    }
-   
+
    public static BpmFault newBpmInteractionFault(BpmInteractionFaultCodeXto faultCode)
          throws BpmFault
    {
@@ -180,7 +180,7 @@ public class InteractionsServiceFacade implements IBpmInteractionsService
          String description) throws BpmFault
    {
       BpmInteractionFaultXto fault = new BpmInteractionFaultXto();
-      
+
       fault.setFaultCode(faultCode);
       fault.setFaultDescription(description);
 

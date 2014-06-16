@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -231,7 +231,8 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
             {
                // provide XML representation of structured data
                ParameterXto result = marshalStructValue(interaction.getModel(), inParam,
-                     interaction.getInDataValue(parameterId));
+                     interaction.getCrossModelReference(), interaction.getInDataValue(parameterId),
+                     interaction.getResolver());
 
                // Workaround, only first element used
                Element e = result.getXml().getAny().size() > 0
@@ -315,7 +316,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
             if (APPLICATION_XML_TYPE == selectedVariant.getMediaType())
             {
                // provide XML representation of structured data
-               ParameterXto result = marshalStructValue(model, dm, inParamValue);
+               ParameterXto result = marshalStructValue(model, dm, inParamValue, interaction.getResolver());
                // Workaround, only first element used
                Element e = result.getXml().getAny().size() > 0 ? result.getXml()
                      .getAny()

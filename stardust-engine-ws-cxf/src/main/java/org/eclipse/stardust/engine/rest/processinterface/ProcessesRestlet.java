@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,23 +24,19 @@ import java.io.Serializable;
 import java.util.Map;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.ProcessInterfaceCommand;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.ws.WebServiceEnv;
 import org.w3c.dom.Document;
 
 
@@ -80,57 +76,56 @@ public class ProcessesRestlet extends EnvironmentAware
          @QueryParam("synchronously") @DefaultValue(value = "false") final boolean synchronously,
          @Context final UriInfo uriInfo)
    {
-      checkModelId();
-      checkProcessId();
-
-      String modelId = getModelId();
-
-      final String qualifiedProcessId = createQualifiedProcessId(modelId, processId);
-      final FormalParameterTransformer transformer = new FormalParameterTransformer(
-            serviceFactory(), qualifiedProcessId);
-      final Map<String, Serializable> parameters = transformer.unmarshalParameters(in);
-
-      ProcessInterfaceCommand command =
-    	  new ProcessInterfaceCommand(qualifiedProcessId, parameters, synchronously);
-
-      ProcessInterfaceCommand.Result result = null;
-
       try
       {
-	      result = (ProcessInterfaceCommand.Result)
-	      		serviceFactory().getWorkflowService().execute(command);
-      }
-      catch(ObjectNotFoundException e)
-      {
-    	  String errorMsg = e.getMessage();
-    	  throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(errorMsg).build());
-      }
+         checkModelId();
+         ProcessDefinition pd = checkProcessId();
 
-      if (ProcessInstanceState.Completed.equals(result.getProcessInstance().getState()) && result.getProcessResults() != null)
-      {
-         Map<String, Serializable> returnValues = result.getProcessResults();
+         String modelId = getModelId();
 
-         return Response.ok(
-               XmlUtils.toString(transformer.marshalDocument(result.getProcessInstance(), returnValues)),
-               APPLICATION_XML_TYPE).build();
-      }
-      else
-      {
-         String suffix = "";
+         final String qualifiedProcessId = createQualifiedProcessId(modelId, processId);
+         final FormalParameterTransformer transformer = new FormalParameterTransformer(environment(), pd);
+         final Map<String, Serializable> parameters = transformer.unmarshalParameters(in);
 
-         String partitionId = getPartitionId();
-         if ( !PredefinedConstants.DEFAULT_PARTITION_ID.equals(partitionId))
+         ProcessInterfaceCommand command = new ProcessInterfaceCommand(qualifiedProcessId, parameters, synchronously);
+
+         ProcessInterfaceCommand.Result result = null;
+         try
          {
-            suffix += "&stardust-bpm-partition=" + partitionId;
+   	        result = (ProcessInterfaceCommand.Result) environment().getServiceFactory().getWorkflowService().execute(command);
+         }
+         catch(ObjectNotFoundException e)
+         {
+            String errorMsg = e.getMessage();
+       	    throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(errorMsg).build());
          }
 
-         suffix += "&stardust-bpm-model=" + modelId;
-
-         String linkString = uriInfo.getAbsolutePath() + "?piOID=" + result.getProcessInstance().getOID() + suffix;
-
-         return Response.ok(linkString, TEXT_PLAIN_TYPE).build();
+         if (ProcessInstanceState.Completed.equals(result.getProcessInstance().getState()) && result.getProcessResults() != null)
+         {
+            Map<String, Serializable> returnValues = result.getProcessResults();
+            String response = XmlUtils.toString(transformer.marshalDocument(result.getProcessInstance(), returnValues));
+            return Response.ok(response, APPLICATION_XML_TYPE).build();
+         }
+         else
+         {
+            StringBuilder linkString = new StringBuilder(uriInfo.getAbsolutePath().toString())
+               .append("?piOID=")
+               .append(result.getProcessInstance().getOID());
+            String partitionId = getPartitionId();
+            if (!PredefinedConstants.DEFAULT_PARTITION_ID.equals(partitionId))
+            {
+               linkString.append("&stardust-bpm-partition=")
+                         .append(partitionId);
+            }
+            linkString.append("&stardust-bpm-model=")
+                      .append(modelId);
+            return Response.ok(linkString.toString(), TEXT_PLAIN_TYPE).build();
+         }
       }
-
+      finally
+      {
+         WebServiceEnv.removeCurrent();
+      }
    }
 
    @GET
@@ -138,38 +133,42 @@ public class ProcessesRestlet extends EnvironmentAware
    public Document getProcessResults(
          @QueryParam("piOID") @DefaultValue("-1") final long piOID)
    {
-      checkModelId();
-      checkProcessId();
-
-      String modelId = getModelId();
-
-      if (piOID < 0)
+      try
       {
-         final String errorMsg = "No Process Instance OID specified.";
-         throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-               .entity(errorMsg)
-               .build());
+         checkModelId();
+         ProcessDefinition pd = checkProcessId();
+
+         if (piOID < 0)
+         {
+            String errorMsg = "No Process Instance OID specified.";
+            throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(errorMsg).build());
+         }
+
+         Map<String, Serializable> returnValues = getProcessResultsInternal(piOID);
+         ProcessInstance processInstance = environment().getServiceFactory().getWorkflowService().getProcessInstance(piOID);
+         FormalParameterTransformer transformer = new FormalParameterTransformer(environment(), pd);
+         return transformer.marshalDocument(processInstance, returnValues);
       }
-
-      final Map<String, Serializable> returnValues = getProcessResultsInternal(piOID);
-
-      final String qualifiedProcessId = createQualifiedProcessId(modelId, processId);
-      final FormalParameterTransformer transformer = new FormalParameterTransformer(
-            serviceFactory(), qualifiedProcessId);
-
-      ProcessInstance processInstance =
-    	  serviceFactory().getWorkflowService().getProcessInstance(piOID);
-
-      return transformer.marshalDocument(processInstance, returnValues);
+      finally
+      {
+         WebServiceEnv.removeCurrent();
+      }
    }
 
    @OPTIONS
    @Produces(MediaType.APPLICATION_XML)
    public String getWADL(@Context final UriInfo uriInfo)
    {
-      checkModelId();
-      checkProcessId();
-      return new WADLGenerator(uriInfo).generateWADL();
+      try
+      {
+         checkModelId();
+         checkProcessId();
+         return new WADLGenerator(uriInfo).generateWADL();
+      }
+      finally
+      {
+         WebServiceEnv.removeCurrent();
+      }
    }
 
    @GET
@@ -177,7 +176,14 @@ public class ProcessesRestlet extends EnvironmentAware
    @Produces(MediaType.APPLICATION_XML)
    public String getWADLExplicitly(@Context final UriInfo uriInfo)
    {
-      return getWADL(uriInfo);
+      try
+      {
+         return getWADL(uriInfo);
+      }
+      finally
+      {
+         WebServiceEnv.removeCurrent();
+      }
    }
 
    @GET
@@ -185,8 +191,14 @@ public class ProcessesRestlet extends EnvironmentAware
    @Produces(MediaType.APPLICATION_XML)
    public Document getWebAppTypesXsd(@Context final UriInfo uriInfo)
    {
-      final Model model = getModel(getModelId());
-      return new WADLGenerator(uriInfo).generateWebAppTypesXSD(model, processId);
+      try
+      {
+         return new WADLGenerator(uriInfo).generateWebAppTypesXSD(getModel(), processId);
+      }
+      finally
+      {
+         WebServiceEnv.removeCurrent();
+      }
    }
 
    private void checkModelId()
@@ -198,24 +210,24 @@ public class ProcessesRestlet extends EnvironmentAware
                .entity(errorMsg)
                .build());
       }
-      getModel(getModelId());
    }
 
-   private void checkProcessId()
+   private ProcessDefinition checkProcessId()
    {
       if (StringUtils.isEmpty(processId))
       {
          final String errorMsg = "No process ID specified.";
-         throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-               .entity(errorMsg)
-               .build());
+         throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(errorMsg).build());
       }
-      else if (getModel(getModelId()).getProcessDefinition(processId) == null)
+      else
       {
-         final String errorMsg = "No such process ID found in model.";
-         throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-               .entity(errorMsg)
-               .build());
+         ProcessDefinition processDefinition = getModel().getProcessDefinition(processId);
+         if (processDefinition == null)
+         {
+            final String errorMsg = "No such process ID found in model.";
+            throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(errorMsg).build());
+         }
+         return processDefinition;
       }
    }
 
@@ -224,7 +236,7 @@ public class ProcessesRestlet extends EnvironmentAware
       final Map<String, Serializable> result;
       try
       {
-         result = serviceFactory().getWorkflowService().getProcessResults(piOID);
+         result = environment().getServiceFactory().getWorkflowService().getProcessResults(piOID);
       }
       catch (final ObjectNotFoundException e)
       {
@@ -242,21 +254,6 @@ public class ProcessesRestlet extends EnvironmentAware
                .build());
       }
       return result;
-   }
-
-   private Model getModel(final String modelId)
-   {
-      DeployedModel model = (DeployedModel) serviceFactory().getWorkflowService()
-            .execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
-      if (null == model)
-      {
-         final String errorMsg = "No active model was found for modelId '" + modelId
-               + "'.";
-         throw new WebApplicationException(Response.status(Status.NOT_FOUND)
-               .entity(errorMsg)
-               .build());
-      }
-      return model;
    }
 
    private String createQualifiedProcessId(final String modelId, final String processId)

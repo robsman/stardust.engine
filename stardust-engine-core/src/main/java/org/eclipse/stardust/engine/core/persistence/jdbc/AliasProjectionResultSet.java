@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,22 +42,22 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    private static final long serialVersionUID = 2L;
 
    private static final Logger trace = LogManager.getLogger(AliasProjectionResultSet.class);
-   
+
    private final Class type;
    private final ITableDescriptor tableDescr;
    private final ResultSet resultSet;
-   private final List<Integer> fieldIndexList; 
+   private final List<Integer> fieldIndexList;
    private final Map<String, Integer> fieldNameIndexMap;
-   
+
    private final List<Pair<ValueType, Object>> fieldIndexValueList;
-   
+
    private boolean useCustomWasNull = false;
    private boolean wasCustomNull = false;
-   
+
    private int lookupIndexbyIndex(int columnIndex)
    {
       int idx = -columnIndex;
-      
+
       try
       {
          idx = fieldIndexList.get(columnIndex - 1);
@@ -73,9 +73,9 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    private int lookupIndexbyName(String fieldName)
    {
       Assert.isNotEmpty(fieldName, "For index lookup a nonempty field name has to be provided.");
-      
+
       int idx = -1;
-      
+
       Integer lutValue = fieldNameIndexMap.get(fieldName);
       if (null != lutValue)
       {
@@ -85,7 +85,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
       {
          trace.warn("Field name is not mapped. Access proceeds with -1.");
       }
-         
+
       return idx;
    }
 
@@ -111,9 +111,9 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
       this.resultSet = resultSet;
       this.fieldIndexList = new ArrayList();
       this.fieldNameIndexMap = CollectionUtils.newHashMap();
-      
+
       this.fieldIndexValueList = fieldIndexValueList;
-      
+
       // build lookup tables
       int realIndex = 1;
       for (int i = 0; i < completeFieldList.length; ++i)
@@ -149,7 +149,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          }
       }
    }
-   
+
    public Class getPersistentType()
    {
       return type;
@@ -656,56 +656,56 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public Array getArray(int i) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getArray(lookupIndexbyIndex(i));
    }
 
    public Array getArray(String colName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getArray(lookupIndexbyName(colName));
    }
 
    public byte getByte(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getByte(lookupIndexbyIndex(columnIndex));
    }
 
    public byte getByte(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getByte(lookupIndexbyName(columnName));
    }
 
    public java.io.InputStream getAsciiStream(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getAsciiStream(lookupIndexbyIndex(columnIndex));
    }
 
    public java.io.InputStream getAsciiStream(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getAsciiStream(lookupIndexbyName(columnName));
    }
 
    public double getDouble(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getDouble(lookupIndexbyIndex(columnIndex));
    }
 
    public double getDouble(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getDouble(lookupIndexbyName(columnName));
    }
 
@@ -739,28 +739,28 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public java.io.InputStream getUnicodeStream(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getUnicodeStream(lookupIndexbyIndex(columnIndex));
    }
 
    public java.io.InputStream getUnicodeStream(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getUnicodeStream(lookupIndexbyName(columnName));
    }
 
    public byte[] getBytes(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getBytes(lookupIndexbyIndex(columnIndex));
    }
 
    public byte[] getBytes(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getBytes(lookupIndexbyName(columnName));
    }
 
@@ -777,21 +777,21 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public float getFloat(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getFloat(lookupIndexbyIndex(columnIndex));
    }
 
    public float getFloat(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getFloat(lookupIndexbyName(columnName));
    }
 
    public Object getObject(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       if ( fieldIndexValueList != null && !fieldIndexValueList.isEmpty())
       {
          Pair<ValueType, Object> valueDscr = fieldIndexValueList.get(columnIndex-1);
@@ -820,21 +820,21 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public Object getObject(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getObject(lookupIndexbyName(columnName));
    }
 
    public Object getObject(int i, java.util.Map map) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getObject(lookupIndexbyIndex(i), map);
    }
 
    public Object getObject(String colName, java.util.Map map) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getObject(lookupIndexbyName(colName), map);
    }
 
@@ -861,7 +861,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public String getString(int columnIndex) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       if ( fieldIndexValueList != null && !fieldIndexValueList.isEmpty())
       {
          Pair<ValueType, Object> valueDscr = fieldIndexValueList.get(columnIndex-1);
@@ -889,21 +889,21 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public String getString(String columnName) throws SQLException
    {
       useCustomWasNull = false;
-      
+
       return resultSet.getString(lookupIndexbyName(columnName));
    }
 
    public int findColumn(String columnName) throws SQLException
    {
       int idx = lookupIndexbyName(columnName);
-      
+
       if (0 > idx)
       {
          trace.warn("Column " + columnName + " with alias " + tableDescr.getTableAlias()
                + " does not exist. Forcing Exception.");
          resultSet.findColumn(columnName + "__FORCE_EXCEPTION");
       }
-      
+
       return idx;
    }
 
@@ -966,11 +966,25 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    {
       //resultSet.updateRef(lookupIndexbyName(columnName), x);
    }
-   
+
+   /**
+    * This defines mapping types for result set indexes used in {@link AliasProjectionResultSet}.
+    * also see {@link MultiplePersistentResultSet}
+    *
+    */
    public static enum ValueType
    {
+      /**
+       * Defined index is relative in {@link AliasProjectionResultSet}
+       */
       LOCAL_RS_INDEX,
+      /**
+       * Defined index is absolute in parent result set, {@link AliasProjectionResultSet#resultSet}
+       */
       GLOBAL_RS_INDEX,
+      /**
+       * This does not reference an index into a result set but provides the value itself
+       */
       OBJECT
    }
 
@@ -1076,14 +1090,14 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
    public void updateAsciiStream(int arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateAsciiStream(String arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1091,7 +1105,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1099,21 +1113,21 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBinaryStream(int arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBinaryStream(String arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1121,7 +1135,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1129,49 +1143,49 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBlob(int arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBlob(String arg0, InputStream arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBlob(int arg0, InputStream arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateBlob(String arg0, InputStream arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateCharacterStream(int arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateCharacterStream(String arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1179,7 +1193,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1187,49 +1201,49 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateClob(int arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateClob(String arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateClob(int arg0, Reader arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateClob(String arg0, Reader arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNCharacterStream(int arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNCharacterStream(String arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1237,7 +1251,7 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
@@ -1245,90 +1259,90 @@ public class AliasProjectionResultSet implements ResultSet, Serializable
          throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(int arg0, NClob arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(String arg0, NClob arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(int arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(String arg0, Reader arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(int arg0, Reader arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNClob(String arg0, Reader arg1, long arg2) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNString(int arg0, String arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateNString(String arg0, String arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateRowId(int arg0, RowId arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateRowId(String arg0, RowId arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateSQLXML(int arg0, SQLXML arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void updateSQLXML(String arg0, SQLXML arg1) throws SQLException
    {
       // TODO Auto-generated method stub
-      
+
    }
 }

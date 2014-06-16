@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.engine.api.dto.ModelReconfigurationInfoDetails;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.runtime.ReconfigurationInfo;
@@ -37,13 +39,13 @@ public class PreferenceStorageFactory
    public static IPreferenceStorageManager getCurrent()
    {
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       if (rtEnv == null)
       {
          rtEnv = new BpmRuntimeEnvironment(null);
-         PropertyLayerProviderInterceptor.setCurrent(rtEnv);         
+         PropertyLayerProviderInterceptor.setCurrent(rtEnv);
       }
-      
+
       IPreferenceStorageManager store = rtEnv.getPreferenceStore();
       if (store == null)
       {
@@ -67,6 +69,8 @@ public class PreferenceStorageFactory
          {
             Map<String, Serializable> preferences = event.getChangedPreferences()
                   .getPreferences();
+            Map<String, IModel> oldOverrides = null;
+            Map<String, IModel> overrides = new HashMap<String,IModel>();
             String modelId = event.getChangedPreferences().getPreferencesId();
 
             List<ReconfigurationInfo> infos = CollectionUtils.newArrayList();
@@ -74,12 +78,30 @@ public class PreferenceStorageFactory
             {
                ModelManager modelManager = ModelManagerFactory.getCurrent();
                List<IModel> modelsForId = modelManager.getModelsForId(modelId);
-                              
+
+               BpmRuntimeEnvironment env = PropertyLayerProviderInterceptor.getCurrent();
+               if (env != null)
+               {
+                  oldOverrides = env.getModelOverrides();
+                  env.setModelOverrides(overrides);
+               }
+
                for (IModel model : modelsForId)
                {
+                  if (env != null)
+                  {
+                     for (Iterator<IExternalPackage> i = model.getExternalPackages()
+                           .iterator(); i.hasNext();)
+                     {
+                        IExternalPackage externalPackage = i.next();
+                        overrides.put(externalPackage.getHref(),
+                              externalPackage.getReferencedModel());
+                     }
+                  }
+
                   ModelReconfigurationInfoDetails details = new ModelReconfigurationInfoDetails(model);
                   details.setSuccess(true);
-                  
+
                   String xml = LargeStringHolder.getLargeString(model.getModelOID(),
                         ModelPersistorBean.class);
 
@@ -95,10 +117,10 @@ public class PreferenceStorageFactory
                      Map<String, Object> props = new HashMap<String, Object>();
                      props.put(ModelElementBean.PRP_REVALIDATE_ELEMENTS, true);
                      layer = ParametersFacade.pushLayer(props);
-                     
+
                      List<Inconsistency> inconsistencies = newModel.checkConsistency();
                      details.addInconsistencies(inconsistencies);
-                  }                  
+                  }
                   finally {
                      if(layer != null)
                      {
@@ -112,7 +134,7 @@ public class PreferenceStorageFactory
                   {
                      details.setSuccess(false);
                   }
-                  
+
                   infos.add(details);
                }
             }

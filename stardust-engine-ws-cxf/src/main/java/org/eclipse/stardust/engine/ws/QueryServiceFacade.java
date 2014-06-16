@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -285,7 +285,7 @@ public class QueryServiceFacade implements IQueryService
             model = sf.getQueryService().getModel(modelOid, computeAliveness);
          }
 
-         return model == null ? null : toWs(model);
+         return model == null ? null : toWs(model, wsEnv);
       }
       catch (ApplicationException e)
       {
@@ -330,7 +330,8 @@ public class QueryServiceFacade implements IQueryService
                .getProcessDefinition(modelOid, processId) : sf.getQueryService()
                .getProcessDefinition(processId);
 
-         return toWs(pd, wsEnv.getModel(pd.getModelOID()));
+         Model model = wsEnv.getModel(pd.getModelOID());
+         return toWs(pd, model, wsEnv);
       }
       catch (ApplicationException e)
       {
@@ -442,11 +443,10 @@ public class QueryServiceFacade implements IQueryService
 
             Model model = wsEnv.getModel(modelOid.intValue());
 
-            @SuppressWarnings("unchecked")
             List<TypeDeclaration> tdl = model.getAllTypeDeclarations();
             for (TypeDeclaration td : tdl)
             {
-               QName tdTypeName = getStructuredTypeName(model, td.getId());
+               QName tdTypeName = getStructuredTypeName(model, td.getId(), wsEnv);
                if ((null != tdTypeName) && tdTypeName.equals(type))
                {
                   xto = new XmlValueXto();
@@ -550,21 +550,21 @@ public class QueryServiceFacade implements IQueryService
 
 
 	public PreferencesXto getPreferences(PreferenceScopeXto scope,
-			String moduleId, String preferencesId) throws BpmFault 
+			String moduleId, String preferencesId) throws BpmFault
 	{
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
 		QueryService qs = wsEnv.getServiceFactory()
 				.getQueryService();
-		try 
+		try
 		{
 			Preferences preferences = qs.getPreferences(
 					XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId,
 					preferencesId);
 
 			return XmlAdapterUtils.toWs(preferences);
-		} 
-		catch (ApplicationException e) 
+		}
+		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
@@ -573,21 +573,21 @@ public class QueryServiceFacade implements IQueryService
 
 
 	public PreferencesListXto findPreferences(PreferenceQueryXto preferenceQuery)
-			throws BpmFault 
+			throws BpmFault
 	{
 		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
 		QueryService qs = wsEnv.getServiceFactory().getQueryService();
 
-		try 
+		try
 		{
 			List<Preferences> preferencesList = qs
 					.getAllPreferences(QueryAdapterUtils
 							.unmarshalPreferenceQuery(preferenceQuery));
 
 			return XmlAdapterUtils.marshalPreferencesList(preferencesList);
-		} 
-		catch (ApplicationException e) 
+		}
+		catch (ApplicationException e)
 		{
 			XmlAdapterUtils.handleBPMException(e);
 		}
@@ -599,13 +599,13 @@ public class QueryServiceFacade implements IQueryService
          throws BpmFault
    {
       WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      
+
       QueryService qs = wsEnv.getServiceFactory().getQueryService();
-      
+
       try
       {
          Models models = qs.getModels(QueryAdapterUtils.unmarshalDeployedModelQuery(deployedModelQuery));
-         
+
          return XmlAdapterUtils.marshalModelsQueryResult(models);
       }
       catch (ApplicationException e)

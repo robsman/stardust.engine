@@ -16,13 +16,13 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 public class ProcessInterfaceCommand implements ServiceCommand,  Configurable{
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private Map<String, Object> options;
-	private Map<String, ? > parameters; 
+	private Map<String, ?> parameters;
 	private String processId;
 	private boolean synchronous;
-	
-	public ProcessInterfaceCommand(String processId, Map<String, ? > parameters, boolean synchronous)
+
+	public ProcessInterfaceCommand(String processId, Map<String, ?> parameters, boolean synchronous)
 	{
 		this.options = new HashMap<String, Object>();
 		this.options.put("autoFlush", Boolean.FALSE);
@@ -74,11 +74,11 @@ public class ProcessInterfaceCommand implements ServiceCommand,  Configurable{
          }
       }
 	}
-	
+
 	public class Result implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private ProcessInstance processInstance;
 		private Map<String, Serializable> processResults;
 

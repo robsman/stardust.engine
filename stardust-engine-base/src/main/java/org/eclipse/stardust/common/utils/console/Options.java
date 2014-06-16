@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
-
 
 /**
  * @author ubirkemeyer
@@ -45,20 +44,17 @@ public class Options
    public static final DateFormat ISO_DATETIME_T_SECONDS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
    public static final DateFormat ISO_DATETIME_T_MILLISECONDS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS");
 
-   private TreeMap longnames = new TreeMap();
-   private Map shortnames = new HashMap();
-   private List rules = CollectionUtils.newList();
+   private TreeMap<String, Option> longnames = new TreeMap<String, Option>();
+   private Map<String, Option> shortnames = new HashMap<String, Option>();
+   private List<Rule> rules = CollectionUtils.newList();
 
    public Options()
    {
    }
 
-   public static Long getLongValue(Map options, String key)
+   public static Long getLongValue(Map<?, ?> options, String key)
    {
-      Long result = null;
-
       Object rawValue = options.get(key);
-
       if (rawValue instanceof String)
       {
          try
@@ -71,23 +67,17 @@ public class Options
                   BaseErrorCase.BASE_INVALID_NUMERIC_ARGUMENT.raise(), e);
          }
       }
-
-      if (rawValue instanceof Number)
-      {
-         result = new Long(((Number) rawValue).longValue());
+      return rawValue instanceof Number ? ((Number) rawValue).longValue() : null;
       }
 
-      return result;
-   }
-
-   public static List getLongValues(Map options, String key)
+   public static List<Long> getLongValues(Map<?, ?> options, String key)
    {
-      List result = Collections.EMPTY_LIST;
+      List<Long> result = Collections.emptyList();
 
       Object rawValue = options.get(key);
       if (rawValue instanceof String)
       {
-         result = new ArrayList();
+         result = new ArrayList<Long>();
 
          StringTokenizer tkr = new StringTokenizer((String) rawValue, ", ");
          while (tkr.hasMoreTokens())
@@ -97,7 +87,7 @@ public class Options
             try
             {
                Number part = NumberFormat.getNumberInstance().parse(t);
-               result.add(new Long(part.longValue()));
+               result.add(part.longValue());
             }
             catch (ParseException e)
             {
@@ -111,7 +101,7 @@ public class Options
       return result;
    }
 
-   public static boolean getBooleanValue(Map options, String key)
+   public static boolean getBooleanValue(Map<?, ?> options, String key)
    {
       Object rawValue = options.get(key);
       boolean result = false;
@@ -123,7 +113,7 @@ public class Options
       return result;
    }
 
-   public static Date getDateValue(Map options, String key)
+   public static Date getDateValue(Map<?, ?> options, String key)
    {
       Date result = null;
 
@@ -183,7 +173,7 @@ public class Options
       }
    }
 
-   public int eat(Map options, String[] args, int i)
+   public int eat(Map<String, Object> options, String[] args, int i)
    {
       Option o = (Option) longnames.get(args[i]);
       if (o == null)
@@ -216,16 +206,15 @@ public class Options
       return i;
    }
 
-   public Iterator getAllOptions()
+   public Iterator<Option> getAllOptions()
    {
       return longnames.values().iterator();
    }
 
-   public void checkRules(Map options)
+   public void checkRules(Map<?, ?> options)
    {
-      for (Iterator i = rules.iterator(); i.hasNext();)
+      for (Rule rule : rules)
       {
-         Rule rule = (Rule) i.next();
          rule.check(options);
       }
    }
@@ -301,7 +290,7 @@ public class Options
 
    private interface Rule
    {
-      void check(Map options) throws IllegalUsageException;
+      void check(Map<?, ?> options) throws IllegalUsageException;
    }
 
    private class InclusionRule implements Rule
@@ -314,7 +303,7 @@ public class Options
          this.dependent = dependent;
       }
 
-      public void check(Map options) throws IllegalUsageException
+      public void check(Map<?, ?> options) throws IllegalUsageException
       {
          if (options.containsKey(key) && !options.containsKey(dependent))
          {
@@ -335,7 +324,7 @@ public class Options
          this.a = a;
       }
 
-      public void check(Map options) throws IllegalUsageException
+      public void check(Map<?, ?> options) throws IllegalUsageException
       {
          String match = null;
          for (int i = 0; i < a.length; i++)
@@ -382,7 +371,7 @@ public class Options
          this.key = key;
       }
 
-      public void check(Map options) throws IllegalUsageException
+      public void check(Map<?, ?> options) throws IllegalUsageException
       {
          if (!options.containsKey(key))
          {
@@ -403,7 +392,7 @@ public class Options
          this.values = values;
       }
 
-      public void check(Map options) throws IllegalUsageException
+      public void check(Map<?, ?> options) throws IllegalUsageException
       {
          String value = (String) options.get(name);
          if (value == null)

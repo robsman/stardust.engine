@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,24 +25,19 @@ import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.ws.DataFlowXto;
 import org.eclipse.stardust.engine.api.ws.DataFlowsXto;
 import org.eclipse.stardust.engine.api.ws.InteractionContextXto;
+import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-
-
 
 public class InteractionXmlAdapterUtils
 {
    private static final Logger trace = LogManager.getLogger(InteractionXmlAdapterUtils.class);
 
    public static <T extends InteractionContextXto> T toXto(ApplicationContext ac, T xto,
-         Model model)
+         Model model, Reference ref, ModelResolver resolver)
    {
       xto.setId(ac.getId());
       xto.setName(ac.getName());
@@ -70,7 +65,7 @@ public class InteractionXmlAdapterUtils
                xto.setInDataFlows(new DataFlowsXto());
             }
 
-            xto.getInDataFlows().getDataFlow().add(toXto(ap, model));
+            xto.getInDataFlows().getDataFlow().add(toXto(model, ap, ref, resolver));
          }
          else if (Direction.OUT == ap.getDirection())
          {
@@ -79,7 +74,7 @@ public class InteractionXmlAdapterUtils
                xto.setOutDataFlows(new DataFlowsXto());
             }
 
-            xto.getOutDataFlows().getDataFlow().add(toXto(ap, model));
+            xto.getOutDataFlows().getDataFlow().add(toXto(model, ap, ref, resolver));
          }
       }
 
@@ -96,7 +91,7 @@ public class InteractionXmlAdapterUtils
                xto.setInDataFlows(new DataFlowsXto());
             }
 
-            marshalFullParameterMappings(inMappings, xto.getInDataFlows(), model);
+            marshalFullParameterMappings(inMappings, xto.getInDataFlows(), model, resolver);
          }
 
          @SuppressWarnings("unchecked")
@@ -108,41 +103,40 @@ public class InteractionXmlAdapterUtils
                xto.setOutDataFlows(new DataFlowsXto());
             }
 
-            marshalFullParameterMappings(outMappings, xto.getOutDataFlows(), model);
+            marshalFullParameterMappings(outMappings, xto.getOutDataFlows(), model, resolver);
          }
       }
 
       return xto;
    }
 
-   public static DataFlowXto toXto(AccessPoint dm, Model model)
+   public static DataFlowXto toXto(Model model, AccessPoint accessPoint, Reference ref, ModelResolver resolver)
    {
       DataFlowXto res = new DataFlowXto();
 
-      res.setId(dm.getId());
-      res.setName(dm.getName());
+      res.setId(accessPoint.getId());
+      res.setName(accessPoint.getName());
 
       if (null != model)
       {
-         if (isPrimitiveType(model, dm))
+         if (isPrimitiveType(model, accessPoint))
          {
-            Type primitveType = (Type) dm.getAttribute(TYPE_ATT);
+            Type primitveType = (Type) accessPoint.getAttribute(TYPE_ATT);
             res.setType(marshalPrimitiveType(primitveType));
          }
-         else if (isStructuredType(model, dm))
+         else if (isStructuredType(model, accessPoint))
          {
-            res.setType(getStructuredTypeName(model,
-                  (String) dm.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT)));
+            res.setType(getStructuredTypeName(model, accessPoint, ref, null, resolver));
          }
       }
 
-      res.setDirection(dm.getDirection());
+      res.setDirection(accessPoint.getDirection());
 
       return res;
    }
 
    public static void marshalFullParameterMappings(List<DataMapping> dataMappings,
-         DataFlowsXto holder, Model model)
+         DataFlowsXto holder, Model model, ModelResolver resolver)
    {
       for (int i = 0; i < dataMappings.size(); ++i)
       {
@@ -165,7 +159,7 @@ public class InteractionXmlAdapterUtils
 
             if ((null != ap) && !CompareHelper.areEqual(dm.getId(), ap.getId()))
             {
-               holder.getDataFlow().add(toWs(dm, model));
+               holder.getDataFlow().add(toWs(dm, model, resolver));
             }
          }
       }

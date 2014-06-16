@@ -118,7 +118,7 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
             {
                if (instanceClass == null)
                {
-                  instanceClass = Reflect.getClassFromClassName(instanceClassName, true);
+                  instanceClass = (Class<T>) Reflect.getClassFromClassName(instanceClassName, true);
                }
                instance = instanceClass.newInstance();
             }

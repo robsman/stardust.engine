@@ -19,12 +19,11 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.ContainerConfigurationInterceptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.ContainerConfigurationInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
 
 /**
  * @author ubirkemeyer

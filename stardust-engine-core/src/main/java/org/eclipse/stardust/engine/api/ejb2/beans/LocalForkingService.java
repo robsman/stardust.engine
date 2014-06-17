@@ -13,8 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
 import javax.ejb.EJBLocalObject;
 
 import org.eclipse.stardust.common.Action;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
-
+import org.eclipse.stardust.common.error.WorkflowException;
 
 /**
  * @author ubirkemeyer
@@ -22,6 +21,5 @@ import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
  */
 public interface LocalForkingService extends EJBLocalObject
 {
-   Object run(Action action)
-         throws WorkflowException;
+   Object run(Action action) throws WorkflowException;
 }

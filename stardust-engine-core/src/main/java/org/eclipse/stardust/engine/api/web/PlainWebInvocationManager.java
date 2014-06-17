@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.ContainerConfigurationInterceptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.ContainerConfigurationInterceptor;
 
 
 /**

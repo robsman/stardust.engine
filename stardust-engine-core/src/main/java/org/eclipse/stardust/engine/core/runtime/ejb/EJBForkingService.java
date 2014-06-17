@@ -8,24 +8,17 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb2.beans;
+package org.eclipse.stardust.engine.core.runtime.ejb;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
-import javax.ejb.RemoveException;
 import javax.jms.*;
-import javax.naming.InitialContext;
-import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.Action;
-import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -33,53 +26,24 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 
-
 /**
  * @author ubirkemeyer
- * @version $Revision$
+ * @version $Revision: 56255 $
  */
 public class EJBForkingService implements ForkingService
 {
-   private static final Logger trace = LogManager.getLogger(EJBForkingService.class);
+   private ExecutorService executor;
 
-   private static final String KEY_CACHED_FORKING_SERVICE_HOME = EJBForkingService.class.getName()
-         + ".CachedForkingServiceHome";
-
-   private LocalForkingService inner;
-
-   public EJBForkingService()
+   public EJBForkingService(ExecutorService service)
    {
-      try
-      {
-         final GlobalParameters globals = GlobalParameters.globals();
-
-         LocalForkingServiceHome home = (LocalForkingServiceHome) globals.get(KEY_CACHED_FORKING_SERVICE_HOME);
-         if (null == home)
-         {
-            InitialContext context = new InitialContext();
-            Object rawHome = context.lookup("java:comp/env/ejb/ForkingService");
-            home = (LocalForkingServiceHome) PortableRemoteObject.narrow(rawHome,
-                  LocalForkingServiceHome.class);
-
-            if (null != home)
-            {
-               globals.set(KEY_CACHED_FORKING_SERVICE_HOME, home);
-            }
-         }
-
-         inner = home.create();
-      }
-      catch (Exception e)
-      {
-         throw new InternalException(e);
-      }
+      this.executor = service;
    }
 
-   public Object isolate(Action action) throws PublicException
+   public Object isolate(@SuppressWarnings("rawtypes") Action action) throws PublicException
    {
       try
       {
-         return inner.run(action);
+         return executor.run(action);
       }
       catch (WorkflowException e)
       {
@@ -94,7 +58,7 @@ public class EJBForkingService implements ForkingService
       }
    }
 
-   public void fork(IActionCarrier action, boolean transacted)
+   public void fork(@SuppressWarnings("rawtypes") IActionCarrier action, boolean transacted)
    {
       SendAction sender = new SendAction(action);
       if (transacted)
@@ -105,7 +69,7 @@ public class EJBForkingService implements ForkingService
       {
          try
          {
-            inner.run(sender);
+            executor.run(sender, executor);
          }
          catch (WorkflowException e)
          {
@@ -123,24 +87,14 @@ public class EJBForkingService implements ForkingService
 
    public void release()
    {
-      if (null != inner)
-      {
-         try
-         {
-            inner.remove();
-         }
-         catch (RemoveException e)
-         {
-            trace.debug("Failed releasing inner session bean.", e);
-         }
-      }
+      executor.release();
    }
 
-   private class SendAction implements Action
+   private class SendAction implements Action<Object>
    {
-      private IActionCarrier action;
+      private IActionCarrier<?> action;
 
-      public SendAction(IActionCarrier action)
+      public SendAction(IActionCarrier<?> action)
       {
          this.action = action;
       }
@@ -149,11 +103,9 @@ public class EJBForkingService implements ForkingService
       {
          try
          {
-            final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor
-                  .getCurrent();
+            final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
 
-            final Parameters params = Parameters.instance();
-            QueueConnectionFactory factory = params.getObject(JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
+            QueueConnectionFactory factory = executor.getQueueConnectionFactory();
             if (factory == null)
             {
                throw new InternalException("Reference '"
@@ -175,23 +127,20 @@ public class EJBForkingService implements ForkingService
             }
             else
             {
-					throw new PublicException(
-							BpmRuntimeError.EJB_UNKNOWN_CARRIER_MESSAGE_TYPE
-									.raise(action.getMessageType()));
+               throw new PublicException(
+                     BpmRuntimeError.EJB_UNKNOWN_CARRIER_MESSAGE_TYPE
+                           .raise(action.getMessageType()));
             }
 
-            Queue queue = params.getObject(queueName);
+            Queue queue = executor.getQueue(queueName);
             if (queue == null)
             {
                throw new InternalException("Reference '" + queueName + "' is not set.");
             }
 
             final QueueSender sender = rtEnv.retrieveUnidentifiedQueueSender(session);
-
             Message message = session.createMapMessage();
-
             action.fillMessage(message);
-
             sender.send(queue, message);
          }
          catch (JMSException e)
@@ -202,5 +151,3 @@ public class EJBForkingService implements ForkingService
       }
    }
 }
-
-

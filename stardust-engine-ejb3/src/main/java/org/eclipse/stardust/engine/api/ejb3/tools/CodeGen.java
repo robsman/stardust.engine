@@ -18,8 +18,9 @@ import javax.ejb.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.ejb3.beans.AbstractEjb3ServiceBean;
-import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
+import org.eclipse.stardust.engine.api.ejb3.beans.AbstractServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.ejb.AbstractEjb3ServiceBean;
+import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
 import com.thoughtworks.qdox.model.*;
@@ -69,7 +70,7 @@ public class CodeGen
 
       return createSource(newPackage + javaSourceName + "Impl", longServiceName,
             longPathJavaSourceName, imports,
-            AbstractEjb3ServiceBean.class.getName(),
+            AbstractServiceImpl.class.getName(),
             new String[] {longLocalServiceName, longRemoteServiceName},//
             new Ejb3ServiceBeanMethodGenerator(longServiceName), additionalMethods, true,
             false);
@@ -257,13 +258,13 @@ public class CodeGen
       {
          result.append(", ");
       }
-      result.append("org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext");
+      result.append("org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext");
 
       result.append(")");
 
       Type[] exceptions = method.getExceptions();
 
-      result.append("throws org.eclipse.stardust.engine.api.ejb3.WorkflowException");
+      result.append("throws org.eclipse.stardust.common.error.WorkflowException");
 
       if (exceptions.length > 0)
       {
@@ -432,13 +433,13 @@ public class CodeGen
                "      catch(org.eclipse.stardust.common.error.PublicException e)\n")
                .append("      {\n")
                .append(
-                     "         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);\n")
+                     "         throw new org.eclipse.stardust.common.error.WorkflowException(e);\n")
                .append("      }\n");
          result.append(
                "      catch(org.eclipse.stardust.common.error.ResourceException e)\n")
                .append("      {\n")
                .append(
-                     "         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);\n")
+                     "         throw new org.eclipse.stardust.common.error.WorkflowException(e);\n")
                .append("      }\n");
 
          result.append("      finally\n")
@@ -836,7 +837,7 @@ public class CodeGen
       String javaSourceName = longServiceName.substring(dot + 1);
 
       List<String> superInterfaces = CollectionUtils.newList();
-      superInterfaces.add(Ejb3Service.class.getCanonicalName());
+      superInterfaces.add(Ejb3ManagedService.class.getCanonicalName());
 
       String[] additionalMethods = StringUtils.EMPTY_STRING_ARRAY;
       String[] imports = new String[] {Local.class.getCanonicalName()};
@@ -944,13 +945,13 @@ public class CodeGen
          {
             result.append(", ");
          }
-         result.append("org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext");
+         result.append("org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext");
 
          result.append(")\n");
 
          Type[] exceptions = method.getExceptions();
 
-         result.append("throws org.eclipse.stardust.engine.api.ejb3.WorkflowException");
+         result.append("throws org.eclipse.stardust.common.error.WorkflowException");
          if (exceptions.length > 0)
          {
             for (int i = 0; i < exceptions.length; i++)

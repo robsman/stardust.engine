@@ -8,12 +8,12 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb3.interceptors;
+package org.eclipse.stardust.engine.core.runtime.ejb.interceptors;
 
 import java.rmi.RemoteException;
 import java.security.Principal;
 
-import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
 
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
@@ -25,8 +25,6 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalProvider;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
-
-
 /**
  * @author fherinean
  * @version $Revision: 52592 $
@@ -34,20 +32,44 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
 {
    private static final long serialVersionUID = 1L;
-   
+
    private static final Logger trace = LogManager.getLogger(SessionBeanLoginInterceptor.class);
 
-   private final EJBContext context;
-   
-   private final boolean stateless;
+   private SessionContext context;
+   private boolean stateless;
 
-   public SessionBeanLoginInterceptor(EJBContext context)
+   public SessionBeanLoginInterceptor(SessionContext context, boolean checkStateless)
    {
       super(null);
-
       this.context = context;
 
-      this.stateless = true;
+      if (checkStateless)
+      {
+         stateless = false;
+         if (null != context)
+         {
+            try
+            {
+               stateless = context.getEJBHome().getEJBMetaData().isStatelessSession();
+            }
+            catch (IllegalStateException ise)
+            {
+               trace.warn("Failed to determine if EJB is stateful or stateless, assuming stateful.", ise);
+            }
+            catch (RemoteException re)
+            {
+               trace.warn("Failed to determine if EJB is stateful or stateless, assuming stateful.", re);
+            }
+         }
+         else
+         {
+            trace.warn("Failed to determine if EJB is stateful or stateless due to an unavailable EJB context, assuming stateful.");
+         }
+      }
+      else
+      {
+         stateless = true;
+      }
    }
 
    protected boolean isStatefulService()
@@ -57,9 +79,9 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
-      final boolean useInvokerPrincipal = (null != InvokerPrincipalUtils.getCurrent());
+      boolean useInvokerPrincipal = useInvokerPrincipal(invocation);
 
-      final PropertyLayer props = useInvokerPrincipal //
+      PropertyLayer props = useInvokerPrincipal
             ? PropertyLayerProviderInterceptor.getCurrent()
             : null;
 
@@ -70,9 +92,8 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
          {
             // make sure the thread local invoker principal is available during duration of call
             backup = props.get(SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY);
-            props.setProperty(
-                  SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY,
-                  InvokerPrincipalProvider.INTANCE);
+            props.setProperty(SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY,
+                  InvokerPrincipalProvider.INSTANCE);
          }
 
          // proceed with default handling
@@ -82,28 +103,29 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
       {
          if (useInvokerPrincipal)
          {
-            props.setProperty(
-                  SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY, backup);
+            props.setProperty(SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY, backup);
          }
       }
    }
 
+   protected boolean useInvokerPrincipal(MethodInvocation invocation)
+   {
+      return InvokerPrincipalUtils.getCurrent() != null
+            && !isLoginCall(invocation.getMethod())
+            && !isLogoutCall(invocation.getMethod());
+   }
+
    public Principal getPrincipal()
    {
-      Principal result = null;
-
-      // NOTE the try..catch is to allow uniform handling of nonconfigured principal based
+      // NOTE the try..catch is to allow uniform handling of non configured principal based
       // login, i.e. JBoss is throwing it's own exception instead of returning null.
       try
       {
-         result = context.getCallerPrincipal();
+         return context.getCallerPrincipal();
       }
       catch (Exception ex)
       {
-         result = null;
       }
-
-      return result;
+      return null;
    }
-
 }

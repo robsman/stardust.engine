@@ -12,10 +12,8 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
 import java.util.Map;
 
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
-
-
 
 /**
  * @author sauer
@@ -23,8 +21,6 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
  */
 public interface TunnelingLocalService extends TunnelingService
 {
-
    InvokerPrincipal login(String userId, String password, Map properties)
          throws WorkflowException;
-
 }

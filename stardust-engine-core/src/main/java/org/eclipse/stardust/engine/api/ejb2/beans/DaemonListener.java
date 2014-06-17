@@ -24,7 +24,6 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
@@ -35,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.CallingInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.NonInteractiveSecurityContextInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 

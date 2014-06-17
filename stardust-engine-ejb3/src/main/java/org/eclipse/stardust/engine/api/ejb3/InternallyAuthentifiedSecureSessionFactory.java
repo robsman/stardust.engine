@@ -19,9 +19,10 @@ import javax.rmi.PortableRemoteObject;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.utils.ejb.EJBUtils;
-import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
+import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 
 /**
  * @author ubirkemeyer
@@ -77,7 +78,7 @@ public class InternallyAuthentifiedSecureSessionFactory implements
       try {
 
          TunneledContext tunneledContext = TunnelingUtils.performTunnelingLogin(
-               (Ejb3Service) service, (String) credentials.get(SecurityProperties.CRED_USER),
+               (ManagedService) service, (String) credentials.get(SecurityProperties.CRED_USER),
                (String) credentials.get(SecurityProperties.CRED_PASSWORD), properties);
          return new SecureSession(service, tunneledContext);
       }

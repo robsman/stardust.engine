@@ -18,18 +18,16 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.error.LoginFailedException;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.api.ejb2.beans.AbstractEjbServiceImpl;
-import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
-
-
 
 /**
  * @author sauer

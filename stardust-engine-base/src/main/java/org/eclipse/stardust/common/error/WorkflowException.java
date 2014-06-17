@@ -8,67 +8,46 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb3;
-
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ResourceException;
+package org.eclipse.stardust.common.error;
 
 /**
- * This class is used to wrap {@link PublicException} and {@link ResourceException} 
+ * This class is used to wrap {@link PublicException} and {@link ResourceException}
  * instances when engine services are called in EJB context.
- * 
  */
 public class WorkflowException extends Exception
 {
+   private static final long serialVersionUID = 1L;
+
    private Throwable inner;
 
    public WorkflowException(Throwable x)
    {
       super(x.getMessage());
-
-      this.inner = x;
-   }
-   
-   public WorkflowException(PublicException x)
-   {
-      super(x.getMessage());
-
-      this.inner = x;
-   }
-
-   public WorkflowException(ResourceException x)
-   {
-      super(x.getMessage());
-
       this.inner = x;
    }
 
    /**
     * @deprecated use {@link #getCause()} instead
-    * 
+    *
     * This method returns the inner throwable which caused this workflow exception.
     * In case that the inner exception is no instance of {@link PublicException} the
     * returned inner exception will be wrapped in a {@link PublicException} instance.
-    * 
+    *
     * @return <code>null</code> or <code>{@link PublicException}</code>
     */
    public PublicException getRootCause()
    {
       PublicException x = null;
-      
       if (null != inner)
       {
-         x = inner instanceof PublicException 
-               ? (PublicException) inner
-               : new PublicException(inner);
+         x = inner instanceof PublicException ? (PublicException) inner : new PublicException(inner);
       }
-      
       return x;
    }
-   
+
    /**
     * This method returns the inner throwable which caused this workflow exception.
-    * 
+    *
     * @return <code>null</code> or <code>{@link Throwable}</code>
     */
    public Throwable getCause()

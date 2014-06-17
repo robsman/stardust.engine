@@ -31,7 +31,6 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.ejb3.ForkingService;
-import org.eclipse.stardust.engine.api.ejb3.interceptors.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
@@ -41,8 +40,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.CallingInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.NonInteractiveSecurityContextInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
+import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
+import org.eclipse.stardust.engine.core.runtime.ejb.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
-
 
 /**
  * @author ubirkemeyer
@@ -50,13 +51,12 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
  */
 
 @MessageDriven(activationConfig = {
-		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-		@ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/queue/CarnotDaemonQueue") })
+      @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+      @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/queue/CarnotDaemonQueue") })
 public class DaemonListener extends AbstractEjb3MessageListener implements MessageListener
 {
    public static final Logger trace = LogManager.getLogger(DaemonListener.class);
- 
-   
+
    public void onMessage(Message message)
    {
       String failureMode = Parameters.instance().getString(
@@ -66,15 +66,15 @@ public class DaemonListener extends AbstractEjb3MessageListener implements Messa
             JmsProperties.DAEMON_LISTENER_RETRY_COUNT_PROPERTY, 20);
       final int tPause = Parameters.instance().getInteger(
             JmsProperties.DAEMON_LISTENER_RETRY_PAUSE_PROPERTY, 500);
-      
-      Action action = (Action) Proxy.newProxyInstance(Action.class.getClassLoader(),
+
+      Action<?> action = (Action<?>) Proxy.newProxyInstance(Action.class.getClassLoader(),
             new Class[] {Action.class}, new MDBInvocationManager(
                   JmsProperties.MDB_NAME_DAEMON_LISTENER, new MyAction(message, getForkingService()), context,
                   nRetries, tPause, rollbackOnError));
       action.execute();
    }
 
-   private class MyAction implements Action, Ejb3Service
+   private class MyAction implements Action, Ejb3ManagedService
    {
       private Message message;
       private ForkingService forkingSerivce;
@@ -84,10 +84,10 @@ public class DaemonListener extends AbstractEjb3MessageListener implements Messa
          this.message = message;
          this.forkingSerivce = forkingService;
       }
-      
+
       public String toString()
       {
-    	 return "Daemon Action";
+      return "Daemon Action";
       }
 
       public Object execute()
@@ -103,7 +103,7 @@ public class DaemonListener extends AbstractEjb3MessageListener implements Messa
                // rsauer: ensure model was bootstrapped before actually running daemon,
                // as bootstrapping in daemon listener will fail because of a missing
                // data source
-   
+
                try
                {
                   forkingSerivce.run(new Action()
@@ -117,7 +117,7 @@ public class DaemonListener extends AbstractEjb3MessageListener implements Messa
                }
                catch (Exception e)
                {
-            	   trace.warn(e);
+                  trace.warn(e);
                }
 
                try
@@ -162,40 +162,40 @@ public class DaemonListener extends AbstractEjb3MessageListener implements Messa
          return null;
       }
 
-	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
-		
-	}
+   @Override
+   public void remove() {
+      // TODO Auto-generated method stub
 
-	@Override
-	public LoggedInUser login(String username, String password, Map properties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   }
 
-	@Override
-	public void logout() {
-		// TODO Auto-generated method stub
-		
-	}
+   @Override
+   public LoggedInUser login(String username, String password, Map properties) {
+      // TODO Auto-generated method stub
+      return null;
+   }
 
-	@Override
-	public DataSource getDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   @Override
+   public void logout() {
+      // TODO Auto-generated method stub
 
-	@Override
-	public ForkingService getForkingService() {
-		return this.forkingSerivce;
-	}
+   }
 
-	@Override
-	public Object getRepository() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   @Override
+   public DataSource getDataSource() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public ExecutorService getForkingService() {
+      return this.forkingSerivce;
+   }
+
+   @Override
+   public Object getRepository() {
+      // TODO Auto-generated method stub
+      return null;
+   }
 
 
    }

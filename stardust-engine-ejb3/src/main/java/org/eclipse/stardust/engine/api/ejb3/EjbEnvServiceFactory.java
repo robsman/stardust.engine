@@ -21,17 +21,18 @@ import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
@@ -104,7 +105,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
             try
             {
                tunneledContext = TunnelingUtils.performTunnelingLogin(
-                     (Ejb3Service) service, userName, password, getProperties());
+                     (ManagedService) service, userName, password, getProperties());
             }
             catch (WorkflowException wfe)
             {

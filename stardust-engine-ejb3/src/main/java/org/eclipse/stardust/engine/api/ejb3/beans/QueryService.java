@@ -11,7 +11,7 @@ import javax.ejb.Local;
  *
  */
 @Local
-public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service
+public interface QueryService extends org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService
 {
 
    /**
@@ -19,8 +19,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     */
     public long getUsersCount(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
@@ -28,8 +28,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public long
          getUserGroupsCount(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstancesCount(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -37,8 +37,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public long
          getProcessInstancesCount(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActivityInstancesCount(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -46,8 +46,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public long
          getActivityInstancesCount(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
@@ -55,8 +55,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public long
          getLogEntriesCount(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllUsers(org.eclipse.stardust.engine.api.query.UserQuery query)
@@ -64,8 +64,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.query.Users
          getAllUsers(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllUserGroups(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
@@ -73,8 +73,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.query.UserGroups
          getAllUserGroups(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstances(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -82,8 +82,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.query.ProcessInstances
          getAllProcessInstances(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllActivityInstances(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -91,8 +91,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.query.ActivityInstances
          getAllActivityInstances(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllLogEntries(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
@@ -100,8 +100,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.query.LogEntries
          getAllLogEntries(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstUser(org.eclipse.stardust.engine.api.query.UserQuery query)
@@ -109,8 +109,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.User
          findFirstUser(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstUserGroup(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
@@ -118,8 +118,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          findFirstUserGroup(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstProcessInstance(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -127,8 +127,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          findFirstProcessInstance(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstActivityInstance(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -136,8 +136,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          findFirstActivityInstance(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstLogEntry(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
@@ -145,8 +145,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.LogEntry
          findFirstLogEntry(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAuditTrail(long processInstanceOID)
@@ -154,9 +154,9 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllModelDescriptions()
@@ -164,8 +164,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllAliveModelDescriptions()
@@ -173,16 +173,16 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActiveModelDescription()
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getActiveModelDescription(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery query)
@@ -190,57 +190,57 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.Models
          getModels(
          org.eclipse.stardust.engine.api.query.DeployedModelQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelDescription(long modelOID)
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getModelDescription(
-         long modelOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(long modelOid, int revision)
     */
     public boolean wasRedeployed(
-         long modelOid, int revision, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOid, int revision, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(long modelOID)
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
-         long modelOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(long modelOID, boolean computeAliveness)
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID, boolean computeAliveness,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActiveModel()
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel
          getActiveModel(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelAsXML(long modelOID)
     */
     public java.lang.String getModelAsXML(
-         long modelOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions(long modelOID)
@@ -248,9 +248,9 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(
-         long modelOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(long modelOID, java.lang.String id)
@@ -258,8 +258,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(
          long modelOID, java.lang.String id,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions()
@@ -267,17 +267,17 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(java.lang.String id)
     */
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(
-         java.lang.String id, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinitions(org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
@@ -285,8 +285,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.ProcessDefinitions
          getProcessDefinitions(
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllData(org.eclipse.stardust.engine.api.query.DataQuery query)
@@ -294,58 +294,58 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.DataQueryResult
          getAllData(
          org.eclipse.stardust.engine.api.query.DataQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllParticipants(long modelOID)
     */
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants(
-         long modelOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(long modelOID, java.lang.String id)
     */
     public org.eclipse.stardust.engine.api.model.Participant getParticipant(
          long modelOID, java.lang.String id,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllParticipants()
     */
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(java.lang.String id)
     */
     public org.eclipse.stardust.engine.api.model.Participant
          getParticipant(
-         java.lang.String id, org.eclipse.stardust.engine.api.ejb3.TunneledContext
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPermissions()
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getSchemaDefinition(long modelOID, java.lang.String typeDeclarationId)
     */
     public byte[] getSchemaDefinition(
          long modelOID, java.lang.String typeDeclarationId,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findAllDepartments(org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
@@ -354,8 +354,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
          findAllDepartments(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findDepartment(org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
@@ -364,8 +364,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
          findDepartment(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstDocument(org.eclipse.stardust.engine.api.query.DocumentQuery query)
@@ -373,8 +373,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.Document
          findFirstDocument(
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
@@ -382,8 +382,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.Documents
          getAllDocuments(
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPreferences(org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String moduleId, java.lang.String preferencesId)
@@ -392,8 +392,8 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
          getPreferences(
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllPreferences(org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
@@ -402,16 +402,16 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
          java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
          getAllPreferences(
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeEnvironmentInfo()
     */
     public org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo
          getRuntimeEnvironmentInfo(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
@@ -419,6 +419,6 @@ public interface QueryService extends org.eclipse.stardust.engine.api.ejb3.beans
     public org.eclipse.stardust.engine.api.runtime.ResourceBundle
          getResourceBundle(
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb3.WorkflowException;
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          }

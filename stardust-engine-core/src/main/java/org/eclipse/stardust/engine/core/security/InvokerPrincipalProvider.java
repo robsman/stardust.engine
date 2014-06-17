@@ -14,12 +14,10 @@ import java.security.Principal;
 
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 
-
 public class InvokerPrincipalProvider implements PrincipalProvider
 {
-   
-   public static final InvokerPrincipalProvider INTANCE = new InvokerPrincipalProvider();
-   
+   public static final InvokerPrincipalProvider INSTANCE = new InvokerPrincipalProvider();
+
    private InvokerPrincipalProvider()
    {
       // singleton
@@ -29,5 +27,4 @@ public class InvokerPrincipalProvider implements PrincipalProvider
    {
       return InvokerPrincipalUtils.getCurrent();
    }
-
 }

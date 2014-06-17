@@ -25,12 +25,12 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.MDBInvocationManager;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 

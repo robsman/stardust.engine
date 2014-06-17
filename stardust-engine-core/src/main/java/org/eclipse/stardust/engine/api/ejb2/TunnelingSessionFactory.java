@@ -22,16 +22,16 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.utils.ejb.EJBUtils;
 import org.eclipse.stardust.engine.api.ejb2.SecureSessionFactory;
 import org.eclipse.stardust.engine.api.ejb2.TunnelingAwareSecureSessionFactory;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
-import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingService;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingUtils;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 
 /**
  * @author Florin.Herinean

@@ -21,11 +21,10 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.SessionBeanInvocationManager;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
-
+import org.eclipse.stardust.engine.core.runtime.ejb.SessionBeanInvocationManager;
 
 /**
  * @author ubirkemeyer
@@ -114,7 +113,7 @@ public abstract class AbstractEjbServiceImpl implements SessionBean
          throw new InternalException(e);
       }
       invocationManager = new SessionBeanInvocationManager(sessionContext,
-            serviceInstance, serviceTypeName);
+            null, serviceInstance, serviceTypeName);
    }
 
    private void setupServiceProxy()

@@ -17,7 +17,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.MDBExceptionHandler;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.MDBExceptionHandler;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 

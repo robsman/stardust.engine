@@ -1,5 +1,5 @@
 /*
- * Generated from  
+ * Generated from
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -18,17 +18,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return the user count.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUsersCount(
      *     org.eclipse.stardust.engine.api.query.UserQuery query)
      */
     public long getUsersCount(
          org.eclipse.stardust.engine.api.query.UserQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Counts the number of user groups satisfying the criteria specified in the provided
      * query.
@@ -37,17 +37,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return the user group count.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUserGroupsCount(
      *     org.eclipse.stardust.engine.api.query.UserGroupQuery query)
      */
     public long
          getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Counts the number of process instances satisfying the criteria specified in the
      * provided query.
@@ -60,25 +60,25 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *        (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstancesCount(
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -86,9 +86,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public long
          getProcessInstancesCount(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Counts the number of activity instances satisfying the criteria specified in the
      * provided query.
@@ -101,25 +101,25 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *        (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActivityInstancesCount(
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -127,9 +127,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public long
          getActivityInstancesCount(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Counts the number of log entries satisfying the criteria specified in the
      * provided query.
@@ -138,17 +138,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return the log entry count.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getLogEntriesCount(
      *     org.eclipse.stardust.engine.api.query.LogEntryQuery query)
      */
     public long
          getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all users satisfying the criteria specified in the provided query.
      *
@@ -156,17 +156,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return a List of User objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllUsers(
      *     org.eclipse.stardust.engine.api.query.UserQuery query)
      */
     public org.eclipse.stardust.engine.api.query.Users
          getAllUsers(org.eclipse.stardust.engine.api.query.UserQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all user groups satisfying the criteria specified in the provided query.
      *
@@ -174,17 +174,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return A list of {@link org.eclipse.stardust.engine.api.runtime.UserGroup} objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllUserGroups(
      *     org.eclipse.stardust.engine.api.query.UserGroupQuery query)
      */
     public org.eclipse.stardust.engine.api.query.UserGroups
          getAllUserGroups(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all process instances satisfying the criteria specified in the
      * provided query.
@@ -197,25 +197,25 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *         (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstances(
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -223,9 +223,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.query.ProcessInstances
          getAllProcessInstances(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all activity instances satisfying the criteria specified in the
      * provided query.
@@ -238,25 +238,25 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *         (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllActivityInstances(
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -264,9 +264,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.query.ActivityInstances
          getAllActivityInstances(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all log entries satisfying the criteria specified in the
      * provided query.
@@ -275,17 +275,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return a List of LogEntry objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllLogEntries(
      *     org.eclipse.stardust.engine.api.query.LogEntryQuery query)
      */
     public org.eclipse.stardust.engine.api.query.LogEntries
          getAllLogEntries(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first User satisfying the criteria specified in the
      * provided query.
@@ -298,18 +298,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     found.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstUser(
      *     org.eclipse.stardust.engine.api.query.UserQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.User
          findFirstUser(org.eclipse.stardust.engine.api.query.UserQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first UserGroup satisfying the criteria specified in the
      * provided query.
@@ -322,18 +322,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     found.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstUserGroup(
      *     org.eclipse.stardust.engine.api.query.UserGroupQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          findFirstUserGroup(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first ProcessInstance satisfying the criteria specified in the
      * provided query.
@@ -346,30 +346,30 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *        if no matching process instance is found.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstProcessInstance(
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
@@ -377,9 +377,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          findFirstProcessInstance(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first ActivityInstance satisfying the criteria specified in the
      * provided query.
@@ -393,30 +393,30 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *        if no matching activity instance is found.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
      *     PerformingOnBehalfOfFilter is used
      *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstActivityInstance(
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
@@ -424,9 +424,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          findFirstActivityInstance(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first LogEntry satisfying the criteria specified in the
      * provided query.
@@ -439,18 +439,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     found.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstLogEntry(
      *     org.eclipse.stardust.engine.api.query.LogEntryQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.LogEntry
          findFirstLogEntry(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns all performed activity instances for the specified process instance.
      *
@@ -463,9 +463,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAuditTrail(
      *     long processInstanceOID)
@@ -473,9 +473,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(long processInstanceOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
@@ -484,17 +484,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @deprecated Use {@link Models getModels(DeployedModelQuery.findAll())}.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllModelDescriptions()
      */
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the list of model descriptions for all alive models. Whereby alive models
      * are models with non-completed and non-aborted processes plus the
@@ -506,17 +506,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @deprecated Use {@link Models
      *     getModels(DeployedModelQuery.findInState(DeployedModelQuery.ALIVE))}.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllAliveModelDescriptions()
      */
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the current active model description.
      *
@@ -525,22 +525,22 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated This method returns the description of the active model with the highest priority.
      *       Use {@link Models getModels(DeployedModelQuery.findActive(
      *     ))} to retrieve all active models.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActiveModelDescription()
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getActiveModelDescription()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the model descriptions satisfying the criteria specified in the provided
      * query.
@@ -549,17 +549,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return a List of DeployedModelDescription objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModels(
      *     org.eclipse.stardust.engine.api.query.DeployedModelQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.Models
          getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the description of the specified model.
      *
@@ -571,18 +571,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelDescription(
      *     long modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getModelDescription(long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Determines if the model was redeployed, i.e. if a more recent revision than the
      * provided one is available.
@@ -593,16 +593,16 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @return <code>true</code> if a more recent revision of the model is available,
      *       <code>false</code> if not.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(
      *     long modelOid, int revision)
      */
     public boolean wasRedeployed(long modelOid, int revision)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the specified model.
      *
@@ -614,17 +614,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(long modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the specified model.
      *
@@ -637,18 +637,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(
      *     long modelOID, boolean computeAliveness)
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID, boolean computeAliveness)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the current active model.
      *
@@ -657,21 +657,21 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated This method returns the active model with the highest priority.
      *       Use {@link Models getModels(DeployedModelQuery.findActive(
      *     ))} to retrieve all active models.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActiveModel()
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getActiveModel()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the XML representation of the specified model.
      *
@@ -683,16 +683,16 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelAsXML(long modelOID)
      */
     public java.lang.String getModelAsXML(long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all the process definitions contained in the specified model.
      *
@@ -704,9 +704,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions(
      *     long modelOID)
@@ -714,9 +714,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a process definition from the specified model.
      *
@@ -730,18 +730,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *           definition with the specified id in the model.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(
      *     long modelOID, java.lang.String id)
      */
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(long modelOID, java.lang.String id)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all process definitions for the active model.
      *
@@ -750,18 +750,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions()
      */
     public
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the specified process definition from the active model.
      *
@@ -774,21 +774,21 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *             does not contain the requested process definition.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(
      *     java.lang.String id)
      */
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(java.lang.String id)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinitions(
      *     org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
@@ -796,9 +796,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ProcessDefinitions
          getProcessDefinitions(
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all data satisfying the criteria specified in the
      * provided query.
@@ -807,17 +807,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return A list of Data objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllData(
      *     org.eclipse.stardust.engine.api.query.DataQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.DataQueryResult
          getAllData(org.eclipse.stardust.engine.api.query.DataQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all participants defined in the specified model.
      *
@@ -829,17 +829,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllParticipants(long modelOID)
      */
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants(long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a participant from a specified model.
      *
@@ -853,18 +853,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *           contains the requested participant.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(
      *     long modelOID, java.lang.String id)
      */
     public org.eclipse.stardust.engine.api.model.Participant getParticipant(
          long modelOID, java.lang.String id)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all the participants from the active model.
      *
@@ -873,17 +873,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllParticipants()
      */
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a specific participant from the active model.
      *
@@ -896,33 +896,33 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *           the requested participant.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(
      *     java.lang.String id)
      */
     public org.eclipse.stardust.engine.api.model.Participant
          getParticipant(java.lang.String id)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all permissions the current user has on this service.
      *
      * @return a list of permission ids.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPermissions()
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves XSD schema of the specified type declaration serialized
      * into a byte[].
@@ -937,18 +937,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *           requested type declaration.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getSchemaDefinition(
      *     long modelOID, java.lang.String typeDeclarationId)
      */
     public byte[] getSchemaDefinition(
          long modelOID, java.lang.String typeDeclarationId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all the departments satisfying the search criteria. The search is
      * performed as following:
@@ -981,9 +981,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *                if either the parent or the organization could not be resolved.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findAllDepartments(
      *     org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
@@ -993,9 +993,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findAllDepartments(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Searches for a department having the specified id in the scope defined by the parent
      * department. On synchronization with external repository the specified department
@@ -1019,9 +1019,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *                scope.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findDepartment(
      *     org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String id,
@@ -1031,9 +1031,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findDepartment(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the first document satisfying the criteria specified in the
      * provided query.
@@ -1046,18 +1046,18 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     found.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstDocument(
      *     org.eclipse.stardust.engine.api.query.DocumentQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          findFirstDocument(org.eclipse.stardust.engine.api.query.DocumentQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -1067,17 +1067,17 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllDocuments(
      *     org.eclipse.stardust.engine.api.query.DocumentQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.Documents
          getAllDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1089,9 +1089,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @throws PublicException if <tt>scope</tt> is null.
      *     <em>Instances of {@link PublicException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPreferences(
      *     org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String
@@ -1101,9 +1101,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getPreferences(
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves preferences satisfying the criteria specified in the provided query.
      *
@@ -1113,16 +1113,16 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @throws PublicException if querying is not supported for the specified PreferenceScope.
      *     <em>Instances of {@link PublicException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws UnsupportedOperationException if the PreferenceQuery contains unsupported terms or
      *     operations.
      *     <em>Instances of {@link UnsupportedOperationException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>preferencesQuery</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllPreferences(
      *     org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
@@ -1131,25 +1131,25 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
          getAllPreferences(
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the information about the deployed runtime environment (
      * e.g. version information).
      *
      * @return the runtime environment information.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeEnvironmentInfo()
      */
     public org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo
          getRuntimeEnvironmentInfo()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a resource bundle from a specified moduleId.
      *
@@ -1159,8 +1159,8 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *
      * @return The ResourceBundle or null if no ResourceBundle was found.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getResourceBundle(
      *     java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
@@ -1168,14 +1168,14 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ResourceBundle
          getResourceBundle(
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     void login(java.lang.String userId, java.lang.String password)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void login(java.lang.String userId, java.lang.String password, java.util.Map properties)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void logout() throws java.rmi.RemoteException;
 }

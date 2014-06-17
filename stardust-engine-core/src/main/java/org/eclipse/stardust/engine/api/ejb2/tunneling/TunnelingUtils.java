@@ -18,14 +18,13 @@ import javax.rmi.PortableRemoteObject;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
-
-
 
 /**
  * @author sauer
@@ -110,9 +109,9 @@ public class TunnelingUtils
       }
       else
       {
-			throw new PublicException(
-					BpmRuntimeError.EJB_INVALID_TUNNELING_SERVICE_ENDPOINT
-							.raise());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_TUNNELING_SERVICE_ENDPOINT
+                     .raise());
       }
 
       Assert.condition(null != loginResult, "Tunneling mode login must return an invoker principal.");

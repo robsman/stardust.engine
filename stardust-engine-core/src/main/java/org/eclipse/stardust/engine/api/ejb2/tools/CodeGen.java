@@ -95,9 +95,9 @@ public class CodeGen
       {
          additionalMethods = new String[] {
                TAB + "void login(java.lang.String userId, java.lang.String password)\n         "
-                     + "throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;",
+                     + "throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;",
                TAB + "void login(java.lang.String userId, java.lang.String password, java.util.Map properties)\n         "
-                     + "throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;",
+                     + "throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;",
                TAB + "void logout() throws java.rmi.RemoteException;" };
       }
 
@@ -130,9 +130,9 @@ public class CodeGen
       {
          additionalMethods = new String[] {
                TAB + "void login(java.lang.String userId, java.lang.String password)\n         "
-                     + "throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;",
+                     + "throws org.eclipse.stardust.common.error.WorkflowException;",
                TAB + "void login(java.lang.String userId, java.lang.String password, java.util.Map properties)\n         "
-                     + "throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;",
+                     + "throws org.eclipse.stardust.common.error.WorkflowException;",
                TAB + "void logout();" };
       }
 
@@ -411,14 +411,14 @@ public class CodeGen
             {
                result.append(", ");
             }
-            result.append("org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext");
+            result.append("org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext");
          }
 
          result.append(")\n");
 
          Type[] exceptions = method.getExceptions();
 
-         result.append("throws org.eclipse.stardust.engine.api.ejb2.WorkflowException");
+         result.append("throws org.eclipse.stardust.common.error.WorkflowException");
          if (exceptions.length > 0)
          {
             for (int i = 0; i < exceptions.length; i++)
@@ -514,11 +514,11 @@ public class CodeGen
          result.append("      }\n");
          result.append("      catch(org.eclipse.stardust.common.error.PublicException e)\n")
                .append("      {\n")
-               .append("         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);\n")
+               .append("         throw new org.eclipse.stardust.common.error.WorkflowException(e);\n")
                .append("      }\n");
          result.append("      catch(org.eclipse.stardust.common.error.ResourceException e)\n")
                .append("      {\n")
-               .append("         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);\n")
+               .append("         throw new org.eclipse.stardust.common.error.WorkflowException(e);\n")
                .append("      }\n");
 
          if(isTunneling())
@@ -702,7 +702,7 @@ public class CodeGen
             docString.append("\n").append(TAB).append(" *     ");
             tagValue = "<em>Instances of {@link " + throwTag
                   + "} will be wrapped inside "
-                  + "{@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>";
+                  + "{@link org.eclipse.stardust.common.error.WorkflowException}.</em>";
 
          }
          else
@@ -766,9 +766,9 @@ public class CodeGen
    {
       docString
             .append(TAB).append(
-                  " * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException ")
+                  " * @throws org.eclipse.stardust.common.error.WorkflowException ")
             .append("as a wrapper for\n").append(TAB).append(" *         ")
-            .append("org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions\n");
+            .append("org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions\n");
    }
 
    private static String splitLongLines(String comment, int commentStarPos,

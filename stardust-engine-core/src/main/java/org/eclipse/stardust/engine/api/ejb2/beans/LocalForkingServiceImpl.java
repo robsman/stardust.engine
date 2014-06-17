@@ -17,43 +17,28 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBContext;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import javax.ejb.*;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.CMTSessionInterceptor;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.ContainerConfigurationInterceptor;
-import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.SessionBeanExceptionHandler;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperation;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperationExecutor;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonProperties;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.CallingInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.ForkingDebugInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.NonInteractiveSecurityContextInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.RuntimeExtensionsInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.daemons.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
+import org.eclipse.stardust.engine.core.runtime.ejb.*;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.CMTSessionInterceptor;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.ContainerConfigurationInterceptor;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.SessionBeanExceptionHandler;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
 
 /**
  * @author ubirkemeyer
@@ -64,7 +49,7 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
    private static final long serialVersionUID = 1L;
 
    private static final Logger trace = LogManager.getLogger(LocalForkingServiceImpl.class);
-   
+
    private static Map<String, Long> lastRuns = CollectionUtils.newMap();
 
    private SessionContext sessionContext;
@@ -137,20 +122,20 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
    {
       private static final long serialVersionUID = 1L;
 
-      public ExecuteActionInvocationManager(EJBContext sessionContext,
+      public ExecuteActionInvocationManager(SessionContext sessionContext,
             ActionRunner actionRunner)
       {
          super(actionRunner, setupInterceptors(sessionContext));
       }
 
-      private static List setupInterceptors(EJBContext sessionContext)
+      private static List setupInterceptors(SessionContext sessionContext)
       {
          List interceptors = new ArrayList(7);
 
          interceptors.add(new ForkingDebugInterceptor());
          interceptors.add(new PropertyLayerProviderInterceptor());
          interceptors.add(new ContainerConfigurationInterceptor("ForkingService",
-               J2eeContainerType.EJB));
+               J2eeContainerType.EJB, null));
          interceptors.add(new CMTSessionInterceptor(
                SessionProperties.DS_NAME_AUDIT_TRAIL, sessionContext));
          interceptors.add(new NonInteractiveSecurityContextInterceptor());
@@ -240,11 +225,11 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
          ForkingServiceFactory factory = Parameters.instance().getObject(EngineProperties.FORKING_SERVICE_HOME);
          if (factory == null)
          {
-            factory = new RemoteSessionForkingServiceFactory();
+            factory = new RemoteSessionForkingServiceFactory(new Ejb2ExecutorService());
          }
          ForkingService forkingService = factory.get();
          forkingService.fork(carrier.copy(), false);
-         
+
          lastRun = now;
          lastRuns.put(type, lastRun);
       }

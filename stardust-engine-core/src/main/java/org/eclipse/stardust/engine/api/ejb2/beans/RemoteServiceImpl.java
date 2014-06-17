@@ -17,7 +17,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.error.LoginFailedException;
-import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 
 
@@ -45,7 +45,7 @@ public class RemoteServiceImpl extends AbstractEjbServiceImpl
       {
          throw new WorkflowException(e);
       }
-      catch (PublicException e) 
+      catch (PublicException e)
       {
          throw new WorkflowException(e);
       }
@@ -55,5 +55,5 @@ public class RemoteServiceImpl extends AbstractEjbServiceImpl
    {
       ((ManagedService) service).logout();
    }
-   
+
 }

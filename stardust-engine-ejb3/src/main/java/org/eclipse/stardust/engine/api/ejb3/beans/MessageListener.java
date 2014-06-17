@@ -27,16 +27,18 @@ import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.ejb3.ForkingService;
-import org.eclipse.stardust.engine.api.ejb3.WorkflowException;
-import org.eclipse.stardust.engine.api.ejb3.interceptors.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
+import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
+import org.eclipse.stardust.engine.core.runtime.ejb.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
@@ -75,7 +77,7 @@ public class MessageListener extends AbstractEjb3MessageListener implements java
       action.execute();
    }
 
-   private class MyAction implements Action, Ejb3Service
+   private class MyAction implements Action, Ejb3ManagedService
    {
       private Message message;
       private ForkingService forkingService;
@@ -154,7 +156,7 @@ public class MessageListener extends AbstractEjb3MessageListener implements java
 	}
 
 	@Override
-	public org.eclipse.stardust.engine.api.ejb3.ForkingService getForkingService() {
+	public ExecutorService getForkingService() {
 		return this.forkingService;
 	}
 

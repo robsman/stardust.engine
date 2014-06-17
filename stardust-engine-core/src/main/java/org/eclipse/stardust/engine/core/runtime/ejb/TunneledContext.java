@@ -8,31 +8,29 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb3.beans;
+package org.eclipse.stardust.engine.core.runtime.ejb;
 
-import java.rmi.RemoteException;
-import java.util.Map;
+import java.io.Serializable;
 
-import javax.sql.DataSource;
-
-import org.eclipse.stardust.engine.api.ejb3.ForkingService;
-import org.eclipse.stardust.engine.api.ejb3.WorkflowException;
-import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
-
-
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
 /**
- * @author thomas.wolfram
+ * @author sauer
  * @version $Revision: $
  */
-public interface Ejb3Service extends ManagedService
+public class TunneledContext implements Serializable
 {
-   
-   DataSource getDataSource();
-   
-   Object getRepository();
-   
-   ForkingService getForkingService();
+   private static final long serialVersionUID = 1L;
 
+   private final InvokerPrincipal invokerPrincipal;
+
+   public TunneledContext(InvokerPrincipal invokerPrincipal)
+   {
+      this.invokerPrincipal = invokerPrincipal;
+   }
+
+   public InvokerPrincipal getInvokerPrincipal()
+   {
+      return invokerPrincipal;
+   }
 }

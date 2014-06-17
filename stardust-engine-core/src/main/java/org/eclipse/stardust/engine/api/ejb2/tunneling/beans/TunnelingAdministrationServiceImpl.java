@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 68817 
+ * Generated from  Revision: 68817
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -27,8 +27,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @param The rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
      *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
@@ -36,8 +36,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public void
          setPasswordRules(
          org.eclipse.stardust.engine.api.runtime.PasswordRules rules,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -48,11 +48,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -65,15 +65,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return The password rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPasswordRules()
      */
     public org.eclipse.stardust.engine.api.runtime.PasswordRules
          getPasswordRules(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -84,11 +84,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -108,12 +108,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0, predecessorOID is ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.lang.String model, int predecessorOID)
@@ -121,8 +121,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          deployModel(
          java.lang.String model, int predecessorOID,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -133,11 +133,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -156,12 +156,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     java.lang.String model, int modelOID)
@@ -169,8 +169,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          overwriteModel(
          java.lang.String model, int modelOID,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -181,11 +181,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -211,8 +211,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @deprecated since 6.0, configuration, validTo and disabled are ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.lang.String model, java.lang.String configuration, int predecessorOID,
@@ -224,8 +224,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          java.lang.String model, java.lang.String configuration, int predecessorOID,
          java.util.Date validFrom, java.util.Date validTo, java.lang.String comment,
          boolean disabled, boolean ignoreWarnings,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -238,11 +238,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -268,12 +268,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0, configuration, validFrom, validTo and disabled are ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     java.lang.String model, java.lang.String configuration, int modelOID, java.util.Date
@@ -285,8 +285,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          java.lang.String model, java.lang.String configuration, int modelOID,
          java.util.Date validFrom, java.util.Date validTo, java.lang.String comment,
          boolean disabled, boolean ignoreWarnings,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -299,11 +299,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -326,9 +326,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     overwrite operation could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int
@@ -338,8 +338,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          overwriteModel(
          org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int
          modelOID, org.eclipse.stardust.engine.api.runtime.DeploymentOptions options,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -350,11 +350,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -364,7 +364,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
 
     /**
      * Deploys a group of models.
-     * 
+     *
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
@@ -383,16 +383,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     operation could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if the deploymentElements argument is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the multiple transactions
      *     trying to deploy models at the same time.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.util.List deploymentElements,
@@ -402,8 +402,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          deployModel(
          java.util.List deploymentElements,
          org.eclipse.stardust.engine.api.runtime.DeploymentOptions options,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -414,11 +414,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -432,12 +432,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     * 
+     *
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     * 
+     *
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -454,9 +454,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPrimaryImplementation(
      *     long interfaceModelOid, java.lang.String processId, java.lang.String
@@ -466,9 +466,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          setPrimaryImplementation(
          long interfaceModelOid, java.lang.String processId, java.lang.String
          implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions
-         options, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -480,11 +480,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -502,18 +502,18 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteModel(
      *     long modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          deleteModel(
-         long modelOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -524,11 +524,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -550,17 +550,17 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *        instances are to be deleted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteProcesses(
      *     java.util.List piOids)
      */
     public void deleteProcesses(
          java.util.List piOids,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -571,11 +571,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -589,16 +589,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @param keepUsers a flag to specify if the users should be deleted or not.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(
      *     boolean keepUsers)
      */
     public void cleanupRuntime(
-         boolean keepUsers, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         boolean keepUsers, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -609,11 +609,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -626,16 +626,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * database. Additionally empties the model table. The tables will still remain in the
      * database.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntimeAndModels(
      *     )
      */
     public void
          cleanupRuntimeAndModels(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -646,11 +646,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -671,9 +671,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProcessInstancePriority(
      *     long oid, int priority)
@@ -681,8 +681,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          setProcessInstancePriority(
          long oid, int priority,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -693,11 +693,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -718,9 +718,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProcessInstancePriority(
      *     long oid, int priority, boolean propagateToSubProcesses)
@@ -728,8 +728,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          setProcessInstancePriority(
          long oid, int priority, boolean propagateToSubProcesses,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -740,11 +740,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -764,9 +764,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     * 
+     *
      * <em>This method also aborts all super process instances.</em>
-     * 
+     *
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -781,14 +781,14 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the oid
      *     references a case process instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(long)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(
@@ -796,9 +796,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          abortProcessInstance(
-         long oid, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -809,11 +809,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -838,18 +838,18 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstance(
      *     long oid)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          recoverProcessInstance(
-         long oid, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -860,11 +860,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -889,17 +889,17 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance for one of the specified oids.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstances(
      *     java.util.List oids)
      */
     public void recoverProcessInstances(
          java.util.List oids,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -910,11 +910,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -941,9 +941,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
@@ -951,8 +951,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.Daemon
          getDaemon(
          java.lang.String daemonType, boolean acknowledge,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -963,11 +963,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1000,9 +1000,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#stopDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
@@ -1010,8 +1010,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.Daemon
          stopDaemon(
          java.lang.String daemonType, boolean acknowledge,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1022,11 +1022,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1060,9 +1060,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
@@ -1070,8 +1070,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.Daemon
          startDaemon(
          java.lang.String daemonType, boolean acknowledge,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1082,11 +1082,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1101,8 +1101,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return a list containing Daemon objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAllDaemons(
      *     boolean acknowledge)
@@ -1110,8 +1110,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Daemon>
          getAllDaemons(
          boolean acknowledge,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1122,11 +1122,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1139,16 +1139,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return A status report indicating some important indicators of audit trail health.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(
      *     )
      */
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1159,11 +1159,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1182,17 +1182,17 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return A status report indicating some important indicators of audit trail health.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(
      *     boolean countOnly)
      */
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport(
-         boolean countOnly, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         boolean countOnly, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1203,11 +1203,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1226,16 +1226,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * <p>It is equivalent with recovering all the process instances which are in the
      * states active or interrupted.</p>
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverRuntimeEnvironment(
      *     )
      */
     public void
          recoverRuntimeEnvironment(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1246,11 +1246,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1266,7 +1266,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     * 
+     *
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -1287,9 +1287,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *             specified model or if the model does not exist.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startProcess(
      *     long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
@@ -1297,8 +1297,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(
          long modelOID, java.lang.String id, java.util.Map data, boolean synchronously,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1309,11 +1309,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1326,7 +1326,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1345,34 +1345,34 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is
      *     exclusively locked by another thread.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is
      *     already completed or aborted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
      *     <code>outData</object> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
      *     an administrator.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the activity
      *     instance is interactive.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #forceSuspendToDefaultPerformer(long)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#forceCompletion(
@@ -1381,8 +1381,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceCompletion(
          long activityInstanceOID, java.util.Map accessPoints,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1393,11 +1393,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1409,7 +1409,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1427,23 +1427,23 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is
      *     exclusively locked by another thread.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is
      *     already completed or aborted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #forceCompletion(long, Map)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#forceSuspendToDefaultPerformer(
@@ -1452,8 +1452,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceSuspendToDefaultPerformer(
          long activityInstanceOID,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1464,11 +1464,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1481,15 +1481,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return the current user.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getUser()
      */
     public org.eclipse.stardust.engine.api.runtime.User
          getUser(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1500,11 +1500,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1516,15 +1516,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * Flushes all internal caches, effectively returning the engine to a state just like
      * after it has started.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#flushCaches()
      */
     public void
          flushCaches(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1535,11 +1535,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1553,15 +1553,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return a list of permission ids.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPermissions()
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1572,11 +1572,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1591,8 +1591,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return the profile.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getProfile(
      *     org.eclipse.stardust.engine.api.model.ProfileScope scope)
@@ -1600,8 +1600,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public java.util.Map<java.lang.String,?>
          getProfile(
          org.eclipse.stardust.engine.api.model.ProfileScope scope,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1612,11 +1612,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1630,16 +1630,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @param scope the scope.
      * @param profile the profile.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProfile(
      *     org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile)
      */
     public void setProfile(
          org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1650,11 +1650,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1675,8 +1675,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @exception ObjectNotFoundException if there is no runtime object with the specified OID
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#writeLogEntry(
      *     org.eclipse.stardust.engine.api.runtime.LogType logType,
@@ -1687,8 +1687,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          org.eclipse.stardust.engine.api.runtime.LogType logType,
          org.eclipse.stardust.engine.api.dto.ContextKind contextType, long contextOid,
          java.lang.String message, java.lang.Throwable throwable,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1699,11 +1699,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1727,12 +1727,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *           if a department with the same id already exists in the parent scope.
      *     <em>Instances of {@link DepartmentExistsException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws ObjectNotFoundException
      *           if either the parent or the organization could not be resolved.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.InvalidArgumentException <br>
      *           - if either the id or the name is null or an empty string or<br>
      *           - if the organization is null or<br>
@@ -1742,14 +1742,14 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *             the parent department is assigned (invalid hierarchy).
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createDepartment(
      *     java.lang.String id, java.lang.String name, java.lang.String description,
@@ -1761,8 +1761,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          java.lang.String id, java.lang.String name, java.lang.String description,
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1773,11 +1773,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1796,16 +1796,16 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDepartment(long oid)
      */
     public org.eclipse.stardust.engine.api.runtime.Department getDepartment(
-         long oid, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1816,11 +1816,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1841,19 +1841,19 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *           if the name is null or an empty string
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#modifyDepartment(
      *     long oid, java.lang.String name, java.lang.String description)
@@ -1861,8 +1861,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public org.eclipse.stardust.engine.api.runtime.Department
          modifyDepartment(
          long oid, java.lang.String name, java.lang.String description,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1873,11 +1873,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1895,28 +1895,28 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *     if there are work items currently associated with the department or any child of the
      *     f the department.
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#removeDepartment(
      *     long oid)
      */
     public void removeDepartment(
-         long oid, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1927,11 +1927,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1950,9 +1950,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @throws PublicException if <tt>scope</tt> is null.
      *     <em>Instances of {@link PublicException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPreferences(
      *     org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String
@@ -1962,8 +1962,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          getPreferences(
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1974,11 +1974,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1995,22 +1995,22 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or
      *     empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(
      *     org.eclipse.stardust.engine.core.preferences.Preferences preferences)
@@ -2018,8 +2018,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public void
          savePreferences(
          org.eclipse.stardust.engine.core.preferences.Preferences preferences,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2030,11 +2030,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2051,27 +2051,27 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or
      *     empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(
      *     java.util.List preferences)
      */
     public void savePreferences(
          java.util.List preferences,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2082,11 +2082,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2107,9 +2107,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.lang.String modelId)
@@ -2118,8 +2118,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(
          java.lang.String modelId,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2130,11 +2130,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2156,9 +2156,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.lang.String modelId, boolean all)
@@ -2167,8 +2167,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(
          java.lang.String modelId, boolean all,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2179,11 +2179,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2205,9 +2205,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * @throws InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is
      *     null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.util.List modelIds)
@@ -2216,8 +2216,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          java.util.List<org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables>
          getConfigurationVariables(
          java.util.List modelIds,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2228,11 +2228,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2250,9 +2250,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @throws InvalidArgumentException if <tt>model</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     byte[] model)
@@ -2260,9 +2260,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(
-         byte[] model, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         byte[] model, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2273,11 +2273,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2297,12 +2297,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>configurationVariables</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#saveConfigurationVariables(
      *     org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
@@ -2313,8 +2313,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
          saveConfigurationVariables(
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          configurationVariables, boolean force,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2325,11 +2325,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2343,15 +2343,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *
      * @return the currently set Permissions
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getGlobalPermissions()
      */
     public org.eclipse.stardust.engine.api.runtime.RuntimePermissions
          getGlobalPermissions(
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2362,11 +2362,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -2389,15 +2389,15 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>permissions</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws ValidationException if changed grants are not valid in the active model.
      *     <em>Instances of {@link ValidationException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setGlobalPermissions(
      *     org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
@@ -2405,8 +2405,8 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     public void
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -2417,11 +2417,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {

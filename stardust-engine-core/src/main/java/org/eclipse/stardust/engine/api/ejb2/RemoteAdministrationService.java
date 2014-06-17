@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 68817 
+ * Generated from  Revision: 68817
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -27,32 +27,32 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @param The rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
      *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
      */
     public void
          setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns the password rules.
      *
      * @return The password rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPasswordRules()
      */
     public org.eclipse.stardust.engine.api.runtime.PasswordRules
          getPasswordRules()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Deploys a new model.
      *
@@ -65,21 +65,21 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0, predecessorOID is ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.lang.String model, int predecessorOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          deployModel(java.lang.String model, int predecessorOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Overwrites the specified model.
      *
@@ -91,21 +91,21 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     java.lang.String model, int modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          overwriteModel(java.lang.String model, int modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Deploys a new model.
      *
@@ -124,8 +124,8 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @deprecated since 6.0, configuration, validTo and disabled are ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.lang.String model, java.lang.String configuration, int predecessorOID,
@@ -137,9 +137,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          java.lang.String model, java.lang.String configuration, int predecessorOID,
          java.util.Date validFrom, java.util.Date validTo, java.lang.String comment,
          boolean disabled, boolean ignoreWarnings)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Overwrites the specified model.
      *
@@ -158,12 +158,12 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 6.0, configuration, validFrom, validTo and disabled are ignored.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     java.lang.String model, java.lang.String configuration, int modelOID, java.util.Date
@@ -175,9 +175,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          java.lang.String model, java.lang.String configuration, int modelOID,
          java.util.Date validFrom, java.util.Date validTo, java.lang.String comment,
          boolean disabled, boolean ignoreWarnings)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Overwrites the specified model.
      *
@@ -193,9 +193,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     overwrite operation could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteModel(
      *     org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int
@@ -205,12 +205,12 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          overwriteModel(
          org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int
          modelOID, org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Deploys a group of models.
-     * 
+     *
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
@@ -229,16 +229,16 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     operation could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if the deploymentElements argument is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the multiple transactions
      *     trying to deploy models at the same time.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(
      *     java.util.List deploymentElements,
@@ -248,21 +248,21 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          deployModel(
          java.util.List deploymentElements,
          org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Specifies which implementation alternative (
      * identified by <i>implementationModelId</i>) will be considered
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     * 
+     *
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     * 
+     *
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -279,9 +279,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     could not be performed.
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPrimaryImplementation(
      *     long interfaceModelOid, java.lang.String processId, java.lang.String
@@ -292,9 +292,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          long interfaceModelOid, java.lang.String processId, java.lang.String
          implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions
          options)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Deletes the specified model.
      *
@@ -305,18 +305,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
      *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DeploymentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteModel(
      *     long modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          deleteModel(long modelOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Deletes process instances from the audit trail.
      * <p />
@@ -331,48 +331,48 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *        instances are to be deleted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteProcesses(
      *     java.util.List piOids)
      */
     public void deleteProcesses(java.util.List piOids)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. The tables will still remain in the database.
      *
      * @param keepUsers a flag to specify if the users should be deleted or not.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(
      *     boolean keepUsers)
      */
     public void cleanupRuntime(boolean keepUsers)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. Additionally empties the model table. The tables will still remain in the
      * database.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntimeAndModels(
      *     )
      */
     public void cleanupRuntimeAndModels()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Changes the process instance priority.
      * Equivalent with setProcessInstancePriority(oid, priority, false).
@@ -386,18 +386,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProcessInstancePriority(
      *     long oid, int priority)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          setProcessInstancePriority(long oid, int priority)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Changes the process instance priority.
      *
@@ -411,9 +411,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProcessInstancePriority(
      *     long oid, int priority, boolean propagateToSubProcesses)
@@ -421,9 +421,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          setProcessInstancePriority(
          long oid, int priority, boolean propagateToSubProcesses)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Aborts a process instance disregarding any activities which were or are
      * performed by the process instance.
@@ -436,9 +436,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     * 
+     *
      * <em>This method also aborts all super process instances.</em>
-     * 
+     *
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -453,14 +453,14 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the oid
      *     references a case process instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(long)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(
@@ -468,9 +468,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          abortProcessInstance(long oid)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Recovers the process instance identified by the given OID and all of its subprocess
      * instances, executed in a separate transaction. By default the execution is
@@ -488,18 +488,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstance(
      *     long oid)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          recoverProcessInstance(long oid)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Recovers the process instances identified by the given list of OIDs and all
      * associated subprocess instances.Executed in a separate transaction.
@@ -517,17 +517,17 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance for one of the specified oids.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstances(
      *     java.util.List oids)
      */
     public void recoverProcessInstances(java.util.List oids)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the specified daemon.
      * The following daemon types exist:
@@ -547,18 +547,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
      */
     public org.eclipse.stardust.engine.api.runtime.Daemon
          getDaemon(java.lang.String daemonType, boolean acknowledge)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Stops the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.The stop daemon operation is inherently asynchronous, regardless of
@@ -584,18 +584,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#stopDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
      */
     public org.eclipse.stardust.engine.api.runtime.Daemon
          stopDaemon(java.lang.String daemonType, boolean acknowledge)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Starts the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.
@@ -622,18 +622,18 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     the specified type.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startDaemon(
      *     java.lang.String daemonType, boolean acknowledge)
      */
     public org.eclipse.stardust.engine.api.runtime.Daemon
          startDaemon(java.lang.String daemonType, boolean acknowledge)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a list of all the available daemons.
      *
@@ -641,33 +641,33 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @return a list containing Daemon objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAllDaemons(
      *     boolean acknowledge)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Daemon>
          getAllDaemons(boolean acknowledge)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Determines key indicators of audit trail health.
      *
      * @return A status report indicating some important indicators of audit trail health.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(
      *     )
      */
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Determines key indicators of audit trail health.
      *
@@ -679,17 +679,17 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @return A status report indicating some important indicators of audit trail health.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(
      *     boolean countOnly)
      */
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport(boolean countOnly)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.
      * By default the execution is synchronous. Only if there are non fatal errors
@@ -701,16 +701,16 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * <p>It is equivalent with recovering all the process instances which are in the
      * states active or interrupted.</p>
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverRuntimeEnvironment(
      *     )
      */
     public void recoverRuntimeEnvironment()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Starts a process from a specified model.The startProcess method is executed
      * asynchronously
@@ -719,7 +719,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     * 
+     *
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -740,9 +740,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *             specified model or if the model does not exist.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startProcess(
      *     long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
@@ -750,15 +750,15 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(
          long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Forces the completion of a non-interactive activity instance. A map of access points
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -777,34 +777,34 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is
      *     exclusively locked by another thread.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is
      *     already completed or aborted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
      *     <code>outData</object> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
      *     an administrator.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the activity
      *     instance is interactive.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #forceSuspendToDefaultPerformer(long)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#forceCompletion(
@@ -812,14 +812,14 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceCompletion(long activityInstanceOID, java.util.Map accessPoints)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -837,23 +837,23 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is
      *     exclusively locked by another thread.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is
      *     already completed or aborted.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #forceCompletion(long, Map)
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#forceSuspendToDefaultPerformer(
@@ -861,52 +861,52 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceSuspendToDefaultPerformer(long activityInstanceOID)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves information on the current user.
      *
      * @return the current user.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getUser()
      */
     public org.eclipse.stardust.engine.api.runtime.User getUser()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Flushes all internal caches, effectively returning the engine to a state just like
      * after it has started.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#flushCaches()
      */
     public void flushCaches()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all permissions the current user has on this service plus the global
      * permissions.
      *
      * @return a list of permission ids.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPermissions()
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the profile for the specified scope.
      *
@@ -914,34 +914,34 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @return the profile.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getProfile(
      *     org.eclipse.stardust.engine.api.model.ProfileScope scope)
      */
     public java.util.Map<java.lang.String,?>
          getProfile(org.eclipse.stardust.engine.api.model.ProfileScope scope)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Sets the profile for the specified scope.
      *
      * @param scope the scope.
      * @param profile the profile.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProfile(
      *     org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile)
      */
     public void setProfile(
          org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Logs an audit trail event of type <code>LogCode.ADMINISTRATION</code>.
      *
@@ -955,8 +955,8 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @exception ObjectNotFoundException if there is no runtime object with the specified OID
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#writeLogEntry(
      *     org.eclipse.stardust.engine.api.runtime.LogType logType,
@@ -967,9 +967,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.LogType logType,
          org.eclipse.stardust.engine.api.dto.ContextKind contextType, long contextOid,
          java.lang.String message, java.lang.Throwable throwable)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates a new department.
      *
@@ -986,12 +986,12 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *           if a department with the same id already exists in the parent scope.
      *     <em>Instances of {@link DepartmentExistsException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws ObjectNotFoundException
      *           if either the parent or the organization could not be resolved.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.InvalidArgumentException <br>
      *           - if either the id or the name is null or an empty string or<br>
      *           - if the organization is null or<br>
@@ -1001,14 +1001,14 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *             the parent department is assigned (invalid hierarchy).
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createDepartment(
      *     java.lang.String id, java.lang.String name, java.lang.String description,
@@ -1020,9 +1020,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          java.lang.String id, java.lang.String name, java.lang.String description,
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the department with the given oid.
      *
@@ -1034,17 +1034,17 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDepartment(long oid)
      */
     public org.eclipse.stardust.engine.api.runtime.Department getDepartment(
          long oid)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Change the description of a department.
      *
@@ -1058,28 +1058,28 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *           if the name is null or an empty string
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#modifyDepartment(
      *     long oid, java.lang.String name, java.lang.String description)
      */
     public org.eclipse.stardust.engine.api.runtime.Department
          modifyDepartment(long oid, java.lang.String name, java.lang.String description)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes the department having the specified oid, all his children and all user grants
      * associated with the department.
@@ -1090,28 +1090,28 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *           if there is no department with the specified oid.
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *     if there are work items currently associated with the department or any child of the
      *     f the department.
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was
      *     external authentified
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#removeDepartment(
      *     long oid)
      */
     public void removeDepartment(long oid)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1123,9 +1123,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @throws PublicException if <tt>scope</tt> is null.
      *     <em>Instances of {@link PublicException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPreferences(
      *     org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String
@@ -1135,9 +1135,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getPreferences(
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Saves the changed preferences to the preference store.
      *
@@ -1147,22 +1147,22 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or
      *     empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(
      *     org.eclipse.stardust.engine.core.preferences.Preferences preferences)
@@ -1170,9 +1170,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void
          savePreferences(
          org.eclipse.stardust.engine.core.preferences.Preferences preferences)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Saves a complete list of preferences to the preference store.
      *
@@ -1182,27 +1182,27 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>preferences</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or
      *     empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(
      *     java.util.List preferences)
      */
     public void savePreferences(java.util.List preferences)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId (without Password type).
@@ -1216,9 +1216,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.lang.String modelId)
@@ -1226,9 +1226,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(java.lang.String modelId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId.
@@ -1243,9 +1243,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.lang.String modelId, boolean all)
@@ -1253,9 +1253,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(java.lang.String modelId, boolean all)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelIds (without Password type).
@@ -1270,9 +1270,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * @throws InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is
      *     null or empty.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     java.util.List modelIds)
@@ -1280,9 +1280,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables>
          getConfigurationVariables(java.util.List modelIds)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves configuration variables from the given model (without Password type).
      *
@@ -1293,9 +1293,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *
      * @throws InvalidArgumentException if <tt>model</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
      *     byte[] model)
@@ -1303,9 +1303,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(byte[] model)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Saves changes to configuration variables values.
      *
@@ -1318,12 +1318,12 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>configurationVariables</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#saveConfigurationVariables(
      *     org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
@@ -1334,25 +1334,25 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          saveConfigurationVariables(
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          configurationVariables, boolean force)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves permissions that are globally set. For example permissions concerning
      * model deployment, preference saving, modifying AuditTrail, managing deamons ect.
      *
      * @return the currently set Permissions
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getGlobalPermissions()
      */
     public org.eclipse.stardust.engine.api.runtime.RuntimePermissions
          getGlobalPermissions()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Saves the changed Permissions.
      * Use <code>getGlobalPermissions</code> to retrieve currently valid global permissions
@@ -1368,15 +1368,15 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      *     not have the required privilege.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException if <tt>permissions</tt> is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws ValidationException if changed grants are not valid in the active model.
      *     <em>Instances of {@link ValidationException} will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setGlobalPermissions(
      *     org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
@@ -1384,14 +1384,14 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     void login(java.lang.String userId, java.lang.String password)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void login(java.lang.String userId, java.lang.String password, java.util.Map properties)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void logout() throws java.rmi.RemoteException;
 }

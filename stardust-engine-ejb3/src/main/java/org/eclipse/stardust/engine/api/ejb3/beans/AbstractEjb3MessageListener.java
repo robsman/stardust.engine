@@ -6,17 +6,16 @@ import javax.ejb.MessageDrivenContext;
 
 import org.eclipse.stardust.engine.api.ejb3.ForkingService;
 
-public class AbstractEjb3MessageListener {
+public class AbstractEjb3MessageListener
+{
+   @EJB
+   private ForkingService forkingService;
 
-	@EJB
-	private ForkingService forkingService;
+   @Resource
+   protected MessageDrivenContext context;
 
-	@Resource
-	protected MessageDrivenContext context;
-
-	public org.eclipse.stardust.engine.api.ejb3.ForkingService getForkingService() {
-
-		return this.forkingService;
-	}
-
+   public org.eclipse.stardust.engine.api.ejb3.ForkingService getForkingService()
+   {
+      return this.forkingService;
+   }
 }

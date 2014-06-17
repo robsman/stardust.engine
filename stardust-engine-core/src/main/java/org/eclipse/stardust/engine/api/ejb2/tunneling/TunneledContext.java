@@ -14,14 +14,12 @@ import java.io.Serializable;
 
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
-
 /**
  * @author sauer
  * @version $Revision: $
  */
 public class TunneledContext implements Serializable
 {
-
    private static final long serialVersionUID = 1L;
 
    private final InvokerPrincipal invokerPrincipal;
@@ -35,5 +33,4 @@ public class TunneledContext implements Serializable
    {
       return invokerPrincipal;
    }
-   
 }

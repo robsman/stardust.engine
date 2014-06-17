@@ -15,10 +15,10 @@ import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb3.beans.RemoteSessionForkingServiceFactory;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet.ExecutionServiceProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.ejb.RemoteSessionForkingServiceFactory;
 
 
 

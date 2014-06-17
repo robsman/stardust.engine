@@ -24,7 +24,8 @@ import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
+import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 
 
 
@@ -39,17 +40,17 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
    private static final long serialVersionUID = 2L;
 
    private static final Logger trace = LogManager.getLogger(ClientInvocationHandler.class);
-   
+
    private transient Object inner;
-   
+
    private transient TunneledContext tunneledContext;
 
    public ClientInvocationHandler(Object inner, TunneledContext tunneledContext)
    {
       this.inner = inner;
       this.tunneledContext = tunneledContext;
-      
-      if ((null != tunneledContext) && !(inner instanceof Ejb3Service))
+
+      if ((null != tunneledContext) && !(inner instanceof Ejb3ManagedService))
       {
          trace.warn("Found tunneling context but EJB facade does not seem to support tunneling.");
       }
@@ -61,7 +62,7 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
    private void readObject(ObjectInputStream stream) throws IOException,
          ClassNotFoundException
    {
-      Serializable serializable = (Serializable) stream.readObject(); 
+      Serializable serializable = (Serializable) stream.readObject();
       if (serializable instanceof Handle)
       {
          inner = ((Handle) serializable).getEJBObject();
@@ -74,14 +75,14 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
       {
          ((Stub) inner).connect(ORB.init());
       }*/
-      
+
       // restore tunneled context
       this.tunneledContext = (TunneledContext) stream.readObject();
    }
 
    /**
     * Serialization method to save the inner state.
-    * 
+    *
     * @serialData The Handle if inner is an EJBObject,
     *             the inner itself if it is serializable or null.
     */
@@ -97,16 +98,16 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
          serializable = (Serializable) inner;
       }
       stream.writeObject(serializable);
-      
+
       // save tunneled context
       stream.writeObject(tunneledContext);
    }
-   
+
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      final Class[] paramTypes;
+      final Class<?>[] paramTypes;
       final Object[] paramValues;
-      
+
       if (null != tunneledContext
             && !("remove".equals(method.getName()) && (null == args || args.length == 0)))
       {
@@ -136,7 +137,7 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
          paramTypes = method.getParameterTypes();
          paramValues = args;
       }
-      
+
       // work for florin
       // bug #3137: check what exception is coming and why it's incorrectly unwrapped
       Method innerMethod = inner.getClass().getMethod(method.getName(), paramTypes);

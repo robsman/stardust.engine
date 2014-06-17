@@ -30,9 +30,9 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb3.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
@@ -43,8 +43,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperation;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperationExecutor;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
+import org.eclipse.stardust.engine.core.runtime.ejb.RemoteSessionForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
 
 /**
  * @author ubirkemeyer
@@ -53,51 +54,45 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class ForkingServiceImpl implements org.eclipse.stardust.engine.api.ejb3.ForkingService, TimedObject, DaemonHandler
+public class ForkingServiceImpl implements org.eclipse.stardust.engine.api.ejb3.ForkingService,
+      TimedObject, DaemonHandler
 {
-   private static final long serialVersionUID = 1L;
-
    private static final Logger trace = LogManager.getLogger(ForkingServiceImpl.class);
-   
+
    private static Map<String, Long> lastRuns = CollectionUtils.newMap();
 
    @Resource
-	protected SessionContext sessionContext;
-   
-   @Resource(mappedName="jdbc/AuditTrail.DataSource")
+   protected SessionContext sessionContext;
+
+   @Resource(mappedName = "jdbc/AuditTrail.DataSource")
    protected DataSource dataSource;
-   
+
    @Resource(mappedName = "jms/CarnotXAConnectionFactory")
    private QueueConnectionFactory queueConnectionFactory;
-   
+
    @Resource(mappedName = "jms/CarnotSystemQueue")
    private Queue messageQueue;
-   
+
    @Resource(mappedName = "jms/CarnotDaemonQueue")
    private Queue daemonQueue;
-   
-   @Resource(mappedName="jcr/ContentRepository")
-   protected Object repository;  
-   
+
+   @Resource(mappedName = "jcr/ContentRepository")
+   protected Object repository;
+
    private ExecuteActionInvocationManager manager;
 
    private ActionRunner service;
 
-private ActionRunner serviceInstance;
+   private ActionRunner serviceInstance;
 
    public ForkingServiceImpl()
    {
-	   serviceInstance = new ForkingServiceActionRunner();	   	  
-
+      serviceInstance = new ForkingServiceActionRunner();
    }
-   
-
 
    public void ejbTimeout(Timer timer)
    {
       DaemonCarrier carrier = (DaemonCarrier) timer.getInfo();
-
-
       try
       {
          runDaemon(carrier);
@@ -105,35 +100,27 @@ private ActionRunner serviceInstance;
       catch (Exception ex)
       {
          trace.error("Unable to trigger execution of daemon '" + carrier.getType() + "'.");
-
       }
-      
-
    }
 
-   public Object run(Action action) throws WorkflowException
+   public Object run(Action<?> action) throws WorkflowException
    {
-	   return run(action, this);
+      return run(action, this);
    }
-   
-   public Object run(Action action, org.eclipse.stardust.engine.api.ejb3.ForkingService proxyService) throws WorkflowException
+
+   public Object run(Action<?> action, ExecutorService proxyService) throws WorkflowException
    {
-		manager = new ExecuteActionInvocationManager(sessionContext,
-				serviceInstance, proxyService);
-
-		this.service = (ActionRunner) Proxy.newProxyInstance(
-				ActionRunner.class.getClassLoader(),
-				new Class[] { ActionRunner.class }, manager);	   
-
-		try {
-			if (action instanceof DaemonOperation) {
-
-				action = new DaemonOperationExecutor((DaemonOperation) action,
-						this);
-			}
-
-			return service.execute(action);
-
+      manager = new ExecuteActionInvocationManager(sessionContext, serviceInstance, proxyService);
+      service = (ActionRunner) Proxy.newProxyInstance(
+            ActionRunner.class.getClassLoader(), new Class[] {ActionRunner.class},
+            manager);
+      try
+      {
+         if (action instanceof DaemonOperation)
+         {
+            action = new DaemonOperationExecutor((DaemonOperation) action, this);
+         }
+         return service.execute(action);
       }
       catch (PublicException e)
       {
@@ -143,6 +130,7 @@ private ActionRunner serviceInstance;
 
    private Timer getTimer(TimerService service, DaemonCarrier carrier)
    {
+      @SuppressWarnings("unchecked")
       Collection<Timer> timers = service.getTimers();
       for (Timer timer : timers)
       {
@@ -208,77 +196,78 @@ private ActionRunner serviceInstance;
       long now = System.currentTimeMillis();
       if (lastRun == null || now - lastRun > 100 || now < lastRun)
       {
-         ForkingServiceFactory factory = Parameters.instance().getObject(EngineProperties.FORKING_SERVICE_HOME);
+         ForkingServiceFactory factory = Parameters.instance().getObject(
+               EngineProperties.FORKING_SERVICE_HOME);
          if (factory == null)
          {
-        	// TODO: change to client view
+            // TODO: change to client view
             factory = new RemoteSessionForkingServiceFactory(this);
          }
          ForkingService forkingService = factory.get();
          forkingService.fork(carrier.copy(), false);
-         
+
          lastRun = now;
          lastRuns.put(type, lastRun);
       }
    }
-   
+
    public DataSource getDataSource()
    {
-	   return this.dataSource;
+      return dataSource;
    }
-   
+
    public QueueConnectionFactory getQueueConnectionFactory()
    {
-	   return this.queueConnectionFactory;
+      return queueConnectionFactory;
    }
 
-   
    public Queue getQueue(String name)
    {
-	   if (name.equals(JmsProperties.DAEMON_QUEUE_NAME_PROPERTY))
-	   {
-		   return this.daemonQueue;
-	   }
-	   else if (name.equals(JmsProperties.SYSTEM_QUEUE_NAME_PROPERTY))
-	   {
-		   return this.messageQueue;
-	   }
-	   else
-	   {
-		   return null;
-	   }
+      if (name.equals(JmsProperties.DAEMON_QUEUE_NAME_PROPERTY))
+      {
+         return daemonQueue;
+      }
+      else if (name.equals(JmsProperties.SYSTEM_QUEUE_NAME_PROPERTY))
+      {
+         return messageQueue;
+      }
+      else
+      {
+         return null;
+      }
    }
 
-	@Override
-	public LoggedInUser login(String userId, String password, Map properties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   @Override
+   public LoggedInUser login(String userId, String password, @SuppressWarnings("rawtypes") Map properties)
+   {
+      return null;
+   }
 
-	@Override
-	public org.eclipse.stardust.engine.api.ejb3.ForkingService getForkingService() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+   @Override
+   public ExecutorService getForkingService()
+   {
+      return null;
+   }
 
-	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
+   @Override
+   public void remove()
+   {
+   }
 
-	}
+   @Override
+   public void logout()
+   {
+   }
 
-	@Override
-	public void logout() {
-		// TODO Auto-generated method stub
+   @Override
+   public Object getRepository()
+   {
+      return this.repository;
+   }
 
-	}
-
-
-
-	@Override
-	public Object getRepository() {		
-		return this.repository;
-	}
-	
-
+   @Override
+   public void release()
+   {
+      // (fh) nothing to do
+   }
 }

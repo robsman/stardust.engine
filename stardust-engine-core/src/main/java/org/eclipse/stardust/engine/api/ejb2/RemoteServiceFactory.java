@@ -18,12 +18,12 @@ import javax.ejb.EJBObject;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 

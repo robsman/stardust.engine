@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466 
+ * Generated from  Revision: 72466
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -31,18 +31,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocument(
      *     java.lang.String documentId)
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          getDocument(java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets all versions of the document by document ID (of any of its version).
      *
@@ -54,18 +54,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocumentVersions(
      *     java.lang.String documentId)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          getDocumentVersions(java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets multiple documents by ID or path.
      *
@@ -77,18 +77,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocuments(
      *     java.util.List documentIds)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          getDocuments(java.util.List documentIds)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets documents based on the name pattern search.
      *
@@ -100,18 +100,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocumentsByName(
      *     java.lang.String namePattern)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          findDocumentsByName(java.lang.String namePattern)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets documents based on the XPath query.
      *
@@ -123,18 +123,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(
      *     java.lang.String xpathQuery)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          findDocuments(java.lang.String xpathQuery)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -142,17 +142,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *
      * @return a List of Document objects.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(
      *     org.eclipse.stardust.engine.api.query.DocumentQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.Documents
          findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the content of the document identified by <code>documentId</code>.
      * <p>
@@ -170,18 +170,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #requestDocumentContentDownload(String)
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#retrieveDocumentContent(
      *     java.lang.String documentId)
      */
     public byte[] retrieveDocumentContent(java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Initiates document content download via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -195,18 +195,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#requestDocumentContentDownload(
      *     java.lang.String documentId)
      */
     public java.lang.String requestDocumentContentDownload(
          java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a folder and lists its members.
      *
@@ -218,9 +218,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.Folder#LOD_LIST_MEMBERS
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolder(
@@ -228,9 +228,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      */
     public org.eclipse.stardust.engine.api.runtime.Folder
          getFolder(java.lang.String folderId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves a folder. Level of detail of information returned is controlled by
      * levelOfDetail.
@@ -246,9 +246,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.Folder#LOD_LIST_MEMBERS
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolder(
@@ -256,9 +256,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      */
     public org.eclipse.stardust.engine.api.runtime.Folder
          getFolder(java.lang.String folderId, int levelOfDetail)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets multiple folders by ID or path.
      *
@@ -273,18 +273,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolders(
      *     java.util.List folderIds, int levelOfDetail)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
          getFolders(java.util.List folderIds, int levelOfDetail)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets folders based on the name pattern search.
      *
@@ -299,18 +299,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFoldersByName(
      *     java.lang.String namePattern, int levelOfDetail)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
          findFoldersByName(java.lang.String namePattern, int levelOfDetail)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Gets folders based on the name XPath query.
      *
@@ -325,18 +325,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFolders(
      *     java.lang.String xpathQuery, int levelOfDetail)
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
          findFolders(java.lang.String xpathQuery, int levelOfDetail)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -351,9 +351,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createDocument(
      *     java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
@@ -363,9 +363,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          createDocument(
          java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
          document)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates document in a folder described by the document info.
      * <p>
@@ -373,7 +373,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      * The encoding can take any value and can be used to decode the content
      * <code>byte[]</code>
      * after retrieving it via {@link #retrieveDocumentContent(String)}.
-     * 
+     *
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -392,9 +392,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createDocument(
@@ -405,9 +405,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          createDocument(
          java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
          document, byte[] content, java.lang.String encoding)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates a new version of the document.
      *
@@ -420,21 +420,21 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#versionDocument(
      *     java.lang.String documentId, java.lang.String versionLabel)
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          versionDocument(java.lang.String documentId, java.lang.String versionLabel)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates a new version of the document.
      *
@@ -448,9 +448,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#versionDocument(
      *     java.lang.String documentId, java.lang.String versionComment, java.lang.String
@@ -460,9 +460,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionDocument(
          java.lang.String documentId, java.lang.String versionComment, java.lang.String
          versionLabel)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes a version of a document. At least one version has to remain.<br>
      * A call to remove the last remaining version leads to a
@@ -479,18 +479,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#removeDocumentVersion(
      *     java.lang.String documentId, java.lang.String documentRevisionId)
      */
     public void removeDocumentVersion(
          java.lang.String documentId, java.lang.String documentRevisionId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Moves the document to the target path.
      * <p>
@@ -506,18 +506,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#moveDocument(
      *     java.lang.String documentId, java.lang.String targetPath)
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          moveDocument(java.lang.String documentId, java.lang.String targetPath)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Updates document (except document content).
      *
@@ -533,12 +533,12 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      *
      * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
      *     org.eclipse.stardust.engine.api.runtime.Document document, boolean createNewRevision,
@@ -548,9 +548,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          updateDocument(
          org.eclipse.stardust.engine.api.runtime.Document document, boolean
          createNewRevision, java.lang.String versionLabel, boolean keepLocked)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Updates document (except document content).
      *
@@ -567,9 +567,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
      *     org.eclipse.stardust.engine.api.runtime.Document document, boolean createNewRevision,
@@ -580,12 +580,12 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.Document document, boolean
          createNewRevision, java.lang.String versionComment, java.lang.String
          versionLabel, boolean keepLocked)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Updates document.
-     * 
+     *
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -606,9 +606,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
      *
@@ -625,12 +625,12 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
          java.lang.String encoding, boolean createNewRevision, java.lang.String
          versionLabel, boolean keepLocked)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Updates document.
-     * 
+     *
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -652,9 +652,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
@@ -667,9 +667,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
          java.lang.String encoding, boolean createNewRevision, java.lang.String
          versionComment, java.lang.String versionLabel, boolean keepLocked)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Initiates document content upload via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -683,18 +683,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#requestDocumentContentUpload(
      *     java.lang.String documentId)
      */
     public java.lang.String requestDocumentContentUpload(
          java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes document.
      *
@@ -704,17 +704,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#removeDocument(
      *     java.lang.String documentId)
      */
     public void removeDocument(java.lang.String documentId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -729,9 +729,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createFolder(
      *     java.lang.String parentFolderId, org.eclipse.stardust.engine.api.runtime.FolderInfo
@@ -741,9 +741,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          createFolder(
          java.lang.String parentFolderId,
          org.eclipse.stardust.engine.api.runtime.FolderInfo folder)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Updates folder.
      *
@@ -755,18 +755,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateFolder(
      *     org.eclipse.stardust.engine.api.runtime.Folder folder)
      */
     public org.eclipse.stardust.engine.api.runtime.Folder
          updateFolder(org.eclipse.stardust.engine.api.runtime.Folder folder)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Removes folder.
      *
@@ -778,49 +778,49 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     specific errors
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#removeFolder(
      *     java.lang.String folderId, boolean recursive)
      */
     public void removeFolder(java.lang.String folderId, boolean recursive)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns the privileges the session has for the resource denoted by
      * resourceId, which must exist.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return 
+     * @return
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getPrivileges(
      *     java.lang.String resourceId)
      */
     public java.util.Set<org.eclipse.stardust.engine.api.runtime.Privilege>
          getPrivileges(java.lang.String resourceId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns the IAccessControlPolicy objects that currently are in effect on
      * the resource denoted by resourceId (cumulated).
-     * 
+     *
      * Returned objects can not be modified, they represent a read-only view of
      * effective policies.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return 
+     * @return
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getEffectivePolicies(
      *     java.lang.String resourceId)
@@ -828,22 +828,22 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getEffectivePolicies(java.lang.String resourceId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns the IAccessControlPolicy objects that are currently set for
      * the resource denoted by resourceId.
-     * 
+     *
      * Returned objects can be changed, changes take effect after calling
      * setPolicy()
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return 
+     * @return
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getPolicies(
      *     java.lang.String resourceId)
@@ -851,22 +851,22 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getPolicies(java.lang.String resourceId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Returns the IAccessControlPolicy objects that can be set for
      * the resource denoted by resourceId.
-     * 
+     *
      * Returned objects can be changed, and used as arguments to
      * setPolicy() in order to add a new policy.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return 
+     * @return
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getApplicablePolicies(
      *     java.lang.String resourceId)
@@ -874,16 +874,16 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getApplicablePolicies(java.lang.String resourceId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Binds the policy to the resource denoted by resourceId (overwrites the old
      * version of the policy)
-     * 
+     *
      * If the policy does not contain any IAccessControlEntry then this policy is
      * removed from the resource.
-     * 
+     *
      * If the policy was obtained using getApplicablePolicies(), the policy will
      * be added, if it was obtained using getPolicies(), the policy will replace
      * its old version.
@@ -891,8 +891,8 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      * @param resourceId absolute path or ID of a file or folder
      * @param policy
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setPolicy(
      *     java.lang.String resourceId,
@@ -901,9 +901,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void setPolicy(
          java.lang.String resourceId,
          org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Migrates resources in the repository. This migration process works sequential from
      * the current version to the next higher version. The count of resources migrated in
@@ -947,18 +947,18 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *     are problems in repository access or the user is not an administrator.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#migrateRepository(
      *     int batchSize, boolean evaluateTotalCount)
      */
     public org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport
          migrateRepository(int batchSize, boolean evaluateTotalCount)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Retrieves the XSD schema for the specified schema location from the Document
      * Repository serialized into a byte[].
@@ -972,17 +972,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *                if the specified schema location cannot be found
      *     <em>Instances of {@link ObjectNotFoundException
      *     } will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getSchemaDefinition(
      *     java.lang.String schemaLocation)
      */
     public byte[] getSchemaDefinition(java.lang.String schemaLocation)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Binds a new repository instance.
      * <p>
@@ -999,8 +999,8 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      * @param configuration
      *               The configuration for the repository to bind.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#bindRepository(
      *     org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
@@ -1008,31 +1008,31 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void
          bindRepository(
          org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Unbinds a previously bound repository.
      *
      * @param repositoryId The id of the repository instance to unbind.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#unbindRepository(
      *     java.lang.String repositoryId)
      */
     public void unbindRepository(java.lang.String repositoryId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Provides information about all bound repositories.
      *
      * @return Repository instance information.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryInstanceInfos(
      *     )
@@ -1040,9 +1040,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo>
          getRepositoryInstanceInfos()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Provides information about all available repository providers.
      * <p>
@@ -1052,8 +1052,8 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      *
      * @return Repository provider information.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryProviderInfos(
      *     )
@@ -1061,9 +1061,9 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo>
          getRepositoryProviderInfos()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Allows to set a bound repository as default repository.
      * <p>
@@ -1075,34 +1075,34 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      * @param repositoryId
      *               The id of the repository instance.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(
      *     java.lang.String repositoryId)
      */
     public void setDefaultRepository(java.lang.String repositoryId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
      * Allows to identify the currently set default repository.
      *
      * @return The id of the currently set default repository.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository(
      *     )
      */
     public java.lang.String getDefaultRepository()
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     /**
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#migrateRepository(
      *     int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
@@ -1110,14 +1110,14 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport
          migrateRepository(
          int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-         
+
     void login(java.lang.String userId, java.lang.String password)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void login(java.lang.String userId, java.lang.String password, java.util.Map properties)
-         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException, java.rmi.RemoteException;
+         throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 
     void logout() throws java.rmi.RemoteException;
 }

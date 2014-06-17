@@ -14,8 +14,10 @@ import java.rmi.RemoteException;
 import java.util.Map;
 
 import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.engine.api.ejb3.beans.Ejb3Service;
+import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
 /**
@@ -24,10 +26,10 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
  */
 public class TunnelingUtils
 {
-   public static TunneledContext performTunnelingLogin(Ejb3Service endpoint, String userId,
+   public static TunneledContext performTunnelingLogin(ManagedService service, String userId,
          String password, Map<?, ?> properties) throws WorkflowException, RemoteException
    {
-      LoggedInUser loginResult = endpoint.login(userId, password, properties);
+      LoggedInUser loginResult = service.login(userId, password, properties);
 
       Object signedPrincipal = loginResult.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
       Assert.condition(null != loginResult, "Tunneling mode login must return an invoker principal.");

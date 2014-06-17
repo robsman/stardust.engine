@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 60537 
+ * Generated from Revision: 60537
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -25,15 +25,15 @@ import javax.ejb.TransactionAttributeType;
  */
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans.AbstractEjb3ServiceBean implements WorkflowService, RemoteWorkflowService
+public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans.AbstractServiceImpl implements WorkflowService, RemoteWorkflowService
 {
 
    /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#activate(long activityInstanceOID)
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance activate(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -44,11 +44,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -61,8 +61,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance complete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -73,11 +73,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -91,8 +91,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
          complete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -103,11 +103,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -121,8 +121,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateAndComplete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -133,11 +133,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -151,8 +151,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
          activateAndComplete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -163,11 +163,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -180,8 +180,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public java.io.Serializable getInDataValue(
          long activityInstanceOID, java.lang.String context, java.lang.String id,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -192,11 +192,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -210,8 +210,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public java.util.Map<java.lang.String,java.io.Serializable>
          getInDataValues(
          long activityInstanceOID, java.lang.String context, java.util.Set ids,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -222,11 +222,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -239,8 +239,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspend(
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData
-         outData, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -251,11 +251,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -268,8 +268,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -280,11 +280,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -298,8 +298,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -310,11 +310,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -327,8 +327,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -339,11 +339,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -357,8 +357,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -369,11 +369,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -387,8 +387,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
          long activityInstanceOID, long userOID,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -399,11 +399,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -417,8 +417,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
          long activityInstanceOID, long userOID, java.lang.String context, java.util.Map
-         outData, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -429,11 +429,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -447,8 +447,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToParticipant(
          long activityInstanceOID, java.lang.String participant,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -459,11 +459,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -477,8 +477,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToParticipant(
          long activityInstanceOID, java.lang.String participant, java.lang.String context,
-         java.util.Map outData, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         java.util.Map outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -490,11 +490,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -509,8 +509,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          suspendToParticipant(
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
          participant, org.eclipse.stardust.engine.api.model.ContextData outData,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -521,11 +521,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -537,8 +537,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#hibernate(long activityInstanceOID)
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance hibernate(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -549,11 +549,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -567,8 +567,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(
          java.lang.String id, java.util.Map data, boolean synchronously,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -579,11 +579,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -597,8 +597,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnSubprocessInstance(
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         java.util.Map data, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -610,11 +610,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -628,8 +628,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstance>
          spawnSubprocessInstances(
          long parentProcessInstanceOid, java.util.List subprocessSpawnInfo,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -640,11 +640,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -659,8 +659,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          spawnPeerProcessInstance(
          long processInstanceOid, java.lang.String spawnProcessID, boolean copyData,
          java.util.Map data, boolean abortProcessInstance, java.lang.String comment,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -673,11 +673,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -692,8 +692,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          spawnPeerProcessInstance(
          long processInstanceOid, java.lang.String spawnProcessID,
          org.eclipse.stardust.engine.api.runtime.SpawnOptions options,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -704,11 +704,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -722,8 +722,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          createCase(
          java.lang.String name, java.lang.String description, long[] memberOids,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -734,11 +734,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -751,8 +751,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance joinCase(
          long caseOid, long[] memberOids,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -763,11 +763,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -780,8 +780,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance leaveCase(
          long caseOid, long[] memberOids,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -792,11 +792,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -809,8 +809,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance mergeCases(
          long targetCaseOid, long[] sourceCaseOids, java.lang.String comment,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -821,11 +821,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -839,8 +839,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          delegateCase(
          long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -851,11 +851,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -869,8 +869,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          joinProcessInstance(
          long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -882,11 +882,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -899,8 +899,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          abortActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -911,11 +911,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -930,8 +930,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          abortActivityInstance(
          long activityInstanceOid,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -942,11 +942,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -961,8 +961,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          abortProcessInstance(
          long processInstanceOid,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -973,11 +973,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -990,8 +990,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.DeployedModel
          getModel(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1002,11 +1002,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1020,8 +1020,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.query.Worklist
          getWorklist(
          org.eclipse.stardust.engine.api.query.WorklistQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1032,11 +1032,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1050,8 +1050,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstance(
          org.eclipse.stardust.engine.api.query.WorklistQuery query,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1062,11 +1062,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1079,8 +1079,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1091,11 +1091,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1108,8 +1108,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstanceForProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1120,11 +1120,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1137,8 +1137,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public void setOutDataPath(
          long processInstanceOID, java.lang.String id, java.lang.Object object,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1149,11 +1149,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1166,8 +1166,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public void setOutDataPaths(
          long processInstanceOID, java.util.Map values,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1178,11 +1178,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1195,8 +1195,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public java.lang.Object getInDataPath(
          long processInstanceOID, java.lang.String id,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1207,11 +1207,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1225,8 +1225,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public java.util.Map<java.lang.String,java.io.Serializable>
          getInDataPaths(
          long processInstanceOID, java.util.Set ids,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1237,11 +1237,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1254,8 +1254,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1266,11 +1266,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1284,8 +1284,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToUser(
          long activityInstanceOID, long userOID,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1296,11 +1296,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1314,8 +1314,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToParticipant(
          long activityInstanceOID, java.lang.String performer,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1326,11 +1326,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1344,8 +1344,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToParticipant(
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
-         participant, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         participant, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1356,11 +1356,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1373,8 +1373,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          getActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1385,11 +1385,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1402,8 +1402,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          getProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1414,11 +1414,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1431,8 +1431,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public java.util.Map<java.lang.String,java.io.Serializable>
          getProcessResults(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1443,11 +1443,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1462,8 +1462,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          bindActivityEventHandler(
          long activityInstanceOID,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1474,11 +1474,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1493,8 +1493,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          bindProcessEventHandler(
          long processInstanceOID,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1505,11 +1505,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1523,8 +1523,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          bindActivityEventHandler(
          long activityInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1535,11 +1535,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1553,8 +1553,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          bindProcessEventHandler(
          long processInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1565,11 +1565,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1583,8 +1583,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          unbindActivityEventHandler(
          long activityInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1595,11 +1595,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1613,8 +1613,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          unbindProcessEventHandler(
          long processInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1625,11 +1625,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1643,8 +1643,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
          getActivityInstanceEventHandler(
          long activityInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1655,11 +1655,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1673,8 +1673,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
          getProcessInstanceEventHandler(
          long processInstanceOID, java.lang.String handler,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1685,11 +1685,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1706,8 +1706,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          long activityInstanceOid,
          org.eclipse.stardust.engine.api.runtime.TransitionOptions options,
          org.eclipse.stardust.engine.api.runtime.ScanDirection direction,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1718,11 +1718,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1737,8 +1737,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          performAdHocTransition(
          long activityInstanceOid,
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
-         complete, org.eclipse.stardust.engine.api.ejb3.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1749,11 +1749,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1766,8 +1766,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getStartableProcessDefinitions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1778,11 +1778,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1795,8 +1795,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public org.eclipse.stardust.engine.api.runtime.User
          getUser(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1807,11 +1807,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1824,8 +1824,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     */
    public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions(
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1836,11 +1836,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1854,8 +1854,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public void
          setProcessInstanceAttributes(
          org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes attributes,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1866,11 +1866,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1884,8 +1884,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public void
          setActivityInstanceAttributes(
          org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes attributes,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1896,11 +1896,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1915,8 +1915,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          org.eclipse.stardust.engine.api.runtime.LogType logType,
          org.eclipse.stardust.engine.api.dto.ContextKind contextType, long contextOid,
          java.lang.String message, java.lang.Throwable throwable,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1927,11 +1927,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1945,8 +1945,8 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
    public java.io.Serializable
          execute(
          org.eclipse.stardust.engine.core.runtime.command.ServiceCommand serviceCmd,
-         org.eclipse.stardust.engine.api.ejb3.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.engine.api.ejb3.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
+         org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
@@ -1957,11 +1957,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       catch(org.eclipse.stardust.common.error.ResourceException e)
       {
-         throw new org.eclipse.stardust.engine.api.ejb3.WorkflowException(e);
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
       }
       finally
       {
@@ -1969,9 +1969,9 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       }
     }
 
-	public WorkflowServiceImpl()
-	{
+   public WorkflowServiceImpl()
+   {
       this.serviceType=org.eclipse.stardust.engine.api.runtime.WorkflowService.class;
       this.serviceTypeImpl=org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl.class;
-	}
+   }
 }

@@ -8,32 +8,21 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb3;
+package org.eclipse.stardust.engine.core.runtime.ejb;
 
-import java.io.Serializable;
+import javax.sql.DataSource;
 
-import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
-
+import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 
 /**
- * @author sauer
+ * @author thomas.wolfram
  * @version $Revision: $
  */
-public class TunneledContext implements Serializable
+public interface Ejb3ManagedService extends ManagedService
 {
+   DataSource getDataSource();
 
-   private static final long serialVersionUID = 1L;
+   Object getRepository();
 
-   private final InvokerPrincipal invokerPrincipal;
-
-   public TunneledContext(InvokerPrincipal invokerPrincipal)
-   {
-      this.invokerPrincipal = invokerPrincipal;
-   }
-
-   public InvokerPrincipal getInvokerPrincipal()
-   {
-      return invokerPrincipal;
-   }
-   
+   ExecutorService getForkingService();
 }

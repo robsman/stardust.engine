@@ -8,13 +8,12 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.ejb3.beans;
+package org.eclipse.stardust.engine.core.runtime.ejb;
 
 import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceJobManager;
-
 
 /**
  * @author ubirkemeyer
@@ -22,16 +21,16 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceJobManager;
  */
 public class RemoteSessionForkingServiceFactory implements ForkingServiceFactory
 {
-	
-	private final org.eclipse.stardust.engine.api.ejb3.ForkingService service;
-	
-   public RemoteSessionForkingServiceFactory(org.eclipse.stardust.engine.api.ejb3.ForkingService service) {
-	this.service = service;
-}
-	
+   private ExecutorService service;
+
+   public RemoteSessionForkingServiceFactory(ExecutorService service)
+   {
+      this.service = service;
+   }
+
    public ForkingService get()
    {
-      return new EJBForkingService(this.service);
+      return new EJBForkingService(service == null ? new Ejb2ExecutorService() : service);
    }
 
    public IJobManager getJobManager()
@@ -41,7 +40,10 @@ public class RemoteSessionForkingServiceFactory implements ForkingServiceFactory
 
    public void release(ForkingService service)
    {
-
+      if (service instanceof EJBForkingService)
+      {
+         ((EJBForkingService) service).release();
+      }
    }
 
    public void release(IJobManager jobManager)
@@ -51,5 +53,4 @@ public class RemoteSessionForkingServiceFactory implements ForkingServiceFactory
          release(((ForkingServiceJobManager) jobManager).getForkingService());
       }
    }
-
 }

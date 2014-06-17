@@ -12,8 +12,8 @@ package org.eclipse.stardust.engine.api.ejb2;
 
 import java.util.Map;
 
-import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 
 
 /**

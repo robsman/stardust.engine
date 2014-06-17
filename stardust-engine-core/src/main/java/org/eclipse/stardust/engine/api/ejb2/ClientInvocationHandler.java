@@ -24,8 +24,8 @@ import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingService;
+import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
 
 
 /**

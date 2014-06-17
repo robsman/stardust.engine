@@ -333,19 +333,13 @@ public class DocumentXPathQueryTermFactory
       if (jcrString != null)
       {
          // strip jcr-vfs specific prefixes.
-         ret = jcrString.replace(JcrVfsOperations.PREFIX_JCR_UUID, "").replace(
-               JcrVfsOperations.PREFIX_JCR_REVISION, "");
-         // strip repositoryId prefix.
-         if (ret.startsWith("%"))
+         if (jcrString.contains(JcrVfsOperations.PREFIX_JCR_UUID)
+               || jcrString.contains(JcrVfsOperations.PREFIX_JCR_REVISION))
          {
-            ret = ret.substring(1);
-            ret = RepositoryIdUtils.stripRepositoryId(ret);
-            ret = "%" + ret;
-
-         }
-         else
-         {
-            ret = RepositoryIdUtils.stripRepositoryId(ret);
+            int idx = jcrString.indexOf("{");
+            int idx2 = jcrString.lastIndexOf("}");
+            ret = jcrString.substring(0, idx)
+                  + jcrString.substring(idx2 + 1, jcrString.length());
          }
       }
 

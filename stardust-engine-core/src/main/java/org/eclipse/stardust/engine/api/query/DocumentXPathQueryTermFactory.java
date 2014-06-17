@@ -308,12 +308,6 @@ public class DocumentXPathQueryTermFactory
       return jcrAttribute;
    }
 
-   private boolean needsContainsSyntax(Operator operator)
-   {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
-   }
-
    private boolean needsJcrFunction(Operator operator)
    {
       if (Binary.LIKE.equals(operator))
@@ -342,7 +336,17 @@ public class DocumentXPathQueryTermFactory
          ret = jcrString.replace(JcrVfsOperations.PREFIX_JCR_UUID, "").replace(
                JcrVfsOperations.PREFIX_JCR_REVISION, "");
          // strip repositoryId prefix.
-         ret = RepositoryIdUtils.stripRepositoryId(ret);
+         if (ret.startsWith("%"))
+         {
+            ret = ret.substring(1);
+            ret = RepositoryIdUtils.stripRepositoryId(ret);
+            ret = "%" + ret;
+
+         }
+         else
+         {
+            ret = RepositoryIdUtils.stripRepositoryId(ret);
+         }
       }
 
       if (ret == null)

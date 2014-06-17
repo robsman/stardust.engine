@@ -144,6 +144,22 @@ public class DmsDocumentSearchTest
    }
 
    @Test
+   public void testFindByIDLike()
+   {
+      final String DOC1_ID = initDocument(DOC_NAME_TEMP, OWNER1, CONTENT_TYPE1, META_DATA1);
+
+      DocumentQuery query = DocumentQuery.findAll();
+      query.where(DocumentQuery.ID.like("%" + DOC1_ID + "%"));
+
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
+
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      dms.removeDocument("/" + DOC_NAME_TEMP);
+
+      assertEquals("Documents", 1, docs.size());
+   }
+
+   @Test
    public void testSubSet1()
    {
       DocumentManagementService dms = sf.getDocumentManagementService();

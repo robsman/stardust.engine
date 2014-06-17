@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -624,20 +624,25 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       fetch();
 
+      // set default value if following conditions do not match
+      long startingUserOid = 0;
+
       if (null != startingUser)
       {
-         return startingUser.getOID();
+         startingUserOid =  startingUser.getOID();
       }
       else if (isPersistent())
       {
          DefaultPersistenceController controller = (DefaultPersistenceController) getPersistenceController();
 
-         return ((Long) controller.getLinkFk(FIELD__STARTING_USER)).longValue();
+         final Long rawStartingUserOid = (Long) controller.getLinkFk(FIELD__STARTING_USER);
+         if (rawStartingUserOid != null)
+         {
+            startingUserOid = rawStartingUserOid.longValue();
+         }
       }
-      else
-      {
-         return 0;
-      }
+
+      return startingUserOid;
    }
 
    /**

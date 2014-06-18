@@ -202,7 +202,11 @@ public class DmsVfsConversionUtils
          Set<Privilege> result = CollectionUtils.newSet();
          for (IPrivilege vfsPrivilege : privileges)
          {
-            result.add(fromVfs(vfsPrivilege));
+            Privilege privilege = fromVfs(vfsPrivilege);
+            if (privilege != null)
+            {
+               result.add(privilege);
+            }
          }
          return result;
       }
@@ -252,7 +256,8 @@ public class DmsVfsConversionUtils
       }
       else
       {
-         throw new IllegalArgumentException("Unknown VFS Privilege:" + vfsPrivilege);
+         // Ignore unknown privileges.
+         return null;
       }
    }
 

@@ -51,6 +51,11 @@
    <target name="initBuildDirectories" depends="initBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
+
+      <mkdir dir="${build.classes}/META-INF/services" />
+      <copy todir="${build.classes}/META-INF/services">
+         <fileset dir="${project.resources}/META-INF/services" includes="*" />
+      </copy>
    </target>
 
    <target name="initIvy">

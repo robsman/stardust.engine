@@ -54,7 +54,7 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class ForkingServiceImpl implements org.eclipse.stardust.engine.api.ejb3.ForkingService,
+public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runtime.ejb.ForkingService,
       TimedObject, DaemonHandler
 {
    private static final Logger trace = LogManager.getLogger(ForkingServiceImpl.class);

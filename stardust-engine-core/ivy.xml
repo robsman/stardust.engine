@@ -117,6 +117,8 @@
          conf="carnot-client-compile->base-module-compile" />
       <dependency org="jgoodies" name="forms" rev="${forms.version}"
          conf="carnot-engine-compile-optional->default" />
+      <dependency org="javax.ejb" name="ejb-api" rev="${ejb-api.version}"
+         conf="carnot-engine-compile-optional->default" />
 
       <!-- ********** -->
       <!--    Test    -->

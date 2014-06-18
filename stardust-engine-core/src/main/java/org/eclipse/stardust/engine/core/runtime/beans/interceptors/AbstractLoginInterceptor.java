@@ -253,9 +253,9 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       LoggedInUser loggedInUser = doLogin(invocation);
 
       IUser user = getUser(invocation, loggedInUser.getUserId(), loggedInUser.getProperties());
-      
+
       user.removeProperty(SecurityUtils.PASSWORD_RESET_TOKEN);
-      
+
       setCurrentUser(layer, user);
 
       SessionManager.instance().updateLastModificationTime(user);
@@ -315,8 +315,8 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                : Collections.EMPTY_MAP;
          result = (ExternalLoginResult) service.isolate(new LoginAction(originalUserId, password,
                loginProperties));
-         //give the login provider the possebility to modify the user id
-         if(StringUtils.isNotEmpty(result.getUserId()))
+         //give the login provider the possibility to modify the user id
+         if (StringUtils.isNotEmpty(result.getUserId()))
          {
             userId = result.getUserId();
          }

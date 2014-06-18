@@ -13,9 +13,9 @@ package org.eclipse.stardust.engine.api.ejb3.beans;
 
 import javax.ejb.EJB;
 
-import org.eclipse.stardust.engine.api.ejb3.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.ejb.AbstractEjb3ServiceBean;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
+import org.eclipse.stardust.engine.core.runtime.ejb.ForkingService;
 
 public class AbstractServiceImpl extends AbstractEjb3ServiceBean
 {

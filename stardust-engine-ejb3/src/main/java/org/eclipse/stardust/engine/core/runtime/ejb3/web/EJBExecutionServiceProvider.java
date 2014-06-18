@@ -33,9 +33,9 @@ public class EJBExecutionServiceProvider implements ExecutionServiceProvider
       ForkingService forkingService = null;
       if (EJB_CONTEXT.equals(clientContext))
       {
-    	 org.eclipse.stardust.engine.api.ejb3.ForkingService fs;
+    	 org.eclipse.stardust.engine.core.runtime.ejb.ForkingService fs;
 		try {
-			fs = (org.eclipse.stardust.engine.api.ejb3.ForkingService) new InitialContext().lookup("java:app/carnot-ejb3/ForkingServiceImpl!org.eclipse.stardust.engine.api.ejb3.ForkingService");
+			fs = (org.eclipse.stardust.engine.core.runtime.ejb.ForkingService) new InitialContext().lookup("java:app/carnot-ejb3/ForkingServiceImpl!org.eclipse.stardust.engine.api.ejb3.ForkingService");
 			ForkingServiceFactory factory = new RemoteSessionForkingServiceFactory(fs);
 			forkingService = factory.get();
 		} catch (NamingException e) {

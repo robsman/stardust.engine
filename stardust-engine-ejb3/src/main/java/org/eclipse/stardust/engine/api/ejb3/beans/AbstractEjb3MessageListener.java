@@ -4,7 +4,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.MessageDrivenContext;
 
-import org.eclipse.stardust.engine.api.ejb3.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.ejb.ForkingService;
 
 public class AbstractEjb3MessageListener
 {
@@ -14,7 +14,7 @@ public class AbstractEjb3MessageListener
    @Resource
    protected MessageDrivenContext context;
 
-   public org.eclipse.stardust.engine.api.ejb3.ForkingService getForkingService()
+   public org.eclipse.stardust.engine.core.runtime.ejb.ForkingService getForkingService()
    {
       return this.forkingService;
    }

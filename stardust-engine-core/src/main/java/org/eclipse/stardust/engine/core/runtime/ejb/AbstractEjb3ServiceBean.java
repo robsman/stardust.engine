@@ -142,11 +142,6 @@ public abstract class AbstractEjb3ServiceBean implements Ejb3ManagedService
       return dataSource;
    }
 
-   public ExecutorService getForkingService()
-   {
-      return null;
-   }
-
    public Object getRepository()
    {
       return repository;

@@ -65,6 +65,7 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
       private String ejbHomeClassName;
       private String ejbRemoteClassName;
       private String localHomeClassName;
+      private String EJB3ModuleName;
       private String localEJB3ClassName;
       private String remoteEJB3ClassName;
 
@@ -85,6 +86,7 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
               "org.eclipse.stardust.engine.api.ejb2.Remote" + name + "Home",
               "org.eclipse.stardust.engine.api.ejb2.Remote" + name,
               "org.eclipse.stardust.engine.api.ejb2.Local" + name + "Home",
+              "carnot-ejb3",
               "org.eclipse.stardust.engine.api.ejb3.beans." + name,
               "org.eclipse.stardust.engine.api.ejb3.beans.Remote" + name);
       }
@@ -93,8 +95,8 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
             String serviceName, String instanceClassName,
             String springBeanName, String jndiPropertyName,
             String ejbHomeClassName, String ejbRemoteClassName,
-            String localHomeClassName, String localEJB3ClassName,
-            String remoteEJB3ClassName)
+            String localHomeClassName, String EJB3ModuleName,
+            String localEJB3ClassName, String remoteEJB3ClassName)
       {
          this.name = name;
          this.localName = localName;
@@ -105,6 +107,7 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
          this.ejbHomeClassName = ejbHomeClassName;
          this.ejbRemoteClassName = ejbRemoteClassName;
          this.localHomeClassName = localHomeClassName;
+         this.EJB3ModuleName = EJB3ModuleName;
          this.localEJB3ClassName = localEJB3ClassName;
          this.remoteEJB3ClassName = remoteEJB3ClassName;
       }
@@ -188,6 +191,11 @@ public final class ServiceProviderFactory implements IServiceProvider.Factory
             localHomeClass = Reflect.getClassFromClassName(localHomeClassName, true);
          }
          return localHomeClass;
+      }
+
+      public String getEJB3ModuleName()
+      {
+         return EJB3ModuleName;
       }
 
       @Override

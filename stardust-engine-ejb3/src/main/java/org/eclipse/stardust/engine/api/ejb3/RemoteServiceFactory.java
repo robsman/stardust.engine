@@ -45,10 +45,12 @@ public class RemoteServiceFactory extends AbstractSessionAwareServiceFactory
    {
       IServiceProvider<T> provider = ServiceProviderFactory.findServiceProvider(service);
 
-      Class<?> remote = Reflect.getClassFromClassName(provider.getRemoteEJB3ClassName());
+      String remoteEJB3ClassName = provider.getRemoteEJB3ClassName();
+      Class<?> remote = Reflect.getClassFromClassName(remoteEJB3ClassName);
 
       TunnelingAwareSecureSessionFactory.SecureSession session = secureSessionFactory.getSecureSession(
-               Parameters.instance().getString(provider.getJndiPropertyName(), provider.getServiceName()),
+               Parameters.instance().getString(provider.getJndiPropertyName(),
+                     "ejb:carnot/" + provider.getEJB3ModuleName() + "/" + provider.getName() + "Impl!" + remoteEJB3ClassName),
                remote, new Class[] {}, new Object[] {}, credentials, getProperties());
 
       return (T) Proxy.newProxyInstance(service.getClassLoader(),

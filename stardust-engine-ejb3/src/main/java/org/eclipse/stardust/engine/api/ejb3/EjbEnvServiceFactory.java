@@ -134,7 +134,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          throws NamingException
    {
       String remoteEJB3ClassName = provider.getRemoteEJB3ClassName();
-      String remoteJndiName = "java:app/carnot-ejb3/" + provider.getName() + "Impl!" + remoteEJB3ClassName;
+      String remoteJndiName = "java:app/" + provider.getEJB3ModuleName() + "/" + provider.getName() + "Impl!" + remoteEJB3ClassName;
 
       Object rawObject = context.lookup(remoteJndiName);
       LogUtils.traceObject(rawObject, false);
@@ -159,7 +159,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
    private <T extends Service> Object getLocalService(Context context, IServiceProvider<T> provider) throws NamingException
    {
       String localEJB3ClassName = provider.getLocalEJB3ClassName();
-      String localJndiName = "java:app/carnot-ejb3/" + provider.getName() + "Impl!" + localEJB3ClassName;
+      String localJndiName = "java:app/" + provider.getEJB3ModuleName() + "/" + provider.getName() + "Impl!" + localEJB3ClassName;
 
       Object rawObject = context.lookup(localJndiName);
       LogUtils.traceObject(rawObject, false);

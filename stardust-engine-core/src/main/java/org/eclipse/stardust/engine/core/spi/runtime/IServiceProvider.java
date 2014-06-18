@@ -38,6 +38,8 @@ public interface IServiceProvider<T extends Service>
 
    Class<?> getLocalHomeClass();
 
+   String getEJB3ModuleName();
+
    String getLocalEJB3ClassName();
 
    String getRemoteEJB3ClassName();

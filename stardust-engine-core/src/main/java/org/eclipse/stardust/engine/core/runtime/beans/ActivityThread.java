@@ -882,7 +882,7 @@ public class ActivityThread implements Runnable
                protected boolean isInclusiveJoin(IActivity activity) {return activity.getJoinType() == JoinSplitType.And
                      || activity.getJoinType() == JoinSplitType.Or;}
             };
-            excluded = computer.getExclusionSet(transition);
+            excluded = Collections.unmodifiableSet(computer.getExclusionSet(transition));
             if (trace.isDebugEnabled())
             {
                trace.debug(transition + " exclusion set: " + excluded);
@@ -1058,7 +1058,7 @@ public class ActivityThread implements Runnable
             freeTokens.add(freeToken);
             if (excluded == null)
             {
-               excluded = getExclusionList(transition);
+               excluded = CollectionUtils.newSet(getExclusionList(transition));
             }
             else
             {

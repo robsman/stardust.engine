@@ -450,6 +450,7 @@
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IPartitionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IProcessExecutionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IRuntimeEnvironmentMonitor.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IWorklistMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/preferences/IStaticConfigurationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/DefaultPrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/PrincipalNameProvider.java" />

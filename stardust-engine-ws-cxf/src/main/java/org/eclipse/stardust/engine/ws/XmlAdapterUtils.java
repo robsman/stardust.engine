@@ -222,6 +222,7 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryCapabilities;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
@@ -456,6 +457,7 @@ public class XmlAdapterUtils
       {
          ret = new GrantXto();
          ret.setId(grant.getId());
+         ret.setQualifiedId(grant.getQualifiedId());
          ret.setName(grant.getName());
          ret.setOrganization(grant.isOrganization());
          ret.setDepartment(toWs(grant.getDepartment()));
@@ -592,14 +594,23 @@ public class XmlAdapterUtils
             // add grants that are new in xto
             for (GrantXto grantXto : addGrants)
             {
-               ret.addGrant(grantXto.getId());
+               String qualifiedId = grantXto.getQualifiedId();
+               if (!isEmpty(qualifiedId))
+               {
+                  ret.addGrant(ParticipantInfoUtil.newModelParticipantInfo(qualifiedId));
+               }
+               else
+               {
+                  // fallback to legacy usage
+                  ret.addGrant(grantXto.getId());
+               }
             }
          }
          // remove grants not existing in xto
          for (Grant remGrant : removeGrants)
          {
-            // TODO: use qualified id
-            ret.removeGrant(remGrant.getId());
+            String qualifiedId = remGrant.getQualifiedId();
+            ret.removeGrant(ParticipantInfoUtil.newModelParticipantInfo(qualifiedId));
          }
       }
    }
@@ -2940,7 +2951,6 @@ public class XmlAdapterUtils
       return ret;
    }
 
-   @SuppressWarnings("unchecked")
    private static DocumentXto marshalDocumentXto(Document doc, DocumentXto xto)
    {
       marshalDocumentInfoXto(doc, xto);
@@ -3092,7 +3102,6 @@ public class XmlAdapterUtils
             }
 
             xto.setDocuments(new DocumentsXto());
-            @SuppressWarnings("unchecked")
             List<Document> docs = folder.getDocuments();
             for (Document doc : docs)
             {
@@ -3106,7 +3115,6 @@ public class XmlAdapterUtils
          if ( !isEmpty(folder.getFolders()))
          {
             xto.setFolders(new FoldersXto());
-            @SuppressWarnings("unchecked")
             List<Folder> subFolders = folder.getFolders();
             for (Folder subFolder : subFolders)
             {

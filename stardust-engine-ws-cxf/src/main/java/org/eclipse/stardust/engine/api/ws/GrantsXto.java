@@ -24,7 +24,8 @@ import javax.xml.bind.annotation.XmlType;
  *             &lt;complexContent>
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *                 &lt;sequence>
- *                   &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *                   &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *                   &lt;element name="qualifiedId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *                   &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *                   &lt;element name="modelOid" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *                   &lt;element name="elementOid" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
@@ -96,7 +97,8 @@ public class GrantsXto {
      *   &lt;complexContent>
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
      *       &lt;sequence>
-     *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string"/>
+     *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+     *         &lt;element name="qualifiedId" type="{http://www.w3.org/2001/XMLSchema}string"/>
      *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
      *         &lt;element name="modelOid" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
      *         &lt;element name="elementOid" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
@@ -114,6 +116,7 @@ public class GrantsXto {
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
         "id",
+        "qualifiedId",
         "name",
         "modelOid",
         "elementOid",
@@ -123,8 +126,9 @@ public class GrantsXto {
     })
     public static class GrantXto {
 
-        @XmlElement(required = true)
         protected String id;
+        @XmlElement(required = true)
+        protected String qualifiedId;
         protected String name;
         protected Integer modelOid;
         protected Integer elementOid;
@@ -154,6 +158,30 @@ public class GrantsXto {
          */
         public void setId(String value) {
             this.id = value;
+        }
+
+        /**
+         * Gets the value of the qualifiedId property.
+         * 
+         * @return
+         *     possible object is
+         *     {@link String }
+         *     
+         */
+        public String getQualifiedId() {
+            return qualifiedId;
+        }
+
+        /**
+         * Sets the value of the qualifiedId property.
+         * 
+         * @param value
+         *     allowed object is
+         *     {@link String }
+         *     
+         */
+        public void setQualifiedId(String value) {
+            this.qualifiedId = value;
         }
 
         /**

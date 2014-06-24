@@ -293,7 +293,8 @@
 			       </documentation>
 			    </annotation>
 					<sequence>
-						<element name="id" type="string" />
+						<element name="id" type="string" minOccurs="0" />
+						<element name="qualifiedId" type="string" />
 						<element name="name" type="string" minOccurs="0" />
 						<element name="modelOid" type="int" minOccurs="0" />
 						<element name="elementOid" type="int" minOccurs="0" />

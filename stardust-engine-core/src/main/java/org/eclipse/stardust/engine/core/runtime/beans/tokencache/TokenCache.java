@@ -43,6 +43,8 @@ public class TokenCache
 
    private IProcessInstance processInstance;
 
+   private long tokenChange = 0;
+
    public TokenCache(IProcessInstance processInstance)
    {
       this.processInstance = processInstance;
@@ -178,9 +180,9 @@ public class TokenCache
 
    public TransitionTokenBean createToken(ITransition transition, IActivityInstance activityInstance)
    {
-      TransitionTokenBean token = new TransitionTokenBean(processInstance, transition,
-            activityInstance.getOID());
+      TransitionTokenBean token = new TransitionTokenBean(processInstance, transition, activityInstance.getOID());
       localTokenCache.registerToken(transition, token);
+      tokenChange++;
       return token;
    }
 
@@ -188,6 +190,7 @@ public class TokenCache
    {
       TransitionTokenBean token = new TransitionTokenBean(processInstance, activityInstance.getOID(), index);
       localTokenCache.registerToken(null, token);
+      tokenChange++;
       return token;
    }
 
@@ -208,6 +211,7 @@ public class TokenCache
          }
       }
       token.setConsumed(true);
+      tokenChange--;
    }
 
    public void updateInBindings(IActivityInstance oldBinding, IActivityInstance newBinding, IActivity activity)
@@ -343,5 +347,10 @@ public class TokenCache
          }
       }
       return false;
+   }
+
+   public long getTokenChange()
+   {
+      return tokenChange;
    }
 }

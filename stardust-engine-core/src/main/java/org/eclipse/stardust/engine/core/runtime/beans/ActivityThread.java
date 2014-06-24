@@ -409,7 +409,7 @@ public class ActivityThread implements Runnable
       tokenCache.flush();
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
-      janitor.execute(plan != null);
+      janitor.execute(plan != null, tokenCache.getTokenChange());
    
       if (interruption != null)
       {
@@ -496,6 +496,7 @@ public class ActivityThread implements Runnable
             activityInstance = null;
          }
       }
+
       if (activityInstance != null)
       {
          getCurrentActivityThreadContext().enteringActivity(activityInstance);
@@ -595,8 +596,6 @@ public class ActivityThread implements Runnable
       else
       {
          // traverse outgoing transitions 
-         int removedTokens = 0;
-
          List<TransitionTokenBean> boundInTokens = tokenCache.getBoundInTokens(activityInstance, activity);
 
          for (TransitionTokenBean boundToken : boundInTokens)
@@ -631,22 +630,14 @@ public class ActivityThread implements Runnable
                      {
                         activityInstance = null;
                      }
-                     janitor.incrementCount(-1);
                      return;
                   }
                }
             }
             tokenCache.consumeToken(boundToken);
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("Removed " + boundToken);
-            }
-            removedTokens++;
             getCurrentActivityThreadContext().completingTransition(boundToken);
          }
 
-         int addedTokens = 0;
-         
          List<ITransition> enabledTransitions = Collections.emptyList();
          List<ITransition> otherwiseTransitions = Collections.emptyList();
          ITransition exceptionTransition = null;
@@ -670,7 +661,6 @@ public class ActivityThread implements Runnable
                      ITransition transition = plan.getTransition();
                      token = tokenCache.createToken(transition , plan.getStartActivityInstance());
                      plan.setToken(token);
-                     addedTokens++;
                      getCurrentActivityThreadContext().enteringTransition(token);
                   }
                }
@@ -686,7 +676,6 @@ public class ActivityThread implements Runnable
                   if (!token.isBound())
                   {
                      tokenCache.consumeToken(token);
-                     removedTokens++;
                   }
                }
             }
@@ -775,7 +764,6 @@ public class ActivityThread implements Runnable
             {
                trace.debug("Created " + token);
             }
-            addedTokens++;
 
             getCurrentActivityThreadContext().enteringTransition(token);
 
@@ -786,15 +774,13 @@ public class ActivityThread implements Runnable
          }
          
          if (exceptionTransition != null
-               || JoinSplitType.Xor == splitType //|| isInclusiveOr(activity)
+               || JoinSplitType.Xor == splitType
                || enabledOutTransitions.isEmpty() && !activity.getOutTransitions().isEmpty())
          {
             checkForEnabledInclusiveORVertexes  = true;
          }
 
-         janitor.incrementCount(addedTokens - removedTokens);
-
-         if (addedTokens == 0 && (plan == null || !plan.hasMoreSteps()))
+         if (enabledOutTransitions.isEmpty() && (plan == null || !plan.hasMoreSteps()))
          {
             activityInstance = null;
          }

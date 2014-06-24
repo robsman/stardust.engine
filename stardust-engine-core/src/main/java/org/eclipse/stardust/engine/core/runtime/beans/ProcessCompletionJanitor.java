@@ -135,11 +135,12 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
    public Object execute()
    {
-      return execute(false);
+      return execute(false, count);
    }
 
-   public Object execute(boolean forceSynchronous)
+   public Object execute(boolean forceSynchronous, long count)
    {
+      this.count = count;
       boolean performed = false;
       ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOID);
 
@@ -288,11 +289,6 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       {
          factory.release(service);
       }
-   }
-
-   public void incrementCount(long increment)
-   {
-      count += increment;
    }
 
    public String toString()

@@ -224,6 +224,7 @@
                <include name="org/eclipse/stardust/common/error/PublicException.java" />
                <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
                <include name="org/eclipse/stardust/common/error/ValidationException.java" />
+               <include name="org/eclipse/stardust/common/error/WorkflowException.java" />
             	
                <include name="org/eclipse/stardust/common/config/Parameters.java" />
                

@@ -146,7 +146,6 @@
 
                <include name="org/eclipse/stardust/engine/api/ejb2/EjbEnvServiceFactory.java" />
                <include name="org/eclipse/stardust/engine/api/ejb2/ServiceFactoryLocator.java" />
-               <include name="org/eclipse/stardust/engine/api/ejb2/WorkflowException.java" />
                <include name="org/eclipse/stardust/engine/api/ejb2/RemoteAdministrationService.java" />
                <include name="org/eclipse/stardust/engine/api/ejb2/RemoteAdministrationServiceHome.java" />
                <include name="org/eclipse/stardust/engine/api/ejb2/RemoteWorkflowService.java" />

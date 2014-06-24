@@ -113,7 +113,7 @@ public class UserServiceFacade implements IUserService
 
          UserService us = wsEnv.getServiceFactory().getUserService();
 
-         User inputUser = XmlAdapterUtils.unmarshalUser(user, us); 
+         User inputUser = XmlAdapterUtils.unmarshalUser(user, us);
          User u;
          if (generatePassword != null)
          {
@@ -131,16 +131,37 @@ public class UserServiceFacade implements IUserService
          XmlAdapterUtils.handleBPMException(e);
       }
       return null;
-   }   
-   
+   }
+
+   @Override
+   public UserXto modifyLoginUser(String oldPassword, String firstName, String lastName,
+         String newPassword, String eMail) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService();
+
+         User u = us.modifyLoginUser(oldPassword, firstName, lastName, newPassword, eMail);
+
+         return toWs(u);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
    public void resetPassword(String account, MapXto properties, String token) throws BpmFault
    {
       try
       {
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-         
+
          UserService us = wsEnv.getServiceFactory().getUserService();
-         
+
          us.resetPassword(account, XmlAdapterUtils.unmarshalMap(properties, String.class, String.class), token);
       }
       catch (ApplicationException e)
@@ -148,7 +169,7 @@ public class UserServiceFacade implements IUserService
          XmlAdapterUtils.handleBPMException(e);
       }
    }
-   
+
    public UserXto getUser(long oid) throws BpmFault
    {
       try
@@ -376,11 +397,11 @@ public class UserServiceFacade implements IUserService
       {
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-         UserService us = wsEnv.getServiceFactory().getUserService(); 
-         
+         UserService us = wsEnv.getServiceFactory().getUserService();
+
          UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
          DeputiesXto deputiesXto = XmlAdapterUtils.marshalDeputies(us.getDeputies(user));
-         
+
          return deputiesXto;
       }
       catch (ApplicationException e)
@@ -398,13 +419,13 @@ public class UserServiceFacade implements IUserService
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
          UserService us = wsEnv.getServiceFactory().getUserService();
-         
+
          UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
          UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
          DeputyOptions options = XmlAdapterUtils.unmarshalDeputyOptions(optionsXto);
-         
+
          Deputy deputy = us.modifyDeputy(user, deputyUser, options);
-         
+
          return XmlAdapterUtils.marshalDeputy(deputy);
       }
       catch (ApplicationException e)
@@ -422,13 +443,13 @@ public class UserServiceFacade implements IUserService
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
          UserService us = wsEnv.getServiceFactory().getUserService();
-         
+
          UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
          UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
          DeputyOptions options = XmlAdapterUtils.unmarshalDeputyOptions(optionsXto);
-         
+
          Deputy deputy = us.addDeputy(user, deputyUser, options);
-         
+
          return XmlAdapterUtils.marshalDeputy(deputy);
       }
       catch (ApplicationException e)
@@ -445,18 +466,18 @@ public class UserServiceFacade implements IUserService
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
          UserService us = wsEnv.getServiceFactory().getUserService();
-         
+
          UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
          UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
-         
+
          us.removeDeputy(user, deputyUser);
-         
+
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      
+
    }
 
    @Override
@@ -466,11 +487,11 @@ public class UserServiceFacade implements IUserService
       {
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-         UserService us = wsEnv.getServiceFactory().getUserService(); 
-         
+         UserService us = wsEnv.getServiceFactory().getUserService();
+
          UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
          DeputiesXto deputiesXto = XmlAdapterUtils.marshalDeputies(us.getUsersBeingDeputyFor(deputyUser));
-         
+
          return deputiesXto;
       }
       catch (ApplicationException e)
@@ -484,7 +505,7 @@ public class UserServiceFacade implements IUserService
 	public void generatePasswordResetToken(String account) throws BpmFault {
 		try {
 			WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-			
+
 			UserService us = wsEnv.getServiceFactory().getUserService();
 
 			us.generatePasswordResetToken(account);

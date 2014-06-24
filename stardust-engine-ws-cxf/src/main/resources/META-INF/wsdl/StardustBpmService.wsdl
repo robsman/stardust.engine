@@ -722,6 +722,14 @@
       <wsdl:part element="impl:modifyUserResponse" name="parameters"/>
    </wsdl:message>
 
+   <wsdl:message name="modifyLoginUserRequest">
+      <wsdl:part element="impl:modifyLoginUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyLoginUserResponse">
+      <wsdl:part element="impl:modifyLoginUserResponse" name="parameters"/>
+   </wsdl:message>
+
    <wsdl:message name="generatePasswordResetTokenRequest">
       <wsdl:part element="impl:generatePasswordResetToken" name="parameters"/>
    </wsdl:message>
@@ -2057,6 +2065,15 @@ The MigrationReport returned by each call contains information about: Total reso
          </wsdl:documentation>
          <wsdl:input message="impl:modifyUserRequest" />
          <wsdl:output message="impl:modifyUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyLoginUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Modifies the current user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:modifyLoginUserRequest" />
+         <wsdl:output message="impl:modifyLoginUserResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
@@ -3791,6 +3808,19 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="modifyUser">
          <wsdlsoap:operation soapAction="modifyUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyLoginUser">
+         <wsdlsoap:operation soapAction="modifyLoginUser" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>

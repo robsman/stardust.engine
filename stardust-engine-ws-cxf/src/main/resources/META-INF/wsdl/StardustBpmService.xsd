@@ -1638,6 +1638,26 @@
 		</complexType>
 	</element>
 
+	<element name="modifyLoginUser">
+		<complexType>
+			<sequence>
+				<element name="oldPassword" type="xsd:string" />
+				<element name="firstName" type="xsd:string" />
+				<element name="lastName" type="xsd:string" />
+				<element name="newPassword" type="xsd:string" />
+				<element name="eMail" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyLoginUserResponse">
+		<complexType>
+			<sequence>
+				<element name="modifiedUser" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
 	<element name="generatePasswordResetToken">
 		<complexType>
 			<sequence>

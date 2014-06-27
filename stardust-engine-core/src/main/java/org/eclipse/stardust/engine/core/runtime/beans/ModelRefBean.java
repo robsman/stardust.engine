@@ -72,6 +72,8 @@ public class ModelRefBean extends PersistentBean implements Serializable
    public static final String[] model_ref_idx1_UNIQUE_INDEX = new String[]{FIELD__CODE, FIELD__MODEL_OID, FIELD__ID, FIELD__DEPLOYMENT};
    public static final String[] model_ref_idx2_UNIQUE_INDEX = new String[]{FIELD__CODE, FIELD__MODEL_OID, FIELD__REF_OID, FIELD__DEPLOYMENT};
 
+   private static final boolean DEPLOY_AGAINST_ACTIVE_MODEL = false;
+
    //private static final boolean DEPLOY_AGAINST_ACTIVE_MODEL = false;
 
    /**
@@ -299,7 +301,50 @@ public class ModelRefBean extends PersistentBean implements Serializable
             }
          }
       }
-      return null;
+      try
+      {
+         //If resolution fails - try to resolve by querying the corresponding table entries (using Query Service)
+         return resolveModel(reference.getModel().getModelOID(), reference.getHref());
+      }
+      catch (Throwable t)
+      {
+         return null;
+      }
+   }
+
+   private static IModel resolveModel(long modelOid, String refId)
+   {
+      ModelManager manager = ModelManagerFactory.getCurrent();
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
+      ComparisonTerm modelPredicate = Predicates.isEqual(FR__MODEL_OID, modelOid);
+      ComparisonTerm refIdPredicate = Predicates.isEqual(FR__ID, refId);
+      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
+            .select(FIELD__REF_OID)
+            .where(Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate));
+      ResultSet resultSet = session.executeQuery(query);
+      try
+      {
+         if (resultSet.next())
+         {
+            return manager.findModel(resultSet.getLong(1));
+         }
+         else
+         {
+            return DEPLOY_AGAINST_ACTIVE_MODEL
+               ? manager.findActiveModel(refId)
+               : manager.findLastDeployedModel(refId);
+         }
+      }
+      catch (SQLException e)
+      {
+         trace.warn("Failed executing query.", e);
+         throw new PublicException(e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(resultSet);
+      }
    }
 
    public static IProcessDefinition getPrimaryImplementation(IProcessDefinition process, IData data, String dataPath)

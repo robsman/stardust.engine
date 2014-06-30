@@ -211,14 +211,14 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       if (factory == null)
       {
          // TODO: change to client view
-         try
+/*         try
          {
             throw new RuntimeException("Stack");
          }
          catch (Exception ex)
          {
             trace.warn("\"this\" used as executor service", ex);
-         }
+         }*/
          factory = new RemoteSessionForkingServiceFactory(this);
       }
       return factory.get();
@@ -231,14 +231,14 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       if (factory == null)
       {
          // TODO: change to client view
-         try
+/*         try
          {
             throw new RuntimeException("Stack");
          }
          catch (Exception ex)
          {
             trace.warn("\"this\" used as executor service", ex);
-         }
+         }*/
          factory = new RemoteSessionForkingServiceFactory(this);
       }
       return ((RemoteSessionForkingServiceFactory) factory).getService();

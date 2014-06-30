@@ -28,6 +28,11 @@ public class RemoteSessionForkingServiceFactory implements ForkingServiceFactory
       this.service = service;
    }
 
+   public ExecutorService getService()
+   {
+      return service;
+   }
+
    public ForkingService get()
    {
       return new EJBForkingService(service == null ? new Ejb2ExecutorService() : service);

@@ -105,7 +105,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
 
    public Object run(Action<?> action) throws WorkflowException
    {
-      return run(action, this);
+      return run(action, getExecutorService());
    }
 
    public Object run(Action<?> action, ExecutorService proxyService) throws WorkflowException
@@ -196,19 +196,52 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       long now = System.currentTimeMillis();
       if (lastRun == null || now - lastRun > 100 || now < lastRun)
       {
-         ForkingServiceFactory factory = Parameters.instance().getObject(
-               EngineProperties.FORKING_SERVICE_HOME);
-         if (factory == null)
-         {
-            // TODO: change to client view
-            factory = new RemoteSessionForkingServiceFactory(this);
-         }
-         ForkingService forkingService = factory.get();
+         ForkingService forkingService = getLocalForkingService();
          forkingService.fork(carrier.copy(), false);
 
          lastRun = now;
          lastRuns.put(type, lastRun);
       }
+   }
+
+   private ForkingService getLocalForkingService()
+   {
+      ForkingServiceFactory factory = Parameters.instance().getObject(
+            EngineProperties.FORKING_SERVICE_HOME);
+      if (factory == null)
+      {
+         // TODO: change to client view
+         try
+         {
+            throw new RuntimeException("Stack");
+         }
+         catch (Exception ex)
+         {
+            trace.warn("\"this\" used as executor service", ex);
+         }
+         factory = new RemoteSessionForkingServiceFactory(this);
+      }
+      return factory.get();
+   }
+
+   private ExecutorService getExecutorService()
+   {
+      ForkingServiceFactory factory = Parameters.instance().getObject(
+            EngineProperties.FORKING_SERVICE_HOME);
+      if (factory == null)
+      {
+         // TODO: change to client view
+         try
+         {
+            throw new RuntimeException("Stack");
+         }
+         catch (Exception ex)
+         {
+            trace.warn("\"this\" used as executor service", ex);
+         }
+         factory = new RemoteSessionForkingServiceFactory(this);
+      }
+      return ((RemoteSessionForkingServiceFactory) factory).getService();
    }
 
    public DataSource getDataSource()

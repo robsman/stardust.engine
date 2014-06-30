@@ -219,7 +219,7 @@
                <include name="org/eclipse/stardust/common/error/InternalException.java" />
                <include name="org/eclipse/stardust/common/error/InvalidArgumentException.java" />
                <include name="org/eclipse/stardust/common/error/InvalidValueException.java" />
-               <include name="org/eclipse/stardust/common/error/LoginFailedExceptionException.java" />
+               <include name="org/eclipse/stardust/common/error/LoginFailedException.java" />
                <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
                <include name="org/eclipse/stardust/common/error/PublicException.java" />
                <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />

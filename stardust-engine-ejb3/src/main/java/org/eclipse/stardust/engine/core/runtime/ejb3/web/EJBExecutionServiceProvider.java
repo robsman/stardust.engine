@@ -16,34 +16,34 @@ import javax.naming.NamingException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet.ExecutionServiceProvider;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.ejb.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.ejb.RemoteSessionForkingServiceFactory;
-
-
 
 public class EJBExecutionServiceProvider implements ExecutionServiceProvider
 {
    public static final String EJB_CONTEXT = "ejb";
 
-   Logger trace = LogManager.getLogger(this.getClass());
+   private Logger trace = LogManager.getLogger(this.getClass());
 
-   public ForkingService getExecutionService(String clientContext)
+   public org.eclipse.stardust.engine.core.runtime.beans.ForkingService getExecutionService(String clientContext)
    {
-      ForkingService forkingService = null;
+      org.eclipse.stardust.engine.core.runtime.beans.ForkingService forkingService = null;
       if (EJB_CONTEXT.equals(clientContext))
       {
-    	 org.eclipse.stardust.engine.core.runtime.ejb.ForkingService fs;
-		try {
-			fs = (org.eclipse.stardust.engine.core.runtime.ejb.ForkingService) new InitialContext().lookup("java:app/carnot-ejb3/ForkingServiceImpl!org.eclipse.stardust.engine.api.ejb3.ForkingService");
-			ForkingServiceFactory factory = new RemoteSessionForkingServiceFactory(fs);
-			forkingService = factory.get();
-		} catch (NamingException e) {
-			trace.error(e);
-		}
-
+         try
+         {
+            ForkingService fs = (ForkingService) new InitialContext()
+                  .lookup("java:app/carnot-ejb3/ForkingServiceImpl!"
+                        + ForkingService.class.getName());
+            ForkingServiceFactory factory = new RemoteSessionForkingServiceFactory(fs);
+            forkingService = factory.get();
+         }
+         catch (NamingException e)
+         {
+            trace.error(e);
+         }
       }
       return forkingService;
    }
-
 }

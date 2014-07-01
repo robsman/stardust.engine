@@ -15,15 +15,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.jms.Queue;
 import javax.jms.QueueConnectionFactory;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.Action;
@@ -37,11 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperation;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonOperationExecutor;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.daemons.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
 import org.eclipse.stardust.engine.core.runtime.ejb.RemoteSessionForkingServiceFactory;
@@ -57,6 +49,9 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runtime.ejb.ForkingService,
       TimedObject, DaemonHandler
 {
+   private static final String FORKING_SERVICE_JNDI_NAME = "java:module/ForkingServiceImpl!"
+      + org.eclipse.stardust.engine.core.runtime.ejb.ForkingService.class.getName();
+
    private static final Logger trace = LogManager.getLogger(ForkingServiceImpl.class);
 
    private static Map<String, Long> lastRuns = CollectionUtils.newMap();
@@ -105,7 +100,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
 
    public Object run(Action<?> action) throws WorkflowException
    {
-      return run(action, getExecutorService());
+      return run(action, getForkingService());
    }
 
    public Object run(Action<?> action, ExecutorService proxyService) throws WorkflowException
@@ -196,7 +191,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       long now = System.currentTimeMillis();
       if (lastRun == null || now - lastRun > 100 || now < lastRun)
       {
-         ForkingService forkingService = getLocalForkingService();
+         ForkingService forkingService = getForkingServiceFactory().get();
          forkingService.fork(carrier.copy(), false);
 
          lastRun = now;
@@ -204,44 +199,25 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       }
    }
 
-   private ForkingService getLocalForkingService()
+   private RemoteSessionForkingServiceFactory getForkingServiceFactory()
    {
       ForkingServiceFactory factory = Parameters.instance().getObject(
             EngineProperties.FORKING_SERVICE_HOME);
-      if (factory == null)
+      if (factory instanceof RemoteSessionForkingServiceFactory)
       {
-         // TODO: change to client view
-/*         try
-         {
-            throw new RuntimeException("Stack");
-         }
-         catch (Exception ex)
-         {
-            trace.warn("\"this\" used as executor service", ex);
-         }*/
-         factory = new RemoteSessionForkingServiceFactory(this);
+         return (RemoteSessionForkingServiceFactory) factory;
       }
-      return factory.get();
-   }
-
-   private ExecutorService getExecutorService()
-   {
-      ForkingServiceFactory factory = Parameters.instance().getObject(
-            EngineProperties.FORKING_SERVICE_HOME);
-      if (factory == null)
+      try
       {
-         // TODO: change to client view
-/*         try
-         {
-            throw new RuntimeException("Stack");
-         }
-         catch (Exception ex)
-         {
-            trace.warn("\"this\" used as executor service", ex);
-         }*/
-         factory = new RemoteSessionForkingServiceFactory(this);
+         Context context = new InitialContext();
+         org.eclipse.stardust.engine.core.runtime.ejb.ForkingService fs = (org.eclipse.stardust.engine.core.runtime.ejb.ForkingService) context.lookup(FORKING_SERVICE_JNDI_NAME);
+         return new RemoteSessionForkingServiceFactory(fs);
       }
-      return ((RemoteSessionForkingServiceFactory) factory).getService();
+      catch (Exception ex)
+      {
+         trace.warn("Unable to retrieve the ForkingService", ex);
+         return new RemoteSessionForkingServiceFactory(this);
+      }
    }
 
    public DataSource getDataSource()
@@ -279,7 +255,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
    @Override
    public ExecutorService getForkingService()
    {
-      return null;
+      return getForkingServiceFactory().getService();
    }
 
    @Override

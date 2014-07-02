@@ -14,14 +14,12 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
 
 /**
  *
@@ -30,6 +28,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  */
 public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActionCarrier<T>
 {
+   private static final long serialVersionUID = -1580596887273865035L;
+
    public static final int SYSTEM_MESSAGE_TYPE_ID = 1;
    public static final int DAEMON_MESSAGE_TYPE_ID = 2;
    public static final int RESPONSE_HANDLER_MESSAGE_TYPE_ID = 3;
@@ -40,7 +40,7 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
    public static final String PARTITION_OID_TAG = "partitionOid";
 
    private final int messageType;
-   
+
    private boolean initializedByExtract = false;
    private short partitionOid = -1;
    private long userDomainOid = 0;
@@ -49,7 +49,7 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
    {
       this.messageType = messageType;
    }
-   
+
    protected ActionCarrier(int messageType, boolean initialized)
    {
       this.messageType = messageType;
@@ -60,12 +60,12 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
          initializedByExtract = true;
       }
    }
-   
+
    public int getMessageType()
    {
       return messageType;
    }
-   
+
    public short getPartitionOid()
    {
       if (initializedByExtract)
@@ -77,7 +77,7 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
          return SecurityProperties.getPartitionOid();
       }
    }
-   
+
    public long getUserDomainOid()
    {
       if (initializedByExtract)
@@ -89,8 +89,8 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
          return SecurityProperties.getUserDomainOid();
       }
    }
-   
-   public static final int extractMessageType(MapMessage message)
+
+   public static final int extractMessageType(Message message)
    {
       try
       {
@@ -105,23 +105,23 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
    public final void fillMessage(Message message) throws JMSException
    {
       prepareMessage(message);
-      
+
       message.setLongProperty(USER_DOMAIN_OID_TAG, getUserDomainOid());
       message.setShortProperty(PARTITION_OID_TAG, getPartitionOid());
-      
+
       doFillMessage(message);
    }
-   
+
    public final void extract(Message message) throws JMSException
    {
       initializedByExtract = true;
-      
+
       try
       {
          for (Enumeration e = message.getPropertyNames(); e.hasMoreElements(); )
          {
             String prpName = (String) e.nextElement();
-            
+
             if (USER_DOMAIN_OID_TAG.equals(prpName))
             {
                userDomainOid = message.getLongProperty(USER_DOMAIN_OID_TAG);
@@ -135,35 +135,35 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
       catch (NumberFormatException e)
       {
       }
-      
+
       doExtract(message);
    }
-   
+
    public final Action createAction()
    {
       Action action = doCreateAction();
-      
+
       if (action instanceof SecurityContextAwareAction)
       {
          action = SecurityContextAwareAction
-               .actionDefinesSecurityContext((SecurityContextAwareAction) action); 
+               .actionDefinesSecurityContext((SecurityContextAwareAction) action);
       }
-      
+
       return action;
    }
 
    public abstract Action doCreateAction();
 
    protected abstract void doFillMessage(Message message) throws JMSException;
-   
+
    protected abstract void doExtract(Message message) throws JMSException;
-   
+
    protected final void prepareMessage(Message message) throws JMSException
    {
       message.setIntProperty(MESSAGE_TYPE_TAG, messageType);
       message.setStringProperty(TRANSPORT_CLASS_TAG, getClass().getName());
    }
-   
+
    protected Object clone() throws CloneNotSupportedException
    {
       return super.clone();

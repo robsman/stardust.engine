@@ -76,7 +76,6 @@
       <resource-ref>
         <res-ref-name>jms/CarnotXAConnectionFactory</res-ref-name>
         <jndi-name>java:/CarnotConnectionFactory</jndi-name>
-        <!--jndi-name>java:/JmsXa</jndi-name-->
       </resource-ref>
       <resource-env-ref>
         <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>

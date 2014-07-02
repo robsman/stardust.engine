@@ -156,11 +156,12 @@
                   <include>error/InternalException.java</include>
                   <include>error/InvalidArgumentException.java</include>
                   <include>error/InvalidValueException.java</include>
-                  <include>error/LoginFailedExceptionException.java</include>
+                  <include>error/LoginFailedException.java</include>
                   <include>error/ObjectNotFoundException.java</include>
                   <include>error/PublicException.java</include>
                   <include>error/ServiceCommandException.java</include>
                   <include>error/ValidationException.java</include>
+                  <include>error/WorkflowException.java</include>
 
                   <include>config/Parameters.java</include>
 

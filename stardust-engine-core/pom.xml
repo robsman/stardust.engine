@@ -540,6 +540,12 @@
          <scope>compile</scope>
       </dependency>
       <dependency>
+         <groupId>javax.ejb</groupId>
+         <artifactId>ejb-api</artifactId>
+         <scope>compile</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
@@ -648,6 +654,7 @@
                   <!-- org/eclipse/stardust/engine/api/ejb2 -->
                   <include>api/ejb2/EjbEnvServiceFactory.java</include>
                   <include>api/ejb2/ServiceFactoryLocator.java</include>
+                  <include>api/ejb2/WorkflowException.java</include>
                   <include>api/ejb2/WorkflowException.java</include>
                   <include>api/ejb2/RemoteAdministrationService.java</include>
                   <include>api/ejb2/RemoteAdministrationServiceHome.java</include>
@@ -942,6 +949,7 @@
 
                   <!-- org/eclipse/stardust/engine/core/spi -->
                   <include>core/spi/security/AlwaysValidPrincipalValidator.java</include>
+                  <include>core/spi/security/CredentialDeliveryStrategy.java</include>
                   <include>core/spi/security/DynamicParticipantSynchronizationProvider.java</include>
                   <include>core/spi/security/DynamicParticipantSynchronizationStrategy.java</include>
                   <include>core/spi/security/ExternalDepartmentConfiguration.java</include>
@@ -951,6 +959,7 @@
                   <include>core/spi/monitoring/IPartitionMonitor.java</include>
                   <include>core/spi/monitoring/IProcessExecutionMonitor.java</include>
                   <include>core/spi/monitoring/IRuntimeEnvironmentMonitor.java</include>
+                  <include>core/spi/monitoring/IWorklistMonitor.java</include>
                   <include>core/spi/preferences/IStaticConfigurationProvider.java</include>
 
                   <include>core/spi/resources/IResourceBundleProvider.java</include>

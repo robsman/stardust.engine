@@ -40,6 +40,7 @@ public class MessageListener extends AbstractEjb3MessageListener
    {
       return new MDAction(message, forkingService)
       {
+         @SuppressWarnings("deprecation")
          public Object execute()
          {
             if (message instanceof MapMessage)
@@ -58,7 +59,7 @@ public class MessageListener extends AbstractEjb3MessageListener
                      }
                      catch (WorkflowException e)
                      {
-                        trace.warn(e);
+                        throw e.getRootCause();
                      }
                   }
                   catch (JMSException e)

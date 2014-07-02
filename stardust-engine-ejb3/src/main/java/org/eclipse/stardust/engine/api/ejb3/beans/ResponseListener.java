@@ -44,6 +44,7 @@ public class ResponseListener extends AbstractEjb3MessageListener
    {
       return new MDAction(message, forkingService)
       {
+         @SuppressWarnings("deprecation")
          public Object execute()
          {
             // ensure the model manager was bootstrapped
@@ -65,7 +66,7 @@ public class ResponseListener extends AbstractEjb3MessageListener
             }
             catch (WorkflowException e)
             {
-               trace.warn(e);
+               throw e.getRootCause();
             }
             catch (JMSException e)
             {

@@ -413,11 +413,22 @@ public class UserServiceImpl implements UserService, Serializable
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
 
-   public void generatePasswordResetToken(String account)
+   public void generatePasswordResetToken(String realm, String account)
    {
-      IUserRealm realm = SecurityProperties.getUserRealm();
-      IUser user = UserBean.findByAccount(account, realm);
+      IUserRealm userRealm = SecurityProperties.getUserRealm();
+      if(!StringUtils.isEmpty(realm))
+      {
+         IAuditTrailPartition partition = SecurityProperties.getPartition();
 
+         try
+         {
+            userRealm = UserRealmBean.findById(realm, partition.getOID());
+         }
+         catch (ObjectNotFoundException e)
+         {
+         }
+      }
+      IUser user = UserBean.findByAccount(account, userRealm);
       SecurityUtils.generatePasswordResetToken(user);
    }
 

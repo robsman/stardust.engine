@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 71045
+ * Generated from  Revision: 73658 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -13,10 +13,11 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 71045
+ * @version 73658
  */
 public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Tracks the starting of a new user session.
@@ -256,19 +257,20 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the current user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws InvalidPasswordException
      *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -313,29 +315,30 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the specified one.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws ObjectNotFoundException
      *                if the user or a given grant is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
-     *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException
+     * @throws InvalidPasswordException
+     *                if the new password does not match the given rules.
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws AccessForbiddenException
      *                if the current user is not allowed for operation.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link AccessForbiddenException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -372,8 +375,10 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
 
     /**
      * Generates a token which is required to perform {@link
-     * UserService#resetPassword(String, Map, String)}
+     * UserService#resetPassword(String, String, Map, String)}
      *
+     * @param realm
+     *               the realm ID of the user to retrieve.
      * @param account
      *     			the user account to generate the token for
      *
@@ -381,10 +386,10 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(
-     *     java.lang.String account)
+     *     java.lang.String realm, java.lang.String account)
      */
     public void generatePasswordResetToken(
-         java.lang.String account,
+         java.lang.String realm, java.lang.String account,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
@@ -393,7 +398,7 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          ((org.eclipse.stardust.engine.api.runtime.UserService)
-            service).generatePasswordResetToken(account);
+            service).generatePasswordResetToken(realm, account);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -421,7 +426,8 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      * @param properties
      *               Map providing further login properties.
      * @param token
-     *     			the token generated by {@link UserService#generatePasswordResetToken(String)}
+     *     			the token generated by {@link UserService#generatePasswordResetToken(
+     *     String, String)}
      *
      * @throws ConcurrencyException
      *                if another user operates on the specified one.
@@ -480,29 +486,30 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the specified one.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws ObjectNotFoundException
      *                if the user or a given grant is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
-     *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException
+     * @throws InvalidPasswordException
+     *                if the new password does not match the given rules.
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws AccessForbiddenException
      *                if the current user is not allowed for operation.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link AccessForbiddenException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -559,16 +566,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the newly created user.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserExistsException
+     * @throws UserExistsException
      *                if another user with the specified account already exists.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.UserExistsException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link UserExistsException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -631,16 +638,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the newly created user.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserExistsException
+     * @throws UserExistsException
      *                if another user with the specified account already exists.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.UserExistsException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link UserExistsException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -741,10 +748,10 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -826,7 +833,7 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
     }
 
     /**
-     *
+     * 
      *
      * @deprecated Please use {@link #invalidateUser(String)} instead.
      *
@@ -871,16 +878,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the invalidated user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -924,16 +931,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the invalidated user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -983,11 +990,11 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the newly created user group.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserGroupExistsException
+     * @throws UserGroupExistsException
      *               if another user group with the specified ID already exists.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.UserGroupExistsException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link UserGroupExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *               if ID is empty
      *               if name is empty
@@ -995,11 +1002,11 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1048,10 +1055,10 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the user group.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *               if there is no user group with the specified ID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1060,8 +1067,8 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      */
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          getUserGroup(
-         java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1141,20 +1148,21 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the modified user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1196,20 +1204,21 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the invalidated user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1218,8 +1227,8 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      */
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          invalidateUserGroup(
-         java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1251,20 +1260,21 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the invalidated user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1309,16 +1319,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return the newly created user realm.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserRealmExistsException
+     * @throws UserRealmExistsException
      *                if another user realm with the specified ID already exists.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.UserRealmExistsException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link UserRealmExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1358,28 +1368,29 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      * @param id
      *               the ID of the user realm to be dropped.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user realm.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user realm is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user realm is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if at least one user is assigned to the user realm.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.UserService#dropUserRealm(java.lang.String id)
      */
     public void dropUserRealm(
-         java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1408,15 +1419,16 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *
      * @return list of all existing user realms.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the user realms.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

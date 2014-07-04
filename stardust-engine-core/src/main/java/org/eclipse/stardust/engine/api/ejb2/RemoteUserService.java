@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 71045
+ * Generated from  Revision: 73658 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 71045
+ * @version 73658
  */
 public interface RemoteUserService extends javax.ejb.EJBObject
 {
@@ -34,7 +34,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public java.lang.String startSession(java.lang.String clientId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Tracks the ending of a user session.
      *
@@ -49,7 +49,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public void closeSession(java.lang.String sessionId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Checks if internal authentication is used.
      *
@@ -65,7 +65,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public boolean isInternalAuthentified()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Checks if internal authentication is used.
      *
@@ -79,7 +79,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public boolean isInternalAuthentication()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Checks if internal authorization is used.
      *
@@ -93,7 +93,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public boolean isInternalAuthorization()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -107,7 +107,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.User getUser()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Modifies the current user.
      *
@@ -124,19 +124,20 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the current user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws InvalidPasswordException
      *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -151,7 +152,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          lastName, java.lang.String newPassword, java.lang.String eMail)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Modifies the specified user.
      *
@@ -160,29 +161,30 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the specified one.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws ObjectNotFoundException
      *                if the user or a given grant is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
-     *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException
+     * @throws InvalidPasswordException
+     *                if the new password does not match the given rules.
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws AccessForbiddenException
      *                if the current user is not allowed for operation.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link AccessForbiddenException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -194,11 +196,13 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          modifyUser(org.eclipse.stardust.engine.api.runtime.User user)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Generates a token which is required to perform {@link
-     * UserService#resetPassword(String, Map, String)}
+     * UserService#resetPassword(String, String, Map, String)}
      *
+     * @param realm
+     *               the realm ID of the user to retrieve.
      * @param account
      *     			the user account to generate the token for
      *
@@ -206,12 +210,13 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(
-     *     java.lang.String account)
+     *     java.lang.String realm, java.lang.String account)
      */
-    public void generatePasswordResetToken(java.lang.String account)
+    public void generatePasswordResetToken(
+         java.lang.String realm, java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Resets the password of specified user by generated password according to configured
      * password rules. On synchronization with external repository the specified user will
@@ -224,7 +229,8 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      * @param properties
      *               Map providing further login properties.
      * @param token
-     *     			the token generated by {@link UserService#generatePasswordResetToken(String)}
+     *     			the token generated by {@link UserService#generatePasswordResetToken(
+     *     String, String)}
      *
      * @throws ConcurrencyException
      *                if another user operates on the specified one.
@@ -251,7 +257,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.lang.String account, java.util.Map properties, java.lang.String token)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Modifies the specified user.
      *
@@ -262,29 +268,30 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the modified user.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *                if another user operates on the specified one.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws ObjectNotFoundException
      *                if the user or a given grant is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.security.InvalidPasswordException
-     *                if the new password does not match the given rules.
-     *     <em>Instances of {@link org.eclipse.stardust.common.security.InvalidPasswordException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException
+     * @throws InvalidPasswordException
+     *                if the new password does not match the given rules.
+     *     <em>Instances of {@link InvalidPasswordException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws AccessForbiddenException
      *                if the current user is not allowed for operation.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link AccessForbiddenException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -297,7 +304,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new user with default realm ID.
      *
@@ -320,16 +327,16 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the newly created user.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserExistsException
+     * @throws UserExistsException
      *                if another user with the specified account already exists.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.UserExistsException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link UserExistsException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -345,7 +352,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.util.Date validFrom, java.util.Date validTo)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new user.
      *
@@ -370,16 +377,16 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the newly created user.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserExistsException
+     * @throws UserExistsException
      *                if another user with the specified account already exists.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.UserExistsException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link UserExistsException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -396,7 +403,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          validTo)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the user associated with the given account. On synchronization with
      * external repository the specified user will be created in audit trail if it is not
@@ -422,7 +429,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the user associated with the given account. On synchronization with
      * external repository the specified user will be created in audit trail if it is not
@@ -436,10 +443,10 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -451,7 +458,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.lang.String realm, java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified user. On synchronization the user with specified oid will be
      * updated if this user exists in audit trail and there are any changes. If this user
@@ -476,9 +483,9 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.User getUser(long userOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
-     *
+     * 
      *
      * @deprecated Please use {@link #invalidateUser(String)} instead.
      *
@@ -492,7 +499,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          invalidate(java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Invalidates the user with the specified account.
      *
@@ -501,16 +508,16 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the invalidated user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -521,7 +528,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          invalidateUser(java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Invalidates the user with the specified account.
      *
@@ -532,16 +539,16 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the invalidated user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -552,7 +559,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          invalidateUser(java.lang.String realm, java.lang.String account)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new user group.
      *
@@ -569,11 +576,11 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the newly created user group.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserGroupExistsException
+     * @throws UserGroupExistsException
      *               if another user group with the specified ID already exists.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.UserGroupExistsException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link UserGroupExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *               if ID is empty
      *               if name is empty
@@ -581,11 +588,11 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -599,7 +606,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.util.Date validFrom, java.util.Date validTo)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the user group associated with the given ID. On synchronization with
      * external repository the specified user group will be created in audit trail if it is
@@ -613,10 +620,10 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the user group.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
+     * @throws ObjectNotFoundException
      *               if there is no user group with the specified ID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -627,7 +634,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          getUserGroup(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified user group. On synchronization the user group with specified
      * oid will be updated if this user group exists in audit trail and there are any
@@ -654,7 +661,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Modifies the specified user group.
      *
@@ -663,20 +670,21 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the modified user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -687,7 +695,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          modifyUserGroup(org.eclipse.stardust.engine.api.runtime.UserGroup userGroup)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Invalidates the user group associated with the given ID.
      *
@@ -696,20 +704,21 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the invalidated user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -720,7 +729,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          invalidateUserGroup(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Invalidates the specified user group.
      *
@@ -729,20 +738,21 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the invalidated user group.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user group.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user group is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user group is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -752,7 +762,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          invalidateUserGroup(long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new user realm.
      *
@@ -765,16 +775,16 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      *
      * @return the newly created user realm.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.UserRealmExistsException
+     * @throws UserRealmExistsException
      *                if another user realm with the specified ID already exists.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.UserRealmExistsException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link UserRealmExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -786,27 +796,28 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          java.lang.String id, java.lang.String name, java.lang.String description)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Drops the user realm associated with the given ID.
      *
      * @param id
      *               the ID of the user realm to be dropped.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the specified user realm.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
-     *               if the user realm is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     * @throws ObjectNotFoundException
+     *               if the user realm is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if at least one user is assigned to the user realm.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -815,21 +826,22 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public void dropUserRealm(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrives all existing user realms.
      *
      * @return list of all existing user realms.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException
+     * @throws ConcurrencyException
      *               if another user operates on the user realms.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *               if operation is not allowed in this context.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -838,7 +850,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
     public java.util.List getUserRealms()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Adds a new deputy user for a given user. This deputy user inherits for the defined
      * time frame all grants from given user. The deputy user has to login again before the
@@ -874,7 +886,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Modifies an existing deputy user for a given user. This deputy user inherits for the
      * defined time frame all grants from given user. The deputy user has to login again
@@ -913,7 +925,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes an existing deputy user for a given user. All inherited grants from user are
      * revoked from deputy user. The deputy user has to login again before changes become
@@ -941,7 +953,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns a list of all deputy users for the given user.
      *
@@ -960,7 +972,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns a list of all users for which the given user is an deputy user.
      *
@@ -980,7 +992,7 @@ public interface RemoteUserService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

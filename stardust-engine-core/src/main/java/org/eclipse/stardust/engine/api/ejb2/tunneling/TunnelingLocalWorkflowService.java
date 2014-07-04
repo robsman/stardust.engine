@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537
+ * Generated from  Revision: 60537 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -25,13 +25,13 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
     /**
      * Activates the interactive activity instance identified by the
      * <code>activityInstanceOID</code>.
-     *
+     * 
      * <p>Activating means:
      * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
      * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
      * </p>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: suspended, hibernated or application</li>
      * <li>Process state before: active, interrupted</li>
@@ -62,8 +62,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -79,11 +79,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -126,7 +126,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -148,11 +148,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -196,7 +196,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -220,11 +220,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -259,14 +259,14 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -290,11 +290,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -323,8 +323,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -337,7 +337,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -362,7 +362,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -395,7 +395,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.lang.String id,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -432,12 +432,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.util.Set ids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -475,12 +475,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -519,12 +519,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -565,11 +565,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -609,11 +609,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -655,11 +655,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -689,8 +689,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -707,11 +707,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, long userOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -743,8 +743,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -763,12 +763,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -809,12 +809,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String participant,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -859,11 +859,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          java.util.Map outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -895,8 +895,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *     and the passed participant is a user who worked on the previous workflow
      *     orkflow instance
      *     <em>Instances of {@link
@@ -915,7 +915,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          participant, org.eclipse.stardust.engine.api.model.ContextData outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Change the state of the specified activity instance to HIBERNATED.
      *
@@ -946,11 +946,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state after: active</li></ul>
      * </p>
@@ -983,7 +983,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          java.lang.String id, java.util.Map data, boolean synchronously,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a process as subprocess of the specified process instance. The spawned
      * process executes asynchronously but has to be completed before the parent process is
@@ -1031,10 +1031,10 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnSubprocessInstance(
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.util.Map data, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns multiple processes as subprocesses of the specified process instance. The
      * spawned processes execute asynchronously but have to be completed before the parent
@@ -1080,7 +1080,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long parentProcessInstanceOid, java.util.List subprocessSpawnInfo,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1147,7 +1147,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          java.util.Map data, boolean abortProcessInstance, java.lang.String comment,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1161,7 +1161,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *               The oid of the process to spawn from.
      * @param spawnProcessID
      *               The id of the process definition to spawn as a new root process.
-     * @param options
+     * @param options          
      *               Options that controls how the spawning operation has to be performed.
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was spawned.
@@ -1205,7 +1205,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.runtime.SpawnOptions options,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates a case process instance which groups the specified members as subprocesses.
      *
@@ -1255,7 +1255,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          java.lang.String name, java.lang.String description, long[] memberOids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Adds the process instances referenced by the specified memberOids to the specified
      * case process instance.
@@ -1301,7 +1301,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long caseOid, long[] memberOids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes the process instances referenced by the specified memberOids from the
      * specified case process instance.
@@ -1347,7 +1347,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long caseOid, long[] memberOids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Merges the specified source case process instances into the target case process
      * instance
@@ -1401,7 +1401,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long targetCaseOid, long[] sourceCaseOids, java.lang.String comment,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the case process instance to the specified participant.
      *
@@ -1429,8 +1429,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1446,7 +1446,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified process instance and joins the data into the specified target
      * process instance. Existing data values of the target process instance are not
@@ -1487,7 +1487,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1501,17 +1501,17 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -1552,7 +1552,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1562,17 +1562,17 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -1626,19 +1626,19 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after:
      * <br><i>If abort scope is root hierarchy:</i> The state of root process, all
      * sub-processes and activities that are not yet completed changes to aborted.</li>
      * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its
-     * subprocesses and activities that are not yet completed changes to aborted.
+     * subprocesses and activities that are not yet completed changes to aborted. 
      * </li></ul>
      * </p>
      *
@@ -1673,9 +1673,9 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
-     *
+     * 
      *
      * @deprecated Retrieves the active model.
      *
@@ -1694,7 +1694,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          getModel(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves (parts of) the worklist of the currently logged-in user.
      *
@@ -1717,15 +1717,15 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.query.WorklistQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance from the given worklist query if any.
      *
      * @param worklist query.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1745,7 +1745,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.query.WorklistQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance after the specified one in the same process
      * instance.
@@ -1756,8 +1756,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1778,7 +1778,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance for the specified process instance.
      *
@@ -1788,8 +1788,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1810,7 +1810,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets an OUT data path on a process instance as specified in the corresponding
      * process definition.
@@ -1843,7 +1843,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.lang.String id, java.lang.Object object,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets multiple OUT data paths on a process instance as specified in the corresponding
      * process definition.
@@ -1876,7 +1876,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.util.Map values,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves an IN data path on a process instance as specified in the corresponding
      * process definition.
@@ -1904,7 +1904,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.lang.String id,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves multiple IN data paths from a process instance as specified in the
      * corresponding process definition.
@@ -1935,7 +1935,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.util.Set ids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activitiy instance to the default worklist of the
      * corresponding activity.
@@ -1970,7 +1970,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -2002,8 +2002,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2019,7 +2019,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, long userOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -2055,7 +2055,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String performer,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the activity instance to the specified participant as follows:
      * <ul>
@@ -2092,8 +2092,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2111,7 +2111,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          participant, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified ActivityInstance.
      *
@@ -2135,7 +2135,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified process instance.
      *
@@ -2159,7 +2159,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * TODO
      *
@@ -2189,7 +2189,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2226,7 +2226,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2258,7 +2258,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2287,7 +2287,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2316,7 +2316,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Unbinds an event handler from the specified activity instance.
      *
@@ -2345,7 +2345,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Unbinds an event handler from the specified process instance.
      *
@@ -2374,7 +2374,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified activity instance.
      *
@@ -2399,7 +2399,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long activityInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified process instance.
      *
@@ -2424,7 +2424,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          long processInstanceOID, java.lang.String handler,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the possible targets for forward transitions starting from the specified
      * activity instance.
@@ -2456,7 +2456,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.runtime.ScanDirection direction,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Performs the transition from the specified activity instance to the specified target.
      *
@@ -2501,7 +2501,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of process definitions that can be started by the current user.
      *
@@ -2518,7 +2518,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          getStartableProcessDefinitions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -2533,7 +2533,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          getUser(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -2548,7 +2548,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          getPermissions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets specific attributes of a process instance.
      * At the moment attributes has to be bound to a scope process instance.
@@ -2585,7 +2585,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes attributes,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets attributes for an activity instance
      *
@@ -2625,7 +2625,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes attributes,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Logs an audit trail event of type <code>LogCode.EXTERNAL</code>.
      *
@@ -2653,10 +2653,10 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          java.lang.String message, java.lang.Throwable throwable,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Executes a {@link ServiceCommand} in a single engine transaction.
-     *
+     * 
      * If the service command implements <code>{@link Configurable}</code>, the following
      * option may be provided:
      * <ul>

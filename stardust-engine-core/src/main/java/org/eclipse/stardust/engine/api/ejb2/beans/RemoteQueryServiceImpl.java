@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -10,6 +10,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  */
 public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Counts the number of users satisfying the criteria specified in the provided query.
@@ -1607,6 +1608,9 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

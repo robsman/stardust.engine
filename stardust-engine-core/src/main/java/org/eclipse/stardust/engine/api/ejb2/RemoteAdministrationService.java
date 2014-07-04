@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 68817
+ * Generated from  Revision: 72686 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 68817
+ * @version 72686
  */
 public interface RemoteAdministrationService extends javax.ejb.EJBObject
 {
@@ -37,7 +37,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the password rules.
      *
@@ -52,7 +52,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getPasswordRules()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Deploys a new model.
      *
@@ -79,7 +79,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          deployModel(java.lang.String model, int predecessorOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -105,7 +105,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          overwriteModel(java.lang.String model, int modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Deploys a new model.
      *
@@ -139,7 +139,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          boolean disabled, boolean ignoreWarnings)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -177,7 +177,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          boolean disabled, boolean ignoreWarnings)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -207,15 +207,19 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          modelOID, org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Deploys a group of models.
-     *
+     * 
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
      * corresponding model in the group
      * the already deployed models will be considered.
+     * Note: It is possible to deploy an empty set of models. This will not necessarily mean
+     * that audit trail is not being changed.
+     * If the PredefinedModel is not already present in audit trail this means it will be
+     * deployed in any case.
      *
      * @param deploymentElements The models to be deployed. Each model in the set must have a unique
      *     ID.
@@ -250,19 +254,19 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Specifies which implementation alternative (
      * identified by <i>implementationModelId</i>) will be considered
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     *
+     * 
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     *
+     * 
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -294,7 +298,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Deletes the specified model.
      *
@@ -316,7 +320,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          deleteModel(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Deletes process instances from the audit trail.
      * <p />
@@ -341,7 +345,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void deleteProcesses(java.util.List piOids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. The tables will still remain in the database.
@@ -357,7 +361,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void cleanupRuntime(boolean keepUsers)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. Additionally empties the model table. The tables will still remain in the
@@ -372,7 +376,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void cleanupRuntimeAndModels()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Changes the process instance priority.
      * Equivalent with setProcessInstancePriority(oid, priority, false).
@@ -397,7 +401,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          setProcessInstancePriority(long oid, int priority)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Changes the process instance priority.
      *
@@ -423,7 +427,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          long oid, int priority, boolean propagateToSubProcesses)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Aborts a process instance disregarding any activities which were or are
      * performed by the process instance.
@@ -436,9 +440,9 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     *
+     * 
      * <em>This method also aborts all super process instances.</em>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -470,7 +474,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          abortProcessInstance(long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Recovers the process instance identified by the given OID and all of its subprocess
      * instances, executed in a separate transaction. By default the execution is
@@ -499,7 +503,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          recoverProcessInstance(long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Recovers the process instances identified by the given list of OIDs and all
      * associated subprocess instances.Executed in a separate transaction.
@@ -527,7 +531,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void recoverProcessInstances(java.util.List oids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified daemon.
      * The following daemon types exist:
@@ -558,7 +562,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Stops the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.The stop daemon operation is inherently asynchronous, regardless of
@@ -595,7 +599,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          stopDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Starts the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.
@@ -633,7 +637,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          startDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a list of all the available daemons.
      *
@@ -651,7 +655,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getAllDaemons(boolean acknowledge)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Determines key indicators of audit trail health.
      *
@@ -667,7 +671,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getAuditTrailHealthReport()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Determines key indicators of audit trail health.
      *
@@ -689,7 +693,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getAuditTrailHealthReport(boolean countOnly)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.
      * By default the execution is synchronous. Only if there are non fatal errors
@@ -710,7 +714,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void recoverRuntimeEnvironment()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Starts a process from a specified model.The startProcess method is executed
      * asynchronously
@@ -719,7 +723,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     *
+     * 
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -752,13 +756,13 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Forces the completion of a non-interactive activity instance. A map of access points
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -814,12 +818,12 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          forceCompletion(long activityInstanceOID, java.util.Map accessPoints)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -863,7 +867,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          forceSuspendToDefaultPerformer(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -877,7 +881,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.User getUser()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Flushes all internal caches, effectively returning the engine to a state just like
      * after it has started.
@@ -890,7 +894,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void flushCaches()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service plus the global
      * permissions.
@@ -906,7 +910,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the profile for the specified scope.
      *
@@ -924,7 +928,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getProfile(org.eclipse.stardust.engine.api.model.ProfileScope scope)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Sets the profile for the specified scope.
      *
@@ -941,7 +945,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Logs an audit trail event of type <code>LogCode.ADMINISTRATION</code>.
      *
@@ -969,7 +973,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          java.lang.String message, java.lang.Throwable throwable)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new department.
      *
@@ -1022,7 +1026,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the department with the given oid.
      *
@@ -1044,7 +1048,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Change the description of a department.
      *
@@ -1079,7 +1083,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          modifyDepartment(long oid, java.lang.String name, java.lang.String description)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes the department having the specified oid, all his children and all user grants
      * associated with the department.
@@ -1111,7 +1115,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void removeDepartment(long oid)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1137,7 +1141,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          java.lang.String moduleId, java.lang.String preferencesId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Saves the changed preferences to the preference store.
      *
@@ -1172,7 +1176,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.core.preferences.Preferences preferences)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Saves a complete list of preferences to the preference store.
      *
@@ -1202,7 +1206,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
     public void savePreferences(java.util.List preferences)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId (without Password type).
@@ -1228,7 +1232,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getConfigurationVariables(java.lang.String modelId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId.
@@ -1255,7 +1259,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getConfigurationVariables(java.lang.String modelId, boolean all)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelIds (without Password type).
@@ -1282,7 +1286,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getConfigurationVariables(java.util.List modelIds)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves configuration variables from the given model (without Password type).
      *
@@ -1305,7 +1309,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getConfigurationVariables(byte[] model)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Saves changes to configuration variables values.
      *
@@ -1336,7 +1340,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          configurationVariables, boolean force)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves permissions that are globally set. For example permissions concerning
      * model deployment, preference saving, modifying AuditTrail, managing deamons ect.
@@ -1352,7 +1356,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          getGlobalPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Saves the changed Permissions.
      * Use <code>getGlobalPermissions</code> to retrieve currently valid global permissions
@@ -1386,7 +1390,7 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

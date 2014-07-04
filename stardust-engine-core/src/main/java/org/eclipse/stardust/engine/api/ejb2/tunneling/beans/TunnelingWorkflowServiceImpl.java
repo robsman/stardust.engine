@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537
+ * Generated from  Revision: 60537 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -21,17 +21,18 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  */
 public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Activates the interactive activity instance identified by the
      * <code>activityInstanceOID</code>.
-     *
+     * 
      * <p>Activating means:
      * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
      * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
      * </p>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: suspended, hibernated or application</li>
      * <li>Process state before: active, interrupted</li>
@@ -62,8 +63,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -104,7 +105,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -147,7 +148,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -194,7 +195,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -238,7 +239,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -287,7 +288,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -322,14 +323,14 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -378,7 +379,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -407,8 +408,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -421,7 +422,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -584,7 +585,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -648,7 +649,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -713,7 +714,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -779,7 +780,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -844,7 +845,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -911,7 +912,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -941,8 +942,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -984,7 +985,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1016,8 +1017,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1062,7 +1063,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1129,7 +1130,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1200,7 +1201,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1232,8 +1233,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *     and the passed participant is a user who worked on the previous workflow
      *     orkflow instance
      *     <em>Instances of {@link
@@ -1329,7 +1330,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state after: active</li></ul>
      * </p>
@@ -1431,8 +1432,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnSubprocessInstance(
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.util.Map data, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1627,7 +1628,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *               The oid of the process to spawn from.
      * @param spawnProcessID
      *               The id of the process definition to spawn as a new root process.
-     * @param options
+     * @param options          
      *               Options that controls how the spawning operation has to be performed.
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was spawned.
@@ -2000,8 +2001,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2115,17 +2116,17 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -2197,17 +2198,17 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -2287,14 +2288,14 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after:
      * <br><i>If abort scope is root hierarchy:</i> The state of root process, all
      * sub-processes and activities that are not yet completed changes to aborted.</li>
      * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its
-     * subprocesses and activities that are not yet completed changes to aborted.
+     * subprocesses and activities that are not yet completed changes to aborted. 
      * </li></ul>
      * </p>
      *
@@ -2352,7 +2353,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     }
 
     /**
-     *
+     * 
      *
      * @deprecated Retrieves the active model.
      *
@@ -2443,8 +2444,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      * @param worklist query.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2496,8 +2497,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2549,8 +2550,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2889,8 +2890,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -3021,8 +3022,8 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -4005,7 +4006,7 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
 
     /**
      * Executes a {@link ServiceCommand} in a single engine transaction.
-     *
+     * 
      * If the service command implements <code>{@link Configurable}</code>, the following
      * option may be provided:
      * <ul>

@@ -19,6 +19,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  */
 public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Gets the document by ID or path.

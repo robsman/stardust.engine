@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537
+ * Generated from  Revision: 60537 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -21,17 +21,18 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  */
 public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Activates the interactive activity instance identified by the
      * <code>activityInstanceOID</code>.
-     *
+     * 
      * <p>Activating means:
      * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
      * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
      * </p>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: suspended, hibernated or application</li>
      * <li>Process state before: active, interrupted</li>
@@ -62,8 +63,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -97,7 +98,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -140,7 +141,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -180,7 +181,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -224,7 +225,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -266,7 +267,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -301,14 +302,14 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -350,7 +351,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -379,8 +380,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -393,7 +394,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
+     *     activity instance is a 
      *     quality assurance instance and no {@link
      *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
      *     has been set before({@link
@@ -535,7 +536,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -592,7 +593,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -649,7 +650,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -708,7 +709,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -765,7 +766,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -825,7 +826,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -855,8 +856,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -890,7 +891,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -922,8 +923,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -961,7 +962,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1020,7 +1021,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1084,7 +1085,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -1116,8 +1117,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *     and the passed participant is a user who worked on the previous workflow
      *     orkflow instance
      *     <em>Instances of {@link
@@ -1198,7 +1199,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state after: active</li></ul>
      * </p>
@@ -1467,7 +1468,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *               The oid of the process to spawn from.
      * @param spawnProcessID
      *               The id of the process definition to spawn as a new root process.
-     * @param options
+     * @param options          
      *               Options that controls how the spawning operation has to be performed.
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was spawned.
@@ -1804,8 +1805,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1905,17 +1906,17 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -1979,17 +1980,17 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after:
+     * <li>State after: 
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted.
+     * subprocesses and activities also changes to aborted. 
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -2062,14 +2063,14 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after:
      * <br><i>If abort scope is root hierarchy:</i> The state of root process, all
      * sub-processes and activities that are not yet completed changes to aborted.</li>
      * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its
-     * subprocesses and activities that are not yet completed changes to aborted.
+     * subprocesses and activities that are not yet completed changes to aborted. 
      * </li></ul>
      * </p>
      *
@@ -2120,7 +2121,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     }
 
     /**
-     *
+     * 
      *
      * @deprecated Retrieves the active model.
      *
@@ -2195,8 +2196,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * @param worklist query.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2241,8 +2242,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2286,8 +2287,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2580,8 +2581,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2696,8 +2697,8 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -3531,7 +3532,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
 
     /**
      * Executes a {@link ServiceCommand} in a single engine transaction.
-     *
+     * 
      * If the service command implements <code>{@link Configurable}</code>, the following
      * option may be provided:
      * <ul>

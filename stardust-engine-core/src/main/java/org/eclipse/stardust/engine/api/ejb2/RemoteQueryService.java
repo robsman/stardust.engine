@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -28,7 +28,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of user groups satisfying the criteria specified in the provided
      * query.
@@ -47,7 +47,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of process instances satisfying the criteria specified in the
      * provided query.
@@ -88,7 +88,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of activity instances satisfying the criteria specified in the
      * provided query.
@@ -129,7 +129,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of log entries satisfying the criteria specified in the
      * provided query.
@@ -148,7 +148,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all users satisfying the criteria specified in the provided query.
      *
@@ -166,7 +166,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllUsers(org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all user groups satisfying the criteria specified in the provided query.
      *
@@ -184,7 +184,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllUserGroups(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all process instances satisfying the criteria specified in the
      * provided query.
@@ -225,7 +225,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all activity instances satisfying the criteria specified in the
      * provided query.
@@ -266,7 +266,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all log entries satisfying the criteria specified in the
      * provided query.
@@ -285,7 +285,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllLogEntries(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first User satisfying the criteria specified in the
      * provided query.
@@ -309,7 +309,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findFirstUser(org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first UserGroup satisfying the criteria specified in the
      * provided query.
@@ -333,7 +333,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findFirstUserGroup(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first ProcessInstance satisfying the criteria specified in the
      * provided query.
@@ -379,7 +379,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first ActivityInstance satisfying the criteria specified in the
      * provided query.
@@ -426,7 +426,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first LogEntry satisfying the criteria specified in the
      * provided query.
@@ -450,7 +450,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findFirstLogEntry(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns all performed activity instances for the specified process instance.
      *
@@ -475,7 +475,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAuditTrail(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
@@ -494,7 +494,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllModelDescriptions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the list of model descriptions for all alive models. Whereby alive models
      * are models with non-completed and non-aborted processes plus the
@@ -516,7 +516,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllAliveModelDescriptions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the current active model description.
      *
@@ -540,7 +540,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getActiveModelDescription()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the model descriptions satisfying the criteria specified in the provided
      * query.
@@ -559,7 +559,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the description of the specified model.
      *
@@ -582,7 +582,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getModelDescription(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Determines if the model was redeployed, i.e. if a more recent revision than the
      * provided one is available.
@@ -602,7 +602,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public boolean wasRedeployed(long modelOid, int revision)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -624,7 +624,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -648,7 +648,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          long modelOID, boolean computeAliveness)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the current active model.
      *
@@ -671,7 +671,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getActiveModel()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the XML representation of the specified model.
      *
@@ -692,7 +692,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
     public java.lang.String getModelAsXML(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the process definitions contained in the specified model.
      *
@@ -716,7 +716,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllProcessDefinitions(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a process definition from the specified model.
      *
@@ -741,7 +741,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getProcessDefinition(long modelOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all process definitions for the active model.
      *
@@ -761,7 +761,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllProcessDefinitions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified process definition from the active model.
      *
@@ -785,7 +785,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getProcessDefinition(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -798,7 +798,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all data satisfying the criteria specified in the
      * provided query.
@@ -817,7 +817,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllData(org.eclipse.stardust.engine.api.query.DataQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all participants defined in the specified model.
      *
@@ -839,7 +839,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllParticipants(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a participant from a specified model.
      *
@@ -864,7 +864,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          long modelOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the participants from the active model.
      *
@@ -883,7 +883,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllParticipants()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a specific participant from the active model.
      *
@@ -907,7 +907,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getParticipant(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -922,7 +922,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves XSD schema of the specified type declaration serialized
      * into a byte[].
@@ -948,7 +948,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          long modelOID, java.lang.String typeDeclarationId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the departments satisfying the search criteria. The search is
      * performed as following:
@@ -995,7 +995,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Searches for a department having the specified id in the scope defined by the parent
      * department. On synchronization with external repository the specified department
@@ -1033,7 +1033,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first document satisfying the criteria specified in the
      * provided query.
@@ -1047,6 +1047,9 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1057,7 +1060,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          findFirstDocument(org.eclipse.stardust.engine.api.query.DocumentQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -1077,7 +1080,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getAllDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1103,7 +1106,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.lang.String moduleId, java.lang.String preferencesId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves preferences satisfying the criteria specified in the provided query.
      *
@@ -1133,7 +1136,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the information about the deployed runtime environment (
      * e.g. version information).
@@ -1149,7 +1152,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          getRuntimeEnvironmentInfo()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a resource bundle from a specified moduleId.
      *
@@ -1170,7 +1173,7 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

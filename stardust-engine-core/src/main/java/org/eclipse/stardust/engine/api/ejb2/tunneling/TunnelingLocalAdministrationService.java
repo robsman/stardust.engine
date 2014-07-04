@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 68817
+ * Generated from  Revision: 72686 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 68817
+ * @version 72686
  */
 public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -38,7 +38,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.api.runtime.PasswordRules rules,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the password rules.
      *
@@ -53,7 +53,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          getPasswordRules(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Deploys a new model.
      *
@@ -81,7 +81,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String model, int predecessorOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -108,7 +108,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String model, int modelOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Deploys a new model.
      *
@@ -142,7 +142,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          boolean disabled, boolean ignoreWarnings,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -180,7 +180,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          boolean disabled, boolean ignoreWarnings,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Overwrites the specified model.
      *
@@ -210,15 +210,19 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          modelOID, org.eclipse.stardust.engine.api.runtime.DeploymentOptions options,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Deploys a group of models.
-     *
+     * 
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
      * corresponding model in the group
      * the already deployed models will be considered.
+     * Note: It is possible to deploy an empty set of models. This will not necessarily mean
+     * that audit trail is not being changed.
+     * If the PredefinedModel is not already present in audit trail this means it will be
+     * deployed in any case.
      *
      * @param deploymentElements The models to be deployed. Each model in the set must have a unique
      *     ID.
@@ -253,19 +257,19 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.api.runtime.DeploymentOptions options,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Specifies which implementation alternative (
      * identified by <i>implementationModelId</i>) will be considered
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     *
+     * 
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     *
+     * 
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -297,7 +301,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Deletes the specified model.
      *
@@ -320,7 +324,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Deletes process instances from the audit trail.
      * <p />
@@ -346,7 +350,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.util.List piOids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. The tables will still remain in the database.
@@ -363,7 +367,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          boolean keepUsers, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes all records from the runtime environment making up the audit trail
      * database. Additionally empties the model table. The tables will still remain in the
@@ -379,7 +383,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          cleanupRuntimeAndModels(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Changes the process instance priority.
      * Equivalent with setProcessInstancePriority(oid, priority, false).
@@ -405,7 +409,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, int priority,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Changes the process instance priority.
      *
@@ -431,7 +435,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, int priority, boolean propagateToSubProcesses,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts a process instance disregarding any activities which were or are
      * performed by the process instance.
@@ -444,9 +448,9 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     *
+     * 
      * <em>This method also aborts all super process instances.</em>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -479,7 +483,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Recovers the process instance identified by the given OID and all of its subprocess
      * instances, executed in a separate transaction. By default the execution is
@@ -509,7 +513,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Recovers the process instances identified by the given list of OIDs and all
      * associated subprocess instances.Executed in a separate transaction.
@@ -535,10 +539,10 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      *     java.util.List oids)
      */
     public void recoverProcessInstances(
-         java.util.List oids,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.util.List oids, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified daemon.
      * The following daemon types exist:
@@ -570,7 +574,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String daemonType, boolean acknowledge,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Stops the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.The stop daemon operation is inherently asynchronous, regardless of
@@ -608,7 +612,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String daemonType, boolean acknowledge,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Starts the specified daemon. See {@link #getDaemon(String, boolean)} for a list
      * of daemon types.
@@ -647,7 +651,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String daemonType, boolean acknowledge,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a list of all the available daemons.
      *
@@ -663,10 +667,10 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Daemon>
          getAllDaemons(
-         boolean acknowledge,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         boolean acknowledge, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Determines key indicators of audit trail health.
      *
@@ -682,7 +686,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          getAuditTrailHealthReport(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Determines key indicators of audit trail health.
      *
@@ -705,7 +709,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          boolean countOnly, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.
      * By default the execution is synchronous. Only if there are non fatal errors
@@ -727,7 +731,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          recoverRuntimeEnvironment(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Starts a process from a specified model.The startProcess method is executed
      * asynchronously
@@ -736,7 +740,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     *
+     * 
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -769,13 +773,13 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long modelOID, java.lang.String id, java.util.Map data, boolean synchronously,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Forces the completion of a non-interactive activity instance. A map of access points
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -832,12 +836,12 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long activityInstanceOID, java.util.Map accessPoints,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -882,7 +886,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long activityInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -897,7 +901,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          getUser(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Flushes all internal caches, effectively returning the engine to a state just like
      * after it has started.
@@ -911,7 +915,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          flushCaches(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service plus the global
      * permissions.
@@ -927,7 +931,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          getPermissions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the profile for the specified scope.
      *
@@ -946,7 +950,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.api.model.ProfileScope scope,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets the profile for the specified scope.
      *
@@ -963,7 +967,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Logs an audit trail event of type <code>LogCode.ADMINISTRATION</code>.
      *
@@ -991,7 +995,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String message, java.lang.Throwable throwable,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates a new department.
      *
@@ -1044,7 +1048,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the department with the given oid.
      *
@@ -1066,7 +1070,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Change the description of a department.
      *
@@ -1102,7 +1106,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, java.lang.String name, java.lang.String description,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes the department having the specified oid, all his children and all user grants
      * associated with the department.
@@ -1135,7 +1139,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1161,7 +1165,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String moduleId, java.lang.String preferencesId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Saves the changed preferences to the preference store.
      *
@@ -1196,7 +1200,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          org.eclipse.stardust.engine.core.preferences.Preferences preferences,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Saves a complete list of preferences to the preference store.
      *
@@ -1227,7 +1231,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.util.List preferences,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId (without Password type).
@@ -1254,7 +1258,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String modelId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelId.
@@ -1282,7 +1286,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.lang.String modelId, boolean all,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves merged configuration variables from all models matching the specified
      * modelIds (without Password type).
@@ -1310,7 +1314,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          java.util.List modelIds,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves configuration variables from the given model (without Password type).
      *
@@ -1334,7 +1338,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          byte[] model, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Saves changes to configuration variables values.
      *
@@ -1365,7 +1369,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          configurationVariables, boolean force,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves permissions that are globally set. For example permissions concerning
      * model deployment, preference saving, modifying AuditTrail, managing deamons ect.
@@ -1381,7 +1385,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          getGlobalPermissions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Saves the changed Permissions.
      * Use <code>getGlobalPermissions</code> to retrieve currently valid global permissions

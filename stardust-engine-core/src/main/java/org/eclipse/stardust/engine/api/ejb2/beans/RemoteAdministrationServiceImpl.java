@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 68817
+ * Generated from  Revision: 72686 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -17,19 +17,19 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 68817
+ * @version 72686
  */
 public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
    private static final long serialVersionUID = 1L;
 
-   /**
+    /**
      * Set password rule.
      *
      * @param The rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
      *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
@@ -58,8 +58,8 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      *
      * @return The password rules or null.
      *
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPasswordRules()
      */
@@ -313,12 +313,16 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
 
     /**
      * Deploys a group of models.
-     *
+     * 
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
      * corresponding model in the group
      * the already deployed models will be considered.
+     * Note: It is possible to deploy an empty set of models. This will not necessarily mean
+     * that audit trail is not being changed.
+     * If the PredefinedModel is not already present in audit trail this means it will be
+     * deployed in any case.
      *
      * @param deploymentElements The models to be deployed. Each model in the set must have a unique
      *     ID.
@@ -374,12 +378,12 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     *
+     * 
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     *
+     * 
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -613,9 +617,9 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      *     instance with the specified oid.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProcessInstancePriority(
      *     long oid, int priority, boolean propagateToSubProcesses)
@@ -652,9 +656,9 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     *
+     * 
      * <em>This method also aborts all super process instances.</em>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -1075,7 +1079,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     *
+     * 
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -1128,7 +1132,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1203,7 +1207,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>

@@ -13,21 +13,18 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
 import java.util.Collections;
 import java.util.Map;
 
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.error.LoginFailedException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
-
 
 /**
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class RemoteServiceImpl extends AbstractEjbServiceImpl
+public abstract class RemoteServiceImpl extends AbstractEjbServiceImpl
 {
-   private static final Logger trace = LogManager.getLogger(RemoteServiceImpl.class);
+   private static final long serialVersionUID = 1L;
 
    public void login(String username, String password) throws WorkflowException
    {
@@ -55,5 +52,4 @@ public class RemoteServiceImpl extends AbstractEjbServiceImpl
    {
       ((ManagedService) service).logout();
    }
-
 }

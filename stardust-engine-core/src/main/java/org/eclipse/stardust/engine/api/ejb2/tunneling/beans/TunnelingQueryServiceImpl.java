@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -10,6 +10,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  */
 public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
+   private static final long serialVersionUID = 1L;
 
     /**
      * Counts the number of users satisfying the criteria specified in the provided query.
@@ -1408,8 +1409,8 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
      */
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(
-         java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1659,8 +1660,8 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
      */
     public org.eclipse.stardust.engine.api.model.Participant
          getParticipant(
-         java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -1907,6 +1908,9 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

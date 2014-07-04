@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -27,7 +27,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public long getUsersCount(
          org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of user groups satisfying the criteria specified in the provided
      * query.
@@ -45,7 +45,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public long
          getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of process instances satisfying the criteria specified in the
      * provided query.
@@ -85,7 +85,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getProcessInstancesCount(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of activity instances satisfying the criteria specified in the
      * provided query.
@@ -125,7 +125,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getActivityInstancesCount(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of log entries satisfying the criteria specified in the
      * provided query.
@@ -143,7 +143,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public long
          getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all users satisfying the criteria specified in the provided query.
      *
@@ -160,7 +160,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.query.Users
          getAllUsers(org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all user groups satisfying the criteria specified in the provided query.
      *
@@ -177,7 +177,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.query.UserGroups
          getAllUserGroups(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all process instances satisfying the criteria specified in the
      * provided query.
@@ -217,7 +217,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getAllProcessInstances(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all activity instances satisfying the criteria specified in the
      * provided query.
@@ -257,7 +257,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getAllActivityInstances(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all log entries satisfying the criteria specified in the
      * provided query.
@@ -275,7 +275,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.query.LogEntries
          getAllLogEntries(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first User satisfying the criteria specified in the
      * provided query.
@@ -298,7 +298,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.User
          findFirstUser(org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first UserGroup satisfying the criteria specified in the
      * provided query.
@@ -321,7 +321,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          findFirstUserGroup(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first ProcessInstance satisfying the criteria specified in the
      * provided query.
@@ -366,7 +366,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          findFirstProcessInstance(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first ActivityInstance satisfying the criteria specified in the
      * provided query.
@@ -412,7 +412,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          findFirstActivityInstance(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first LogEntry satisfying the criteria specified in the
      * provided query.
@@ -435,7 +435,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.LogEntry
          findFirstLogEntry(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns all performed activity instances for the specified process instance.
      *
@@ -459,7 +459,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
@@ -477,7 +477,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of model descriptions for all alive models. Whereby alive models
      * are models with non-completed and non-aborted processes plus the
@@ -498,7 +498,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the current active model description.
      *
@@ -521,7 +521,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getActiveModelDescription()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the model descriptions satisfying the criteria specified in the provided
      * query.
@@ -539,7 +539,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.Models
          getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the description of the specified model.
      *
@@ -561,7 +561,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getModelDescription(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Determines if the model was redeployed, i.e. if a more recent revision than the
      * provided one is available.
@@ -580,7 +580,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      */
     public boolean wasRedeployed(long modelOid, int revision)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -601,7 +601,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -624,7 +624,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID, boolean computeAliveness)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the current active model.
      *
@@ -646,7 +646,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getActiveModel()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the XML representation of the specified model.
      *
@@ -666,7 +666,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      */
     public java.lang.String getModelAsXML(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the process definitions contained in the specified model.
      *
@@ -689,7 +689,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a process definition from the specified model.
      *
@@ -713,7 +713,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(long modelOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all process definitions for the active model.
      *
@@ -732,7 +732,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified process definition from the active model.
      *
@@ -755,7 +755,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -767,7 +767,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getProcessDefinitions(
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all data satisfying the criteria specified in the
      * provided query.
@@ -785,7 +785,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.DataQueryResult
          getAllData(org.eclipse.stardust.engine.api.query.DataQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all participants defined in the specified model.
      *
@@ -806,7 +806,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants(long modelOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a participant from a specified model.
      *
@@ -830,7 +830,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.model.Participant getParticipant(
          long modelOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the participants from the active model.
      *
@@ -848,7 +848,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a specific participant from the active model.
      *
@@ -871,7 +871,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.model.Participant
          getParticipant(java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -885,7 +885,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves XSD schema of the specified type declaration serialized
      * into a byte[].
@@ -910,7 +910,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public byte[] getSchemaDefinition(
          long modelOID, java.lang.String typeDeclarationId)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the departments satisfying the search criteria. The search is
      * performed as following:
@@ -956,7 +956,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Searches for a department having the specified id in the scope defined by the parent
      * department. On synchronization with external repository the specified department
@@ -993,7 +993,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first document satisfying the criteria specified in the
      * provided query.
@@ -1007,6 +1007,9 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1016,7 +1019,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.Document
          findFirstDocument(org.eclipse.stardust.engine.api.query.DocumentQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -1035,7 +1038,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.Documents
          getAllDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1060,7 +1063,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves preferences satisfying the criteria specified in the provided query.
      *
@@ -1089,7 +1092,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getAllPreferences(
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the information about the deployed runtime environment (
      * e.g. version information).
@@ -1104,7 +1107,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo
          getRuntimeEnvironmentInfo()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a resource bundle from a specified moduleId.
      *
@@ -1124,7 +1127,7 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          getResourceBundle(
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException;
 

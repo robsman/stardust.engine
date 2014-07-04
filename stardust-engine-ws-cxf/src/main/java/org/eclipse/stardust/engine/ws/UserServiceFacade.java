@@ -42,8 +42,6 @@ import org.eclipse.stardust.engine.api.ws.UserInfoXto;
 import org.eclipse.stardust.engine.api.ws.UserRealmXto;
 import org.eclipse.stardust.engine.api.ws.UserXto;
 
-
-
 /**
  * @author Robert.Sauer
  * @version $Revision: $
@@ -501,20 +499,16 @@ public class UserServiceFacade implements IUserService
       return null;
    }
 
-	@Override
-	public void generatePasswordResetToken(String account) throws BpmFault {
-		try {
-			WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+   @Override
+   public void generatePasswordResetToken(String realm, String account) throws BpmFault {
+      try {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-			UserService us = wsEnv.getServiceFactory().getUserService();
+         UserService us = wsEnv.getServiceFactory().getUserService();
 
-			us.generatePasswordResetToken(account);
-		} catch (ApplicationException e) {
-			XmlAdapterUtils.handleBPMException(e);
-		}
-
-	}
-
-
-
+         us.generatePasswordResetToken(realm, account);
+      } catch (ApplicationException e) {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
 }

@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 71045
+ * Generated from Revision: 73658 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 71045
+ * @version 73658
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {
@@ -104,12 +104,13 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    }
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(java.lang.String account)
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(java.lang.String realm, java.lang.String account)
     */
-   public void generatePasswordResetToken(java.lang.String account)
+   public void generatePasswordResetToken(
+         java.lang.String realm, java.lang.String account)
    {
       ((org.eclipse.stardust.engine.api.runtime.UserService)
-            serviceProxy).generatePasswordResetToken(account);
+            serviceProxy).generatePasswordResetToken(realm, account);
    }
 
    /**

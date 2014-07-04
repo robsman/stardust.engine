@@ -167,13 +167,11 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }, this);
    }
 
-   private UpgradeTask getDoubleValueUpgradeTask(final String tableName, final FieldInfo oidColumn, final FieldInfo doubleValueColumn)
+   private UpgradeTask getDoubleValueUpgradeTask(final String tableName,
+         final FieldInfo oidColumn, final FieldInfo doubleValueColumn)
    {
       return new UpgradeTask()
       {
-         final UpdateColumnInfo updateColumnInfo
-            = new UpdateColumnInfo(doubleValueColumn, "0.0");
-
          @Override
          public void execute()
          {
@@ -182,21 +180,9 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                @Override
                public FieldInfo[] getAddedFields()
                {
-                  return new FieldInfo[] {doubleValueColumn};
+                  return new FieldInfo[] { doubleValueColumn };
                }
             }, observer);
-
-            try
-            {
-               //check javadoc for further information on this method
-               DatabaseHelper.setColumnValuesInBatch(item, tableName, oidColumn, batchSize,
-                     updateColumnInfo);
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "Could not initialize new column " + tableName + "."
-                     + doubleValueColumn.getName() + ".");
-            }
          }
       };
    }
@@ -217,6 +203,16 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initMigrateDataTasks(RuntimeItem item)
    {
+      //oid & double value are both the same for table data_value and
+      //structured_data_value
+      final FieldInfo oidColumn = new FieldInfo(SDV_OID, Long.TYPE);
+      final FieldInfo doubleValueColumn = new FieldInfo(SDV_DOUBLE_VALUE, Double.TYPE);
+
+      upgradeTaskExecutor.addMigrateDataTask(initStringValueToDoubleValueTask(DV_TABLE,
+            oidColumn, doubleValueColumn));
+      upgradeTaskExecutor.addMigrateDataTask(initStringValueToDoubleValueTask(SDV_TABLE,
+            oidColumn, doubleValueColumn));
+
       upgradeTaskExecutor.addMigrateDataTask(migrateStringValueToDoubleValueTask());
    }
 
@@ -241,6 +237,33 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       }
 
+   }
+
+   private UpgradeTask initStringValueToDoubleValueTask(final String tableName,
+         final FieldInfo oidColumn, final FieldInfo doubleValueColumn)
+   {
+      return new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+
+            final UpdateColumnInfo updateColumnInfo = new UpdateColumnInfo(
+                  doubleValueColumn, "0.0");
+
+            try
+            {
+               //check javadoc for further information on this method
+               DatabaseHelper.setColumnValuesInBatch(item, tableName, oidColumn,
+                     batchSize, updateColumnInfo);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not initialize new column " + tableName + "."
+                     + doubleValueColumn.getName() + ".");
+            }
+         }
+      };
    }
 
    private UpgradeTask migrateStringValueToDoubleValueTask()

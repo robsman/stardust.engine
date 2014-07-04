@@ -198,31 +198,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
 
             }, runtimeJob);
-
-
-            //create info about the field to update
-            FieldInfo criticalityField
-               = new FieldInfo(ACTIVITY_INSTANCE_FIELD_CRITICALITY, Float.class);
-            FieldInfo propertyAvailableField
-               = new FieldInfo(ACTIVITY_INSTANCE_FIELD_PROPERTIES, Long.class);
-            UpdateColumnInfo updateCriticalityInfo
-                  = new UpdateColumnInfo(criticalityField, -1);
-            UpdateColumnInfo updatePropertyAvailableFieldInfo
-               = new UpdateColumnInfo(propertyAvailableField, 0);
-
-            try
-            {
-               final FieldInfo aiOidColumn = new FieldInfo(ACTIVITY_INSTANCE_FIELD_OID,
-                     Long.class, true);
-               DatabaseHelper.setColumnValuesInBatch(item, ACTIVITY_INSTANCE_TABLE_NAME,
-                     aiOidColumn, batchSize, updateCriticalityInfo,
-                     updatePropertyAvailableFieldInfo);
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "Could not update table: "
-                     + ACTIVITY_INSTANCE_TABLE_NAME + ".");
-            }
          }
       });
 
@@ -244,18 +219,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
 
             }, runtimeJob);
-
-            try
-            {
-               FieldInfo workItemPk = new FieldInfo(WORK_ITEM_FIELD__ACTIVIYINSTANCE, Long.TYPE, true);
-               UpdateColumnInfo updateInfo = new UpdateColumnInfo(CRITICALITY, -1);
-               DatabaseHelper.setColumnValuesInBatch(item, WORK_ITEM_TABLE_NAME, workItemPk, batchSize, updateInfo);
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME + "."
-                     + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
-            }
          }
       });
 
@@ -395,6 +358,65 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initMigrateDataTasks()
    {
+      // Add default values for new AI columns
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            //create info about the field to update
+            final FieldInfo criticalityField = new FieldInfo(
+                  ACTIVITY_INSTANCE_FIELD_CRITICALITY, Float.class);
+            final FieldInfo propertyAvailableField = new FieldInfo(
+                  ACTIVITY_INSTANCE_FIELD_PROPERTIES, Long.class);
+
+            final UpdateColumnInfo updateCriticalityInfo = new UpdateColumnInfo(
+                  criticalityField, -1);
+            final UpdateColumnInfo updatePropertyAvailableFieldInfo = new UpdateColumnInfo(
+                  propertyAvailableField, 0);
+
+            final FieldInfo aiOidColumn = new FieldInfo(ACTIVITY_INSTANCE_FIELD_OID,
+                  Long.class, true);
+
+            try
+            {
+               DatabaseHelper.setColumnValuesInBatch(item, ACTIVITY_INSTANCE_TABLE_NAME,
+                     aiOidColumn, batchSize, updateCriticalityInfo,
+                     updatePropertyAvailableFieldInfo);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not update table: "
+                     + ACTIVITY_INSTANCE_TABLE_NAME + ".");
+            }
+         }
+      });
+
+      // Add default values for new WI columns
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            final FieldInfo CRITICALITY = new FieldInfo(WORK_ITEM_FIELD_CRITICALITY,
+                  Double.TYPE);
+            final FieldInfo workItemPk = new FieldInfo(WORK_ITEM_FIELD__ACTIVIYINSTANCE,
+                  Long.TYPE, true);
+            final UpdateColumnInfo updateInfo = new UpdateColumnInfo(CRITICALITY, -1);
+
+            try
+            {
+               DatabaseHelper.setColumnValuesInBatch(item, WORK_ITEM_TABLE_NAME,
+                     workItemPk, batchSize, updateInfo);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME
+                     + "." + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
+            }
+         }
+      });
+
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          private static final String oldDefinition = "ag.carnot.workflow.runtime.setup_definition";

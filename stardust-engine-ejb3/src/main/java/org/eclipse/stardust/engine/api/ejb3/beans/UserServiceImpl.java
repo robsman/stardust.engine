@@ -261,15 +261,16 @@ public class UserServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans.
     * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(java.lang.String account)
     */
    public void generatePasswordResetToken(
-         java.lang.String account, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+         java.lang.String realm, java.lang.String account,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+               throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          ((org.eclipse.stardust.engine.api.runtime.UserService)
-            service).generatePasswordResetToken(account);
+            service).generatePasswordResetToken(realm, account);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

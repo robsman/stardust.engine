@@ -131,8 +131,8 @@
 
       <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
-      <ivy:cachepath pathid="stardust-engine-ejb3.deps" conf="ejb3-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
-         module="carnot-ejb3-module" revision="${ipp.version.full}"/>
+      <ivy:cachepath pathid="stardust-engine-ejb3.deps" conf="ejb30-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
+         module="infinity-process-engine-module" revision="${ipp.version.full}"/>
    </target>
 
    <target name="codegen" depends="initCodegen, compileEjb3FacadeGenerator">
@@ -162,7 +162,7 @@
    <target name="copyEjb3FacadeGeneratorSourceFiles" depends="initCodegen">
       <copy todir="${codegen.build.dir.src}/org/eclipse/stardust">
          <fileset dir="${project.src}/org/eclipse/stardust">
-            <include name="engine/ejb3/tools/CodeGen.java" />
+            <include name="engine/api/ejb3/tools/CodeGen.java" />
          </fileset>
       </copy>
    </target>

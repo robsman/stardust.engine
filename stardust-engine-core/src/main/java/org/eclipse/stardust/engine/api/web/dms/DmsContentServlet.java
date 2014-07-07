@@ -55,7 +55,6 @@ import org.eclipse.stardust.vfs.impl.jcr.web.AbstractVfsContentServlet;
  */
 public class DmsContentServlet extends AbstractVfsContentServlet
 {
-
    static final long serialVersionUID = 1L;
 
    public static final String OP_DOWNLOAD = "dl";
@@ -284,7 +283,14 @@ public class DmsContentServlet extends AbstractVfsContentServlet
          List<ExecutionServiceProvider> exProviderList = ExtensionProviderUtils.getExtensionProviders(ExecutionServiceProvider.class);
          for (ExecutionServiceProvider executionServiceProvider : exProviderList)
          {
-            forkingService = executionServiceProvider.getExecutionService(context);
+            try
+            {
+               forkingService = executionServiceProvider.getExecutionService(context);
+            }
+            catch (Exception e)
+            {
+               continue;
+            }
             if(forkingService != null)
             {
                break;
@@ -404,5 +410,4 @@ public class DmsContentServlet extends AbstractVfsContentServlet
    {
       ForkingService getExecutionService(String clientContext);
    }
-
 }

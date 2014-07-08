@@ -69,7 +69,7 @@ public class Ejb2ExecutorService implements ExecutorService
       }
       catch (Exception e)
       {
-         throw new InternalException(e);
+         throw new ExecuterServiceException(e);
       }
    }
 

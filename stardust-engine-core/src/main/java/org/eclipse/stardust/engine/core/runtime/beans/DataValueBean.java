@@ -229,6 +229,10 @@ public class DataValueBean extends IdentifiablePersistentBean
          columnName = FIELD__NUMBER_VALUE;
          break;
 
+      case BigData.DOUBLE_VALUE:
+         columnName = FIELD__DOUBLE_VALUE;
+         break;
+
       case BigData.STRING_VALUE:
          columnName = FIELD__STRING_VALUE;
          break;

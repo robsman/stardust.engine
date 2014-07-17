@@ -19,7 +19,6 @@ import javax.ejb.*;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.ejb3.beans.AbstractServiceImpl;
-import org.eclipse.stardust.engine.core.runtime.ejb.AbstractEjb3ServiceBean;
 import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
@@ -38,12 +37,13 @@ public class CodeGen
    {
       int dot = longServiceName.lastIndexOf(".");
       String javaSourceName = longServiceName.substring(dot + 1);
-      return createEjb3ServiceBean(longServiceName, javaSourceName, "Remote" + javaSourceName, longPathJavaSourceName, destPackage);
+      return createEjb3ServiceBean(longServiceName, javaSourceName, "Remote" + javaSourceName,
+            longPathJavaSourceName, destPackage, AbstractServiceImpl.class.getCanonicalName());
    }
 
    public String createEjb3ServiceBean(String longServiceName,
          String longLocalServiceName, String longRemoteServiceName,
-         String longPathJavaSourceName, String destPackage)
+         String longPathJavaSourceName, String destPackage, String superClassName)
    {
       int dot = longServiceName.lastIndexOf(".");
       String packageName = longServiceName.substring(0, dot);
@@ -69,8 +69,7 @@ public class CodeGen
       String newPackage = StringUtils.replace(destPackage.substring(1), "/", ".");
 
       return createSource(newPackage + javaSourceName + "Impl", longServiceName,
-            longPathJavaSourceName, imports,
-            AbstractServiceImpl.class.getName(),
+            longPathJavaSourceName, imports, superClassName,
             new String[] {longLocalServiceName, longRemoteServiceName},//
             new Ejb3ServiceBeanMethodGenerator(longServiceName), additionalMethods, true,
             false);

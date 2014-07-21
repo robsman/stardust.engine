@@ -126,13 +126,9 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
                   tunneledContext = TunnelingUtils.performTunnelingLogin(
                         (TunnelingService) inner, userName, password, getProperties());
                }
-               catch (WorkflowException wfe)
+               catch (Exception e)
                {
-                  if (wfe.getCause() instanceof PublicException)
-                  {
-                     throw (PublicException) wfe.getCause();
-                  }
-                  throw wfe;
+                  throw ClientInvocationHandler.unwrapException(e);
                }
             }
             else

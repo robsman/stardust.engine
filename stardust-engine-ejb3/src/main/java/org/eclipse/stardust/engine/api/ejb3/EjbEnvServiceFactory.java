@@ -20,8 +20,6 @@ import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
 import org.eclipse.stardust.common.error.LoginFailedException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -107,13 +105,9 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
                tunneledContext = TunnelingUtils.performTunnelingLogin(
                      (ManagedService) service, userName, password, getProperties());
             }
-            catch (WorkflowException wfe)
+            catch (Exception e)
             {
-               if (wfe.getCause() instanceof PublicException)
-               {
-                  throw (PublicException) wfe.getCause();
-               }
-               throw wfe;
+               throw ClientInvocationHandler.unwrapException(e);
             }
          }
 

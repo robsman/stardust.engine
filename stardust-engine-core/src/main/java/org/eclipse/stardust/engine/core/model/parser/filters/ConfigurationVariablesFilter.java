@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.util.StreamReaderDelegate;
 
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 
@@ -63,25 +64,25 @@ public final class ConfigurationVariablesFilter
       @Override
       public String getElementText() throws XMLStreamException
       {
-         return ConfigurationVariableUtils.evaluate(filter, super.getElementText());
+         return evaluateVariables(super.getElementText());
       }
 
       @Override
       public String getAttributeValue(String namespaceUri, String localName)
       {
-         return ConfigurationVariableUtils.evaluate(filter, super.getAttributeValue(namespaceUri, localName));
+         return evaluateVariables(super.getAttributeValue(namespaceUri, localName));
       }
 
       @Override
       public String getAttributeValue(int index)
       {
-         return ConfigurationVariableUtils.evaluate(filter, super.getAttributeValue(index));
+         return evaluateVariables(super.getAttributeValue(index));
       }
 
       @Override
       public String getText()
       {
-         return ConfigurationVariableUtils.evaluate(filter, super.getText());
+         return evaluateVariables(super.getText());
       }
 
       @Override
@@ -118,10 +119,15 @@ public final class ConfigurationVariablesFilter
          if (text == null)
          {
             String actual = new String(super.getTextCharacters());
-            String evaluated = ConfigurationVariableUtils.evaluate(filter, actual);
+            String evaluated = evaluateVariables(actual);
             diff = evaluated.length() - actual.length();
             text = evaluated.toCharArray();
          }
+      }
+
+      private String evaluateVariables(String actual)
+      {
+         return StringUtils.isEmpty(actual) ? actual : ConfigurationVariableUtils.evaluate(filter, actual);
       }
    }
 }

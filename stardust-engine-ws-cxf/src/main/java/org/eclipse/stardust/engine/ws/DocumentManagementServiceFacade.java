@@ -56,12 +56,12 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          DocumentInfoXto xto, DataHandler contentHandler,
          DocumentVersionInfoXto versionXto) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          if (createMissingFolders)
          {
             ensureFolderExists(dms, folderId);
@@ -88,38 +88,39 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    public DocumentsXto createDocuments(InputDocumentsXto inputDocuments,
          Boolean createMissingFolders) throws BpmFault
    {
-      DocumentsXto docs = new DocumentsXto();
-      for (InputDocumentXto att : inputDocuments.getInputDocument())
+      try
       {
-         // TODO reject null folder?
-         try
+         DocumentsXto docs = new DocumentsXto();
+         for (InputDocumentXto att : inputDocuments.getInputDocument())
          {
+            // TODO reject null folder?
             DocumentXto doc = createDocument(att.getTargetFolder(),
                   Boolean.TRUE.equals(createMissingFolders), //
                   att.getDocumentInfo(), att.getContent(), att.getVersionInfo());
 
             docs.getDocument().add(doc);
-         }
-         catch (ApplicationException e)
-         {
-            XmlAdapterUtils.handleBPMException(e);
+
          }
 
+         return docs;
       }
-
-      return docs;
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
    }
 
    public DocumentXto getDocument(String documentId, QName metaDataType) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      Document doc = null;
-      Set<TypedXPath> metaDataXPaths = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Document doc = null;
+         Set<TypedXPath> metaDataXPaths = null;
          doc = dms.getDocument(documentId);
 
          if ((null != doc) && !isEmpty(doc.getProperties()))
@@ -133,23 +134,24 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
                metaDataXPaths = inferStructDefinition(metaDataType);
             }
          }
+         return (null != doc) ? toWs(doc, metaDataType, metaDataXPaths) : null;
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return (null != doc) ? toWs(doc, metaDataType, metaDataXPaths) : null;
+      return null;
    }
 
    public DataHandler getDocumentContent(String documentId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      Document doc = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Document doc = null;
          doc = dms.getDocument(documentId);
          if (null != doc)
          {
@@ -174,44 +176,43 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       return null;
    }
 
-   @SuppressWarnings("unchecked")
    public DocumentsXto getDocumentVersions(String documentId, QName metaDataType)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      List< ? extends Document> documents = null;
-      Set<TypedXPath> metaDataXPaths = Collections.emptySet();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         List< ? extends Document> documents = null;
+         Set<TypedXPath> metaDataXPaths = Collections.emptySet();
          documents = dms.getDocumentVersions(documentId);
 
          if (null != documents && !documents.isEmpty() && (null != metaDataType))
          {
             metaDataXPaths = inferStructDefinition(metaDataType);
          }
+         return toWs(documents, metaDataType, metaDataXPaths);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(documents, metaDataType, metaDataXPaths);
+      return null;
    }
 
-   @SuppressWarnings("unchecked")
    public DocumentsXto getDocuments(DocumentIdsXto documentIds, QName metaDataType)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      List< ? extends Document> documents = null;
-      Set<TypedXPath> metaDataXPaths = Collections.emptySet();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         List< ? extends Document> documents = null;
+         Set<TypedXPath> metaDataXPaths = Collections.emptySet();
          if (documentIds != null)
          {
             documents = dms.getDocuments(documentIds.getDocumentId());
@@ -222,25 +223,25 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
             metaDataXPaths = inferStructDefinition(metaDataType);
          }
 
+         return toWs(documents, metaDataType, metaDataXPaths);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(documents, metaDataType, metaDataXPaths);
+      return null;
    }
 
-   @SuppressWarnings("unchecked")
    public DocumentsXto findDocuments(DocumentQueryXto documentQuery) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      List< ? extends Document> documents = Collections.emptyList();
-      Set<TypedXPath> metaDataXPaths = Collections.emptySet();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         List< ? extends Document> documents = Collections.emptyList();
+         Set<TypedXPath> metaDataXPaths = Collections.emptySet();
          if (documentQuery.getNamePattern() != null)
          {
             documents = dms.findDocumentsByName(documentQuery.getNamePattern());
@@ -255,22 +256,23 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          {
             metaDataXPaths = inferStructDefinition(documentQuery.getMetaDataType());
          }
+
+         return toWs(documents, documentQuery.getMetaDataType(), metaDataXPaths);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-
-      return toWs(documents, documentQuery.getMetaDataType(), metaDataXPaths);
+      return null;
    }
 
    public String requestDocumentContentDownload(String documentId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          return dms.requestDocumentContentDownload(documentId);
       }
       catch (ApplicationException e)
@@ -282,11 +284,11 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
    public String requestDocumentContentUpload(String documentId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          return dms.requestDocumentContentUpload(documentId);
       }
       catch (ApplicationException e)
@@ -296,34 +298,35 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       return null;
    }
 
-   public DocumentXto versionDocument(String documentId, String versionComment, String versionLabel)
-         throws BpmFault
+   public DocumentXto versionDocument(String documentId, String versionComment,
+         String versionLabel) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      Document doc = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Document doc = null;
          doc = dms.versionDocument(documentId, versionComment, versionLabel);
+         return toWs(doc, (QName) null, null);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(doc, (QName) null, null);
+      return null;
    }
 
    public DocumentXto updateDocument(String documentId, DocumentInfoXto xto,
          DataHandler contentHandler, DocumentVersionInfoXto versionXto) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          QName metaDataType = null;
          Set<TypedXPath> metaDataXPaths = null;
          if (xto != null && (null != xto.getMetaData()))
@@ -334,7 +337,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
                metaDataType = QName.valueOf(xto.getDocumentType().getDocumentTypeId());
             }
             if (null != metaDataType)
-            metaDataXPaths = inferStructDefinition(metaDataType);
+               metaDataXPaths = inferStructDefinition(metaDataType);
          }
 
          DocumentInfo docInfo = fromXto(xto, metaDataXPaths);
@@ -363,7 +366,8 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
                   ? dms.updateDocument(doc, //
                         extractContentByteArray(contentHandler), /* TODO encoding? */
                         null, createVersion, versionComment, versionLabel, false)
-                  : dms.updateDocument(doc, createVersion, versionComment, versionLabel, false);
+                  : dms.updateDocument(doc, createVersion, versionComment, versionLabel,
+                        false);
 
             return toWs(doc, metaDataType, metaDataXPaths);
          }
@@ -384,11 +388,11 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
    public void removeDocument(String documentId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          dms.removeDocument(documentId);
       }
       catch (ApplicationException e)
@@ -400,34 +404,34 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    public FolderXto getFolder(String folderId, FolderLevelOfDetailXto folderLOD,
          QName documentMetaDataType, QName folderMetaDataType) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      Folder folder = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Folder folder = null;
          folder = dms.getFolder(folderId, umarshalFolderLOD(folderLOD));
+         return (null != folder) ? toWs(folder, wsEnv.getActiveModel(),
+               documentMetaDataType, folderMetaDataType) : null;
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return (null != folder) ? toWs(folder, wsEnv.getActiveModel(),
-            documentMetaDataType, folderMetaDataType) : null;
+      return null;
    }
 
-   @SuppressWarnings("unchecked")
    public FoldersXto getFolders(FolderIdsXto folderIds,
          FolderLevelOfDetailXto folderLevelOfDetail, QName documentMetaDataType,
          QName folderMetaDataType) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          if (folderIds != null)
          {
             List<Folder> folders = dms.getFolders(folderIds.getFolderId(),
@@ -447,14 +451,13 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       return null;
    }
 
-   @SuppressWarnings("unchecked")
    public FoldersXto findFolders(FolderQueryXto folderQuery) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          if (null != folderQuery)
          {
             List<Folder> folders = null;
@@ -486,48 +489,50 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    public FolderXto createFolder(String parentFolderId, FolderInfoXto folderInfo)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-      Folder folder = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+         Folder folder = null;
          folder = dms.createFolder(parentFolderId, unmarshalFolderInfo(folderInfo));
 
+         return toWs(folder, wsEnv.getActiveModel(), (QName) null, (QName) null);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(folder, wsEnv.getActiveModel(), (QName) null, (QName) null);
+      return null;
    }
 
    public FolderXto updateFolder(FolderXto updateFolder) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-      Folder folder = null;
-      Model model = wsEnv.getActiveModel();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+         Folder folder = null;
+         Model model = wsEnv.getActiveModel();
          folder = dms.updateFolder(unmarshalFolder(updateFolder, model, wsEnv));
 
+         return toWs(folder, model, null, updateFolder.getMetaDataType());
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return toWs(folder, model, null, updateFolder.getMetaDataType());
+      return null;
    }
 
    public void removeFolder(String folderId, Boolean recursive) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          dms.removeFolder(folderId, recursive == null ? false : recursive);
       }
       catch (ApplicationException e)
@@ -538,11 +543,11 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
    public PrivilegesXto getPrivileges(String resourceId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
          return XmlAdapterUtils.marshalPrivilegeList(dms.getPrivileges(resourceId));
       }
       catch (ApplicationException e)
@@ -555,14 +560,14 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    public AccessControlPoliciesXto getPolicies(String resourceId,
          PolicyScopeXto policyScope) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      Set<AccessControlPolicy> ret = null;
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Set<AccessControlPolicy> ret = null;
+
          if (policyScope != null)
          {
             switch (policyScope)
@@ -582,22 +587,23 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          {
             ret = dms.getPolicies(resourceId);
          }
+         return XmlAdapterUtils.marshalAccessControlPolicyList(ret);
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return XmlAdapterUtils.marshalAccessControlPolicyList(ret);
+      return null;
    }
 
    public void setPolicy(String resourceId, AccessControlPolicyXto accessControlPolicy)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
 
          dms.setPolicy(resourceId, XmlAdapterUtils.fromWs(accessControlPolicy));
       }
@@ -610,12 +616,12 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    public RepositoryMigrationReportXto migrateRepository(int batchSize,
          boolean evaluateTotalCount, String repositoryId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
       try
       {
-        return toWs(dms.migrateRepository(batchSize, evaluateTotalCount, repositoryId));
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+         return toWs(dms.migrateRepository(batchSize, evaluateTotalCount, repositoryId));
       }
       catch (ApplicationException e)
       {
@@ -626,11 +632,11 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
    public DocumentTypeResultsXto getDocumentTypes(String modelId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      ServiceFactory sf = wsEnv.getServiceFactory();
-      QueryService qs = sf.getQueryService();
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         ServiceFactory sf = wsEnv.getServiceFactory();
+         QueryService qs = sf.getQueryService();
          DeployedModelQuery modelQuery = DeployedModelQuery.findInState(DeployedModelState.VALID);
          if ( !StringUtils.isEmpty(modelId))
          {
@@ -638,7 +644,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          }
          Models models = qs.getModels(modelQuery);
 
-         Map<Integer,Model> modelCache = new HashMap<Integer,Model>();
+         Map<Integer, Model> modelCache = new HashMap<Integer, Model>();
          for (DeployedModelDescription md : models)
          {
             Model model = wsEnv.getModel(md.getModelOID());
@@ -648,14 +654,16 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          DocumentTypeResultsXto results = new DocumentTypeResultsXto();
          for (DeployedModelDescription md : models)
          {
-            List<DocumentType> declaredDocumentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(modelCache.get(md.getModelOID()), modelCache);
+            List<DocumentType> declaredDocumentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(
+                  modelCache.get(md.getModelOID()), modelCache);
             if (declaredDocumentTypes != null && !declaredDocumentTypes.isEmpty())
             {
-               XmlAdapterUtils.marshalDocumentTypeResult(results, md.getId(), Integer.valueOf(md.getModelOID()), declaredDocumentTypes);
+               XmlAdapterUtils.marshalDocumentTypeResult(results, md.getId(),
+                     Integer.valueOf(md.getModelOID()), declaredDocumentTypes);
             }
          }
 
-        return results;
+         return results;
       }
       catch (ApplicationException e)
       {
@@ -666,39 +674,41 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
    public XmlValueXto getDocumentTypeSchema(String schemaLocation) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      XmlValueXto xto = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         XmlValueXto xto = null;
          byte[] schemaDefinition = dms.getSchemaDefinition(schemaLocation);
          if (schemaDefinition != null)
          {
             xto = new XmlValueXto();
 
-            xto.getAny().add(XmlUtils.parseString(new String(schemaDefinition)).getDocumentElement());
+            xto.getAny()
+                  .add(XmlUtils.parseString(new String(schemaDefinition))
+                        .getDocumentElement());
          }
+         return xto;
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-
-      return xto;
+      return null;
    }
 
    @Override
    public void bindRepository(RepositoryConfigurationXto repositoryConfiguration)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          dms.bindRepository(fromWs(repositoryConfiguration));
       }
       catch (ApplicationException e)
@@ -710,12 +720,12 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    @Override
    public void unbindRepository(String repositoryId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          dms.unbindRepository(repositoryId);
       }
       catch (ApplicationException e)
@@ -727,50 +737,50 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    @Override
    public RepositoryInstanceInfosXto getRepositoryInstanceInfos() throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      RepositoryInstanceInfosXto xto = null;
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         RepositoryInstanceInfosXto xto = null;
          xto = XmlAdapterUtils.marshalRepositoryInstanceInfos(dms.getRepositoryInstanceInfos());
+         return xto;
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return xto;
+      return null;
    }
 
    @Override
    public RepositoryProviderInfosXto getRepositoryProviderInfos() throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      RepositoryProviderInfosXto xto = null;
       try
       {
-         xto = XmlAdapterUtils.marshalRepositoryProviderInfos(dms.getRepositoryProviderInfos());
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         return XmlAdapterUtils.marshalRepositoryProviderInfos(dms.getRepositoryProviderInfos());
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return xto;
+      return null;
    }
 
    @Override
    public void setDefaultRepository(String repositoryId) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
          dms.setDefaultRepository(repositoryId);
       }
       catch (ApplicationException e)
@@ -782,21 +792,19 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
    @Override
    public String getDefaultRepository() throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      DocumentManagementService dms = wsEnv.getServiceFactory()
-            .getDocumentManagementService();
-
-      String repositoryId = null;
       try
       {
-         repositoryId = dms.getDefaultRepository();
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         return dms.getDefaultRepository();
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
       }
-      return repositoryId;
+      return null;
    }
-
 
 }

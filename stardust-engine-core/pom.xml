@@ -263,12 +263,6 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>com.thoughtworks.qdox</groupId>
-         <artifactId>qdox</artifactId>
-         <scope>compile</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
          <groupId>org.apache.tika</groupId>
          <artifactId>tika-parsers</artifactId>
          <scope>runtime</scope>
@@ -591,11 +585,17 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <excludes>
-                  <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
-               </excludes>
-            </configuration>
+            <executions>
+               <execution>
+                  <id>default-compile</id>
+                  <configuration>
+                     <excludes>
+                        <exclude>org/eclipse/stardust/**/ejb2/tools/*.java</exclude>
+                        <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
+                     </excludes>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
          <plugin>
             <artifactId>maven-jar-plugin</artifactId>
@@ -1002,5 +1002,72 @@
          </plugin>
       </plugins>
    </build>
+   
+   <profiles>
+      <profile>
+         <id>codegen</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>com.thoughtworks.qdox</groupId>
+               <artifactId>qdox</artifactId>
+               <scope>compile</scope>
+            </dependency>
+         </dependencies>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>compile-codegen</id>
+                        <!-- generate-sources would be better as process-sources but then 
+                              compile-codegen is invoked twice (IMO maven-source-plugin is 
+                              triggering the second compile-codegen execution)-->
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                           <outputDirectory>${project.build.directory}/codegen-classes</outputDirectory>
+                           <excludes>
+                              <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
+                           </excludes>
+                           <!-- All Java classes of stardust-engine-core are needed for CodeGen;
+                                 therefore we cannot only compile the CodeGen class
+                           <includes>
+                              <include>**/api/ejb2/tools/**</include>
+                           </includes>
+                           -->
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>codegen-execution</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>java</goal>
+                        </goals>
+                        <configuration>
+                           <mainClass>org.eclipse.stardust.engine.api.ejb2.tools.CodeGen</mainClass>
+                           <additionalClasspathElements>
+                              <additionalClasspathElement>${project.build.directory}/codegen-classes</additionalClasspathElement>
+                           </additionalClasspathElements>
+                           <commandlineArgs>${basedir}/src/main/java</commandlineArgs>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 
 </project>

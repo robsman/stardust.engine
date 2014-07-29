@@ -192,4 +192,46 @@
          </plugin>
       </plugins>
    </build>
+   
+   <profiles>
+      <profile>
+         <id>codegen</id>
+         <properties>
+            <wsdl.dir>${basedir}/src/main/resources/META-INF/wsdl</wsdl.dir>
+         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>jaxb2-maven-plugin</artifactId>
+                  <version>1.6</version>
+                  <configuration>
+                     <target>2.1</target>
+                     <outputDirectory>src/main/java</outputDirectory>
+                     <verbose>true</verbose>
+                  </configuration>
+                  <executions>
+                     <execution>
+                        <id>xjc</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                           <schemaDirectory>${wsdl.dir}</schemaDirectory>
+                           <schemaFiles>StardustBpmTypes.xsd</schemaFiles>
+                           <extension>true</extension>
+                           <bindingDirectory>${wsdl.dir}</bindingDirectory>
+                           <bindingFiles>StardustBpmTypes-binding.xml</bindingFiles>
+                           <arguments>-episode ${wsdl.dir}/StardustBpmTypes-episode.xml</arguments>
+                           <packageName>org.eclipse.stardust.engine.api.ws</packageName>
+                           <clearOutputDir>false</clearOutputDir>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

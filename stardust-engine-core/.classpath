@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="org/eclipse/stardust/**/test/**/*.java" kind="src" output="target/classes" path="src/main/java">
+	<classpathentry excluding="org/eclipse/stardust/**/ejb2/tools/*.java|org/eclipse/stardust/**/test/**/*.java" kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

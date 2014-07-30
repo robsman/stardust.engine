@@ -1,5 +1,9 @@
 package org.eclipse.stardust.engine.extensions.camel;
-
+/**
+ * 
+ * @deprecated
+ *
+ */
 public class BeanProperty
 {
    private String propertyName;

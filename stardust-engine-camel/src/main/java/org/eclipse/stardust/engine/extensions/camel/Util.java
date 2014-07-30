@@ -65,7 +65,8 @@ public class Util
    }
    
    /**
-    * copy the content of the exchange from In to Out
+    * copy the content of the IN Message to the Out Message. 
+    * The headers, attachments and the body are copied.
     * @param exchange
     */
    public static void copyInToOut(Exchange exchange)
@@ -74,7 +75,11 @@ public class Util
       exchange.getOut().setHeaders(exchange.getIn().getHeaders());
       exchange.getOut().setBody(exchange.getIn().getBody());
    }
-   
+   /**
+    * copy the content of the IN Message to the Out Message and set outBody
+    * The headers, attachments and the body are copied.
+    * @param exchange
+    */
    public static void copyInToOut(Exchange exchange, Object outBOdy)
    {
       exchange.getOut().setAttachments(exchange.getIn().getAttachments());

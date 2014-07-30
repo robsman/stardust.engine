@@ -74,6 +74,10 @@ public class ProcessEndpointTest
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
+      ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      sf.getAdministrationService().cleanupRuntimeAndModels();
+
+      
       try
       {
          camelContext.addRoutes(createFullRoute());
@@ -373,11 +377,10 @@ public class ProcessEndpointTest
       startData.put(DATA_ID_TEST_DATA, createTestDataSDT(kvId, kvName));
 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      WorkflowService wfService = sf.getWorkflowService();
+      QueryService qService = sf.getQueryService();
       try
       {
-         WorkflowService wfService = sf.getWorkflowService();
-         QueryService qService = sf.getQueryService();
-
          // First process ends up hibernated
          ProcessInstance pi = wfService.startProcess(PROCESS_ID_WAITING_ACTIVITIES, null, true);
          piOid1 = pi.getOID();
@@ -395,21 +398,28 @@ public class ProcessEndpointTest
       // Test 1 is a search to confirm the expected state of a known OID
       uri = "ipp:process:find?processInstanceOid="+piOid2 + "&state=completed";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      ProcessInstances result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
-      assertEquals(1, result.size());
+      ProcessInstance pi = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      assertNotNull(pi);
      
       // Test 2 searches for hibernated processes by ID
-      uri = "ipp:process:find?processId="+PROCESS_ID_WAITING_ACTIVITIES + "&state=active";
+      uri = "ipp:process:find?processId="+PROCESS_ID_WAITING_ACTIVITIES + "&state=active&expectedResultSize=1";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
-      assertTrue(result.size()>0);
+      pi =exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      assertNotNull(pi);
 
+       wfService.startProcess(PROCESS_ID_WAITING_ACTIVITIES, null, true);
+      // Test 2 searches for hibernated processes by ID
+      uri = "ipp:process:find?processId="+PROCESS_ID_WAITING_ACTIVITIES + "&state=active&expectedResultSize=2";
+      exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
+      ProcessInstances pis = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
+      assertTrue(pis.size()==2);
+      
       // Test 3 searches for processes with a data filter
       uri = "ipp:process:find?dataFilters=" + DATA_ID_TEST_DATA + ".id::" + kvId + "::long," + DATA_ID_TEST_DATA + ".name::" + kvName;
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
-      assertEquals(1, result.size());
-      assertEquals(piOid2, result.get(0).getOID());
+      ProcessInstance result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      assertNotNull(result);
+      assertEquals(piOid2, result.getOID());
 
       // Test 4 repeats test 3, but using a map from the message header
       headerMap = new HashMap<String,Object>();
@@ -419,9 +429,9 @@ public class ProcessEndpointTest
       headerMap.put("processDataFilters", filters);
       uri = "ipp:process:find?dataFiltersMap=$simple{header.processDataFilters}";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
-      assertEquals(1, result.size());
-      assertEquals(piOid2, result.get(0).getOID());
+      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      assertNotNull(result);
+      assertEquals(piOid2, result.getOID());
 
       ClientEnvironment.removeCurrent();
    }

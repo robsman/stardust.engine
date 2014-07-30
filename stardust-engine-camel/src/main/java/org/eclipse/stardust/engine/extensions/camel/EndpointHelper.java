@@ -44,7 +44,7 @@ public class EndpointHelper
          
       return answer;
    }
-
+   @Deprecated
    public static String replaceCharacterByHtmlCode(final String input)
    {
       String answer = input;

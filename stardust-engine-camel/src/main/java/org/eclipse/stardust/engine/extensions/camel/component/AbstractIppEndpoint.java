@@ -1,6 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.*;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.EXPECTED_RESULT_SIZE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_INSTANCE_OID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_INSTANCE_PROPERTIES;
@@ -12,6 +13,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.impl.DefaultEndpoint;
+
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -44,6 +46,7 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
 
    protected Expression dataFiltersMap;
 
+   protected Long expectedResultSize;
    /**
     * @param uri
     * @param component
@@ -303,5 +306,36 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
          throw new IllegalStateException("Missing required process instance properties.");
       }
       return filters;
+   }
+   
+   /**
+    * Returns the value of ExpectedResultSize on the given exchange
+    * 
+    * @param exchange
+    * @param strict
+    *           flag
+    * @return ExpectedResultSize
+    */
+   public Long evaluateExpectedResultSize(Exchange exchange, boolean strict)
+   {
+      if (null != this.expectedResultSize)
+      {
+         return this.expectedResultSize;
+      }
+      else
+      {
+         Long expectedResultSize = exchange.getIn().getHeader(EXPECTED_RESULT_SIZE, Long.class);
+         return expectedResultSize;
+      }
+   }
+
+   public Long getExpectedResultSize()
+   {
+      return expectedResultSize;
+   }
+
+   public void setExpectedResultSize(Long expectedResultSize)
+   {
+      this.expectedResultSize = expectedResultSize;
    }
 }

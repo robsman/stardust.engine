@@ -2,7 +2,6 @@ package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_INSTANCE_OID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.EXPECTED_RESULT_SIZE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Activity.COMMAND_COMPLETE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Activity.COMMAND_FIND;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
@@ -24,7 +23,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
 
    protected Expression activityId;
    protected Expression activityInstanceOid;
-   protected Long expectedResultSize;
+  
    protected String state;
    protected String states;
    private ActivityInstanceState[] activityInstanceStates;
@@ -212,36 +211,5 @@ public class ActivityEndpoint extends AbstractIppEndpoint
          LOG.warn("Unknown ActivityInstanceState specified: " + state);
          return null;
       }
-   }
-
-   /**
-    * Returns the value of ExpectedResultSize on the given exchange
-    * 
-    * @param exchange
-    * @param strict
-    *           flag
-    * @return ExpectedResultSize
-    */
-   public Long evaluateExpectedResultSize(Exchange exchange, boolean strict)
-   {
-      if (null != this.expectedResultSize)
-      {
-         return this.expectedResultSize;
-      }
-      else
-      {
-         Long expectedResultSize = exchange.getIn().getHeader(EXPECTED_RESULT_SIZE, Long.class);
-         return expectedResultSize;
-      }
-   }
-
-   public Long getExpectedResultSize()
-   {
-      return expectedResultSize;
-   }
-
-   public void setExpectedResultSize(Long expectedResultSize)
-   {
-      this.expectedResultSize = expectedResultSize;
    }
 }

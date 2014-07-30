@@ -18,16 +18,14 @@ public final class CamelConstants
    public static final String ENDPOINT_PREFIX = NEW_LINE+"<to uri=\"";
    public static final String ENDPOINT_SUFFIX = "\"/>";
    public static final String QUOTATION = "\"";
-   public static final String ROUTE_START = "<route ";
-   public static final String ROUTE_END = "</route>";
    public static final String ACCESS_POINT_MESSAGE = "message";
    public static final String ACCESS_POINT_HEADERS = "headers";
    public static final String DOCUMENT_LIST = "dmsDocumentList";
    public static final String DOCUMENT = "dmsDocument";
    public static final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
-   public static final String SEND_METHOD = "executeMessage(java.lang.Object)"; //$NON-NLS-1$
-   public static final String SEND_METHOD_WITH_HEADER = "executeMessage(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; //$NON-NLS-1$
-   public static final String SEND_RECEIVE_METHOD_WITH_HEADER = "sendBodyInOut(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; //$NON-NLS-1$
+   public static final String SEND_METHOD = "executeMessage(java.lang.Object)"; 
+   public static final String SEND_METHOD_WITH_HEADER = "executeMessage(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; 
+   public static final String SEND_RECEIVE_METHOD_WITH_HEADER = "sendBodyInOut(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; 
    
    public static final String SPRING_XML_ROUTES_HEADER = LESS_THAN_SIGN+"routes xmlns=\"http"+COLON+"//camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""+GREATER_THAN_SIGN+"";
    public static final String SPRING_XML_ROUTES_FOOTER = LESS_THAN_SIGN+"/routes"+GREATER_THAN_SIGN+"";
@@ -45,22 +43,22 @@ public final class CamelConstants
    public static final String IPP_AUTHENTICATE_TAG = "ipp"+COLON+"authenticate";
 
    public static final String CAMEL_TRIGGER_TYPE = "camel";
-   public static final String CAMEL_SCOPE = PredefinedConstants.ENGINE_SCOPE + "camel"+COLON; //$NON-NLS-1$
+   public static final String CAMEL_SCOPE = PredefinedConstants.ENGINE_SCOPE + "camel"+COLON; 
    public static final String ENRICHER_CLASSNAME= "org.eclipse.stardust.engine.extensions.camel.enricher.MapAppenderProcessor";
    
-   public static final String PRODUCER_METHOD_NAME_ATT = CAMEL_SCOPE + ""+COLON+"producerMethodName"; //$NON-NLS-1$
-   public static final String INVOCATION_TYPE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"invocationType"; //$NON-NLS-1$
-   public static final String ADDITIONAL_SPRING_BEANS_DEF_ATT = CAMEL_SCOPE + ""+COLON+"additionalSpringBeanDefinitions"; //$NON-NLS-1$
-   public static final String CAMEL_CONTEXT_ID_ATT = CAMEL_SCOPE + ""+COLON+"camelContextId"; //$NON-NLS-1$
-   public static final String PRODUCER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"routeEntries"; //$NON-NLS-1$
-   public static final String CONSUMER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"consumerRoute"; //$NON-NLS-1$
-   public static final String PRODUCER_BPM_TYPE_CONVERTER = CAMEL_SCOPE + ""+COLON+"producerBpmTypeConverter"; //$NON-NLS-1$
-   public static final String PRODUCER_OUTBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"producerOutboundConversion"; //$NON-NLS-1$
-   public static final String PRODUCER_INBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"producerInboundConversion"; //$NON-NLS-1$
-   public static final String CONSUMER_BPM_TYPE_CONVERTER = CAMEL_SCOPE + ""+COLON+"consumerBpmTypeConverter"; //$NON-NLS-1$
-   public static final String CONSUMER_INBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"consumerInboundConversion"; //$NON-NLS-1$
-   public static final String BODY_PARAM_ATT = CAMEL_SCOPE + ""+COLON+"exchange"+COLON+"body"; //$NON-NLS-1$
-   public static final String ENDPOINT_URI_ATT = CAMEL_SCOPE + ""+COLON+"endpointURI"; //$NON-NLS-1$
+   public static final String PRODUCER_METHOD_NAME_ATT = CAMEL_SCOPE + ""+COLON+"producerMethodName"; 
+   public static final String INVOCATION_TYPE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"invocationType"; 
+   public static final String ADDITIONAL_SPRING_BEANS_DEF_ATT = CAMEL_SCOPE + ""+COLON+"additionalSpringBeanDefinitions"; 
+   public static final String CAMEL_CONTEXT_ID_ATT = CAMEL_SCOPE + ""+COLON+"camelContextId"; 
+   public static final String PRODUCER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"routeEntries"; 
+   public static final String CONSUMER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"consumerRoute"; 
+   public static final String PRODUCER_BPM_TYPE_CONVERTER = CAMEL_SCOPE + ""+COLON+"producerBpmTypeConverter"; 
+   public static final String PRODUCER_OUTBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"producerOutboundConversion"; 
+   public static final String PRODUCER_INBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"producerInboundConversion"; 
+   public static final String CONSUMER_BPM_TYPE_CONVERTER = CAMEL_SCOPE + ""+COLON+"consumerBpmTypeConverter"; 
+   public static final String CONSUMER_INBOUND_CONVERSION = CAMEL_SCOPE + ""+COLON+"consumerInboundConversion"; 
+   public static final String BODY_PARAM_ATT = CAMEL_SCOPE + ""+COLON+"exchange"+COLON+"body"; 
+   public static final String ENDPOINT_URI_ATT = CAMEL_SCOPE + ""+COLON+"endpointURI"; 
    public static final String ENDPOINT_TYPE_CLASS_ATT = CAMEL_SCOPE + ""+COLON+"endpointTypeClass";
    public static final String ROUTE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"camelRouteExt";
    public static final String CORRELATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ""+COLON+"correlationPattern";
@@ -77,7 +75,7 @@ public final class CamelConstants
    public static final String CAT_HEADERS_OUT_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"outputHeadersAccessPoint";
    
 
-   public static final String METHOD_PARAMETER_PREFIX = "Param"; //$NON-NLS-1$
+   public static final String METHOD_PARAMETER_PREFIX = "Param"; 
    public static final String GENERIC_ENDPOINT_KEY = "Generic Endpoint";
    public static final String FILE_ENDPOINT_KEY = "File";
    public static final String JMS_ENDPOINT_KEY = "Jms";
@@ -103,6 +101,7 @@ public final class CamelConstants
     * @param map
     * @param value
     * @return
+    * @deprecated will be removed with 8.1
     */
    public static String getKeyByValue(Map<String, String> map, String value)
    {
@@ -118,8 +117,9 @@ public final class CamelConstants
 
    private CamelConstants()
    {}
-    
-   
+   /** 
+   *@deprecated will be removed with 8.1
+   */
    public static final class CorrelationValue
    {
       public static final String PROCESS = "process";
@@ -168,13 +168,11 @@ public final class CamelConstants
          public static final String COMMAND_FIND = "find";
          public static final String COMMAND_SPAWN_SUB_PROCESS="spawnSubprocess";
       }
-
       public static final class Authenticate
       {
          public static final String COMMAND_SET_CURRENT = "setCurrent";
          public static final String COMMAND_REMOVE_CURRENT = "removeCurrent";
       }
-
       public static final class Activity
       {
          public static final String COMMAND_FIND = "find";
@@ -186,10 +184,8 @@ public final class CamelConstants
          
       }
    }
-
    public static final class MessageProperty
    {
-
          public static final String PROCESS_ID = "ippProcessId";
          public static final String MODEL_ID = "ippModelId";
          public static final String ACTIVITY_INSTANCE_OID = "ippActivityInstanceOid";
@@ -207,7 +203,7 @@ public final class CamelConstants
          public static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";//TODO use constant for attachments key declared in IPP
          public static final String ACTIVITY_ID = "ippActivityId";
          public static final String APPLICATION_ID = "ippApplicationId";
-		 public static final String TRIGGER_ID = "ippTriggerId";
+         public static final String TRIGGER_ID = "ippTriggerId";
          public static final String DATA_ID = "ippDataId";
          public static final String DATA_MAP_ID = "ippDataFilterMap";
          public static final String ATTRIBUTE_NAME= "ippAttributeName";

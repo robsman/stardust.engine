@@ -1146,8 +1146,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          if (isAiQueryOnWorkItem)
          {
             // Workitems do not exists for completed AIs, therefore testing for being on user worklist it enough.
-            resultTerm = Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND,
-                  PerformerType.USER);
+            resultTerm = Predicates.isNull(WorkItemBean.FR__PERFORMER);
          }
          else
          // if (isAiQuery) should always evaluate to true here.

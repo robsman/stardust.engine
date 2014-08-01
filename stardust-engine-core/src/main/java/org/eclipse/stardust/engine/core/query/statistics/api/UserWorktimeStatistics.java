@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,6 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.Users;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 
 
@@ -46,7 +46,7 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
    {
       return (WorktimeStatistics) worktimeStatistics.get(Long.valueOf(userOid));
    }
-   
+
    public Set getAvailableUserOids()
    {
       return Collections.unmodifiableSet(worktimeStatistics.keySet());
@@ -70,7 +70,7 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
 
          this.contributions = CollectionUtils.newList();
       }
-      
+
       public int getContributionIndex(String processId,
             ParticipantInfo onBehalfOfParticipant)
       {
@@ -78,7 +78,7 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
          {
             Contribution contrib = contributions.get(i);
             if (CompareHelper.areEqual(contrib.processId, processId)
-                  && ParticipantInfoHelper.areEqual(contrib.onBehalfOfParticipant, 
+                  && ParticipantInfoHelper.areEqual(contrib.onBehalfOfParticipant,
                         onBehalfOfParticipant))
             {
                return i;
@@ -95,68 +95,67 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
          int index = getContributionIndex(processId, onBehalfOfParticipant);
          if(index == -1)
          {
-            contribution = new Contribution(processId, onBehalfOfParticipant, null, 0);
+            contribution = new Contribution(processId, onBehalfOfParticipant);
             this.contributions.add(contribution);
          }
          else
          {
             contribution = this.contributions.get(index);
          }
-         
+
          return contribution;
 
       }
 
-      @Deprecated
-      public Contribution findContribution(String processId,
-            PerformerType onBehalfOfKind, long onBehalfOfOid)
-      {
-         ParticipantInfo performer = ParticipantInfoHelper.getLegacyParticipantInfo(
-               onBehalfOfKind, onBehalfOfOid);
-         return findContribution(processId, performer);
-      }
    }
 
    public static class Contribution implements Serializable
    {
       private static final long serialVersionUID = 1l;
 
-      public final String processId;
+      private final String processId;
 
-      @Deprecated
-      public final PerformerType onBehalfOfKind;
+      private final ParticipantInfo onBehalfOfParticipant;
 
-      @Deprecated
-      public final long onBehalfOf;
-      
-      public final ParticipantInfo onBehalfOfParticipant;
+      private final Map<DateRange, ContributionInInterval> contributionsInIntervals = new LinkedHashMap();
 
-      public final ContributionInInterval contributionToday;
-
-      public final ContributionInInterval contributionThisWeek;
-
-      public final ContributionInInterval contributionLastWeek;
-
-      public final ContributionInInterval contributionThisMonth;
-
-      public final ContributionInInterval contributionLastMonth;
-
-      public Contribution(String processId, ParticipantInfo onBehalfOfParticipant,
-            PerformerType onBehalfOfKind, long onBehalfOf)
+      public Contribution(String processId, ParticipantInfo onBehalfOfParticipant)
       {
          this.processId = processId;
-         
-         this.onBehalfOfKind = onBehalfOfKind;
-         this.onBehalfOf = onBehalfOf;
          this.onBehalfOfParticipant = onBehalfOfParticipant;
-
-         this.contributionToday = new ContributionInInterval();
-         this.contributionThisWeek = new ContributionInInterval();
-         this.contributionLastWeek = new ContributionInInterval();
-         this.contributionThisMonth = new ContributionInInterval();
-         this.contributionLastMonth = new ContributionInInterval();
       }
-      
+
+      public ContributionInInterval getOrCreateContributionInInterval(DateRange dateRange)
+      {
+         ContributionInInterval contributionInInterval = contributionsInIntervals.get(dateRange);
+         if (contributionInInterval == null)
+         {
+            contributionInInterval = new ContributionInInterval();
+            contributionsInIntervals.put(dateRange, contributionInInterval);
+         }
+         return contributionInInterval;
+      }
+
+      public ContributionInInterval getContributionInInterval(DateRange dateRange)
+      {
+         return contributionsInIntervals.get(dateRange);
+      }
+
+      public Map<DateRange, ContributionInInterval> getAllContributionsInIntervals()
+      {
+         return Collections.unmodifiableMap(contributionsInIntervals);
+      }
+
+      public ParticipantInfo getOnBehalfOfParticipant()
+      {
+         return onBehalfOfParticipant;
+      }
+
+      public String getProcessId()
+      {
+         return processId;
+      }
+
    }
 
    public static class ContributionInInterval implements Serializable
@@ -166,26 +165,76 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
       /**
        * The number of PIs the user contributed to on behalf of a specific role.
        */
-      public int nPis;
+      private int nPis;
 
       /**
        * The number of AIs the user contributed to on behalf of a specific role.
        */
-      public int nAis;
+      private int nAis;
 
       /**
        * The amount of time the user spent working on behalf of a specific role.
        */
-      public Date timeSpent = new Date(0l);
+      private Date timeSpent = new Date(0l);
 
       /**
        * The cost the user created working on behalf of a specific role.
        */
-      public double cost;
+      private double cost;
 
-      public InstancesStoplightHistogram criticalByProcessingTime = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram criticalByProcessingTime = new InstancesStoplightHistogram();
 
-      public InstancesStoplightHistogram criticalByExecutionCost = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram criticalByExecutionCost = new InstancesStoplightHistogram();
+
+      public int getnPis()
+      {
+         return nPis;
+      }
+
+      public void addnPis(int increment)
+      {
+         this.nPis += increment;
+      }
+
+      public int getnAis()
+      {
+         return nAis;
+      }
+
+      public void addnAis(int increment)
+      {
+         this.nAis += increment;
+      }
+
+      public Date getTimeSpent()
+      {
+         return timeSpent;
+      }
+
+      public void addTimeSpent(long duration)
+      {
+         this.timeSpent.setTime(this.timeSpent.getTime() + duration);
+      }
+
+      public double getCost()
+      {
+         return cost;
+      }
+
+      public void addCost(double toAddCost)
+      {
+         this.cost += toAddCost;
+      }
+
+      public InstancesStoplightHistogram getCriticalByProcessingTime()
+      {
+         return criticalByProcessingTime;
+      }
+
+      public InstancesStoplightHistogram getCriticalByExecutionCost()
+      {
+         return criticalByExecutionCost;
+      }
 
    }
 

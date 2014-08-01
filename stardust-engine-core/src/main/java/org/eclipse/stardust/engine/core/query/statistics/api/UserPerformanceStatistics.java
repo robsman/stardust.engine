@@ -11,13 +11,14 @@
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.Users;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 
 
@@ -70,7 +71,7 @@ public abstract class UserPerformanceStatistics extends CustomUserQueryResult
 
          this.contributions = CollectionUtils.newList();
       }
-      
+
       public int getContributionIndex(ParticipantInfo onBehalfOfParticipant)
       {
          for (int i = 0; i < contributions.size(); ++i)
@@ -90,23 +91,14 @@ public abstract class UserPerformanceStatistics extends CustomUserQueryResult
          int index = getContributionIndex(onBehalfOfParticipant);
          if(index == -1)
          {
-            contribution = new Contribution(onBehalfOfParticipant, null, 0);
+            contribution = new Contribution(onBehalfOfParticipant);
             this.contributions.add(contribution);
          }
          else
          {
-            contribution = this.contributions.get(index);            
+            contribution = this.contributions.get(index);
          }
          return contribution;
-      }
-
-      @Deprecated
-      public Contribution findContribution(PerformerType onBehalfOfKind,
-            long onBehalfOfOid)
-      {
-         ParticipantInfo performer = ParticipantInfoHelper.getLegacyParticipantInfo(
-               onBehalfOfKind, onBehalfOfOid);
-         return findContribution(performer);
       }
    }
 
@@ -114,38 +106,42 @@ public abstract class UserPerformanceStatistics extends CustomUserQueryResult
    {
       private static final long serialVersionUID = 1l;
 
-      @Deprecated
-      public final PerformerType onBehalfOfKind;
+      private final ParticipantInfo onBehalfOfParticipant;
 
-      @Deprecated
-      public final long onBehalfOf;
-      
-      public final ParticipantInfo onBehalfOfParticipant;
+      private final Map<DateRange, PerformanceInInterval> performancesInIntervals = new LinkedHashMap();
 
-      public final PerformanceInInterval performanceToday;
 
-      public final PerformanceInInterval performanceThisWeek;
-
-      public final PerformanceInInterval performanceLastWeek;
-
-      public final PerformanceInInterval performanceThisMonth;
-
-      public final PerformanceInInterval performanceLastMonth;
-
-      public Contribution(ParticipantInfo onBehalfOfParticipant, 
-            PerformerType onBehalfOfKind, long onBehalfOf)
+      public Contribution(ParticipantInfo onBehalfOfParticipant)
       {
-         this.onBehalfOfKind = onBehalfOfKind;
-         this.onBehalfOf = onBehalfOf;
          this.onBehalfOfParticipant = onBehalfOfParticipant;
-
-         this.performanceToday = new PerformanceInInterval();
-         this.performanceThisWeek = new PerformanceInInterval();
-         this.performanceLastWeek = new PerformanceInInterval();
-         this.performanceThisMonth = new PerformanceInInterval();
-         this.performanceLastMonth = new PerformanceInInterval();
       }
-      
+
+      public PerformanceInInterval getOrCreatePerformanceInInterval(DateRange dateRange)
+      {
+         PerformanceInInterval performanceInInterval = performancesInIntervals.get(dateRange);
+         if (performanceInInterval == null)
+         {
+            performanceInInterval = new PerformanceInInterval();
+            performancesInIntervals.put(dateRange, performanceInInterval);
+         }
+         return performanceInInterval;
+      }
+
+      public PerformanceInInterval getPerformanceInInterval(DateRange dateRange)
+      {
+         return performancesInIntervals.get(dateRange);
+      }
+
+      public Map<DateRange, PerformanceInInterval> getAllPerformancesInIntervals()
+      {
+         return Collections.unmodifiableMap(performancesInIntervals);
+      }
+
+      public ParticipantInfo getOnBehalfOfParticipant()
+      {
+         return onBehalfOfParticipant;
+      }
+
    }
 
    public static class PerformanceInInterval implements Serializable
@@ -155,20 +151,61 @@ public abstract class UserPerformanceStatistics extends CustomUserQueryResult
       /**
        * The number of PIs the user completed AIs in on behalf of a specific role.
        */
-      public int nPisAffected;
+      private int nPisAffected;
 
       /**
        * The number of AIs the user completed on behalf of a specific role.
        */
-      public int nAisCompleted;
+      private int nAisCompleted;
 
-      public InstancesStoplightHistogram yellowByProcessingTime = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram yellowByProcessingTime = new InstancesStoplightHistogram();
 
-      public InstancesStoplightHistogram redByProcessingTime = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram redByProcessingTime = new InstancesStoplightHistogram();
 
-      public InstancesStoplightHistogram yellowByInstanceCostTime = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram yellowByInstanceCostTime = new InstancesStoplightHistogram();
 
-      public InstancesStoplightHistogram redByInstanceCostTime = new InstancesStoplightHistogram();
+      private InstancesStoplightHistogram redByInstanceCostTime = new InstancesStoplightHistogram();
+
+      public int getnPisAffected()
+      {
+         return nPisAffected;
+      }
+
+      public void addnPisAffected(int increment)
+      {
+         this.nPisAffected += increment;
+      }
+
+      public int getnAisCompleted()
+      {
+         return nAisCompleted;
+      }
+
+      public void addnAisCompleted(int increment)
+      {
+         this.nAisCompleted += increment;
+      }
+
+      public InstancesStoplightHistogram getYellowByProcessingTime()
+      {
+         return yellowByProcessingTime;
+      }
+
+      public InstancesStoplightHistogram getRedByProcessingTime()
+      {
+         return redByProcessingTime;
+      }
+
+      public InstancesStoplightHistogram getYellowByInstanceCostTime()
+      {
+         return yellowByInstanceCostTime;
+      }
+
+      public InstancesStoplightHistogram getRedByInstanceCostTime()
+      {
+         return redByInstanceCostTime;
+      }
+
    }
 
 }

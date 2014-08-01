@@ -12,8 +12,11 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
-final class DateRange
+import org.eclipse.stardust.engine.core.query.statistics.api.DateRange;
+
+final public class DateRangeHelper
 {
    final Date now;
    final Date beginOfDay;
@@ -21,8 +24,8 @@ final class DateRange
    final Date beginOfLastWeek;
    final Date beginOfThisMonth;
    final Date beginOfLastMonth;
-   
-   public DateRange()
+
+   public DateRangeHelper()
    {
       this.now = new Date();
       final Calendar cal = Calendar.getInstance();
@@ -33,23 +36,23 @@ final class DateRange
       cal.set(Calendar.SECOND, 0);
       cal.set(Calendar.MILLISECOND, 0);
       this.beginOfDay = cal.getTime();
-      
+
       cal.setTime(beginOfDay);
       cal.setFirstDayOfWeek(Calendar.MONDAY);
       cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
       this.beginOfThisWeek = cal.getTime();
-      
+
       cal.add(Calendar.WEEK_OF_YEAR, -1);
       this.beginOfLastWeek = cal.getTime();
-      
+
       cal.setTime(beginOfDay);
       cal.set(Calendar.DAY_OF_MONTH, 1);
       this.beginOfThisMonth = cal.getTime();
-      
+
       cal.add(Calendar.MONTH, -1);
       this.beginOfLastMonth = cal.getTime();
    }
-   
+
    public Date getNow()
    {
       return now;
@@ -78,5 +81,24 @@ final class DateRange
    public Date getBeginOfLastMonth()
    {
       return beginOfLastMonth;
+   }
+
+   public Date getBeginOfRanges(List<DateRange> dateRanges)
+   {
+      Date earliestItervalBegin = new Date(0L);
+      if (dateRanges == null)
+      {
+         throw new IllegalArgumentException();
+      }
+
+      for (DateRange dateRange : dateRanges)
+      {
+         Date intervalBegin = dateRange.getIntervalBegin();
+         if (intervalBegin.before(earliestItervalBegin))
+         {
+            earliestItervalBegin = intervalBegin;
+         }
+      }
+      return earliestItervalBegin;
    }
 }

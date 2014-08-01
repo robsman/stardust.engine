@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,9 @@ import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalCostPerExecutionPolicy;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalProcessingTimePolicy;
+import org.eclipse.stardust.engine.core.query.statistics.api.DateRange;
 import org.eclipse.stardust.engine.core.query.statistics.api.InstancesStoplightHistogram;
+import org.eclipse.stardust.engine.core.query.statistics.api.StatisticsDateRangePolicy;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.AbstractStoplightPolicy.Status;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.Contribution;
@@ -75,14 +78,18 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
       }
 
       final UserWorktimeStatisticsQuery wsq = (UserWorktimeStatisticsQuery) query;
+      final StatisticsDateRangePolicy policy = (StatisticsDateRangePolicy) wsq.getPolicy(StatisticsDateRangePolicy.class);
+      final StatisticsDateRangePolicy dateRangePolicy = policy != null
+            ? policy
+            : new StatisticsDateRangePolicy(Collections.singletonList(DateRange.TODAY));
 
       final Users users = QueryServiceUtils.evaluateUserQuery(wsq);
 
 
       // retrieve login times
 
-      final DateRange dateRange = new DateRange();
-      
+      final DateRangeHelper dateRangeHelper = new DateRangeHelper();
+
             QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class)
             .select(new Column[] {
                   ActivityInstanceHistoryBean.FR__USER,
@@ -102,11 +109,11 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   Predicates.andTerm(
                         Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
                         Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER),
-                        Predicates.lessOrEqual(ActivityInstanceHistoryBean.FR__FROM, dateRange.getNow().getTime()),
+                        Predicates.lessOrEqual(ActivityInstanceHistoryBean.FR__FROM, dateRangeHelper.getNow().getTime()),
                         Predicates.orTerm(
                               Predicates.isEqual(ActivityInstanceHistoryBean.FR__UNTIL, 0),
-                              Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL, 
-                                    dateRange.getBeginOfLastMonth().getTime()))))
+                              Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL,
+                                    dateRangeHelper.getBeginOfRanges(dateRangePolicy.getDateRanges()).getTime()))))
             .orderBy(
                   ActivityInstanceHistoryBean.FR__USER,
                   ActivityInstanceHistoryBean.FR__FROM,
@@ -132,7 +139,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
          ((AndTerm) sqlQuery.getPredicateTerm()).add(Predicates.inList(
                ActivityInstanceHistoryBean.FR__USER, userOids));
       }
-      
+
       boolean singlePartition = Parameters.instance().getBoolean(
             KernelTweakingProperties.SINGLE_PARTITION, false);
       if (!singlePartition)
@@ -162,7 +169,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-      
+
       authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
 
       StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
@@ -172,7 +179,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             long userOid = rs.getLong(1);
             long aiOid = rs.getLong(2);
             long piOid = rs.getLong(3);
@@ -185,7 +192,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             long performerOid = rs.getLong(10);
             long department = rs.getLong(11);
             long scopePiOid = rs.getLong(12);
-            
+
             long currentPerformer = 0;
             long currentUserPerformer = 0;
             switch (performerKind)
@@ -203,7 +210,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                currentUserPerformer = 0;
                break;
             }
-            
+
             ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid,
                   currentPerformer, currentUserPerformer, department);
             if (!guarded || Authorization2.hasPermission(ctx))
@@ -217,23 +224,23 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
                tsFrom.setTime(aiFromTime);
                tsUntil.setTime(aiUntilTime);
-   
+
                PerformerType onBehalfOfKind = PerformerType.get(performerKind);
-   
+
                IActivity activity = (IActivity) ctx.getModelElement();
-   
+
                Boolean includeTime = (Boolean) activity.getAttribute(ATT_INCLUDE_TIME);
                if (includeTime == null || includeTime.booleanValue())
                {
                   IProcessDefinition cumulationProcess = modelManager
                         .findProcessDefinition(modelOid, targetProcessRtOid);
 
-                  IParticipant onBehalfOf = PerformerUtils.decodePerformer(onBehalfOfKind, 
+                  IParticipant onBehalfOf = PerformerUtils.decodePerformer(onBehalfOfKind,
                         performerOid, ctx.getModels().get(0));
-                  
+
                   final float costPerMinute = StatisticsModelUtils
                         .getCostPerMinute(onBehalfOf);
-                  
+
                   ParticipantInfo onBehalfOfParticipant = DepartmentUtils.getParticipantInfo(
                         onBehalfOfKind, performerOid, department, modelOid);
 
@@ -242,8 +249,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   Contribution contrib = null;
                   if(index == -1)
                   {
-                     contrib = new Contribution(elementId, onBehalfOfParticipant,
-                           onBehalfOfKind, performerOid);
+                     contrib = new Contribution(elementId, onBehalfOfParticipant);
                      workTimes.contributions.add(contrib);
                   }
                   else
@@ -256,53 +262,46 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   registerEffort(piOid, cumulationProcess, effortPerPi, tsFrom, tsUntil,
                         costPerMinute);
 
-                  addContributionForPeriod(piOid, aiOid, activity,
-                        dateRange.getBeginOfLastMonth(), dateRange.getBeginOfThisMonth(), costPerMinute,
-                        contrib.contributionLastMonth);
-                  addContributionForPeriod(piOid, aiOid, activity,
-                        dateRange.getBeginOfThisMonth(), dateRange.getNow(), costPerMinute,
-                        contrib.contributionThisMonth);
-
-                  addContributionForPeriod(piOid, aiOid, activity,
-                        dateRange.getBeginOfLastWeek(), dateRange.getBeginOfThisWeek(), costPerMinute,
-                        contrib.contributionLastWeek);
-                  addContributionForPeriod(piOid, aiOid, activity,
-                        dateRange.getBeginOfThisWeek(), dateRange.getNow(), costPerMinute, contrib.contributionThisWeek);
-
-                  addContributionForPeriod(piOid, aiOid, activity,
-                        dateRange.getBeginOfDay(), dateRange.getNow(), costPerMinute, contrib.contributionToday);
+                  for (DateRange dateRange : dateRangePolicy.getDateRanges())
+                  {
+                     addContributionForPeriod(piOid, aiOid, activity, dateRange,
+                           costPerMinute, contrib);
+                  }
                }
             }
          }
 
          private void addContributionForPeriod(Long cumulationPiOid, Long aiOid,
-               IActivity activity, Date periodBegin,
-               Date periodEnd, float costPerMinute, ContributionInInterval contribution)
+               IActivity activity, DateRange dateRange, float costPerMinute, Contribution contribution)
          {
+            ContributionInInterval contributionInInterval = contribution.getOrCreateContributionInInterval(dateRange);
+
+            Date periodBegin = dateRange.getIntervalBegin();
+            Date periodEnd = dateRange.getIntervalEnd();
             if (tsUntil.after(periodBegin) && tsFrom.before(periodEnd))
             {
-               Set<Long> ais = aisPerContribution.get(contribution);
+               Set<Long> ais = aisPerContribution.get(contributionInInterval);
                if (null == ais)
                {
                   ais = CollectionUtils.newSet();
-                  aisPerContribution.put(contribution, ais);
+                  aisPerContribution.put(contributionInInterval, ais);
                }
                if ( !ais.contains(aiOid))
                {
                   ais.add(aiOid);
-                  contribution.nAis++;
+                  contributionInInterval.addnAis(1);
                }
 
-               Set<Long> pis = pisPerContribution.get(contribution);
+               Set<Long> pis = pisPerContribution.get(contributionInInterval);
                if (null == pis)
                {
                   pis = CollectionUtils.newSet();
-                  pisPerContribution.put(contribution, pis);
+                  pisPerContribution.put(contributionInInterval, pis);
                }
                if ( !pis.contains(cumulationPiOid))
                {
                   pis.add(cumulationPiOid);
-                  contribution.nPis++;
+                  contributionInInterval.addnPis(1);
                }
 
                Date from = tsFrom.before(periodBegin) ? periodBegin : tsFrom;
@@ -310,14 +309,14 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
                final long duration = until.getTime() - from.getTime();
 
-               contribution.timeSpent.setTime(contribution.timeSpent.getTime() + duration);
+               contributionInInterval.addTimeSpent(duration);
 
                // TODO add cost
                if (0.0f < costPerMinute)
                {
                   double durationInMinutes = (double) duration / MILLISECONDS_PER_MINUTE;
 
-                  contribution.cost += (durationInMinutes * costPerMinute);
+                  contributionInInterval.addCost(durationInMinutes * costPerMinute);
                }
             }
          }
@@ -403,19 +402,19 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
          Set<Long> yellowByTime = CollectionUtils.copySet(instances);
          yellowByTime.retainAll(criticalByProcessingTime.getYellowInstances());
-         contribution.criticalByProcessingTime.registerYellowInstances(yellowByTime);
+         contribution.getCriticalByProcessingTime().registerYellowInstances(yellowByTime);
 
          Set<Long> redByTime = CollectionUtils.copySet(instances);
          redByTime.retainAll(criticalByProcessingTime.getRedInstances());
-         contribution.criticalByProcessingTime.registerRedInstances(redByTime);
+         contribution.getCriticalByProcessingTime().registerRedInstances(redByTime);
 
          Set<Long> yellowByCost = CollectionUtils.copySet(instances);
          yellowByCost.retainAll(criticalByExecutionCost.getYellowInstances());
-         contribution.criticalByExecutionCost.registerYellowInstances(yellowByCost);
+         contribution.getCriticalByExecutionCost().registerYellowInstances(yellowByCost);
 
          Set<Long> redByCost = CollectionUtils.copySet(instances);
          redByCost.retainAll(criticalByExecutionCost.getRedInstances());
-         contribution.criticalByExecutionCost.registerRedInstances(redByCost);
+         contribution.getCriticalByExecutionCost().registerRedInstances(redByCost);
       }
    }
 

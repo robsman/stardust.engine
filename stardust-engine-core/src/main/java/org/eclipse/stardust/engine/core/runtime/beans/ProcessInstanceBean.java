@@ -1702,11 +1702,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          trace.info("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }
 
-      if (previousAuditTrailPersistence != null)
+      if (previousAuditTrailPersistence == null)
       {
-         throw new IllegalStateException("Audit Trail Persistence may only be changed once per transaction.");
+         previousAuditTrailPersistence = oldValue;
       }
-      previousAuditTrailPersistence = oldValue;
 
       setAuditTrailPersistencePropertyValue(newValue);
    }

@@ -32,6 +32,12 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
+         if (to == ENGINE_DEFAULT)
+         {
+            /* allowed */
+            return;
+         }
+
          throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
       }
    },
@@ -46,10 +52,13 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
-         if (to == ENGINE_DEFAULT || to == TRANSIENT)
+         if (to == TRANSIENT || to == DEFERRED || to == IMMEDIATE)
          {
-            throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+            /* allowed */
+            return;
          }
+
+         throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
       }
    },
 
@@ -64,10 +73,13 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
-         if (to == ENGINE_DEFAULT || to == DEFERRED)
+         if (to == TRANSIENT || to == DEFERRED || to == IMMEDIATE)
          {
-            throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
+            /* allowed */
+            return;
          }
+
+         throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
       }
    },
 
@@ -82,6 +94,12 @@ public enum AuditTrailPersistence {
       @Override
       public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
       {
+         if (to == IMMEDIATE)
+         {
+            /* allowed */
+            return;
+         }
+
          throw new IllegalStateException(createStateChangeForbiddenMessage(this, to));
       }
    };

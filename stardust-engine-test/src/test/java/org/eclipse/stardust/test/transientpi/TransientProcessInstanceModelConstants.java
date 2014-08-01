@@ -240,6 +240,12 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_Immediate";
 
+   /**
+    * the ID of the process definition allowing to change the audit trail persistence mode during process execution multiple times,
+    * originally audit trail persistence mode is {@link AuditTrailPersistence#TRANSIENT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_MultipleTimes";
+
 
    /**
     * the name of the process definition started by a timer trigger
@@ -252,6 +258,11 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE = "ChangeAuditTrailPersistenceActivity";
 
+   /**
+    * the name of the second activity changing the audit trail persistence mode
+    */
+   /* package-private */ static final String ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_2 = "ChangeAuditTrailPersistenceActivity_2";
+
 
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or
@@ -260,10 +271,19 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
    /* package-private */ static final String DATA_ID_TRANSIENT_ROUTE = "TransientRoute";
 
    /**
-    * the ID of the data in model 'ChangeAuditTrailPersistence' determining the audit trail persistence mode
-    * to change to
+    * the ID of the data determining the audit trail persistence mode to change to
     */
    /* package-private */ static final String DATA_ID_AUDIT_TRAIL_PERSISTENCE = "AuditTrailPersistence";
+
+   /**
+    * the ID of the data determining the first audit trail persistence mode to change to
+    */
+   /* package-private */ static final String DATA_ID_AUDIT_TRAIL_PERSISTENCE_1 = "AuditTrailPersistence_1";
+
+   /**
+    * the ID of the data determining the second audit trail persistence mode to change to
+    */
+   /* package-private */ static final String DATA_ID_AUDIT_TRAIL_PERSISTENCE_2 = "AuditTrailPersistence_2";
 
    /**
     * the out data path for the primitive data 'Fail'

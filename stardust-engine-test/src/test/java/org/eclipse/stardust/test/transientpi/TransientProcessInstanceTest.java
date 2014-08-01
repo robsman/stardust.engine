@@ -11,8 +11,12 @@
 package org.eclipse.stardust.test.transientpi;
 
 import static java.lang.Boolean.TRUE;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_2;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE_1;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE_2;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_TRANSIENT_ROUTE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.OUT_DATA_PATH_FAIL;
@@ -25,6 +29,7 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED_FAIL;
@@ -2209,7 +2214,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#ENGINE_DEFAULT} to
-    * {@link AuditTrailPersistence#ENGINE_DEFAULT} is denied.
+    * {@link AuditTrailPersistence#ENGINE_DEFAULT} works correctly.
     * </p>
     */
    @Test
@@ -2220,7 +2225,11 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT, auditTrailPersistenceData, true);
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE);
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      appMayComplete = true;
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -2334,7 +2343,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#TRANSIENT} to
-    * {@link AuditTrailPersistence#TRANSIENT} is denied.
+    * {@link AuditTrailPersistence#TRANSIENT} works correctly.
     * </p>
     */
    @Test
@@ -2345,9 +2354,13 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE);
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
+      appMayComplete = true;
 
-      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }
@@ -2471,7 +2484,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#DEFERRED} to
-    * {@link AuditTrailPersistence#DEFERRED} is denied.
+    * {@link AuditTrailPersistence#DEFERRED} works correctly.
     * </p>
     */
    @Test
@@ -2482,7 +2495,11 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE);
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
+      appMayComplete = true;
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -2600,7 +2617,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Ensures that changing the {@link AuditTrailPersistence} mode from {@link AuditTrailPersistence#IMMEDIATE} to
-    * {@link AuditTrailPersistence#IMMEDIATE} is denied.
+    * {@link AuditTrailPersistence#IMMEDIATE} works correctly.
     * </p>
     */
    @Test
@@ -2611,7 +2628,42 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE);
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      appMayComplete = true;
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures that changing the {@link AuditTrailPersistence} mode multiple times (from {@link AuditTrailPersistence#TRANSIENT} to
+    * {@link AuditTrailPersistence#DEFERRED} and finally to {@link AuditTrailPersistence#IMMEDIATE}) works correctly.
+    * </p>
+    */
+   @Test
+   public void testChangeAuditTrailPersistenceMultipleTimes() throws Exception
+   {
+      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+
+      final Map<String, String> auditTrailPersistenceData = newHashMap();
+      auditTrailPersistenceData.put(DATA_ID_AUDIT_TRAIL_PERSISTENCE_1, AuditTrailPersistence.DEFERRED.name());
+      auditTrailPersistenceData.put(DATA_ID_AUDIT_TRAIL_PERSISTENCE_2, AuditTrailPersistence.IMMEDIATE.name());
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE, auditTrailPersistenceData, true);
+
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_2);
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      appMayComplete = true;
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));

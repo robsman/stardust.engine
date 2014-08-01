@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.boundaryevent;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.MODEL_ID;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;

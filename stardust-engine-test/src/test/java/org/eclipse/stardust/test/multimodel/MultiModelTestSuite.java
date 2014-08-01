@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.multimodel;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_ID;
 import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_MODEL_ID;
 

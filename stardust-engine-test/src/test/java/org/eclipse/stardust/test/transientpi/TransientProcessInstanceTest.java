@@ -12,6 +12,8 @@ package org.eclipse.stardust.test.transientpi;
 
 import static java.lang.Boolean.TRUE;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.NL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ACTIVITY_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_2;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE;
@@ -58,8 +60,6 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WAITING_PROCESS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WHILE_LOOP;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_NAME_TIMER_TRIGGER;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.util.TestConstants.NL;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;

@@ -12,7 +12,7 @@ package org.eclipse.stardust.test.casepi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +68,6 @@ import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;

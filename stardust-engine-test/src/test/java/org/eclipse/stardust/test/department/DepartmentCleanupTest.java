@@ -11,10 +11,10 @@
 package org.eclipse.stardust.test.department;
 
 import static org.junit.Assert.assertEquals;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;

@@ -10,10 +10,10 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_2;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

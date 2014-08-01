@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import java.io.Serializable;
 import java.util.ArrayList;

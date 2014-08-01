@@ -1,6 +1,6 @@
 package org.eclipse.stardust.test.admin;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;

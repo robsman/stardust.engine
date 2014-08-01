@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.NL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_SPLIT;
-import static org.eclipse.stardust.test.util.TestConstants.NL;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;

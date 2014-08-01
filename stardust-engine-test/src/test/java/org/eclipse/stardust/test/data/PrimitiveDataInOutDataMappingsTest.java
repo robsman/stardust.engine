@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.data;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.data.DataModelConstants.*;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;

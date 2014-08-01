@@ -18,7 +18,7 @@ import static org.eclipse.stardust.engine.core.runtime.beans.removethis.Security
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHORIZATION_SYNC_CLASS_PROPERTY;
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.PRINCIPAL_VALIDATOR_DEFAULT_VALUE;
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.PRINCIPAL_VALIDATOR_PROPERTY;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;

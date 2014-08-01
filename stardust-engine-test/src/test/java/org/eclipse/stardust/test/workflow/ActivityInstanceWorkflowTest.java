@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.workflow;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.DEFAULT_ROLE_ID;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MANUAL_ACTIVITY_2_ID;

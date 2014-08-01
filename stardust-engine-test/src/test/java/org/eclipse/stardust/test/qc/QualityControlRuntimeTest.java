@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.qc;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.*;
 

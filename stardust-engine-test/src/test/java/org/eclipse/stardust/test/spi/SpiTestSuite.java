@@ -1,6 +1,6 @@
 package org.eclipse.stardust.test.spi;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;

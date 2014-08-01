@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.join;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Assert;
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;

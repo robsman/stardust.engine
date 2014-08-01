@@ -10,9 +10,9 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.SYSTEM_REPO_ID;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;

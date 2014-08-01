@@ -10,9 +10,9 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_MODEL_NAME;
 import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;

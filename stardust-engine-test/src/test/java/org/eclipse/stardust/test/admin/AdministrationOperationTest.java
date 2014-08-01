@@ -12,7 +12,7 @@ package org.eclipse.stardust.test.admin;
 
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.PREDEFINED_MODEL_ID;
 import static org.eclipse.stardust.engine.api.query.DeployedModelQuery.findForId;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

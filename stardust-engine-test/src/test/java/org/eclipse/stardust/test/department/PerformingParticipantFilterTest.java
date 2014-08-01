@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG2_ID;
@@ -21,7 +22,6 @@ import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROC
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ROLE1_ID;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.X_SCOPE;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.Y_SCOPE;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;

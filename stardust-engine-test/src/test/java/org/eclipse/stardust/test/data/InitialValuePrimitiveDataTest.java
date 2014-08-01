@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.data;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.data.DataModelConstants.MY_BOOLEAN_IN_DATA_MAPPING;
 import static org.eclipse.stardust.test.data.DataModelConstants.MY_BOOLEAN_IN_DATA_PATH;
@@ -34,7 +35,6 @@ import static org.eclipse.stardust.test.data.DataModelConstants.MY_STRING_IN_DAT
 import static org.eclipse.stardust.test.data.DataModelConstants.MY_TIMESTAMP_IN_DATA_MAPPING;
 import static org.eclipse.stardust.test.data.DataModelConstants.MY_TIMESTAMP_IN_DATA_PATH;
 import static org.eclipse.stardust.test.data.DataModelConstants.PROCESS_ID_1;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;

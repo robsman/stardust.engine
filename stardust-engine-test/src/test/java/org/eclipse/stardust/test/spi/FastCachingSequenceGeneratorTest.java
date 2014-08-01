@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.spi;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import java.sql.Connection;
 import java.sql.SQLException;

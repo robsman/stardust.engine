@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.data;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;

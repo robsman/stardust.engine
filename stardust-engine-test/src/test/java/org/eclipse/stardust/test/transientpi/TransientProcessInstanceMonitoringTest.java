@@ -11,6 +11,7 @@
 package org.eclipse.stardust.test.transientpi;
 
 import static org.eclipse.stardust.test.api.monitoring.Operation.SELECT;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ALTERNATIVE_IMPL_MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_BIG_DATA_ACCESS;
@@ -19,7 +20,6 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_PROCESS_INTERFACE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SUB_SUB_PROCESS;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 

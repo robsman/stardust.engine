@@ -10,10 +10,9 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ALTERNATIVE_IMPL_MODEL_ID;
-
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;

@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.boundaryevent;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.APP_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.DEPLOYMENT_VALIDATION_MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.DISABLED_NORMAL_FLOW_ACTIVITY_ID;
@@ -31,7 +32,6 @@ import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstant
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SECOND_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SLEEPING_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.TIMEOUT_DATA_ID;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;

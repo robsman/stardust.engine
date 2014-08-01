@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.workflow;
 
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;

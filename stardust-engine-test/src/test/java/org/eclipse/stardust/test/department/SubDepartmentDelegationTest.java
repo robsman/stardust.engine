@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
+import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
-import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

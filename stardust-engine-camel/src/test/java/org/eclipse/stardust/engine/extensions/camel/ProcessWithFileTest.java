@@ -192,6 +192,7 @@ public class ProcessWithFileTest {
 	private static void createFile(String path, String fileName, String content)
 	throws IOException {
 		File dir = new File(path);
+        dir.mkdirs();
 		String loc = dir.getCanonicalPath() + File.separator + fileName;
 		FileWriter fstream = new FileWriter(loc, true);
 		BufferedWriter out = new BufferedWriter(fstream);

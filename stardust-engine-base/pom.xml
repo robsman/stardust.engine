@@ -27,12 +27,6 @@
    </parent>
 
    <properties>
-      <!-- Following variables are possible in copyrightMessage: 
-           {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
-           {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012 -->
-      <copyright.message>2014 SunGard CSA LLC and others, {0}</copyright.message>
-      <vendor.name>Eclipse.org</vendor.name>
-      <product.name>Eclipse Process Manager</product.name>
       <build.qualifier>${maven.build.timestamp}</build.qualifier>
    </properties>
 

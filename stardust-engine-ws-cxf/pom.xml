@@ -195,6 +195,143 @@
    
    <profiles>
       <profile>
+         <id>strict-import</id>
+         <activation>
+            <property>
+               <name>svcutil.import.strict</name>
+               <value>true</value>
+            </property>
+         </activation>
+         <properties>
+            <!-- Importing with strict data contract validation. Currently valid exception are:
+                 - XmlValue
+                 If other types a refused a new incompatibility was introduced into the 
+                 contract and needs to be reviewed.
+            -->
+            <svcutil.import.options>/dataContractOnly</svcutil.import.options>
+         </properties>
+      </profile>
+      <profile>
+         <id>codegen-csharp</id>
+         <activation>
+            <property>
+               <name>dotNet-sdk.home</name>
+            </property>
+         </activation>
+         <properties>
+            <svcutil.import.options>/importXmlTypes /noConfig</svcutil.import.options>
+            <examples.dir>${basedir}/../../examples</examples.dir>
+            <csharp.ws.client.example.dir>${examples.dir}/ws-client-c-sharp/src</csharp.ws.client.example.dir>
+            <generated.csharp.src.dir>${project.build.directory}/c-sharp</generated.csharp.src.dir>
+            <wsdl.dir>${basedir}/src/main/resources/META-INF/wsdl</wsdl.dir>
+         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>csharp-codegen-xsd</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                           <executable>${dotNet-sdk.home}/bin/xsd.exe</executable>
+                           <arguments>
+                              <argument>${wsdl.dir}/StardustBpmTypes.xsd</argument>
+                              <argument>${wsdl.dir}/StardustBpmQueryTypes.xsd</argument>
+                              <argument>/out:${generated.csharp.src.dir}</argument>
+                              <argument>/namespace:org.eclipse.stardust.engine.api.query</argument>
+                              <argument>/classes</argument>
+                           </arguments>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>csharp-codegen-StardustBpmServices</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                           <executable>${dotNet-sdk.home}/bin/SvcUtil.exe</executable>
+                           <commandlineArgs>
+                              ${wsdl.dir}/StardustBpmService.wsdl ${wsdl.dir}/StardustBpmService.xsd
+                              ${wsdl.dir}/StardustBpmTypes.xsd ${wsdl.dir}/StardustBpmQueryTypes.xsd
+                              /out:${generated.csharp.src.dir}/StardustBpmServices.cs
+                              /namespace:http://eclipse.org/stardust/ws/v2012a/api,org.eclipse.stardust.engine.api
+                              /namespace:http://eclipse.org/stardust/ws/v2012a/api/query,org.eclipse.stardust.engine.api.query.stubs
+                              /targetClientVersion:Version35
+                              /serializer:DataContractSerializer
+                              /collectionType:System.Collections.Generic.List`1
+                              ${svcutil.import.options}
+                              /excludeType:org.eclipse.stardust.engine.api.query.Query
+                           </commandlineArgs>
+                           <!--argument>/serializer:XmlSerializer</argument -->
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>csharp-codegen-StardustBpmInteractionsService</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                           <executable>${dotNet-sdk.home}/bin/SvcUtil.exe</executable>
+                           <commandlineArgs>
+                              ${wsdl.dir}/StardustBpmInteractionsService.wsdl
+                              ${wsdl.dir}/StardustBpmInteractionsService.xsd
+                              ${wsdl.dir}/StardustBpmTypes.xsd
+                              /out:${generated.csharp.src.dir}/StardustBpmInteractionsService.cs
+                              /namespace:http://eclipse.org/stardust/ws/v2012a/api,org.eclipse.stardust.engine.api
+                              /namespace:http://eclipse.org/stardust/ws/v2012a/interactions,org.eclipse.stardust.engine.api.interations
+                              /targetClientVersion:Version35
+                              ${svcutil.import.options}
+                           </commandlineArgs>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>init-csharp-dir</id>
+                        <phase>initialize</phase>
+                        <goals>
+                           <goal>run</goal>
+                        </goals>
+                        <configuration>
+                           <target>
+                              <mkdir dir="${generated.csharp.src.dir}" />
+                           </target>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>copy-cs-files</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>run</goal>
+                        </goals>
+                        <configuration>
+                           <target>
+                              <copy todir="${csharp.ws.client.example.dir}">
+                                 <fileset dir="${generated.csharp.src.dir}">
+                                    <include name="StardustBpmServices.cs" />
+                                    <include name="StardustBpmQueryTypes.cs" />
+                                 </fileset>
+                              </copy>
+                           </target>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      
+      <profile>
          <id>codegen</id>
          <properties>
             <wsdl.dir>${basedir}/src/main/resources/META-INF/wsdl</wsdl.dir>

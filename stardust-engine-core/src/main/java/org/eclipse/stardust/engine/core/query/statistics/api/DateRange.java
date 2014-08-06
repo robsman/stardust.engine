@@ -38,7 +38,7 @@ public interface DateRange extends Serializable
          Duration.weeks(1), CalendarUnit.WEEK, Duration.weeks(1), CalendarUnit.WEEK);
 
    public static DateRange THIS_MONTH = new RelativePastDateRange(
-         Duration.ZERO, CalendarUnit.WEEK, Duration.weeks(1), CalendarUnit.WEEK);
+         Duration.ZERO, CalendarUnit.MONTH, Duration.months(1), CalendarUnit.MONTH);
 
    public static DateRange LAST_MONTH = new RelativePastDateRange(
          Duration.months(1), CalendarUnit.MONTH, Duration.months(1), CalendarUnit.MONTH);

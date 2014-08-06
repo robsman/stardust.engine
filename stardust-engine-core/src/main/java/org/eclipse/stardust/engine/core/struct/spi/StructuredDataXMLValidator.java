@@ -15,12 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Element;
-
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -30,8 +29,10 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluat
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.Utils;
+import org.w3c.dom.Element;
 
 
 
@@ -173,11 +174,22 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
             {
                String thisType = this.context.getTargetAccessPointDefinition()
                      .getStringAttribute("carnot:engine:dataType");
+
+               ITypeDeclaration thisDecl = StructuredTypeRtUtils.getTypeDeclaration(this.context.getTargetAccessPointDefinition());
+               ITypeDeclaration rhsDecl = StructuredTypeRtUtils.getTypeDeclaration(((XMLBridgeObject) rhs).context.getTargetAccessPointDefinition());
+
+               if (thisDecl != null && rhsDecl != null)
+               {
+                  return (thisDecl.equals(rhsDecl));
+               }
+
                XMLBridgeObject rhsBridgeObject = (XMLBridgeObject) rhs;
+
                if (rhsBridgeObject.context != null)
                {
                   String rhsType = rhsBridgeObject.context.getTargetAccessPointDefinition()
                         .getStringAttribute("carnot:engine:dataType");
+
                   if (thisType != null && rhsType != null)
                   {
                      rhsType = removeExternalQualifier(rhsType);
@@ -201,5 +213,6 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
          }
          return type;
       }
+
    }
 }

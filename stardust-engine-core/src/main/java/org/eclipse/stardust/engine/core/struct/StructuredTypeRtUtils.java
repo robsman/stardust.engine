@@ -13,7 +13,13 @@ package org.eclipse.stardust.engine.core.struct;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -25,6 +31,32 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.xsd.XSDAnnotation;
+import org.eclipse.xsd.XSDAttributeGroupContent;
+import org.eclipse.xsd.XSDAttributeGroupDefinition;
+import org.eclipse.xsd.XSDAttributeUse;
+import org.eclipse.xsd.XSDComplexTypeContent;
+import org.eclipse.xsd.XSDComplexTypeDefinition;
+import org.eclipse.xsd.XSDComponent;
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDFactory;
+import org.eclipse.xsd.XSDModelGroup;
+import org.eclipse.xsd.XSDNamedComponent;
+import org.eclipse.xsd.XSDParticle;
+import org.eclipse.xsd.XSDSchema;
+import org.eclipse.xsd.XSDSimpleTypeDefinition;
+import org.eclipse.xsd.XSDTerm;
+import org.eclipse.xsd.XSDTypeDefinition;
+import org.eclipse.xsd.XSDWildcard;
+import org.eclipse.xsd.impl.XSDImportImpl;
+import org.eclipse.xsd.util.XSDConstants;
+import org.eclipse.xsd.util.XSDResourceFactoryImpl;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
@@ -32,9 +64,25 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.Data;
+import org.eclipse.stardust.engine.api.model.ExternalReference;
+import org.eclipse.stardust.engine.api.model.IAccessPoint;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IExternalReference;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ISchemaType;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.Reference;
+import org.eclipse.stardust.engine.api.model.SchemaType;
+import org.eclipse.stardust.engine.api.model.TypeDeclaration;
+import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.SchemaTypeBean;
+import org.eclipse.stardust.engine.core.model.utils.RootElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.CustomURIConverter;
@@ -42,11 +90,6 @@ import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.emfxsd.DmsSchemaProvider;
-import org.eclipse.xsd.*;
-import org.eclipse.xsd.impl.XSDImportImpl;
-import org.eclipse.xsd.util.XSDConstants;
-import org.eclipse.xsd.util.XSDResourceFactoryImpl;
-import org.w3c.dom.*;
 
 public class StructuredTypeRtUtils
 {
@@ -932,6 +975,20 @@ public class StructuredTypeRtUtils
       }
    }
 
+   public static ITypeDeclaration getTypeDeclaration(AccessPoint data)
+   {
+      IModel model = null;
+      if (data instanceof IAccessPoint)
+      {
+         RootElement rootElement = ((IAccessPoint) data).getModel();
+         if (rootElement instanceof IModel)
+         {
+            model = (IModel) rootElement;
+         }
+      }
+      return StructuredTypeRtUtils.getTypeDeclaration(data, model);
+   }
+
    public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model)
    {
       return getTypeDeclaration(data, model, StructuredDataConstants.TYPE_DECLARATION_ATT);
@@ -962,6 +1019,22 @@ public class StructuredTypeRtUtils
          if (type != null)
          {
             String typeString = type.toString();
+
+            if (typeString.startsWith("typeDeclaration:{"))
+            {
+               QName qname = QName.valueOf(typeString.substring(16));
+               IExternalPackage pkg = model.findExternalPackage(qname.getNamespaceURI());
+               if (pkg != null)
+               {
+                  IModel otherModel = pkg.getReferencedModel();
+                  if (otherModel != null)
+                  {
+                     typeString = qname.getLocalPart();
+                     model = otherModel;
+                  }
+               }
+            }
+
             if (data instanceof IData)
             {
                IModel refModel = (IModel) ((IData) data).getModel();

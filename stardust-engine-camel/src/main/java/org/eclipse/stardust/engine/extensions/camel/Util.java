@@ -13,6 +13,7 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_HEADER;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_HEADERS;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_MESSAGE;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.APPLICATION_INTEGRATION_OVERLAY_ATT;
 
 
 
@@ -170,8 +171,8 @@ public class Util
       Boolean isConsumer = CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId());
       // mail application should be set as consumerApp to be able to set the activity
       // instance in hibernated state
-      if ((application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay") != null)
-            && ((String) application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay"))
+      if ((application.getAttribute(APPLICATION_INTEGRATION_OVERLAY_ATT) != null)
+            && ((String) application.getAttribute(APPLICATION_INTEGRATION_OVERLAY_ATT))
                   .equalsIgnoreCase("mailIntegrationOverlay"))
          return false;
 

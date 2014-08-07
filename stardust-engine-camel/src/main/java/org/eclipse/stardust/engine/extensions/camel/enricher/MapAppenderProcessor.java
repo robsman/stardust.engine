@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.enricher;
 
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ADDITIONAL_SPRING_BEANS_DEF_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CONSUMER_ROUTE_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PROCESS_CONTEXT_HEADERS_EXT_ATT;
@@ -44,8 +45,6 @@ public class MapAppenderProcessor implements Processor
    private static String MESSAGE_TRANSFORMATION_PROPERTY_ATTRIBUTE = "messageTransformation:TransformationProperty";
 
    private static String SYNCHRONOUS_RETRY_ENABLED_ATTRIBUTE = "synchronous:retry:enable";
-
-   private static String APPLICATION_INTEGRATION_OVERLAY_ATTRIBUTE = "carnot:engine:camel::applicationIntegrationOverlay";
 
    public static final String SQL_ROW_COUNT = "CamelSqlRowCount";
 
@@ -179,7 +178,7 @@ public class MapAppenderProcessor implements Processor
          return true;
       }
 
-      if (key.equals(APPLICATION_INTEGRATION_OVERLAY_ATTRIBUTE))
+      if (key.equals(APPLICATION_INTEGRATION_OVERLAY_ATT))
       {
          return true;
       }

@@ -1,13 +1,22 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+
 import org.apache.camel.Message;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -15,9 +24,12 @@ import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
+import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.CreateDocumentException;
+import org.eclipse.stardust.engine.extensions.camel.util.CamelDmsUtils;
+import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 
 public class CamelMessageHelper
 {
@@ -141,8 +153,13 @@ public class CamelMessageHelper
                CamelMessageLocation location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
                      ? CamelMessageLocation.BODY
                      : CamelMessageLocation.HEADER;
-
-               if (CamelMessageLocation.BODY.equals(location))
+               
+               if(ap.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS) 
+                     && !CamelMessageLocation.BODY.equals(location))
+               {
+                  map.put(ap.getId(), getDocumentOutDataAccessPoint(message, ai, ap));
+               } 
+               else if (CamelMessageLocation.BODY.equals(location))
                {
                   map.put((String) bodyOutAP, message.getBody());
                }
@@ -150,6 +167,7 @@ public class CamelMessageHelper
                {
                   map.put(ap.getId(), message.getHeader(ap.getId()));
                }
+               
             }
          }
       }
@@ -188,7 +206,13 @@ public class CamelMessageHelper
                      ? CamelMessageLocation.BODY
                      : CamelMessageLocation.HEADER;
 
-               if (CamelMessageLocation.BODY.equals(location))
+               if((accessPoint.getDirection().equals(Direction.IN_OUT) || accessPoint.getDirection().equals(Direction.OUT))
+                     && isValidAccessPoint(application, accessPoint) && !CamelMessageLocation.BODY.equals(location)
+                     && accessPoint.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS))
+               {
+                  map.put(mapping.getId(), getDocumentOutDataAccessPoint(message, ai, accessPoint));
+               }
+               else if (CamelMessageLocation.BODY.equals(location))
                {
                   map.put(mapping.getId(), message.getBody());
                }
@@ -289,4 +313,76 @@ public class CamelMessageHelper
       // has to be old style and therefore application producer
       return false;
    }
+   
+   private static Document getDocumentOutDataAccessPoint(Message message, ActivityInstance ai, AccessPoint ap)
+   {
+      Document document = null;
+      String attachmentId = ap.getName();//TODO use AccessPoint ID instead of AccessPoint name
+      DataHandler attachment = message.getAttachment(attachmentId);
+      if(attachment != null)
+      {
+         // create Document
+         ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+         if(sf == null)
+         {
+            sf = ServiceFactoryLocator.get(CredentialProvider.CURRENT_TX);
+         }
+         DocumentManagementService dms = sf.getDocumentManagementService();
+         String fileName="";
+         byte[] documentContent = null;
+         
+         Object attachmentContent;
+         try
+         {
+            attachmentContent = attachment.getContent();
+            if(attachmentContent instanceof DataSource)
+            {
+               fileName = DataSource.class.cast(attachmentContent).getName();
+               documentContent = IOUtils.toByteArray(DataSource.class.cast(attachmentContent).getInputStream());
+               
+            } else if(attachmentContent instanceof FileInputStream)
+            {
+               documentContent = IOUtils.toByteArray(FileInputStream.class.cast(attachmentContent));
+               
+            } else if(attachmentContent instanceof byte[])
+            {
+               documentContent = (byte[])attachmentContent;
+            }
+         }
+         catch (IOException e)
+         {
+            throw new RuntimeException("Failed retreiving attachment content.", e);
+         }
+         
+         if(StringUtils.isEmpty(fileName))
+         {
+            fileName = attachmentId;
+         }
+         
+         // check if document is already created for PI.
+         StringBuilder defaultPath = new StringBuilder(
+               DmsUtils.composeDefaultPath(
+                     ai.getProcessInstance().getScopeProcessInstanceOID(), ai.getProcessInstance().getStartTime()))
+               .append("/")
+               .append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER)
+               .append("/")
+               .append(fileName);
+               
+         document = dms.getDocument(defaultPath.toString());
+         if(document == null)
+         {
+            try
+            {
+               document = CamelDmsUtils.storeDocument(dms, ai.getProcessInstance(), documentContent, fileName, false);
+            }
+            catch (CreateDocumentException e)
+            {
+               throw new RuntimeException("Failed creating document.", e);
+            }
+         }
+      }
+         
+      return document;
+   }
+         
 }

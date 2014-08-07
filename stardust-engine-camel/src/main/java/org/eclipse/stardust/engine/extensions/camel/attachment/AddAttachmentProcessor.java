@@ -18,7 +18,8 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 /**
  * This class is used to add document attachment to the exchange
  * @author Sabri.Bousselmi
- *
+ * @deprecated will be reomved in IPP 8.2 version
+ * 
  */
 
 public class AddAttachmentProcessor implements Processor{

@@ -211,6 +211,13 @@ public class RouteDefinitionBuilder
             routeDefinition.append(providedRouteConfig);
          }
          
+         if(routeContext.containsOutputBodyAccessPointOfDocumentType())
+         {
+            String tmpRoute = routeDefinition.toString();
+            routeDefinition.delete(0, routeDefinition.length());
+            routeDefinition.append(injectAttachmentBeanHandler(tmpRoute));
+         }
+         
          if(consumerBpmTypeConverter != null && Boolean.TRUE.equals(consumerBpmTypeConverter)) {
              String tmpRoute = routeDefinition.toString();
              routeDefinition.delete(0, routeDefinition.length());
@@ -280,6 +287,9 @@ public class RouteDefinitionBuilder
             
             if (routeContext.addApplicationAttributesToHeaders() || routeContext.addProcessContextHeaders())
                routeDefinition.append(process("mapAppenderProcessor"));
+            
+            if(routeContext.containsInputtAccessPointOfDocumentType())
+               routeDefinition.append("<to uri=\"bean:attachmentBeanHandler?method=toAttachment\"/>");
 
 	         if(Boolean.TRUE.equals(producerBpmTypeConverter)) {
 	             routeDefinition.append(injectProducertBpmTypeConverter(routeContext, providedRoute));
@@ -287,6 +297,11 @@ public class RouteDefinitionBuilder
 	         else {
 	             routeDefinition.append(providedRoute);
 	         }
+         }
+         
+         if(routeContext.containsOutputBodyAccessPointOfDocumentType())
+         {
+            routeDefinition.append("<to uri=\"bean:attachmentBeanHandler?method=toDocument\"/>");
          }
       }
 
@@ -570,5 +585,16 @@ public class RouteDefinitionBuilder
             buffer.append(headerExpression + "\n");
       }
       return buffer;
+   }
+   
+   private static String injectAttachmentBeanHandler(String route)
+   {
+      String injectedRoute = "<to uri=\"bean:attachmentBeanHandler?method=toDocument\"/>"; 
+      int toUriCompleteActivityIndex = getToUriCompleteActivityIndex(route);
+      StringBuffer buffer = new StringBuffer();
+      buffer.append(route.substring(0, toUriCompleteActivityIndex));
+      buffer.append(injectedRoute);
+      buffer.append(route.substring(toUriCompleteActivityIndex, route.length()));
+      return buffer.toString();
    }
 }

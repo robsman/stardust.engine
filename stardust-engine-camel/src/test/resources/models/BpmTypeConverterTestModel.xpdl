@@ -142,7 +142,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toXML&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromXML&quot; /&gt;&#13;&#10;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
@@ -188,7 +188,7 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -221,7 +221,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toXML&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromXML&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output" Type="String"/>
@@ -261,7 +261,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
@@ -299,7 +299,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
@@ -340,7 +340,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
@@ -376,7 +376,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
@@ -415,7 +415,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>

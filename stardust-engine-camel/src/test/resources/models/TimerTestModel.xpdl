@@ -1,30 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericFileTrigger" Name="GenericFileTrigger">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="TimerTestModel" Name="TimerTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>SunGard CSA LLC</Vendor>
-      <Created>Mon Sep 16 11:29:36 IST 2013</Created>
+      <Vendor>SunGard CSA LLC, IPP</Vendor>
+      <Created>Wed May 07 09:46:56 WAT 2014</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
-      <Author>RajKumar.Dangi</Author>
+      <Author>Melek.Zribi</Author>
       <Version>1</Version>
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
-   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1">
-      <xpdl:TypeDeclaration Id="PersonType" Name="PersonType">
-         <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:per="http://www.infinity.com/bpm/model/Model13/PersonType" targetNamespace="http://www.infinity.com/bpm/model/Model13/PersonType">
-               <xsd:complexType name="PersonType">
-                  <xsd:sequence>
-                     <xsd:element name="FirstName" type="xsd:string"/>
-                     <xsd:element name="LastName" type="xsd:string"/>
-                  </xsd:sequence>
-               </xsd:complexType>
-               <xsd:element name="PersonType" type="per:PersonType"/>
-            </xsd:schema>
-         </xpdl:SchemaType>
-      </xpdl:TypeDeclaration>
-   </xpdl:TypeDeclarations>
+   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" Type="text/ecmascript"/>
+   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:x1="http://www.wfmc.org/2002/XPDL1.0"/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -107,108 +94,17 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
-      <DataField Id="FileData" Name="FileData" IsArray="FALSE">
+      <DataField Id="NotificationMessage" Name="NotificationMessage" IsArray="FALSE">
          <DataType>
-            <DeclaredType Id="PersonType"/>
+            <BasicType Type="STRING"/>
          </DataType>
+         <InitialValue>Timer Process Started</InitialValue>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="35" Type="struct">
+               <carnot:DataField Oid="36" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="TiffData" Name="TiffData" IsArray="FALSE">
-         <DataType>
-            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="52" Type="dmsDocument">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
-                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="PersonType"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="JMSData" Name="JMS Data" IsArray="FALSE">
-         <DataType>
-            <DeclaredType Id="PersonType"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="74" Type="struct">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="PDFData" Name="PDFData" IsArray="FALSE">
-         <DataType>
-            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="106" Type="dmsDocument">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
-                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="PersonType"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="PersonData" Name="PersonData" IsArray="FALSE">
-         <DataType>
-            <DeclaredType Id="PersonType"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="129" Type="struct">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="MailData" Name="Mail Data" IsArray="FALSE">
-         <DataType>
-            <DeclaredType Id="PersonType"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="151" Type="struct">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="PROCESS_ATTACHMENTS" Name="Process Attachments" IsArray="FALSE">
-         <DataType>
-            <ExternalReference location="java.util.List"/>
-         </DataType>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="152" Type="dmsDocumentList">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:className" Value="java.util.List"/>
-                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Timer Process Started"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -216,10 +112,10 @@
       </DataField>
    </DataFields>
    <WorkflowProcesses>
-      <WorkflowProcess Id="FileTiffDocData" Name="FileTiffDocData" AccessLevel="PUBLIC">
+      <WorkflowProcess Id="TimerProcess" Name="TimerProcess" AccessLevel="PUBLIC">
          <ProcessHeader/>
          <Activities>
-            <Activity Id="ShowTiffData" Name="Show Tiff Data">
+            <Activity Id="showNotification" Name="showNotification">
                <Implementation>
                   <No/>
                </Implementation>
@@ -232,12 +128,12 @@
                </FinishMode>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="53" Implementation="Manual">
+                     <carnot:Activity Oid="32" Implementation="Manual">
                         <carnot:EventHandlers/>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows>
-                           <carnot:DataFlow Oid="57" Id="TiffData" Name="TiffData" Direction="IN" Context="default">
-                              <carnot:DataRef Id="TiffData"/>
+                           <carnot:DataFlow Oid="38" Id="NotificationMessage" Name="NotificationMessage" Direction="IN" Context="default">
+                              <carnot:DataRef Id="NotificationMessage"/>
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
@@ -249,173 +145,47 @@
          <Transitions/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="46">
+               <carnot:WorkflowProcess Oid="26">
                   <carnot:Triggers>
-                     <carnot:Trigger Oid="51" Id="ManualTrigger1" Name="File Trigger" Type="camel">
-                        <carnot:Description/>
-                        <carnot:AccessPoints>
-                           <carnot:AccessPoint Oid="180" Id="test" Name="test" Direction="OUT" Type="dmsDocument">
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:dataType" Value="PersonType"/>
-                                 <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                                 <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                              </carnot:Attributes>
-                           </carnot:AccessPoint>
-                           <carnot:AccessPoint Oid="182" Id="TiffData" Name="TiffData" Direction="OUT" Type="dmsDocument">
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:dataType" Value="PersonType"/>
-                                 <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                                 <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                              </carnot:Attributes>
-                           </carnot:AccessPoint>
-                        </carnot:AccessPoints>
-                        <carnot:DataFlows>
-                           <carnot:DataFlow Oid="181">
-                              <carnot:DataRef Id="TiffData"/>
-                              <carnot:AccessPointRef Id="test"/>
-                           </carnot:DataFlow>
-                           <carnot:DataFlow Oid="183">
-                              <carnot:DataRef Id="TiffData"/>
-                              <carnot:AccessPointRef Id="TiffData"/>
-                           </carnot:DataFlow>
-                        </carnot:DataFlows>
+                     <carnot:Trigger Oid="31" Id="ManualTrigger1" Name="start Timer process" Type="camel">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
                         <carnot:Attributes>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="carnot:engine:integration::overlay" Value="fileEvent"/>
-                           <carnot:Attribute Name="eventClass" Value="message"/>
+                           <carnot:Attribute Name="carnot:engine:integration::overlay" Value="timerEvent"/>
+                           <carnot:Attribute Name="eventClass" Value="timer"/>
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://c:/attachment?initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;timer://timerEndpoint?repeatCount=1&amp;amp;period=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword}"/>
+                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
                   <carnot:DataPaths>
-                     <carnot:DataPath Oid="155" Id="TiffDataNm" Name="TiffDataNM" Direction="OUT" IsDescriptor="false" IsKey="false">
-                        <carnot:DataRef Id="TiffData"/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="156" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="IN" IsDescriptor="false" IsKey="false">
-                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="157" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="OUT" IsDescriptor="false" IsKey="false">
-                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
+                     <carnot:DataPath Oid="42" Id="NotificationMessage" Name="NotificationMessage" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="NotificationMessage"/>
                      </carnot:DataPath>
                   </carnot:DataPaths>
                   <carnot:EventHandlers/>
                   <carnot:Diagrams>
-                     <carnot:Diagram Oid="49" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                     <carnot:Diagram Oid="29" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="48" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="409" Height="670" Orientation="Vertical">
+                           <carnot:Symbol Kind="POOL" Oid="28" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="447" Height="670" Orientation="Vertical">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="LANE" Oid="47" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="375" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="48">
+                                 <carnot:Symbol Kind="LANE" Oid="27" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="413" Height="600" Orientation="Vertical" ParentLane="28">
                                     <carnot:Symbols>
-                                       <carnot:Symbol Kind="STARTEVENT" Oid="50" X="132" Y="97" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="54" X="97" Y="246" Width="180" Height="50" ModelElement="ShowTiffData"/>
-                                       <carnot:Symbol Kind="DATA" Oid="56" X="276" Y="125" Width="100" Height="70" ModelElement="TiffData"/>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="30" X="170" Y="80" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="33" X="135" Y="217" Width="180" Height="50" ModelElement="showNotification"/>
+                                       <carnot:Symbol Kind="DATA" Oid="37" X="44" Y="122" Width="100" Height="70" ModelElement="NotificationMessage"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="55" SourceSymbol="50" TargetSymbol="54" SourceAnchor="bottom" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="DATA_FLOW" Oid="58" SourceSymbol="56" TargetSymbol="54" SourceAnchor="bottom" TargetAnchor="right"/>
-                              </carnot:Connections>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
-      <WorkflowProcess Id="FileTriggerPDFDocData" Name="FileTriggerPDFDocData" AccessLevel="PUBLIC">
-         <ProcessHeader/>
-         <Activities>
-            <Activity Id="PDFData" Name="PDFData">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="99" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows>
-                           <carnot:DataFlow Oid="108" Id="PDFData" Name="PDFData" Direction="IN" Context="default">
-                              <carnot:DataRef Id="PDFData"/>
-                              <carnot:AccessPointRef/>
-                           </carnot:DataFlow>
-                        </carnot:DataFlows>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="93">
-                  <carnot:Triggers>
-                     <carnot:Trigger Oid="98" Id="ManualTrigger1" Name="File Trigger" Type="camel">
-                        <carnot:Description/>
-                        <carnot:AccessPoints>
-                           <carnot:AccessPoint Oid="110" Id="PDFData" Name="PDF Data" Direction="OUT" Type="dmsDocument">
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:dataType" Value="PersonType"/>
-                                 <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                                 <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                              </carnot:Attributes>
-                           </carnot:AccessPoint>
-                        </carnot:AccessPoints>
-                        <carnot:DataFlows>
-                           <carnot:DataFlow Oid="111">
-                              <carnot:DataRef Id="PDFData"/>
-                              <carnot:AccessPointRef Id="PDFData"/>
-                           </carnot:DataFlow>
-                        </carnot:DataFlows>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="carnot:engine:integration::overlay" Value="fileEvent"/>
-                           <carnot:Attribute Name="eventClass" Value="message"/>
-                           <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://c:/attachment?fileName=test.pdf&amp;amp;initialDelay=5000&amp;amp;delay=5000&amp;amp;readLock=changed&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
-                           <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="PDFData"/>
-                        </carnot:Attributes>
-                     </carnot:Trigger>
-                  </carnot:Triggers>
-                  <carnot:DataPaths/>
-                  <carnot:EventHandlers/>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="96" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="95" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="409" Height="670" Orientation="Vertical">
-                              <carnot:Symbols>
-                                 <carnot:Symbol Kind="LANE" Oid="94" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="375" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="95">
-                                    <carnot:Symbols>
-                                       <carnot:Symbol Kind="STARTEVENT" Oid="97" X="97" Y="123" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="100" X="62" Y="275" Width="180" Height="50" ModelElement="PDFData"/>
-                                       <carnot:Symbol Kind="DATA" Oid="107" X="248" Y="149" Width="100" Height="70" ModelElement="PDFData"/>
-                                    </carnot:Symbols>
-                                    <carnot:Connections/>
-                                 </carnot:Symbol>
-                              </carnot:Symbols>
-                              <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="101" SourceSymbol="97" TargetSymbol="100" SourceAnchor="bottom" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="DATA_FLOW" Oid="109" SourceSymbol="107" TargetSymbol="100" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="34" SourceSymbol="30" TargetSymbol="33" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="39" SourceSymbol="37" TargetSymbol="33" SourceAnchor="bottom" TargetAnchor="left"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -429,7 +199,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="7.2.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="7.3.2" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -524,13 +294,6 @@
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationValidator"/>
                      </carnot:Attributes>
                   </carnot:ApplicationType>
-                  <carnot:ApplicationType Oid="135" Id="camelSpringProducerApplication" Name="Camel Producer Application" IsPredefined="true" IsSynchronous="true">
-                     <carnot:Attributes>
-                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
-                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanAccessPointProvider"/>
-                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
-                     </carnot:Attributes>
-                  </carnot:ApplicationType>
                </carnot:ApplicationTypes>
                <carnot:ApplicationContextTypes>
                   <carnot:ApplicationContextType Oid="14" Id="default" Name="Default Context" IsPredefined="true" HasApplicationPath="false" HasMappingId="true"/>
@@ -545,7 +308,7 @@
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.triggers.manual.ManualTriggerValidator"/>
                      </carnot:Attributes>
                   </carnot:TriggerType>
-                  <carnot:TriggerType Oid="39" Id="camel" Name="Camel Trigger" IsPredefined="true" IsPullTrigger="false">
+                  <carnot:TriggerType Oid="35" Id="camel" Name="Camel Trigger" IsPredefined="true" IsPullTrigger="false">
                      <carnot:Attributes>
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
                         <carnot:Attribute Name="carnot:engine:runtimeValidator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
@@ -560,10 +323,10 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Mon Sep 23 15:46:10 GMT+01:00 2013"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed May 07 09:55:41 WAT 2014"/>
                <carnot:Attribute Name="ipp:variables[0]:name" Value="camelTriggerUsername" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="motu" Type="String"/>
-               <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword:Password" Type="String"/>
                <carnot:Attribute Name="ipp:variables[1]:defaultValue" Value="motu" Type="String"/>
             </carnot:Attributes>
          </carnot:Package>

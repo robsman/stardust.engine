@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="BPMTypeConverterTestModel" Name="BPM Type Converter Test Model">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="BpmTypeConverterTestUsingIPPEndpointModel" Name="BPM Type Converter Test Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -16,7 +16,7 @@
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:add="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Address" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Address">
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:add="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Address" targetNamespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Address">
                <xsd:complexType name="Address">
                   <xsd:sequence>
                      <xsd:element name="addrLine1" type="xsd:string"/>
@@ -35,8 +35,8 @@
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:add="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Address" xmlns:per="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Person" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Person">
-               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/Address" schemaLocation="urn:internal:Address"/>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:add="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Address" xmlns:per="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Person" targetNamespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Person">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/Address" schemaLocation="urn:internal:Address"/>
                <xsd:complexType name="Person">
                   <xsd:sequence>
                      <xsd:element name="firstname" type="xsd:string"/>
@@ -53,7 +53,7 @@
       </xpdl:TypeDeclaration>
       <xpdl:TypeDeclaration Id="DataTypes" Name="DataTypes">
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes">
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes" targetNamespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes">
                <xsd:complexType name="DataTypes">
                   <xsd:sequence>
                      <xsd:element name="string" type="xsd:string"/>
@@ -74,8 +74,8 @@
       </xpdl:TypeDeclaration>
       <xpdl:TypeDeclaration Id="NestedDataTypes" Name="NestedDataTypes">
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes">
-               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/NestedDataTypes">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
                <xsd:complexType name="NestedDataTypes">
                   <xsd:sequence>
                      <xsd:element name="dataTypes" type="dat:DataTypes"/>
@@ -87,9 +87,9 @@
       </xpdl:TypeDeclaration>
       <xpdl:TypeDeclaration Id="DataTypeList" Name="DataTypeList">
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypeList" xmlns:dat_1="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypeList">
-               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
-               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes" schemaLocation="urn:internal:NestedDataTypes"/>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypeList" xmlns:dat_1="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypeList">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BpmTypeConverterTestUsingIPPEndpointModel/NestedDataTypes" schemaLocation="urn:internal:NestedDataTypes"/>
                <xsd:complexType name="DataTypeList">
                   <xsd:sequence>
                      <xsd:element maxOccurs="unbounded" name="dataTypes" type="dat_1:DataTypes"/>
@@ -142,7 +142,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toXML&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromXML&quot; /&gt;&#13;&#10;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
@@ -188,7 +188,7 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -221,7 +221,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toXML&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromXML&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output" Type="String"/>
@@ -261,7 +261,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
@@ -299,7 +299,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
@@ -340,7 +340,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
@@ -376,7 +376,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
@@ -415,7 +415,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.BpmTypeConverterProcessor&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.engine.extensions.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>

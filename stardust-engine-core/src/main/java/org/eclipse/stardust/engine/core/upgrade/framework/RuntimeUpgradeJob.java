@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.eclipse.stardust.common.config.CurrentVersion;
-import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.config.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 
 
 /**
@@ -56,117 +55,127 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
 
    public UpgradableItem run(UpgradableItem item, boolean recover) throws UpgradeException
    {
-      final boolean dryRun = Parameters.instance().getBoolean(Upgrader.UPGRADE_DRYRUN,
-            false);
-      final boolean dataUpgrade = Parameters.instance().getBoolean(
-            RuntimeUpgrader.UPGRADE_DATA, false);
-      final boolean schemaUpgrade = Parameters.instance().getBoolean(
-            RuntimeUpgrader.UPGRADE_SCHEMA, false);
-      final boolean verbose = Parameters.instance().getBoolean(
-            RuntimeUpgrader.UPGRADE_VERBOSE, false);
-
-      this.item = (RuntimeItem) item;
-
-      assertCompatibility();
-
-      int recoveryLevel = checkForRecovery(recover);
-      switch (recoveryLevel)
+      try
       {
-         case 0:
-            if (schemaUpgrade || (!dryRun && !dataUpgrade))
-            {
-               info("Upgrading schema...");
+         ParametersFacade.pushGlobals();
+         GlobalParameters.globals().set(ModelManager.class.getSimpleName() + ".CHECK_AUDITTRAIL_VERSION", Boolean.FALSE);
 
-               this.item.spoolSqlComment(this.getVersion() + " schema upgrade DDL");
-               if (verbose)
-               {
-                 printUpgradeSchemaInfo();
-               }
-               upgradeSchema(recover);
-               setUpgradeState(UPGRADE_LEVEL1);
-               info("...Schema upgrade done.");
-            }
-            else
-            {
-               info("Skipping schema upgrade DDL as requested.");
-               if (verbose)
-               {
-                 printUpgradeSchemaInfo();
-               }
-            }
-            // falling through to level 1
-         case 1:
-            if (!dryRun && !schemaUpgrade)
-            {
-               info("Migrating data...");
-               if (verbose)
-               {
-                 printMigrateDataInfo();
-               }
-               migrateData(recover);
-               setUpgradeState(UPGRADE_LEVEL2);
-               info("...Data Migration done.");
-            }
-            else
-            {
-               info("Skipping data migration as requested.");
-               if (verbose)
-               {
-                 printMigrateDataInfo();
-               }
-            }
-            // falling through to level 2
-         case 2:
-            if (!dryRun && !schemaUpgrade)
-            {
-               info("Upgrading Model...");
-               upgradeModel(recover);
-               setUpgradeState(UPGRADE_LEVEL3);
-               info("...Model migration done.");
-            }
-            else
-            {
-               info("Skipping model migration as requested.");
-            }
-            // falling through to level 3
-         case 3:
-            // upgrades to before 3.0.0 did not use schema finalization
-            if (0 <= getVersion().compareTo(VERSION_3))
-            {
+         final boolean dryRun = Parameters.instance().getBoolean(Upgrader.UPGRADE_DRYRUN,
+               false);
+         final boolean dataUpgrade = Parameters.instance().getBoolean(
+               RuntimeUpgrader.UPGRADE_DATA, false);
+         final boolean schemaUpgrade = Parameters.instance().getBoolean(
+               RuntimeUpgrader.UPGRADE_SCHEMA, false);
+         final boolean verbose = Parameters.instance().getBoolean(
+               RuntimeUpgrader.UPGRADE_VERBOSE, false);
+
+         this.item = (RuntimeItem) item;
+
+         assertCompatibility();
+
+         int recoveryLevel = checkForRecovery(recover);
+         switch (recoveryLevel)
+         {
+            case 0:
                if (schemaUpgrade || (!dryRun && !dataUpgrade))
                {
-                  info("Finalizing schema...");
+                  info("Upgrading schema...");
 
-                  this.item.spoolSqlComment(this.getVersion() + " schema finalization DDL");
-                  if(verbose)
+                  this.item.spoolSqlComment(this.getVersion() + " schema upgrade DDL");
+                  if (verbose)
                   {
-                     printFinalizeSchemaInfo();
+                    printUpgradeSchemaInfo();
                   }
-                  finalizeSchema(recover);
-                  setUpgradeState(UPGRADE_LEVEL4);
-                  info("...Schema finalization done.");
+                  upgradeSchema(recover);
+                  setUpgradeState(UPGRADE_LEVEL1);
+                  info("...Schema upgrade done.");
                }
                else
                {
-                  info("Skipping schema finalization DDL as requested.");
-                  if(verbose)
+                  info("Skipping schema upgrade DDL as requested.");
+                  if (verbose)
                   {
-                     printFinalizeSchemaInfo();
+                    printUpgradeSchemaInfo();
                   }
                }
-            }
-            // falling through to level 4
-         case 4:
-            info("Upgrade to version " + getVersion()
-               + " done, upgrading runtime version stamp...");
-            upgradeRuntimeVersion();
-            finalizeUpgradeState();
-            setProductName();
-            info("...Version stamp updated.");
+               // falling through to level 1
+            case 1:
+               if (!dryRun && !schemaUpgrade)
+               {
+                  info("Migrating data...");
+                  if (verbose)
+                  {
+                    printMigrateDataInfo();
+                  }
+                  migrateData(recover);
+                  setUpgradeState(UPGRADE_LEVEL2);
+                  info("...Data Migration done.");
+               }
+               else
+               {
+                  info("Skipping data migration as requested.");
+                  if (verbose)
+                  {
+                    printMigrateDataInfo();
+                  }
+               }
+               // falling through to level 2
+            case 2:
+               if (!dryRun && !schemaUpgrade)
+               {
+                  info("Upgrading Model...");
+                  upgradeModel(recover);
+                  setUpgradeState(UPGRADE_LEVEL3);
+                  info("...Model migration done.");
+               }
+               else
+               {
+                  info("Skipping model migration as requested.");
+               }
+               // falling through to level 3
+            case 3:
+               // upgrades to before 3.0.0 did not use schema finalization
+               if (0 <= getVersion().compareTo(VERSION_3))
+               {
+                  if (schemaUpgrade || (!dryRun && !dataUpgrade))
+                  {
+                     info("Finalizing schema...");
+
+                     this.item.spoolSqlComment(this.getVersion() + " schema finalization DDL");
+                     if(verbose)
+                     {
+                        printFinalizeSchemaInfo();
+                     }
+                     finalizeSchema(recover);
+                     setUpgradeState(UPGRADE_LEVEL4);
+                     info("...Schema finalization done.");
+                  }
+                  else
+                  {
+                     info("Skipping schema finalization DDL as requested.");
+                     if(verbose)
+                     {
+                        printFinalizeSchemaInfo();
+                     }
+                  }
+               }
+               // falling through to level 4
+            case 4:
+               info("Upgrade to version " + getVersion()
+                  + " done, upgrading runtime version stamp...");
+               upgradeRuntimeVersion();
+               finalizeUpgradeState();
+               setProductName();
+               info("...Version stamp updated.");
+         }
+         if (warn > 0)
+         {
+            info("!!There where " + warn + " warnings or errors. Check your log file.");
+         }
       }
-      if (warn > 0)
+      finally
       {
-         info("!!There where " + warn + " warnings or errors. Check your log file.");
+         ParametersFacade.popGlobals();
       }
 
       return item;

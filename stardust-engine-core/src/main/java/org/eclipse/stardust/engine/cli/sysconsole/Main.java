@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,7 @@ public class Main
       argTypes.register("-password", "-p", "password", "The password of the sysop user.", true);
       argTypes.register("-verbose", "-v", "verbose", "Makes output more verbose.", false);
       argTypes.register("-force", "-f", "force", "Forces the command to execute without any callback.", false);
-      argTypes.register("-dbschema", Options.NO_SHORTNAME, "dbschema", "Audit trail DB schema to use.", true);
+      argTypes.register("-dbschema", null, "dbschema", "Audit trail DB schema to use.", true);
       argTypes.register("-dbuser", "-d", "dbuser", "Audit trail DB user to use.", true);
       argTypes.register("-dbpassword", "-s", "dbpassword", "Audit trail DB password to use.", true);
       argTypes.register("-dbdriver", "-r", "dbdriver", "The JDBC driver class to use", true);

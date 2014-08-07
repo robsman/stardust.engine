@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.extensions.mail.web.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +31,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.mail.MailConstants;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
+import org.eclipse.stardust.engine.extensions.mail.web.servlet.utils.HtmlUtils;
 
 
 public class MailApplicationReceptionServlet extends HttpServlet
@@ -156,9 +159,9 @@ public class MailApplicationReceptionServlet extends HttpServlet
          out.println("<h2>E-Mail Confirmation</h2>");
 
          out.println("<p>You decided to proceed with <b>"
-               + activityInstance.getActivity().getName() + "</b> and output <b>");
+               + HtmlUtils.htmlEscape(activityInstance.getActivity().getName()) + "</b> and output <b>");
          
-         out.println(outputValue);
+         out.println(HtmlUtils.htmlEscape(outputValue));
          
          out.println("</b>.</p><br>");
          out.println("<p>Thank you for your feedback.</p>");
@@ -266,9 +269,9 @@ public class MailApplicationReceptionServlet extends HttpServlet
       String errorPage = getInitParameter("errorPage");
       if ( !StringUtils.isEmpty(errorPage))
       {
-         response.sendRedirect(errorPage
+         response.sendRedirect((errorPage
                + requestParameters(activityInstance, processInstance, outputValue, e
-                     .getMessage()));
+                     .getMessage())));
       }
       else
       {
@@ -296,7 +299,7 @@ public class MailApplicationReceptionServlet extends HttpServlet
    }
 	
 	private static String requestParameters(ActivityInstance activityInstance,
-         ProcessInstance processInstance, String outputValue, String errorText)
+         ProcessInstance processInstance, String outputValue, String errorText) throws UnsupportedEncodingException
    {
       String delimiter = "?";
       StringBuffer buffer = new StringBuffer(100);
@@ -304,32 +307,40 @@ public class MailApplicationReceptionServlet extends HttpServlet
       if (null != activityInstance)
       {
          buffer.append(delimiter).append("activity-name=").append(
-               activityInstance.getActivity().getName());
+               encodeString(activityInstance.getActivity().getName()));
          delimiter = "&";
       }
 
       if (null != processInstance)
       {
          buffer.append(delimiter).append("process-name=").append(
-               processInstance.getProcessName());
+               encodeString(processInstance.getProcessName()));
          delimiter = "&";
          buffer.append(delimiter).append("process-id=").append(
-               processInstance.getProcessID());
-         buffer.append(delimiter).append("process-oid=").append(processInstance.getOID());
+               encodeString(processInstance.getProcessID()));
+         buffer.append(delimiter).append("process-oid=").append(encodeString(String.valueOf(processInstance.getOID())));
       }
 
       if ( !StringUtils.isEmpty(outputValue))
       {
-         buffer.append(delimiter).append("output-value=").append(outputValue);
+         buffer.append(delimiter).append("output-value=").append(encodeString(outputValue));
          delimiter = "&";
       }
 
       if ( !StringUtils.isEmpty(errorText))
       {
-         buffer.append(delimiter).append("error-text=").append(errorText);
+         buffer.append(delimiter).append("error-text=").append(encodeString(errorText));
          delimiter = "&";
       }
 
       return buffer.toString();
    }
+	
+	private static String encodeString(String inputString) throws UnsupportedEncodingException
+	{
+		String encoding = "UTF-8";
+		
+
+		return URLEncoder.encode(inputString, encoding);
+	}
 }

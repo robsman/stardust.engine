@@ -28,8 +28,6 @@ import org.eclipse.stardust.common.error.PublicException;
  */
 public class Options
 {
-   public static String NO_SHORTNAME = null;
-
    public static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd");
 
    public static final DateFormat ISO_TIME_MINUTES = new SimpleDateFormat("HH:mm");
@@ -162,7 +160,7 @@ public class Options
       }
       longnames.put(longname, o);
 
-      if (NO_SHORTNAME != shortname)
+      if (shortname != null)
       {
          if (shortnames.containsKey(shortname))
          {

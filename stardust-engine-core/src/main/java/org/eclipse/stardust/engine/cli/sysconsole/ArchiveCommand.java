@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public class ArchiveCommand extends AuditTrailCommand
 
    static
    {
-      argTypes.register("-" + PARTITION, Options.NO_SHORTNAME, PARTITION, "Optionally specifies the partition(s) to be archived.\n"
+      argTypes.register("-" + PARTITION, null, PARTITION, "Optionally specifies the partition(s) to be archived.\n"
             + "Accepts as argument a single partition ID or a comma separated list of\npartition IDs.\n"
             + "If this parameter is not used, the archiving command of sysconsole has\nan effect only on the default partition.", true);
 
@@ -87,7 +87,7 @@ public class ArchiveCommand extends AuditTrailCommand
             "Deletes audit trail for the model version with " + "the specified OID.\n"
                   + DISCLAIMER, true);
 
-      argTypes.register("-" + PROCESSES_BY_OID, Options.NO_SHORTNAME, PROCESSES_BY_OID,
+      argTypes.register("-" + PROCESSES_BY_OID, null, PROCESSES_BY_OID,
             "Archives/Deletes the specified process instances (comma separated list of\n"
             + "OIDs).\n"
             + "Process instances must be terminated (completed or aborted).", true);

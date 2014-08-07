@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,8 +41,6 @@ public class DashboardCommand extends ConsoleCommand
    private static final String OVERVIEW = "overview";
    private static final String RECOVERY = "recovery";
 
-   private static final String XML = "xml";
-
    static
    {
       argTypes.register("-" + OVERVIEW, "-o", OVERVIEW,
@@ -61,70 +59,70 @@ public class DashboardCommand extends ConsoleCommand
    public int run(Map options)
    {
       ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
-      
+
       QueryService qs = serviceFactory.getQueryService();
-      
+
       if (options.containsKey(OVERVIEW)
             || !(options.containsKey(OVERVIEW) || options.containsKey(RECOVERY)))
       {
          print("");
          print("Overview");
          print("");
-         
+
          print(MessageFormat.format("Processes (total):\t{0}", new Object[] {new Long(
                qs.getProcessInstancesCount(ProcessInstanceQuery.findAll()))}));
-         
+
          print(MessageFormat.format("Processes (alive):\t{0}", new Object[] {new Long(
                qs.getProcessInstancesCount(ProcessInstanceQuery.findAlive()))}));
-         
+
          print(MessageFormat.format("Processes (completed):\t{0}", new Object[] {new Long(
                qs.getProcessInstancesCount(ProcessInstanceQuery.findCompleted()))}));
-         
+
          print(MessageFormat.format("Processes (aborted):\t{0}", new Object[] {new Long(
                qs.getProcessInstancesCount(ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted)))}));
-         
+
          print("");
-         
+
          print(MessageFormat.format("Activities (total):\t{0}", new Object[] {new Long(
                qs.getActivityInstancesCount(ActivityInstanceQuery.findAll()))}));
-         
+
          print(MessageFormat.format("Activities (alive):\t{0}", new Object[] {new Long(
                qs.getActivityInstancesCount(ActivityInstanceQuery.findAlive()))}));
-         
+
          print(MessageFormat.format("Activities (completed):\t{0}", new Object[] {new Long(
                qs.getActivityInstancesCount(ActivityInstanceQuery.findCompleted()))}));
-         
+
          print(MessageFormat.format("Activities (aborted):\t{0}", new Object[] {new Long(
                qs.getActivityInstancesCount(ActivityInstanceQuery.findInState(ActivityInstanceState.Aborted)))}));
-         
+
          print("");
-         
+
          print(MessageFormat.format("Users (total):\t\t{0}", new Object[] {new Long(
                qs.getUsersCount(UserQuery.findAll()))}));
-         
+
          print(MessageFormat.format("Users (active):\t\t{0}", new Object[] {new Long(
                qs.getUsersCount(UserQuery.findActive()))}));
-         
+
          print("");
       }
-      
+
       if (options.containsKey(RECOVERY))
       {
          print("");
          print("Process Recovery Indicators");
          print("");
-         
+
          print(MessageFormat.format("Interrupted process instances:\t{0}", new Object[] {new Long(
                qs.getProcessInstancesCount(ProcessInstanceQuery.findInterrupted()))}));
-         
+
          print(MessageFormat.format("Interrupted activity instances:\t{0}", new Object[] {new Long(
                qs.getActivityInstancesCount(ActivityInstanceQuery.findInState(ActivityInstanceState.Interrupted)))}));
-         
+
          print("");
-         
+
          boolean countOnly = !options.containsKey(SHOW_OIDS);
          AuditTrailHealthReport report = serviceFactory.getAdministrationService().getAuditTrailHealthReport(countOnly);
-         if(countOnly) 
+         if(countOnly)
          {
             print("Number of process instances likely to have ..");
             print(MessageFormat.format(" .. pending process completion:\t{0}", new Object[] {new Long(
@@ -138,10 +136,10 @@ public class DashboardCommand extends ConsoleCommand
             print(MessageFormat.format(" .. crashed activity threads:\t{0}", new Object[] {new Long(
                   report.getNumberOfProcessInstancesHavingCrashedThreads())}));
          }
-         else 
+         else
          {
             print("List of process instances oids likely to have ..");
-            print(MessageFormat.format(" .. pending process completion:\t{0}", 
+            print(MessageFormat.format(" .. pending process completion:\t{0}",
                   getOids(report.getProcessInstancesLackingCompletion())));
             print(MessageFormat.format(" .. pending process abortion:\t{0}", getOids(
                   report.getProcessInstancesLackingAbortion())));
@@ -152,7 +150,7 @@ public class DashboardCommand extends ConsoleCommand
             print(MessageFormat.format(" .. crashed activity threads:\t{0}", getOids(
                   report.getProcessInstancesHavingCrashedThreads())));
          }
-         
+
          print("");
       }
 

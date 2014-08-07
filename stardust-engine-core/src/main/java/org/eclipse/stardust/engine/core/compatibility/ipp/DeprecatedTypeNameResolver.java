@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2014 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.compatibility.ipp;
 
 import java.io.IOException;
@@ -16,11 +26,9 @@ import org.eclipse.stardust.common.reflect.spi.ITypeNameResolver;
 public class DeprecatedTypeNameResolver implements ITypeNameResolver
 {
    private static Logger trace = LogManager.getLogger(DeprecatedTypeNameResolver.class);
-   
-   private static String UNKNOWN_TYPE_NAME = null;
-   
+
    private Map<String, DeprecatedType> typeMappings;
-   
+
    public DeprecatedTypeNameResolver()
    {
       Map<String, DeprecatedType> typeMappings;
@@ -30,10 +38,10 @@ public class DeprecatedTypeNameResolver implements ITypeNameResolver
          deprTypesProps.load(DeprecatedTypeNameResolver.class.getResourceAsStream("deprecated-types.properties"));
          typeMappings = CollectionUtils.newHashMap(deprTypesProps.size());
          String appIds = deprTypesProps.getProperty("DeprecatedApplicationsIds");
-         for(Iterator<String> appIter = StringUtils.split(appIds, ','); appIter.hasNext(); )
+         for (Iterator<String> appIter = StringUtils.split(appIds, ','); appIter.hasNext(); )
          {
             String appId = appIter.next();
-            DeprecatedType type = new DeprecatedType(appId, deprTypesProps.getProperty(appId + ".name"), 
+            DeprecatedType type = new DeprecatedType(appId, deprTypesProps.getProperty(appId + ".name"),
                deprTypesProps.getProperty(appId + ".validator"),
                deprTypesProps.getProperty(appId + ".applicationInstance"),
                deprTypesProps.getProperty(appId + ".accessPointProvider"));
@@ -45,10 +53,10 @@ public class DeprecatedTypeNameResolver implements ITypeNameResolver
          trace.error("Failed loading deprecated compatibility type mappings.", ioe);
          typeMappings = Collections.emptyMap();
       }
-      
+
       this.typeMappings = typeMappings;
    }
-   
+
    private void addTypeMapping(Map<String, DeprecatedType> typeMappings, DeprecatedType type)
    {
       if(StringUtils.isNotEmpty(type.accessPointProviderClass))
@@ -74,21 +82,21 @@ public class DeprecatedTypeNameResolver implements ITypeNameResolver
       }
       return null;
    }
-   
+
    private static class DeprecatedType
    {
-      String applicationId;
+      //String applicationId;
       String applicationName;
       String validatorClass;
       String applicationInstanceClass;
       String accessPointProviderClass;
-      
+
       private static String WARN_MSG = "You''re using the deprecated class ''{0}'' which was part of the application ''{1}''";
-      
+
       public DeprecatedType(String id, String name, String validatorClass,
             String applicationInstanceClass, String accessPointProviderClass)
       {
-         this.applicationId = id;
+         //this.applicationId = id;
          this.applicationName = name;
          this.validatorClass = validatorClass;
          this.applicationInstanceClass = applicationInstanceClass;
@@ -97,15 +105,16 @@ public class DeprecatedTypeNameResolver implements ITypeNameResolver
 
       public String getEquivalentClassType(String typeName)
       {
-         if(StringUtils.isEmpty(typeName))
+         if (StringUtils.isEmpty(typeName))
          {
             return null;
          }
+
          String resolvedTypeName = null;
-         if(typeName.compareTo(validatorClass) == 0)
+         if (typeName.compareTo(validatorClass) == 0)
          {
             resolvedTypeName = DeprecatedValidator.class.getName();
-         } 
+         }
          else if (typeName.compareTo(applicationInstanceClass) == 0)
          {
             resolvedTypeName =  DeprecatedApplicationInstance.class.getName();
@@ -114,14 +123,10 @@ public class DeprecatedTypeNameResolver implements ITypeNameResolver
          {
             resolvedTypeName =  DeprecatedAccessPointProvider.class.getName();
          }
-         else
+
+         if (resolvedTypeName != null)
          {
-            resolvedTypeName = UNKNOWN_TYPE_NAME;
-         }
-         
-         if(resolvedTypeName != UNKNOWN_TYPE_NAME)
-         {
-            trace.warn(MessageFormat.format(WARN_MSG, typeName, applicationName)); 
+            trace.warn(MessageFormat.format(WARN_MSG, typeName, applicationName));
          }
          return resolvedTypeName;
       }

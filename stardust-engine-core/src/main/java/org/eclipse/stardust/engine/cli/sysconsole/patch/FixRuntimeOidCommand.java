@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,30 +18,30 @@ import org.eclipse.stardust.engine.cli.sysconsole.AuditTrailCommand;
 public class FixRuntimeOidCommand extends AuditTrailCommand
 {
    private static final Options argTypes = new Options();
-   
+
    public static final String LOG_ONLY_ARG = "-logonly";
-   
+
    public static final String NO_LOG_ARG = "-nolog";
 
    public static final String COMMAND_NAME = "fixruntimeoids";
-   
+
    static
    {
-      argTypes.register(LOG_ONLY_ARG, Options.NO_SHORTNAME, LOG_ONLY_ARG, "If specified, no database operation will be performed", false);
-      
-      argTypes.register(NO_LOG_ARG, Options.NO_SHORTNAME, NO_LOG_ARG, "If specified, no log file will be written", false);
+      argTypes.register(LOG_ONLY_ARG, null, LOG_ONLY_ARG, "If specified, no database operation will be performed", false);
+
+      argTypes.register(NO_LOG_ARG, null, NO_LOG_ARG, "If specified, no log file will be written", false);
    }
-   
+
    @Override
    public int doRun(Map options)
-   {   
+   {
       boolean logOnly = options.containsKey(LOG_ONLY_ARG);
       boolean noLog = options.containsKey(NO_LOG_ARG);
       boolean useNewOid = true;
-      
+
       RuntimeOidPatcher patcher = new RuntimeOidPatcher(logOnly, useNewOid, noLog);
       patcher.patch();
-      
+
       return 0;
    }
 
@@ -63,5 +63,5 @@ public class FixRuntimeOidCommand extends AuditTrailCommand
       return "Fixing invalid runtime oids in the audit trail DB:\n";
    }
 
-   
+
 }

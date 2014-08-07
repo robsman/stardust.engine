@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,12 +62,12 @@ public class RecoverCommand extends ConsoleCommand
             + "option is missing, all qualifying process instances are recovered in\n"
             + "one big transaction.\n"
             + "Might be used for both full and quick recovery.", true);
-      argTypes.register("-" + STARTED_AFTER, Options.NO_SHORTNAME, STARTED_AFTER,
+      argTypes.register("-" + STARTED_AFTER, null, STARTED_AFTER,
             "Recovers only process instances started after the given date.\n"
             + "Might be used for both full and quick recovery.\n"
             + "The specified date must conforms to ISO date patterns\n"
             + "(i.e. \"2005-10-01\",\"2005-10-01 08:30\" or \"2006-01-01T08:30:00:000\").", true);
-      argTypes.register("-" + STARTED_BEFORE, Options.NO_SHORTNAME, STARTED_BEFORE,
+      argTypes.register("-" + STARTED_BEFORE, null, STARTED_BEFORE,
             "Recovers only process instances started before the given date.\n"
             + "Might be used for both full and quick recovery.\n"
             + "The specified date must conforms to ISO date patterns\n"
@@ -104,7 +104,7 @@ public class RecoverCommand extends ConsoleCommand
                   || options.containsKey(STARTED_AFTER))
             {
                // query for OIDs of qualifying process instances
-               
+
                ProcessInstanceQuery query;
                if (options.containsKey(QUICK))
                {
@@ -119,7 +119,7 @@ public class RecoverCommand extends ConsoleCommand
                         ProcessInstanceState.Active, ProcessInstanceState.Interrupted,
                         ProcessInstanceState.Aborting });
                }
-               
+
                if (options.containsKey(MAX))
                {
                   query.setPolicy(new SubsetPolicy(Options.getLongValue(options, MAX)
@@ -156,15 +156,15 @@ public class RecoverCommand extends ConsoleCommand
                      return -1;
                   }
                }
-               
+
                ProcessInstances pis = serviceFactory.getQueryService()
                      .getAllProcessInstances(query);
-               
+
                print(MessageFormat.format(
                      "Performing {0} recovery of {1} process instance(s).", new Object[] {
                            options.containsKey(QUICK) ? "a quick" : "a",
                            new Integer(pis.size())}));
-               
+
                // perform recovery using batches of retrieved OIDs
 
                int batchSize = (int) pis.getSize();
@@ -172,7 +172,7 @@ public class RecoverCommand extends ConsoleCommand
                {
                   batchSize = Options.getLongValue(options, BATCH_SIZE).intValue();
                }
-               
+
                AdministrationService adminSrvc = serviceFactory.getAdministrationService();
                try
                {
@@ -200,7 +200,7 @@ public class RecoverCommand extends ConsoleCommand
                finally
                {
                   serviceFactory.release(adminSrvc);
-               }               
+               }
             }
             else
             {

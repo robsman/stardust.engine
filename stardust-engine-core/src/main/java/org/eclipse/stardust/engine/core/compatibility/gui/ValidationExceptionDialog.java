@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -196,14 +196,4 @@ public class ValidationExceptionDialog
       return null;
    }
 
-   public static void main(String[] args)
-   {
-      List c = new ArrayList();
-      c.add("bla");
-      c.add("blub");
-      boolean result = showDialog(null, new ValidationException("Schwerer Fehler", c, false));
-      System.out.println("result = " + result);
-      result = showDialog(null, new ValidationException("Leichter Fehler", true));
-      System.out.println("result = " + result);
-   }
 }

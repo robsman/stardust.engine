@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,14 +56,14 @@ public class CreateUserCommand extends UserCommand
       {
          confirmMessage = "Create user with account ''{0}'' (realm {1})?: ";
       }
-      
+
       if ( !force()
             && !confirm(MessageFormat.format(confirmMessage, new Object[] { account,
                   realm })))
       {
          return -1;
       }
-      
+
       ServiceFactory sf = ServiceFactoryLocator.get(globalOptions);
       final User user;
       try
@@ -86,7 +86,7 @@ public class CreateUserCommand extends UserCommand
                   (String) options.get(EMAIL),
                   getDateOption(options, VALIDFROM), getDateOption(options, VALIDTO));
          }
-         
+
          if (options.containsKey(GRANTS))
          {
             addGrants((String) options.get(GRANTS), user);
@@ -99,7 +99,7 @@ public class CreateUserCommand extends UserCommand
                trace.warn("", e);
                print(MessageFormat.format(
                            "Grants of user ''{0}'' (realm: {1}) couldn't be created: {2}",
-                           new Object[] { user.getAccount(), user.getRealmId(),
+                           new Object[] { user.getAccount(), user.getRealm().getId(),
                                  e.getMessage() }));
                return -1;
             }
@@ -110,7 +110,7 @@ public class CreateUserCommand extends UserCommand
          sf.close();
       }
       print(MessageFormat.format("User with account ''{0}'' (realm: {1}) created.",
-            new Object[] { user.getAccount(), user.getRealmId() }));
+            new Object[] { user.getAccount(), user.getRealm().getId() }));
       return 0;
    }
 

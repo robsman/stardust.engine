@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.util.Map;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
@@ -33,7 +32,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.ItemLocatorUtil
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
-
 /**
  * @author born
  * @version $Revision$
@@ -43,7 +41,7 @@ public class Utils
 
    public static void flushSession()
    {
-      org.eclipse.stardust.engine.core.persistence.Session session 
+      org.eclipse.stardust.engine.core.persistence.Session session
          = SessionFactory.getSession(SessionProperties.DS_NAME_AUDIT_TRAIL);
       if(session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
       {
@@ -52,21 +50,21 @@ public class Utils
          jdbcSession.save(false);
       }
    }
-   
+
    public static void initCarnotEngine(String partitionId)
    {
       initCarnotEngine(partitionId, Collections.emptyMap());
    }
-   
+
    public static void initCarnotEngine(String partitionId, Map properties)
    {
       try
       {
          Parameters.instance().flush();
-         
+
          if ( !properties.isEmpty())
          {
-            PropertyLayer pushLayer = ParametersFacade.pushLayer(properties);
+            ParametersFacade.pushLayer(properties);
          }
 
          Parameters params = Parameters.instance();
@@ -154,6 +152,6 @@ public class Utils
 
    private Utils()
    {
-      
+
    }
 }

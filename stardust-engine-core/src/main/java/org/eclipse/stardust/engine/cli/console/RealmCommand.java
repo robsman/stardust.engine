@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 public class RealmCommand extends ConsoleCommand
 {
    private static final Logger trace = LogManager.getLogger(RealmCommand.class);
-   
+
    protected static final String CMD_CREATE = "create";
    protected static final String CMD_DROP = "drop";
    protected static final String CMD_LIST = "list";
@@ -39,11 +39,11 @@ public class RealmCommand extends ConsoleCommand
 
    public RealmCommand()
    {
-      argTypes.register("-" + CMD_CREATE, Options.NO_SHORTNAME, CMD_CREATE,
+      argTypes.register("-" + CMD_CREATE, null, CMD_CREATE,
             "Create a new realm to be identified by the given ID.", true);
-      argTypes.register("-" + CMD_DROP, Options.NO_SHORTNAME, CMD_DROP,
+      argTypes.register("-" + CMD_DROP, null, CMD_DROP,
             "Drops the realm being identified by the given ID.", true);
-      argTypes.register("-" + CMD_LIST, Options.NO_SHORTNAME, CMD_LIST,
+      argTypes.register("-" + CMD_LIST, null, CMD_LIST,
             "Lists all available realms.", false);
    }
 
@@ -63,7 +63,7 @@ public class RealmCommand extends ConsoleCommand
       {
          ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
          String id = (String) options.get(CMD_CREATE);
-         
+
          try
          {
             serviceFactory.getUserService().createUserRealm(id, id, "");
@@ -87,10 +87,10 @@ public class RealmCommand extends ConsoleCommand
          {
             return -1;
          }
-         
+
          ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
          String id = (String) options.get(CMD_DROP);
-         
+
          try
          {
             serviceFactory.getUserService().dropUserRealm(id);
@@ -106,13 +106,13 @@ public class RealmCommand extends ConsoleCommand
          {
             serviceFactory.close();
          }
-         
+
          print(MessageFormat.format("Dropped user realm ''{0}''.", new Object[] {id}));
       }
       else if (options.containsKey(CMD_LIST))
       {
          ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
-         
+
          try
          {
             List userRealms = serviceFactory.getUserService().getUserRealms();
@@ -141,7 +141,7 @@ public class RealmCommand extends ConsoleCommand
             serviceFactory.close();
          }
       }
-      
+
       return 0;
    }
 }

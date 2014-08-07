@@ -17,7 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.error.IncompatibleAuditTrailException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
@@ -38,6 +41,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeJob;
+import org.eclipse.stardust.engine.core.upgrade.jobs.RuntimeJobs;
 
 /**
  * @author ubirkemeyer
@@ -51,6 +56,8 @@ public class ModelManagerBean implements ModelManager
    private static final Date MINUS_INFINITY_DATE = new Date(0);
    private static final Date PLUS_INFINITY_DATE = new Date(Long.MAX_VALUE);
 
+   private final boolean checkAuditTrailVersion;
+
    private final AbstractModelLoaderFactory loaderFactory;
 
    private Map<Short, ModelManagerPartition> managerPartitions = CollectionUtils.newMap();
@@ -58,7 +65,7 @@ public class ModelManagerBean implements ModelManager
    public ModelManagerBean(AbstractModelLoaderFactory loaderFactory)
    {
       LogUtils.traceObject(this, true);
-
+      checkAuditTrailVersion = Parameters.instance().getBoolean(ModelManager.class.getSimpleName() + ".CHECK_AUDITTRAIL_VERSION", true);
       this.loaderFactory = loaderFactory;
    }
 
@@ -299,15 +306,14 @@ public class ModelManagerBean implements ModelManager
                .getPartitionOid()));
          //also clear runtime environment from model manager
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         if(rtEnv != null)
+         if (rtEnv != null)
          {
             rtEnv.setModelManager(null);
          }
       }
    }
 
-   protected synchronized ModelManagerPartition getModelManagerPartition(
-         short partitionOid)
+   protected synchronized ModelManagerPartition getModelManagerPartition(short partitionOid)
    {
       ModelManagerPartition managerPartition;
       Short partitionOidValue = new Short(partitionOid);
@@ -318,6 +324,33 @@ public class ModelManagerBean implements ModelManager
       }
       else
       {
+         if (checkAuditTrailVersion)
+         {
+            List<UpgradeJob> jobs = RuntimeJobs.getRuntimeJobs();
+            if (!jobs.isEmpty())
+            {
+               Version version = null;
+               UpgradeJob required = jobs.get(jobs.size() - 1);
+               PropertyPersistor persistor = PropertyPersistor.findByName(Constants.CARNOT_VERSION);
+               if (persistor != null)
+               {
+                  try
+                  {
+                     version = Version.createModelVersion(persistor.getValue(), CurrentVersion.getVendorName());
+                  }
+                  catch (Exception ex)
+                  {
+                     // (fh) ignore
+                  }
+               }
+               if (version == null || version.compareTo(required.getVersion(), true) < 0)
+               {
+                  throw new IncompatibleAuditTrailException("Invalid audittrail version '" + version + "'. "
+                        + CurrentVersion.getProductName() + " requires a minimum auditrail version '" + required.getVersion() + "'. ");
+               }
+            }
+         }
+
          managerPartition = new ModelManagerPartition(partitionOidValue, loaderFactory.instance(partitionOid));
          managerPartitions.put(partitionOid, managerPartition);
       }
@@ -776,17 +809,11 @@ public class ModelManagerBean implements ModelManager
 
       private void initialize(BpmRuntimeEnvironment rtEnv)
       {
-         // sort with ascending model OID
-         Map<Long, IModelPersistor> loadedModels = new TreeMap();
-         for (Iterator i = loader.loadModels(); i.hasNext();)
-         {
-            IModelPersistor persistor = (IModelPersistor) i.next();
-            loadedModels.put(persistor.getModelOID(), persistor);
-         }
+         Map<Long, IModelPersistor> modelPersistors = getModelPersistors();
 
          Map<String, IModel> overrides = CollectionUtils.newMap();
          rtEnv.setModelOverrides(overrides);
-         for (IModelPersistor persistor : loadedModels.values())
+         for (IModelPersistor persistor : modelPersistors.values())
          {
             IModel model = persistor.fetchModel();
             resolveModelReferences(model);
@@ -796,11 +823,11 @@ public class ModelManagerBean implements ModelManager
          Collections.reverse(orderedModelsByAge);
 
          // building list of models, paying attention to predecessor relationship
-         while (!loadedModels.isEmpty())
+         while (!modelPersistors.isEmpty())
          {
             boolean progressing = false;
 
-            for (Iterator i = loadedModels.values().iterator(); i.hasNext();)
+            for (Iterator i = modelPersistors.values().iterator(); i.hasNext();)
             {
                IModelPersistor mPersistor = (IModelPersistor) i.next();
                IModel predecessor = findModel(mPersistor.getPredecessorOID());
@@ -810,7 +837,7 @@ public class ModelManagerBean implements ModelManager
                   i.remove();
                   progressing = true;
                }
-               else if (!loadedModels.containsKey(new Long(mPersistor.getPredecessorOID())))
+               else if (!modelPersistors.containsKey(new Long(mPersistor.getPredecessorOID())))
                {
                   // there is no predecessor available
                   models.add(0, mPersistor.fetchModel());
@@ -819,15 +846,15 @@ public class ModelManagerBean implements ModelManager
                }
             }
 
-            if (!progressing && !loadedModels.isEmpty())
+            if (!progressing && !modelPersistors.isEmpty())
             {
                // remaining models most probably are linked with circular predecessors
                trace.warn(MessageFormat.format(
                      "Unable to properly resolve model predecessor relationship for models "
                            + "with OIDs {0}. Please check for circularity.",
-                     new Object[] {loadedModels.keySet()}));
+                     new Object[] {modelPersistors.keySet()}));
 
-               for (Iterator i = loadedModels.values().iterator(); i.hasNext();)
+               for (Iterator i = modelPersistors.values().iterator(); i.hasNext();)
                {
                   IModelPersistor mPersistor = (IModelPersistor) i.next();
                   addModel(mPersistor.getPredecessorOID(), mPersistor.fetchModel(), false);
@@ -981,6 +1008,35 @@ public class ModelManagerBean implements ModelManager
             }
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
+      }
+
+      private Map<Long, IModelPersistor> getModelPersistors()
+      {
+         final Map<Long, Set<Long>> modelReferences = ModelRefBean.getModelReferences();
+         Map<Long, IModelPersistor> loadedModels = new TreeMap(new Comparator<Long>()
+         {
+            @Override
+            public int compare(Long mp1, Long mp2)
+            {
+               Set<Long> usedByMp1 = modelReferences.get(mp1);
+               if (usedByMp1 != null && usedByMp1.contains(mp2))
+               {
+                  return 1;
+               }
+               Set<Long> usedByMp2 = modelReferences.get(mp2);
+               if (usedByMp2 != null && usedByMp2.contains(mp1))
+               {
+                  return -1;
+               }
+               return (int) (mp1 - mp2);
+            }
+         });
+         for (Iterator i = loader.loadModels(); i.hasNext();)
+         {
+            IModelPersistor persistor = (IModelPersistor) i.next();
+            loadedModels.put(persistor.getModelOID(), persistor);
+         }
+         return loadedModels;
       }
 
       private void addRelocationTransition(IModel model)

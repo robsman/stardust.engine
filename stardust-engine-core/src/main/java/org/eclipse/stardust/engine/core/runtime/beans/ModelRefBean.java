@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -124,6 +123,43 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          return "Primary implementation: " + modelOid + '[' + refOid + "]=" + id + '/' + deployment;
       }
+   }
+
+   static Map<Long, Set<Long>> getModelReferences()
+   {
+      Map<Long, Set<Long>> usage = new HashMap<Long, Set<Long>>();
+      PredicateTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
+      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
+            .select(FR__MODEL_OID, FR__REF_OID)
+            .where(typePredicate);
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      ResultSet resultSet = session.executeQuery(query);
+      try
+      {
+         resultSet = session.executeQuery(query);
+         while (resultSet.next())
+         {
+            long model = resultSet.getLong(1);
+            long ref = resultSet.getLong(2);
+            Set<Long> used = usage.get(model);
+            if (used == null)
+            {
+               used = new HashSet<Long>();
+               usage.put(model, used);
+            }
+            used.add(ref);
+         }
+      }
+      catch (SQLException e)
+      {
+         trace.warn("Failed executing query.", e);
+         throw new PublicException(e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(resultSet);
+      }
+      return usage;
    }
 
    public static void setResolvedModel(IExternalPackage reference, IModel used, long deployment)

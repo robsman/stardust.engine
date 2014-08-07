@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,13 +106,13 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             "Verifies existence of data cluster tables and their consistency.", false);
       argTypes.register("-" + DATACLUSTER_DROP, "-ddc", DATACLUSTER_DROP,
             "Drops any existing data cluster tables.", false);
-      argTypes.register("-" + DATACLUSTER_CONFIG_FILE, Options.NO_SHORTNAME, DATACLUSTER_CONFIG_FILE,
+      argTypes.register("-" + DATACLUSTER_CONFIG_FILE, null, DATACLUSTER_CONFIG_FILE,
             "Specifies the name of the config file which shall be deployed to audit trail.", true);
-      argTypes.register("-" + AUDITTRAIL_SKIPDDL, Options.NO_SHORTNAME, AUDITTRAIL_SKIPDDL,
+      argTypes.register("-" + AUDITTRAIL_SKIPDDL, null, AUDITTRAIL_SKIPDDL,
             "Skips the execution of schema changing commands like 'create' or 'drop'.", false);
-      argTypes.register("-" + AUDITTRAIL_SKIPDML, Options.NO_SHORTNAME, AUDITTRAIL_SKIPDML,
+      argTypes.register("-" + AUDITTRAIL_SKIPDML, null, AUDITTRAIL_SKIPDML,
             "Skips the execution of data changing commands like 'insert' or 'update'.", false);
-      argTypes.register("-" + AUDITTRAIL_SQL, Options.NO_SHORTNAME, AUDITTRAIL_SQL,
+      argTypes.register("-" + AUDITTRAIL_SQL, null, AUDITTRAIL_SQL,
             "Spools SQL statements to file instead of executing them on audit trail.", true);
       argTypes.register("-" + STATEMENT_DELIMITER, "-sd", STATEMENT_DELIMITER,
             "Specifies the delimiter applied after each SQL statement.", true);

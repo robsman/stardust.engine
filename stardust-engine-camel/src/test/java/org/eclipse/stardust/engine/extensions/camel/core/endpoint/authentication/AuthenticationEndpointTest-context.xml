@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <import resource="../../../common/SharedTestContext.xml" />
+
+   <camelContext xmlns="http://camel.apache.org/schema/spring"
+      trace="true">
+      <!-- <propertyPlaceholder id="properties" -->
+      <!-- location="classpath:credentials.properties" -->
+      <!-- propertiesParserRef="jasypt"/> -->
+      <routeBuilder ref="setCurrentTestRouteBuilder" />
+   </camelContext>
+
+   <!-- Dependency on 'camel-jasypt' is required for encrypted password. 
+      This cannot be used currently. See CRNT-27852 -->
+   <!-- <bean id="jasypt" class="org.apache.camel.component.jasypt.JasyptPropertiesParser"> -->
+   <!-- <property name="password" value="secret"/> -->
+   <!-- </bean> -->
+
+   <bean id="setCurrentTestRouteBuilder"
+      class="org.eclipse.stardust.engine.extensions.camel.core.endpoint.authentication.AuthenticationEndpointTest"
+      factory-method="createSetCurrentTestRouteBuilder" />
+
+</beans>

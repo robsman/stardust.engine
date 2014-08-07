@@ -58,6 +58,9 @@
 	<bean id="sqlPrepareStatementStrategy"
 		class="org.eclipse.stardust.engine.extensions.camel.sql.SqlPrepareStatementStrategy" />
 
+    <bean id="attachmentBeanHandler"
+        class="org.eclipse.stardust.engine.extensions.camel.attachment.AttachmentBeanHandler" />
+
 	<bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
 		<property name="transactionManager" ref="carnotTxManager" />
 		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />

@@ -23,18 +23,18 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 public final class RelocationUtils
 {
    private RelocationUtils() {}
-   
+
    public static List<TransitionTarget> getRelocateTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
    {
       IActivityInstance ai = ActivityInstanceBean.findByOID(activityInstanceOid);
       IActivity activity = ai.getActivity();
-      
+
       if (!activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_SOURCE_ATT))
       {
          // activity is not a relocation source
          return Collections.emptyList();
       }
-      
+
       Stack<TransitionStep> steps = new Stack();
       List<TransitionTarget> targets = CollectionUtils.newList();
       Set<TransitionTarget> visited = CollectionUtils.newSet();
@@ -86,8 +86,16 @@ public final class RelocationUtils
          for (ITransition transition : transitions)
          {
             IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
-            jsType = forward ? target.getJoinType() : target.getSplitType();
-            if (JoinSplitType.And != jsType)
+            JoinSplitType jsTargetType = forward ? target.getJoinType() : target.getSplitType();
+            if (JoinSplitType.And != jsTargetType && JoinSplitType.Or != jsTargetType)
+            {
+               addActivity(visited, targets, target, options, forward, steps);
+            }
+         }
+         if ((JoinSplitType.Or == jsType) && transitions.size() > 1)
+         {
+            IActivity target = consume(activity, asList(transitions), CollectionUtils.<ITransition>newHashSet(), forward, options.areLoopsAllowed());
+            if (target != null)
             {
                addActivity(visited, targets, target, options, forward, steps);
             }
@@ -113,7 +121,7 @@ public final class RelocationUtils
       {
          ITransition transition = unconsumed.element();
          IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
-         
+
          if (startActivity == target)
          {
             // unsupported loop
@@ -121,7 +129,7 @@ public final class RelocationUtils
          }
 
          JoinSplitType inJsType = forward ? target.getJoinType() : target.getSplitType();
-         if (JoinSplitType.And == inJsType)
+         if (JoinSplitType.And == inJsType || JoinSplitType.Or == inJsType)
          {
             List<ITransition> pending = CollectionUtils.newList();
             ModelElementList<ITransition> transitions = forward ? target.getInTransitions() : target.getOutTransitions();
@@ -164,7 +172,7 @@ public final class RelocationUtils
          {
             return null;
          }
-         
+
          JoinSplitType outJsType = forward ? target.getSplitType() : target.getJoinType();
          if (JoinSplitType.Xor == outJsType && transitions.size() > 1)
          {
@@ -253,7 +261,7 @@ public final class RelocationUtils
       }
 
       if (options.isTransitionIntoSubprocessesAllowed()
-            && target.getImplementationType() == ImplementationType.SubProcess 
+            && target.getImplementationType() == ImplementationType.SubProcess
             && target.getSubProcessMode() != SubProcessModeKey.ASYNC_SEPARATE)
       {
          IProcessDefinition process = target.getImplementationProcessDefinition();
@@ -302,7 +310,7 @@ public final class RelocationUtils
    {
       ExecutionPlan plan = new ExecutionPlan(transitionTarget);
       plan.assertNoOtherActiveActivities();
-      
+
       ModelManager mm = ModelManagerFactory.getCurrent();
       IActivity target = mm.findActivity(transitionTarget.getModelOid(), transitionTarget.getActivityRuntimeOid());
       if (target == null)
@@ -310,7 +318,7 @@ public final class RelocationUtils
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_IN_MODEL.raise(
                transitionTarget.getActivityRuntimeOid(), transitionTarget.getModelOid()));
       }
-      
+
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan oldPlan = rtEnv.getExecutionPlan();
       try

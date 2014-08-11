@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,6 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.RuntimeObject;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
@@ -701,7 +700,13 @@ public class ProcessInstanceUtils
       }
       catch (SQLException sqle)
       {
-         closeResultSet(dataRtOids);
+          throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED
+                        .raise(), sqle);
+      }
+      finally
+      {
+          closeResultSet(dataRtOids);
       }
 
       return dataOids;

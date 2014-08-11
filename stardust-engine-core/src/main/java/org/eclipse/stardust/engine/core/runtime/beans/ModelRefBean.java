@@ -136,7 +136,6 @@ public class ModelRefBean extends PersistentBean implements Serializable
       ResultSet resultSet = session.executeQuery(query);
       try
       {
-         resultSet = session.executeQuery(query);
          while (resultSet.next())
          {
             long model = resultSet.getLong(1);

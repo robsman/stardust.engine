@@ -405,7 +405,7 @@ public class CodeGen
          for (int j = 0; j < parameters.length; j++)
          {
             JavaParameter parameter = parameters[j];
-            result.append(parameter.getType().toString()).append(
+            result.append(parameter.getType().toString().replace('$', '.')).append(
                   " " + parameters[j].getName());
             if (j != parameters.length - 1)
             {

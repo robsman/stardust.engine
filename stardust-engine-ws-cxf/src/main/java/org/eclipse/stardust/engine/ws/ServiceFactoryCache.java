@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -41,7 +42,11 @@ public class ServiceFactoryCache
 
    private final LinkedList<CacheEntry> expiredEntries = newLinkedList();
 
-   private final long expirationInterval = 5L * 60L * 1000L; // 5m
+   private final long expirationInterval = Parameters.instance().getInteger(
+		   "Carnot.WebService.SessionCache.Timeout", 300 /* 5m */) * 1000L;
+
+   private final boolean updateOnAccess = Parameters.instance().getBoolean(
+		   "Carnot.WebService.SessionCache.RenewOnAccess", true);
 
    public synchronized ServiceFactory getServiceFactory(String userId, String password,
          Map<String, ? > properties)
@@ -53,15 +58,15 @@ public class ServiceFactoryCache
       while (null == entry)
       {
          entry = sfCacheStore.get(sfKey);
-         
+
          if (null != entry)
          {
             if (entry.isExpired())
             {
                // release expired service factory
                sfCacheStore.remove(sfKey);
-               
-               if ( !entry.isInUse())
+
+               if (!entry.isInUse())
                {
                   entry.close();
                }
@@ -73,7 +78,7 @@ public class ServiceFactoryCache
                entry = null;
             }
          }
-         
+
          if (null != entry)
          {
             trace.debug("Reusing cached service factory for user " + userId);
@@ -83,7 +88,7 @@ public class ServiceFactoryCache
             entry = getNewServiceFactory(sfKey);
          }
       }
-      
+
       if (null != entry)
       {
          entry.acquire();
@@ -91,7 +96,7 @@ public class ServiceFactoryCache
 
       return (null != entry) ? entry.sf : null;
    }
-   
+
    public synchronized void release(ServiceFactory sf)
    {
       for (CacheEntry entry : sfCacheStore.values())
@@ -103,7 +108,7 @@ public class ServiceFactoryCache
             return;
          }
       }
-      
+
       // remove expired session factories when ref count reaches zero
       for (Iterator<CacheEntry> i = expiredEntries.iterator(); i.hasNext(); )
       {
@@ -121,7 +126,7 @@ public class ServiceFactoryCache
             return;
          }
       }
-      
+
       // no cached service factory
       sf.close();
    }
@@ -153,7 +158,7 @@ public class ServiceFactoryCache
       final String password;
 
       final Map<String, ? > properties;
-      
+
       public CacheKey(String userId, String password, Map<String, ? > properties)
       {
          this.userId = userId;
@@ -206,46 +211,49 @@ public class ServiceFactoryCache
          return true;
       }
    }
-   
+
    private class CacheEntry
    {
       final CacheKey key;
-      
+
       final ServiceFactory sf;
-      
+
       final AtomicLong refCount = new AtomicLong();
-      
+
       final AtomicLong lastAccessTime = new AtomicLong();
 
       public CacheEntry(CacheKey key, ServiceFactory sf)
       {
          this.key = key;
          this.sf = sf;
-         
+
          lastAccessTime.set(System.currentTimeMillis());
       }
-      
+
       boolean isExpired()
       {
          return System.currentTimeMillis() > lastAccessTime.get() + expirationInterval;
       }
-      
+
       void acquire()
       {
          refCount.incrementAndGet();
-         lastAccessTime.set(System.currentTimeMillis());
+         if (updateOnAccess)
+         {
+        	lastAccessTime.set(System.currentTimeMillis());
+         }
       }
-      
+
       boolean isInUse()
       {
          return 0L < this.refCount.get();
       }
-      
+
       void release()
       {
          this.refCount.decrementAndGet();
       }
-      
+
       void close()
       {
          if ( !isInUse())
@@ -254,7 +262,7 @@ public class ServiceFactoryCache
             try
             {
                trace.debug("Closing expired service factory for user " + key.userId);
-               
+
                sf.close();
             }
             catch (Exception e)

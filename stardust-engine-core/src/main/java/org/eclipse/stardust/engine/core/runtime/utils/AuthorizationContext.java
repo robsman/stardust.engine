@@ -18,6 +18,7 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
@@ -47,19 +48,21 @@ public class AuthorizationContext
 {
    private static final String[] ALL_PERMISSIONS = {Authorization2.ALL};
    private static final String[] EMPTY = {};
-   
-   private static final Map<Method, ClientPermission> permissionCache = CollectionUtils.newMap();
-   private static final Map<MethodKey, Method> methodCache = CollectionUtils.newMap();
+
+   private static final Map<Method, ClientPermission> permissionCache =
+		   new ConcurrentHashMap<Method, ClientPermission>();
+   private static final Map<AuthorizationContext.MethodKey, Method> methodCache =
+		   new ConcurrentHashMap<AuthorizationContext.MethodKey, Method>();
 
    private ClientPermission permission;
-   
+
    private IUser user;
 
    private List<IModel> models;
    private ModelElement modelElement;
    private IProcessInstance processInstance;
    private IActivityInstance activityInstance;
-   private static Method calledMethod;
+   private static ThreadLocal<Method> calledMethod = new ThreadLocal<Method>();
 
    private long scopeProcessInstanceOid;
    private long currentPerformer;
@@ -69,13 +72,13 @@ public class AuthorizationContext
    private String[] grants;
    private ModelManager modelManager;
    private boolean administratorOverride;
-   
+
    private AuthorizationContext dependency;
-   
+
    private Map<IModelParticipant, Boolean> checkedParticipants = newMap();
    private Map<DeptKey, IDepartment> depts = newMap();
    private Set<IOrganization> restricted;
-   
+
    private String[] permissionIds;
    private Map<Pair<String, String>, String> prefetchedValues = CollectionUtils.newMap();
    private boolean prefetchDataAvailable;
@@ -110,7 +113,7 @@ public class AuthorizationContext
                administratorOverride = checkRole(activeModel.findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE));
             }
          }
-         
+
          Id permissionId = getId(id);
          if (scope == Scope.activity
                && permissionId == Id.readActivityInstanceData
@@ -141,7 +144,7 @@ public class AuthorizationContext
       }
       return permissionId;
    }
-   
+
    private void clear()
    {
       models = null;
@@ -179,13 +182,13 @@ public class AuthorizationContext
       this.modelElement = models.get(0);
       this.models = models;
    }
-   
+
    public void setModel(long modelOid)
    {
       ModelManager mm = getModelManager();
       setModelElementData(mm.findModel(modelOid));
    }
-   
+
    public void setData(long processInstanceOid, long modelOid, long dataRtOid)
    {
       ModelManager mm = getModelManager();
@@ -196,7 +199,7 @@ public class AuthorizationContext
          dependency.setProcessInstance(processInstance);
       }
    }
-   
+
    public void setData(IProcessInstance pi, IData data)
    {
       setProcessInstance(pi);
@@ -206,7 +209,7 @@ public class AuthorizationContext
       }
       setModelElementData(data);
    }
-   
+
    public void setProcessInstance(IProcessInstance pi)
    {
       clear();
@@ -248,7 +251,7 @@ public class AuthorizationContext
          }
       }
    }
-   
+
    public void setActivityData(long processInstanceOid, long activityRtOid,
          long modelOid, long currentPerformer, long currentUserPerformer, long department)
    {
@@ -367,7 +370,7 @@ public class AuthorizationContext
             return splited.length == 0 ? EMPTY : splited;
          }
       }
-      
+
       ExecutionPermission.Default[] defaults = permission.defaults();
       if (defaults.length == 0)
       {
@@ -403,19 +406,20 @@ public class AuthorizationContext
          scopePostfix = ":" + ExecutionPermission.Scope.workitem.toString(); //$NON-NLS-1$
       }
       String permissionCacheAtt = "2" + permissionIds[0] + scopePostfix; //$NON-NLS-1$
-      
-      if(calledMethod != null)
+
+      Method calledMethod = AuthorizationContext.calledMethod.get();
+      if (calledMethod != null)
       {
          String postFix = calledMethod.getDeclaringClass().getName() + "#" + calledMethod.getName(); //$NON-NLS-1$
          Class< ? >[] parameterTypes = calledMethod.getParameterTypes();
          for (Class< ? > theClass : parameterTypes)
          {
-            postFix += "#" + theClass.getName(); //$NON-NLS-1$           
+            postFix += "#" + theClass.getName(); //$NON-NLS-1$
          }
-         
+
          permissionCacheAtt += "##" + postFix; //$NON-NLS-1$
       }
-      
+
       String[] permissions = (String[]) modelElement.getRuntimeAttribute(permissionCacheAtt);
       if (permissions == null)
       {
@@ -436,10 +440,10 @@ public class AuthorizationContext
          }
          permissions = isAll ? ALL_PERMISSIONS : grants.toArray(new String[grants.size()]);
          modelElement.setRuntimeAttribute(permissionCacheAtt, permissions);
-      }      
+      }
       return permissions;
    }
-   
+
    private String[] getCachedGrants(String permissionId)
    {
       String[] permissions = null;
@@ -681,7 +685,7 @@ public class AuthorizationContext
       long modelOid = participant.getModel().getModelOID();
       return DepartmentUtils.getOrganization(department, modelOid);
    }
-   
+
    public static AuthorizationContext create(Class target, String methodName, Class ... parameterTypes)
    {
       try
@@ -700,7 +704,7 @@ public class AuthorizationContext
          throw new InternalException(ex);
       }
    }
-   
+
    private static final class MethodKey
    {
       private Class target;
@@ -752,8 +756,8 @@ public class AuthorizationContext
       {
          return new AuthorizationContext(null);
       }
-      calledMethod = method;
-      
+      AuthorizationContext.calledMethod.set(method);
+
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
@@ -794,7 +798,7 @@ public class AuthorizationContext
    {
       String orgId = org.getId();
       long modelOid = org.getModel().getModelOID();
-      
+
       DeptKey key = new DeptKey(orgId, departmentIds);
       IDepartment department = depts.get(key);
       if (department != null)
@@ -824,12 +828,12 @@ public class AuthorizationContext
          }
       }
    }
-   
+
    private static class DeptKey
    {
       private String orgId;
       private List<String> subList;
-      
+
       public DeptKey(String orgId, List<String> subList)
       {
          this.orgId = orgId;
@@ -887,7 +891,7 @@ public class AuthorizationContext
          return true;
       }
    }
-   
+
    public Collection<IOrganization> getRestricted()
    {
       if (restricted == null)
@@ -926,7 +930,7 @@ public class AuthorizationContext
             restricted.addAll(dependency.getRestricted());
          }
       }
-      
+
       return restricted;
    }
 
@@ -1084,7 +1088,7 @@ public class AuthorizationContext
                   if (!subs.contains(dptmt))
                   {
                      subs.add(dptmt);
-                     
+
                   }
                }
             }
@@ -1129,21 +1133,21 @@ public class AuthorizationContext
             }
             catch (ObjectNotFoundException ignored2)
             {
-               //use null department for caching so no further lookups on db 
+               //use null department for caching so no further lookups on db
                //will be performed
-               department = IDepartment.NULL;   
+               department = IDepartment.NULL;
             }
-         }      
+         }
          subdepartments.add(department);
       }
       depts.put(key, department);
-      
+
       //throw exception so the the authorization evaluation will use the parent department
       //for permission checks
       if(department == null || department == IDepartment.NULL)
       {
           throw new ObjectNotFoundException(
-                  BpmRuntimeError.ATDB_UNKNOWN_DEPARTMENT_ID.raise(deptId, deptId)); 
+                  BpmRuntimeError.ATDB_UNKNOWN_DEPARTMENT_ID.raise(deptId, deptId));
       }
       return department;
    }

@@ -21,7 +21,7 @@
 
    <configurations>
       <conf name="client-module-compile" description="IPP Engine - Client Module - Compile Scope" />
-      <conf name="client-module-runtime" extends="client-module-compile" description="IPP Engine - Client Module - Runtime Scope" />
+      <conf name="client-module-runtime" extends="client-module-compile,jms-interface-runtime" description="IPP Engine - Client Module - Runtime Scope" />
 
       <conf name="engine-module-compile" description="IPP Engine - Engine Module - Compile Scope" />
       <conf name="engine-module-runtime" extends="engine-module-compile" description="IPP Engine - Engine Module - Runtime Scope" />
@@ -122,6 +122,8 @@
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
+
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" conf="client-module-runtime->default"/>
 
       <!-- ******************** -->
       <!--    Override Rules    -->

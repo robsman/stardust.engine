@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.PreferenceQuery;
 import org.eclipse.stardust.engine.api.query.PreferenceQueryEvaluator;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -187,7 +188,8 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
       String realmId = null;
       String userId = null;
       // TransientUser is always Admin, follow up Issue will prevent creating details objects
-      if (user != null && !(user instanceof TransientUser))
+		if (user != null && !(user instanceof TransientUser)
+				&& !PredefinedConstants.SYSTEM.equals(user.getId()))
       {
          User userDetails = (User) DetailsFactory.create(SecurityProperties.getUser(),
                IUser.class, UserDetails.class);

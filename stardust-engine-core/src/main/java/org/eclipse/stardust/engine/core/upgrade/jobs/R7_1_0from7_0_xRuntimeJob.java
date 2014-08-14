@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Set;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
@@ -454,6 +455,47 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
+   /*
+    * Copy of code from class DmlManager which handles correct settings for double values.
+    */
+   private static void setSqlValue(PreparedStatement statement, int index,
+         DBDescriptor dbDescriptor, Double value) throws SQLException
+   {
+      double doubleValue = value.doubleValue();
+
+      if (doubleValue == Unknown.DOUBLE)
+      {
+         statement.setNull(index, java.sql.Types.DOUBLE);
+      }
+      else
+      {
+         Pair<Double, Double> valueBorders = dbDescriptor
+               .getNumericSQLTypeValueBorders(Double.class);
+         if (doubleValue < valueBorders.getFirst())
+         {
+            doubleValue = valueBorders.getFirst();
+         }
+         else if (doubleValue > valueBorders.getSecond())
+         {
+            doubleValue = valueBorders.getSecond();
+         }
+         else
+         {
+            Pair<Double, Double> valueEpsilonBorders = dbDescriptor
+                  .getNumericSQLTypeEpsilonBorders(Double.class);
+            if (doubleValue > valueEpsilonBorders.getFirst() && doubleValue < 0)
+            {
+               doubleValue = 0.0;
+            }
+            else if (doubleValue < valueEpsilonBorders.getSecond() && doubleValue > 0)
+            {
+               doubleValue = 0.0;
+            }
+         }
+         statement.setDouble(index, doubleValue);
+      }
+   }
+
    private void upgradeDoubleValuesByPartition(final PartitionInfo partitionInfo)
    {
       runUpdateDataValueStmnt(DV_TABLE,
@@ -486,20 +528,23 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                String value = resultSet.getString(2);
 
                Double decimalValue = Unknown.DOUBLE;
-               try
+               if (value != null)
                {
-                  decimalValue = Double.parseDouble(value);
-               }
-               catch (NumberFormatException x)
-               {
-                  trace.warn(
-                        MessageFormat
-                              .format(
-                                    "Value {0} for SDV with oid {1} cannot be converted. Will be ignored.",
-                                    new Object[] { value, structValOid }), x);
+                  try
+                  {
+                     decimalValue = Double.parseDouble(value);
+                  }
+                  catch (NumberFormatException x)
+                  {
+                     trace.warn(
+                           MessageFormat
+                                 .format(
+                                       "Value {0} for SDV with oid {1} cannot be converted. Will be ignored.",
+                                       new Object[] { value, structValOid }), x);
+                  }
                }
 
-               updateStmnt.setDouble(1, decimalValue);
+               setSqlValue(updateStmnt, 1, item.getDbDescriptor(), decimalValue);
                updateStmnt.setLong(2, structValOid);
                updateStmnt.addBatch();
                ++batchCounter;

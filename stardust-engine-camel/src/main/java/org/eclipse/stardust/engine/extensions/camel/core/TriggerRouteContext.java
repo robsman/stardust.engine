@@ -53,7 +53,11 @@ public abstract class TriggerRouteContext extends RouteContext
    {
       return Util.getConversionStrategy(this.trigger);
    }
-
+   
+   public String getEventImplementation()
+   {
+      return Util.getEventImplementation(this.trigger);
+   }
    /**
     * mark route as transacted by default
     * 

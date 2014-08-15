@@ -15,6 +15,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
+import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
@@ -141,10 +142,13 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
                mappingExpression.getBodyExpression().append(headerName);
                mappingExpression.getBodyExpression().append("\\," + bodyMainType + ")}");
 
-               mappingExpression.getPostHeadersExpression().add(
-                     "<setHeader headerName=\"" + headerName
-                           + "\"><simple>$simple{body}</simple></setHeader>");
-               mappingExpression.setIncludeMoveEndpoint(true);
+               if(!this.getEventImplementation().equals(CamelConstants.GENERIC_CAMEL_ROUTE_EVENT))
+               {
+                  mappingExpression.getPostHeadersExpression().add(
+                        "<setHeader headerName=\"" + headerName
+                              + "\"><simple>$simple{body}</simple></setHeader>");
+                  mappingExpression.setIncludeMoveEndpoint(true);
+               }
             }
             else if (accessPtProps.getData().getType().getId().equals("struct"))
             {

@@ -71,9 +71,9 @@ public class DocumentDataConverter implements DataConverter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Handler
-	public String genericFileToDocument(Object messageContent,
+	public Object genericFileToDocument(Object messageContent,
 			Exchange exchange) throws IOException, MessagingException{
-		byte[] jcrDocumentContent = null;
+		/*byte[] jcrDocumentContent = null;
 
 		if (exchange != null) {
 			if (messageContent instanceof GenericFile<?>) {
@@ -121,7 +121,8 @@ public class DocumentDataConverter implements DataConverter {
 			
 		} else {
 			return null;
-		}
+		}*/
+	   return messageContent;
 	}
 	
 	private String getDocumentType(String filename){

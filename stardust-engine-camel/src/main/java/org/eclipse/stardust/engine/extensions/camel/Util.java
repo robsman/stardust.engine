@@ -651,5 +651,24 @@ public class Util
       }
       return null;
    }
-
+   
+   /**
+    * 
+    * @param Trigger
+    * @return Body Out AccessPoint ID
+    */
+   public static Object getBodyOutAccessPoint(final Trigger trigger)
+   {
+      return trigger.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT);
+   }
+   
+   /**
+    * 
+    * @param trigger
+    * @return Trigger Event Implementation
+    */
+   public static String getEventImplementation(final ITrigger trigger)
+   {
+      return (String) trigger.getAttribute(CamelConstants.TRIGGER_INTEGRATION_OVERLAY_ATT);
+   }
 }

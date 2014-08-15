@@ -93,7 +93,10 @@ public final class CamelConstants
    public static final String CSV_DELIMITER_KEY = "delimiter";
    public static final String CSV_AUTOGENHEADERS_KEY = "autogenHeaders";
    
+   public static final String VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS ="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentAccessPathEvaluator";
 
+   public static final String TRIGGER_INTEGRATION_OVERLAY_ATT = PredefinedConstants.ENGINE_SCOPE +"integration"+COLON+""+COLON+"overlay";
+   public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
    /**
     * Returns the key of a value in the map
     * 

@@ -59,17 +59,17 @@ import org.junit.rules.TestRule;
  * Tests whether information about former departments may be retrieved from
  * historical state.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class HistoricalStatesPolicyTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String USER_NAME = "u1";
-   private static final String USER_PWD = "u1";
-   
+   private static final String USER_PWD = USER_NAME;
+
    private Organization org;
 
    private Department deptDe;
@@ -88,12 +88,12 @@ public class HistoricalStatesPolicyTest
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf)
                                           .around(userSf);
-   
+
    @Before
    public void setUp() throws Exception
    {
@@ -169,7 +169,7 @@ public class HistoricalStatesPolicyTest
 
       Assert.assertTrue(ai.getHistoricalStates().isEmpty());
    }
-   
+
    private void createUser()
    {
       org = (Organization) adminSf.getQueryService().getParticipant(ORG_ID_1);

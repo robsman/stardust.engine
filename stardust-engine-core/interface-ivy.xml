@@ -146,6 +146,7 @@
       </dependency>
       <dependency org="stax" name="stax-api" rev="${stax-api.version}" conf="base-provider-compile->default" />
       <dependency org="rhino" name="js" rev="${js.version}" conf="base-provider-compile,js-provider-runtime->default" />
+      <dependency org="com.google.code.gson" name="gson" rev="${gson.version}" conf="base-provider-compile->default" />
 
       <!-- base-provider-runtime -->
       <dependency org="javax.activation" name="activation" rev="${activation.version}" conf="base-provider-runtime->default"/>

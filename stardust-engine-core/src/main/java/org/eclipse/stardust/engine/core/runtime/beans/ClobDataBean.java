@@ -35,11 +35,13 @@ public class ClobDataBean extends IdentifiablePersistentBean
    public static final String FIELD__OWNER_ID = "ownerId";
    public static final String FIELD__OWNER_TYPE = "ownerType";
    public static final String FIELD__STRING_VALUE = "stringValue";
+   public static final String FIELD__STRING_KEY = "stringKey";
 
    public static final FieldRef FR__OID = new FieldRef(ClobDataBean.class, FIELD__OID);
    public static final FieldRef FR__OWNER_ID = new FieldRef(ClobDataBean.class, FIELD__OWNER_ID);
    public static final FieldRef FR__OWNER_TYPE = new FieldRef(ClobDataBean.class, FIELD__OWNER_TYPE);
    public static final FieldRef FR__STRING_VALUE = new FieldRef(ClobDataBean.class, FIELD__STRING_VALUE);
+   public static final FieldRef FR__STRING_KEY = new FieldRef(ClobDataBean.class, FIELD__STRING_KEY);
 
    public static final String TABLE_NAME = "clob_data";
    public static final String DEFAULT_ALIAS = "clb";
@@ -48,6 +50,8 @@ public class ClobDataBean extends IdentifiablePersistentBean
    public static final String[] clob_dt_i1_INDEX =
       new String[]{FIELD__OWNER_ID, FIELD__OWNER_TYPE};
    public static final String[] clob_dt_i2_UNIQUE_INDEX = new String[]{FIELD__OID};
+   public static final String[] clob_dt_i3_INDEX =
+         new String[]{FIELD__OWNER_ID, FIELD__STRING_KEY};
 
    public static final boolean TRY_DEFERRED_INSERT = true;
 
@@ -62,6 +66,9 @@ public class ClobDataBean extends IdentifiablePersistentBean
    private static final int stringValue_COLUMN_LENGTH = Integer.MAX_VALUE;
    private String stringValue;
 
+   private static final int stringKey_COLUMN_LENGTH = 255;
+   private String stringKey;
+
    private transient StringValueProvider stringValueProvider;
 
    public static ClobDataBean find(long oid, Class owner)
@@ -72,6 +79,17 @@ public class ClobDataBean extends IdentifiablePersistentBean
             QueryExtension.where(Predicates.andTerm(
                   Predicates.isEqual(FR__OWNER_ID, oid), Predicates.isEqual(
                         FR__OWNER_TYPE, TypeDescriptor.getTableName(owner)))));
+   }
+
+   public static ClobDataBean find(Class<?> owner, String stringKey)
+   {
+      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+      return (ClobDataBean) session.findFirst(ClobDataBean.class,
+            QueryExtension.where(Predicates.andTerm(
+                  Predicates.isEqual(
+                        FR__OWNER_TYPE, TypeDescriptor.getTableName(owner)),
+                        Predicates.isEqual(FR__STRING_KEY, stringKey))));
    }
 
    /**
@@ -99,6 +117,17 @@ public class ClobDataBean extends IdentifiablePersistentBean
       this.ownerType = TypeDescriptor.getTableName(owner);
 
       this.stringValueProvider = stringValueProvider;
+   }
+
+   public ClobDataBean(long ownerId, Class owner, StringValueProvider stringValueProvider, String stringKey)
+   {
+      this();
+
+      this.ownerId = ownerId;
+      this.ownerType = TypeDescriptor.getTableName(owner);
+
+      this.stringValueProvider = stringValueProvider;
+      this.stringKey = stringKey;
    }
 
    /**
@@ -135,6 +164,17 @@ public class ClobDataBean extends IdentifiablePersistentBean
       // TODO perform lazy evaluation first?
 
       return this.stringValue;
+   }
+
+   /**
+    * Gets the optional string key for the large string object
+    *
+    * @return an optional string key identifying the large string object.
+    */
+   public String getStringKey()
+   {
+      fetch();
+      return this.stringKey;
    }
 
    /**

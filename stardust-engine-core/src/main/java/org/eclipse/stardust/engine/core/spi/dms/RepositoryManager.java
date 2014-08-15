@@ -227,10 +227,15 @@ public class RepositoryManager
 
    public IRepositoryService getImplicitService()
    {
-      return repositoryIdMediator;
+      return new MetaDataMediator(repositoryIdMediator, this);
    }
 
-   public IRepositoryInstance getInstance(String repositoryId)
+   public IRepositoryInstance getExplicitInstance(String repositoryId)
+   {
+      return new RepositoryInstanceMediator(getInstance(repositoryId), this);
+   }
+
+   protected IRepositoryInstance getInstance(String repositoryId)
    {
       String repoId = repositoryId == null ? defaultRepositoryId : repositoryId;
 

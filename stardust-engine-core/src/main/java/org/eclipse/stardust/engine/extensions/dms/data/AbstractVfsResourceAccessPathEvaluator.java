@@ -96,7 +96,7 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
             }
 
             IRepositoryInstance repositoryInstance = repositoryProviderManager
-                  .getInstance(repositoryId);
+                  .getExplicitInstance(repositoryId);
             boolean synchronizationSupported = repositoryInstance.getRepositoryInstanceInfo()
                   .isWriteSupported();
 

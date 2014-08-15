@@ -81,8 +81,8 @@
             <include name="**/*_zh_TW.properties" />
 
             <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
-         	<exclude name="org/eclipse/stardust/engine/core/models/xpdl/Carnot2Xpdl.java"/>
-         	<exclude name="org/eclipse/stardust/engine/core/models/xpdl/Xpdl2Carnot.java"/>
+         	<exclude name="org/eclipse/stardust/engine/core/models/xpdl/Carnot2Xpdl.class"/>
+         	<exclude name="org/eclipse/stardust/engine/core/models/xpdl/Xpdl2Carnot.class"/>
          	
          </fileset>
          <fileset dir="${project.res}">

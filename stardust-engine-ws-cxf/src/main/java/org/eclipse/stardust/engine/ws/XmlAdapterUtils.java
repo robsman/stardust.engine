@@ -556,64 +556,74 @@ public class XmlAdapterUtils
 
    }
 
-   private static void unmarshalGrants(GrantsXto grants, User ret)
-   {
-      if (grants != null)
-      {
-         List<Grant> allGrants = ret.getAllGrants();
-         List<Grant> removeGrants = new ArrayList<Grant>();
-         if (grants.getGrant().isEmpty())
-         {
-            removeGrants.addAll(allGrants);
-         }
-         else
-         {
-            List<GrantXto> addGrants = new ArrayList<GrantXto>();
-            for (GrantXto grantXto : grants.getGrant())
-            {
-               if (isEmpty(grantXto.getId()))
-               {
-                  throw new NullPointerException("Grant 'id' may not be empty or null");
-               }
-               else
-               {
-                  addGrants.add(grantXto);
-               }
-            }
+	private static void unmarshalGrants(GrantsXto grants, User ret) {
+		if (grants != null) {
+			List<Grant> allGrants = ret.getAllGrants();
+			List<Grant> removeGrants = new ArrayList<Grant>();
+			if (grants.getGrant().isEmpty()) {
+				removeGrants.addAll(allGrants);
+			} else {
+				List<GrantXto> addGrants = new ArrayList<GrantXto>();
+				for (GrantXto grantXto : grants.getGrant()) {
+					if (isEmpty(grantXto.getId())) {
+						throw new NullPointerException(
+								"Grant 'id' may not be empty or null");
+					} else {
+						addGrants.add(grantXto);
+					}
+				}
 
-            for (Grant grant : allGrants)
-            {
-               // get elements that need to be removed because they are not
-               // in the
-               // targetList
-               if ( !isInGrants(grant, addGrants, true))
-               {
-                  removeGrants.add(grant);
-               }
-            }
-            // add grants that are new in xto
-            for (GrantXto grantXto : addGrants)
-            {
-               String qualifiedId = grantXto.getQualifiedId();
-               if (!isEmpty(qualifiedId))
-               {
-                  ret.addGrant(ParticipantInfoUtil.newModelParticipantInfo(qualifiedId));
-               }
-               else
-               {
-                  // fallback to legacy usage
-                  ret.addGrant(grantXto.getId());
-               }
-            }
-         }
-         // remove grants not existing in xto
-         for (Grant remGrant : removeGrants)
-         {
-            String qualifiedId = remGrant.getQualifiedId();
-            ret.removeGrant(ParticipantInfoUtil.newModelParticipantInfo(qualifiedId));
-         }
-      }
-   }
+				for (Grant grant : allGrants) {
+					// get elements that need to be removed because they are not
+					// in the
+					// targetList
+					if (!isInGrants(grant, addGrants, true)) {
+						removeGrants.add(grant);
+					}
+				}
+				// add grants that are new in xto
+				for (GrantXto grantXto : addGrants) {
+					String qualifiedId = grantXto.getQualifiedId();
+					if (!isEmpty(qualifiedId)) {
+						DepartmentXto depXto = grantXto.getDepartment();
+						if (depXto != null) {
+							DepartmentInfo departmentInfo = new DepartmentInfoDetails(
+									depXto.getOid(), depXto.getId(),
+									depXto.getName(),
+									depXto.getRuntimeOrganizationOid());
+							ret.addGrant(ParticipantInfoUtil.newModelParticipantInfo(
+									qualifiedId, departmentInfo));
+						} else {
+							ret.addGrant(ParticipantInfoUtil
+									.newModelParticipantInfo(qualifiedId));
+						}
+					} else {
+						// fallback to legacy usage
+						ret.addGrant(grantXto.getId());
+					}
+				}
+			}
+			// remove grants not existing in xto
+			for (Grant remGrant : removeGrants) {
+				String qualifiedId = remGrant.getQualifiedId();
+				Department department = remGrant.getDepartment();
+				
+				if (department != null) {
+					DepartmentInfo departmentInfo = new DepartmentInfoDetails(
+							department.getOID(), department.getId(),
+							department.getName(),
+							department.getRuntimeOrganizationOID());
+					ret.removeGrant(ParticipantInfoUtil
+							.newModelParticipantInfo(qualifiedId,
+									departmentInfo));
+				} else {
+					ret.removeGrant(ParticipantInfoUtil
+							.newModelParticipantInfo(qualifiedId));
+				}
+			
+			}			
+		}
+	}
 
    private static boolean isInGrants(Grant grant, List<GrantXto> addGrants,
          boolean removeContainedTargetGrants)

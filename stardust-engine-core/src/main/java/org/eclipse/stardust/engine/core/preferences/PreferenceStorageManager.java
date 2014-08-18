@@ -202,12 +202,13 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
             // Restrict query to current user's realmId, userId
             return new ParsedPreferenceQuery(pq.getScope(), pq.getModuleId(),
                   pq.getPreferencesId(), realmId, userId);
-         }
-      }
-      else if(!(user instanceof TransientUser))
-      {
+			}
+		} 
+		else if (!(user instanceof TransientUser)
+				&& !PredefinedConstants.SYSTEM.equals(user.getId())) 
+		{
          throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
-      }
+		}
       return pq;
    }
 

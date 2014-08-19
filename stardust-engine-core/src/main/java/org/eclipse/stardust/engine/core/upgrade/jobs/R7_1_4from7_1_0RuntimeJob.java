@@ -45,7 +45,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final Logger trace = LogManager
          .getLogger(R7_1_4from7_1_0RuntimeJob.class);
 
-   
+
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
 
    private static final String AUDIT_TRAIL_PARTITION_FIELD_OID = "oid";
@@ -67,12 +67,13 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final Version VERSION = Version.createFixedVersion(7, 1, 4);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
-   
+
    R7_1_4from7_1_0RuntimeJob()
    {
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
-            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
+            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
+            DBMSKey.MYSQL_SEQ});
       initUpgradeTasks();
    }
 
@@ -85,7 +86,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R7_1_4from7_1_0RuntimeJob", Parameters.instance()
             .getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
- 
+
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
@@ -103,7 +104,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       });
    }
-      
+
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
       upgradeTaskExecutor.executeUpgradeSchemaTasks();
@@ -112,13 +113,13 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printUpgradeSchemaInfo()
    {
-      
+
    }
 
    @Override
    protected void printMigrateDataInfo()
    {
-      
+
    }
 
    @Override
@@ -131,9 +132,9 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       upgradeTaskExecutor.executeMigrateDataTasks();
       ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory
-            .getSession(SessionFactory.AUDIT_TRAIL)).flush(); 
+            .getSession(SessionFactory.AUDIT_TRAIL)).flush();
    }
-   
+
    private void insertDefaultLinkTypes() throws SQLException
    {
       Connection connection = item.getConnection();
@@ -224,10 +225,10 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       StringBuffer selectCmd = new StringBuffer();
       selectCmd.append("SELECT oid FROM ").append(PROCESS_INSTANCE_LINK_TYPE_TABLE_NAME);
       selectCmd.append(" WHERE ").append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append( " = ?");
-      
+
       PreparedStatement stmt = connection.prepareStatement(selectCmd.toString());
       stmt.setString(1, predefinedLinkType.getId());
-      
+
       ResultSet resultSet = stmt.executeQuery();
 
       long oid = 0;
@@ -237,8 +238,8 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       resultSet.close();
       stmt.close();
-      
-      return oid > 0 ? true : false;    
+
+      return oid > 0 ? true : false;
    }
 
    private Set<Pair<Long, String>> fetchListOfPartitionInfo() throws SQLException

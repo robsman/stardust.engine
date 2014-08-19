@@ -48,7 +48,8 @@ public class R8_0_1from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
-            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
+            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
+            DBMSKey.MYSQL_SEQ});
 
       initUpgradeTasks();
    }

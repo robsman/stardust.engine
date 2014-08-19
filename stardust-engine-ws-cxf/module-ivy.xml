@@ -68,18 +68,18 @@
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
-         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
-         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
-         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -106,6 +106,7 @@
       <!-- jax-rs-provider-runtime -->
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="${cxf-rt-frontend-jaxrs.version}" conf="jax-rs-cxf-provider-runtime->default" >
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="org.apache.cxf" module="cxf-rt-transports-http" />
          <exclude org="javax.ws.rs" module="jsr311-api" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />

@@ -136,6 +136,7 @@
       <dependency org="com.google.code.gson" name="gson" rev="${gson.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="${cxf-rt-frontend-jaxrs.version}" conf="stardust-engine-ws-cxf-compile->default" >
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="org.apache.cxf" module="cxf-rt-transports-http" />
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="javax.ws.rs" module="jsr311-api" />

@@ -13,21 +13,21 @@
 <hazelcast xmlns="http://www.hazelcast.com/schema/config"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-basic.xsd">
-   
+
    <group>
       <name>test</name>
       <password>test-pwd</password>
    </group>
 
    <network>
-      <port auto-increment="false">5800</port>
-      
+      <port auto-increment="false">5810</port>
+
       <join>
          <aws enabled="false" />
          <multicast enabled="false" />
          <tcp-ip enabled="false" />
       </join>
-      
+
       <interfaces>
          <interface>127.0.0.1</interface>
       </interfaces>

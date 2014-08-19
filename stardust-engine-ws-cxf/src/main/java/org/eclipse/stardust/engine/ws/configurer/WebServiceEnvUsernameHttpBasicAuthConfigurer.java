@@ -27,7 +27,6 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.eclipse.stardust.common.Base64;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
@@ -85,13 +84,19 @@ public class WebServiceEnvUsernameHttpBasicAuthConfigurer implements SOAPHandler
                String authToken = authHeader.substring("Basic".length()).trim();
                if ( !isEmpty(authToken))
                {
-                  Iterator<String> credentials = StringUtils.split(new String(
-                        Base64.decode(authToken.getBytes())), ":");
-
-                  userId = credentials.next();
-                  if (credentials.hasNext())
+                  String authDecoded = new String(Base64.decode(authToken.getBytes()));
+                  int idx = authDecoded.indexOf(':');
+                  if (idx == -1)
                   {
-                     password = credentials.next();
+                     userId = authDecoded;
+                  }
+                  else
+                  {
+                     userId = authDecoded.substring(0, idx);
+                      if (idx < (authDecoded.length() - 1))
+                      {
+                          password = authDecoded.substring(idx + 1);
+                      }
                   }
                   break;
                }

@@ -188,8 +188,21 @@ public class EnvironmentAware
    private String[] usernamePassword()
    {
       final String decodedUsernamePwd = decodeHeader();
-      final String[] usernamePwd = decodedUsernamePwd.split(":", -1);
-      if (StringUtils.isEmpty(usernamePwd[0]) || usernamePwd.length < 2)
+      int idx = decodedUsernamePwd.indexOf(':');
+      final String[] usernamePwd = {"", ""};
+      if (idx == -1) 
+      {
+         usernamePwd[0] = decodedUsernamePwd;
+      } 
+      else 
+      {
+         usernamePwd[0] = decodedUsernamePwd.substring(0, idx);
+         if (idx < (decodedUsernamePwd.length() - 1)) 
+         {
+            usernamePwd[1] = decodedUsernamePwd.substring(idx + 1);
+         }
+      }
+      if (StringUtils.isEmpty(usernamePwd[0]))
       {
          throw new UnauthorizedException();
       }

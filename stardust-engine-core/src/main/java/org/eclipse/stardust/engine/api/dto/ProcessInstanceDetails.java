@@ -20,8 +20,10 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataPath;
@@ -439,6 +441,11 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             {
                trace.warn("Couldn't evaluate descriptor '" + dataPath.getId() + "'.", x);
                this.descriptors.put(dataPath.getId(), null);
+
+               if (TransactionUtils.isCurrentTxRollbackOnly())
+               {
+                  throw new PublicException("Tx already marked for rollback.", x);
+               }
             }
          }
       }

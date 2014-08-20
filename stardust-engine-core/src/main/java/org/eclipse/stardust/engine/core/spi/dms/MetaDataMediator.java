@@ -43,10 +43,13 @@ public class MetaDataMediator implements ILegacyRepositoryService
 
    private void addMetaDataFromAuditTrail(String documentId, Document document)
    {
-      Document auditTrailDocument = RepositoryAuditTrailUtils.retrieveDocument(documentId);
-      if (auditTrailDocument != null)
+      if (document != null)
       {
-         document.setProperties(auditTrailDocument.getProperties());
+         Document auditTrailDocument = RepositoryAuditTrailUtils.retrieveDocument(documentId);
+         if (auditTrailDocument != null)
+         {
+            document.setProperties(auditTrailDocument.getProperties());
+         }
       }
    }
 
@@ -57,6 +60,16 @@ public class MetaDataMediator implements ILegacyRepositoryService
       {
          folder.setProperties(auditTrailFolder.getProperties());
       }
+   }
+
+   private void storeMetaDataToAuditTrail(Document document)
+   {
+      RepositoryAuditTrailUtils.storeDocument(document);
+   }
+
+   private void storeMetaDataToAuditTrail(Folder folder)
+   {
+      RepositoryAuditTrailUtils.storeFolder(folder);
    }
 
    private boolean isMetaDataSupported(String repositoryId)
@@ -189,24 +202,42 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public Document createDocument(String folderId, DocumentInfo document)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.createDocument(folderId, document);
+      Document createdDocument = service.createDocument(folderId, document);
+
+      if ( !isMetaDataSupported(createdDocument.getRepositoryId()))
+      {
+         storeMetaDataToAuditTrail(createdDocument);
+      }
+
+      return createdDocument;
    }
 
    @Override
    public Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.createDocument(folderId, document, content, encoding);
+      Document createdDocument = service.createDocument(folderId, document, content, encoding);
+
+      if ( !isMetaDataSupported(createdDocument.getRepositoryId()))
+      {
+         storeMetaDataToAuditTrail(createdDocument);
+      }
+
+      return createdDocument;
    }
 
    @Override
    public Document versionDocument(String documentId, String versionComment,
          String versionLabel) throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.versionDocument(documentId, versionComment, versionLabel);
+      Document versionedDocument = service.versionDocument(documentId, versionComment, versionLabel);
+
+      if ( !isMetaDataSupported(versionedDocument.getRepositoryId()))
+      {
+         storeMetaDataToAuditTrail(versionedDocument);
+      }
+
+      return versionedDocument;
    }
 
    @Override

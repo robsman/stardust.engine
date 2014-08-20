@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.spi.dms;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
@@ -39,19 +40,33 @@ public class RepositoryAuditTrailUtils
 
    public static void storeDocument(Document document)
    {
-      storeResource(document, DmsDocumentBean.class);
+      if (document != null)
+      {
+         storeResource(document.getId(), document, DmsDocumentBean.class);
+
+         // store entry for revision
+         if (document.getRevisionId() != null
+               && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId()))
+         {
+            storeResource(document.getRevisionId(), document, DmsDocumentBean.class);
+         }
+      }
    }
 
    public static Document retrieveDocument(String documentId)
    {
       Map legoMap = retrieveResource(documentId, DmsDocumentBean.class);
-      DmsDocumentBean dmsDocumentBean = new DmsDocumentBean(legoMap);
+      DmsDocumentBean dmsDocumentBean = legoMap == null ? null : new DmsDocumentBean(
+            legoMap);
       return dmsDocumentBean;
    }
 
    public static void storeFolder(Folder folder)
    {
-      storeResource(folder, DmsFolderBean.class);
+      if (folder != null)
+      {
+         storeResource(folder.getId(), folder, DmsFolderBean.class);
+      }
    }
 
    public static Folder retrieveFolder(String folderId)
@@ -61,29 +76,38 @@ public class RepositoryAuditTrailUtils
       return dmsFolderBean;
    }
 
-   private static void storeResource(Resource resource, Class<?> clazz)
+   private static void storeResource(String resourceId, Resource resource, Class< ? > clazz)
    {
-      ClobDataBean documentBlob = ClobDataBean.find(clazz,
-            resource.getId());
-      if (documentBlob == null)
+      if (resource != null)
       {
-         documentBlob = new ClobDataBean(0, clazz, new DmsResourceHolder(
-               resource), resource.getId());
-         Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         session.cluster(documentBlob);
-      }
-      else
-      {
-         documentBlob.setStringValueProvider(new DmsResourceHolder(resource), true);
+         ClobDataBean documentBlob = ClobDataBean.find(
+               generateResourceHash(resourceId), clazz,
+               generateValueIdentifierPrefix(resource.getId()) + "%");
+         if (documentBlob == null)
+         {
+            documentBlob = new ClobDataBean(generateResourceHash(resourceId),
+                  clazz, new DmsResourceHolder(resource));
+            Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+            session.cluster(documentBlob);
+         }
+         else
+         {
+            documentBlob.setStringValueProvider(new DmsResourceHolder(resource), true);
+         }
       }
    }
 
-   private static Map retrieveResource(String resourceId, Class<?> clazz)
+   private static Map retrieveResource(String resourceId, Class< ? > clazz)
    {
-      ClobDataBean documentBlob = ClobDataBean.find(clazz, resourceId);
+      ClobDataBean documentBlob = ClobDataBean.find(generateResourceHash(resourceId),
+            clazz, generateValueIdentifierPrefix(resourceId) + "%");
       if (documentBlob != null)
       {
          String stringValue = documentBlob.getStringValue();
+
+         // remove prefix
+         stringValue = stringValue.replace(generateValueIdentifierPrefix(resourceId), "");
+
          try
          {
             Map legoMap = deserialize(stringValue);
@@ -91,16 +115,28 @@ public class RepositoryAuditTrailUtils
          }
          catch (IOException e)
          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new PublicException(e);
          }
          catch (ClassNotFoundException e)
          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new PublicException(e);
          }
       }
       return null;
+   }
+
+   private static long generateResourceHash(String id)
+   {
+      return id.hashCode();
+   }
+
+   private static String generateValueIdentifierPrefix(String id)
+   {
+      StringBuilder sb = new StringBuilder();
+
+      sb.append(id.length()).append(':').append(id).append(':');
+
+      return sb.toString();
    }
 
    private static Map deserialize(String stringValue) throws IOException,
@@ -128,17 +164,20 @@ public class RepositoryAuditTrailUtils
       public String getStringValue()
       {
          Map vfsResource = resource.vfsResource();
-         String serializeObject = null;
+         String stringValue = null;
          try
          {
-            serializeObject = serialize(vfsResource);
+            stringValue = serialize(vfsResource);
          }
          catch (IOException e)
          {
-            // TODO
-            e.printStackTrace();
+            throw new PublicException(e);
          }
-         return serializeObject;
+
+         // add prefix
+         stringValue = generateValueIdentifierPrefix(resource.getId()) + stringValue;
+
+         return stringValue;
       }
    }
 

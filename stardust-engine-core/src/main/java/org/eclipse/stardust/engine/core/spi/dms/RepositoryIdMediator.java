@@ -37,7 +37,9 @@ import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 public class RepositoryIdMediator implements ILegacyRepositoryService
 {
    private RepositoryManager manager;
+
    private FederatedSearchHandler federatedSearchHandler;
+
    private ResourceSyncHandler syncHandler;
 
    public RepositoryIdMediator(RepositoryManager manager)
@@ -52,7 +54,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      Document document = instance.getService(getUserContext()).getDocument(stripRepositoryId(documentId));
+      Document document = instance.getService(getUserContext()).getDocument(
+            stripRepositoryId(documentId));
       return addRepositoryId(document, instance.getRepositoryId());
    }
 
@@ -61,7 +64,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      List< ? extends Document> documents = instance.getService(getUserContext()).getDocumentVersions(stripRepositoryId(documentId));
+      List< ? extends Document> documents = instance.getService(getUserContext())
+            .getDocumentVersions(stripRepositoryId(documentId));
       return addRepositoryId(documents, instance.getRepositoryId());
    }
 
@@ -74,7 +78,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       if (extractedRepositoryIds != null && !extractedRepositoryIds.isEmpty())
       {
          IRepositoryInstance instance = manager.getInstance(extractedRepositoryIds.get(0));
-         List< ? extends Document> documents = instance.getService(getUserContext()).getDocuments(stripRepositoryId(documentIds));
+         List< ? extends Document> documents = instance.getService(getUserContext())
+               .getDocuments(stripRepositoryId(documentIds));
          return addRepositoryId(documents, instance.getRepositoryId());
       }
       return null;
@@ -85,8 +90,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUserContext());
@@ -107,8 +111,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUserContext());
@@ -129,7 +132,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      return instance.getService(getUserContext()).retrieveDocumentContent(stripRepositoryId(documentId));
+      return instance.getService(getUserContext()).retrieveDocumentContent(
+            stripRepositoryId(documentId));
    }
 
    @Override
@@ -137,14 +141,16 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      instance.getService(getUserContext()).retrieveDocumentContentStream(stripRepositoryId(documentId), target);
+      instance.getService(getUserContext()).retrieveDocumentContentStream(
+            stripRepositoryId(documentId), target);
    }
 
    @Override
    public Folder getFolder(String folderId) throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
-      Folder folder = instance.getService(getUserContext()).getFolder(stripRepositoryId(folderId));
+      Folder folder = instance.getService(getUserContext()).getFolder(
+            stripRepositoryId(folderId));
       return addRepositoryId(folder, instance.getRepositoryId());
    }
 
@@ -153,7 +159,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
-      Folder folder = instance.getService(getUserContext()).getFolder(stripRepositoryId(folderId), levelOfDetail);
+      Folder folder = instance.getService(getUserContext()).getFolder(
+            stripRepositoryId(folderId), levelOfDetail);
       return addRepositoryId(folder, instance.getRepositoryId());
    }
 
@@ -166,8 +173,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       if (extractedRepositoryIds != null && !extractedRepositoryIds.isEmpty())
       {
          IRepositoryInstance instance = manager.getInstance(extractedRepositoryIds.get(0));
-         List< ? extends Folder> folders = instance.getService(getUserContext()).getFolders(
-               stripRepositoryId(folderIds), levelOfDetail);
+         List< ? extends Folder> folders = instance.getService(getUserContext())
+               .getFolders(stripRepositoryId(folderIds), levelOfDetail);
          return addRepositoryId(folders, instance.getRepositoryId());
       }
       return null;
@@ -178,8 +185,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUserContext());
@@ -201,8 +207,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUserContext());
       if (service instanceof ILegacyRepositoryService)
@@ -223,8 +228,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
-      Document createdDocument = instance.getService(getUserContext()).createDocument(stripRepositoryId(folderId),
-            document);
+      Document createdDocument = instance.getService(getUserContext()).createDocument(
+            stripRepositoryId(folderId), document);
       return addRepositoryId(createdDocument, instance.getRepositoryId());
    }
 
@@ -233,8 +238,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          String encoding) throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
-      Document createdDocument = instance.getService(getUserContext()).createDocument(stripRepositoryId(folderId),
-            document, content, encoding);
+      Document createdDocument = instance.getService(getUserContext()).createDocument(
+            stripRepositoryId(folderId), document, content, encoding);
       return addRepositoryId(createdDocument, instance.getRepositoryId());
    }
 
@@ -272,8 +277,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      instance.getService(getUserContext()).removeDocumentVersion(stripRepositoryId(documentId),
-            stripRepositoryId(documentRevisionId));
+      instance.getService(getUserContext()).removeDocumentVersion(
+            stripRepositoryId(documentId), stripRepositoryId(documentRevisionId));
    }
 
    @Override
@@ -347,7 +352,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          finally
          {
             // restore document state
-            addRepositoryId(document, instance.getRepositoryId());
+            if (document.getRepositoryId() == null)
+            {
+               addRepositoryId(document, instance.getRepositoryId());
+            }
          }
       }
       else
@@ -378,7 +386,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       finally
       {
          // restore document state
-         addRepositoryId(document, instance.getRepositoryId());
+         if (document.getRepositoryId() == null)
+         {
+            addRepositoryId(document, instance.getRepositoryId());
+         }
       }
    }
 
@@ -406,7 +417,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          finally
          {
             // restore document state
-            addRepositoryId(document, instance.getRepositoryId());
+            if (document.getRepositoryId() == null)
+            {
+               addRepositoryId(document, instance.getRepositoryId());
+            }
          }
       }
       else
@@ -437,16 +451,21 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       finally
       {
          // restore document state
-         addRepositoryId(document, instance.getRepositoryId());
+         if (document.getRepositoryId() == null)
+         {
+            addRepositoryId(document, instance.getRepositoryId());
+         }
       }
    }
 
    @Override
-   public void uploadDocumentContentStream(String documentId, InputStream source, String contentType, String contentEncoding)
+   public void uploadDocumentContentStream(String documentId, InputStream source,
+         String contentType, String contentEncoding)
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      instance.getService(getUserContext()).uploadDocumentContentStream(stripRepositoryId(documentId), source, contentType, contentEncoding);
+      instance.getService(getUserContext()).uploadDocumentContentStream(
+            stripRepositoryId(documentId), source, contentType, contentEncoding);
    }
 
    @Override
@@ -464,8 +483,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(parentFolderId));
-      Folder createdFolder = instance.getService(getUserContext()).createFolder(stripRepositoryId(parentFolderId),
-            folder);
+      Folder createdFolder = instance.getService(getUserContext()).createFolder(
+            stripRepositoryId(parentFolderId), folder);
       return addRepositoryId(createdFolder, instance.getRepositoryId());
    }
 
@@ -486,7 +505,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       finally
       {
          // restore folder state
-         addRepositoryId(folder, instance.getRepositoryId());
+         if (folder.getRepositoryId() == null)
+         {
+            addRepositoryId(folder, instance.getRepositoryId());
+         }
       }
    }
 
@@ -496,7 +518,8 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(folderId));
       Folder oldFolder = this.getFolder(folderId);
-      instance.getService(getUserContext()).removeFolder(stripRepositoryId(folderId), recursive);
+      instance.getService(getUserContext()).removeFolder(stripRepositoryId(folderId),
+            recursive);
       syncHandler.notifyFolderUpdated(oldFolder, null);
    }
 
@@ -504,35 +527,40 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    public Set<Privilege> getPrivileges(String resourceId)
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(resourceId));
-      return instance.getService(getUserContext()).getPrivileges(stripRepositoryId(resourceId));
+      return instance.getService(getUserContext()).getPrivileges(
+            stripRepositoryId(resourceId));
    }
 
    @Override
    public Set<AccessControlPolicy> getEffectivePolicies(String resourceId)
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(resourceId));
-      return instance.getService(getUserContext()).getEffectivePolicies(stripRepositoryId(resourceId));
+      return instance.getService(getUserContext()).getEffectivePolicies(
+            stripRepositoryId(resourceId));
    }
 
    @Override
    public Set<AccessControlPolicy> getPolicies(String resourceId)
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(resourceId));
-      return instance.getService(getUserContext()).getPolicies(stripRepositoryId(resourceId));
+      return instance.getService(getUserContext()).getPolicies(
+            stripRepositoryId(resourceId));
    }
 
    @Override
    public Set<AccessControlPolicy> getApplicablePolicies(String resourceId)
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(resourceId));
-      return instance.getService(getUserContext()).getApplicablePolicies(stripRepositoryId(resourceId));
+      return instance.getService(getUserContext()).getApplicablePolicies(
+            stripRepositoryId(resourceId));
    }
 
    @Override
    public void setPolicy(String resourceId, AccessControlPolicy policy)
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(resourceId));
-      instance.getService(getUserContext()).setPolicy(stripRepositoryId(resourceId), policy);
+      instance.getService(getUserContext()).setPolicy(stripRepositoryId(resourceId),
+            policy);
    }
 
    @Override
@@ -540,12 +568,12 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          boolean evaluateTotalCount) throws DocumentManagementServiceException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
 
-      return instance.getService(getUserContext()).migrateRepository(batchSize, evaluateTotalCount);
+      return instance.getService(getUserContext()).migrateRepository(batchSize,
+            evaluateTotalCount);
    }
 
    @Override
@@ -553,8 +581,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws ObjectNotFoundException
    {
       // fallback to default
-      String repositoryId = RepositoryManager.getInstance()
-            .getDefaultRepository();
+      String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
 
@@ -572,8 +599,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       else
       {
          // fallback to default
-         String repositoryId = RepositoryManager.getInstance()
-               .getDefaultRepository();
+         String repositoryId = RepositoryManager.getInstance().getDefaultRepository();
 
          IRepositoryInstance defaultRepositoryInstance = manager.getInstance(repositoryId);
 

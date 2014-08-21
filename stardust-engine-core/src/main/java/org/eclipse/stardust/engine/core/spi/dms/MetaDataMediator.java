@@ -27,6 +27,15 @@ import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 
+/**
+ * Handles the transparent read and write for {@link Document#getProperties()} if the
+ * {@link IRepositoryInstance} does not support
+ * {@link IRepositoryCapabilities#isMetaDataWriteSupported()} by using
+ * {@link RepositoryAuditTrailUtils} for AuditTrail persistence.
+ *
+ * @author roland.stamm
+ *
+ */
 public class MetaDataMediator implements ILegacyRepositoryService
 {
 
@@ -64,12 +73,18 @@ public class MetaDataMediator implements ILegacyRepositoryService
 
    private void storeMetaDataToAuditTrail(Document document)
    {
-      RepositoryAuditTrailUtils.storeDocument(document);
+      if (document != null && !isMetaDataSupported(document.getRepositoryId()))
+      {
+         RepositoryAuditTrailUtils.storeDocument(document);
+      }
    }
 
    private void storeMetaDataToAuditTrail(Folder folder)
    {
-      RepositoryAuditTrailUtils.storeFolder(folder);
+      if (folder != null && !isMetaDataSupported(folder.getRepositoryId()))
+      {
+         RepositoryAuditTrailUtils.storeFolder(folder);
+      }
    }
 
    private boolean isMetaDataSupported(String repositoryId)
@@ -204,10 +219,7 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       Document createdDocument = service.createDocument(folderId, document);
 
-      if ( !isMetaDataSupported(createdDocument.getRepositoryId()))
-      {
-         storeMetaDataToAuditTrail(createdDocument);
-      }
+      storeMetaDataToAuditTrail(createdDocument);
 
       return createdDocument;
    }
@@ -216,12 +228,10 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException
    {
-      Document createdDocument = service.createDocument(folderId, document, content, encoding);
+      Document createdDocument = service.createDocument(folderId, document, content,
+            encoding);
 
-      if ( !isMetaDataSupported(createdDocument.getRepositoryId()))
-      {
-         storeMetaDataToAuditTrail(createdDocument);
-      }
+      storeMetaDataToAuditTrail(createdDocument);
 
       return createdDocument;
    }
@@ -230,12 +240,10 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public Document versionDocument(String documentId, String versionComment,
          String versionLabel) throws DocumentManagementServiceException
    {
-      Document versionedDocument = service.versionDocument(documentId, versionComment, versionLabel);
+      Document versionedDocument = service.versionDocument(documentId, versionComment,
+            versionLabel);
 
-      if ( !isMetaDataSupported(versionedDocument.getRepositoryId()))
-      {
-         storeMetaDataToAuditTrail(versionedDocument);
-      }
+      storeMetaDataToAuditTrail(versionedDocument);
 
       return versionedDocument;
    }
@@ -244,15 +252,28 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public void removeDocumentVersion(String documentId, String documentRevisionId)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
       service.removeDocumentVersion(documentId, documentRevisionId);
+      Document document = service.getDocument(documentId);
+
+      if (document != null && !isMetaDataSupported(document.getRepositoryId()))
+      {
+         // update data for head
+         storeMetaDataToAuditTrail(document);
+         // remove data for revision
+         RepositoryAuditTrailUtils.removeDocument(documentRevisionId);
+      }
+
    }
 
    @Override
    public Document moveDocument(String documentId, String targetPath)
          throws DocumentManagementServiceException
    {
-      return service.moveDocument(documentId, targetPath);
+      Document movedDocument = service.moveDocument(documentId, targetPath);
+
+      storeMetaDataToAuditTrail(movedDocument);
+
+      return movedDocument;
    }
 
    @Override
@@ -260,9 +281,12 @@ public class MetaDataMediator implements ILegacyRepositoryService
          String versionComment, String versionLabel, boolean keepLocked)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.updateDocument(document, createNewRevision, versionComment,
-            versionLabel, keepLocked);
+      Document updateDocument = service.updateDocument(document, createNewRevision,
+            versionComment, versionLabel, keepLocked);
+
+      storeMetaDataToAuditTrail(updateDocument);
+
+      return updateDocument;
    }
 
    @Override
@@ -270,9 +294,12 @@ public class MetaDataMediator implements ILegacyRepositoryService
          boolean createNewRevision, String versionComment, String versionLabel,
          boolean keepLocked) throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.updateDocument(document, content, encoding, createNewRevision,
-            versionComment, versionLabel, keepLocked);
+      Document updateDocument = service.updateDocument(document, content, encoding,
+            createNewRevision, versionComment, versionLabel, keepLocked);
+
+      storeMetaDataToAuditTrail(updateDocument);
+
+      return updateDocument;
    }
 
    @Override
@@ -288,32 +315,72 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public void removeDocument(String documentId)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
+      Document document = service.getDocument(documentId);
+
       service.removeDocument(documentId);
+
+      if (document != null && !isMetaDataSupported(document.getRepositoryId()))
+      {
+         RepositoryAuditTrailUtils.removeDocument(documentId);
+      }
    }
 
    @Override
    public Folder createFolder(String parentFolderId, FolderInfo folder)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.createFolder(parentFolderId, folder);
+      Folder createdFolder = service.createFolder(parentFolderId, folder);
+
+      storeMetaDataToAuditTrail(createdFolder);
+
+      return createdFolder;
    }
 
    @Override
    public Folder updateFolder(Folder folder) throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      return service.updateFolder(folder);
+      Folder updatedFolder = service.updateFolder(folder);
+
+      storeMetaDataToAuditTrail(updatedFolder);
+
+      return updatedFolder;
    }
 
    @Override
    public void removeFolder(String folderId, boolean recursive)
          throws DocumentManagementServiceException
    {
-      // TODO Auto-generated method stub
-      // TODO recursive leaves dead audittrail entries?
+      Folder folder = service.getFolder(folderId, Folder.LOD_NO_MEMBERS);
+
+      if (folder != null && !isMetaDataSupported(folder.getRepositoryId()))
+      {
+         if (recursive)
+         {
+            deleteFolderMetaDataRecursive(folderId);
+         }
+         else
+         {
+            RepositoryAuditTrailUtils.removeFolder(folderId);
+         }
+      }
+
       service.removeFolder(folderId, recursive);
+   }
+
+   private void deleteFolderMetaDataRecursive(String folderId)
+   {
+      Folder folder = service.getFolder(folderId, Folder.LOD_LIST_MEMBERS);
+      List<Document> documents = folder.getDocuments();
+      for (Document document : documents)
+      {
+         RepositoryAuditTrailUtils.removeDocument(document.getId());
+      }
+      List<Folder> subFolders = folder.getFolders();
+      for (Folder subFolder : subFolders)
+      {
+         deleteFolderMetaDataRecursive(subFolder.getId());
+      }
+      RepositoryAuditTrailUtils.removeFolder(folderId);
    }
 
    @Override
@@ -385,7 +452,18 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).findDocumentsByName(namePattern);
+         @SuppressWarnings("deprecation")
+         List< ? extends Document> documents = ((ILegacyRepositoryService) service).findDocumentsByName(namePattern);
+
+         for (Document document : documents)
+         {
+            if ( !isMetaDataSupported(document.getRepositoryId()))
+            {
+               addMetaDataFromAuditTrail(document.getId(), document);
+            }
+         }
+
+         return documents;
       }
       else
       {
@@ -399,7 +477,18 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).findDocuments(xpathQuery);
+         @SuppressWarnings("deprecation")
+         List< ? extends Document> documents = ((ILegacyRepositoryService) service).findDocuments(xpathQuery);
+
+         for (Document document : documents)
+         {
+            if ( !isMetaDataSupported(document.getRepositoryId()))
+            {
+               addMetaDataFromAuditTrail(document.getId(), document);
+            }
+         }
+
+         return documents;
       }
       else
       {
@@ -413,7 +502,19 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).findFoldersByName(namePattern, levelOfDetail);
+         @SuppressWarnings("deprecation")
+         List< ? extends Folder> folders = ((ILegacyRepositoryService) service).findFoldersByName(
+               namePattern, levelOfDetail);
+
+         for (Folder folder : folders)
+         {
+            if ( !isMetaDataSupported(folder.getRepositoryId()))
+            {
+               addMetaDataFromAuditTrail(folder.getId(), folder);
+            }
+         }
+
+         return folders;
       }
       else
       {
@@ -427,7 +528,19 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).findFolders(xpathQuery, levelOfDetail);
+         @SuppressWarnings("deprecation")
+         List< ? extends Folder> folders = ((ILegacyRepositoryService) service).findFolders(
+               xpathQuery, levelOfDetail);
+
+         for (Folder folder : folders)
+         {
+            if ( !isMetaDataSupported(folder.getRepositoryId()))
+            {
+               addMetaDataFromAuditTrail(folder.getId(), folder);
+            }
+         }
+
+         return folders;
       }
       else
       {
@@ -441,7 +554,13 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).versionDocument(documentId, versionLabel);
+         @SuppressWarnings("deprecation")
+         Document versionedDocument = ((ILegacyRepositoryService) service).versionDocument(
+               documentId, versionLabel);
+
+         storeMetaDataToAuditTrail(versionedDocument);
+
+         return versionedDocument;
       }
       else
       {
@@ -456,7 +575,13 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).updateDocument(document, createNewRevision, versionLabel, keepLocked);
+         @SuppressWarnings("deprecation")
+         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
+               document, createNewRevision, versionLabel, keepLocked);
+
+         storeMetaDataToAuditTrail(updatedDocument);
+
+         return updatedDocument;
       }
       else
       {
@@ -471,7 +596,13 @@ public class MetaDataMediator implements ILegacyRepositoryService
    {
       if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) service).updateDocument(document, content, encoding, createNewRevision, versionLabel, keepLocked);
+         @SuppressWarnings("deprecation")
+         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
+               document, content, encoding, createNewRevision, versionLabel, keepLocked);
+
+         storeMetaDataToAuditTrail(updatedDocument);
+
+         return updatedDocument;
       }
       else
       {

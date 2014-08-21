@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
+
 public class RepositoryInstanceMediator implements IRepositoryInstance
 {
 

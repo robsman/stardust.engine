@@ -27,6 +27,11 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 import com.google.gson.Gson;
 
 /**
+ * This utility allows to store, retrieve and delete {@link Document} and {@link Folder}
+ * beans as {@link ClobDataBean} in the AuditTrail using a json format. The entries are
+ * stored uniquely by {@link Document#getId()}, {@link Document#getRevisionId()} and
+ * {@link Folder#getId()}.
+ *
  * @author roland.stamm
  *
  */
@@ -38,6 +43,14 @@ public class RepositoryAuditTrailUtils
       // Utility class
    }
 
+   /**
+    * Stores a document in the AuditTrail by {@link Document#getId()} and
+    * {@link Document#getRevisionId()} if a revesionId exists and is not
+    * {@link RepositoryConstants#VERSION_UNVERSIONED}.
+    *
+    * @param document
+    *           The document to persist in the AuditTrail.
+    */
    public static void storeDocument(Document document)
    {
       if (document != null)
@@ -53,6 +66,14 @@ public class RepositoryAuditTrailUtils
       }
    }
 
+   /**
+    * Fetches the document from the AuditTrail.
+    *
+    * @param documentId
+    *           The document {@link Document#getId()} or {@link Document#getRevisionId()}
+    *           to look up the document for.
+    * @return The fetched {@link Document} from the AuditTrail.
+    */
    public static Document retrieveDocument(String documentId)
    {
       Map legoMap = retrieveResource(documentId, DmsDocumentBean.class);
@@ -61,6 +82,24 @@ public class RepositoryAuditTrailUtils
       return dmsDocumentBean;
    }
 
+   /**
+    * Deletes the entry from the AuditTrail if it exists.
+    *
+    * @param documentId
+    *           The document {@link Document#getId()} or {@link Document#getRevisionId()}
+    *           to delete the AuditTrail entry for.
+    */
+   public static void removeDocument(String documentId)
+   {
+      removeResource(documentId, DmsDocumentBean.class);
+   }
+
+   /**
+    * Stores a folder in the AuditTrail by {@link Folder#getId()}
+    *
+    * @param folder
+    *           The folder to persist in the AuditTrail.
+    */
    public static void storeFolder(Folder folder)
    {
       if (folder != null)
@@ -69,6 +108,13 @@ public class RepositoryAuditTrailUtils
       }
    }
 
+   /**
+    * Fetches the folder from the AuditTrail.
+    *
+    * @param folderId
+    *           The folder {@link Folder#getId()} to look up the folder for.
+    * @return The fetched {@link Folder} from the AuditTrail.
+    */
    public static Folder retrieveFolder(String folderId)
    {
       Map legoMap = retrieveResource(folderId, DmsFolderBean.class);
@@ -76,23 +122,35 @@ public class RepositoryAuditTrailUtils
       return dmsFolderBean;
    }
 
-   private static void storeResource(String resourceId, Resource resource, Class< ? > clazz)
+   /**
+    * Deletes the entry from the AuditTrail if it exists.
+    *
+    * @param folderId
+    *           The folder {@link Folder#getId()} to delete the AuditTrail entry for.
+    */
+   public static void removeFolder(String folderId)
+   {
+      removeResource(folderId, DmsFolderBean.class);
+   }
+
+   private static void storeResource(String resourceId, Resource resource,
+         Class< ? > clazz)
    {
       if (resource != null)
       {
-         ClobDataBean documentBlob = ClobDataBean.find(
-               generateResourceHash(resourceId), clazz,
-               generateValueIdentifierPrefix(resource.getId()) + "%");
+         ClobDataBean documentBlob = ClobDataBean.find(generateResourceHash(resourceId),
+               clazz, generateValueIdentifierPrefix(resourceId) + "%");
          if (documentBlob == null)
          {
-            documentBlob = new ClobDataBean(generateResourceHash(resourceId),
-                  clazz, new DmsResourceHolder(resource));
+            documentBlob = new ClobDataBean(generateResourceHash(resourceId), clazz,
+                  new DmsResourceHolder(resourceId, resource));
             Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
             session.cluster(documentBlob);
          }
          else
          {
-            documentBlob.setStringValueProvider(new DmsResourceHolder(resource), true);
+            documentBlob.setStringValueProvider(new DmsResourceHolder(resourceId,
+                  resource), true);
          }
       }
    }
@@ -125,6 +183,16 @@ public class RepositoryAuditTrailUtils
       return null;
    }
 
+   private static void removeResource(String resourceId, Class< ? > clazz)
+   {
+      ClobDataBean documentBlob = ClobDataBean.find(generateResourceHash(resourceId),
+            clazz, generateValueIdentifierPrefix(resourceId) + "%");
+      if (documentBlob != null)
+      {
+         documentBlob.delete();
+      }
+   }
+
    private static long generateResourceHash(String id)
    {
       return id.hashCode();
@@ -155,9 +223,12 @@ public class RepositoryAuditTrailUtils
 
       private DmsResourceBean resource;
 
-      public DmsResourceHolder(Resource resource)
+      private String resourceId;
+
+      public DmsResourceHolder(String resourceId, Resource resource)
       {
          this.resource = (DmsResourceBean) resource;
+         this.resourceId = resourceId;
       }
 
       @Override
@@ -175,7 +246,7 @@ public class RepositoryAuditTrailUtils
          }
 
          // add prefix
-         stringValue = generateValueIdentifierPrefix(resource.getId()) + stringValue;
+         stringValue = generateValueIdentifierPrefix(resourceId) + stringValue;
 
          return stringValue;
       }

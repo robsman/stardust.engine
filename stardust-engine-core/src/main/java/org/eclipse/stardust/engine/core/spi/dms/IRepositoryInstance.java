@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
-import org.eclipse.stardust.engine.api.runtime.User;
 
 
 /**

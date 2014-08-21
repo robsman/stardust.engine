@@ -1330,7 +1330,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    private BoundFunction getCountFunction(Class type, QueryExtension queryExtension)
    {
       final BoundFunction countFunction;
-      if(queryExtension.isDistinct())
+      if (queryExtension != null && queryExtension.isDistinct())
       {
          TypeDescriptor typeDescriptor = getDMLManager(type).getTypeDescriptor();
          Field[] pkFields = typeDescriptor.getPkFields();

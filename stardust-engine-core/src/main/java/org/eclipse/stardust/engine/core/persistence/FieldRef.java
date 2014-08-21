@@ -50,6 +50,11 @@ public class FieldRef implements Column
       this.ignorePreparedStatements = ignorePreparedStatements;
    }
    
+   public Class getBoundType()
+   {
+      return boundType;
+   }
+
    public ITableDescriptor getType()
    {
       if ((null == type) && (null != boundType))

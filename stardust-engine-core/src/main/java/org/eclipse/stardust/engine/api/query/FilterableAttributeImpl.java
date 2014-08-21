@@ -34,7 +34,7 @@ import org.eclipse.stardust.engine.core.persistence.Operator;
  * @see BinaryOperatorFilter
  * @see TernaryOperatorFilter
  */
-class FilterableAttributeImpl implements FilterableAttribute
+public class FilterableAttributeImpl implements FilterableAttribute
 {
    private final Class scope;
    private final String attributeName;
@@ -444,7 +444,7 @@ class FilterableAttributeImpl implements FilterableAttribute
             lowerBound, upperBound);
    }
 
-   protected FilterableAttributeImpl(Class scope, String name)
+   public FilterableAttributeImpl(Class scope, String name)
    {
       this.scope = scope;
       this.attributeName = name;

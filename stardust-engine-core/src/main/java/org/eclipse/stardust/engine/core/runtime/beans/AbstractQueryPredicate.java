@@ -42,7 +42,14 @@ public abstract class AbstractQueryPredicate<T> implements Predicate<T>
 
    public abstract Object getValue(T model, String attribute, Object expected);
 
-   private final FilterEvaluationVisitor evaluator = new FilterEvaluationVisitor()
+   private final FilterEvaluationVisitor evaluator = createFilterEvaluationVisitor();
+
+   protected FilterEvaluationVisitor createFilterEvaluationVisitor()
+   {
+      return new AbstractEvaluationVisitor() {};
+   }
+
+   public abstract class AbstractEvaluationVisitor implements FilterEvaluationVisitor
    {
       public Object visit(FilterTerm filter, Object context)
       {

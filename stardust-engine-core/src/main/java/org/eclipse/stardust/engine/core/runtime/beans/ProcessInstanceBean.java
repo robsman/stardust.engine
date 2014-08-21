@@ -29,6 +29,10 @@ import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.annotations.SPI;
+import org.eclipse.stardust.common.annotations.Status;
+import org.eclipse.stardust.common.annotations.UseRestriction;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
@@ -264,6 +268,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return createInstance(processDefinition, parentActivityInstance, null, user, data, isSubprocess);
    }
 
+   public static ProcessInstanceBean createUnboundInstance(IModel model)
+   {
+      ProcessInstanceBean processInstance = new ProcessInstanceBean(model);
+      createHierarchyEntries(processInstance, null);
+      IProcessInstanceScope processInstanceScope = createScopeEntry(processInstance, null, null);
+      processInstance.setScopeProcessInstance((ProcessInstanceBean) processInstanceScope.getScopeProcessInstance());
+      if (processInstance.equals(processInstanceScope.getScopeProcessInstance()))
+      {
+         createClusterInstance(processInstance);
+      }
+      return processInstance;
+   }
+
    private static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data, boolean isSubProcess)
    {
@@ -387,6 +404,23 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
     */
    public ProcessInstanceBean()
    {
+   }
+
+   private ProcessInstanceBean(IModel model)
+   {
+      Assert.isNotNull(model);
+
+      this.model = model.getModelOID();
+      this.processDefinition = -1;
+      this.rootProcessInstance = this;
+      this.startTime = TimestampProviderUtils.getTimeStamp().getTime();
+      this.terminationTime = startTime;
+      this.tokenCount = 0;
+      this.state = ProcessInstanceState.COMPLETED;
+
+      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      session.cluster(this);
+      setAuditTrailPersistencePropertyValue(AuditTrailPersistence.ENGINE_DEFAULT);
    }
 
    private ProcessInstanceBean(IProcessDefinition processDefinition)
@@ -912,6 +946,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          dataValue.setValue(object, false);
       }
       addDataValue(dataValue);
+
+      onDataValueChanged(dataValue);
    }
 
    public Iterator getAllDataValues()
@@ -1280,6 +1316,28 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
          dataValue.refresh();
          addDataValue(dataValue);
+      }
+
+      onDataValueChanged(dataValue);
+   }
+
+   @SPI(status = Status.Experimental, useRestriction = UseRestriction.Internal)
+   public static interface DataValueChangeListener
+   {
+      void onDataValueChanged(IDataValue dataValue);
+   }
+
+   private void onDataValueChanged(IDataValue dataValue)
+   {
+      List<DataValueChangeListener> changeListeners = ExtensionProviderUtils
+            .getExtensionProviders(DataValueChangeListener.class);
+      if (null != changeListeners)
+      {
+         for (int i = 0; i < changeListeners.size(); i++)
+         {
+            DataValueChangeListener listener = changeListeners.get(i);
+            listener.onDataValueChanged(dataValue);
+         }
       }
    }
 

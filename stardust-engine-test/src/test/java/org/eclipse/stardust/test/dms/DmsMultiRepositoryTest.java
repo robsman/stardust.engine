@@ -205,6 +205,23 @@ public class DmsMultiRepositoryTest
    }
 
    @Test
+   public void testLegacyIdAccess()
+   {
+      getDms().removeDocument(
+            RepositoryIdUtils.addRepositoryId("/test.txt", SYSTEM_REPO_ID));
+
+      Document doc = getDms().createDocument(
+            RepositoryIdUtils.addRepositoryId("/", SYSTEM_REPO_ID),
+            DmsUtils.createDocumentInfo("test.txt"));
+
+      // access by id (indluding reopositoryId)
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      // legacy access should default to system repository
+      Assert.assertNotNull(getDms().getDocument(
+            RepositoryIdUtils.stripRepositoryId(doc.getId())));
+   }
+
+   @Test
    public void testSeparation()
    {
       getDms().removeDocument(

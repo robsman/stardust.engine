@@ -88,8 +88,6 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
       // retrieve login times
 
-      final DateRangeHelper dateRangeHelper = new DateRangeHelper();
-
             QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class)
             .select(new Column[] {
                   ActivityInstanceHistoryBean.FR__USER,
@@ -109,11 +107,10 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   Predicates.andTerm(
                         Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
                         Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER),
-                        Predicates.lessOrEqual(ActivityInstanceHistoryBean.FR__FROM, dateRangeHelper.getNow().getTime()),
-                        Predicates.orTerm(
-                              Predicates.isEqual(ActivityInstanceHistoryBean.FR__UNTIL, 0),
-                              Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL,
-                                    dateRangeHelper.getBeginOfRanges(dateRangePolicy.getDateRanges()).getTime()))))
+                        createDateRangeIntervalQuery(dateRangePolicy.getDateRanges())
+                                    )
+                  )
+
             .orderBy(
                   ActivityInstanceHistoryBean.FR__USER,
                   ActivityInstanceHistoryBean.FR__FROM,
@@ -346,6 +343,35 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             criticalPisByExecutionCost);
 
       return new UserWorktimeStatisticsResult(wsq, users, worktimeStatistics);
+   }
+
+   private PredicateTerm createDateRangeIntervalQuery(List<DateRange> dateRanges)
+   {
+      PredicateTerm lhs = null;
+
+      for (int i = 0; i < dateRanges.size(); i++ )
+      {
+         DateRange dateRange = dateRanges.get(i);
+
+         PredicateTerm rhs = Predicates.andTerm(
+               Predicates.lessOrEqual(ActivityInstanceHistoryBean.FR__FROM,
+                     dateRange.getIntervalEnd().getTime()), Predicates.orTerm(
+                     Predicates.isEqual(ActivityInstanceHistoryBean.FR__UNTIL, 0),
+                     Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL,
+                           dateRange.getIntervalBegin().getTime())));
+
+         if (i == 0)
+         {
+            lhs = rhs;
+         }
+         else
+         {
+            lhs = Predicates.orTerm(lhs, rhs);
+         }
+
+      }
+      return lhs;
+
    }
 
    private static void registerEffort(Long instanceOid, ModelElement definition,

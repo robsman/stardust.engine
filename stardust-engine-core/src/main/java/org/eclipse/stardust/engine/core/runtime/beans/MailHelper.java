@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -35,7 +37,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 /**
- * @author mgille
+ *@author mgille
+ *@author Yogesh.Manware
  */
 public class MailHelper
 {
@@ -54,9 +57,23 @@ public class MailHelper
    private static final String PROP_MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
    /**
-    * Sends all CARNOT workflow engine mails
+    * @param receivers
+    * @param subject
+    * @param content
+    * @param atttachment
     */
    public static void sendSimpleMessage(String[] receivers, String subject, String message)
+   {
+      sendSimpleMessage(receivers, subject, message, null);
+   }
+
+   /**
+    * @param receivers
+    * @param subject
+    * @param content
+    * @param atttachment
+    */
+   public static void sendSimpleMessage(String[] receivers, String subject, String content, Map<String, String> atttachments)
    {
       String from = Parameters.instance().getString(EngineProperties.MAIL_SENDER);
 
@@ -123,14 +140,13 @@ public class MailHelper
          _message.setFrom(new InternetAddress(from));
 
          // Separate nulls, If empty simply return.
-         Collection _validaddresses = new LinkedList();
+         Collection<InternetAddress> _validaddresses = new LinkedList<InternetAddress>();
 
          for (int n = 0; n < receivers.length; ++n)
          {
             if (receivers[n] != null)
             {
                _validaddresses.add(new InternetAddress(receivers[n]));
-               ;
             }
          }
 
@@ -139,8 +155,7 @@ public class MailHelper
          if (_validAddressesCount == 0)
          {
             AuditTrailLogger.getInstance(LogCode.ENGINE).warn(
-                  "No participant email avaliable as receipient for the message: "
-                        + message);
+                  "No participant email avaliable as receipient for the message: " + content);
             return;
          }
 
@@ -154,23 +169,28 @@ public class MailHelper
          _message.setSentDate(new Date());
 
          // Create and fill the first message part
-
-         MimeBodyPart _mbp1 = new MimeBodyPart();
-
-         _mbp1.setText(message);
+         MimeBodyPart mbp1 = new MimeBodyPart();
+         mbp1.setText(content);
+         Multipart _mp = new MimeMultipart();
+         _mp.addBodyPart(mbp1);
 
          // Create the Multipart and its parts to it
-
-         Multipart _mp = new MimeMultipart();
-
-         _mp.addBodyPart(_mbp1);
+         if (atttachments != null)
+         {
+            MimeBodyPart _mbp2;
+            for (Entry<String, String> attachmentEntry : atttachments.entrySet())
+            {
+               _mbp2 = new MimeBodyPart();
+               _mbp2.setText(attachmentEntry.getValue());
+               _mbp2.setFileName(attachmentEntry.getKey());
+               _mp.addBodyPart(_mbp2);
+            }
+         }
 
          // Add the Multipart to the message
-
          _message.setContent(_mp);
 
          // Send the message
-
          Transport.send(_message);
       }
       catch (MessagingException x)

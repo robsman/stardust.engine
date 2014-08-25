@@ -10,9 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.NL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_SPLIT;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -141,12 +139,6 @@ public class AbstractTransientProcessInstanceTest
       return map.isEmpty();
    }
 
-   protected void assertNoSerialActivityThreadQueuesBeforeTestStart(final String testMethodName)
-   {
-      final String errorMsg = NL + "Unable to start '" + testMethodName + "' due to existing serial activity thread queues. This is most likely caused by a failing test which ran prior to this one.";
-      assertThat(errorMsg, noSerialActivityThreadQueues(), is(true));
-   }
-
    protected void startProcessViaJms(final String processId)
    {
       final Queue queue = testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
@@ -210,20 +202,14 @@ public class AbstractTransientProcessInstanceTest
       return piOids;
    }
 
-   protected void enableTransientProcessesSupport(final String testMethodName)
+   protected void enableTransientProcessesSupport()
    {
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
-
-      dropTransientProcessInstanceStorage();
-      assertNoSerialActivityThreadQueuesBeforeTestStart(testMethodName);
    }
 
-   protected void overrideTransientProcessesSupport(final String override, final String testMethodName)
+   protected void overrideTransientProcessesSupport(final String override)
    {
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, override);
-
-      dropTransientProcessInstanceStorage();
-      assertNoSerialActivityThreadQueuesBeforeTestStart(testMethodName);
    }
 
    protected void disableTransientProcessesSupport()
@@ -250,6 +236,12 @@ public class AbstractTransientProcessInstanceTest
    {
       getPersistentToRootPiMap().clear();
       getRootPiToBlobMap().clear();
+   }
+
+   protected void dropSerialActivityThreadQueues()
+   {
+      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
+      map.clear();
    }
 
    protected boolean isTransientProcessInstanceStorageEmpty()

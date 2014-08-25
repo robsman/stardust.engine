@@ -198,6 +198,9 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
 
       appMayComplete = false;
       FirstTryFailsApp.firstTime = true;
+
+      dropTransientProcessInstanceStorage();
+      dropSerialActivityThreadQueues();
    }
 
    public TransientProcessInstanceTest()
@@ -338,7 +341,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessWithoutForkOnTraversal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -362,7 +365,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessWithForkOnTraversal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
 
@@ -386,7 +389,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessFailsWithoutForkOnTraversal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
 
@@ -410,7 +413,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessFailsWithForkOnTraversal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED_FAIL, null, true);
 
@@ -434,7 +437,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessSplitScenario() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
 
@@ -458,7 +461,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessSplitSplitScenario() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_SPLIT, null, true);
 
@@ -482,7 +485,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testRollbackScenario()
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       try
       {
@@ -511,7 +514,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testCleanup() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
 
@@ -536,7 +539,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testStartTransientlyCompleteTransiently() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
 
@@ -560,7 +563,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testStartTransientlyCompleteNonTransiently() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, ?> data = Collections.singletonMap(DATA_ID_TRANSIENT_ROUTE, Boolean.FALSE);
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, data, true);
@@ -590,7 +593,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testFromTransientToNonTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT, null, true);
 
@@ -617,7 +620,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessDoesNotScheduleSerialActivityThread() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -641,7 +644,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessViaAppQueue() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       startProcessViaJms(PROCESS_DEF_ID_TRANSIENT_VIA_JMS);
       final long piOid = receiveProcessInstanceCompletedMessage();
@@ -665,7 +668,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessSplitScenarioDeferredPersist() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
 
@@ -713,7 +716,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideDefaultWithTransient() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
 
@@ -737,7 +740,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideDefaultWithDeferred() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
 
@@ -761,7 +764,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testNoGlobalOverrideForDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
 
@@ -809,7 +812,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideTransientWithTransient() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
 
@@ -833,7 +836,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideTransientWithDeferred() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
 
@@ -857,7 +860,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testNoGlobalOverrideForTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
 
@@ -905,7 +908,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideDeferredWithTransient() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
 
@@ -929,7 +932,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideDeferredWithDeferred() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
 
@@ -953,7 +956,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testNoGlobalOverrideForDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
 
@@ -1001,7 +1004,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideImmediateWithTransient() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
 
@@ -1025,7 +1028,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testGlobalOverrideImmediateWithDeferred() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
 
@@ -1049,7 +1052,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testNoGlobalOverrideForImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
 
@@ -1072,7 +1075,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientSubProcesses() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SUB_SUB_PROCESS, null, true);
 
@@ -1095,7 +1098,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessWhileLoop() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WHILE_LOOP, null, true);
 
@@ -1118,7 +1121,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessRepeatLoop() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_REPEAT_LOOP, null, true);
 
@@ -1141,7 +1144,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessSplitXorJoin() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_XOR_JOIN, null, true);
 
@@ -1167,7 +1170,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessAsyncSubprocessEngineDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT, null, true);
 
@@ -1195,7 +1198,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessAsyncSubprocessTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT, null, true);
 
@@ -1223,7 +1226,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessAsyncSubprocessDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED, null, true);
 
@@ -1251,7 +1254,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessAsyncSubprocessImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE, null, true);
 
@@ -1276,7 +1279,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessConcurrentExecution() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final int nThreads = 100;
 
@@ -1310,7 +1313,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTransientProcessAbort() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ABORT_PROCESS, null, true);
 
@@ -1334,7 +1337,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testQueryForCompletedDeferredProcessInstance() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -1360,7 +1363,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testMultipleTransactionsPerThread() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS, null, true);
 
@@ -1383,7 +1386,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testImplicitAndJoinProcess() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_IMPLICIT_AND_JOIN, null, true);
 
@@ -1406,7 +1409,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testProcessInstanceTriggerEvent() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT, null, true);
 
@@ -1431,7 +1434,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testWithManualTrigger() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_TRIGGER, null, true);
 
@@ -1456,7 +1459,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testClientSideProperty() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -1482,7 +1485,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testStartTransientProcessAsync() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_SPLIT, null, false);
 
@@ -1509,7 +1512,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnSubprocess1FromTransientProcessInstanceIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
 
@@ -1551,7 +1554,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnSubprocess2FromTransientProcessInstanceIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
 
@@ -1588,7 +1591,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnTransientPeerProcessInstance1IsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
 
@@ -1626,7 +1629,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnPeerProcessFromTransientProcessInstance1IsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
 
@@ -1663,7 +1666,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnTransientPeerProcessInstance2IsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
 
@@ -1702,7 +1705,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testSpawnPeerProcessFromTransientProcessInstance2IsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
 
@@ -1739,7 +1742,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testCreateCaseIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
 
@@ -1775,7 +1778,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testJoinCaseIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
       final ProcessInstance casePi = sf.getWorkflowService().createCase(CASE_PI_NAME, CASE_PI_DESCRIPTION, new long[] { nonTransientPi.getOID() });
@@ -1820,7 +1823,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testJoinTransientProcessInstanceToProcessInstanceIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
       final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
@@ -1862,7 +1865,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testJoinProcessInstanceToTransientProcessInstanceIsIllegal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
       final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
@@ -1924,7 +1927,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testPullEventsAreOmitted() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.WARN);
       barrier.registerWithLog4j();
@@ -1953,7 +1956,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    public void testRecovery() throws Exception
    {
       enableTxPropagation();
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_RECOVERY, null, true);
 
@@ -1985,7 +1988,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    {
       enableTxPropagation();
       enableOneSystemQueueConsumerRetry();
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_RECOVERY, null, true);
 
@@ -2016,7 +2019,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    {
       enableTxPropagation();
       enableOneSystemQueueConsumerRetry();
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MULTIPLE_RETRY, null, true);
 
@@ -2040,7 +2043,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testDeferredPersistentCompleteness() throws Exception
    {
-      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED, testMethodSetup.testMethodName());
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
 
@@ -2074,7 +2077,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testPersistentCompletenessWhenSwitchingFromTransientToImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED_FAIL, null, true);
 
@@ -2106,7 +2109,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testNoPreferencesAreFetched() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -2127,7 +2130,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testDetailsLevelIsMinimal() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -2148,7 +2151,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test(expected = IllegalStateException.class)
    public void testAdminCannotBeDetermined() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
 
@@ -2168,7 +2171,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testTimerTriggerDaemonAlsoConsidersTransientProcessDefinitions() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.INFO);
       barrier.registerWithLog4j();
@@ -2199,7 +2202,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testDataAccessPriorToAndSplitHavingInMemStorageExposalDisabled() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
       disableInMemStorageExposal();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT, null, true);
@@ -2220,7 +2223,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromEngineDefaultToEngineDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT, auditTrailPersistenceData, true);
@@ -2249,7 +2252,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromEngineDefaultToTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT, auditTrailPersistenceData, true);
@@ -2274,7 +2277,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromEngineDefaultToDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT, auditTrailPersistenceData, true);
@@ -2299,7 +2302,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromEngineDefaultToImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT, auditTrailPersistenceData, true);
@@ -2324,7 +2327,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromTransientToEngineDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
@@ -2349,7 +2352,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromTransientToTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
@@ -2378,7 +2381,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromTransientToDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
@@ -2407,7 +2410,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromTransientToImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT, auditTrailPersistenceData, true);
@@ -2436,7 +2439,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromDeferredToEngineDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
@@ -2461,7 +2464,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromDeferredToTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
@@ -2490,7 +2493,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromDeferredToDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
@@ -2519,7 +2522,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromDeferredToImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED, auditTrailPersistenceData, true);
@@ -2548,7 +2551,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromImmediateToEngineDefault() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.ENGINE_DEFAULT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
@@ -2573,7 +2576,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromImmediateToTransient() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.TRANSIENT.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
@@ -2598,7 +2601,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromImmediateToDeferred() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.DEFERRED.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);
@@ -2623,7 +2626,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceFromImmediateToImmediate() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = Collections.singletonMap(DATA_ID_AUDIT_TRAIL_PERSISTENCE, AuditTrailPersistence.IMMEDIATE.name());
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE, auditTrailPersistenceData, true);

@@ -129,6 +129,9 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true);
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
 
+      dropTransientProcessInstanceStorage();
+      dropSerialActivityThreadQueues();
+
       initMonitoring(sf);
    }
 
@@ -202,7 +205,7 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
    {
       enableTxPropagation();
       enableOneSystemQueueConsumerRetry();
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MULTIPLE_RETRY, null, true);
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);

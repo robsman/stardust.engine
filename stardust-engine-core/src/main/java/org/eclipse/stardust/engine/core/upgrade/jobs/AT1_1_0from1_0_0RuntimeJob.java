@@ -27,7 +27,7 @@ public class AT1_1_0from1_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final Logger trace = LogManager.getLogger(AT1_1_0from1_0_0RuntimeJob.class);
 
-   private static final Version VERSION = new Version(1, 1, 0);
+   private static final Version VERSION = Version.createFixedVersion(1, 1, 0);
 
    protected AT1_1_0from1_0_0RuntimeJob()
    {

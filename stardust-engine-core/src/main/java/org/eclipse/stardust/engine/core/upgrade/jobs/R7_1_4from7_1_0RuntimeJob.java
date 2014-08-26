@@ -64,7 +64,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION = "partition";
 
-   private static final Version VERSION = new Version(7, 1, 4);
+   private static final Version VERSION = Version.createFixedVersion(7, 1, 4);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
    

@@ -49,9 +49,7 @@ class HtmlCharacterEntityReferences {
 
 	static final char CHAR_NULL = (char) -1;
 
-
-	private static final String PROPERTIES_FILE = "org/eclipse/stardust/engine/extensions/mail/web/servlet/utils/HtmlCharacterEntityReferences.properties";
-
+	private static final String PROPERTIES_FILE = "HtmlCharacterEntityReferences.properties";
 
 	private final String[] characterToEntityReferenceMap = new String[3000];
 
@@ -64,7 +62,7 @@ class HtmlCharacterEntityReferences {
 	public HtmlCharacterEntityReferences() {
 		Properties entityReferences = new Properties();
 
-		// Load refeence definition file.
+		// Load reference definition file.
 		InputStream is = HtmlCharacterEntityReferences.class.getResourceAsStream(PROPERTIES_FILE);
 		if (is == null) {
 			throw new IllegalStateException(

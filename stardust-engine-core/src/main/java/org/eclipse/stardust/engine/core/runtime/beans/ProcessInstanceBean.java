@@ -598,6 +598,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       detachHandlers();
    }
 
+   public long getModelOID()
+   {
+      fetch();
+
+      return model;
+   }
+
    /**
     * Returns the process definition this instance is instantiated from.
     */

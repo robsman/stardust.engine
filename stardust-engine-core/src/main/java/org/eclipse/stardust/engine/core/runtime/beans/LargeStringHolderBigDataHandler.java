@@ -661,8 +661,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
 
             StructuredDataValueBean sdv = (StructuredDataValueBean) data;
             ModelManager modelManager = ModelManagerFactory.getCurrent();
-            long modelOid = sdv.getProcessInstance().getProcessDefinition().getModel()
-                  .getModelOID();
+            long modelOid = sdv.getProcessInstance().getModelOID();
             IData theData = modelManager.findDataForStructuredData(modelOid,
                   sdv.getXPathOID());
 

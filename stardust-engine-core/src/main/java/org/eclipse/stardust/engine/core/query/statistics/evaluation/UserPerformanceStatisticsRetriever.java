@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.AndTerm;
 import org.eclipse.stardust.engine.core.persistence.Column;
 import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatistics.Contribution;
@@ -68,6 +69,36 @@ import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
 public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
 {
 
+   private PredicateTerm createDateRangeIntervalQuery(List<DateRange> dateRanges)
+   {
+      PredicateTerm lhs = null;
+
+      for (int i = 0; i < dateRanges.size(); i++ )
+      {
+         DateRange dateRange = dateRanges.get(i);
+
+         PredicateTerm rhs = Predicates.andTerm(
+               Predicates.isEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.COMPLETED),
+               Predicates.greaterOrEqual(ActivityInstanceBean.FR__START_TIME, dateRange.getIntervalBegin().getTime()),
+               Predicates.lessOrEqual(ActivityInstanceBean.FR__LAST_MODIFICATION_TIME, dateRange.getIntervalEnd().getTime()),
+               // hint for database so that a range scan is used
+               Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL, dateRange.getIntervalBegin().getTime()));
+
+         if (i == 0)
+         {
+            lhs = rhs;
+         }
+         else
+         {
+            lhs = Predicates.orTerm(lhs, rhs);
+         }
+
+      }
+      return lhs;
+
+   }
+
+
    public CustomUserQueryResult evaluateQuery(CustomUserQuery query)
    {
       if ( !(query instanceof UserPerformanceStatisticsQuery))
@@ -87,7 +118,6 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
       final Users users = QueryServiceUtils.evaluateUserQuery(wpq);
 
       // retrieve login times
-      final DateRangeHelper dateRangeHelper = new DateRangeHelper();
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceBean.class)
             .select(new Column[] {
@@ -104,13 +134,7 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_DEPARTMENT,
                   ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE
             })
-            .where(
-                  Predicates.andTerm(
-                        Predicates.isEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.COMPLETED),
-                        Predicates.greaterOrEqual(ActivityInstanceBean.FR__START_TIME, dateRangeHelper.getBeginOfRanges(dateRangePolicy.getDateRanges()).getTime()),
-                        Predicates.lessOrEqual(ActivityInstanceBean.FR__LAST_MODIFICATION_TIME, dateRangeHelper.getNow().getTime()),
-                        // hint for database so that a range scan is used
-                        Predicates.greaterOrEqual(ActivityInstanceHistoryBean.FR__UNTIL, dateRangeHelper.getBeginOfRanges(dateRangePolicy.getDateRanges()).getTime())))
+            .where(Predicates.andTerm(createDateRangeIntervalQuery(dateRangePolicy.getDateRanges()), Predicates.TRUE))
             .orderBy(
                   ActivityInstanceBean.FR__PERFORMED_BY,
                   ActivityInstanceBean.FR__START_TIME,

@@ -2655,7 +2655,7 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    @Test
    public void testChangeAuditTrailPersistenceMultipleTimes() throws Exception
    {
-      enableTransientProcessesSupport(testMethodSetup.testMethodName());
+      enableTransientProcessesSupport();
 
       final Map<String, String> auditTrailPersistenceData = newHashMap();
       auditTrailPersistenceData.put(DATA_ID_AUDIT_TRAIL_PERSISTENCE_1, AuditTrailPersistence.DEFERRED.name());

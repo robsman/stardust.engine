@@ -44,14 +44,14 @@ public class CodeGen
       String javaSourceName = longServiceName.substring(dot + 1);
 
       StringBuffer createMethod = new StringBuffer();
-      
+
       createMethod.append("\tpublic " + javaSourceName + "Bean()\n");
       createMethod.append("\t{\n");
       createMethod.append("      super(").append(longServiceName + ".class,\n");
       createMethod.append("            ").append(packageName.replace(".api.", ".core.")).append(".beans.").
          append(javaSourceName).append("Impl.class);\n");
       createMethod.append("\t}");
-      
+
       String[] additionalMethods = new String[] {createMethod.toString()};
       String newPackage = StringUtils.replace(destPackage.substring(1), "/", ".");
 
@@ -82,7 +82,7 @@ public class CodeGen
       List<String> longNameList = new ArrayList<String>();
 
       JavaDocBuilder builder = new JavaDocBuilder();
-      
+
       try
       {
          builder.addSource(new FileReader(longPathJavaSourceName));
@@ -93,7 +93,7 @@ public class CodeGen
       JavaSource src = builder.getSources()[0];
 
       JavaClass cls = src.getClasses()[0];
-      
+
       DocletTag versiontag;
       String revision;
       if ((versiontag = cls.getTagByName("version")) != null)
@@ -160,9 +160,9 @@ public class CodeGen
       result.append("\n{\n");
 
       JavaMethod[] methods = cls.getMethods();
-      
+
       String[] origImports = src.getImports();
-      
+
       for (int i = 0; i < origImports.length; i++)
       {
          importList.add(splitToLastWord('.',origImports[i]));
@@ -173,7 +173,7 @@ public class CodeGen
       for (int i = 0; i < methods.length; i++)
       {
          importList.add(methods[i].getName());
-         longNameList.add(packageName+"."+methods[i].getName()); 
+         longNameList.add(packageName+"."+methods[i].getName());
          returnValue = methods[i].getReturns().getGenericValue();
          shortReturnValue = splitToLastWord('.', returnValue);
          if (shortReturnValue.length() > 0)
@@ -192,7 +192,7 @@ public class CodeGen
          result.append(methodGenerator.execute(methods[i], originalServiceName, importList,
                longNameList));
       }
-      
+
       if (additionalMethods != null && additionalMethods.length > 0)
       {
          for (int i = 0; i < additionalMethods.length; i++)
@@ -209,9 +209,9 @@ public class CodeGen
    public static String getMethodString(JavaMethod method)
    {
       StringBuffer result = new StringBuffer();
-      
+
       Type mReturns = method.getReturns();
-      
+
       JavaParameter[] parameters = method.getParameters();
 
       result.append("   public ").append(mReturns.toGenericString()).append(" ");
@@ -220,7 +220,7 @@ public class CodeGen
       for (int j = 0; j < parameters.length; j++)
       {
          JavaParameter parameter = parameters[j];
-         result.append(parameter.getType().toString()).append(
+         result.append(parameter.getType().toString().replace('$', '.')).append(
                " " + parameters[j].getName());
          if (j != parameters.length - 1)
          {
@@ -228,7 +228,7 @@ public class CodeGen
          }
       }
       result.append(")");
-      
+
       Type[] exceptions = method.getExceptions();
 
       if (exceptions.length > 0)
@@ -240,7 +240,7 @@ public class CodeGen
             {
                result.append(", ");
             }
-            
+
             Type exception = exceptions[i];
             result.append(exception.toString());
          }
@@ -252,14 +252,14 @@ public class CodeGen
    {
       String root = ".";
       String destPackage = "/org/eclipse/stardust/engine/api/spring/";
-      
+
       if (args.length > 0)
       {
          root = args[0];
       }
-      
+
       String destinationRoot = root;
-      
+
       if (args.length > 1)
       {
          destinationRoot = args[1];
@@ -318,26 +318,26 @@ public class CodeGen
       {
          Type mReturns = method.getReturns();
          Type[] exceptions = method.getExceptions();
-         
+
          StringBuffer result = new StringBuffer(getJavaDocMethodString(method,
                longServiceName, exceptions, importList, longNameList));
-         
+
          result = result.append(splitLongLines(getMethodString(method), -1, 9));
 
          result.append("\n   {\n");
          int tabReturnLength = 6;
-         
+
          StringBuffer addString = new StringBuffer();
-         
+
          for (int i = 0; i < tabReturnLength; i++) addString.append(" ");
          if (!"void".equals(mReturns.getValue()))
          {
             addString.append("return ");
          }
-         
+
          addString.append("((").append(service).append(") serviceProxy).").append(
                method.getName()).append("(");
-         
+
          JavaParameter[] parameters = method.getParameters();
 
          for (int j = 0; j < parameters.length; j++)
@@ -353,7 +353,7 @@ public class CodeGen
 
          result.append(splitLongLines(addString.toString(), -1, tabReturnLength + 6)).
             append("\n");
-         
+
          result.append("   }\n");
          return result;
       }
@@ -419,15 +419,15 @@ public class CodeGen
    {
       StringBuffer docString = new StringBuffer();
       String addString;
-      
+
       comment = comment.replaceAll("\\r", "");
-      
+
       int commentLength = comment.length();
       int countCharPerLine;
 
       countCharPerLine = startTabLength;
-      
-      int i = 0; 
+
+      int i = 0;
 
       while (i < commentLength)
       {
@@ -448,7 +448,7 @@ public class CodeGen
          }
          else
          {
-            addString = comment.substring(i); 
+            addString = comment.substring(i);
             countCharPerLine = countCharPerLine + addString.length();
             if (countCharPerLine > 90)
             {
@@ -467,28 +467,28 @@ public class CodeGen
       String newLineString = line;
       String oldLineString;
       String addString;
-      
+
       int newLineLength;
-      
+
       do
       {
          oldLineString = newLineString;
          newLineString = splitBeforeLastWord(' ', oldLineString);
          newLineLength = newLineString.length();
       } while ((newLineLength + tabStartLength) > 90);
-     
+
       String testSplitString = splitBeforeLastWord('(',oldLineString);
-      
+
       if (newLineLength == 0)
       {
          newLineString = oldLineString;
          newLineLength = oldLineString.length();
       }
-      
+
       int testSplitLength = testSplitString.length();
-      
+
       if ((testSplitLength > 0)&&(testSplitLength < newLineLength))
-      {         
+      {
          addString = splitToLastWord('(', line);
          newLineString = testSplitString + "(";
       }
@@ -505,10 +505,10 @@ public class CodeGen
          newLineString = newLineString + newLine(commentStarPos, tabStartLength)
                + addString;
       }
-      
+
       return newLineString;
    }
-   
+
    private StringBuffer getParameterNameList(JavaMethod method)
    {
       JavaParameter[] parameters = method.getParameters();
@@ -541,11 +541,11 @@ public class CodeGen
       {
          result.setCharAt(commentStarPos, '*');
       }
-      
+
       return result.toString();
    }
-      
-   private static String splitFromIndex(char splitChar, String splitString, 
+
+   private static String splitFromIndex(char splitChar, String splitString,
          int startIndex)
    {
       int splitIndex = splitString.indexOf(splitChar, startIndex);
@@ -558,7 +558,7 @@ public class CodeGen
          return "";
       }
    }
-   
+
    private static String splitToLastWord(char splitChar, String splitString)
    {
       int splitIndex = splitString.lastIndexOf(splitChar);
@@ -571,10 +571,10 @@ public class CodeGen
          return "";
       }
    }
-   
+
    private static String splitBeforeLastWord(char splitChar, String splitString)
    {
-      int splitIndex = splitString.lastIndexOf(splitChar); 
+      int splitIndex = splitString.lastIndexOf(splitChar);
       if (splitIndex != -1)
       {
          return (splitString.substring(0, splitIndex));
@@ -584,15 +584,15 @@ public class CodeGen
          return "";
       }
    }
-   
+
    public static String lookForClassInPackage(String packageName, String className)
    {
       try
       {
          String testPath = packageName + className;
-         
+
          Class<?> testLinkClass = Class.forName(testPath);
-         
+
          if (testLinkClass != null)
          {
             return testPath;

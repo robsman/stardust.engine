@@ -14,6 +14,12 @@ import java.util.List;
 
 import org.eclipse.stardust.engine.api.query.EvaluationPolicy;
 
+/**
+ * Allows to specify a list of date ranges to select multiple intervals for query evaluation.
+ *
+ * @author Roland.Stamm
+ *
+ */
 public class StatisticsDateRangePolicy implements EvaluationPolicy
 {
 
@@ -21,10 +27,16 @@ public class StatisticsDateRangePolicy implements EvaluationPolicy
 
    private static final long serialVersionUID = 1L;
 
+   /**
+    * Dafaults to {@link DateRange#TODAY}
+    */
    public StatisticsDateRangePolicy()
    {
    }
 
+   /**
+    * @param dateRanges A list of date ranges to select multiple intervals for query evaluation.
+    */
    public StatisticsDateRangePolicy(List<DateRange> dateRanges)
    {
       this.dateRanges = dateRanges;

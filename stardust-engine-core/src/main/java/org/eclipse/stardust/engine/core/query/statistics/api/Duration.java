@@ -12,6 +12,14 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 
 import java.io.Serializable;
 
+/**
+ * A duration in years, months, weeks, days, hours, minutes, seconds as a plain holder
+ * object. Values are integer and are not calculated in any way. e.g. setting 500 days 1
+ * week is possible and other values are not calculated based on the set value.
+ *
+ * @author Roland.Stamm
+ *
+ */
 public class Duration implements Serializable
 {
 

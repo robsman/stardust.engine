@@ -13,6 +13,12 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Holds a date range starting at an interval begin ending at an interval end.
+ *
+ * @author Roland.Stamm
+ *
+ */
 public interface DateRange extends Serializable
 {
    /**

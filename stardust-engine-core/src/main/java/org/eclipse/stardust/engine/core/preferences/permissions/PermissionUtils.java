@@ -89,6 +89,8 @@ public class PermissionUtils
             PredefinedConstants.ADMINISTRATOR_ROLE);
       defaultPermissions.put(ExecutionPermission.Id.manageAuthorization.name(),
             PredefinedConstants.ADMINISTRATOR_ROLE);
+      defaultPermissions.put(ExecutionPermission.Id.manageDeputies.name(),
+            PredefinedConstants.ADMINISTRATOR_ROLE);
 
       defaultPermissions.put(
             ExecutionPermission.Id.saveOwnPartitionScopePreferences.name(),

@@ -103,6 +103,11 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
    public static final String GLOBAL_MANAGE_AUTHORIZATION = ExecutionPermission.Id.manageAuthorization.name();
 
    /**
+    * permission to change user deputies
+    */
+   public static final String GLOBAL_MANAGE_DEPUTIES = ExecutionPermission.Id.manageDeputies.name();
+
+   /**
     * permission to run the recovery
     */
    public static final String GLOBAL_RUN_RECOVERY = ExecutionPermission.Id.runRecovery.name();
@@ -136,9 +141,9 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
     * permission to spawn a sub process instance
     */
    public static final String GLOBAL_SPAWN_SUB_PROCESS_INSTANCE = ExecutionPermission.Id.spawnSubProcessInstance.name();
-   
+
    public static final Set<String> globalPermissionIds = CollectionUtils.newSet();
-   
+
    static
    {
       Field[] fields = GlobalPermissionConstants.class.getFields();

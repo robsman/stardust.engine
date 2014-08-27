@@ -2083,6 +2083,9 @@ public class AdministrationServiceImpl
       @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
       Permission getManageAuthorizationPermission();
 
+      @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
+      Permission getManageDeputiesPermission();
+
       @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
       Permission getControlProcessEnginePermission();
 

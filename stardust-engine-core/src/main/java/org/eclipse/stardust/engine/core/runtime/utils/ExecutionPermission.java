@@ -88,6 +88,10 @@ public @interface ExecutionPermission {
        */
       manageAuthorization,
       /**
+       * permission to change user deputies
+       */
+      manageDeputies,
+      /**
        * permission to start, stop and query the state of the daemons
        */
       manageDaemons,

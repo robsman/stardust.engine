@@ -27,11 +27,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
-import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
+import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
@@ -222,7 +218,8 @@ public class ProcessQueryPostprocessor
     *
     * @param query The query the result is based on.
     * @param rawResult The source of process instances to postprocess.
-    * @param targetClass
+    * @param targetClass the process instance details object class to instantiate
+    *
     * @return A list of instances of class {@link ProcessInstanceDetails} describing the
     *         found process instances.
     *
@@ -230,7 +227,7 @@ public class ProcessQueryPostprocessor
     * @see #findMatchingProcessInstances
     */
    public static ProcessInstances findMatchingProcessInstancesDetails(
-         ProcessInstanceQuery query, ResultIterator rawResult, Class targetClass)
+         ProcessInstanceQuery query, ResultIterator rawResult, Class<?> targetClass)
    {
       RawQueryResult queryResult = findMatchingProcessInstances(query, rawResult);
 
@@ -458,6 +455,7 @@ public class ProcessQueryPostprocessor
     *
     * @param query The query the result is based on.
     * @param rawResult The source of activity instances to postprocess.
+    * @param targetClass the activity instance details object class to instantiate
     *
     * @return A list of instances of class {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} describing the
     *         found activity instances.
@@ -465,7 +463,7 @@ public class ProcessQueryPostprocessor
     * @see #findFirstMatchingActivityInstanceDetails
     */
    public static ActivityInstances findMatchingActivityInstanceDetails(
-         ActivityInstanceQuery query, ResultIterator rawResult)
+         ActivityInstanceQuery query, ResultIterator rawResult, Class<?> targetClass)
    {
       RawQueryResult queryResult = findMatchingActivityInstances(query, rawResult);
 
@@ -520,7 +518,7 @@ public class ProcessQueryPostprocessor
          prefetchDescriptorValues(queryResult.iterator(), QueryUtils.getTimeOut(query), descriptorPolicy);
 
          List activityDetails = DetailsFactory.createCollection(queryResult.iterator(),
-               IActivityInstance.class, ActivityInstanceDetails.class);
+               IActivityInstance.class, targetClass);
 
          return new ActivityInstances(query,
                new RawQueryResult(activityDetails, queryResult.getSubsetPolicy(),

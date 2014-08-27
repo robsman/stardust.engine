@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
 import org.eclipse.stardust.engine.api.model.*;
@@ -633,7 +634,7 @@ public class WorklistQueryEvaluator
       try
       {
          ActivityInstances worklistItems = ProcessQueryPostprocessor
-               .findMatchingActivityInstanceDetails(wlQuery, rawResult);
+               .findMatchingActivityInstanceDetails(wlQuery, rawResult, ActivityInstanceDetails.class);
          worklist.addAll(worklistItems);
 
          worklist.hasMore = worklistItems.hasMore();

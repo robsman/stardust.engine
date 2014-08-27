@@ -29,21 +29,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.DataDetails;
-import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
-import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
-import org.eclipse.stardust.engine.api.dto.LogEntryDetails;
-import org.eclipse.stardust.engine.api.dto.ModelDetails;
-import org.eclipse.stardust.engine.api.dto.ModelDetailsWithAliveness;
-import org.eclipse.stardust.engine.api.dto.OrganizationDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.RoleDetails;
-import org.eclipse.stardust.engine.api.dto.RtDetailsFactory;
-import org.eclipse.stardust.engine.api.dto.RuntimeEnvironmentInfoDetails;
-import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -123,6 +109,7 @@ import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -177,10 +164,11 @@ public class QueryServiceImpl implements QueryService, Serializable
          }
          ResultIterator rawResult = queryEvaluator.executeFetch();
 
+         boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
+         Class<?> targetClass = useLazilyLoadingObjects ? LazilyLoadingActivityInstanceDetails.class : ActivityInstanceDetails.class;
          try
          {
-            return ProcessQueryPostprocessor.findMatchingActivityInstanceDetails(query,
-                  rawResult);
+            return ProcessQueryPostprocessor.findMatchingActivityInstanceDetails(query, rawResult, targetClass);
          }
          finally
          {
@@ -259,10 +247,12 @@ public class QueryServiceImpl implements QueryService, Serializable
 
          ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
                getDefaultEvaluationContext()).executeFetch();
+
+         boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
+         Class<?> targetClass = useLazilyLoadingObjects ? LazilyLoadingProcessInstanceDetails.class : ProcessInstanceDetails.class;
          try
          {
-            return ProcessQueryPostprocessor.findMatchingProcessInstancesDetails(query,
-                  rawResult, ProcessInstanceDetails.class);
+            return ProcessQueryPostprocessor.findMatchingProcessInstancesDetails(query, rawResult, targetClass);
          }
          finally
          {

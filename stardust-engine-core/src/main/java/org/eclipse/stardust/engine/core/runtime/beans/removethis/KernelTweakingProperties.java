@@ -217,4 +217,6 @@ public final class KernelTweakingProperties
    public static final String ENGINE_EXCLUDE_USER_EVALUATION = "Stardust.Engine.Tuning.Query.ExcludeUser.Evaluation";
 
    public static final String EXCLUDE_USER_MAX_WORKLIST_COUNT = "Stardust.Engine.Tuning.Query.ExcludeUser.MaximumWorklistCount";
+
+   public static final String USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES = "Stardust.Engine.Tuning.Query.UseLazilyLoadingDetailsObjects";
 }

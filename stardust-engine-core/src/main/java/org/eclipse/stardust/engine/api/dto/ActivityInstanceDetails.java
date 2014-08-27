@@ -60,7 +60,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 {
    private static final long serialVersionUID = 2L;
 
-   private static final String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
+   static final String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
 
    // this pattern does define a group which will contain a long value: the handler oid
    private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");

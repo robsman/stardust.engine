@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
+import org.eclipse.stardust.engine.api.dto.LazilyLoadingActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;

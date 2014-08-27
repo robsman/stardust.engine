@@ -2230,6 +2230,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             context.setActivityInstance(ai);
             if (ai.getActivity().isInteractive()
                   && (ActivityInstanceState.Suspended.equals(ai.getState()) || ActivityInstanceState.Application.equals(ai.getState()))
+                  && !ai.isDefaultCaseActivityInstance()
                   && Authorization2.hasPermission(context)
                   && QualityAssuranceUtils.isActivationAllowed(ai))
             {

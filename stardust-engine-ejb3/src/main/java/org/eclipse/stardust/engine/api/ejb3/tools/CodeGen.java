@@ -245,7 +245,7 @@ public class CodeGen
       for (int j = 0; j < parameters.length; j++)
       {
          JavaParameter parameter = parameters[j];
-         result.append(parameter.getType().toString()).append(
+         result.append(parameter.getType().toGenericString().replace('$', '.')).append(
                " " + parameters[j].getName());
          if (j != parameters.length - 1)
          {
@@ -384,7 +384,7 @@ public class CodeGen
 
          result.append("\n").append(TAB).append("{\n");
 
-         result.append("      java.util.Map __invocationContextBackup = null;\n");
+         result.append("      java.util.Map<?, ?> __invocationContextBackup = null;\n");
 
          result.append("      try\n      {\n");
          tabReturnLength = 9;
@@ -932,7 +932,7 @@ public class CodeGen
          for (int j = 0; j < parameters.length; j++)
          {
             JavaParameter parameter = parameters[j];
-            result.append(parameter.getType().toString()).append(
+            result.append(parameter.getType().toGenericString().replace('$', '.')).append(
                   " " + parameters[j].getName());
             if (j != parameters.length - 1)
             {

@@ -149,6 +149,14 @@ public class WebServiceEnv implements ModelResolver
       }
    }
 
+   public static void invalidateServiceFactoryCacheForPartition(String partitionId)
+   {
+      if (sfCache != null)
+      {
+         sfCache.invalidateForPartition(partitionId);
+      }
+   }
+
    protected WebServiceEnv(String user, String password,
          Map<String, ? extends Serializable> properties)
    {

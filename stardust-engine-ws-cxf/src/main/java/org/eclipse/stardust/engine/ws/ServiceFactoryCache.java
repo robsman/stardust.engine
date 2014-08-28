@@ -17,10 +17,8 @@ package org.eclipse.stardust.engine.ws;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newLinkedList;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -28,6 +26,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
 /**
@@ -129,6 +128,24 @@ public class ServiceFactoryCache
 
       // no cached service factory
       sf.close();
+   }
+
+   public synchronized void invalidateForPartition(String partitionId)
+   {
+      for (Iterator<Entry<CacheKey, CacheEntry>> iter = sfCacheStore.entrySet().iterator(); iter.hasNext();)
+      {
+         Entry<CacheKey, CacheEntry> entry = iter.next();
+         Map<String, ?> properties = entry.getKey().properties;
+         if (properties == null)
+         {
+            continue;
+         }
+
+         if (partitionId.equals(properties.get(SecurityProperties.PARTITION)))
+         {
+            iter.remove();
+         }
+      }
    }
 
    private synchronized CacheEntry getNewServiceFactory(CacheKey sfKey)

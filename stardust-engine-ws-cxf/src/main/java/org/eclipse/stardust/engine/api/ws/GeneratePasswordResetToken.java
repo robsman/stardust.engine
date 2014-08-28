@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="realm" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="account" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -29,13 +30,40 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
+    "realm",
     "account"
 })
 @XmlRootElement(name = "generatePasswordResetToken")
 public class GeneratePasswordResetToken {
 
     @XmlElement(required = true, nillable = true)
+    protected String realm;
+    @XmlElement(required = true, nillable = true)
     protected String account;
+
+    /**
+     * Gets the value of the realm property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getRealm() {
+        return realm;
+    }
+
+    /**
+     * Sets the value of the realm property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setRealm(String value) {
+        this.realm = value;
+    }
 
     /**
      * Gets the value of the account property.

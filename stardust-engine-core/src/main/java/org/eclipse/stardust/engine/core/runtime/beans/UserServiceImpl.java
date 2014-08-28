@@ -20,7 +20,6 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -885,7 +884,7 @@ public class UserServiceImpl implements UserService, Serializable
    @Override
    public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
    {
-      if (isAllowedToAddDeputy(user) && user.getOID() != deputyUser.getOID())
+      if (user.getOID() != deputyUser.getOID())
       {
          if (options == null)
          {
@@ -912,70 +911,21 @@ public class UserServiceImpl implements UserService, Serializable
       }
    }
 
-   private boolean isAllowedToAddDeputy(UserInfo user)
-   {
-      IUser addingUser = SecurityProperties.getUser();
-      if (addingUser.getOID() == user.getOID())
-      {
-         return true;
-      }
-      else
-      {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.ATDB_ADDING_DEPUTY_FORBIDDEN.raise(user.getOID(),
-                     addingUser.getOID()));
-      }
-   }
-
-   private boolean isAllowedToModifyDeputy(UserInfo user)
-   {
-      IUser modifyingUser = SecurityProperties.getUser();
-      if (modifyingUser.getOID() == user.getOID())
-      {
-         return true;
-      }
-      else
-      {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.ATDB_MODIFYING_DEPUTY_FORBIDDEN.raise(user.getOID(),
-                     modifyingUser.getOID()));
-      }
-   }
-
-   private boolean isAllowedToRemoveDeputy(UserInfo user)
-   {
-      IUser modifyingUser = SecurityProperties.getUser();
-      if (modifyingUser.getOID() == user.getOID())
-      {
-         return true;
-      }
-      else
-      {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.ATDB_REMOVING_DEPUTY_FORBIDDEN.raise(user.getOID(),
-                     modifyingUser.getOID()));
-      }
-   }
-
-
    @Override
    public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
    {
-      if (isAllowedToModifyDeputy(user))
+      if (options == null)
       {
-         if (options == null)
-         {
-            options = DeputyOptions.DEFAULT;
-         }
+         options = DeputyOptions.DEFAULT;
+      }
 
-         List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
-         for (Deputy deputy : deputies)
+      List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
+      for (Deputy deputy : deputies)
+      {
+         if (deputy.getUser().equals(user))
          {
-            if (deputy.getUser().equals(user))
-            {
-               removeDeputy(user, deputyUser);
-               return addDeputy(user, deputyUser, options);
-            }
+            removeDeputy(user, deputyUser);
+            return addDeputy(user, deputyUser, options);
          }
       }
 
@@ -987,13 +937,10 @@ public class UserServiceImpl implements UserService, Serializable
    @Override
    public void removeDeputy(UserInfo user, UserInfo deputyUser)
    {
-      if (isAllowedToRemoveDeputy(user))
-      {
-         UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
-         UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
+      UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+      UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-         UserUtils.updateDeputyGrants(deputyUserBean);
-      }
+      UserUtils.updateDeputyGrants(deputyUserBean);
    }
 
    @Override

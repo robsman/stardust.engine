@@ -575,6 +575,7 @@ public interface UserService extends Service
     * @throws DeputyExistsException
     *            if the requested deputy already exists.
     */
+    @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
     Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options);
 
    /**
@@ -597,6 +598,7 @@ public interface UserService extends Service
     * @throws ObjectNotFoundException
     *            if the requested deputy does not exists.
     */
+    @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
     Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException;
 
    /**
@@ -612,6 +614,7 @@ public interface UserService extends Service
     * @throws ObjectNotFoundException
     *            if the requested deputy does not exists.
     */
+    @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
     void removeDeputy(UserInfo user, UserInfo deputyUser) throws ObjectNotFoundException;
 
    /**

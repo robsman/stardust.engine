@@ -65,6 +65,10 @@
                <artifactId>cxf-api</artifactId>
             </exclusion>
             <exclusion>
+               <groupId>org.apache.cxf</groupId>
+               <artifactId>cxf-rt-transports-http</artifactId>
+            </exclusion>
+            <exclusion>
                <groupId>xml-resolver</groupId>
                <artifactId>xml-resolver</artifactId>
             </exclusion>

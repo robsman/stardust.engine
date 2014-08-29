@@ -38,6 +38,12 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <scope>compile</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>javax.jcr</groupId>
          <artifactId>jcr</artifactId>
          <scope>compile</scope>
@@ -90,6 +96,11 @@
       <dependency>
          <groupId>rhino</groupId>
          <artifactId>js</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.google.code.gson</groupId>
+         <artifactId>gson</artifactId>
          <scope>compile</scope>
       </dependency>
       <dependency>
@@ -922,6 +933,7 @@
                   <include>core/spi/dms/IRepositoryProvider.java</include>
                   <include>core/spi/dms/IRepositoryProviderInfo.java</include>
                   <include>core/spi/dms/IRepositoryService.java</include>
+                  <include>core/spi/dms/RepositoryAuditTrailUtils.java</include>
                   <include>core/spi/dms/RepositoryConstants.java</include>
                   <include>core/spi/dms/RepositoryIdUtils.java</include>
                   <include>core/spi/dms/RepositoryResourceUtils.java</include>

@@ -39,6 +39,12 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <scope>compile</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>javax.jcr</groupId>
          <artifactId>jcr</artifactId>
          <scope>compile</scope>
@@ -48,7 +54,9 @@
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_1.1_spec</artifactId>
          <scope>compile</scope>
-         <optional>true</optional>
+         <!-- Exception towards carnot-engine: Don't set the optional flag to true 
+              because it is required in sysconsole and console -->
+         <optional>false</optional>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
@@ -60,7 +68,9 @@
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
          <scope>compile</scope>
-         <optional>true</optional>
+         <!-- Exception towards carnot-engine: Don't set the optional flag to true 
+              because it is required in sysconsole and console -->
+         <optional>false</optional>
       </dependency>
       <dependency>
          <groupId>javax.persistence</groupId>
@@ -91,6 +101,11 @@
       <dependency>
          <groupId>rhino</groupId>
          <artifactId>js</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.google.code.gson</groupId>
+         <artifactId>gson</artifactId>
          <scope>compile</scope>
       </dependency>
       <dependency>
@@ -260,12 +275,6 @@
       <dependency>
          <groupId>com.hazelcast</groupId>
          <artifactId>hazelcast</artifactId>
-         <scope>compile</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>com.thoughtworks.qdox</groupId>
-         <artifactId>qdox</artifactId>
          <scope>compile</scope>
          <optional>true</optional>
       </dependency>

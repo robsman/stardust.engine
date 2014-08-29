@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.springframework.context.ConfigurableApplicationContext;

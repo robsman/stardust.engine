@@ -38,8 +38,8 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryResourceBundle;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Assert;
@@ -68,7 +68,7 @@ public class DmsMultiRepositoryTest
          ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(
+   public static final TestClassSetup testClassSetup = new TestClassSetup(
          ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING,
          DmsModelConstants.DMS_MODEL_NAME);
 

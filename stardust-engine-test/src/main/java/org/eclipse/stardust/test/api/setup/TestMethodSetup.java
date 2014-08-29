@@ -25,7 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.spring.threading.FiFoJobManager;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
@@ -41,8 +41,8 @@ import org.springframework.jms.core.JmsTemplate;
  * </p>
  *
  * <p>
- * This class is responsible for the test method setup whereas {@link LocalJcrH2TestSetup}
- * deals with test class setup and {@link LocalJcrH2TestSuiteSetup} deals with test suite setup.
+ * This class is responsible for the test method setup whereas {@link TestClassSetup}
+ * deals with test class setup and {@link TestSuiteSetup} deals with test suite setup.
  * </p>
  *
  * @author Nicolas.Werlein
@@ -57,7 +57,7 @@ public class TestMethodSetup extends ExternalResource
    private static final String NATIVE_THREADING_JOB_MANAGER_BEAN_ID = "carnotAsyncJobManager";
 
    private final UsernamePasswordPair userPwdPair;
-   private final LocalJcrH2TestSetup testClassSetup;
+   private final TestClassSetup testClassSetup;
 
    private ServiceFactory sf;
    private String testMethodName;
@@ -70,7 +70,7 @@ public class TestMethodSetup extends ExternalResource
     * @param userPwdPair the credentials of the user used for test method setup; must not be null
     * @param testClassSetup the corresponding test class setup object; must not be null
     */
-   public TestMethodSetup(final UsernamePasswordPair userPwdPair, final LocalJcrH2TestSetup testClassSetup)
+   public TestMethodSetup(final UsernamePasswordPair userPwdPair, final TestClassSetup testClassSetup)
    {
       if (userPwdPair == null)
       {

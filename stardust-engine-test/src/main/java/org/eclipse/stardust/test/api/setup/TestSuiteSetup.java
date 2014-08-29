@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 
@@ -32,16 +32,16 @@ import org.junit.rules.ExternalResource;
  * </p>
  * 
  * <p>
- * This class is responsible for the test suite setup whereas {@link LocalJcrH2TestSetup}
+ * This class is responsible for the test suite setup whereas {@link TestClassSetup}
  * deals with test class setup and {@link TestMethodSetup} deals with test method setup.
  * </p>
  * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2TestSuiteSetup extends ExternalResource
+public class TestSuiteSetup extends ExternalResource
 {
-   private final LocalJcrH2TestSetup testClassSetup;
+   private final TestClassSetup testClassSetup;
    
    /**
     * <p>
@@ -53,14 +53,14 @@ public class LocalJcrH2TestSuiteSetup extends ExternalResource
     * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
     * @param modelNames the names of the models to deploy; may be null or empty
     */
-   public LocalJcrH2TestSuiteSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
+   public TestSuiteSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
    {
-      testClassSetup = new LocalJcrH2TestSetup(userPwdPair, forkingServiceMode, modelNames);
+      testClassSetup = new TestClassSetup(userPwdPair, forkingServiceMode, modelNames);
    }
    
    /**
     * <p>
-    * Sets up the test environment (see {@link LocalJcrH2TestSetup#before()}) and locks
+    * Sets up the test environment (see {@link TestClassSetup#before()}) and locks
     * the test environment afterwards to prevent the individual test classes from setting
     * up the test environment themselves. 
     * </p>
@@ -71,12 +71,12 @@ public class LocalJcrH2TestSuiteSetup extends ExternalResource
    protected void before() throws TestRtEnvException
    {
       testClassSetup.before();
-      LocalJcrH2TestSetup.lockTestEnv();
+      TestClassSetup.lockTestEnv();
    }
    
    /**
     * <p>
-    * Tears down the test environment (see {@link LocalJcrH2TestSetup#after()}). It will
+    * Tears down the test environment (see {@link TestClassSetup#after()}). It will
     * remove the test environment lock first which prevented the individual test classes from
     * tearing down the test environment themselves. 
     * </p>
@@ -86,7 +86,7 @@ public class LocalJcrH2TestSuiteSetup extends ExternalResource
    @Override
    protected void after() throws TestRtEnvException
    {
-      LocalJcrH2TestSetup.unlockTestEnv();
+      TestClassSetup.unlockTestEnv();
       testClassSetup.after();
    }
 }

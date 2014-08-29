@@ -46,16 +46,16 @@ import org.springframework.context.ApplicationContext;
  * </p>
  * 
  * <p>
- * This class is responsible for the test class setup whereas {@link LocalJcrH2TestSuiteSetup}
+ * This class is responsible for the test class setup whereas {@link TestSuiteSetup}
  * deals with test suite setup and {@link TestMethodSetup} deals with test method setup.
  * </p>
  * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2TestSetup extends ExternalResource
+public class TestClassSetup extends ExternalResource
 {
-   private static final Log LOG = LogFactory.getLog(LocalJcrH2TestSetup.class);
+   private static final Log LOG = LogFactory.getLog(TestClassSetup.class);
    
    private static final String DATA_SOURCE_FACTORY_BEAN_ID = "xaAuditTrailConnectionFactory";
    private static final String JMS_RESOURCE_PROVIDER_BEAN_ID = "jmsResourceResolver";
@@ -84,7 +84,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
     * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
     * @param modelNames the names of the models to deploy; may be null or empty
     */
-   public LocalJcrH2TestSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
+   public TestClassSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
    {
       if (userPwdPair == null)
       {

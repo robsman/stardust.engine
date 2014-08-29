@@ -2,8 +2,8 @@ package org.eclipse.stardust.test.security;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -27,5 +27,5 @@ public class SpringSecurityTestSuite
    /* test suite */
 
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
 }

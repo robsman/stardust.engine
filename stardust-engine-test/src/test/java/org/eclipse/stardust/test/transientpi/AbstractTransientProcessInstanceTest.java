@@ -10,7 +10,6 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.NL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_SPLIT;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -40,6 +39,10 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.jta.JtaTransactionManager;
+
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
@@ -67,11 +70,8 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.util.JmsConstants;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
 /**
  * <p>
@@ -98,9 +98,9 @@ public class AbstractTransientProcessInstanceTest
 
    protected static volatile boolean appMayComplete;
 
-   private final LocalJcrH2TestSetup testClassSetup;
+   private final TestClassSetup testClassSetup;
 
-   protected AbstractTransientProcessInstanceTest(final LocalJcrH2TestSetup testClassSetup)
+   protected AbstractTransientProcessInstanceTest(final TestClassSetup testClassSetup)
    {
       this.testClassSetup = testClassSetup;
    }

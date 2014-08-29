@@ -22,7 +22,7 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
  * <p>
  * This utility class allows for starting and stopping <i>Stardust</i> daemons.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -32,11 +32,11 @@ public class DaemonHome
     * <p>
     * Starts all available daemons.
     * </p>
-    * 
+    *
     * <p>
     * Which daemons are started depends on the deployed runtime environment (i.e. the model).
     * </p>
-    * 
+    *
     * @param adminService the service needed for starting the daemons
     */
    public static void startAllDaemons(final AdministrationService adminService)
@@ -45,19 +45,19 @@ public class DaemonHome
       {
          throw new NullPointerException("Administration Service must not be null.");
       }
-      
+
       final List<Daemon> allDaemons = adminService.getAllDaemons(false);
       for (final Daemon d : allDaemons)
       {
          startDaemonInternal(adminService, d.getType());
       }
    }
-   
+
    /**
     * <p>
     * Stops all running daemons, i.e. tries to stop a daemon only if it is running.
     * </p>
-    * 
+    *
     * @param adminService the service needed for stopping the daemons
     */
    public static void stopAllRunningDaemons(final AdministrationService adminService)
@@ -66,7 +66,7 @@ public class DaemonHome
       {
          throw new NullPointerException("Administration Service must not be null.");
       }
-      
+
       final List<Daemon> allDaemons = adminService.getAllDaemons(false);
       for (final Daemon d : allDaemons)
       {
@@ -76,12 +76,12 @@ public class DaemonHome
          }
       }
    }
-      
+
    /**
     * <p>
     * Starts the given daemon.
     * </p>
-    * 
+    *
     * @param adminService the service needed for starting the daemon
     * @param daemonType the daemon to start
     */
@@ -91,20 +91,20 @@ public class DaemonHome
       {
          throw new NullPointerException("Administration Service must not be null.");
       }
-      
+
       if (daemonType == null)
       {
          throw new NullPointerException("Daemon Type must not be null.");
       }
-      
+
       startDaemonInternal(adminService, daemonType.id());
    }
-   
+
    /**
     * <p>
     * Stops the given daemon.
     * </p>
-    * 
+    *
     * @param adminService the service needed for stopping the daemon
     * @param daemonType the daemon to stop
     */
@@ -119,7 +119,7 @@ public class DaemonHome
       {
          throw new NullPointerException("Daemon Type must not be null.");
       }
-      
+
       stopDaemonInternal(adminService, daemonType.id());
    }
 
@@ -127,7 +127,7 @@ public class DaemonHome
     * <p>
     * Retrieves the specified daemon.
     * </p>
-    * 
+    *
     * @param adminService the service needed for retrieving the daemon
     * @param daemonType the daemon to retrieve
     * @return the specified daemon
@@ -138,19 +138,19 @@ public class DaemonHome
       {
          throw new NullPointerException("Administration Service must not be null.");
       }
-      
+
       if (daemonType == null)
       {
          throw new NullPointerException("Daemon Type must not be null.");
       }
-      
+
       return adminService.getDaemon(daemonType.id(), true);
    }
-   
+
    private static void startDaemonInternal(final AdministrationService adminService, final String daemonType)
    {
       final Daemon daemon = adminService.startDaemon(daemonType, true);
-      
+
       final boolean isRunning = daemon.isRunning();
       final boolean isAck = daemon.getAcknowledgementState().equals(AcknowledgementState.RespondedOK);
       if (!isRunning || !isAck)
@@ -158,24 +158,24 @@ public class DaemonHome
          throw new TestRtEnvException("Unable to start daemon '" + daemon + "'.", TestRtEnvAction.DAEMON_SETUP);
       }
    }
-   
+
    private static void stopDaemonInternal(final AdministrationService adminService, final String daemonType)
    {
       final Daemon daemon = adminService.stopDaemon(daemonType, true);
-      
+
       final boolean isRunning = daemon.isRunning();
       final boolean isAck = daemon.getAcknowledgementState().equals(AcknowledgementState.RespondedOK);
       if (isRunning || !isAck)
       {
          throw new TestRtEnvException("Unable to stop daemon '" + daemon + "'.", TestRtEnvAction.DAEMON_TEARDOWN);
-      }      
+      }
    }
-   
+
    /**
     * <p>
     * Represents a <i>Stardust</i> daemon.
     * </p>
-    * 
+    *
     * @author Nicolas.Werlein
     * @version $Revision$
     */
@@ -202,7 +202,7 @@ public class DaemonHome
          @Override
          public String id()
          {
-            return "event.daemon";
+            return AdministrationService.EVENT_DAEMON;
          }
       },
       SYSTEM_DAEMON
@@ -210,18 +210,18 @@ public class DaemonHome
          @Override
          public String id()
          {
-            return "system.daemon";
+            return AdministrationService.SYSTEM_DAEMON;
          }
       },
-      PRIORITIZATION_DAEMON
+      CRITICALITY_DAEMON
       {
          @Override
          public String id()
          {
-            return "criticality.daemon";
+            return AdministrationService.CRITICALITY_DAEMON;
          }
       };
-      
+
       public abstract String id();
    }
 }

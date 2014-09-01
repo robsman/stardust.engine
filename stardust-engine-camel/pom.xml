@@ -447,6 +447,7 @@
             <configuration>
                <skip>false</skip>
                <failIfNoTests>false</failIfNoTests>
+               <testFailureIgnore>true</testFailureIgnore>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
          </plugin>

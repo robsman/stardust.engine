@@ -4,7 +4,8 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-
+     
+    <!-- TODO  remove all deprecated Bean in IPP 8.2-->
 	<bean id="camelTriggerLoader"
 		class="org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader">
 	 	<property name="forkingService" ref="carnotForkingService" />

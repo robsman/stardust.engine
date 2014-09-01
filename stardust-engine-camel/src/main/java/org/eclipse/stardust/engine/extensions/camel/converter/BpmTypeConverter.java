@@ -1,18 +1,14 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_ENDPOINT_PROPERTIES;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.MODEL_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PARTITION;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ORIGIN;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TRIGGER_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.OriginValue.TRIGGER_CONSUMER;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_TRIGGER_TYPE;
-import static org.eclipse.stardust.engine.extensions.camel.Util.performParameterMapping;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_ENDPOINT_PROPERTIES;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.*;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.OriginValue.TRIGGER_CONSUMER;
 import static org.eclipse.stardust.engine.extensions.camel.Util.copyInToOut;
+import static org.eclipse.stardust.engine.extensions.camel.Util.performParameterMapping;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +16,8 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Property;
-import org.apache.camel.spring.SpringCamelContext;
 
-import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
@@ -32,20 +25,21 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.LoginUtils;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
+import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 
 public class BpmTypeConverter
 {
    public static final Logger logger = LogManager.getLogger(BpmTypeConverter.class);
-
-   private ForkingService forkingService;
 
    public void toJSON(Exchange exchange) throws Exception
    {
@@ -136,16 +130,12 @@ public class BpmTypeConverter
          throws Exception
    {
       copyInToOut(exchange);
-      final String partitionId = extractPartitionId(exchange);
       final String modelId = extractModelId(exchange);
       final String processId = extractProcessId(exchange);
       final String triggerId = extractTriggerId(exchange);
-      org.springframework.context.ApplicationContext applicationContext = ((SpringCamelContext) exchange
-            .getContext()).getApplicationContext();
-
-      forkingService = (ForkingService) applicationContext
-            .getBean("carnotForkingService");
-      IModel model = extractModel(partitionId, modelId);
+      
+      ServiceFactory sf =  ClientEnvironment.getCurrentServiceFactory();   
+      IModel model = extractModel(sf, modelId);
       ITrigger trigger = extractTriggerDefinitionFromModel(model, processId, triggerId);
       List<AccessPointProperties> accessPointList = performParameterMapping(trigger);
 
@@ -202,21 +192,17 @@ public class BpmTypeConverter
       }
    }
 
-   private IModel extractModel(final String partitionId, final String modelId)
+   private IModel extractModel(final ServiceFactory sf, final String modelId)
    {
-      return (IModel) this.forkingService.isolate(new Action<IModel>()
-      {
-         public IModel execute()
-         {
-            BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
-            Map<String, String> properties = new HashMap<String, String>();
-            properties.put(SecurityProperties.PARTITION, partitionId);
-            LoginUtils.mergeDefaultCredentials(Parameters.instance(), properties);
-            AbstractLoginInterceptor.setCurrentPartitionAndDomain(Parameters.instance(),
-                  bpmRt, properties);
-            return ModelManagerFactory.getCurrent().findActiveModel(modelId);
-         }
-      });
+      return (IModel) sf.getWorkflowService().execute(new ServiceCommand()
+     {
+        private static final long serialVersionUID = 1L;
+
+        public Serializable execute(ServiceFactory sf)
+        {
+           return ModelManagerFactory.getCurrent().findActiveModel(modelId);
+        }
+     });
    }
 
    private ITrigger extractTriggerDefinitionFromModel(IModel model, String processId,

@@ -40,7 +40,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 /**
- * 
+ * @deprecated will be removed in IPP 8.2 version
  * @author JanHendrik.Scheufen
  */
 public class StructuredDataTranslator

@@ -7,6 +7,9 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.extensions.camel.util.converter.StructuredDataTranslator;
 
+/**
+ * @deprecated will be removed in IPP 8.2 version
+ */
 public class SDTFileConverter implements DataConverter {
 
     private String fromEndpoint;

@@ -35,10 +35,13 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.runners.MethodSorters;
 
 /**
  * <p>
@@ -48,6 +51,7 @@ import org.junit.rules.TestRule;
  * @author barry.Grotjahn
  * @version $Revision: 74449 $
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ManageDeputiesTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
@@ -110,16 +114,85 @@ public class ManageDeputiesTest
       options = new DeputyOptions();
    }
 
+
+
    /**
     * <p>
     *
     * </p>
     */
    @Test
-   public void addDeputyU1Test3ForTest2()
+   @Ignore
+   public void test1_addDeputyU1Test3ForTest2()
    {
       UserService userService = userSf1.getUserService();
       userService.addDeputy(test2, test3, options);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
+   @Ignore
+   public void test2_addDeputyU1Test2ForTest3()
+   {
+      UserService userService = userSf1.getUserService();
+      userService.addDeputy(test3, test2, options);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
+   @Ignore
+   public void test3_modifyDeputyU1Test2ForTest3()
+   {
+      UserService userService = userSf1.getUserService();
+      userService.modifyDeputy(test3, test2, options);
+   }
+
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
+   @Ignore
+   public void test4_addDeputyU3Test1ForTest3()
+   {
+      UserService userService = userSf3.getUserService();
+      userService.addDeputy(test3, test1, options);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
+   @Ignore
+   public void test5_modifyDeputyU3Test1ForTest3()
+   {
+      UserService userService = userSf3.getUserService();
+      userService.modifyDeputy(test3, test1, options);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
+   @Ignore
+   public void test6_removeDeputyU3Test1ForTest3()
+   {
+      UserService userService = userSf3.getUserService();
+      userService.removeDeputy(test3, test1);
    }
 
 
@@ -129,7 +202,8 @@ public class ManageDeputiesTest
     * </p>
     */
    @Test(expected = AccessForbiddenException.class)
-   public void addDeputyU4Test1ForTest3()
+   @Ignore
+   public void test7_addDeputyU4Test1ForTest3()
    {
       UserService userService = userSf4.getUserService();
       userService.addDeputy(test3, test1, options);

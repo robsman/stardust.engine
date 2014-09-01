@@ -177,23 +177,29 @@ public class WebServiceEnv implements ModelResolver
 
    public Model getActiveModel(String modelId)
    {
-      return fetchModel(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
+      Model model = null;
+      if (modelCache != null)
+      {
+         model = modelCache.getActiveModel(modelId);
+   }
+      if (model == null)
+      {
+         model = fetchModel(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
+      }
+      return model;
    }
 
    public Model getModel(long modelOid)
    {
       Model model = null;
-
       if (modelCache != null)
       {
          model = modelCache.getModel(modelOid);
       }
-
       if (model == null)
       {
          model = fetchModel(RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
       }
-
       return model;
    }
 

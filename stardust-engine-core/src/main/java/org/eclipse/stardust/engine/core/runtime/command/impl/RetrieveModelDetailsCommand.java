@@ -103,5 +103,4 @@ public class RetrieveModelDetailsCommand implements ServiceCommand
          ParametersFacade.popLayer();
       }
    }
-
 }

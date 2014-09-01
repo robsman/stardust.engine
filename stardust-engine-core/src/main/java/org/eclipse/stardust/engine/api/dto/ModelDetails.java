@@ -367,6 +367,10 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    {
       if (!resolved)
       {
+         synchronized (this)
+         {
+            if (!resolved)
+            {
          if (schemaLocatorAdapter == null)
          {
             schemaLocatorAdapter = new SchemaLocatorAdapter();
@@ -388,6 +392,8 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
             }
          }
          resolved = true;
+      }
+   }
       }
    }
 

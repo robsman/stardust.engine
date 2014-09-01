@@ -26,15 +26,23 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 public class ModelCache
 {
    private ConcurrentHashMap<Long, CachedModel> cache = new ConcurrentHashMap<Long, CachedModel>();
+   private ConcurrentHashMap<String, CachedModel> activeModelCache = new ConcurrentHashMap<String, CachedModel>();
 
    public void reset()
    {
       cache.clear();
+      activeModelCache.clear();
    }
 
    public DeployedModel getModel(long modelOid)
    {
       CachedModel cachedModel = cache.get(modelOid);
+      return cachedModel == null ? null : cachedModel.getModel();
+   }
+
+   public DeployedModel getActiveModel(String modelId)
+   {
+      CachedModel cachedModel = activeModelCache.get(modelId);
       return cachedModel == null ? null : cachedModel.getModel();
    }
 
@@ -45,6 +53,7 @@ public class ModelCache
       if (model.isActive())
       {
          cache.put((long) PredefinedConstants.ACTIVE_MODEL, cachedModel);
+         activeModelCache.put(model.getId(), cachedModel);
       }
    }
 

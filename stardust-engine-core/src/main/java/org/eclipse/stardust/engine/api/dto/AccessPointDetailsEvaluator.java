@@ -15,10 +15,12 @@ import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.AccessPointOwner;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
@@ -81,8 +83,10 @@ public class AccessPointDetailsEvaluator implements Serializable
       }
       else
       {
+         boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
+               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
          // do instant evaluation
-         allAccessPoints = createDetailsCollection(owner.getAllAccessPoints());
+         allAccessPoints = isArchiveAuditTrail ? Collections.emptyList() : createDetailsCollection(owner.getAllAccessPoints());
       }
    }
    

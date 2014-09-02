@@ -37,6 +37,8 @@ public class AuditTrailUtils
 {
 
    public static final String DOCS_DOCUMENTS = "documents";
+   
+   public static final String DOCS_COUNT = "documentCount"; 
 
    public static final String FOLDERS_FOLDERS = "folders";
 

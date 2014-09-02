@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.dms.data;
 
+import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,23 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 
@@ -193,7 +205,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance,
          String outPath, AccessPathEvaluationContext accessPathEvaluationContext)
    {
-
+      
       ProcessAttachmentByRootProcessWrapper wrapper = new ProcessAttachmentByRootProcessWrapper(accessPathEvaluationContext, accessPointInstance, accessPointDefinition);
       AccessPathEvaluationContext accessPathEvaluationContext2 = wrapper.getAccessPathEvaluationContext();
       Object accessPointInstance2 = wrapper.getAccessPointInstance();
@@ -237,6 +249,66 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
             }
 
             return documentList;
+         }
+         else if(outPath.equals(AuditTrailUtils.DOCS_COUNT))
+         {
+            // Execute Query to retrieve the document Count
+
+            try
+            {
+               ResultSet rs = null;
+               try
+               {
+                  Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+                  IProcessDefinition pd = accessPathEvaluationContext.getProcessInstance()
+                        .getProcessDefinition();
+                  IModel model = (IModel) pd.getModel();
+                  Long modelOid = Long.valueOf(model.getOID());                  
+                  
+                  QueryDescriptor query = QueryDescriptor.from(
+                        StructuredDataValueBean.class).select(Functions.countDistinct(StructuredDataValueBean.FR__OID));
+
+                  query.getQueryExtension()
+                        .addJoin(
+                              new Join(StructuredDataBean.class).on(
+                                    StructuredDataValueBean.FR__XPATH,
+                                    StructuredDataBean.FIELD__OID))
+                        .addJoin(
+                              new Join(AuditTrailDataBean.class).on(
+                                    StructuredDataBean.FR__DATA,
+                                    AuditTrailDataBean.FIELD__OID))
+                        .setWhere(
+                              Predicates.andTerm(
+                                    Predicates.isEqual(
+                                          StructuredDataValueBean.FR__PROCESS_INSTANCE,
+                                          accessPathEvaluationContext.getScopeProcessInstanceOID()),
+                                    Predicates.isEqual(AuditTrailDataBean.FR__ID,
+                                          accessPointDefinition.getId()),
+                                    Predicates.isEqual(StructuredDataBean.FR__XPATH,
+                                          AuditTrailUtils.DOCS_DOCUMENTS)));
+                  
+                  
+
+                  rs = session.executeQuery(query);
+
+                  if (rs.next())
+                  {
+                     return rs.getInt(1);
+                  }
+               }
+               finally
+               {
+                  QueryUtils.closeResultSet(rs);
+               }
+            }
+            catch (Exception e)
+            {
+               throw new PublicException("Failed to retrieve data for XPATH "
+                     + AuditTrailUtils.DOCS_COUNT, e);
+            }
+
+            return null;
          }
          else
          {

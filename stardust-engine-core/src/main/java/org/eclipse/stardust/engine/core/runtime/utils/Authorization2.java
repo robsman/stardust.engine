@@ -28,7 +28,7 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-
+import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -63,8 +63,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluat
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
-
-
 /**
  *
  * @author Florin.Herinean
@@ -81,7 +79,7 @@ public class Authorization2
    public static void checkPermission(Method method, Object[] args)
    {
       UserUtils.clearOnBehalfOf();
-      
+
       AuthorizationContext context = AuthorizationContext.create(method);
       ClientPermission permission = context.getPermission();
       if (permission != null)
@@ -108,11 +106,11 @@ public class Authorization2
                {
                   // change context to process instance if you want to abort the complete process hierarchy
                   permission = new ClientPermission(Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
-                  
+
                   IActivityInstance activityInstance = ActivityInstanceBean.findByOID(aiOid);
                   IProcessInstance processInstance = activityInstance.getProcessInstance();
                   IProcessInstance rootPi = processInstance.getRootProcessInstance();
-                  
+
                   context = AuthorizationContext.create(permission);
                   context.setProcessInstance(rootPi);
                }
@@ -270,6 +268,19 @@ public class Authorization2
                {
                   context.setModels(models);
                   requiredGrant = checkPermission(context);
+               }
+
+               if (ExecutionPermission.Id.manageDeputies.name().equals(permission.id))
+               {
+                  IUser user = context.getUser();
+                  // 1st attribute is the user, 2nd deputy user
+                  User userDetails = (User) args[0];
+
+                  if(userDetails.getAccount().equals(user.getAccount())
+                        && userDetails.getRealm().getId().equals(user.getRealm().getId()))
+                  {
+                     requiredGrant = null;
+                  }
                }
             }
             break;
@@ -449,7 +460,7 @@ public class Authorization2
             if (department != 0)
             {
                // no direct matches, check hierarchy now.
-               IDepartment targetDepartment = DepartmentBean.findByOID(department);               
+               IDepartment targetDepartment = DepartmentBean.findByOID(department);
                IOrganization targetOrganization = context.findOrganization(targetDepartment, participant);
                if (targetOrganization == restrictions.get(restrictions.size() - 1))
                {
@@ -548,16 +559,16 @@ public class Authorization2
          for (IOrganization restrictedParticipant : restrictions)
          {
             String dataId = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
-        	         
+
             IData dataObject = model.findData(dataId);
             if (dataObject == null)
             {
                throw new InternalException("No data '" + dataId
                      + "' available for department retrieval.");
             }
-            
+
             QName qualifiedId = new QName(model.getId(),dataId);
-            
+
             String dataPath = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
             if (context.hasValue(qualifiedId.toString(), dataPath))
             {
@@ -658,7 +669,7 @@ public class Authorization2
 	            }
 	            return null;
 	         }
-	    
+
 	         public AccessPoint lookupSymbolType(String name)
 	         {
 	            if (name.equals(dataObject.getId()))
@@ -670,8 +681,8 @@ public class Authorization2
 	      };
 	      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
 	      return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
-	   }   
-   
+	   }
+
    private static void findRestricted(List<IOrganization> restrictions, IModelParticipant participant)
    {
       if (participant instanceof IOrganization

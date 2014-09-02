@@ -163,6 +163,7 @@
          <execute-test-suite name="Case Process Instance" class="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" />
          <execute-test-suite name="Data" class="org.eclipse.stardust.test.data.DataTestSuite" />
          <execute-test-suite name="Department" class="org.eclipse.stardust.test.department.DepartmentTestSuite" />
+         <execute-test-suite name="Deputy" class="org.eclipse.stardust.test.deputy.DeputyTestSuite" />
          <execute-test-suite name="Document Management" class="org.eclipse.stardust.test.dms.DmsTestSuite" />
          <execute-test-suite name="Document Management Synchronization" class="org.eclipse.stardust.test.dms.DmsSyncTestSuite" />
          <execute-test-suite name="Document Management Application" class="org.eclipse.stardust.test.dms.DmsApplicationTestSuite" />

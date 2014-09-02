@@ -33,7 +33,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ 
                ActivityInstanceWorkflowTest.class,
-               ProcessInstanceWorkflowTest.class
+               ProcessInstanceWorkflowTest.class,
+               EmbeddedServiceFactoryTest.class
              })
 public class BasicWorkflowTestSuite
 {

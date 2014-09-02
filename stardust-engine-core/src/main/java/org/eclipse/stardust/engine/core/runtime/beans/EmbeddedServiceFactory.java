@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.LoginFailedException;
+import org.eclipse.stardust.common.log.LogUtils;
+import org.eclipse.stardust.common.rt.ITransactionStatus;
+import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -25,6 +30,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.runtime.interceptor.TransactionPolicyAdvisor;
 import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 public class EmbeddedServiceFactory extends DefaultServiceFactory
@@ -140,6 +146,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
       interceptors.add(getLoginInterceptor(withLogin));
       interceptors.add(new GuardingInterceptor(serviceName));
       interceptors.add(new RuntimeExtensionsInterceptor());
+      interceptors.add(new ExceptionHandlingInterceptor());
       interceptors.add(new CallingInterceptor());
       return interceptors;
    }
@@ -185,6 +192,59 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          finally
          {
             ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).flush();
+         }
+      }
+   }
+
+   private static class ExceptionHandlingInterceptor implements MethodInterceptor
+   {
+      private static final long serialVersionUID = 1L;
+
+      public Object invoke(MethodInvocation invocation) throws Throwable
+      {
+         try
+         {
+            return invocation.proceed();
+         }
+         catch (InvocationTargetException e)
+         {
+            maybeTriggerTxRollback(invocation, e);
+
+            LogUtils.traceException(e.getTargetException(), false);
+            if (e.getTargetException() instanceof ApplicationException)
+            {
+               throw e.getTargetException();
+            }
+            else
+            {
+               throw new InternalException(e.getTargetException().getMessage());
+            }
+         }
+         catch (Throwable e)
+         {
+            maybeTriggerTxRollback(invocation, e);
+
+            LogUtils.traceException(e, false);
+            throw new InternalException(e.getMessage());
+         }
+      }
+
+      private static void maybeTriggerTxRollback(MethodInvocation invocation, Throwable e)
+      {
+         ITransactionStatus txStatus = TransactionUtils.getCurrentTxStatus();
+
+         // rollback by default (if there is a TX) ...
+         boolean mustRollback = (null != txStatus);
+         if (txStatus instanceof TransactionPolicyAdvisor)
+         {
+            // ... but allow to be advised differently
+            TransactionPolicyAdvisor txPolicyAdvisor = (TransactionPolicyAdvisor) txStatus;
+            mustRollback = txPolicyAdvisor.mustRollback(invocation, e);
+         }
+
+         if (mustRollback)
+         {
+            txStatus.setRollbackOnly();
          }
       }
    }

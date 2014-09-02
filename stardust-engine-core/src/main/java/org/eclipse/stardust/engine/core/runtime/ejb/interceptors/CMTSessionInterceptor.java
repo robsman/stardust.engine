@@ -32,13 +32,14 @@ import org.eclipse.stardust.engine.core.runtime.ejb.EjbTxPolicy;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
 import org.eclipse.stardust.engine.core.runtime.interceptor.AuditTrailPropertiesInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.runtime.interceptor.TransactionPolicyAdvisor;
 
 /**
  * @author ubirkemeyer
  * @version $Revision: 52592 $
  */
 public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
-      implements ITransactionStatus
+      implements ITransactionStatus, TransactionPolicyAdvisor
 {
    private static final long serialVersionUID = 1L;
 
@@ -138,7 +139,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
       catch (Throwable e)
       {
          session.disconnect();
-         if ((null == ejbTxPolicy) || ejbTxPolicy.mustRollback(invocation, e))
+         if (mustRollback(invocation, e))
          {
             context.setRollbackOnly();
          }
@@ -174,5 +175,11 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    {
       // Transaction object is unknown for EJB scenario
       return null;
+   }
+
+   @Override
+   public boolean mustRollback(MethodInvocation invocation, Throwable e)
+   {
+      return (null == ejbTxPolicy) || ejbTxPolicy.mustRollback(invocation, e);
    }
 }

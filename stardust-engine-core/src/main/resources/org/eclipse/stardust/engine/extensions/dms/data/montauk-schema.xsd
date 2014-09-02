@@ -85,6 +85,7 @@
 
 	<complexType name='DocumentList'>
 		<sequence>
+			<element name='documentCount' minOccurs='1' maxOccurs='1' type='int' />
 			<element maxOccurs='unbounded' name='documents'
 				type='tns:Document' />
 		</sequence>

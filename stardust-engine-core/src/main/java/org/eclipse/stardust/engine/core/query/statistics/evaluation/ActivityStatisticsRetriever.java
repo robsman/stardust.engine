@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -52,7 +53,8 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
       ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
       ActivityInstanceBean.FR__CURRENT_PERFORMER,
       ActivityInstanceBean.FR__CURRENT_USER_PERFORMER,
-      ActivityInstanceBean.FR__CURRENT_DEPARTMENT
+      ActivityInstanceBean.FR__CURRENT_DEPARTMENT,
+      ActivityInstanceBean.FR__STATE
    };
 
    public CustomActivityInstanceQueryResult evaluateQuery(
@@ -148,6 +150,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
                long currentPerformer = rs.getLong(7);
                long currentUserPerformer = rs.getLong(8);
                long department = rs.getLong(9);
+               int state = rs.getInt(10);
 
                ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid, currentPerformer, currentUserPerformer, department);
                if (!guarded || Authorization2.hasPermission(ctx))
@@ -156,10 +159,16 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
                   IActivity activity = (IActivity) ctx.getModelElement();
                   boolean isCritical = criticalityPolicy.isCriticalDuration(priority,
                         tsAiStart, now, activity);
+                  boolean isInterrupted = false;
+                  
+                  if (state == ActivityInstanceState.INTERRUPTED)
+                  {
+                     isInterrupted = true;
+                  }                  
                   
                   String pdId = ModelUtils.getQualifiedId(activity.getProcessDefinition());
                   String aId = ModelUtils.getQualifiedId(activity);
-                  result.addPriorizedInstances(pdId, aId, priority, aiOid, isCritical);
+                  result.addPriorizedInstances(pdId, aId, priority, aiOid, isCritical, isInterrupted);
                }
             }
          });

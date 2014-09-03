@@ -27,7 +27,7 @@ public class ActivityStatisticsResult extends ActivityStatistics
    }
 
    public void addPriorizedInstances(String processId, String activityId, int priority,
-         long aiOid, boolean isCritical)
+         long aiOid, boolean isCritical, boolean isInterrupted)
    {
       ProcessEntry processEntry = (ProcessEntry) processEntries.get(processId);
       if (null == processEntry)
@@ -43,6 +43,6 @@ public class ActivityStatisticsResult extends ActivityStatistics
          processEntry.activityEntries.put(activityId, aiHistogram);
       }
 
-      aiHistogram.registerInstance(priority,aiOid, isCritical);
+      aiHistogram.registerInstance(priority,aiOid, isCritical, isInterrupted);
    }
 }

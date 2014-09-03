@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -82,7 +83,8 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
             ProcessInstanceBean.FR__PROCESS_DEFINITION,
             ProcessInstanceBean.FR__PRIORITY,
             ProcessInstanceBean.FR__START_TIME,
-            ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE
+            ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+            ProcessInstanceBean.FR__STATE
          };
 
       QueryDescriptor sqlQuery = QueryDescriptor
@@ -133,6 +135,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
             int priority = rs.getInt(5);
             long piStartTime = rs.getLong(6);
             long scopePiOid = rs.getLong(7);
+            int state = rs.getInt(8);
 
             if ((null == processRtOidFilter) || processRtOidFilter.contains(processRtOid))
             {
@@ -142,6 +145,8 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
                   IProcessDefinition process = (IProcessDefinition) ctx.getModelElement();
    
                   boolean isCritical = false;
+                  boolean isInterrupted = false;
+                  
                   if (piOid == cumulationPiOid)
                   {
                      tsPiStart.setTime(piStartTime);
@@ -150,8 +155,13 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
                            now, process);
                   }
                   
+                  if (state == ProcessInstanceState.INTERRUPTED)
+                  {
+                     isInterrupted = true;
+                  }
+                  
                   String elementId = ModelUtils.getQualifiedId(process);
-                  result.addPriorizedInstances(elementId, priority, piOid, isCritical);
+                  result.addPriorizedInstances(elementId, priority, piOid, isCritical, isInterrupted);
                }
             }
          }

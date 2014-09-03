@@ -35,6 +35,8 @@ public class CriticalInstancesHistogram
    private SortedSet<Long> normalPriorityCriticalInstances;
 
    private SortedSet<Long> highPriorityCriticalInstances;
+   
+   private SortedSet<Long> interupptedInstances;
 
    public long getInstancesCount(ProcessInstancePriority priority)
    {
@@ -77,6 +79,11 @@ public class CriticalInstancesHistogram
             + getCriticalInstancesCount(ProcessInstancePriority.Normal)
             + getCriticalInstancesCount(ProcessInstancePriority.High);
    }
+   
+   public long getInterruptedInstancesCount()
+   {
+      return getInterruptedInstancesSet().size();
+   }
 
    public Set<Long> getTotalCriticalInstances()
    {
@@ -93,13 +100,18 @@ public class CriticalInstancesHistogram
       return Collections.unmodifiableSet(result);
    }
 
-   public void registerInstance(int priority, long instanceOid, boolean critical)
+   public void registerInstance(int priority, long instanceOid, boolean critical, boolean isInterrupted)
    {
       instances.registerInstance(priority);
 
       if (critical)
       {
          getCriticalInstancesSet(priority, true).add(instanceOid);
+      }
+      
+      if (isInterrupted)
+      {
+         getInterruptedInstancesSet().add(instanceOid);
       }
    }
 
@@ -134,6 +146,16 @@ public class CriticalInstancesHistogram
       }
 
       return (null != result) ? result : Collections.<Long>emptySet();
+   }
+   
+   private Set<Long> getInterruptedInstancesSet()
+   {
+      if (this.interupptedInstances == null)
+      {
+         this.interupptedInstances = CollectionUtils.newTreeSet();
+      }      
+      return this.interupptedInstances;
+      
    }
 
 }

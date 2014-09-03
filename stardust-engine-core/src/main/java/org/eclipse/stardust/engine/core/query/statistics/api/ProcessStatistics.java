@@ -67,6 +67,8 @@ public abstract class ProcessStatistics extends CustomProcessInstanceQueryResult
    public interface IProcessStatistics extends ICriticalInstancesHistogram
    {
       String getProcessId();
+      
+      long getInterruptedInstances();
    }
 
    protected static class ProcessEntry extends CriticalInstancesHistogram
@@ -74,7 +76,7 @@ public abstract class ProcessStatistics extends CustomProcessInstanceQueryResult
    {
       private static final long serialVersionUID = 1l;
 
-      public final String processId;
+      public final String processId;      
 
       public ProcessEntry(String processId)
       {
@@ -84,6 +86,11 @@ public abstract class ProcessStatistics extends CustomProcessInstanceQueryResult
       public String getProcessId()
       {
          return processId;
+      }
+      
+      public long getInterruptedInstances()
+      {
+         return getInterruptedInstancesCount();
       }
 
       /**

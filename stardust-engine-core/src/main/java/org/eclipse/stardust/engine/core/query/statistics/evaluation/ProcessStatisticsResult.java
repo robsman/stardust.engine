@@ -27,7 +27,7 @@ public class ProcessStatisticsResult extends ProcessStatistics
    }
 
    public void addPriorizedInstances(String processId, int priority, long instanceOid,
-         boolean isCritical)
+         boolean isCritical, boolean isInterrupted)
    {
       ProcessEntry processHistogram = (ProcessEntry) priorizedInstancesHistogram.get(processId);
       if (null == processHistogram)
@@ -36,6 +36,6 @@ public class ProcessStatisticsResult extends ProcessStatistics
          priorizedInstancesHistogram.put(processId, processHistogram);
       }
 
-      processHistogram.registerInstance(priority, instanceOid, isCritical);
+      processHistogram.registerInstance(priority, instanceOid, isCritical, isInterrupted);
    }
 }

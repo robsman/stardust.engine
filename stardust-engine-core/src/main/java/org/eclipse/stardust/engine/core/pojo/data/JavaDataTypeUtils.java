@@ -189,10 +189,10 @@ public class JavaDataTypeUtils
                String modelId = qname.getNamespaceURI();
                if (!model.getId().equals(modelId))
                {
-                  IExternalPackage pkg = model.findExternalPackage(modelId);
-                  if (pkg != null)
+                  IModel targetModel = getReferencedModel(model, modelId);
+                  if(targetModel != null)
                   {
-                     model = pkg.getReferencedModel();
+                     model = targetModel;
                   }
                }
                typeDeclarationId = qname.getLocalPart();
@@ -209,6 +209,30 @@ public class JavaDataTypeUtils
          }
       }
       return String.class.getName();
+   }
+
+   private static IModel getReferencedModel(IModel model, String modelId)
+   {
+      IModel targetModel = null;
+      IExternalPackage pkg = model.findExternalPackage(modelId);
+      if (pkg != null)
+      {
+         targetModel = pkg.getReferencedModel();
+      }
+      else
+      {
+         List<IExternalPackage> externalPackages = model.getExternalPackages();
+         for(IExternalPackage pkg_ : externalPackages)
+         {
+            IModel model_ = pkg_.getReferencedModel();
+            targetModel = getReferencedModel(model_, modelId);
+            if(targetModel != null)
+            {
+               break;
+            }
+         }
+      }
+      return targetModel;
    }
 
    public static AccessPoint createIntrinsicAccessPoint(ModelElement parent, String id,

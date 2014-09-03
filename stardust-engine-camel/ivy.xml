@@ -54,8 +54,6 @@
       <dependency org="org.apache.camel" name="camel-spring" rev="${camel-spring.version}"
          conf="stardust-engine-camel-compile->default">
          <exclude org="org.apache.camel" module="camel-core" />
-         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
-         <exclude org="org.slf4j" module="slf4j-api" />
          <exclude org="org.springframework" module="spring-context" />
          <exclude org="org.springframework" module="spring-aop" />
          <exclude org="org.springframework" module="spring-tx" />
@@ -63,14 +61,10 @@
       <dependency org="org.apache.camel" name="camel-jms" rev="${camel-jms.version}"
          conf="stardust-engine-camel-compile->default">
          <exclude org="org.apache.camel" module="camel-core" />
-         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
-         <exclude org="org.slf4j" module="slf4j-api" />
          <exclude org="org.apache.camel" module="camel-spring" />
          <exclude org="org.springframework" module="spring-jms" />
-         <exclude org="org.springframework" module="spring-core" />
          <exclude org="org.springframework" module="spring-context" />
          <exclude org="org.springframework" module="spring-tx" />
-         <exclude org="org.springframework" module="spring-jms" />
          <exclude org="org.springframework" module="spring-beans" />
       </dependency>
       <dependency org="org.apache.camel" name="camel-quartz" rev="${camel-quartz.version}"
@@ -85,12 +79,10 @@
 
       <dependency org="org.apache.camel" name="camel-http" rev="${camel-http.version}"
          conf="stardust-engine-camel-runtime->default">
-         <exclude org="commons-codec" module="commons-codec" />
-         <exclude org="org.apache.geronimo.specs" module="geronimo-servlet_2.5_spec" />
          <exclude org="org.apache.camel" module="camel-core" />
-         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
-         <exclude org="org.slf4j" module="slf4j-api" />
+         <exclude org="org.apache.geronimo.specs" module="geronimo-servlet_3.0_spec" />
          <exclude org="commons-httpclient" module="commons-httpclient" />
+         <exclude org="commons-codec" module="commons-codec" />
       </dependency>
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}"
       conf="stardust-engine-camel-runtime->default" />
@@ -104,12 +96,7 @@
       <dependency org="org.apache.camel" name="camel-sql" rev="${camel-sql.version}"
          conf="stardust-engine-camel-compile->default">
          <exclude org="org.apache.camel" module="camel-core" />
-         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
-         <exclude org="org.slf4j" module="slf4j-api" />
-         <exclude org="org.springframework" module="spring-core" />
-         <exclude org="commons-logging" module="commons-logging" />
-         <exclude org="commons-collections" module="commons-collections" />
-         <exclude org="org.springframework" module="spring-tx" />
+         <exclude org="org.springframework" module="spring-jdbc" />
       </dependency>
 
       <dependency org="jdom" name="jdom" rev="${jdom.version}"
@@ -159,8 +146,6 @@
       <dependency org="org.apache.camel" name="camel-script" rev="${camel-script.version}"
          conf="stardust-engine-camel-runtime->default">
          <exclude org="org.apache.camel" module="camel-core" />
-         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
-         <exclude org="org.slf4j" module="slf4j-api" />
       </dependency>
 
       <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">

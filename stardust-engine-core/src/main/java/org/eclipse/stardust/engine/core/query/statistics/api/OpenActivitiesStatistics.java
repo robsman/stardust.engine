@@ -196,6 +196,11 @@ public abstract class OpenActivitiesStatistics extends CustomActivityInstanceQue
        * The number of currently pending AIs.
        */
       public long pendingAis;
+      
+      /**
+       * The number of currently hibernated AIs
+       */
+      public long hibernatedAis;
 
       /**
        * The number of distinct PIs wrt. to currently pending AIs.

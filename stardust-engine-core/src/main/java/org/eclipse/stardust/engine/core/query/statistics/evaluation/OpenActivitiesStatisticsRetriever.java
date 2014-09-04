@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -97,7 +98,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                   ProcessInstanceBean.FR__PRIORITY,
                   ActivityInstanceBean.FR__ACTIVITY,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_DEPARTMENT,
-                  ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE
+                  ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+                  ActivityInstanceBean.FR__STATE
                   })
             .where(Predicates.andTerm(
                   Predicates.notEqual(ActivityInstanceHistoryBean.FR__PERFORMER, 0l),
@@ -178,6 +180,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             long activityRtOid = rs.getLong(11);
             long department = rs.getLong(12);
             long scopePiOid = rs.getLong(13);
+            int state = rs.getInt(14);
             
             long currentPerformer = 0;
             long currentUserPerformer = 0;
@@ -216,12 +219,18 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                OpenActivities oa = result.findOpenActivities(qualifiedId, performer);
                OpenActivitiesDetails priorityRecord = oa.getDetailsForPriority(priority);
 
-               updateStatistics(priorityRecord, piOid, cumulationProcess);
+               boolean isHibernated = false;
+               if (state == ActivityInstanceState.HIBERNATED)
+               {
+                  isHibernated = true;
+               }
+               
+               updateStatistics(priorityRecord, piOid, cumulationProcess, isHibernated);
             }
          }
 
          private void updateStatistics(OpenActivitiesDetails oad, Long cumulationPiOid,
-               IProcessDefinition cumulationProcess)
+               IProcessDefinition cumulationProcess, boolean isHibernated)
          {
             for (int i = history.length - 1; i >= 0; i--)
             {
@@ -252,6 +261,11 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             if (tsFrom < nowInMilli && ((0 == tsUntil) || !(tsUntil < nowInMilli)))
             {
                oad.pendingAis++;
+
+               if (isHibernated)
+               {
+                  oad.hibernatedAis++;
+               }
                if (registerNewPi(nowInMilli, cumulationPiOid, oad, pendingPisPool))
                {
                   oad.pendingPis++;
@@ -266,9 +280,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                      oad.pendingPis++;
                   }
                }
-            }
+            }                      
          }
-
       });
 
       return result;

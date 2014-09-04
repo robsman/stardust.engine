@@ -289,7 +289,7 @@ public class RouteDefinitionBuilder
                routeDefinition.append(process("mapAppenderProcessor"));
             
             if(routeContext.containsInputtAccessPointOfDocumentType())
-               routeDefinition.append("<to uri=\"bean:attachmentBeanHandler?method=toAttachment\"/>");
+               routeDefinition.append("<to uri=\"bean:documentHandler?method=toAttachment\"/>");
 
 	         if(Boolean.TRUE.equals(producerBpmTypeConverter)) {
 	             routeDefinition.append(injectProducertBpmTypeConverter(routeContext, providedRoute));
@@ -301,7 +301,7 @@ public class RouteDefinitionBuilder
          
          if(routeContext.containsOutputBodyAccessPointOfDocumentType())
          {
-            routeDefinition.append("<to uri=\"bean:attachmentBeanHandler?method=toDocument\"/>");
+            routeDefinition.append("<to uri=\"bean:documentHandler?method=toDocument\"/>");
          }
       }
 
@@ -589,7 +589,7 @@ public class RouteDefinitionBuilder
    
    private static String injectAttachmentBeanHandler(String route)
    {
-      String injectedRoute = "<to uri=\"bean:attachmentBeanHandler?method=toDocument\"/>"; 
+      String injectedRoute = "<to uri=\"bean:documentHandler?method=toDocument\"/>"; 
       int toUriCompleteActivityIndex = getToUriCompleteActivityIndex(route);
       StringBuffer buffer = new StringBuffer();
       buffer.append(route.substring(0, toUriCompleteActivityIndex));

@@ -213,6 +213,8 @@ public final class CamelConstants
          public static final String COPY_DATA="ippCopyData";
          public static final String PARENT_PROCESS_INSTANCE_OID="ippParentProcessInstanceOid";
          public static final String DOCUMENT_ID = "ippDmsDocumentId";
+         public static final String DOCUMENT_NAME = "ippDmsDocumentName";
+         public static final String DOCUMENT_CONTENT = "ippDmsDocumentContent";
          public static final String TARGET_PATH = "ippDmsTargetPath";
    }
 }

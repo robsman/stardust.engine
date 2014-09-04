@@ -15,6 +15,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import org.eclipse.stardust.common.StringUtils;
@@ -28,6 +29,7 @@ import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.app.CamelMessageLocation;
 import org.eclipse.stardust.engine.extensions.camel.converter.MimeMultipartTypeConverter;
+import org.eclipse.stardust.engine.extensions.camel.converter.MimeTypeUtils;
 import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.CreateDocumentException;
 
 /**
@@ -164,10 +166,7 @@ public class CamelDmsUtils
    public static Document toDocument(Object messageContent, Exchange exchange, String fileName, DocumentManagementService dms, ProcessInstance pi, boolean processAttachmentSupport)
    {
       Document document = null;
-      if(messageContent  instanceof GenericFile<?>)
-      {
-         fileName = ((GenericFile<?>)messageContent).getFileName();
-      }
+      fileName = getDocumentName(messageContent, fileName);
       
       try
       {
@@ -289,5 +288,28 @@ public class CamelDmsUtils
       }
       return initialDocumentDataValues;
    }
-
+   
+   private static String getDocumentName(Object messageContent,   String fileName)
+   {
+      if(FilenameUtils.getExtension(fileName).isEmpty())
+      {
+         if(messageContent  instanceof GenericFile<?>)
+         {
+            fileName = ((GenericFile<?>)messageContent).getFileName();
+            
+         } else if(messageContent instanceof String)
+         {
+            fileName += ".txt";
+            
+         } else  if(messageContent instanceof MimeMultipart)
+         {
+            String ext = MimeTypeUtils.getExtensionFromBodyPartContentType((MimeMultipart) messageContent);
+            if(!ext.isEmpty())
+            {
+               fileName += "." + ext;
+            }
+         }
+      }
+      return fileName;
+   }
 }

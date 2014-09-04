@@ -83,8 +83,6 @@ public abstract class ActivityStatistics extends CustomActivityInstanceQueryResu
       String getProcessId();
 
       String getActivityId();
-      
-      long getInterruptedInstances();
    }
 
    protected static class ProcessEntry implements Serializable
@@ -130,11 +128,7 @@ public abstract class ActivityStatistics extends CustomActivityInstanceQueryResu
       {
          return activityId;
       }
-      
-      public long getInterruptedInstances()
-      {
-         return getInterruptedInstancesCount();
-      }      
+         
 
       /**
        * @deprecated Please directly use {@link #getInstances(int)}

@@ -27,9 +27,15 @@ public interface ICriticalInstancesHistogram extends IInstancesHistogram
 
    long getTotalCriticalInstancesCount();
 
+   long getInterruptedInstancesCount();
+   
    Set<Long> getCriticalInstances(ProcessInstancePriority priority);
 
    Set<Long> getCriticalInstances(int priority);
 
    Set<Long> getTotalCriticalInstances();
+   
+   Set<Long> getInterruptedInstances();
+   
+   
 }

@@ -80,4 +80,15 @@ public class RegularAndCriticalInstancesHistogram
       return criticalInstances.getTotalCriticalInstances();
    }
 
+   public long getInterruptedInstancesCount()
+   {
+      return criticalInstances.getInterruptedInstancesCount();
+   }
+
+   @Override
+   public Set<Long> getInterruptedInstances()
+   {
+      return criticalInstances.getInterruptedInstances();
+   }
+
 }

@@ -67,8 +67,6 @@ public abstract class ProcessStatistics extends CustomProcessInstanceQueryResult
    public interface IProcessStatistics extends ICriticalInstancesHistogram
    {
       String getProcessId();
-      
-      long getInterruptedInstances();
    }
 
    protected static class ProcessEntry extends CriticalInstancesHistogram
@@ -83,15 +81,10 @@ public abstract class ProcessStatistics extends CustomProcessInstanceQueryResult
          this.processId = processId;
       }
 
-      public String getProcessId()
-      {
+      public String getProcessId()      {
          return processId;
       }
       
-      public long getInterruptedInstances()
-      {
-         return getInterruptedInstancesCount();
-      }
 
       /**
        * @deprecated Please directly use {@link #getInstances(int)}

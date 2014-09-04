@@ -158,4 +158,9 @@ public class CriticalInstancesHistogram
       
    }
 
+   public Set<Long> getInterruptedInstances()
+   {
+      return getInterruptedInstancesSet();
+   }
+
 }

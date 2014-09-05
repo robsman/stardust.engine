@@ -34,11 +34,12 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 	}
 
 	public String contextsList() {
+		initCamelContextModel();
 		return convertObjectToJsonString(contexts);
 	}
 
 	public String allRoutesList(String contextId) {
-
+		initCamelContextModel();
 		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
 				contextId);
 		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
@@ -51,6 +52,7 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 	}
 
 	public void startRouteService( String contextId, String routeId) {
+		initCamelContextModel();
 		LOGGER.info("--> Starting route : " + routeId);
 		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
 				contextId);
@@ -66,6 +68,7 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 
 
 	public void stopRoute( String contextId, String routeId) {
+		initCamelContextModel();
 		LOGGER.info("--> Stopping route : " + routeId);
 		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
 				contextId);

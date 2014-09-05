@@ -148,6 +148,13 @@
          <exclude org="org.apache.camel" module="camel-core" />
       </dependency>
 
+      <dependency org="org.apache.camel" name="camel-smpp" rev="${camel-smpp.version}" conf="stardust-engine-camel-runtime->default">
+         <exclude org="org.apache.camel" module="camel-core" />
+      </dependency>
+      
+       <dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.jsmpp" rev="${org.apache.servicemix.bundles.jsmpp.version}" conf="stardust-engine-camel-runtime->default">
+      </dependency>
+      
       <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
          <exclude org="org.hamcrest" module="hamcrest-core" />
       </dependency>

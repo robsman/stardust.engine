@@ -24,11 +24,11 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
+import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeActivityThreadContext;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
-import org.eclipse.stardust.engine.core.runtime.ejb.EjbTxPolicy;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
 import org.eclipse.stardust.engine.core.runtime.interceptor.AuditTrailPropertiesInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
@@ -46,7 +46,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    private static final String KEY_AUDIT_TRAIL_SESSION = SessionProperties.DS_NAME_AUDIT_TRAIL
          + SessionProperties.DS_SESSION_SUFFIX;
 
-   private final EjbTxPolicy ejbTxPolicy;
+   private final TxRollbackPolicy txRollbackPolicy;
 
    private final SessionContext context;
 
@@ -57,7 +57,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
       this(sessionName, context, null, null);
    }
 
-   public CMTSessionInterceptor(String sessionName, SessionContext context, EjbTxPolicy ejbTxPolicy)
+   public CMTSessionInterceptor(String sessionName, SessionContext context, TxRollbackPolicy ejbTxPolicy)
    {
       this(sessionName, context, null, ejbTxPolicy);
    }
@@ -68,11 +68,11 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    }
 
    public CMTSessionInterceptor(String sessionName, SessionContext context,
-         Ejb3ManagedService serviceBean, EjbTxPolicy ejbTxPolicy)
+         Ejb3ManagedService serviceBean, TxRollbackPolicy txRollbackPolicy)
    {
       super(sessionName);
 
-      this.ejbTxPolicy = ejbTxPolicy;
+      this.txRollbackPolicy = txRollbackPolicy;
       this.context = context;
       this.serviceBean = serviceBean;
    }
@@ -180,6 +180,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    @Override
    public boolean mustRollback(MethodInvocation invocation, Throwable e)
    {
-      return (null == ejbTxPolicy) || ejbTxPolicy.mustRollback(invocation, e);
+      return (null == txRollbackPolicy) || txRollbackPolicy.mustRollback(invocation, e);
    }
 }

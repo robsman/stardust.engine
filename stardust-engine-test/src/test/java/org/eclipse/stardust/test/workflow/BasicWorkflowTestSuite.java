@@ -34,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ 
                ActivityInstanceWorkflowTest.class,
                ProcessInstanceWorkflowTest.class,
-               EmbeddedServiceFactoryTest.class
+               EmbeddedServiceFactoryTest.class,
+               RollbackOnErrorTest.class
              })
 public class BasicWorkflowTestSuite
 {

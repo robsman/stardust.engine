@@ -18,7 +18,7 @@ import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.runtime.ejb.EjbTxPolicy;
+import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
@@ -33,7 +33,7 @@ public class SessionBeanExceptionHandler implements MethodInterceptor
 
    public static final Logger trace = RuntimeLog.API;
 
-   private final EjbTxPolicy ejbTxPolicy;
+   private final TxRollbackPolicy txRollbackPolicy;
 
    private final EJBContext context;
 
@@ -42,9 +42,9 @@ public class SessionBeanExceptionHandler implements MethodInterceptor
       this(context, null);
    }
 
-   public SessionBeanExceptionHandler(EJBContext context, EjbTxPolicy ejbTxPolicy)
+   public SessionBeanExceptionHandler(EJBContext context, TxRollbackPolicy txRollbackPolicy)
    {
-      this.ejbTxPolicy = ejbTxPolicy;
+      this.txRollbackPolicy = txRollbackPolicy;
       this.context = context;
    }
 
@@ -56,8 +56,8 @@ public class SessionBeanExceptionHandler implements MethodInterceptor
       }
       catch (InvocationTargetException e)
       {
-         if ((null == ejbTxPolicy)
-               || ejbTxPolicy.mustRollback(invocation, e.getTargetException()))
+         if ((null == txRollbackPolicy)
+               || txRollbackPolicy.mustRollback(invocation, e.getTargetException()))
          {
             context.setRollbackOnly();
          }
@@ -73,7 +73,7 @@ public class SessionBeanExceptionHandler implements MethodInterceptor
       }
       catch (Throwable e)
       {
-         if ((null == ejbTxPolicy) || ejbTxPolicy.mustRollback(invocation, e))
+         if ((null == txRollbackPolicy) || txRollbackPolicy.mustRollback(invocation, e))
          {
             context.setRollbackOnly();
          }

@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.config.PropertyProvider;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
@@ -41,7 +42,9 @@ public class SpringInvocationManager extends InvocationManager implements Serial
    {
       List interceptors = new ArrayList(10);
 
-      interceptors.add(new SpringTxInterceptor(serviceBean));
+      TxRollbackPolicy txRollbackPolicy = new TxRollbackPolicy(serviceName);
+
+      interceptors.add(new SpringTxInterceptor(serviceBean, txRollbackPolicy));
       interceptors.add(new DebugInterceptor());
       interceptors.add(new PropertyLayerProviderInterceptor(new PropertyProvider()
       {

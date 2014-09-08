@@ -28,14 +28,18 @@ public final class KernelTweakingProperties
    public static final String RELOAD_MODEL_MANAGER_AFTER_MODEL_OPERATION =
       "Carnot.Engine.ReloadModelManagerAfterModelOperation";
 
+   public static final String TX_ROLLBACK_ON_ERROR =
+         "Carnot.Engine.RollbackOnError";
+
+   @Deprecated
    public static final String EJB_ROLLBACK_ON_ERROR =
       "Carnot.Engine.Ejb.RollbackOnError";
 
-   public static final String EJB_ROLLBACK_ON_ERROR_ALWAYS =
+   public static final String TX_ROLLBACK_ON_ERROR_ALWAYS =
       "always";
-   public static final String EJB_ROLLBACK_ON_ERROR_LENIENT =
+   public static final String TX_ROLLBACK_ON_ERROR_LENIENT =
       "lenient";
-   public static final String EJB_ROLLBACK_ON_ERROR_NEVER =
+   public static final String TX_ROLLBACK_ON_ERROR_NEVER =
       "never";
 
    public static final String APPLICATION_EXCEPTION_PROPAGATION =

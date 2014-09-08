@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryIn
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.spring.schedulers.DaemonScheduler;
 import org.eclipse.stardust.engine.spring.schedulers.DefaultScheduler;
 import org.springframework.transaction.TransactionDefinition;
@@ -134,6 +135,14 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
       final Action toExecute = action;
       return txTemplate.execute(new SpringTxInterceptor.SpringTxCallback()
       {
+         @Override
+         public boolean mustRollback(MethodInvocation invocation, Throwable Exception)
+         {
+            // always roll-back forking service invocations
+            return true;
+         }
+
+         @Override
          public Object doInTransaction(final TransactionStatus status)
          {
             this.txStatus = status;

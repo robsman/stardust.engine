@@ -17,8 +17,10 @@ import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
+import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.runtime.interceptor.TransactionPolicyAdvisor;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionStatus;
@@ -36,9 +38,12 @@ public class SpringTxInterceptor implements MethodInterceptor
 
    private final AbstractSpringServiceBean serviceBean;
 
-   public SpringTxInterceptor(AbstractSpringServiceBean serviceBean)
+   private final TxRollbackPolicy txRollbackPolicy;
+
+   public SpringTxInterceptor(AbstractSpringServiceBean serviceBean, TxRollbackPolicy txRollbackPolicy)
    {
       this.serviceBean = serviceBean;
+      this.txRollbackPolicy = txRollbackPolicy;
    }
 
    public Object invoke(final MethodInvocation invocation) throws Throwable
@@ -50,6 +55,13 @@ public class SpringTxInterceptor implements MethodInterceptor
       
       return txTemplate.execute(new SpringTxCallback()
       {
+         @Override
+         public boolean mustRollback(MethodInvocation invocation, Throwable e)
+         {
+            return (null == txRollbackPolicy) || txRollbackPolicy.mustRollback(invocation, e);
+         }
+
+         @Override
          public Object doInTransaction(TransactionStatus status)
          {
             this.txStatus = status;
@@ -67,7 +79,7 @@ public class SpringTxInterceptor implements MethodInterceptor
             }
             catch (RuntimeException e)
             {
-               if ( !status.isCompleted())
+               if ( !status.isCompleted() && mustRollback(invocation, e))
                {
                   status.setRollbackOnly();
                }
@@ -75,7 +87,7 @@ public class SpringTxInterceptor implements MethodInterceptor
             }
             catch (Error e)
             {
-               if ( !status.isCompleted())
+               if ( !status.isCompleted() && mustRollback(invocation, e))
                {
                   status.setRollbackOnly();
                }
@@ -83,7 +95,7 @@ public class SpringTxInterceptor implements MethodInterceptor
             }
             catch (Throwable e)
             {
-               if ( !status.isCompleted())
+               if ( !status.isCompleted() && mustRollback(invocation, e))
                {
                   status.setRollbackOnly();
                }
@@ -109,7 +121,7 @@ public class SpringTxInterceptor implements MethodInterceptor
    }
    
    public static abstract class SpringTxCallback
-         implements TransactionCallback, ITransactionStatus
+         implements TransactionCallback, ITransactionStatus, TransactionPolicyAdvisor
    {
       protected TransactionStatus txStatus;
       

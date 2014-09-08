@@ -118,7 +118,8 @@ public class RepositoryAuditTrailUtils
    public static Folder retrieveFolder(String folderId)
    {
       Map legoMap = retrieveResource(folderId, DmsFolderBean.class);
-      DmsFolderBean dmsFolderBean = new DmsFolderBean(legoMap);
+      DmsFolderBean dmsFolderBean = legoMap == null ? null : new DmsFolderBean(
+            legoMap);      
       return dmsFolderBean;
    }
 

@@ -397,4 +397,8 @@ public class RouteHelper
            }
         }
      }
+
+   public static void startRoute(ModelCamelContext camelContext,String routeId) throws Exception{
+	   camelContext.startRoute(routeId);
+   }
 }

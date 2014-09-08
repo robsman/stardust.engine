@@ -1,14 +1,15 @@
 package org.eclipse.stardust.engine.extensions.camel.integration.management;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.startRoute;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopRunningRoute;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.camel.CamelContext;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.util.CastUtils;
 import org.eclipse.stardust.engine.extensions.camel.integration.management.model.CamelContextModel;
 import org.eclipse.stardust.engine.extensions.camel.integration.management.model.RouteCamelModel;
-import org.eclipse.stardust.engine.extensions.camel.util.IntegrationManagementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -21,27 +22,26 @@ import com.google.gson.GsonBuilder;
 public class IntegrationManagementImpl implements IntegrationManagement, ApplicationContextAware{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationManagementImpl.class);
-	List<CamelContextModel> contexts;
-	ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
-	private void initCamelContextModel() {
-		contexts = new ArrayList<CamelContextModel>();
-		Map<String, CamelContext> beansOfType;
-		beansOfType = CastUtils.cast(applicationContext.getBeansOfType(CamelContext.class));
-		for (CamelContext context : beansOfType.values()) {
+	private List<CamelContextModel> initCamelContextModel() {
+		List<CamelContextModel> contexts = new ArrayList<CamelContextModel>();
+		Map<String, ModelCamelContext> beansOfType;
+		beansOfType = CastUtils.cast(applicationContext.getBeansOfType(ModelCamelContext.class));
+		for (ModelCamelContext context : beansOfType.values()) {
 			contexts.add(new CamelContextModel(context.getName(), context));
 		}
+		return contexts;
 	}
 
 	public String contextsList() {
-		initCamelContextModel();
+		List<CamelContextModel> contexts =initCamelContextModel();
 		return convertObjectToJsonString(contexts);
 	}
 
 	public String allRoutesList(String contextId) {
-		initCamelContextModel();
-		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
-				contextId);
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
 		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
 		if (ccm != null) {
 			for (RouteCamelModel data : ccm.getRoutes()) {
@@ -52,15 +52,11 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 	}
 
 	public void startRouteService( String contextId, String routeId) {
-		initCamelContextModel();
 		LOGGER.info("--> Starting route : " + routeId);
-		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
-				contextId);
-		if ((ccm != null) && (ccm.getCamelContext().getRouteDefinition(routeId)!= null)) {
-			ccm.getCamelContext().getRouteDefinition(routeId);
-			new RouteCamelModel(ccm.getCamelContext(), ccm.getCamelContext()
-					.getRouteDefinition(routeId)).startRoute();
-		} else {
+		ModelCamelContext camelcontext=(ModelCamelContext) applicationContext.getBean(contextId);
+		try {
+			startRoute(camelcontext, routeId);
+		} catch (Exception e) {
 			LOGGER.warn("route '" + routeId
 					+ "' doesn't exist in camel context '" + contextId + "'");
 		}
@@ -68,19 +64,9 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 
 
 	public void stopRoute( String contextId, String routeId) {
-		initCamelContextModel();
 		LOGGER.info("--> Stopping route : " + routeId);
-		CamelContextModel ccm = IntegrationManagementUtils.searchCamelContextModel(contexts,
-				contextId);
-		if ((ccm != null) && (ccm.getCamelContext().getRouteDefinition(routeId)!= null)) {
-			ccm.getCamelContext().getRouteDefinition(routeId);
-			new RouteCamelModel(ccm.getCamelContext(), ccm.getCamelContext()
-					.getRouteDefinition(routeId)).stopRoute();
-		} else {
-			LOGGER.warn("route '" + routeId
-					+ "' doesn't exist in camel context '" + contextId + "'");
-		}
-
+		ModelCamelContext camelContext=(ModelCamelContext) applicationContext.getBean(contextId);
+		stopRunningRoute(camelContext, routeId);
 	}
 	
 	private String convertObjectToJsonString(Object obj) {
@@ -88,19 +74,20 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 				.create();
 		return gson.toJson(obj);
 	}
-	
-	public List<CamelContextModel> getContexts() {
-		return contexts;
-	}
-
-	public void setContexts(List<CamelContextModel> contexts) {
-		this.contexts = contexts;
-	}
-
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		this.applicationContext = applicationContext;
-		initCamelContextModel();
+	}
+	
+	public static CamelContextModel searchCamelContextModel(
+			List<CamelContextModel> context, String idCamelContext) {
+
+		for (int i = 0; i < context.size(); i++) {
+			if (idCamelContext.equalsIgnoreCase(context.get(i).getContextId())) {
+				return context.get(i);
+			}
+		}
+		return null;
 	}
 }

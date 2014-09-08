@@ -1,9 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel.integration.management.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
-import org.eclipse.stardust.engine.extensions.camel.util.IntegrationManagementUtils;
+import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.model.RouteDefinition;
 
 import com.google.gson.annotations.Expose;
 
@@ -21,9 +23,9 @@ public class CamelContextModel {
 	@Expose
 	private String version;
 
-	private CamelContext camelContext;
+	private ModelCamelContext camelContext;
 	
-	public CamelContextModel(String contextId, CamelContext camelContext) {
+	public CamelContextModel(String contextId, ModelCamelContext camelContext) {
 		this.contextId = contextId;
 		this.camelContext = camelContext;
 		this.started = camelContext.getStatus().isStarted();
@@ -81,7 +83,7 @@ public class CamelContextModel {
 		return camelContext;
 	}
 
-	public void setCamelContext(CamelContext camelContext) {
+	public void setCamelContext(ModelCamelContext camelContext) {
 		this.camelContext = camelContext;
 	}
 
@@ -102,7 +104,14 @@ public class CamelContextModel {
 	}
 
 	public List<RouteCamelModel> getRoutes() {
-		return IntegrationManagementUtils.toRouteCamelModel(this.camelContext);
+		return toRouteCamelModel(this.camelContext);
+	}
+	
+	public static List<RouteCamelModel> toRouteCamelModel(ModelCamelContext context) {
+		List<RouteCamelModel> pojos = new ArrayList<RouteCamelModel>();
+		for (RouteDefinition route : context.getRouteDefinitions())
+			pojos.add(new RouteCamelModel(context, route));
+		return pojos;
 	}
 
 }

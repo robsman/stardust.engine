@@ -224,7 +224,9 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
 
                   if (thisDecl != null && rhsDecl != null)
                   {
-                     return (thisDecl.equals(rhsDecl));
+                     // thisDecl.equals(rhsDecl) does not work here as expected - see
+                     // CRNT-33472
+                     return declarationsAreEqual(thisDecl, rhsDecl);
                   }
 
 
@@ -246,6 +248,40 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
             }
             return Reflect.isAssignable(getEndClass(), rhs.getEndClass());
          }
+      }
+
+      private boolean declarationsAreEqual(ITypeDeclaration decl1, ITypeDeclaration decl2)
+      {
+         boolean isEqual = (decl1 == decl2);
+
+         if (!isEqual)
+         {
+
+            if (null != decl1.getModel() && (null != decl2.getModel()))
+            {
+               if (decl1.getElementOID() != decl2.getElementOID())
+               {
+                  isEqual = false;
+               }
+               if (decl1.getElementOID() == -1 && decl2.getElementOID() == -1)
+               {
+                  if (decl1.getId().equals(decl2.getId()))
+                  {
+                     IModel model1 = (IModel) decl1.getModel();
+                     IModel model2 = (IModel) decl2.getModel();
+                     if (model1.getModelOID() != model2.getModelOID())
+                     {
+                        isEqual = false;
+                     }
+                     if (model1.getModelOID() == 0 && model1.getModelOID() == 0)
+                     {
+                        isEqual = (model1.getId() == model2.getId());
+                     }
+                  }
+               }
+            }
+         }
+         return isEqual;
       }
 
       private String removeExternalQualifier(String type)

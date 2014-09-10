@@ -101,15 +101,21 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_KIND,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_DEPARTMENT,
+                  ActivityInstanceHistoryBean.FR__STATE,
                   ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE
             })
             .where(
                   Predicates.andTerm(
-                        Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
-                        Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER),
+                        Predicates.orTerm(
+                              Predicates.andTerm(
+                                       Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
+                                       Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER)
+                              ),
+                              Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.SUSPENDED)
+                        ),
                         createDateRangeIntervalQuery(dateRangePolicy.getDateRanges())
-                                    )
                   )
+            )
 
             .orderBy(
                   ActivityInstanceHistoryBean.FR__USER,
@@ -147,8 +153,6 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   ModelPersistorBean.FR__PARTITION, //
                   SecurityProperties.getPartitionOid()));
       }
-
-      // TODO implement
 
       final Date tsFrom = new Date();
       final Date tsUntil = new Date();
@@ -188,7 +192,8 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             int performerKind = rs.getInt(9);
             long performerOid = rs.getLong(10);
             long department = rs.getLong(11);
-            long scopePiOid = rs.getLong(12);
+            long aiState = rs.getLong(12);
+            long scopePiOid = rs.getLong(13);
 
             long currentPerformer = 0;
             long currentUserPerformer = 0;
@@ -254,22 +259,58 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                      contrib = workTimes.contributions.get(index);
                   }
 
-                  registerEffort(aiOid, activity, effortPerAi, tsFrom, tsUntil,
-                        costPerMinute);
-                  registerEffort(piOid, cumulationProcess, effortPerPi, tsFrom, tsUntil,
-                        costPerMinute);
-
-                  for (DateRange dateRange : dateRangePolicy.getDateRanges())
+                  if (ActivityInstanceState.APPLICATION == aiState)
                   {
-                     addContributionForPeriod(piOid, aiOid, activity, dateRange,
-                           costPerMinute, contrib);
+                     // The ai state APPLICATION is used for most calculations.
+                     registerEffort(aiOid, activity, effortPerAi, tsFrom, tsUntil,
+                           costPerMinute);
+                     registerEffort(piOid, cumulationProcess, effortPerPi, tsFrom,
+                           tsUntil, costPerMinute);
+
+                     for (DateRange dateRange : dateRangePolicy.getDateRanges())
+                     {
+                        addContributionForPeriod(piOid, aiOid, aiState, activity,
+                              dateRange, costPerMinute, contrib);
+                     }
+                  }
+                  else if (ActivityInstanceState.SUSPENDED == aiState)
+                  {
+                     // The ai state SUSPENDED is only used for wait time
+                     for (DateRange dateRange : dateRangePolicy.getDateRanges())
+                     {
+                        addWaitTimeContribution(piOid, aiOid, aiState, activity, dateRange,
+                              costPerMinute, contrib);
+                     }
                   }
                }
             }
          }
 
+         private void addWaitTimeContribution(long piOid, long aiOid, long aiState,
+               IActivity activity, DateRange dateRange, float costPerMinute,
+               Contribution contribution)
+         {
+            ContributionInInterval contributionInInterval = contribution.getOrCreateContributionInInterval(dateRange);
+
+            Date periodBegin = dateRange.getIntervalBegin();
+            Date periodEnd = dateRange.getIntervalEnd();
+
+            // Interpret non set until timestamp (with 0 milis) as Now for activities that are currently suspended.
+            Date tsUntilWait = tsUntil.equals(new Date(0l))? new Date():tsUntil;
+
+            if (tsUntilWait.after(periodBegin) && tsFrom.before(periodEnd))
+            {
+               Date from = tsFrom.before(periodBegin) ? periodBegin : tsFrom;
+               Date until = tsUntilWait.after(periodEnd) ? periodEnd : tsUntilWait;
+
+               final long duration = until.getTime() - from.getTime();
+
+               contributionInInterval.addTimeWaiting(duration);
+            }
+         }
+
          private void addContributionForPeriod(Long cumulationPiOid, Long aiOid,
-               IActivity activity, DateRange dateRange, float costPerMinute, Contribution contribution)
+               long aiState, IActivity activity, DateRange dateRange, float costPerMinute, Contribution contribution)
          {
             ContributionInInterval contributionInInterval = contribution.getOrCreateContributionInInterval(dateRange);
 
@@ -384,7 +425,6 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
          effortRegistry.put(instanceOid, effort);
       }
 
-      // TODO
       final long duration = tsUntil.getTime() - tsFrom.getTime();
 
       effort.timeSpent += duration;

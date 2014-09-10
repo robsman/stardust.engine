@@ -178,6 +178,11 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
       private Date timeSpent = new Date(0l);
 
       /**
+       * The amount of time the activity was suspended on behalf of a specific role.
+       */
+      private Date timeWaiting = new Date(0l);
+
+      /**
        * The cost the user created working on behalf of a specific role.
        */
       private double cost;
@@ -214,6 +219,16 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
       public void addTimeSpent(long duration)
       {
          this.timeSpent.setTime(this.timeSpent.getTime() + duration);
+      }
+
+      public Date getTimeWaiting()
+      {
+         return timeWaiting;
+      }
+
+      public void addTimeWaiting(long duration)
+      {
+         this.timeWaiting.setTime(this.timeWaiting.getTime() + duration);
       }
 
       public double getCost()

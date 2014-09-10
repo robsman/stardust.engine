@@ -224,12 +224,6 @@ public class TriggerBean extends IdentifiableElementBean
          }
       }
 
-      if (StringUtils.isEmpty(getName()))
-      {
-         BpmValidationError error = BpmValidationError.TRIGG_NO_NAME_SET.raise();
-         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
-      }
-
       ITriggerType triggerType = (ITriggerType) getType();
       if (triggerType != null)
       {

@@ -169,6 +169,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             authPredicate.accept(rs);
             
             Long piOid = rs.getLong(1);
+            Long aiOid = rs.getLong(2);
             long fromTime = rs.getLong(3);
             long untilTime = rs.getLong(4);
             int performerKind = rs.getInt(5);
@@ -225,11 +226,11 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                   isHibernated = true;
                }
                
-               updateStatistics(priorityRecord, piOid, cumulationProcess, isHibernated);
+               updateStatistics(priorityRecord, piOid, aiOid, cumulationProcess, isHibernated);
             }
          }
 
-         private void updateStatistics(OpenActivitiesDetails oad, Long cumulationPiOid,
+         private void updateStatistics(OpenActivitiesDetails oad, Long cumulationPiOid, Long aiOid,
                IProcessDefinition cumulationProcess, boolean isHibernated)
          {
             for (int i = history.length - 1; i >= 0; i--)
@@ -239,6 +240,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                {
                   // AI was pending at this point in time
                   oad.pendingAisHistory[i]++;
+                  oad.getPendingAiInstancesHistory(i).add(aiOid);
+                  
                   if (!registerNewPi(dayEnd, cumulationPiOid, oad, pendingPisPool))
                   {
                      oad.pendingPisHistory[i]++;
@@ -248,6 +251,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                         new Date(dayEnd), cumulationProcess))
                   {
                      oad.pendingCriticalAisHistory[i]++;
+                     oad.getPendingCriticalAiInstancesHistory(i).add(aiOid);
 
                      if (!registerNewPi(dayEnd, cumulationPiOid, oad, criticalPisPool))
                      {
@@ -261,10 +265,13 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             if (tsFrom < nowInMilli && ((0 == tsUntil) || !(tsUntil < nowInMilli)))
             {
                oad.pendingAis++;
+               oad.pendingAiInstances.add(aiOid);
 
                if (isHibernated)
                {
                   oad.hibernatedAis++;
+                  oad.hibernatedAiInstances.add(aiOid);
+                  
                }
                if (registerNewPi(nowInMilli, cumulationPiOid, oad, pendingPisPool))
                {
@@ -275,6 +282,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                      cumulationProcess))
                {
                   oad.pendingCriticalAis++;
+                  oad.pendingCriticalAiInstances.add(aiOid);
+                  
                   if (registerNewPi(nowInMilli, cumulationPiOid, oad, criticalPisPool))
                   {
                      oad.pendingPis++;

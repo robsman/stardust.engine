@@ -88,6 +88,10 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
       // retrieve login times
 
+            AndTerm inApplicationStateForUser = Predicates.andTerm(
+               Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
+               Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER)
+      );
             QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class)
             .select(new Column[] {
                   ActivityInstanceHistoryBean.FR__USER,
@@ -106,13 +110,15 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             })
             .where(
                   Predicates.andTerm(
+                        wsq.isCalculateWaitTime() ?
+                        // include SUSPENDED state activity instance history entries
                         Predicates.orTerm(
-                              Predicates.andTerm(
-                                       Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
-                                       Predicates.isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER)
-                              ),
-                              Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.SUSPENDED)
-                        ),
+                               inApplicationStateForUser,
+                               Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.SUSPENDED)
+                               )
+                        // (else) do not include SUSPENDED state activity instance history entries
+                               : inApplicationStateForUser
+                        ,
                         createDateRangeIntervalQuery(dateRangePolicy.getDateRanges())
                   )
             )

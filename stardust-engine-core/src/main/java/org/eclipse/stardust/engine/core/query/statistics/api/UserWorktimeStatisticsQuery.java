@@ -19,16 +19,40 @@ import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 public class UserWorktimeStatisticsQuery extends CustomUserQuery
 {
    static final long serialVersionUID = 7292991947057793832L;
-   
+
    public static final String ID = UserWorktimeStatisticsQuery.class.getName();
 
+   private boolean calculateWaitTime;
+
+   /**
+    * Calculates worktime statistics including wait time.
+    *
+    * @return the query result
+    */
    public static UserWorktimeStatisticsQuery forAllUsers()
    {
-      return new UserWorktimeStatisticsQuery();
+      return new UserWorktimeStatisticsQuery(true);
    }
 
-   protected UserWorktimeStatisticsQuery()
+   /**
+    * Calculates worktime statistics excluding wait time.
+    *
+    * @return the query result
+    */
+   public static UserWorktimeStatisticsQuery forAllUsersWithoutWaitTime()
+   {
+      return new UserWorktimeStatisticsQuery(false);
+   }
+
+   protected UserWorktimeStatisticsQuery(boolean calculateWaitTime)
    {
       super(ID);
+      this.calculateWaitTime = calculateWaitTime;
    }
+
+   public boolean isCalculateWaitTime()
+   {
+      return calculateWaitTime;
+   }
+
 }

@@ -216,10 +216,21 @@ public abstract class OpenActivitiesStatistics extends CustomActivityInstanceQue
       public long hibernatedAis;
 
       /**
+       * The number of currently critical hibernated AI instances       
+       */
+      public long hibernatedCriticalAis;
+      
+      /**
        * List of hibernated AIs
        */
       public SortedSet<Long> hibernatedAiInstances;
 
+      /**
+       * List of hibernated critical AIs
+       */
+      public SortedSet<Long> hibernatedCriticalAiInstances;
+      
+      
       /**
        * The number of distinct PIs wrt. to currently pending AIs.
        */
@@ -274,6 +285,7 @@ public abstract class OpenActivitiesStatistics extends CustomActivityInstanceQue
          this.pendingAiInstances = CollectionUtils.newTreeSet();
          this.pendingCriticalAiInstances = CollectionUtils.newTreeSet();
          this.hibernatedAiInstances = CollectionUtils.newTreeSet();
+         this.hibernatedCriticalAiInstances = CollectionUtils.newTreeSet();
 
          this.pendingAisHistory = new long[nDayHistory];
          this.pendingPisHistory = new long[nDayHistory];

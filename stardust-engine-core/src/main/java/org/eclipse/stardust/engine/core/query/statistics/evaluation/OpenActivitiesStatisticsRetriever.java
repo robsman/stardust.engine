@@ -284,6 +284,12 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                   oad.pendingCriticalAis++;
                   oad.pendingCriticalAiInstances.add(aiOid);
                   
+                  if (isHibernated)
+                  {
+                     oad.hibernatedCriticalAis++;
+                     oad.hibernatedCriticalAiInstances.add(aiOid);
+                  }
+                  
                   if (registerNewPi(nowInMilli, cumulationPiOid, oad, criticalPisPool))
                   {
                      oad.pendingPis++;

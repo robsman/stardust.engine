@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.preferences;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 
 
 
@@ -44,6 +46,12 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
    public Preferences loadPreferences(IUser user, PreferenceScope scope, String moduleId,
          String preferencesId, IPreferencesReader loader)
    {
+      // Skip RepositoryManager preferences, only read from system repository is possible for migration of old preferences.
+      if (RepositoryProviderUtils.MODULE_ID_REPOSITORY_MANAGER.equals(moduleId))
+      {
+         return new Preferences(scope, moduleId, preferencesId, (Map) CollectionUtils.newMap());
+      }
+
       String realmId = null;
       String userId = null;
       if (user == null
@@ -223,6 +231,12 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
       String preferencesIdWildcard = evaluatedQuery.getPreferencesId();
       String realmIdWildcard = evaluatedQuery.getRealmId();
       String userIdWildcard = evaluatedQuery.getUserId();
+
+      // Skip RepositoryManager preferences, only read from system repository is possible for migration of old preferences.
+      if (RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS.equals(moduleIdWildcard))
+      {
+         return Collections.emptyList();
+      }
 
       DocumentManagementService dms = getServiceFactory().getDocumentManagementService();
       if (PreferenceScope.USER.equals(scope))

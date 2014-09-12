@@ -190,7 +190,7 @@
 
    <target name="javadoc" depends="initIvy">
       <ipp:javadoc destdir="${build.javadoc}" scope="common" doctitle="${product.productnameonly} Common API" windowtitle="${artifactId}"
-         packagenames="org.eclipse.stardust.common, org.eclipse.stardust.common.log, org.eclipse.stardust.common.error, org.eclipse.stardust.common.security, org.eclipse.stardust.common.security.authentication">
+         packagenames="org.eclipse.stardust.common,org.eclipse.stardust.common.config, org.eclipse.stardust.common.log, org.eclipse.stardust.common.error, org.eclipse.stardust.common.security, org.eclipse.stardust.common.security.authentication">
          <classpaths>
             <classpath>
                <path location="${build.classes}" />
@@ -209,6 +209,7 @@
                <include name="org/eclipse/stardust/common/Period.java" />
                <include name="org/eclipse/stardust/common/StringKey.java" />
                <!-- to be clarified: <include name="org/eclipse/stardust/common/log/Category.java" /> -->
+               <include name="org/eclipse/stardust/common/config/GlobalParametersProviderFactory.java" />
                <include name="org/eclipse/stardust/common/log/LogManager.java" />
                <include name="org/eclipse/stardust/common/log/Logger.java" />
                <include name="org/eclipse/stardust/common/error/AccessForbiddenException.java" />

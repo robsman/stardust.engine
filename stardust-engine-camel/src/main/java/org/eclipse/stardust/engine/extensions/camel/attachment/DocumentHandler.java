@@ -29,16 +29,16 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 /**
  * This class is used to handle document attachment
- * 
+ *
  * @author Sabri.Bousselmi
  * @version $Revision: $
  */
 
 public class DocumentHandler
 {
-   
+
    public static final Logger logger = LogManager.getLogger(DocumentHandler.class);
-   
+
    /**
     * Add DmsDocumentBean from Header to message Attachment
     * @param exchange
@@ -48,7 +48,6 @@ public class DocumentHandler
       ServiceFactory sf =getServiceFactory();
       DocumentManagementService dms = sf.getDocumentManagementService();
       Map<String, Object> headers = exchange.getIn().getHeaders();
-      
       for (Map.Entry<String, Object> entry : headers.entrySet())
       {
          Object value = entry.getValue();
@@ -67,7 +66,6 @@ public class DocumentHandler
                exchange.getIn().addAttachment(dmsDocumentBean.getName(),
                      new DataHandler(document, dmsDocumentBean.getContentType()));
             }
-            
             if (logger.isDebugEnabled())
             {
                logger.debug("Attachment " + dmsDocumentBean.getName() + " added.");
@@ -75,10 +73,10 @@ public class DocumentHandler
          }
       }
    }
-   
+
    /**
     * Convert message body to Document
-    * 
+    *
     * TODO: make it more generic in a way to handle exchange hearders
     * use similar logic than the bpmConverter (location from body or header)
     * should be extended to use headerDOCUMENT_NAME for  GenericFile
@@ -97,7 +95,6 @@ public class DocumentHandler
          DocumentManagementService dms = sf.getDocumentManagementService();
          byte[] jcrDocumentContent = null;
          String fileName = "";
-         
          List<ActivityInstance> instances = BpmTypeConverter.lookupActivityInstance(exchange);
          for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
          {
@@ -114,29 +111,25 @@ public class DocumentHandler
                      .append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER)
                      .append("/")
                      .append(dmsDocumentBean.getName());
-                     
                document = dms.getDocument(defaultPath.toString());
-            } else{ 
-               if (messageContent instanceof GenericFile<?>) 
+            } else{
+               if (messageContent instanceof GenericFile<?>)
                {
                   ((GenericFile) messageContent).getBinding().loadContent(exchange, ((GenericFile) messageContent));
                    jcrDocumentContent = exchange.getContext().getTypeConverter().convertTo(byte[].class, exchange, ((GenericFile) messageContent).getBody());
                    fileName = (String) exchange.getIn().getHeader(FILE_NAME_ONLY);//TODO: replace by DOCUMENT_NAME
-                   
                }else //OutputStream, String
                   {
                   jcrDocumentContent=exchange.getContext().getTypeConverter().convertTo(byte[].class, exchange, exchange.getIn().getBody());
                   fileName = (String) exchange.getIn().getHeader(DOCUMENT_NAME);
                }
-               
                document = CamelDmsUtils.storeDocument(dms, pi, jcrDocumentContent, fileName, false);
                }
          }
       }
-      
       return document;
    }
-   
+
    @SuppressWarnings("unchecked")
    public void retrieveContent(Exchange exchange){
       String inputDocumentTemplateAccessPointId=null;
@@ -145,30 +138,26 @@ public class DocumentHandler
          ServiceFactory sf =getServiceFactory();
          DocumentManagementService dms = sf.getDocumentManagementService();
          String repositoryLocation=(String) exchange.getIn().getHeader(TARGET_PATH);
-         
          Document document=null;
          if(StringUtils.isNotEmpty(repositoryLocation)){
             if(!repositoryLocation.startsWith("/"))
                repositoryLocation="/artifacts/"+repositoryLocation;
             document=dms.getDocument(repositoryLocation);
          } else {
-           
             List<ActivityInstance> instances = BpmTypeConverter.lookupActivityInstance(exchange);
             for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
             {
               ActivityInstance activityInstance = i.next();
               ApplicationContext ctx = BpmTypeConverter.lookupApplicationContext(activityInstance);
               List<DataMapping> inDataMappings=ctx.getAllInDataMappings();inDataMappings.get(0).getApplicationAccessPoint().getId();
-              
               for(DataMapping dataMapping:inDataMappings){
                  if(dataMapping.getMappedType().getName().equalsIgnoreCase(Document.class.getName())){
                     inputDocumentTemplateAccessPointId=dataMapping.getApplicationAccessPoint().getId();
                     break;
                  }
               }
-               
-            }  
-            document= (Document) exchange.getIn().getHeader(inputDocumentTemplateAccessPointId); 
+            }
+            document= (Document) exchange.getIn().getHeader(inputDocumentTemplateAccessPointId);
          }
          if(document!=null){
             byte[] content=dms.retrieveDocumentContent(document.getId());
@@ -178,7 +167,7 @@ public class DocumentHandler
          }
       }
    }
-   
+
    private ServiceFactory getServiceFactory(){
       ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
       if(sf == null)

@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.CreateDocumentException;
 import org.eclipse.stardust.engine.extensions.camel.util.CamelDmsUtils;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 public class CamelMessageHelper
 {
@@ -145,20 +146,24 @@ public class CamelMessageHelper
             if ((ap.getDirection().equals(Direction.IN_OUT) || ap.getDirection().equals(Direction.OUT))
                   && isValidAccessPoint(application, ap))
             {
-
-               Object bodyOutAP = getBodyOutAccessPoint(application) != null
-                     ? getBodyOutAccessPoint(application)
-                     : "returnValue";
-
-               CamelMessageLocation location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
+                     Object bodyOutAP;
+                     CamelMessageLocation location;
+                     if(getInvocationPattern(application)!=null && getInvocationType(application)!=null){
+                        bodyOutAP= getBodyOutAccessPoint(application) != null? getBodyOutAccessPoint(application):null;
+                     }else{//old behavior
+                        bodyOutAP= getBodyOutAccessPoint(application) != null? getBodyOutAccessPoint(application):"returnValue";
+                     }
+                 if(bodyOutAP==null)
+                    location=   CamelMessageLocation.HEADER;
+                 else
+                    location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
                      ? CamelMessageLocation.BODY
                      : CamelMessageLocation.HEADER;
-               
-               if(ap.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS) 
+               if(ap.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS)
                      && !CamelMessageLocation.BODY.equals(location))
                {
                   map.put(ap.getId(), getDocumentOutDataAccessPoint(message, ai, ap));
-               } 
+               }
                else if (CamelMessageLocation.BODY.equals(location))
                {
                   map.put((String) bodyOutAP, message.getBody());
@@ -167,7 +172,7 @@ public class CamelMessageHelper
                {
                   map.put(ap.getId(), message.getHeader(ap.getId()));
                }
-               
+
             }
          }
       }
@@ -195,8 +200,8 @@ public class CamelMessageHelper
             DataMapping mapping = outDataMappings.next();
 
             AccessPoint accessPoint = mapping.getApplicationAccessPoint();
-      
-            if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint)) 
+
+            if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint))
             {
                Object bodyOutAP = getBodyOutAccessPoint(application) != null
                      ? getBodyOutAccessPoint(application)
@@ -313,7 +318,7 @@ public class CamelMessageHelper
       // has to be old style and therefore application producer
       return false;
    }
-   
+
    private static Document getDocumentOutDataAccessPoint(Message message, ActivityInstance ai, AccessPoint ap)
    {
       Document document = null;
@@ -330,7 +335,7 @@ public class CamelMessageHelper
          DocumentManagementService dms = sf.getDocumentManagementService();
          String fileName="";
          byte[] documentContent = null;
-         
+
          Object attachmentContent;
          try
          {
@@ -339,11 +344,11 @@ public class CamelMessageHelper
             {
                fileName = DataSource.class.cast(attachmentContent).getName();
                documentContent = IOUtils.toByteArray(DataSource.class.cast(attachmentContent).getInputStream());
-               
+
             } else if(attachmentContent instanceof FileInputStream)
             {
                documentContent = IOUtils.toByteArray(FileInputStream.class.cast(attachmentContent));
-               
+
             } else if(attachmentContent instanceof byte[])
             {
                documentContent = (byte[])attachmentContent;
@@ -353,12 +358,12 @@ public class CamelMessageHelper
          {
             throw new RuntimeException("Failed retreiving attachment content.", e);
          }
-         
+
          if(StringUtils.isEmpty(fileName))
          {
             fileName = attachmentId;
          }
-         
+
          // check if document is already created for PI.
          StringBuilder defaultPath = new StringBuilder(
                DmsUtils.composeDefaultPath(
@@ -367,7 +372,7 @@ public class CamelMessageHelper
                .append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER)
                .append("/")
                .append(fileName);
-               
+
          document = dms.getDocument(defaultPath.toString());
          if(document == null)
          {
@@ -380,9 +385,11 @@ public class CamelMessageHelper
                throw new RuntimeException("Failed creating document.", e);
             }
          }
+      }else{
+         document=(DmsDocumentBean) message.getHeader(ap.getId());
       }
-         
+
       return document;
    }
-         
+
 }

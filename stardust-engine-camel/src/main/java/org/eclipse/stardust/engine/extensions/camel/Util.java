@@ -38,13 +38,13 @@ import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointPropertie
 public class Util
 {
    public static final Logger logger = LogManager.getLogger(Util.class);
-   
+
    private static String extractModelIdFromFullyQualifiedName(String fullyQualifiedId){
 	   if(StringUtils.isNotEmpty(fullyQualifiedId)){
 		 int  startIndex=fullyQualifiedId.indexOf('{');
 		 int endIndex=fullyQualifiedId.indexOf('}');
 		 return fullyQualifiedId.substring(startIndex+1, endIndex);
-		   
+
 	   }
 	   return null;
    }
@@ -54,7 +54,7 @@ public class Util
     */
    public static String getEndpoint(ActivityInstance activityInstance){
 	 String partitionId=activityInstance.getActivity().getApplication().getPartitionId();
-	 String modelId=extractModelIdFromFullyQualifiedName(activityInstance.getActivity().getApplication().getQualifiedId());  
+	 String modelId=extractModelIdFromFullyQualifiedName(activityInstance.getActivity().getApplication().getQualifiedId());
 	 String activityId=activityInstance.getActivity().getApplication().getId();
 	 if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
 		return partitionId+"_"+modelId+"_"+activityId;
@@ -62,11 +62,11 @@ public class Util
 			return modelId+"_"+activityId;
 	 if( StringUtils.isNotEmpty(activityId))
 			return activityId;
-	 return null ; 
+	 return null ;
    }
-   
+
    /**
-    * copy the content of the IN Message to the Out Message. 
+    * copy the content of the IN Message to the Out Message.
     * The headers, attachments and the body are copied.
     * @param exchange
     */
@@ -87,7 +87,7 @@ public class Util
       exchange.getOut().setHeaders(exchange.getIn().getHeaders());
       exchange.getOut().setBody(outBOdy);
    }
-   
+
    /**
     * if partition is populated then its value is returned; otherwise lookup to
     * SecurityProperties.DEFAULT_PARTITION from the context
@@ -196,23 +196,23 @@ public class Util
 
    /**
     * return the value of carnot:engine:camel::producerBpmTypeConverter attribute defined in the trigger.
-    * 
+    *
     * @param trigger
     * @return
     */
    public static boolean includeConversionStrategy(final ITrigger trigger)
    {
-     
+
       Object includeConverter= trigger.getAllAttributes().get("carnot:engine:camel::producerBpmTypeConverter");
      if(includeConverter!=null){
         Boolean includeConversionStrategy=Boolean.parseBoolean(includeConverter.toString());
         return includeConversionStrategy;
      }
         return false;
-     
+
    }
-   
-   
+
+
    /**
     * return the value of carnot:engine:camel::producerInboundConversion attribute defined in the trigger.
     * otherwise fromXML as a default value
@@ -221,15 +221,15 @@ public class Util
     */
    public static String getConversionStrategy(final ITrigger trigger)
    {
-     
+
       String strategy= (String) trigger.getAllAttributes().get("carnot:engine:camel::producerInboundConversion");
      if(StringUtils.isNotEmpty(strategy) && !strategy.equalsIgnoreCase("None")){
         return strategy;
      }
         return "fromXML";
-     
+
    }
-   
+
    /**
     * According to the application instance type; the provided route configuration will be
     * returned. if the application is a producer application then the value of
@@ -333,6 +333,15 @@ public class Util
       return (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
    }
 
+   /**
+   *
+   * @param application
+   * @return
+   */
+  public static String getInvocationType(final Application application)
+  {
+     return (String) application.getAttribute(INVOCATION_TYPE_EXT_ATT);
+  }
    /**
     *
     * @param application
@@ -657,9 +666,9 @@ public class Util
       }
       return null;
    }
-   
+
    /**
-    * 
+    *
     * @param Trigger
     * @return Body Out AccessPoint ID
     */
@@ -667,9 +676,9 @@ public class Util
    {
       return trigger.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT);
    }
-   
+
    /**
-    * 
+    *
     * @param trigger
     * @return Trigger Event Implementation
     */

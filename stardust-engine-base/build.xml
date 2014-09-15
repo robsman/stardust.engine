@@ -210,6 +210,7 @@
                <include name="org/eclipse/stardust/common/StringKey.java" />
                <!-- to be clarified: <include name="org/eclipse/stardust/common/log/Category.java" /> -->
                <include name="org/eclipse/stardust/common/config/GlobalParametersProviderFactory.java" />
+               <include name="org/eclipse/stardust/common/config/PropertyProvider.java" />
                <include name="org/eclipse/stardust/common/log/LogManager.java" />
                <include name="org/eclipse/stardust/common/log/Logger.java" />
                <include name="org/eclipse/stardust/common/error/AccessForbiddenException.java" />

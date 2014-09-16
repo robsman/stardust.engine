@@ -138,16 +138,39 @@ public class DaemonAction extends SecurityContextAwareAction
       return null;
    }
 
-   private DaemonLog acknowledge(ForkingService service, DaemonCarrier carrier)
+   private DaemonLog acknowledge(final ForkingService service, final DaemonCarrier carrier) throws Exception
    {
-      Action getStartLogAction = GetDaemonLogAction.getStartLog(carrier);
-      DaemonLog daemonLog = (DaemonLog) service.isolate(getStartLogAction);
-      if (AcknowledgementState.Requested.equals(daemonLog.getAcknowledgementState()))
+      DaemonLog daemonLog = null;
+      DaemonRetry daemonRetry = new DaemonRetry(service);
+      try
       {
-         carrier.setStartTimeStamp(-1);
-         SetDaemonLogAction setStartLogAction = 
-            SetDaemonLogAction.setStartLog(carrier, AcknowledgementState.RespondedOK);
-         service.isolate(setStartLogAction);
+         while (daemonRetry.hasRetriesLeft())
+         {
+            try
+            {
+               Action getStartLogAction = GetDaemonLogAction.getStartLog(carrier);
+               daemonLog = (DaemonLog) service.isolate(getStartLogAction);
+               if (AcknowledgementState.Requested.equals(daemonLog
+                     .getAcknowledgementState()))
+               {
+                  carrier.setStartTimeStamp(-1);
+                  SetDaemonLogAction setStartLogAction = SetDaemonLogAction.setStartLog(
+                        carrier, AcknowledgementState.RespondedOK);
+                  service.isolate(setStartLogAction);
+               }
+               break;
+            }
+            catch (Exception e)
+            {
+               daemonRetry.handleException(e);
+            }
+            daemonRetry.delayRetry();
+         }
+      }
+      catch (Exception e)
+      {
+         daemonRetry.sendErrorMail(e);
+         throw e;
       }
       return daemonLog;
    }
@@ -183,7 +206,7 @@ public class DaemonAction extends SecurityContextAwareAction
          return null;
       }
    }
-
+   
    private static class ExecuteDaemonAction extends SecurityContextAwareAction
    {
       private static Set<String> locks = CollectionUtils.newSet();

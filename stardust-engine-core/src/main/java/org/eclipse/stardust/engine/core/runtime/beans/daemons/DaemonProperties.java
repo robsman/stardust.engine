@@ -15,4 +15,8 @@ public interface DaemonProperties
    static final String DAEMON_BATCH_SIZE_SUFFIX = ".BatchSize";
 
    static final String DAEMON_PERIODICITY_SUFFIX = ".Periodicity";
+
+   static final String DAEMON_RETRY_NUMBER = "Stardust.Engine.Daemon.Aknowledge.Retry";
+
+   static final String DAEMON_RETRY_DELAY = "Stardust.Engine.Daemon.Aknowledge.Delay";
 }

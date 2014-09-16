@@ -16,7 +16,7 @@ public interface DaemonProperties
 
    static final String DAEMON_PERIODICITY_SUFFIX = ".Periodicity";
 
-   static final String DAEMON_RETRY_NUMBER = "Stardust.Engine.Daemon.Aknowledge.Retry";
+   static final String DAEMON_RETRY_NUMBER = "Stardust.Engine.Daemon.Acknowledge.Retry";
 
-   static final String DAEMON_RETRY_DELAY = "Stardust.Engine.Daemon.Aknowledge.Delay";
+   static final String DAEMON_RETRY_DELAY = "Stardust.Engine.Daemon.Acknowledge.Delay";
 }

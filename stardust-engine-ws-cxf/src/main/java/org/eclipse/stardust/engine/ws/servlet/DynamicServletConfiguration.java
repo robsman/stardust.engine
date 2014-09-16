@@ -176,12 +176,13 @@ public class DynamicServletConfiguration
                @Override
                protected Map<String, Serializable> invoke()
                {
+                  // bind thread to given partition
+                  ParametersFacade.pushLayer(Collections.singletonMap(
+                        SecurityProperties.CURRENT_PARTITION,
+                        AuditTrailPartitionBean.findById(partitionId)));
+
                   try
                   {
-                     ParametersFacade.pushLayer(Collections.singletonMap(
-                           SecurityProperties.CURRENT_PARTITION,
-                           AuditTrailPartitionBean.findById(partitionId)));
-
                      Preferences prefs = null;
                      Preferences defaultPrefs = null;
                      // Precondition: Credentials and session properties are set.

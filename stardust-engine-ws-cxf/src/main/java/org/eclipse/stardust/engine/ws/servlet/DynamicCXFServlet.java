@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -634,7 +636,8 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          else
          {
             // forward to CXF
-            endpointConfigLock.readLock().lock();
+            ReadLock readLock = endpointConfigLock.readLock();
+            readLock.lock();
             try
             {
                HttpServletRequest internalRequest = request;
@@ -663,7 +666,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             }
             finally
             {
-               endpointConfigLock.readLock().unlock();
+               readLock.unlock();
             }
          }
       }
@@ -748,14 +751,15 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
          if ((System.currentTimeMillis() - lastSync.get(partitionId).get()) > endpointSyncPeriod)
          {
-            endpointConfigLock.writeLock().lock();
-
-            // loading endpoint names from configuration
-            nameProvider.initEndpointNames(partitionId);
-            
-            trace.info("Synchronizing dynamic endpoints for partition: " + partitionId);
+            WriteLock writeLock = endpointConfigLock.writeLock();
+            writeLock.lock();
             try
             {
+               trace.info("Synchronizing dynamic endpoints for partition: " + partitionId);
+
+               // loading endpoint names from configuration
+               nameProvider.initEndpointNames(partitionId);
+               
                if ((System.currentTimeMillis() - lastSync.get(partitionId).get()) > endpointSyncPeriod)
                {
                   Set<Pair<AuthMode, String>> endpointNameSet = nameProvider.getEndpointNameSet(partitionId);
@@ -779,7 +783,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             }
             finally
             {
-               endpointConfigLock.writeLock().unlock();
+               writeLock.unlock();
             }
          }
       }

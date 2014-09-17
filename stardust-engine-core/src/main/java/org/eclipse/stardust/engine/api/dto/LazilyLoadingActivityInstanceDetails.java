@@ -61,6 +61,9 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    /** lazily created {@link ActivityInstance} object to delegate to for complex requests */
    private ActivityInstance activityInstanceDetails;
 
+   /** lazily created {@link ProcessInstance} object */
+   private ProcessInstance processInstanceDetails;
+
    /** lazily created object */
    private String toStringInfo;
 
@@ -150,7 +153,7 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    @Override
    public ProcessInstance getProcessInstance()
    {
-      return getActivityInstanceDetails().getProcessInstance();
+      return getProcessInstanceDetails();
    }
 
    @Override
@@ -350,6 +353,23 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          }
       }
       return activityInstanceDetails;
+   }
+
+   private ProcessInstance getProcessInstanceDetails()
+   {
+      if (processInstanceDetails == null)
+      {
+         ParametersFacade.pushLayer(aiDetailsParameters);
+         try
+         {
+            processInstanceDetails = new LazilyLoadingProcessInstanceDetails(activityInstance.getProcessInstance());
+         }
+         finally
+         {
+            ParametersFacade.popLayer();
+         }
+      }
+      return processInstanceDetails;
    }
 
    private String getToStringInfo()

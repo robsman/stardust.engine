@@ -19,6 +19,8 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.model.ModelCamelContext;
+
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.stardust.common.StringUtils;

@@ -303,9 +303,15 @@ public class DocumentHandler
                               (template != null
                                     && StringUtils.isNotEmpty(template.getFormat()) && template
                                     .getFormat().equalsIgnoreCase("pdf")) ? true : false);
-                  Exchange reponse = producer.send(
-                        "direct://default_Classpath_Handler_Route", newExchange);
-                  exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  Exchange reponse =null;
+                  if(template.getSource().equalsIgnoreCase("repository")){
+                     reponse = producer.send("direct://templateFromRepository", newExchange);
+                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  }
+                  else if(template.getSource().equalsIgnoreCase("classpath")){
+                     reponse = producer.send("direct://templateFromClasspath", newExchange);
+                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  }
                }
             }
          }

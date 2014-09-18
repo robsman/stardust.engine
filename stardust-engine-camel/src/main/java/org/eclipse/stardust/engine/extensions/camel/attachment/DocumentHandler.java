@@ -11,18 +11,14 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.activation.DataHandler;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.model.ModelCamelContext;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -89,24 +85,36 @@ public class DocumentHandler
    {
       boolean convertedToPdf = (Boolean) exchange.getIn().getHeader(
             "CamelTemplatingConvertToPdf");
-      String outputName = (String) exchange.getIn().getHeader("CamelTemplatingOutputName");
+      String outputName = (String) exchange.getIn()
+            .getHeader("CamelTemplatingOutputName");
       if (convertedToPdf)
       {
-         ByteArrayOutputStream out =exchange.getIn().getBody(ByteArrayOutputStream.class);
-         if(out!=null)
+         ByteArrayOutputStream out = exchange.getIn()
+               .getBody(ByteArrayOutputStream.class);
+         if (out != null)
             exchange.getIn().addAttachment(outputName + ".pdf",
                   new DataHandler(out.toByteArray(), "application/pdf"));
          else
             exchange.getIn().addAttachment(outputName + ".pdf",
                   new DataHandler(exchange.getIn().getBody(), "application/pdf"));
-      }else{
-         if(((String)exchange.getIn().getHeader("CamelTemplatingTemplate")).endsWith(".docx")){
-            ByteArrayOutputStream out =exchange.getIn().getBody(ByteArrayOutputStream.class);
-            exchange.getIn().addAttachment(outputName + ".docx", new DataHandler(out.toByteArray(), "application/msword"));
-         }else{
+      }
+      else
+      {
+         if (((String) exchange.getIn().getHeader("CamelTemplatingTemplate"))
+               .endsWith(".docx"))
+         {
+            ByteArrayOutputStream out = exchange.getIn().getBody(
+                  ByteArrayOutputStream.class);
+            exchange.getIn().addAttachment(outputName + ".docx",
+                  new DataHandler(out.toByteArray(), "application/msword"));
+         }
+         else
+         {
 
-       String content= exchange.getContext().getTypeConverter().convertTo(String.class, exchange, exchange.getIn().getBody());
-       exchange.getIn().addAttachment(outputName + ".txt",new DataHandler(content, "text/plain"));
+            String content = exchange.getContext().getTypeConverter()
+                  .convertTo(String.class, exchange, exchange.getIn().getBody());
+            exchange.getIn().addAttachment(outputName + ".txt",
+                  new DataHandler(content, "text/plain"));
          }
       }
       exchange.getIn().setBody(null);
@@ -246,7 +254,9 @@ public class DocumentHandler
    }
 
    /**
-    * processes the template configuration provided in EA. the class is then propagated to direct://default_Classpath_Handler_Route route to generate the file and attach it to the exchange.
+    * processes the template configuration provided in EA. the class is then propagated to
+    * direct://default_Classpath_Handler_Route route to generate the file and attach it to
+    * the exchange.
     *
     *
     * @param exchange
@@ -290,12 +300,11 @@ public class DocumentHandler
                               "CamelTemplatingFormat",
                               (template != null
                                     && StringUtils.isNotEmpty(template.getPath()) && template
-                                    .getPath().endsWith(".docx"))
-                                    ? "docx"
-                                    : "text");
+                                    .getPath().endsWith(".docx")) ? "docx" : "text");
                   newExchange.getIn().setHeader("CamelTemplatingTemplate",
                         (template.getPath()));
-                  newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
+                  newExchange.getIn().setHeader("CamelTemplatingOutputName",
+                        template.getName());
                   newExchange
                         .getIn()
                         .setHeader(
@@ -303,18 +312,52 @@ public class DocumentHandler
                               (template != null
                                     && StringUtils.isNotEmpty(template.getFormat()) && template
                                     .getFormat().equalsIgnoreCase("pdf")) ? true : false);
-                  Exchange reponse =null;
-                  if(template.getSource().equalsIgnoreCase("repository")){
-                     reponse = producer.send("direct://templateFromRepository", newExchange);
+                  Exchange reponse = null;
+                  if (template.getSource().equalsIgnoreCase("repository"))
+                  {
+                     reponse = producer.send("direct://templateFromRepository",
+                           newExchange);
                      exchange.getIn().setAttachments(reponse.getIn().getAttachments());
                   }
-                  else if(template.getSource().equalsIgnoreCase("classpath")){
-                     reponse = producer.send("direct://templateFromClasspath", newExchange);
+                  else if (template.getSource().equalsIgnoreCase("classpath"))
+                  {
+                     reponse = producer.send("direct://templateFromClasspath",
+                           newExchange);
                      exchange.getIn().setAttachments(reponse.getIn().getAttachments());
                   }
                }
             }
          }
+      }
+   }
+
+   public void storeExchangeAttachments(Exchange exchange) throws CreateDocumentException, IOException
+   {
+      if (exchange != null)
+      {
+         ServiceFactory sf = getServiceFactory();
+         DocumentManagementService dms = sf.getDocumentManagementService();
+         List<ActivityInstance> instances = BpmTypeConverter
+               .lookupActivityInstance(exchange);
+         for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
+         {
+            ActivityInstance activityInstance = i.next();
+            ProcessInstance pi = activityInstance.getProcessInstance();
+
+            Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
+            for (String attachmentName : attachments.keySet())
+            {
+               DataHandler attachment = attachments.get(attachmentName);
+               if(attachment.getContent() instanceof byte[]){
+                  CamelDmsUtils.storeDocument(dms, pi, (byte[]) attachment.getContent(),attachmentName, false);
+               }else if (attachment.getContent() instanceof String){
+                  CamelDmsUtils.storeDocument(dms, pi,  ((String)attachment.getContent()).getBytes(),attachmentName, false);
+               }else{
+
+               }
+            }
+         }
+
       }
    }
 }

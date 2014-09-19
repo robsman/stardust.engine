@@ -11,14 +11,22 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.activation.DataHandler;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.model.ModelCamelContext;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -131,10 +139,11 @@ public class DocumentHandler
     * @return Document
     * @throws IOException
     * @throws CreateDocumentException
+    * @throws MessagingException
     */
    @SuppressWarnings({"unchecked", "rawtypes"})
    public Document toDocument(Exchange exchange) throws IOException,
-         CreateDocumentException
+         CreateDocumentException, MessagingException
    {
       Document document = null;
       if (exchange != null)
@@ -176,6 +185,11 @@ public class DocumentHandler
                                                                                  // replace
                                                                                  // by
                                                                                  // DOCUMENT_NAME
+               }else if(messageContent instanceof MimeMessage){
+                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  ((MimeMessage) messageContent).writeTo(baos);
+                  jcrDocumentContent=  baos.toByteArray();
+                  fileName = ((String) exchange.getIn().getHeader(DOCUMENT_NAME)).trim().replaceAll("\n", "");
                }
                else
                // OutputStream, String

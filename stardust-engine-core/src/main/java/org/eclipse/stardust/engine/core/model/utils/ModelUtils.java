@@ -16,6 +16,7 @@ import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.SplicingIterator;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
@@ -98,11 +99,14 @@ public class ModelUtils
 
    public static <T extends Identifiable> T findById(List<T> items, String id)
    {
-      for (T item : items)
+      if (StringUtils.isNotEmpty(id))
       {
-         if (id.equals(item.getId()))
+         for (T item : items)
          {
-            return item;
+            if (id.equals(item.getId()))
+            {
+               return item;
+            }
          }
       }
       return null;

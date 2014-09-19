@@ -16,8 +16,9 @@ package org.eclipse.stardust.engine.ws;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
@@ -42,7 +43,7 @@ public class WebServiceEnv implements ModelResolver
    private static final ThreadLocal<WebServiceEnv> CURRENT_WEB_ENV = new ThreadLocal<WebServiceEnv>();
 
    private static final ServiceFactoryCache sfCache;
-   private static final ModelCache modelCache;
+   private static final ConcurrentMap<String, ModelCache> perPartitionModelCache;
 
    static
    {
@@ -57,17 +58,39 @@ public class WebServiceEnv implements ModelResolver
 
       if (Parameters.instance().getBoolean("Carnot.WebService.UseModelCache", true))
       {
-         modelCache = new ModelCache();
+         perPartitionModelCache = new ConcurrentHashMap<String, ModelCache>();
       }
       else
       {
-         modelCache = null;
+         perPartitionModelCache = null;
       }
    }
 
    private final ServiceFactory serviceFactory;
 
    private final String partitionId;
+
+   private static boolean useModelCache()
+   {
+      return null != perPartitionModelCache;
+   }
+
+   private ModelCache findModelCache()
+   {
+      ModelCache modelCache = null;
+
+      if (useModelCache())
+      {
+         if (!perPartitionModelCache.containsKey(partitionId))
+         {
+            perPartitionModelCache.putIfAbsent(partitionId, new ModelCache());
+         }
+
+         modelCache = perPartitionModelCache.get(partitionId);
+      }
+
+      return modelCache;
+   }
 
    private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter()
    {
@@ -182,16 +205,16 @@ public class WebServiceEnv implements ModelResolver
 
    public Model getActiveModel()
    {
-      // TODO Surge-safe? partition-safe?
+      // TODO Surge-safe?
       return getModel(PredefinedConstants.ACTIVE_MODEL);
    }
 
    public Model getActiveModel(String modelId)
    {
       Model model = null;
-      if (modelCache != null)
+      if (useModelCache())
       {
-         model = modelCache.getActiveModel(new Pair<String, String>(partitionId, modelId));
+         model = findModelCache().getActiveModel(modelId);
       }
       if (model == null)
       {
@@ -203,9 +226,9 @@ public class WebServiceEnv implements ModelResolver
    public Model getModel(long modelOid)
    {
       Model model = null;
-      if (modelCache != null)
+      if (useModelCache())
       {
-         model = modelCache.getModel(modelOid);
+         model = findModelCache().getModel(modelOid);
       }
       if (model == null)
       {
@@ -218,18 +241,18 @@ public class WebServiceEnv implements ModelResolver
    {
       Model model = (Model) serviceFactory.getWorkflowService().execute(command);
       registerSchemaLocator(model);
-      if (model instanceof DeployedModel && modelCache != null)
+      if (model instanceof DeployedModel && useModelCache())
       {
-         modelCache.putModel((DeployedModel) model);
+         findModelCache().putModel((DeployedModel) model);
       }
       return model;
    }
 
    public void clearModelCache()
    {
-      if (null != modelCache)
+      if (useModelCache())
       {
-         modelCache.reset();
+         findModelCache().reset();
       }
    }
 

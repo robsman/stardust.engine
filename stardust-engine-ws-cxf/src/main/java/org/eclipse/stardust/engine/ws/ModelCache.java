@@ -15,8 +15,8 @@
 package org.eclipse.stardust.engine.ws;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 
@@ -26,12 +26,15 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModel;
  */
 public class ModelCache
 {
+   /**
+    * Model by model OID
+    */
    private ConcurrentHashMap<Long, CachedModel> cache = new ConcurrentHashMap<Long, CachedModel>();
 
    /**
-    * Active Model Key: Partition ID : String, Model ID : String
+    * Active model by model ID
     */
-   private ConcurrentHashMap<Pair<String, String>, CachedModel> activeModelCache = new ConcurrentHashMap<Pair<String, String>, CachedModel>();
+   private ConcurrentMap<String, CachedModel> activeModelCache = new ConcurrentHashMap<String, CachedModel>();
 
    public void reset()
    {
@@ -45,9 +48,9 @@ public class ModelCache
       return cachedModel == null ? null : cachedModel.getModel();
    }
 
-   public DeployedModel getActiveModel(Pair<String, String> modelKey)
+   public DeployedModel getActiveModel(String modelId)
    {
-      CachedModel cachedModel = activeModelCache.get(modelKey);
+      CachedModel cachedModel = activeModelCache.get(modelId);
       return cachedModel == null ? null : cachedModel.getModel();
    }
 
@@ -58,7 +61,7 @@ public class ModelCache
       if (model.isActive())
       {
          cache.put((long) PredefinedConstants.ACTIVE_MODEL, cachedModel);
-         activeModelCache.put(new Pair<String, String>(model.getPartitionId(), model.getId()), cachedModel);
+         activeModelCache.put(model.getId(), cachedModel);
       }
    }
 

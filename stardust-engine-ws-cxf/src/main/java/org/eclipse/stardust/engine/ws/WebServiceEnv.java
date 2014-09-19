@@ -17,6 +17,7 @@ package org.eclipse.stardust.engine.ws;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
@@ -26,6 +27,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
@@ -64,6 +66,8 @@ public class WebServiceEnv implements ModelResolver
    }
 
    private final ServiceFactory serviceFactory;
+
+   private final String partitionId;
 
    private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter()
    {
@@ -168,10 +172,17 @@ public class WebServiceEnv implements ModelResolver
       {
          this.serviceFactory = sfCache.getServiceFactory(user, password, properties);
       }
+
+      /* make sure the user is properly authenticated ... */
+      User userObj = this.serviceFactory.getUserService().getUser();
+
+      /* ... and store partition ID for later model caching reuse */
+      partitionId = userObj.getPartitionId();
    }
 
    public Model getActiveModel()
    {
+      // TODO Surge-safe? partition-safe?
       return getModel(PredefinedConstants.ACTIVE_MODEL);
    }
 
@@ -180,8 +191,8 @@ public class WebServiceEnv implements ModelResolver
       Model model = null;
       if (modelCache != null)
       {
-         model = modelCache.getActiveModel(modelId);
-   }
+         model = modelCache.getActiveModel(new Pair<String, String>(partitionId, modelId));
+      }
       if (model == null)
       {
          model = fetchModel(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));

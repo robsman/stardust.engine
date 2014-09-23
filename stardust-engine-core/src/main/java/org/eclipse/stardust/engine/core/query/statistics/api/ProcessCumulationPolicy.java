@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import org.eclipse.stardust.engine.api.query.EvaluationPolicy;
 
 /**
+ * Policy to retrieve root/scope process for cumulation.
+ * 
  * @author rsauer
  * @version $Revision$
  */

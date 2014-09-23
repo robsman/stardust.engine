@@ -122,7 +122,7 @@
            org.eclipse.stardust.engine.api.dto, org.eclipse.stardust.engine.core.spi.extensions.model,
            org.eclipse.stardust.engine.core.spi.extensions.model.gui, org.eclipse.stardust.engine.core.spi.extensions.runtime,
            org.eclipse.stardust.engine.core.compatibility.gui.security, org.eclipse.stardust.engine.core.spi.resources, org.eclipse.stardust.engine.core.spi.security,
-           org.eclipse.stardust.engine.api.query, org.eclipse.stardust.engine.core.preferences,
+           org.eclipse.stardust.engine.api.query, org.eclipse.stardust.engine.core.query.statistics.api, org.eclipse.stardust.engine.core.preferences,
            org.eclipse.stardust.engine.core.preferences.configurationvariables,
            org.eclipse.stardust.engine.core.preferences.permissions, org.eclipse.stardust.engine.extensions.dms.data,
            org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument, org.eclipse.stardust.engine.api.web.dms,
@@ -408,6 +408,13 @@
                <include name="org/eclipse/stardust/engine/api/query/Worklist.java" />
                <include name="org/eclipse/stardust/engine/api/query/WorklistLayoutPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/WorklistQuery.java" />
+               
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/CriticalExecutionTimePolicy.java" />
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/CriticalCostPerExecutionPolicy.java" />
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/CriticalProcessingTimePolicy.java" />
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/StatisticsDateRangePolicy.java" />
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/PerformanceCriticalityPolicy.java" />
+               <include name="org/eclipse/stardust/engine/core/query/statistics/api/ProcessCumulationPolicy.java" />
 
                <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryCapabilities.java" />
                <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryConfiguration.java" />

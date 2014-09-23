@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
+ * Policy for specifying retrieval of descriptors.
+ * 
  * @author rsauer
  * @version $Revision$
  */
@@ -25,8 +27,14 @@ public class DescriptorPolicy implements EvaluationPolicy
 
    private Set<String> descriptorIds;
 
+   /**
+    * Ships descriptor values with process instance details.
+    */
    public static final DescriptorPolicy WITH_DESCRIPTORS = new DescriptorPolicy(true);
 
+   /**
+    * Does not ship descriptor values with process instance details.
+    */
    public static final DescriptorPolicy NO_DESCRIPTORS = new DescriptorPolicy(false);
 
    public static DescriptorPolicy withIds(Set<String> descriptorIds)

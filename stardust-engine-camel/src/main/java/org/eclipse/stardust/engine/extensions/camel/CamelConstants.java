@@ -90,7 +90,8 @@ public final class CamelConstants
    public static final String CSV_AUTOGENHEADERS_KEY = "autogenHeaders";
    
    public static final String VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS ="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentAccessPathEvaluator";
-
+   public static final String APPLICATION_INTEGRATION_OVERLAY_ATT = CAMEL_SCOPE+""+COLON+"applicationIntegrationOverlay";
+   public static final String GENERIC_ENDPOINT_OVERLAY= "genericEndpointOverlay";
    public static final String TRIGGER_INTEGRATION_OVERLAY_ATT = PredefinedConstants.ENGINE_SCOPE +"integration"+COLON+""+COLON+"overlay";
    public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
    /**

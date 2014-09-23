@@ -140,6 +140,8 @@ public class StatisticsQueryTest
       dateRanges.add(DateRange.LAST_WEEK);
       dateRanges.add(DateRange.THIS_MONTH);
       dateRanges.add(DateRange.LAST_MONTH);
+      // Second TODAY should not double the result for TODAY.
+      dateRanges.add(DateRange.TODAY);
       query.setPolicy(new StatisticsDateRangePolicy(dateRanges));
       UserWorktimeStatistics userWorktimeStatistics = (UserWorktimeStatistics) qService.getAllUsers(query);
       assertNotNull(userWorktimeStatistics);

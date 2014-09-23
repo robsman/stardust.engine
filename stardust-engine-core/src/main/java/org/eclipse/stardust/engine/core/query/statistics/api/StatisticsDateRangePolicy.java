@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.engine.api.query.EvaluationPolicy;
 
@@ -23,12 +25,12 @@ import org.eclipse.stardust.engine.api.query.EvaluationPolicy;
 public class StatisticsDateRangePolicy implements EvaluationPolicy
 {
 
-   private List<DateRange> dateRanges;
+   private Set<DateRange> dateRanges;
 
    private static final long serialVersionUID = 1L;
 
    /**
-    * Dafaults to {@link DateRange#TODAY}
+    * Defaults to {@link DateRange#TODAY}
     */
    public StatisticsDateRangePolicy()
    {
@@ -39,10 +41,17 @@ public class StatisticsDateRangePolicy implements EvaluationPolicy
     */
    public StatisticsDateRangePolicy(List<DateRange> dateRanges)
    {
-      this.dateRanges = dateRanges;
+      if (dateRanges == null)
+      {
+         this.dateRanges = null;
+      }
+      else
+      {
+         this.dateRanges = new LinkedHashSet(dateRanges);
+      }
    }
 
-   public List<DateRange> getDateRanges()
+   public Set<DateRange> getDateRanges()
    {
       return dateRanges;
    }

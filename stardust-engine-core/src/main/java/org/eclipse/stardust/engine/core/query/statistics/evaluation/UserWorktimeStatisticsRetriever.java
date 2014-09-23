@@ -392,13 +392,14 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
       return new UserWorktimeStatisticsResult(wsq, users, worktimeStatistics);
    }
 
-   private PredicateTerm createDateRangeIntervalQuery(List<DateRange> dateRanges)
+   private PredicateTerm createDateRangeIntervalQuery(Set<DateRange> dateRanges)
    {
       PredicateTerm lhs = null;
-
-      for (int i = 0; i < dateRanges.size(); i++ )
+      Iterator<DateRange> iterator = dateRanges.iterator();
+      int i = 0;
+      while (iterator.hasNext())
       {
-         DateRange dateRange = dateRanges.get(i);
+         DateRange dateRange = iterator.next();
 
          PredicateTerm rhs = Predicates.andTerm(
                Predicates.lessOrEqual(ActivityInstanceHistoryBean.FR__FROM,
@@ -416,6 +417,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             lhs = Predicates.orTerm(lhs, rhs);
          }
 
+         i++;
       }
       return lhs;
 

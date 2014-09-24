@@ -168,6 +168,9 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
       final Map<ContributionInInterval, Set<Long>> aisPerContribution = CollectionUtils.newMap();
       final Map<ContributionInInterval, Set<Long>> pisPerContribution = CollectionUtils.newMap();
 
+      final Map<ContributionInInterval, Set<Long>> aisPerContributionWaiting = CollectionUtils.newMap();
+      final Map<ContributionInInterval, Set<Long>> pisPerContributionWaiting = CollectionUtils.newMap();      
+      
       final Map<Long, EffortPerExecution> effortPerAi = CollectionUtils.newMap();
       final Map<Long, EffortPerExecution> effortPerPi = CollectionUtils.newMap();
 
@@ -306,11 +309,11 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
             if (tsUntilWait.after(periodBegin) && tsFrom.before(periodEnd))
             {
-               Set<Long> ais = aisPerContribution.get(contributionInInterval);
+               Set<Long> ais = aisPerContributionWaiting.get(contributionInInterval);
                if (null == ais)
                {
                   ais = CollectionUtils.newSet();
-                  aisPerContribution.put(contributionInInterval, ais);
+                  aisPerContributionWaiting.put(contributionInInterval, ais);
                }
                if ( !ais.contains(aiOid))
                {
@@ -318,11 +321,11 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   contributionInInterval.addnAisWaiting(1);
                }
 
-               Set<Long> pis = pisPerContribution.get(contributionInInterval);
+               Set<Long> pis = pisPerContributionWaiting.get(contributionInInterval);
                if (null == pis)
                {
                   pis = CollectionUtils.newSet();
-                  pisPerContribution.put(contributionInInterval, pis);
+                  pisPerContributionWaiting.put(contributionInInterval, pis);
                }
                if ( !pis.contains(piOid))
                {

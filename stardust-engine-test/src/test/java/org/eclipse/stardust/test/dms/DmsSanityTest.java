@@ -193,7 +193,12 @@ public class DmsSanityTest
       }
       catch (DocumentManagementServiceException dmse)
       {
-         Assert.assertEquals("DMS01156", dmse.getError().getId());
+         String id = dmse.getError().getId();
+         Assert.assertEquals("DMS01156", id);
+         if (!"DMS01156".equals(id))
+         {
+            throw dmse;
+         }
       }
    }
 
@@ -230,7 +235,12 @@ public class DmsSanityTest
       }
       catch (DocumentManagementServiceException dmse)
       {
-         Assert.assertEquals("DMS01156", dmse.getError().getId());
+         String id = dmse.getError().getId();
+         Assert.assertEquals("DMS01156", id);
+         if (!"DMS01156".equals(id))
+         {
+            throw dmse;
+         }
       }
    }
 

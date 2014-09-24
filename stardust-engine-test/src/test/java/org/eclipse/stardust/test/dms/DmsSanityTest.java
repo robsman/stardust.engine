@@ -160,6 +160,80 @@ public class DmsSanityTest
       Assert.assertNotEquals(v1.getRevisionId(), v2.getRevisionId());
    }
 
+   @Test
+   public void testRemoveVersionsV1First()
+   {
+      Document doc = getDms().versionDocument(DOC_PATH, null, null);
+
+      List<Document> versions = getDms().getDocumentVersions(doc.getId());
+      Assert.assertEquals(1, versions.size());
+      Document v1 = versions.get(0);
+      Assert.assertEquals(doc.getId(), v1.getId());
+      Assert.assertEquals(doc.getRevisionId(), v1.getRevisionId());
+      Assert.assertEquals(doc.getPath(), v1.getPath());
+
+      Document doc2 = getDms().versionDocument(DOC_PATH, null, null);
+
+      List<Document> versions2 = getDms().getDocumentVersions(doc.getId());
+      Assert.assertEquals(2, versions2.size());
+      Document v2 = versions2.get(1);
+      Assert.assertEquals(doc2.getId(), v2.getId());
+      Assert.assertEquals(doc2.getRevisionId(), v2.getRevisionId());
+      Assert.assertEquals(doc2.getPath(), v2.getPath());
+
+      Assert.assertNotEquals(v1.getRevisionId(), v2.getRevisionId());
+
+      getDms().removeDocumentVersion(doc.getId(), v1.getRevisionId());
+
+      // Expected org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException:
+      // DMS01156 - Root document version cannot be removed.
+      try
+      {
+         getDms().removeDocumentVersion(doc.getId(), v2.getRevisionId());
+      }
+      catch (DocumentManagementServiceException dmse)
+      {
+         Assert.assertEquals("DMS01156", dmse.getError().getId());
+      }
+   }
+
+   @Test
+   public void testRemoveVersionsV2First()
+   {
+      Document doc = getDms().versionDocument(DOC_PATH, null, null);
+
+      List<Document> versions = getDms().getDocumentVersions(doc.getId());
+      Assert.assertEquals(1, versions.size());
+      Document v1 = versions.get(0);
+      Assert.assertEquals(doc.getId(), v1.getId());
+      Assert.assertEquals(doc.getRevisionId(), v1.getRevisionId());
+      Assert.assertEquals(doc.getPath(), v1.getPath());
+
+      Document doc2 = getDms().versionDocument(DOC_PATH, null, null);
+
+      List<Document> versions2 = getDms().getDocumentVersions(doc.getId());
+      Assert.assertEquals(2, versions2.size());
+      Document v2 = versions2.get(1);
+      Assert.assertEquals(doc2.getId(), v2.getId());
+      Assert.assertEquals(doc2.getRevisionId(), v2.getRevisionId());
+      Assert.assertEquals(doc2.getPath(), v2.getPath());
+
+      Assert.assertNotEquals(v1.getRevisionId(), v2.getRevisionId());
+
+      getDms().removeDocumentVersion(doc.getId(), v2.getRevisionId());
+
+      // Expected org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException:
+      // DMS01156 - Root document version cannot be removed.
+      try
+      {
+         getDms().removeDocumentVersion(doc.getId(), v1.getRevisionId());
+      }
+      catch (DocumentManagementServiceException dmse)
+      {
+         Assert.assertEquals("DMS01156", dmse.getError().getId());
+      }
+   }
+
    @SuppressWarnings("unchecked")
    @Test
    public void testMetaData()

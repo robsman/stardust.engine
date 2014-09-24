@@ -181,6 +181,16 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
        * The amount of time the activity was suspended on behalf of a specific role.
        */
       private Date timeWaiting = new Date(0l);
+      
+      /**
+       * The number of AIs that were suspended on behalf of a specific role
+       */
+      private int nAisWaiting;
+      
+      /**
+       * The number of PIs that were suspended on behalf of a specific role 
+       */
+      private int nPisWaiting;
 
       /**
        * The cost the user created working on behalf of a specific role.
@@ -249,6 +259,26 @@ public abstract class UserWorktimeStatistics extends CustomUserQueryResult
       public InstancesStoplightHistogram getCriticalByExecutionCost()
       {
          return criticalByExecutionCost;
+      }
+      
+      public int getnAisWaiting()
+      {
+         return nAisWaiting;
+      }
+      
+      public void addnAisWaiting(int increment)
+      {
+         this.nAisWaiting += increment;
+      }
+      
+      public int getnPisWaiting()
+      {
+         return nPisWaiting;
+      }
+      
+      public void addnPisWaiting(int increment)
+      {
+         this.nPisWaiting += increment;
       }
 
    }

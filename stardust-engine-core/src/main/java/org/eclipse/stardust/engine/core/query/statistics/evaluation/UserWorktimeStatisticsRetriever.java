@@ -306,6 +306,31 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
 
             if (tsUntilWait.after(periodBegin) && tsFrom.before(periodEnd))
             {
+               Set<Long> ais = aisPerContribution.get(contributionInInterval);
+               if (null == ais)
+               {
+                  ais = CollectionUtils.newSet();
+                  aisPerContribution.put(contributionInInterval, ais);
+               }
+               if ( !ais.contains(aiOid))
+               {
+                  ais.add(aiOid);
+                  contributionInInterval.addnAisWaiting(1);
+               }
+
+               Set<Long> pis = pisPerContribution.get(contributionInInterval);
+               if (null == pis)
+               {
+                  pis = CollectionUtils.newSet();
+                  pisPerContribution.put(contributionInInterval, pis);
+               }
+               if ( !pis.contains(piOid))
+               {
+                  pis.add(piOid);
+                  contributionInInterval.addnPisWaiting(1);
+               }
+               
+               
                Date from = tsFrom.before(periodBegin) ? periodBegin : tsFrom;
                Date until = tsUntilWait.after(periodEnd) ? periodEnd : tsUntilWait;
 

@@ -252,13 +252,15 @@ public class MetaDataMediator implements ILegacyRepositoryService
    public void removeDocumentVersion(String documentId, String documentRevisionId)
          throws DocumentManagementServiceException
    {
-      service.removeDocumentVersion(documentId, documentRevisionId);
       Document document = service.getDocument(documentId);
+      service.removeDocumentVersion(documentId, documentRevisionId);
 
       if (document != null && !isMetaDataSupported(document.getRepositoryId()))
       {
          // update data for head
+         document = service.getDocument(documentId);
          storeMetaDataToAuditTrail(document);
+
          // remove data for revision
          RepositoryAuditTrailUtils.removeDocument(documentRevisionId);
       }

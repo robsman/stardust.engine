@@ -57,6 +57,7 @@
          <exclude org="org.springframework" module="spring-context" />
          <exclude org="org.springframework" module="spring-aop" />
          <exclude org="org.springframework" module="spring-tx" />
+         <exclude org="com.sun.xml.bind" module="jaxb-impl" />
       </dependency>
       <dependency org="org.apache.camel" name="camel-jms" rev="${camel-jms.version}"
          conf="stardust-engine-camel-compile->default">

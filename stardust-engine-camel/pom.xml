@@ -47,14 +47,6 @@
                <artifactId>camel-core</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-impl</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
-            </exclusion>
-            <exclusion>
                <groupId>org.springframework</groupId>
                <artifactId>spring-context</artifactId>
             </exclusion>
@@ -78,24 +70,12 @@
                <artifactId>camel-core</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-impl</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
-            </exclusion>
-            <exclusion>
                <groupId>org.apache.camel</groupId>
                <artifactId>camel-spring</artifactId>
             </exclusion>
             <exclusion>
                <groupId>org.springframework</groupId>
                <artifactId>spring-jms</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.springframework</groupId>
-               <artifactId>spring-core</artifactId>
             </exclusion>
             <exclusion>
                <groupId>org.springframework</groupId>
@@ -148,28 +128,20 @@
          <scope>runtime</scope>
          <exclusions>
             <exclusion>
-               <groupId>commons-codec</groupId>
-               <artifactId>commons-codec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            </exclusion>
-            <exclusion>
                <groupId>org.apache.camel</groupId>
                <artifactId>camel-core</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-impl</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-servlet_3.0_spec</artifactId>
             </exclusion>
             <exclusion>
                <groupId>commons-httpclient</groupId>
                <artifactId>commons-httpclient</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-codec</groupId>
+               <artifactId>commons-codec</artifactId>
             </exclusion>
          </exclusions>
       </dependency>
@@ -208,28 +180,8 @@
                <artifactId>camel-core</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-impl</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
-            </exclusion>
-            <exclusion>
                <groupId>org.springframework</groupId>
-               <artifactId>spring-core</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>commons-logging</groupId>
-               <artifactId>commons-logging</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>commons-collections</groupId>
-               <artifactId>commons-collections</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.springframework</groupId>
-               <artifactId>spring-tx</artifactId>
+               <artifactId>spring-jdbc</artifactId>
             </exclusion>
          </exclusions>
       </dependency>
@@ -333,15 +285,27 @@
                <groupId>org.apache.camel</groupId>
                <artifactId>camel-core</artifactId>
             </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-smpp</artifactId>
+         <scope>runtime</scope>
+         <exclusions>
             <exclusion>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-impl</artifactId>
+               <groupId>org.apache.camel</groupId>
+               <artifactId>camel-core</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
+               <groupId>commons-codec</groupId>
+               <artifactId>commons-codec</artifactId>
             </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.servicemix.bundles</groupId>
+         <artifactId>org.apache.servicemix.bundles.jsmpp</artifactId>
+         <scope>runtime</scope>
       </dependency>
       <dependency>
          <groupId>org.eclipse.xsd</groupId>

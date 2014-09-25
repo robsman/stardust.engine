@@ -140,6 +140,8 @@
                   <include>Period.java</include>
                   <include>StringKey.java</include>
                   <!-- to be clarified: <include>log/Category.java</include> -->
+                  <include>config/GlobalParametersProviderFactory.java</include>
+                  <include>config/PropertyProvider.java</include>
                   <include>log/LogManager.java</include>
                   <include>log/Logger.java</include>
                   <include>error/AccessForbiddenException.java</include>

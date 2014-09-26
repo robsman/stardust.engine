@@ -130,33 +130,69 @@ public class ModelRefBean extends PersistentBean implements Serializable
       Map<Long, Set<Long>> usage = new HashMap<Long, Set<Long>>();
       PredicateTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
       QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
-            .select(FR__MODEL_OID, FR__REF_OID)
-            .where(typePredicate);
-      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(query);
-      try
+            .select(FR__MODEL_OID, FR__REF_OID).where(typePredicate);
+      // Using eclipse model debugger results in ClassCastException when casting retrieved
+      // session object to org.eclipse.stardust.engine.core.persistence.jdbc.Session as it
+      // is an instance of DebugSession.
+      // Therefore the way how to retrieve model_oid and model_ref differs when session is
+      // an instance of DebugSession.
+      org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL);
+      // jdbc session
+      if (session instanceof Session)
       {
-         while (resultSet.next())
+         Session jdbcSession = (Session) session;
+         ResultSet resultSet = jdbcSession.executeQuery(query);
+         try
          {
-            long model = resultSet.getLong(1);
-            long ref = resultSet.getLong(2);
-            Set<Long> used = usage.get(model);
-            if (used == null)
+            while (resultSet.next())
             {
-               used = new HashSet<Long>();
-               usage.put(model, used);
+               long model = resultSet.getLong(1);
+               long ref = resultSet.getLong(2);
+               Set<Long> used = usage.get(model);
+               if (used == null)
+               {
+                  used = new HashSet<Long>();
+                  usage.put(model, used);
+               }
+               used.add(ref);
             }
-            used.add(ref);
+         }
+         catch (SQLException e)
+         {
+            trace.warn("Failed executing query.", e);
+            throw new PublicException(e);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(resultSet);
          }
       }
-      catch (SQLException e)
+      else
       {
-         trace.warn("Failed executing query.", e);
-         throw new PublicException(e);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(resultSet);
+         // debug session
+         ResultIterator<ModelRefBean> resultIterator = session.getIterator(
+               ModelRefBean.class, QueryExtension.where(typePredicate));
+         try
+         {
+            while (resultIterator.hasNext())
+            {
+               ModelRefBean refBean = resultIterator.next();
+               long model = refBean.getModelOid();
+               long ref = refBean.getRefOid();
+               Set<Long> used = usage.get(model);
+               if (used == null)
+               {
+                  used = new HashSet<Long>();
+                  usage.put(model, used);
+               }
+               used.add(ref);
+            }
+         }
+         finally
+         {
+            resultIterator.close();
+         }
       }
       return usage;
    }
@@ -319,6 +355,16 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          QueryUtils.closeResultSet(resultSet);
       }
+   }
+   
+   public long getModelOid()
+   {
+      return modelOid;
+   }
+
+   public long getRefOid()
+   {
+      return refOid;
    }
 
    public static IModel resolveModel(IExternalPackage reference) throws UnresolvedExternalReference

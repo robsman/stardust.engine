@@ -117,6 +117,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
@@ -3972,7 +3973,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public boolean isUsingPreparedStatements(Class persistentClass)
    {
       // TODO (ab) either look if there is a CLOB column or use an annotation
-      if (ClobDataBean.class.equals(persistentClass))
+      if (ClobDataBean.class.equals(persistentClass) || PreferencesBean.class.equals(persistentClass))
       {
          // operations on HugeStringHolder must be performed using
          // prepared statements only

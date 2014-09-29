@@ -3973,7 +3973,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public boolean isUsingPreparedStatements(Class persistentClass)
    {
       // TODO (ab) either look if there is a CLOB column or use an annotation
-      if (ClobDataBean.class.equals(persistentClass) || PreferencesBean.class.equals(persistentClass))
+      if (ClobDataBean.class.equals(persistentClass)
+            || PreferencesBean.class.equals(persistentClass)
+            && (DBMSKey.ORACLE.equals(getDBDescriptor().getDbmsKey())
+                  || DBMSKey.ORACLE9i.equals(getDBDescriptor().getDbmsKey())))
       {
          // operations on HugeStringHolder must be performed using
          // prepared statements only

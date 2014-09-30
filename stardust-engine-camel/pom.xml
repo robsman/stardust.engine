@@ -395,6 +395,11 @@
          <artifactId>spring-web</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId> org.springframework</groupId>
+         <artifactId>spring-jdbc</artifactId>
+         <scope>test</scope>
+      </dependency>
 
       <dependency>
          <groupId>org.eclipse.stardust.engine</groupId>
@@ -413,6 +418,9 @@
                <failIfNoTests>false</failIfNoTests>
                <testFailureIgnore>true</testFailureIgnore>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+               <includes>
+                  <include>**/*TestSuite.java</include>
+               </includes>
             </configuration>
          </plugin>
       </plugins>

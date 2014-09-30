@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,10 @@ public class FileTriggerIncludeConverterTest
    private static ClassPathXmlApplicationContext ctx;
    @Resource
    private static ServiceFactoryAccess serviceFactoryAccess;
-   
+   public static String formatDate(Date input)
+   {
+      return new SimpleDateFormat("dd-MM-yy").format(input);
+   }
    @BeforeClass
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(
@@ -70,7 +74,7 @@ public class FileTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(126954L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("Wed Sep 24 00:00:00 WAT 2014", response.get("dateField").toString());
+      assertEquals("24-09-14", formatDate((Date) response.get("dateField")));
    }
 
    @Test
@@ -99,7 +103,7 @@ public class FileTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(789444L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("Wed May 28 00:00:00 WAT 2014", response.get("dateField").toString());
+      assertEquals("28-05-14", formatDate((Date) response.get("dateField")));
    }
 
    @Test
@@ -127,9 +131,10 @@ public class FileTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(789L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("Wed May 28 11:30:00 WAT 2014", response.get("dateField").toString());
+      //assertEquals("Wed May 28 11:30:00 WAT 2014", response.get("dateField").toString());
+      assertEquals("28-05-14", formatDate((Date) response.get("dateField")));
    }
-   
+
    @Test
    public void testListCsvConverterWithFileTrigger() throws Exception
    {
@@ -161,7 +166,7 @@ public class FileTriggerIncludeConverterTest
       assertTrue(firstElement.get("longField") instanceof Long);
       assertEquals(45454L, firstElement.get("longField"));
       assertTrue(firstElement.get("dateField") instanceof Date);
-      assertEquals("Tue May 27 00:00:00 WAT 2014", firstElement.get("dateField").toString());
+      assertEquals("27-05-14", formatDate((Date) firstElement.get("dateField")));
       assertTrue(secondElement.get("intField") instanceof Integer);
       assertEquals(41, secondElement.get("intField"));
       assertTrue(secondElement.get("stringField") instanceof String);
@@ -169,7 +174,7 @@ public class FileTriggerIncludeConverterTest
       assertTrue(secondElement.get("longField") instanceof Long);
       assertEquals(95854L, secondElement.get("longField"));
       assertTrue(secondElement.get("dateField") instanceof Date);
-      assertEquals("Sun May 18 00:00:00 WAT 2014", secondElement.get("dateField").toString());
+      assertEquals("18-05-14", formatDate((Date) secondElement.get("dateField")));
    }
 
 }

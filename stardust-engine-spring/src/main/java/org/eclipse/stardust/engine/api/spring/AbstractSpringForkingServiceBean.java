@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.spring.schedulers.DaemonScheduler;
 import org.eclipse.stardust.engine.spring.schedulers.DefaultScheduler;
+
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -76,7 +77,7 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
                               Predicates.greaterThan(DaemonLog.FR__STAMP, 0)
                               )
                         ));
-            
+
             Map<AuditTrailPartitionBean, UserDomainBean> cache = CollectionUtils.newMap();
             Map<String, Object> layer = CollectionUtils.newMap();
             while (startLogs.hasNext())
@@ -110,7 +111,7 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
          }
       });
    }
-   
+
    public DaemonScheduler getScheduler()
    {
       return scheduler;
@@ -168,7 +169,9 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
    {
       final DaemonCarrier innerCarrier = carrier.copy();
       long period = Parameters.instance().getLong(
-            innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX, 5) * 1000;
+            innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX,
+            DaemonFactory.instance().get(innerCarrier.getType()).getDefaultPeriodicity()) * 1000;
+
       final Runnable runnable = new Runnable()
       {
          public void run()

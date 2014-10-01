@@ -415,6 +415,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skip>false</skip>
+               <argLine>-Xmx512m -XX:MaxPermSize=256m</argLine>
                <failIfNoTests>false</failIfNoTests>
                <testFailureIgnore>true</testFailureIgnore>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
@@ -424,7 +425,7 @@
             </configuration>
          </plugin>
       </plugins>
-
+      
       <testSourceDirectory>src/test/java</testSourceDirectory>
       <testResources>
          <testResource>

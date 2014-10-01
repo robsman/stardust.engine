@@ -19,7 +19,10 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE_1;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_AUDIT_TRAIL_PERSISTENCE_2;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_BIG_STRUCT_DATA;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_TRANSIENT_ROUTE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_PATH_BIG_STRING_DATA;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.IN_DATA_PATH_BIG_STRING_DATA;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.OUT_DATA_PATH_FAIL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ABORT_PROCESS;
@@ -27,11 +30,12 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_BIG_STRUCTURED_DATA;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_IMMEDIATE;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED_FAIL;
@@ -75,6 +79,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Level;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.springframework.transaction.UnexpectedRollbackException;
+
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
@@ -91,6 +105,8 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
 import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -106,15 +122,6 @@ import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.api.util.WaitTimeout;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.springframework.transaction.UnexpectedRollbackException;
 
 /**
  * <p>
@@ -2667,6 +2674,44 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       appMayComplete = true;
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Ensures we're able to cope with a big {@link String} (> 65535 bytes) in a <i>Structured Data</i>, which is written to
+    * the {@link TransientProcessInstanceStorage} via {@link ByteArrayBlobBuilder#writeString(String)} (see CRNT-32492).
+    * </p>
+    */
+   @Test
+   public void testWriteBigStructuredData() throws Exception
+   {
+      enableTransientProcessesSupport();
+
+      final StringBuffer sb = new StringBuffer();
+      for (int i = 0; i < 65535 + 1; i++)
+      {
+         sb.append(i % 10);
+      }
+      final String bigStringData = sb.toString();
+
+      final Map<String, Object> bigStructData = newHashMap();
+      bigStructData.put(DATA_PATH_BIG_STRING_DATA, bigStringData);
+
+      final Map<String, Object> data = newHashMap();
+      data.put(DATA_ID_BIG_STRUCT_DATA, bigStructData);
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_BIG_STRUCTURED_DATA, data, true);
+      final String actual = (String) sf.getWorkflowService().getInDataPath(pi.getOID(), IN_DATA_PATH_BIG_STRING_DATA);
+
+      assertThat(actual, equalTo(bigStringData));
 
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));

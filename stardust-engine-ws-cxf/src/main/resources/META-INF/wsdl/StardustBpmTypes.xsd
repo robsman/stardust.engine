@@ -1241,10 +1241,14 @@
 				minOccurs="0" />
 			<element name="historicalEvents" type="tns:HistoricalEvents"
 				minOccurs="0" />
+				
+			<element name="criticality" type="double"/>
 
-			<!--
-				<element name="attributes" type="tns:Attributes" minOccurs="0" />
-			-->
+			<element name="qualityAssuranceInfo" type="tns:QualityAssuranceInfo" minOccurs="0" />
+			<element name="qualityAssuranceState" type="tns:QualityAssuranceState" minOccurs="0" />
+						
+			<element name="attributes" type="tns:ActivityInstanceAttributes" minOccurs="0" />
+			
 		</sequence>
 	</complexType>
 
@@ -2562,6 +2566,59 @@
    			<element name="modelparticipantInfo" type="tns:ModelParticipantInfo" minOccurs="0" maxOccurs="unbounded" />
    		</sequence>
    </complexType>
+   
+	<complexType name="QualityAssuranceInfo">
+		<annotation>
+			<documentation>
+				Class containing information considering the qa workflow
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="failedQualityAssuranceInstance" type="tns:ActivityInstance" />
+			<element name="monitoredInstance" type="tns:ActivityInstance" />
+
+		</sequence>
+	</complexType>   
+	
+	<complexType name="ActivityInstanceAttributes">
+		<annotation>
+			<documentation>
+				This class contains attributes for an activity instance. 
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="activityInstanceOid" type="long" />
+			<element name="qualityAssuranceResult" type="tns:QualityAssuranceResult" />
+			<element name="notes" type="tns:Note"  minOccurs="0" maxOccurs="unbounded" />
+			
+		</sequence>
+	</complexType>
+	
+	<complexType name="QualityAssuranceResult">
+		<annotation>
+			<documentation>
+				Represents the result of a quality assurance instance resolution
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="qualityAssuranceCodes" type="tns:QualityAssuranceCode" minOccurs="0" maxOccurs="unbounded" />
+			<element name="qualityAssuranceState" type="tns:ResultState" />
+			<element name="assignFailedInstanceToLastPerformer" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="QualityAssuranceCode">
+		<annotation>
+			<documentation>
+				Class representing an quality assurance error code
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="code" type="string"/>
+			<element name="description" type="string"/>
+			<element name="name" type="string"/>
+		</sequence>
+	</complexType>
 
 	<!--  Simple types -->
 
@@ -2650,4 +2707,22 @@
 			<enumeration value="SubHierarchy" />
 		</restriction>
 	</simpleType>
+	
+	<simpleType name="QualityAssuranceState">
+		<restriction base="string">
+			<enumeration value="NO_QUALITY_ASSURANCE" />
+			<enumeration value="IS_QUALITY_ASSURANCE" />
+			<enumeration value="QUALITY_ASSURANCE_TRIGGERED" />
+			<enumeration value="IS_REVISED" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="ResultState">
+		<restriction base="string">
+			<enumeration value="PASS_WITH_CORRECTION" />
+			<enumeration value="PASS_NO_CORRECTION" />
+			<enumeration value="FAILED" />
+		</restriction>
+	</simpleType>
+		
 </schema>

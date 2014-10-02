@@ -32,6 +32,8 @@ public class AttributeFilterUtils
    public static final String WORKLIST_QUERY_PROCESS_INSTANCE_OID = "processOid";
 
    public static final String WORKLIST_QUERY_PROCESS_INSTANCE_PRIORITY = "processPriority";
+   
+   public static final String WORKLIST_QUERY_ACTIVITY_INSTANCE_CRITICALITY = "criticality";
 
    // ActivityInstanceQuery Attributes
    public static final String ACTIVITY_INSTANCE_QUERY_START_TIME = "startTime";
@@ -53,6 +55,8 @@ public class AttributeFilterUtils
    public static final String ACTIVITY_INSTANCE_QUERY_PERFORMED_BY_OID = "performedByOid";
 
    public static final String ACTIVITY_INSTANCE_QUERY_STATE = "state";
+   
+   public static final String ACTIVITY_INSTANCE_QUERY_CRITICALITY = "criticality";
 
    // ProcessInstanceQuery Attributes
    public static final String PROCESS_INSTANCE_QUERY_OID = "oid";
@@ -208,6 +212,10 @@ public class AttributeFilterUtils
          {
             return  WorklistQuery.ACTIVITY_INSTANCE_OID;
          }
+         else if(WORKLIST_QUERY_ACTIVITY_INSTANCE_CRITICALITY.equals(attribute))
+         {
+            return WorklistQuery.ACTIVITY_INSTANCE_CRITICALITY;
+         }
       }
       if (ActivityInstanceQuery.class.equals(clazz))
       {
@@ -250,6 +258,10 @@ public class AttributeFilterUtils
          else if (ACTIVITY_INSTANCE_QUERY_STATE.equals(attribute))
          {
             return ActivityInstanceQuery.STATE;
+         }
+         else if (ACTIVITY_INSTANCE_QUERY_CRITICALITY.equals(attribute))
+         {
+            return ActivityInstanceQuery.CRITICALITY;
          }
       }
       if (ProcessInstanceQuery.class.equals(clazz))
@@ -560,6 +572,10 @@ public class AttributeFilterUtils
             {
                return WORKLIST_QUERY_ACTIVITY_INSTANCE_OID;
             }
+            else if (WorklistQuery.ACTIVITY_INSTANCE_CRITICALITY.getAttributeName().equals(attribute))
+            {
+               return WORKLIST_QUERY_ACTIVITY_INSTANCE_CRITICALITY;
+            }
          }
          else if (ActivityInstanceQuery.class.equals(clazz))
          {
@@ -609,6 +625,10 @@ public class AttributeFilterUtils
             else if (ActivityInstanceQuery.STATE.getAttributeName().equals(attribute))
             {
                return ACTIVITY_INSTANCE_QUERY_STATE;
+            }
+            else if (ActivityInstanceQuery.CRITICALITY.getAttributeName().equals(attribute))
+            {
+               return ACTIVITY_INSTANCE_QUERY_CRITICALITY;
             }
          }
          else if (ProcessInstanceQuery.class.equals(clazz))

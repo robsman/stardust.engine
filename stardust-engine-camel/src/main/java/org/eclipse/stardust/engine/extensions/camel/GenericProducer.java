@@ -135,12 +135,12 @@ public class GenericProducer
 
    /**
     * send message to an endpointName
-    * 
+    *
     * @param message
     *           the payload
     * @throws Exception
     *            if the processing of the exchange failed
-    * 
+    *
     */
    public void executeMessage(Object message) throws Exception
    {
@@ -149,12 +149,12 @@ public class GenericProducer
 
    /**
     * send message to an endpointName
-    * 
+    *
     * @param message
     *           the payload
     * @throws Exception
     *            if the processing of the exchange failed
-    * 
+    *
     */
    public void executeMessage(Object message, Map<String, Object> headers) throws Exception
    {
@@ -165,7 +165,7 @@ public class GenericProducer
 
    /**
     * Sends the body to an endpoint with the specified headers values
-    * 
+    *
     * @param message
     *           the payload to send
     * @param headers
@@ -179,8 +179,10 @@ public class GenericProducer
    {
       Exchange exchange = new DefaultExchange(camelContext);
       exchange.setPattern(ExchangePattern.InOut);
-      exchange.getIn().setBody(message);
-      exchange.getIn().setHeaders(headers == null ? Collections.<String, Object> emptyMap() : headers);
+      CamelMessage inMessage=new CamelMessage();
+      inMessage.setBody(message);
+      inMessage.setHeaders(headers == null ? Collections.<String, Object> emptyMap() : headers);
+      exchange.setIn(inMessage);
 
       return template.send(endpointName, exchange);
    }

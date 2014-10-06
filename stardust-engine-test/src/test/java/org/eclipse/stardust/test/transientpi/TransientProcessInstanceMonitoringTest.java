@@ -59,8 +59,8 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 /**
  * <p>
  * This class makes sure that we're aware of every single database access when executing transient
- * process instances: we monitor each and every database access and the tests only pass if they
- * only contain the ones (including frequency) defined as acceptable.
+ * process instances: we monitor each and every database access and the tests only pass if and only
+ * if they contain exactly the ones (including frequency) defined as acceptable.
  * </p>
  *
  * @author Nicolas.Werlein

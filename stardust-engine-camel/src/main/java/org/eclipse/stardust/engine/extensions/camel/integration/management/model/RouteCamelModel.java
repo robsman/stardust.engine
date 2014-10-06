@@ -16,7 +16,7 @@ import com.google.gson.annotations.Expose;
 
 public class RouteCamelModel {
 
-	RouteDefinition route;
+	private RouteDefinition route;
 	CamelContext context;
 	ProducerTemplate template;
 	private Element statisticElement;
@@ -300,7 +300,15 @@ public class RouteCamelModel {
 			String lastExchangeFailureExchangeId) {
 		this.lastExchangeFailureExchangeId = lastExchangeFailureExchangeId;
 	}
+	
+	public RouteDefinition getRoute() {
+		return route;
+	}
 
+	public void setRoute(RouteDefinition route) {
+		this.route = route;
+	}
+	
 	public RouteCamelModel(CamelContext context, RouteDefinition route) {
 		this.route = route;
 		this.context = context;

@@ -433,6 +433,11 @@ public class Util
       return isProducer;
    }
 
+   public static String getDescription(final String partition, final String modelId, final String elementId)
+   {
+      StringBuilder description = new StringBuilder("This route is related to "+elementId+" defined in "+modelId+". The partition is :"+partition);
+      return description.toString();
+   }
    /**
     *
     * @param partitionId

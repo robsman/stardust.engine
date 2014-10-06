@@ -25,12 +25,21 @@ import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
@@ -46,15 +55,6 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -83,11 +83,6 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
     * transient process instance execution (needs to be decided <b>before</b> entering the service call method)
     */
    private static final TableOperation SELECT_USER_PARTICIPANT = new TableOperation(SELECT, UserParticipantLink.TABLE_NAME);
-
-   /**
-    * TODO CRNT-32506 - acceptable for process interface scenarios?
-    */
-   private static final TableOperation SELECT_MODEL_DEP = new TableOperation(SELECT, ModelDeploymentBean.TABLE_NAME);
 
    /**
     * TODO CRNT-32506 - acceptable for process interface scenarios?
@@ -247,8 +242,7 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
                                                            SELECT_USER_PARTICIPANT.times(1),
-                                                           SELECT_MODEL_REF.times(2),
-                                                           SELECT_MODEL_DEP.times(2));
+                                                           SELECT_MODEL_REF.times(1));
    }
 
    /**
@@ -268,8 +262,7 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
                                                            SELECT_USER_PARTICIPANT.times(1),
-                                                           SELECT_MODEL_REF.times(2),
-                                                           SELECT_MODEL_DEP.times(2));
+                                                           SELECT_MODEL_REF.times(1));
 
       tearDownAlternativePrimaryImplementation(modelOid);
    }

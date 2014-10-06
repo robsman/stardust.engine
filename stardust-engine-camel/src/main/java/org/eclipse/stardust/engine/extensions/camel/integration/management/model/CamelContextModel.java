@@ -109,8 +109,10 @@ public class CamelContextModel {
 	
 	public static List<RouteCamelModel> toRouteCamelModel(ModelCamelContext context) {
 		List<RouteCamelModel> pojos = new ArrayList<RouteCamelModel>();
-		for (RouteDefinition route : context.getRouteDefinitions())
-			pojos.add(new RouteCamelModel(context, route));
+		if (context.getStatus().isStarted()){
+			for (RouteDefinition route : context.getRouteDefinitions())
+				pojos.add(new RouteCamelModel(context, route));
+		}
 		return pojos;
 	}
 

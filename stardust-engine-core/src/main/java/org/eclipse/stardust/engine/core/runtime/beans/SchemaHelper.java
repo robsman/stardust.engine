@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,24 +12,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.AuditTrailManagementUtils.deleteAllContentFromPartition;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -50,32 +35,16 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetupDocumentBuilder;
-import org.eclipse.stardust.engine.core.runtime.setup.TransientRuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.AlterMode;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.ColumnNameModificationMode;
-import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeObserver;
 
 /**
  * SchemaHelper will be used to generate DDL and copy to a specified file.
@@ -1149,18 +1118,14 @@ public class SchemaHelper
    
 
    
-   private static void applyClusterChanges(Session session, IClusterChangeObserver clusterChanges, TransientRuntimeSetup newSetup, PrintStream sqlRecorder)
+   private static void applyClusterChanges(final Session session, IClusterChangeObserver clusterChanges, TransientRuntimeSetup newSetup, PrintStream sqlRecorder)
    {
-      //when doing changes to the cluster table(columns), dont do anything strange
-      //and take the column names as they are defined in the xml
+      //when doing changes to the cluster table(columns), don't do anything strange
+      //and take the column names as they are defined in the XML
       DatabaseHelper.columnNameModificationMode = ColumnNameModificationMode.NONE;
       
-      RuntimeItem runtimeItem = new RuntimeItem(Parameters.instance().getString(
-            "AuditTrail.Type"),
-            Parameters.instance().getString("AuditTrail.DriverClass"), Parameters
-                  .instance().getString("AuditTrail.URL"), Parameters.instance()
-                  .getString("AuditTrail.User"), Parameters.instance().getString(
-                  "AuditTrail.Password"));
+      RuntimeItem runtimeItem = createRuntimeItem(session);
+
       UpgradeObserver observer = new ErrorAwareObserver(); 
       runtimeItem.setSqlSpoolDevice(sqlRecorder);
       
@@ -1270,6 +1235,39 @@ public class SchemaHelper
       }
    }
    
+   private static RuntimeItem createRuntimeItem(final Session session)
+   {
+      // Creating a RuntimeItem instance which is being used for schema modifications
+      // using the upgrade framework.
+      // NOTE: This item needs to share the same JDBC connection as the outer Session.
+      //       Thus it is being initialized with DbmsKey-ID only.
+      RuntimeItem runtimeItem = new RuntimeItem(
+            session.getDBDescriptor().getDbmsKey().getId(),
+            null, null, null, null)
+      {
+         /*
+          * Return the same JDBC connection object as being used in Session. This prevents
+          * locks which would occur if TX A (from RuntimeItem) modifies an object, e.g.
+          * table, and TX B (from Session) tries to select / delete / update it.
+          */
+         @Override
+         public Connection getConnection()
+         {
+            try
+            {
+               return session.getConnection();
+            }
+            catch (Exception e)
+            {
+               trace.warn("Failed obtaining JDBC connection", e);
+               throw new UpgradeException(e.getMessage());
+            }
+         }
+      };
+
+      return runtimeItem;
+   }
+
    private static void handClusterUpgradeException(Session session, Exception e, boolean propagate)
    {
       trace.error("Error during manipulating datacluster, removing invalid cluster setup: ", e);

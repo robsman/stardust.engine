@@ -256,7 +256,9 @@ public final class DocumentTypeUtils
     * for internal use
     *
     * Checks if the xsd referenced by DocumentType.getSchemaLocation exists in the
-    * repository. If the documentType only contains a DocumentTypeId, all currently active
+    * repository. If it is not found it is searched across all deployed models and resynced if it was found.
+    *
+    * If the documentType only contains a DocumentTypeId, all currently active
     * models document types matching the DocumentTypeId are retrieved and the
     * schemaLocation is set to the first match. If no match is found the document type is
     * considered invalid.
@@ -284,6 +286,26 @@ public final class DocumentTypeUtils
             {
                return true;
             }
+            else
+            {
+               // try to sync missing document type from deployed models.
+               ModelManager mm = ModelManagerFactory.getCurrent();
+               for (Iterator<IModel> allModels = mm.getAllModels(); allModels.hasNext();)
+               {
+                  IModel model = allModels.next();
+                  List<DocumentType> documentTypes = getDocumentTypes(model, false);
+
+                  for (DocumentType existingDocumentType : documentTypes)
+                  {
+                     if (documentType.equals(existingDocumentType))
+                     {
+                        // Only re-sync document types for the found model.
+                        getDocumentTypes(model, true);
+                        return true;
+                     }
+                  }
+               }
+            }
          }
          else
          {
@@ -304,7 +326,19 @@ public final class DocumentTypeUtils
                      if (documentType.getDocumentTypeId().equals(
                            existingDocumentType.getDocumentTypeId()))
                      {
+                        // Set the inferred document type.
                         documentInfo.setDocumentType(existingDocumentType);
+
+                        // Check if the document type is correctly synced to the repository
+                        EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
+                        Document document = sf.getDocumentManagementService().getDocument(getXsdDocumentPath(documentType.getSchemaLocation()));
+                        sf.close();
+
+                        if (document == null)
+                        {
+                           // Only re-sync document types for the found model.
+                           getDocumentTypes(model, true);
+                        }
                         return true;
                      }
                   }

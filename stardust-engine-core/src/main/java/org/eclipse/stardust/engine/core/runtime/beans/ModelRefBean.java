@@ -514,13 +514,16 @@ public class ModelRefBean extends PersistentBean implements Serializable
          IProcessDefinition implementation = null;
          for (IModel candidate : getUsingModels((IModel) interfaceProcess.getModel()))
          {
-            Date from = (Date) candidate.getAttribute(PredefinedConstants.VALID_FROM_ATT);
-            if (from == null || from.getTime() <= referenceTimestamp)
+            if (mId.equals(candidate.getId()))
             {
-               IProcessDefinition process = findImplementation(candidate, processId, pId, localPart, sameModel);
-               if (process != null)
+               Date from = (Date) candidate.getAttribute(PredefinedConstants.VALID_FROM_ATT);
+               if (from == null || from.getTime() <= referenceTimestamp)
                {
-                  implementation = process;
+                  IProcessDefinition process = findImplementation(candidate, processId, pId, localPart, sameModel);
+                  if (process != null)
+                  {
+                     implementation = process;
+                  }
                }
             }
          }

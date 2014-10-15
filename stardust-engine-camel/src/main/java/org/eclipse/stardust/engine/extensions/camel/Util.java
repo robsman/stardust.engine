@@ -691,4 +691,34 @@ public class Util
    {
       return (String) trigger.getAttribute(CamelConstants.TRIGGER_INTEGRATION_OVERLAY_ATT);
    }
+   
+   /**
+    * Lookup Exception Detail Message.
+    * @param throwable
+    * @return
+    */
+   private static String getThrowableDetailMessage(Throwable throwable)
+   {
+      return throwable.getMessage() != null
+            ? throwable.getMessage()
+            : getThrowableDetailMessage(throwable.getCause());
+   }
+   
+   /**
+    * Build exception msg for inconsistencies
+    * @param Exception
+    * @return
+    */
+   public static String buildExceptionMessage(Exception e)
+   {
+      String msg =e.getMessage();
+      if(e.getCause() != null)
+      {
+         msg += " Cause ";
+         msg += e.getCause().getClass().getName();
+         msg += ": ";
+         msg += getThrowableDetailMessage(e.getCause());
+      }
+      return msg;
+   }
 }

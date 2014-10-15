@@ -1,14 +1,17 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
-import static org.eclipse.stardust.engine.extensions.camel.Util.*;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.camel.Route;
 import org.apache.camel.model.ModelCamelContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -26,8 +29,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidato
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateApplicationRouteAction;
-
-import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelProducerSpringBeanValidator implements ApplicationValidator, ApplicationValidatorEx
 {
@@ -204,11 +205,10 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
             catch (Exception e1)
             {
                //throw new RuntimeException(e);
-               inconsistencies.add(new Inconsistency(e1.getCause().getMessage(), application, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(buildExceptionMessage(e), application, Inconsistency.ERROR));
             }
             
-            
-            inconsistencies.add(new Inconsistency(e.getCause().getMessage(), application, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(buildExceptionMessage(e), application, Inconsistency.ERROR));
          }
       }
 

@@ -16,10 +16,8 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -28,7 +26,6 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -43,7 +40,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
@@ -54,8 +50,6 @@ public class MultipleStartEventsTest
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   
-   private ApplicationContext springContext = testClassSetup.getSpringAppCtx().appCtx(); 
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS,
@@ -181,24 +175,24 @@ public class MultipleStartEventsTest
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
    
-   private void sendMessages(String messageId, final String startEventName) throws JMSException {
- 
-	   ConnectionFactory jmsConnectionFactory = springContext.getBean("jmsConnectionFactory", ConnectionFactory.class);
-	   Queue jmsQueue = springContext.getBean("jmsApplicationQueue", Queue.class);
-	   
-	   JmsTemplate jmsTemplate = new JmsTemplate(jmsConnectionFactory);
-	   
-	   final StringBuilder payload = new StringBuilder(); 
-	   payload.append("Message [").append(messageId).append("] sent at: ").append(new Date());
+   private void sendMessages(String messageId, final String startEventName)
+         throws JMSException
+   {
+      JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());
 
-	   jmsTemplate.send(jmsQueue, new MessageCreator() {
+      final StringBuilder payload = new StringBuilder();
+      payload.append("Message [").append(messageId).append("] sent at: ")
+            .append(new Date());
 
-		   public Message createMessage(Session session) throws JMSException {
-
-			   TextMessage message = session.createTextMessage(payload.toString()); 
-			   message.setStringProperty("StartEventName", startEventName);
-			   return message;
-		   }
-	   });
+      jmsTemplate.send(testClassSetup.queue("jms/CarnotApplicationQueue"),
+            new MessageCreator()
+            {
+               public Message createMessage(Session session) throws JMSException
+               {
+                  TextMessage message = session.createTextMessage(payload.toString());
+                  message.setStringProperty("StartEventName", startEventName);
+                  return message;
+               }
+            });
    }
 }

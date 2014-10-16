@@ -65,11 +65,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
    private final H2Server dbms;
    private final SpringAppContext springAppCtx;
 
-   public SpringAppContext getSpringAppCtx() {
-	return springAppCtx;
-}
-
-private final String[] modelNames;
+   private final String[] modelNames;
    private final UsernamePasswordPair userPwdPair;
    private final ForkingServiceMode forkingServiceMode;
    

@@ -357,6 +357,15 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
    private TriggerMessageAcceptor getAcceptorForTrigger(Trigger trigger)
    {
+      // TODO introduce factory to allow Acceptors to opt in per Trigger
+      List<TriggerMessageAcceptor> acceptors = ExtensionProviderUtils
+            .getExtensionProviders(TriggerMessageAcceptor.class);
+      
+      if ( !acceptors.isEmpty())
+      {
+         return acceptors.get(0);
+      }
+      
       return DEFAULT_TRIGGER_MESSAGE_ACCEPTOR;
 /*      try
       {

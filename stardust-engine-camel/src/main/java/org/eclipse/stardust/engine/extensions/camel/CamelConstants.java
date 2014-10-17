@@ -171,6 +171,7 @@ public final class CamelConstants
       {
          public static final String COMMAND_SET_CURRENT = "setCurrent";
          public static final String COMMAND_REMOVE_CURRENT = "removeCurrent";
+         public static final String COMMAND_CURRENT_TX = "currentTx";
       }
       public static final class Activity
       {

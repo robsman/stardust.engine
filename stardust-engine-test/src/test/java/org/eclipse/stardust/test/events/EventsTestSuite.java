@@ -11,6 +11,7 @@
 package org.eclipse.stardust.test.events;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.events.ErrorEventHierarchyTest.ERROR_EVENTS_HIERARCHY_MODEL_NAME;
 import static org.eclipse.stardust.test.events.ErrorEventTest.ERROR_EVENTS_MODEL_NAME;
 
 import org.junit.ClassRule;
@@ -18,18 +19,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-               ErrorEventTest.class
+               ErrorEventTest.class,
+               ErrorEventHierarchyTest.class
              })
 public class EventsTestSuite
 {
    /* test suite */
 
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME, ERROR_EVENTS_HIERARCHY_MODEL_NAME);
 }

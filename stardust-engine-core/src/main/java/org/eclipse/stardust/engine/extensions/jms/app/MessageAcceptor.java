@@ -18,6 +18,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.StringKey;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
 
 
 /**
@@ -57,5 +58,7 @@ public interface MessageAcceptor
    Collection getAccessPoints(StringKey id);
 
    Collection getMessageTypes();
+
+   Match finalizeMatch(IActivityInstance activityInstance);
 
 }

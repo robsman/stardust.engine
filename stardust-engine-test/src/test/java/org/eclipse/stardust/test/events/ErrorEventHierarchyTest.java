@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.TimeoutException;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -37,17 +38,17 @@ import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
-public class ErrorEventTest
+public class ErrorEventHierarchyTest
 {
-   /* package-private */static final String ERROR_EVENTS_MODEL_NAME = "ErrorEventTest";
+   /* package-private */static final String ERROR_EVENTS_HIERARCHY_MODEL_NAME = "ErrorEventHierarchyTest";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR,
-         ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS,
+         ERROR_EVENTS_HIERARCHY_MODEL_NAME);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
@@ -63,9 +64,7 @@ public class ErrorEventTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      // TODO This test sometimes fails (sometimes it succeeds)
-
-      ProcessInstance rootProcess = wfs.startProcess("{ErrorEventTest}RootProcess",
+      ProcessInstance rootProcess = wfs.startProcess("{ErrorEventHierarchyTest}HierarchyRootProcess",
             singletonMap("ProcessKey", Long.toString(System.nanoTime())), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
@@ -73,11 +72,15 @@ public class ErrorEventTest
 
       // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "FailingProcess");
+
+      ProcessInstance intermediateProcessLevel = sf.getQueryService().findFirstProcessInstance(
+            ProcessInstanceQuery.findForProcess("IntermediateProcessLevel"));
+
       ProcessInstance failingProcess = sf.getQueryService().findFirstProcessInstance(
-            ProcessInstanceQuery.findForProcess("FailingProcess"));
+            ProcessInstanceQuery.findForProcess("HierarchyFailingProcess"));
 
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "AwaitAbort");
-
+      
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
 
@@ -87,15 +90,17 @@ public class ErrorEventTest
       // trigger / await PI completion
       piStateChangeBarrier.await(failingProcess.getOID(), ProcessInstanceState.Aborted);
 
+      piStateChangeBarrier.await(intermediateProcessLevel.getOID(), ProcessInstanceState.Aborted);      
+      
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-
+      
       ActivityInstanceQuery activityInstanceQuery = ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID());
-      activityInstanceQuery.where(ActivityFilter.forProcess("NormalFlow", "RootProcess"));
+      activityInstanceQuery.where(ActivityFilter.forProcess("NormalFlow", "HierarchyRootProcess"));
       assertEquals(0, sf.getQueryService().getActivityInstancesCount(activityInstanceQuery));
-
+      
       activityInstanceQuery = ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID());
-      activityInstanceQuery.where(ActivityFilter.forProcess("ReceivedError", "RootProcess"));
+      activityInstanceQuery.where(ActivityFilter.forProcess("ReceivedError", "HierarchyRootProcess"));
       assertEquals(1, sf.getQueryService().getActivityInstancesCount(activityInstanceQuery));
    }
 

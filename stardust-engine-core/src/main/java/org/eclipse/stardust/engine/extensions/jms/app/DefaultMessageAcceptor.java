@@ -11,7 +11,12 @@
 package org.eclipse.stardust.engine.extensions.jms.app;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -23,12 +28,20 @@ import org.eclipse.stardust.common.StringKey;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.ActivityFilter;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.DataFilter;
+import org.eclipse.stardust.engine.api.query.EvaluationContext;
+import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
+import org.eclipse.stardust.engine.api.query.RawQueryResult;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.ResponseMatch;
 
 
 /**
@@ -223,5 +236,14 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
    public Collection getMessageTypes()
    {
       return DefaultMessageHelper.getMessageIds();
+   }
+
+   @Override
+   public Match finalizeMatch(IActivityInstance activityInstance)
+   {
+      if (activityInstance.isHibernated()) {
+         return new ResponseMatch(this, activityInstance);         
+      }
+      return null;
    }
 }

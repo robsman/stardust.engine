@@ -290,13 +290,14 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
                activityInstance.lock();
                ((ActivityInstanceBean) activityInstance).reloadAttribute(ActivityInstanceBean.FIELD__STATE);
-               if (activityInstance.isHibernated())
+               Match match = acceptor.finalizeMatch(activityInstance);
+               if (null != match)
                {
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Selecting activity instance " + activityInstance);
                   }
-                  return new ResponseMatch(acceptor, activityInstance);
+                  return match;
                }
                else
                {
@@ -381,17 +382,17 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       }*/
    }
 
-   private interface Match
+   public static interface Match
    {
       void process(AdministrationServiceImpl session, Message message);
    }
 
-   private class ResponseMatch implements Match
+   public static class ResponseMatch implements Match
    {
       private final MessageAcceptor acceptor;
       private final IActivityInstance activityInstance;
 
-      private ResponseMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
+      public ResponseMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
       {
          this.acceptor = acceptor;
          this.activityInstance = activityInstance;

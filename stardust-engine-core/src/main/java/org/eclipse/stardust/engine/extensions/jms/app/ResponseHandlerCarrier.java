@@ -14,6 +14,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 
 
@@ -44,9 +45,24 @@ public class ResponseHandlerCarrier extends ActionCarrier
    {
       return source;
    }
+
+   public static interface ResponseHandlerFactory
+   {
+      Action createResponseHandler(Message message);
+   }
    
    public Action doCreateAction()
    {
+      for (ResponseHandlerFactory factory : ExtensionProviderUtils.getExtensionProviders(ResponseHandlerFactory.class))
+      {
+         Action handler = factory.createResponseHandler(message);
+         if (null != handler)
+         {
+            return handler;
+         }
+      }
+
+      // default processing
       return new ResponseHandlerImpl(this);
    }
 

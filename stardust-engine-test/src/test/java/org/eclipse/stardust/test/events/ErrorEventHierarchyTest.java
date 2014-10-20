@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *    ITpearls AG
  **********************************************************************************/
 package org.eclipse.stardust.test.events;
 
@@ -16,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.TimeoutException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -47,8 +47,8 @@ public class ErrorEventHierarchyTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS,
-         ERROR_EVENTS_HIERARCHY_MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR,
+         ForkingServiceMode.JMS, ERROR_EVENTS_HIERARCHY_MODEL_NAME);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
@@ -80,7 +80,7 @@ public class ErrorEventHierarchyTest
             ProcessInstanceQuery.findForProcess("HierarchyFailingProcess"));
 
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "AwaitAbort");
-      
+
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
 
@@ -90,15 +90,15 @@ public class ErrorEventHierarchyTest
       // trigger / await PI completion
       piStateChangeBarrier.await(failingProcess.getOID(), ProcessInstanceState.Aborted);
 
-      piStateChangeBarrier.await(intermediateProcessLevel.getOID(), ProcessInstanceState.Aborted);      
-      
+      piStateChangeBarrier.await(intermediateProcessLevel.getOID(), ProcessInstanceState.Aborted);
+
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-      
+
       ActivityInstanceQuery activityInstanceQuery = ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID());
       activityInstanceQuery.where(ActivityFilter.forProcess("NormalFlow", "HierarchyRootProcess"));
       assertEquals(0, sf.getQueryService().getActivityInstancesCount(activityInstanceQuery));
-      
+
       activityInstanceQuery = ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID());
       activityInstanceQuery.where(ActivityFilter.forProcess("ReceivedError", "HierarchyRootProcess"));
       assertEquals(1, sf.getQueryService().getActivityInstancesCount(activityInstanceQuery));

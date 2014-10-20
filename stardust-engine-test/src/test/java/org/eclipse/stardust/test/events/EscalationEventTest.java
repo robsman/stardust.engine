@@ -40,7 +40,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 public class EscalationEventTest
 {
-   /* package-private */static final String ERROR_EVENTS_MODEL_NAME = "EscalationEventTest";
+   /* package-private */static final String ESCALATION_EVENTS_MODEL_NAME = "EscalationEventTest";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
@@ -56,7 +56,7 @@ public class EscalationEventTest
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR,
-         ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME);
+         ForkingServiceMode.JMS, ESCALATION_EVENTS_MODEL_NAME);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
@@ -222,6 +222,42 @@ public class EscalationEventTest
 
       // Throwing end event
       aiStateChangeBarrier.awaitForId(escalatingProcessOne.getOID(), "EscalationEndEvent");
+
+      // escalation path on root level
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "OneLevelEscalationState");
+
+      // escalating process terminated
+      piStateChangeBarrier.await(escalatingProcessOne.getOID(), ProcessInstanceState.Aborted);
+
+      // no subsequent activities/subprocess after the aborted one
+      assertEquals(1, sf.getQueryService().getProcessInstancesCount(
+            ProcessInstanceQuery.findForProcess(THROWING_SUBPROCESS)));
+      assertEquals(0, sf.getQueryService().getProcessInstancesCount(
+            ProcessInstanceQuery.findForProcess(MID_LEVEL_SUBPROCESS)));
+
+      // await root process completion
+      piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+
+   }
+
+   @Test
+   public void testInterruptingEscalationFlowByIntermediateEvent() throws InterruptedException, TimeoutException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance rootProcess = wfs.startProcess(INTERRUPTING_ROOT_PROCESS,
+            singletonMap("throwIntermediate", Boolean.TRUE), true);
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // escalating sub-process was started
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "OneLevelCaller");
+      ProcessInstance escalatingProcessOne = sf.getQueryService().findFirstProcessInstance(
+            ProcessInstanceQuery.findForProcess(THROWING_SUBPROCESS));
+
+      // Throwing end event
+      aiStateChangeBarrier.awaitForId(escalatingProcessOne.getOID(), "IntermediateThrowEvent");
 
       // escalation path on root level
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "OneLevelEscalationState");

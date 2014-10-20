@@ -604,6 +604,9 @@
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="1" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>

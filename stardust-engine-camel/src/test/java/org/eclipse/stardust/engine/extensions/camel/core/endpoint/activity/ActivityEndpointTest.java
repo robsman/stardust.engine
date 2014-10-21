@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.query.ActivityFilter;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
@@ -150,10 +151,52 @@ public class ActivityEndpointTest
       uri = "ipp:activity:find?processId=" + PROCESS_ID_WAITING_ACTIVITIES
             + "&activityId=" + ACTIVITY_ID_WAITING_ACTIVITY_1
             + "&dataFiltersMap=$simple{header.activityFilters}";
+     
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
+		
       result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
-      assertTrue(result.size() > 0);
-      // assertEquals(piOid2, result.get(0).getProcessInstanceOID());
+      assertTrue(result.size() > 0);  //null
+      int resultSize= result.size();
+      
+      // Test 5 repeats test 4, but expectedResultSize is throwing an exception
+      String expectedExceptionMessage=resultSize+" activity instances found - 1000 activity instances expected.";	
+      headerMap = new HashMap<String, Object>();
+      Map<String, Serializable> filtersMap = new HashMap<String, Serializable>();
+      filtersMap.put(DATA_ID_TEST_DATA + ".id", kvId);
+      filtersMap.put(DATA_ID_TEST_DATA + ".name", kvName);
+      headerMap.put("activityFilters", filtersMap);
+      uri = "ipp:activity:find?processId=" + PROCESS_ID_WAITING_ACTIVITIES
+            + "&activityId=" + ACTIVITY_ID_WAITING_ACTIVITY_1
+            + "&dataFiltersMap=$simple{header.activityFilters}"
+            + "&expectedResultSize=1000";
+     
+      exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
+      String exceptionMessage= exchange.getException().getMessage();
+      
+      result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
+      assertEquals(expectedExceptionMessage, exceptionMessage);
+      
+      // Test 6 repeats test 5, but expectedResultSize has a good value 
+      headerMap = new HashMap<String, Object>();
+      headerMap.put("activityFilters", filtersMap);
+      uri = "ipp:activity:find?processId=" + PROCESS_ID_WAITING_ACTIVITIES
+            + "&activityId=" + ACTIVITY_ID_WAITING_ACTIVITY_1
+            + "&dataFiltersMap=$simple{header.activityFilters}"
+            + "&expectedResultSize="+resultSize;
+      exchange = new DefaultExchange(defaultCamelContext);
+      exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
+      if (exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class) != null){
+    	  result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
+    	  assertEquals(resultSize, result.size());
+      }
+      
+      if (exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstanceDetails.class) != null){
+    	  ActivityInstanceDetails activityInstanceDetails = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstanceDetails.class);
+    	  long activityInstanceOID = exchange.getIn().getHeader(ACTIVITY_INSTANCE_OID, Long.class);
+    	  assertTrue(activityInstanceDetails != null);
+    	  assertTrue(activityInstanceOID>-1);
+      }
+
 
       ClientEnvironment.removeCurrent();
    }

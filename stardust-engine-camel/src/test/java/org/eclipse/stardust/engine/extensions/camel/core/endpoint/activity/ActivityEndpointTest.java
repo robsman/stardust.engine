@@ -155,7 +155,7 @@ public class ActivityEndpointTest
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
 		
       result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
-      assertTrue(result.size() > 0);  //null
+      assertTrue(result.size() > 0);
       int resultSize= result.size();
       
       // Test 5 repeats test 4, but expectedResultSize is throwing an exception
@@ -185,18 +185,24 @@ public class ActivityEndpointTest
             + "&expectedResultSize="+resultSize;
       exchange = new DefaultExchange(defaultCamelContext);
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      if (exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class) != null){
-    	  result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
-    	  assertEquals(resultSize, result.size());
-      }
       
+      // expectedResultSize == 1
       if (exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstanceDetails.class) != null){
     	  ActivityInstanceDetails activityInstanceDetails = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstanceDetails.class);
     	  long activityInstanceOID = exchange.getIn().getHeader(ACTIVITY_INSTANCE_OID, Long.class);
     	  assertTrue(activityInstanceDetails != null);
-    	  assertTrue(activityInstanceOID>-1);
+    	  assertTrue(activityInstanceOID>0);
       }
-
+      
+      // Test 7 searches for activities with expectedResultSize > 1
+      uri = "ipp:activity:find?processId=" + PROCESS_ID_WAITING_ACTIVITIES
+      + "&state=hibernated&expectedResultSize=2";
+      exchange = new DefaultExchange(defaultCamelContext);
+      exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
+      if (exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class) != null){
+    	  result = exchange.getIn().getHeader(ACTIVITY_INSTANCES, ActivityInstances.class);
+    	  assertTrue(result.size() > 0);
+      }
 
       ClientEnvironment.removeCurrent();
    }

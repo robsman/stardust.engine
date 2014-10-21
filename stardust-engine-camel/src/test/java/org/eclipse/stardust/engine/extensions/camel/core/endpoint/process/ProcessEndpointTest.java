@@ -64,7 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ProcessEndpointTest 
+public class ProcessEndpointTest
 {
    private static final transient Logger LOG = LoggerFactory.getLogger(ProcessEndpointTest.class);
    // URI constants
@@ -82,7 +82,7 @@ public class ProcessEndpointTest
    protected static ProducerTemplate fullRouteProducerTemplate;
    //@EndpointInject(uri = FULL_ROUTE_END)
    protected static MockEndpoint fullRouteResult;
-   
+
    @BeforeClass
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
@@ -99,7 +99,7 @@ public class ProcessEndpointTest
       {
          e.printStackTrace();
       }
-      
+
       defaultProducerTemplate=camelContext.createProducerTemplate();
       fullRouteProducerTemplate=camelContext.createProducerTemplate();
       fullRouteResult=camelContext.getEndpoint(FULL_ROUTE_END, MockEndpoint.class);
@@ -394,14 +394,15 @@ public class ProcessEndpointTest
       // Test 1 is a search to confirm the expected state of a known OID
       uri = "ipp:process:find?processInstanceOid="+piOid2 + "&state=completed";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      ProcessInstance pi = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      ProcessInstances pi = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
       assertNotNull(pi);
-     
+      assertTrue(pi.size()==1);
+
       // Test 2 searches for hibernated processes by ID
       uri = "ipp:process:find?processId="+PROCESS_ID_WAITING_ACTIVITIES + "&state=active&expectedResultSize=1";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      pi =exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
-      assertNotNull(pi);
+      ProcessInstance singleProcessInstance =exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      assertNotNull(singleProcessInstance);
 
        wfService.startProcess(PROCESS_ID_WAITING_ACTIVITIES, null, true);
       // Test 2 searches for hibernated processes by ID
@@ -409,13 +410,15 @@ public class ProcessEndpointTest
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
       ProcessInstances pis = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
       assertTrue(pis.size()==2);
-      
+
       // Test 3 searches for processes with a data filter
       uri = "ipp:process:find?dataFilters=" + DATA_ID_TEST_DATA + ".id::" + kvId + "::long," + DATA_ID_TEST_DATA + ".name::" + kvName;
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      ProcessInstance result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      ProcessInstances result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
       assertNotNull(result);
-      assertEquals(piOid2, result.getOID());
+      assertTrue(!result.isEmpty());
+      if(result.size()==1)
+      assertEquals(piOid2, ((ProcessInstance)result.get(0)).getOID());
 
       // Test 4 repeats test 3, but using a map from the message header
       headerMap = new HashMap<String,Object>();
@@ -425,9 +428,11 @@ public class ProcessEndpointTest
       headerMap.put("processDataFilters", filters);
       uri = "ipp:process:find?dataFiltersMap=$simple{header.processDataFilters}";
       exchange = CamelTestUtils.invokeEndpoint(uri, exchange, headerMap, null);
-      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstance.class);
+      result = exchange.getIn().getHeader(PROCESS_INSTANCES, ProcessInstances.class);
       assertNotNull(result);
-      assertEquals(piOid2, result.getOID());
+      assertTrue(!result.isEmpty());
+      if(result.size()==1)
+         assertEquals(piOid2, ((ProcessInstance)result.get(0)).getOID());
 
       ClientEnvironment.removeCurrent();
    }

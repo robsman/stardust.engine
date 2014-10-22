@@ -12,6 +12,9 @@ package org.eclipse.stardust.engine.api.dto;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -90,13 +93,13 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    @Override
    public Object getDescriptorValue(final String id)
    {
-      return getActivityInstanceDetails().getDescriptorValue(id);
+      return getProcessInstanceDetails().getDescriptorValue(id);
    }
 
    @Override
    public List<DataPath> getDescriptorDefinitions()
    {
-      return getActivityInstanceDetails().getDescriptorDefinitions();
+      return getProcessInstanceDetails().getDescriptorDefinitions();
    }
 
    @Override
@@ -442,5 +445,15 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          toStringInfo = sb.toString();
       }
       return toStringInfo;
+   }
+
+   /* prevent objects of this class from being serialized: they can only used on the server-side */
+   private void writeObject(ObjectOutputStream out) throws IOException
+   {
+      throw new UnsupportedOperationException();
+   }
+   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+   {
+      throw new UnsupportedOperationException();
    }
 }

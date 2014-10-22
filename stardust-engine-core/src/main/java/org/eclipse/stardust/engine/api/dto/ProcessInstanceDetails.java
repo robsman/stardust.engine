@@ -83,7 +83,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private long startingActivityInstanceOid;
    private long parentProcessInstanceOid;
 
-   private Map<String, Object> descriptors = null;
+   private Map<String, Object> descriptors = CollectionUtils.newHashMap();
    private Map<String, PermissionState> permissions;
 
    private ProcessInstanceAttributes attributes;
@@ -250,16 +250,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          }
       }
 
-      boolean isCase = processInstance.isCaseProcessInstance();
-      if (isCase || parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
-      {
-         loadDescriptors(processInstance);
-         // add dynamic descriptors for process instance groups
-         if (isCase)
-         {
-            addGroupDescriptors(processInstance);
-         }
-      }
+      initDescriptors(processInstance, descriptorDefinitions, descriptors);
 
       permissions = CollectionUtils.newHashMap();
       AuthorizationContext ctx = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
@@ -272,6 +263,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
       permissions.put(ctx.getPermissionId(), ps);
 
+      boolean isCase = processInstance.isCaseProcessInstance();
       if (isCase)
       {
          ctx = AuthorizationContext.create(WorkflowService.class, "joinCase", long.class, long[].class);
@@ -364,12 +356,12 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
    public Map<String, Object> getDescriptors()
    {
-      return (null != descriptors) ? descriptors : Collections.<String, Object>emptyMap();
+      return descriptors;
    }
 
    public Object getDescriptorValue(String id)
    {
-      return (null != descriptors) ? descriptors.get(id) : null;
+      return descriptors.get(id);
    }
 
    public List<DataPath> getDescriptorDefinitions()
@@ -377,17 +369,32 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       return descriptorDefinitions;
    }
 
-   private void addGroupDescriptors(IProcessInstance processInstance)
+   public static void initDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
+   {
+      boolean isCase = processInstance.isCaseProcessInstance();
+      Parameters parameters = Parameters.instance();
+      if (isCase || parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
+      {
+         loadDescriptors(processInstance, descriptorDefinitions, descriptors);
+         // add dynamic descriptors for process instance groups
+         if (isCase)
+         {
+            addGroupDescriptors(processInstance, descriptorDefinitions, descriptors);
+         }
+      }
+   }
+
+   private static void addGroupDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
    {
       // load from struct data.
       Map<String, Object> primitiveDescriptors = ProcessInstanceGroupUtils.getPrimitiveDescriptors(processInstance, null);
-      this.descriptors.putAll(primitiveDescriptors);
+      descriptors.putAll(primitiveDescriptors);
 
       // create descriptor definitions
-      this.descriptorDefinitions.addAll(ProcessInstanceGroupUtils.getDescriptorDefinitions(processInstance));
+      descriptorDefinitions.addAll(ProcessInstanceGroupUtils.getDescriptorDefinitions(processInstance));
    }
 
-   public void loadDescriptors(IProcessInstance processInstance)
+   private static void loadDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
    {
       final IProcessDefinition processDefinition = processInstance.getProcessDefinition();
       ModelElementList dataPaths = processDefinition.getDataPaths();
@@ -420,16 +427,11 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
          if (dataPath.isDescriptor())
          {
-            if (null == descriptors)
-            {
-               descriptors = CollectionUtils.newMap();
-            }
-
             try
             {
                if ( !limitDescriptors || descriptorIds.contains(dataPath.getId()))
                {
-                     this.descriptors.put(
+                     descriptors.put(
                            dataPath.getId(),
                            processInstance.getInDataValue(dataPath.getData(),
                                  dataPath.getAccessPath()));
@@ -440,7 +442,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             catch (Exception x)
             {
                trace.warn("Couldn't evaluate descriptor '" + dataPath.getId() + "'.", x);
-               this.descriptors.put(dataPath.getId(), null);
+               descriptors.put(dataPath.getId(), null);
 
                if (TransactionUtils.isCurrentTxRollbackOnly())
                {

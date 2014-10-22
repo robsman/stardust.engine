@@ -12,12 +12,16 @@ package org.eclipse.stardust.engine.api.dto;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.engine.api.model.DataPath;
@@ -51,6 +55,10 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    /** lazily created object */
    private String toStringInfo;
 
+   /** lazily created objects */
+   private List<DataPath> descriptorDefinitions;
+   private Map<String, Object> descriptors;
+
    private boolean useFullBlownPiDetailsObject = false;
 
    public LazilyLoadingProcessInstanceDetails(final IProcessInstance processInstance)
@@ -73,13 +81,23 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public Object getDescriptorValue(final String id)
    {
-      return getProcessInstanceDetails().getDescriptorValue(id);
+      if (descriptors == null)
+      {
+         initDescriptors();
+      }
+
+      return descriptors.get(id);
    }
 
    @Override
    public List<DataPath> getDescriptorDefinitions()
    {
-      return getProcessInstanceDetails().getDescriptorDefinitions();
+      if (descriptorDefinitions == null)
+      {
+         initDescriptors();
+      }
+
+      return descriptorDefinitions;
    }
 
    @Override
@@ -318,6 +336,9 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
             ParametersFacade.popLayer();
          }
 
+         /* initialize stuff that depends on the field to be nulled out */
+         initDescriptors();
+
          processInstance = null;
          useFullBlownPiDetailsObject = true;
       }
@@ -336,5 +357,31 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
          toStringInfo = sb.toString();
       }
       return toStringInfo;
+   }
+
+   private void initDescriptors()
+   {
+      descriptorDefinitions = CollectionUtils.newArrayList();
+      descriptors = CollectionUtils.newHashMap();
+
+      ParametersFacade.pushLayer(piDetailsParameters);
+      try
+      {
+         ProcessInstanceDetails.initDescriptors(processInstance, descriptorDefinitions, descriptors);
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+   }
+
+   /* prevent objects of this class from being serialized: they can only used on the server-side */
+   private void writeObject(ObjectOutputStream out) throws IOException
+   {
+      throw new UnsupportedOperationException();
+   }
+   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+   {
+      throw new UnsupportedOperationException();
    }
 }

@@ -46,7 +46,7 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    private static final String AI_DETAILS_PROPERTIES_KEY = LazilyLoadingActivityInstanceDetails.class.getName();
 
    /** hold an instance of {@link IActivityInstance} for deferred calculation */
-   private final IActivityInstance activityInstance;
+   private IActivityInstance activityInstance;
 
    /** hold the parameters relevant for deferred {@link ActivityInstanceDetails} creation */
    private final Map<String, Object> aiDetailsParameters;
@@ -66,6 +66,9 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
 
    /** lazily created object */
    private String toStringInfo;
+
+   private boolean useFullBlownActivityDetailsObjects = false;
+   private boolean useFullBlownAiDetailsObjects = false;
 
    public LazilyLoadingActivityInstanceDetails(final IActivityInstance activityInstance)
    {
@@ -117,36 +120,70 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    @Override
    public ActivityInstanceState getState()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getState();
+      }
+
       return activityInstance.getState();
    }
 
    @Override
    public Date getStartTime()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getStartTime();
+      }
+
       return activityInstance.getStartTime();
    }
 
    @Override
    public Date getLastModificationTime()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getLastModificationTime();
+      }
+
       return activityInstance.getLastModificationTime();
    }
 
    @Override
    public Activity getActivity()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getActivity();
+      }
+
       return getActivityDetails();
    }
 
    @Override
    public String getProcessDefinitionId()
    {
+      if (useFullBlownActivityDetailsObjects)
+      {
+         return getActivityDetails().getProcessDefinitionId();
+      }
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getActivity().getProcessDefinitionId();
+      }
+
       return getIActivity().getProcessDefinition().getId();
    }
 
    @Override
    public long getProcessInstanceOID()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getProcessInstanceOID();
+      }
+
       return activityInstance.getProcessInstanceOID();
    }
 
@@ -261,6 +298,11 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    @Override
    public double getCriticality()
    {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getCriticality();
+      }
+
       return activityInstance.getCriticality();
    }
 
@@ -334,6 +376,12 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          {
             activityDetails = DetailsFactory.create(getIActivity(), IActivity.class, ActivityDetails.class);
          }
+
+         /* initialize stuff that depends on the fields to be nulled out */
+         getToStringInfo();
+
+         activity = null;
+         useFullBlownActivityDetailsObjects = true;
       }
       return activityDetails;
    }
@@ -351,6 +399,14 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          {
             ParametersFacade.popLayer();
          }
+
+         /* initialize stuff that depends on the fields to be nulled out */
+         getProcessInstanceDetails();
+         getToStringInfo();
+
+         activity = null;
+         activityInstance = null;
+         useFullBlownAiDetailsObjects = true;
       }
       return activityInstanceDetails;
    }

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.api.dto;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,7 +39,7 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    private static final String PI_DETAILS_PROPERTIES_KEY = LazilyLoadingProcessInstanceDetails.class.getName();
 
    /** hold an instance of {@link IProcessInstance} for deferred calculation */
-   private final IProcessInstance processInstance;
+   private IProcessInstance processInstance;
 
    /** hold the parameters relevant for deferred {@link ProcessInstanceDetails} creation */
    private final Map<String, Object> piDetailsParameters;
@@ -46,6 +47,11 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
 
    /** lazily created {@link ProcessInstance} object to delegate to for complex requests */
    private ProcessInstance processInstanceDetails;
+
+   /** lazily created object */
+   private String toStringInfo;
+
+   private boolean useFullBlownPiDetailsObject = false;
 
    public LazilyLoadingProcessInstanceDetails(final IProcessInstance processInstance)
    {
@@ -79,24 +85,44 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public String getProcessID()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getProcessID();
+      }
+
       return processInstance.getProcessDefinition().getId();
    }
 
    @Override
    public String getProcessName()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getProcessName();
+      }
+
       return processInstance.getProcessDefinition().getName();
    }
 
    @Override
    public long getRootProcessInstanceOID()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getRootProcessInstanceOID();
+      }
+
       return processInstance.getRootProcessInstanceOID();
    }
 
    @Override
    public long getScopeProcessInstanceOID()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getScopeProcessInstanceOID();
+      }
+
       return processInstance.getScopeProcessInstanceOID();
    }
 
@@ -109,24 +135,44 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public int getPriority()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getPriority();
+      }
+
       return processInstance.getPriority();
    }
 
    @Override
    public Date getStartTime()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getStartTime();
+      }
+
       return processInstance.getStartTime();
    }
 
    @Override
    public Date getTerminationTime()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getTerminationTime();
+      }
+
       return processInstance.getTerminationTime();
    }
 
    @Override
    public User getStartingUser()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getStartingUser();
+      }
+
       if (processInstance.getStartingUser() == null)
       {
          return null;
@@ -138,6 +184,11 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public ProcessInstanceState getState()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().getState();
+      }
+
       return processInstance.getState();
    }
 
@@ -202,7 +253,18 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public boolean isCaseProcessInstance()
    {
+      if (useFullBlownPiDetailsObject)
+      {
+         return getProcessInstanceDetails().isCaseProcessInstance();
+      }
+
       return processInstance.isCaseProcessInstance();
+   }
+
+   @Override
+   public String toString()
+   {
+      return getToStringInfo();
    }
 
    private Map<String, Object> initPiDetailsParameters(final Parameters params)
@@ -255,7 +317,24 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
          {
             ParametersFacade.popLayer();
          }
+
+         processInstance = null;
+         useFullBlownPiDetailsObject = true;
       }
       return processInstanceDetails;
+   }
+
+   private String getToStringInfo()
+   {
+      if (toStringInfo == null)
+      {
+         final StringBuffer sb = new StringBuffer();
+         sb.append(getProcessName());
+         sb.append(" (");
+         sb.append(new SimpleDateFormat(ProcessInstanceDetails.DATE_FORMAT).format(getStartTime()));
+         sb.append(")");
+         toStringInfo = sb.toString();
+      }
+      return toStringInfo;
    }
 }

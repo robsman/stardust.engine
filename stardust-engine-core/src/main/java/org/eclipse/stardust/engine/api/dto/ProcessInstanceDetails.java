@@ -63,7 +63,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private static final long serialVersionUID = 2L;
 
    public static final String PRP_PI_DETAILS_OPTIONS = "PROCESS_INSTANCE_DETAILS_OPTIONS";
-   private final static String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
+   /* package-private */ final static String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
 
    private static final Logger trace = LogManager.getLogger(ProcessInstanceDetails.class);
    private ProcessInstanceDetailsLevel detailsLevel;

@@ -131,8 +131,67 @@ public class InstancesSplitterTest
          }
          Assert.fail("OID <" + oid + "> not found in received messages!");
       }
+      fullRouteResult.reset();
    }
 
+   @Test
+   public void testSplitSingleprocess() throws Exception
+   {
+
+      Set<Long> piOids = new HashSet<Long>();
+	  Long piOid ;
+      ProcessInstances pis = null;
+
+      // establish authentication for Camel endpoints
+      ClientEnvironment.setCurrent("motu", "motu", null, null, null);
+
+      ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      try
+      {
+         WorkflowService wfService = sf.getWorkflowService();
+         QueryService qService = sf.getQueryService();
+         // start one process
+         piOid = wfService.startProcess(PROCESS_ID_STRAIGHT_THROUGH, null, true)
+               .getOID();
+         piOids.add(piOid);
+         ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
+         piQuery.where(ProcessInstanceFilter.in(piOids));
+         pis = qService.getAllProcessInstances(piQuery);
+         assertEquals(1, pis.size());
+      }
+      finally
+      {
+         if (null != sf)
+            sf.close();
+      }
+
+      splitProcessProducerTemplate.sendBodyAndHeader(SPLIT_PROCESS_ROUTE_BEGIN,
+            CamelConstants.MessageProperty.PROCESS_INSTANCES, pis);
+
+      fullRouteResult.setExpectedMessageCount(1);
+      fullRouteResult.assertIsSatisfied();
+
+      // examine exchanges
+      Iterator<Exchange> exchangeIter;
+      oidLoop: for (Long oid : piOids)
+      {
+         exchangeIter = fullRouteResult.getReceivedExchanges().iterator();
+         while (exchangeIter.hasNext())
+         {
+            if (oid == exchangeIter
+                  .next()
+                  .getIn()
+                  .getHeader(CamelConstants.MessageProperty.PROCESS_INSTANCE_OID,
+                        Long.class))
+            {
+               continue oidLoop;
+            }
+         }
+         Assert.fail("OID <" + oid + "> not found in received messages!");
+      }
+      fullRouteResult.reset();
+   }
+   
    public static RouteBuilder createFullRoute()
    {
       return new RouteBuilder()

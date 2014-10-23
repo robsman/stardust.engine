@@ -109,8 +109,13 @@ public class MimeMultipartTypeConverter
    private static InternetAddress[] createAddresses(String... addresses)
          throws AddressException
    {
-    //  List<InternetAddress> addressesList = new ArrayList<InternetAddress>();
-      InternetAddress[] addressesList=new InternetAddress[addresses.length];
+
+	  int numberOfAdresses = 0;
+	  for (String address : addresses)
+	  {
+		  numberOfAdresses += address.split(",").length;
+	  }
+	  InternetAddress[] addressesList=new InternetAddress[numberOfAdresses];
       int i=0;
       for (String address : addresses)
       {

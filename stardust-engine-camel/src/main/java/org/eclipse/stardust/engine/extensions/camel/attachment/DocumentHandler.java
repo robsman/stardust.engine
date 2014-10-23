@@ -299,6 +299,7 @@ public class DocumentHandler
       ModelCamelContext camelContext = (ModelCamelContext) exchange.getContext();
       ProducerTemplate producer = camelContext.createProducerTemplate();
       String templateConfigurationsEA;
+      Map<String, Object> dynamicTemplateConfigurations = null;
       List<ActivityInstance> instances = BpmTypeConverter
             .lookupActivityInstance(exchange);
       for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
@@ -308,57 +309,67 @@ public class DocumentHandler
                .getApplication().getAllAttributes();
          if (extendedAttributes != null && extendedAttributes.size() > 0)
          {
-            templateConfigurationsEA = (String) extendedAttributes
-                  .get("stardust:emailOverlay::templateConfigurations");
-            if (StringUtils.isNotEmpty(templateConfigurationsEA))
+            dynamicTemplateConfigurations = exchange.getIn().getHeader("attachments", Map.class);
+            if(dynamicTemplateConfigurations != null)
             {
-               Gson gson = new Gson();
-               Type token = new TypeToken<List<TemplateConfiguration>>()
+               List<TemplateConfiguration> listTemplateConfiguration = (List<TemplateConfiguration>) dynamicTemplateConfigurations.get("attachments");
+               templateConfigurationsEA = new Gson().toJson(listTemplateConfiguration);
+               processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
+            } else
+            {
+               templateConfigurationsEA = (String) extendedAttributes
+               .get("stardust:emailOverlay::templateConfigurations");
+               if (StringUtils.isNotEmpty(templateConfigurationsEA))
                {
-               }.getType();
-               List<TemplateConfiguration> templateConfigurations = gson.fromJson(
-                     templateConfigurationsEA, token);
-               for (TemplateConfiguration template : templateConfigurations)
-               {
-                  Exchange newExchange = new DefaultExchange(camelContext);
-                  newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
-                  newExchange.getIn().setBody(exchange.getIn().getBody());
-                  newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
-                  newExchange.getIn().setHeader("CamelTemplatingLocation",
-                        template.getSource());
-                  newExchange
-                        .getIn()
-                        .setHeader(
-                              "CamelTemplatingFormat",
-                              (template != null
-                                    && StringUtils.isNotEmpty(template.getPath()) && template
-                                    .getPath().endsWith(".docx")) ? "docx" : "text");
-                  newExchange.getIn().setHeader("CamelTemplatingTemplate",
-                        (template.getPath()));
-                  newExchange.getIn().setHeader("CamelTemplatingOutputName",
-                        template.getName());
-                  newExchange
-                        .getIn()
-                        .setHeader(
-                              "CamelTemplatingConvertToPdf",
-                              (template != null
-                                    && StringUtils.isNotEmpty(template.getFormat()) && template
-                                    .getFormat().equalsIgnoreCase("pdf")) ? true : false);
-                  Exchange reponse = null;
-                  if (template.getSource().equalsIgnoreCase("repository"))
-                  {
-                     reponse = producer.send("direct://templateFromRepository",
-                           newExchange);
-                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
-                  }
-                  else if (template.getSource().equalsIgnoreCase("classpath"))
-                  {
-                     reponse = producer.send("direct://templateFromClasspath",
-                           newExchange);
-                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
-                  }
+                  processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
                }
             }
+            
+         }
+      }
+   }
+   
+   private static void processTemplateConfigurations(Exchange exchange,
+         ModelCamelContext camelContext, ProducerTemplate producer,
+         String templateConfigurationsEA)
+   {
+      Gson gson = new Gson();
+      Type token = new TypeToken<List<TemplateConfiguration>>()
+      {
+      }.getType();
+      List<TemplateConfiguration> templateConfigurations = gson.fromJson(
+            templateConfigurationsEA, token);
+      for (TemplateConfiguration template : templateConfigurations)
+      {
+         Exchange newExchange = new DefaultExchange(camelContext);
+         newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
+         newExchange.getIn().setBody(exchange.getIn().getBody());
+         newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
+         newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
+         newExchange
+               .getIn()
+               .setHeader(
+                     "CamelTemplatingFormat",
+                     (template != null && StringUtils.isNotEmpty(template.getPath()) && template
+                           .getPath().endsWith(".docx")) ? "docx" : "text");
+         newExchange.getIn().setHeader("CamelTemplatingTemplate", (template.getPath()));
+         newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
+         newExchange
+               .getIn()
+               .setHeader(
+                     "CamelTemplatingConvertToPdf",
+                     (template != null && StringUtils.isNotEmpty(template.getFormat()) && template
+                           .getFormat().equalsIgnoreCase("pdf")) ? true : false);
+         Exchange reponse = null;
+         if (template.getSource().equalsIgnoreCase("repository"))
+         {
+            reponse = producer.send("direct://templateFromRepository", newExchange);
+            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+         }
+         else if (template.getSource().equalsIgnoreCase("classpath"))
+         {
+            reponse = producer.send("direct://templateFromClasspath", newExchange);
+            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
          }
       }
    }

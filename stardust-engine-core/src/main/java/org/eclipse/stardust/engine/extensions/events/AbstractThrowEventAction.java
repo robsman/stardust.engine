@@ -39,6 +39,7 @@ public abstract class AbstractThrowEventAction  implements EventActionInstance
       Queue queue = bpmrt.getJmsResourceProvider().resolveQueue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
       QueueConnectionFactory connectionFactory = bpmrt.getJmsResourceProvider().resolveQueueConnectionFactory(
             JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
+      boolean fromActivity = true;
       try
       {
          IProcessInstance processInstance = null;
@@ -52,6 +53,7 @@ public abstract class AbstractThrowEventAction  implements EventActionInstance
          }
          else if (Event.PROCESS_INSTANCE == event.getType())
          {
+            fromActivity = false;
             processInstance = ProcessInstanceBean.findByOID(event.getObjectOID());
          }
 
@@ -72,7 +74,7 @@ public abstract class AbstractThrowEventAction  implements EventActionInstance
             message.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, SecurityProperties.getPartition()
                   .getId());
             message.setStringProperty(THROW_EVENT_TYPE_HEADER, getThrowEventType());
-          trace.info("Send "+getThrowEventType()+" Message (code: " + eventCode + ") for Activity "
+          trace.info("Send "+getThrowEventType()+" Message (code: " + eventCode + ") from throwing "+(fromActivity ? "Activity" : "Process")+" ("+event.getObjectOID()+") to catching Activity "
                   + escalationCatchingActivityInstance.getOID());
             sender.send(queue, message);
          }

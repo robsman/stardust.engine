@@ -70,7 +70,7 @@ public class MultipleStartEventsTest
       WorkflowService wfs = sf.getWorkflowService();
 
       ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
-            singletonMap("StartEventName", "BPMN_JMSTrigger1"), true);
+            singletonMap("StartEventId", "BPMN_JMSTrigger1"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
@@ -80,21 +80,21 @@ public class MultipleStartEventsTest
 
       // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "StartActivity1");
-      
+
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-      
-      // 
+
+      //
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID())), 2);
    }
-   
+
    @Test
    public void testViaStartEvent2RoutetProperty() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
       ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
-            singletonMap("StartEventName", "BPMN_JMSTrigger2"), true);
+            singletonMap("StartEventId", "BPMN_JMSTrigger2"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
@@ -104,21 +104,21 @@ public class MultipleStartEventsTest
 
       // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "StartActivity2");
-      
+
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-      
-      // 
+
+      //
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID())), 2);
    }
-   
+
    @Test
    public void testViaStartEvent3RoutetProperty() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
       ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
-            singletonMap("StartEventName", "BPMN_JMSTrigger3"), true);
+            singletonMap("StartEventId", "BPMN_JMSTrigger3"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
@@ -128,14 +128,14 @@ public class MultipleStartEventsTest
 
       // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "StartActivity3");
-      
+
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-      
-      // 
+
+      //
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID())), 2);
    }
-   
+
    @Test
    public void testStartEvent1ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
@@ -148,7 +148,7 @@ public class MultipleStartEventsTest
 	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
-   
+
    @Test
    public void testStartEvent2ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
@@ -161,7 +161,7 @@ public class MultipleStartEventsTest
 	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
-   
+
    @Test
    public void testStartEvent3ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
@@ -174,7 +174,7 @@ public class MultipleStartEventsTest
 	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
-   
+
    private void sendMessages(String messageId, final String startEventName)
          throws JMSException
    {
@@ -190,7 +190,7 @@ public class MultipleStartEventsTest
                public Message createMessage(Session session) throws JMSException
                {
                   TextMessage message = session.createTextMessage(payload.toString());
-                  message.setStringProperty("StartEventName", startEventName);
+                  message.setStringProperty("StartEventId", startEventName);
                   return message;
                }
             });

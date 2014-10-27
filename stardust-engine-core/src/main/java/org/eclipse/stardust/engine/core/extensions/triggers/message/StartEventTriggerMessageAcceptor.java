@@ -30,7 +30,7 @@ public class StartEventTriggerMessageAcceptor implements TriggerMessageAcceptor
 {
 
    private static final Logger trace = LogManager.getLogger(StartEventTriggerMessageAcceptor.class);
-   
+
    @Override
    public Collection getMessageTypes()
    {
@@ -67,13 +67,13 @@ public class StartEventTriggerMessageAcceptor implements TriggerMessageAcceptor
       {
          try
          {
-            String startEventName = message.getStringProperty("StartEventName");
+            String startEventId = message.getStringProperty("StartEventId");
             if (!trigger.getType().equals(PredefinedConstants.JMS_TRIGGER) ||
-                  isEmpty(startEventName) || !startEventName.equals(trigger.getName())) 
+                  isEmpty(startEventId) || !startEventId.equals(trigger.getId()))
             {
                return false;
             }
-            
+
             Object messageType = trigger.getAttribute(PredefinedConstants.MESSAGE_TYPE_ATT);
             if (messageType == MessageType.TEXT) {
                return message instanceof TextMessage;
@@ -84,7 +84,7 @@ public class StartEventTriggerMessageAcceptor implements TriggerMessageAcceptor
             } else if (messageType == MessageType.STREAM) {
                return message instanceof StreamMessage;
             }
-            
+
             return true;
          }
          catch (JMSException e)

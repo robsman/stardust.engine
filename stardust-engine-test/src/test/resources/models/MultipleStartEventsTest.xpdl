@@ -180,7 +180,7 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
-      <DataField Id="StartEventName" Name="StartEventName" IsArray="FALSE">
+      <DataField Id="StartEventId" Name="StartEventId" IsArray="FALSE">
          <DataType>
             <BasicType Type="STRING"/>
          </DataType>
@@ -319,7 +319,7 @@
          </Activities>
          <Transitions>
             <Transition Id="_Transition_1" Name="&lt;Transition&gt; 1" From="StartEventDispatcher" To="StartActivity1">
-               <Condition Type="CONDITION">StartEventName=="BPMN_JMSTrigger1"</Condition>
+               <Condition Type="CONDITION">StartEventId=="BPMN_JMSTrigger1"</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Transition Oid="80" IsForkingOnTraversal="false"/>
@@ -327,7 +327,7 @@
                </ExtendedAttributes>
             </Transition>
             <Transition Id="_Transition_2" Name="&lt;Transition&gt; 2" From="StartEventDispatcher" To="StartActivity2">
-               <Condition Type="CONDITION">StartEventName=="BPMN_JMSTrigger2"</Condition>
+               <Condition Type="CONDITION">StartEventId=="BPMN_JMSTrigger2"</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Transition Oid="82" IsForkingOnTraversal="false"/>
@@ -335,7 +335,7 @@
                </ExtendedAttributes>
             </Transition>
             <Transition Id="_Transition_3" Name="&lt;Transition&gt; 3" From="StartEventDispatcher" To="StartActivity3">
-               <Condition Type="CONDITION">StartEventName=="BPMN_JMSTrigger3"</Condition>
+               <Condition Type="CONDITION">StartEventId=="BPMN_JMSTrigger3"</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Transition Oid="84" IsForkingOnTraversal="false"/>
@@ -347,9 +347,9 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="50">
                   <carnot:Triggers>
-                     <carnot:Trigger Oid="67" Id="BPMN_JMSTrigger1" Name="BPMN_JMSTrigger1" Type="jms">
+                     <carnot:Trigger Oid="67" Id="BPMN_JMSTrigger1" Name="BPMN JMSTrigger1" Type="jms">
                         <carnot:AccessPoints>
-                           <carnot:AccessPoint Oid="87" Id="StartEventName" Name="StartEventName" Direction="OUT" Type="serializable">
+                           <carnot:AccessPoint Oid="87" Id="StartEventId" Name="StartEventId" Direction="OUT" Type="serializable">
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:jms.location" Value="HEADER" Type="org.eclipse.stardust.engine.extensions.jms.app.JMSLocation"/>
@@ -366,8 +366,8 @@
                         </carnot:AccessPoints>
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="88">
-                              <carnot:DataRef Id="StartEventName"/>
-                              <carnot:AccessPointRef Id="StartEventName"/>
+                              <carnot:DataRef Id="StartEventId"/>
+                              <carnot:AccessPointRef Id="StartEventId"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -377,7 +377,7 @@
                      </carnot:Trigger>
                      <carnot:Trigger Oid="69" Id="BPMN_JMSTrigger2" Name="BPMN_JMSTrigger2" Type="jms">
                         <carnot:AccessPoints>
-                           <carnot:AccessPoint Oid="89" Id="StartEventName" Name="StartEventName" Direction="OUT" Type="serializable">
+                           <carnot:AccessPoint Oid="89" Id="StartEventId" Name="StartEventId" Direction="OUT" Type="serializable">
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:jms.location" Value="HEADER" Type="org.eclipse.stardust.engine.extensions.jms.app.JMSLocation"/>
@@ -394,8 +394,8 @@
                         </carnot:AccessPoints>
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="90">
-                              <carnot:DataRef Id="StartEventName"/>
-                              <carnot:AccessPointRef Id="StartEventName"/>
+                              <carnot:DataRef Id="StartEventId"/>
+                              <carnot:AccessPointRef Id="StartEventId"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -405,7 +405,7 @@
                      </carnot:Trigger>
                      <carnot:Trigger Oid="71" Id="BPMN_JMSTrigger3" Name="BPMN_JMSTrigger3" Type="jms">
                         <carnot:AccessPoints>
-                           <carnot:AccessPoint Oid="91" Id="StartEventName" Name="StartEventName" Direction="OUT" Type="serializable">
+                           <carnot:AccessPoint Oid="91" Id="StartEventId" Name="StartEventId" Direction="OUT" Type="serializable">
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:jms.location" Value="HEADER" Type="org.eclipse.stardust.engine.extensions.jms.app.JMSLocation"/>
@@ -422,8 +422,8 @@
                         </carnot:AccessPoints>
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="92">
-                              <carnot:DataRef Id="StartEventName"/>
-                              <carnot:AccessPointRef Id="StartEventName"/>
+                              <carnot:DataRef Id="StartEventId"/>
+                              <carnot:AccessPointRef Id="StartEventId"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>

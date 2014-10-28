@@ -12,17 +12,27 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.Column;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.query.statistics.api.ActivityStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
@@ -127,7 +137,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
          final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
                && !ctx.isAdminOverride();
          final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-         
+
          authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
 
          StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
@@ -140,7 +150,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
             public void handleRow(ResultSet rs) throws SQLException
             {
                authPredicate.accept(rs);
-               
+
                long aiOid = rs.getLong(1);
                long modelOid = rs.getLong(2);
                long activityRtOid = rs.getLong(3);
@@ -160,12 +170,12 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
                   boolean isCritical = criticalityPolicy.isCriticalDuration(priority,
                         tsAiStart, now, activity);
                   boolean isInterrupted = false;
-                  
+
                   if (state == ActivityInstanceState.INTERRUPTED)
                   {
                      isInterrupted = true;
-                  }                  
-                  
+                  }
+
                   String pdId = ModelUtils.getQualifiedId(activity.getProcessDefinition());
                   String aId = ModelUtils.getQualifiedId(activity);
                   result.addPriorizedInstances(pdId, aId, priority, aiOid, isCritical, isInterrupted);
@@ -179,7 +189,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
 
    private List<List<Long>> getSubLists(Set<Long> processRtOidFilter, int maxProcessOids)
    {
-      List<Long> processRtOids = new ArrayList<Long>(processRtOidFilter);
+      List<Long> processRtOids = (processRtOidFilter != null) ? new ArrayList<Long>(processRtOidFilter) : new ArrayList<Long>();
       List<List<Long>> processRtOidSubLists = new ArrayList<List<Long>>();
       for (int i = 0; i < processRtOids.size(); i += maxProcessOids)
       {

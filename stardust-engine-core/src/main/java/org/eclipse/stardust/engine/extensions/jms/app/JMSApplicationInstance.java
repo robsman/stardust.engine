@@ -47,10 +47,10 @@ import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 public class JMSApplicationInstance implements StatelessAsynchronousApplicationInstance
 {
    private static final Logger trace = LogManager.getLogger(JMSApplicationInstance.class);
-   
+
    private static final String CACHED_CONNECTION_FACTORY = JMSApplicationInstance.class.getName()
          + ".CachedConnectionFactory";
-   
+
    private static final String CACHED_QUEUE = JMSApplicationInstance.class.getName()
          + ".CachedQueue";
 
@@ -60,7 +60,7 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
    public ApplicationInvocationContext bootstrap(ActivityInstance activityInstance)
    {
       JmsInvocationContext jmsContext = new JmsInvocationContext(activityInstance);
-      
+
       IActivity activity = null;
       ModelManager modelManager = ModelManagerFactory.getCurrent();
 
@@ -73,11 +73,11 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
       if (null != activity)
       {
          jmsContext.application = activity.getApplication();
-         
+
          jmsContext.msgProvider = (MessageProvider) activity.getApplication()
                .getRuntimeAttribute(CACHED_MSG_PROVIDER);
       }
-      
+
       if (null == jmsContext.msgProvider)
       {
          String messageProviderClass = (String) activityInstance.getActivity()
@@ -87,7 +87,7 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
          if ( !StringUtils.isEmpty(messageProviderClass))
          {
             jmsContext.msgProvider = (MessageProvider) Reflect.createInstance(messageProviderClass);
-         
+
             if ((jmsContext.msgProvider instanceof Stateless)
                   && ((Stateless) jmsContext.msgProvider).isStateless()
                   && (null != activity))
@@ -97,14 +97,14 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
             }
          }
       }
-      
+
       return jmsContext;
    }
 
    public void send(ApplicationInvocationContext c) throws InvocationTargetException
    {
       JmsInvocationContext jmsContext = (JmsInvocationContext) c;
-      
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Ready to send message");
@@ -116,7 +116,7 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
          connectJmsResources(jmsContext);
 
          final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         
+
          // sender, session and connection will be closed by RT Environment at end of TX
          final QueueConnection connection = rtEnv.retrieveQueueConnection(jmsContext.queueConnectionFactory);
          final QueueSession session = rtEnv.retrieveQueueSession(connection);
@@ -186,7 +186,7 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
       if ((null == jmsContext.queueConnectionFactory) && (null == jmsContext.queue))
       {
          // TODO port to transient attributes
-         
+
          if (null != jmsContext.application)
          {
             jmsContext.queueConnectionFactory = (QueueConnectionFactory) jmsContext.application.getRuntimeAttribute(CACHED_CONNECTION_FACTORY);
@@ -202,15 +202,15 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
                   PredefinedConstants.QUEUE_CONNECTION_FACTORY_NAME_PROPERTY);
             String queueJNDI = (String) properties.get(
                   PredefinedConstants.QUEUE_NAME_PROPERTY);
-            
+
             if (trace.isDebugEnabled())
             {
                trace.debug("Application configured with factory "
                      + queueConnectionFactoryJNDI + " and queue " + queueJNDI);
             }
-            
+
             BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-            
+
             IJmsResourceProvider jmsResourceProvider = rtEnv.getJmsResourceProvider();
             if (null != jmsResourceProvider)
             {
@@ -236,15 +236,15 @@ public class JMSApplicationInstance implements StatelessAsynchronousApplicationI
    static class JmsInvocationContext extends ApplicationInvocationContext
    {
       private IApplication application;
-      
+
       private MessageProvider msgProvider;
-      
+
       private Map inAccessPointValues = CollectionUtils.newMap();
       private Map outAccessPointValues = CollectionUtils.newMap();
-   
+
       private QueueConnectionFactory queueConnectionFactory = null;
       private Queue queue = null;
-      
+
       public JmsInvocationContext(ActivityInstance ai)
       {
          super(ai);

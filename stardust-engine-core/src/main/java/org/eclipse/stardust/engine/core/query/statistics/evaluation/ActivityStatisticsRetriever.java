@@ -46,6 +46,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -80,7 +81,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
       final ActivityStatisticsQuery asq = (ActivityStatisticsQuery) query;
       final ActivityStatisticsResult result = new ActivityStatisticsResult(asq);
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       final Set<Long> processRtOidFilter = StatisticsQueryUtils.extractProcessFilter(asq
             .getFilter());

@@ -926,6 +926,14 @@
                   <include>api/query/WorklistLayoutPolicy.java</include>
                   <include>api/query/WorklistQuery.java</include>
 
+                  <!-- org/eclipse/stardust/engine/core/query -->
+                  <include>core/query/statistics/api/CriticalExecutionTimePolicy.java</include>
+                  <include>core/query/statistics/api/CriticalCostPerExecutionPolicy.java</include>
+                  <include>core/query/statistics/api/CriticalProcessingTimePolicy.java</include>
+                  <include>core/query/statistics/api/StatisticsDateRangePolicy.java</include>
+                  <include>core/query/statistics/api/PerformanceCriticalityPolicy.java</include>
+                  <include>core/query/statistics/api/ProcessCumulationPolicy.java</include>
+
                   <include>core/spi/dms/IRepositoryCapabilities.java</include>
                   <include>core/spi/dms/IRepositoryConfiguration.java</include>
                   <include>core/spi/dms/IRepositoryInstance.java</include>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="StatisticsQueryModel" Name="StatisticsQueryModel">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="StatisticsQueryModel" Name="StatisticsQueryModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -9,8 +9,8 @@
       <Version>1</Version>
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
-   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1"/>
+   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" Type="text/ecmascript"/>
+   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:x1="http://www.wfmc.org/2002/XPDL1.0"/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -22,7 +22,26 @@
          </ExtendedAttributes>
       </Participant>
    </Participants>
-   <Applications/>
+   <Applications>
+      <Application Id="WaitingApplication" Name="Waiting Application">
+         <ExternalReference location="org.eclipse.stardust.test.query.statistics.ActivityInstanceStatisticsQueryTest$WaitingApp" xref="doWait:"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="75" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.query.statistics.ActivityInstanceStatisticsQueryTest$WaitingApp"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="doWait()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="ActivityInstanceStatisticsQueryTest$WaitingApp()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+   </Applications>
    <DataFields>
       <DataField Id="LAST_ACTIVITY_PERFORMER" Name="&lt;Last Activity Performer&gt;" IsArray="FALSE">
          <DataType>
@@ -235,15 +254,15 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:01"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
                      <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="51" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -255,6 +274,147 @@
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="58" SourceSymbol="57" TargetSymbol="54" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ProcessingTime" Name="ProcessingTime" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstInteractiveActivity" Name="First Interactive Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="62" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ApplicationActivity" Name="Application Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="WaitingApplication">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="64" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastInteractiveActivity" Name="Last Interactive Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="66" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="FirstInteractiveActivity" To="ApplicationActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="68"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ApplicationActivity" To="LastInteractiveActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="70"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="61">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:01"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="60" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="59" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="63" X="210" Y="95" Width="181" Height="51" ModelElement="FirstInteractiveActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="65" X="210" Y="180" Width="181" Height="51" ModelElement="ApplicationActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="67" X="210" Y="270" Width="181" Height="51" ModelElement="LastInteractiveActivity"/>
+                                 <carnot:Symbol Kind="ROLE" Oid="72" X="25" Y="185" Width="90" Height="40" ModelElement="Administrator"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="76" X="470" Y="185" Width="120" Height="40" ModelElement="WaitingApplication"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="69" ModelElement="Transition1" SourceSymbol="63" TargetSymbol="65" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="71" ModelElement="Transition2" SourceSymbol="65" TargetSymbol="67" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="PERFORMS" Oid="73" SourceSymbol="72" TargetSymbol="63"/>
+                                 <carnot:Connection Kind="PERFORMS" Oid="74" SourceSymbol="72" TargetSymbol="67"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="77" SourceSymbol="76" TargetSymbol="65"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

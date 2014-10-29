@@ -10,15 +10,17 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.query.statistics;
 
+import static org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode.NATIVE_THREADING;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
 
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+
+import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
  * <p>
@@ -28,11 +30,14 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Roland.Stamm
  */
 @RunWith(Suite.class)
-@SuiteClasses({ StatisticsQueryTest.class })
+@SuiteClasses({
+                ActivityInstanceStatisticsQueryTest.class,
+                UserStatisticsQueryTest.class
+              })
 public class StatisticsQueryTestSuite
 {
    /* test suite */
 
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, StatisticsQueryTest.MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), NATIVE_THREADING, MODEL_ID);
 }

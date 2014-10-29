@@ -10,7 +10,10 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.query.statistics;
 
+import static org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode.NATIVE_THREADING;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_DO_WORK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +21,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -35,22 +45,12 @@ import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatist
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.WorktimeStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatisticsQuery;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
-public class StatisticsQueryTest
+public class UserStatisticsQueryTest
 {
-
-   protected static final String MODEL_NAME = "StatisticsQueryModel";
-
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
 
@@ -60,8 +60,7 @@ public class StatisticsQueryTest
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(USER_PWD_PAIR,
-         ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(USER_PWD_PAIR, NATIVE_THREADING, MODEL_ID);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
@@ -82,7 +81,7 @@ public class StatisticsQueryTest
       long userOid = wfs.getUser().getOID();
 
       // start activate and suspend a process to create an activity instance history.
-      ProcessInstance pi = wfs.startProcess("{StatisticsQueryModel}DoWork", null, true);
+      ProcessInstance pi = wfs.startProcess(PROCESS_DEF_ID_DO_WORK, null, true);
       ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
       wfs.suspend(ai.getOID(), null);
 
@@ -110,7 +109,7 @@ public class StatisticsQueryTest
       long userOid = wfs.getUser().getOID();
 
       // start activate and suspend a process to create an activity instance history.
-      ProcessInstance pi = wfs.startProcess("{StatisticsQueryModel}DoWork", null, true);
+      ProcessInstance pi = wfs.startProcess(PROCESS_DEF_ID_DO_WORK, null, true);
       ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
       wfs.suspend(ai.getOID(), null);
 
@@ -149,7 +148,7 @@ public class StatisticsQueryTest
       WorktimeStatistics worktimeStatistics = userWorktimeStatistics.getWorktimeStatistics(userOid);
 
       Contribution doWorkContribution = worktimeStatistics.findContribution(
-            "{StatisticsQueryModel}DoWork", ModelParticipantInfo.ADMINISTRATOR);
+            PROCESS_DEF_ID_DO_WORK, ModelParticipantInfo.ADMINISTRATOR);
       return doWorkContribution;
    }
 
@@ -160,7 +159,7 @@ public class StatisticsQueryTest
       long userOid = wfs.getUser().getOID();
 
       // start activate and complete a process to create an activity instance history.
-      ProcessInstance pi = wfs.startProcess("{StatisticsQueryModel}DoWork", null, true);
+      ProcessInstance pi = wfs.startProcess(PROCESS_DEF_ID_DO_WORK, null, true);
       ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
       wfs.complete(ai.getOID(), null, null);
 
@@ -187,7 +186,7 @@ public class StatisticsQueryTest
       assertNotNull(userPerformanceStatistics);
 
       UserPerformanceStatistics.PerformanceStatistics performanceStatistics = userPerformanceStatistics.getStatisticsForUserAndProcess(
-            userOid, "{StatisticsQueryModel}DoWork");
+            userOid, PROCESS_DEF_ID_DO_WORK);
 
       UserPerformanceStatistics.Contribution contribution = performanceStatistics.findContribution(ModelParticipantInfo.ADMINISTRATOR);
       return contribution;

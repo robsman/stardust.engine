@@ -1958,6 +1958,10 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     * Tests whether transient process instances whose processing failed are left in a state that
     * allows for running a recovery.
     * </p>
+    *
+    * <p>
+    * <b>From time to time, this test case is failing. See CRNT-34036 for details.</b>
+    * </p>
     */
    @Test
    public void testRecovery() throws Exception

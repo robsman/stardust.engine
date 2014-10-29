@@ -130,7 +130,7 @@ public class ActivityInstanceStatisticsQueryTest
       for (int i = 0; i < TOTAL_COUNT_PER_PD; i++)
       {
          startProcessDefDoWork();
-         startAndCompleteProcessDefProcessingTime();
+         startProcessDefProcessingTime();
       }
    }
 
@@ -142,11 +142,15 @@ public class ActivityInstanceStatisticsQueryTest
       /* do not complete AI/PI */
    }
 
-   private void startAndCompleteProcessDefProcessingTime() throws InterruptedException, TimeoutException
+   private void startProcessDefProcessingTime() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PROCESSING_TIME, null, true);
 
       final ActivityInstance firstInteractiveAi = sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
+      Thread.sleep(ONE_HUNDRED_MS);
+      sf.getWorkflowService().suspend(firstInteractiveAi.getOID(), null);
+      Thread.sleep(ONE_HUNDRED_MS);
+      sf.getWorkflowService().activate(firstInteractiveAi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
       sf.getWorkflowService().complete(firstInteractiveAi.getOID(), null, null);
 

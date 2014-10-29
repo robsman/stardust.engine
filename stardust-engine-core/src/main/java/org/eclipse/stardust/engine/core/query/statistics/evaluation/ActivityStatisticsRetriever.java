@@ -146,7 +146,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
             private final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils
                   .getCriticalExecutionTimePolicy(asq);
 
-            private final Date tsAiStart = new Date();
+            private final Date tsAiStart = TimestampProviderUtils.getTimeStamp();
 
             public void handleRow(ResultSet rs) throws SQLException
             {

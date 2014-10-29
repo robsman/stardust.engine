@@ -31,6 +31,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+                ActivityInstanceProcessingTimeTest.class,
                 ActivityInstanceStatisticsQueryTest.class,
                 UserStatisticsQueryTest.class
               })

@@ -285,7 +285,9 @@ public class ServiceFactoryCache
          InvokerPrincipal current = InvokerPrincipalUtils.getCurrent();
          if (current == null)
          {
-            current = new InvokerPrincipal(key.userId, CollectionUtils.newMap());
+            Map<Object, Object> props = CollectionUtils.newMap();
+            props.put(AbstractLoginInterceptor.REAUTH_OUTER_PRINCIPAL, null);
+            current = new InvokerPrincipal(key.userId, props);
          }
 
          @SuppressWarnings("unchecked")
@@ -305,13 +307,20 @@ public class ServiceFactoryCache
             @SuppressWarnings("unchecked")
             Map<String, String> properties = current.getProperties();
 
-            if (properties != null
-                  && properties.containsKey(AbstractLoginInterceptor.REAUTH_USER_ID))
+            if (properties != null)
             {
-               properties.remove(AbstractLoginInterceptor.REAUTH_USER_ID);
-               properties.remove(AbstractLoginInterceptor.REAUTH_PASSWORD);
+               if (properties.containsKey(AbstractLoginInterceptor.REAUTH_USER_ID))
+               {
+                  properties.remove(AbstractLoginInterceptor.REAUTH_USER_ID);
+                  properties.remove(AbstractLoginInterceptor.REAUTH_PASSWORD);
+                  InvokerPrincipalUtils.setCurrent(current);
+               }
+               else if (properties.containsKey(AbstractLoginInterceptor.REAUTH_OUTER_PRINCIPAL))
+               {
+                  InvokerPrincipalUtils.removeCurrent();
+               }
             }
-            InvokerPrincipalUtils.setCurrent(current);
+
          }
       }
 

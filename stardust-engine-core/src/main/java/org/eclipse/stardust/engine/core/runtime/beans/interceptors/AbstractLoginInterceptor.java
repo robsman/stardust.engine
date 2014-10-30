@@ -72,6 +72,8 @@ import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
  */
 public class AbstractLoginInterceptor implements MethodInterceptor
 {
+   public static final String REAUTH_OUTER_PRINCIPAL = "Security.ReauthOuterPrincipal";
+
    public static final String REAUTH_USER_ID = "Security.ReauthUserId";
 
    public static final String REAUTH_PASSWORD = "Security.ReauthPassword";
@@ -80,6 +82,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
    public static final String METHODNAME_LOGIN = "login";
    public static final String METHODNAME_LOGOUT = "logout";
+
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
@@ -253,7 +256,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          String username = (String) properties.get(REAUTH_USER_ID);
          String password = (String) properties.get(REAUTH_PASSWORD);
          ExternalLoginResult login = LoginServiceFactory.getService().login(username,
-               password, properties);
+               password, Collections.unmodifiableMap(properties));
 
          if ( !login.wasSuccessful())
          {

@@ -10,8 +10,10 @@
  **********************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics;
 
+import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.inList;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.orTerm;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -23,10 +25,10 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.Functions;
 import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -36,6 +38,16 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBea
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
+/**
+ * <p>
+ * A {@link ServiceCommand} that queries the database for the <i>Processing Time</i> of one
+ * or more given <i>Activity Instances</i>. <i>Processing Time</i> is defined as the overall time
+ * spent in state {@link ActivityInstanceState#Application} and only applies to <i>Interactive
+ * Activities</i>.
+ * </p>
+ *
+ * @author Nicolas.Werlein
+ */
 public class QueryActivityInstanceProcessingTimeCommand implements ServiceCommand
 {
    private static final long serialVersionUID = 2131157154875979598L;
@@ -61,7 +73,13 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
       final BoundFunction sumOfDurations = Functions.constantExpression("SUM((CASE WHEN " + ActivityInstanceHistoryBean.FIELD__UNTIL + " = 0 THEN " + now + " ELSE " + ActivityInstanceHistoryBean.FIELD__UNTIL + " END) - " + ActivityInstanceHistoryBean.FIELD__FROM + ")");
 
       final QueryDescriptor queryDesc = QueryDescriptor.from(ActivityInstanceHistoryBean.class);
-      queryDesc.where(Predicates.andTerm(isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION), inList(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, oids.iterator())));
+      queryDesc.where(
+            andTerm(
+                  isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
+                  inList(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, oids.iterator()),
+                  orTerm(
+                        isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER),
+                        isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.MODEL_PARTICIPANT))));
       queryDesc.select(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, sumOfDurations);
       queryDesc.groupBy(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE);
 

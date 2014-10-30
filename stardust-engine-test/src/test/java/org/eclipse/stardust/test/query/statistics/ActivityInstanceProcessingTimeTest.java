@@ -13,7 +13,6 @@ package org.eclipse.stardust.test.query.statistics;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.ACTIVITY_ID_APP_ACTIVITY;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_PROCESSING_TIME;
@@ -37,7 +36,6 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-import org.eclipse.stardust.engine.api.query.ActivityFilter;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -87,8 +85,15 @@ public class ActivityInstanceProcessingTimeTest
       {
          final ActivityInstanceProcessingTimes result = (ActivityInstanceProcessingTimes) sf.getWorkflowService().execute(new QueryActivityInstanceProcessingTimeCommand(ai.getOID()));
          assertNotNull(result);
-         assertThat(result.processingTimes().size(), equalTo(1));
-         assertThatProcessingTimeIsCorrect(result.processingTimes().iterator().next());
+         if (ai.getActivity().isInteractive())
+         {
+            assertThat(result.processingTimes().size(), equalTo(1));
+            assertThatProcessingTimeIsCorrect(result.processingTimes().iterator().next());
+         }
+         else
+         {
+            assertThat(result.processingTimes().size(), equalTo(0));
+         }
       }
    }
 
@@ -142,10 +147,6 @@ public class ActivityInstanceProcessingTimeTest
       sf.getWorkflowService().complete(firstInteractiveAi.getOID(), null, null);
 
       ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY);
-      final ActivityInstanceQuery appAiQuery = ActivityInstanceQuery.findForProcessInstance(pi.getOID());
-      appAiQuery.where(ActivityFilter.forAnyProcess(ACTIVITY_ID_APP_ACTIVITY));
-      final ActivityInstance appAi = sf.getQueryService().findFirstActivityInstance(appAiQuery);
-      oidToProcessingTimeExpectations.put(Long.valueOf(appAi.getOID()), new Bound(ONE_HUNDRED_MS, 4 * ONE_HUNDRED_MS));
 
       final ActivityInstance lastInteractiveAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
       oidToProcessingTimeExpectations.put(Long.valueOf(lastInteractiveAi.getOID()), new Bound(ONE_HUNDRED_MS));

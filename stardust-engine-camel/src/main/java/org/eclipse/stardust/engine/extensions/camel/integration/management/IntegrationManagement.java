@@ -15,6 +15,8 @@ public interface IntegrationManagement {
 	void stopCamelContext(String contextId);
 
 	String getProducerRoutesList(String contextId);
+	
+	String getConsumerRoutesList(String contextId);
 
 	String getTriggerConsumerRoutesList(String contextId);
 

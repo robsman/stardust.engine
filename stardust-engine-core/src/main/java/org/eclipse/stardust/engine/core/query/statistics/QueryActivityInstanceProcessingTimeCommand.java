@@ -54,16 +54,33 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
 
    private final Set<Long> oids;
 
+   /**
+    * <p>
+    * ctor
+    * </p>
+    *
+    * @param oid the activity instance oid to query
+    */
    public QueryActivityInstanceProcessingTimeCommand(final long oid)
    {
       this(Collections.singleton(oid));
    }
 
+   /**
+    * <p>
+    * ctor
+    * </p>
+    *
+    * @param oids the activity instance oids to query
+    */
    public QueryActivityInstanceProcessingTimeCommand(final Set<Long> oids)
    {
       this.oids = oids;
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.command.ServiceCommand#execute(org.eclipse.stardust.engine.api.runtime.ServiceFactory)
+    */
    @Override
    public ActivityInstanceProcessingTimes execute(final ServiceFactory ignored)
    {
@@ -106,22 +123,35 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
       return result;
    }
 
+   /**
+    * <p>
+    * The class holding the query results as a {@link Set} of {@link ActivityInstanceProcessingTime}s.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
    public static final class ActivityInstanceProcessingTimes implements Serializable
    {
       private static final long serialVersionUID = -4259445814904017303L;
 
       private final Set<ActivityInstanceProcessingTime> processingTimes = CollectionUtils.newHashSet();
 
-      public void addProcessingTime(final long oid, final long processingTime)
+      /* package-private */ void addProcessingTime(final long oid, final long processingTime)
       {
          processingTimes.add(new ActivityInstanceProcessingTime(oid, processingTime));
       }
 
+      /**
+       * @return the processing times
+       */
       public Set<ActivityInstanceProcessingTime> processingTimes()
       {
          return Collections.unmodifiableSet(processingTimes);
       }
 
+      /* (non-Javadoc)
+       * @see java.lang.Object#toString()
+       */
       @Override
       public String toString()
       {
@@ -129,20 +159,33 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
       }
    }
 
+   /**
+    * <p>
+    * The class holding the processing time for a particular activity instance.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
    public static final class ActivityInstanceProcessingTime extends Pair<Long, Long>
    {
       private static final long serialVersionUID = 8628678559744677858L;
 
-      public ActivityInstanceProcessingTime(final long oid, final long processingTime)
+      /* package-private */ ActivityInstanceProcessingTime(final long oid, final long processingTime)
       {
          super(Long.valueOf(oid), Long.valueOf(processingTime));
       }
 
+      /**
+       * @return the activity instance's OID
+       */
       public long oid()
       {
          return getFirst();
       }
 
+      /**
+       * @return the processing time in ms
+       */
       public long processingTime()
       {
          return getSecond();

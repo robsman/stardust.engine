@@ -132,7 +132,7 @@ public class ActivityInstanceProcessingTimeTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PROCESSING_TIME, null, true);
 
       final ActivityInstance firstInteractiveAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
-      oidToProcessingTimeExpectations.put(Long.valueOf(firstInteractiveAi.getOID()), new Bound(2 * ONE_HUNDRED_MS, 4 * ONE_HUNDRED_MS));
+      oidToProcessingTimeExpectations.put(Long.valueOf(firstInteractiveAi.getOID()), new Bound(2 * ONE_HUNDRED_MS, 8 * ONE_HUNDRED_MS));
       sf.getWorkflowService().activate(firstInteractiveAi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
       sf.getWorkflowService().suspend(firstInteractiveAi.getOID(), null);
@@ -145,7 +145,7 @@ public class ActivityInstanceProcessingTimeTest
       final ActivityInstanceQuery appAiQuery = ActivityInstanceQuery.findForProcessInstance(pi.getOID());
       appAiQuery.where(ActivityFilter.forAnyProcess(ACTIVITY_ID_APP_ACTIVITY));
       final ActivityInstance appAi = sf.getQueryService().findFirstActivityInstance(appAiQuery);
-      oidToProcessingTimeExpectations.put(Long.valueOf(appAi.getOID()), new Bound(ONE_HUNDRED_MS, 3 * ONE_HUNDRED_MS));
+      oidToProcessingTimeExpectations.put(Long.valueOf(appAi.getOID()), new Bound(ONE_HUNDRED_MS, 4 * ONE_HUNDRED_MS));
 
       final ActivityInstance lastInteractiveAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
       oidToProcessingTimeExpectations.put(Long.valueOf(lastInteractiveAi.getOID()), new Bound(ONE_HUNDRED_MS));

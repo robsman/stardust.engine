@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.query.statistics;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.inList;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
-import static org.eclipse.stardust.engine.core.persistence.Predicates.orTerm;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -94,9 +93,7 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
             andTerm(
                   isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
                   inList(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, oids.iterator()),
-                  orTerm(
-                        isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.USER),
-                        isEqual(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, PerformerType.MODEL_PARTICIPANT))));
+                  inList(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, new int[] { PerformerType.USER, PerformerType.MODEL_PARTICIPANT, PerformerType.USER_GROUP })));
       queryDesc.select(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, sumOfDurations);
       queryDesc.groupBy(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE);
 

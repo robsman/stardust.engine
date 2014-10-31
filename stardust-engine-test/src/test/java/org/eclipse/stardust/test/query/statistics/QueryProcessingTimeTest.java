@@ -203,7 +203,7 @@ public class QueryProcessingTimeTest
    private void startProcessDefPiProcessingTime() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PI_PROCESSING_TIME_A, null, true);
-      piOidToProcessingTimeExpectations.put(Long.valueOf(pi.getOID()), new Bound(6 * ONE_HUNDRED_MS, 24 * ONE_HUNDRED_MS));
+      piOidToProcessingTimeExpectations.put(Long.valueOf(pi.getOID()), new Bound(6 * ONE_HUNDRED_MS, 12 * ONE_HUNDRED_MS));
 
       final ActivityInstance aFirstAi = sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);

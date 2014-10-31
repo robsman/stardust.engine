@@ -18,15 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.OneElementIterator;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.SplicingIterator;
-import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
@@ -257,7 +249,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          IModel externalModel = externalPackage.getReferencedModel();
          if (externalModel != null)
          {
-            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(externalReference.getId());
+            String uuid = getStringAttribute("carnot:connection:uuid");
+            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(StringUtils.isEmpty(uuid)
+                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
             if (referenceProcess != null)
             {
                return getImplementation(referenceProcess);
@@ -398,7 +392,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          IModel otherModel = pkg.getReferencedModel();
          if (otherModel != null)
          {
-            return otherModel.findApplication(externalReference.getId());
+            String uuid = getStringAttribute("carnot:connection:uuid");
+            return otherModel.findApplication(StringUtils.isEmpty(uuid)
+                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
          }
       }
       return application;

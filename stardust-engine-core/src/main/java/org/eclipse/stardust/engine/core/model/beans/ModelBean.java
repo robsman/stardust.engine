@@ -758,12 +758,51 @@ public class ModelBean extends RootElementBean
    
    public IApplication findApplication(String id)
    {
-      return (IApplication) applications.findById(id);
+      return find(applications, id);
    }
 
    public IData findData(String id)
    {
       return find(data, id);
+   }
+
+   private static <T extends IdentifiableElement> T find(Link list, String id)
+   {
+      String uuid = null;
+      int ix = id.indexOf('?');
+      if (ix >= 0)
+      {
+         for (String token : id.substring(ix + 1).split("&"))
+         {
+            if (token.startsWith("uuid="))
+            {
+               uuid = token.substring(5);
+               break;
+            }
+         }
+         id = id.substring(0, ix);
+      }
+      T item = (T) list.findById(id);
+      if (uuid != null)
+      {
+         String elementUUID = item.getStringAttribute("carnot:model:uuid");
+         if (item == null || !uuid.equals(elementUUID))
+         {
+            for (Iterator iterator = list.iterator(); iterator.hasNext();)
+            {
+               T other = (T) iterator.next();
+               if (other != item)
+               {
+                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  if (uuid.equals(elementUUID))
+                  {
+                     return other;
+                  }
+               }
+            }
+         }
+      }
+      return item;
    }
 
    private static <T extends IdentifiableElement> T find(SearchableList<T> list, String id)
@@ -777,6 +816,7 @@ public class ModelBean extends RootElementBean
             if (token.startsWith("uuid="))
             {
                uuid = token.substring(5);
+               break;
             }
          }
          id = id.substring(0, ix);
@@ -820,7 +860,7 @@ public class ModelBean extends RootElementBean
 
    public IProcessDefinition findProcessDefinition(String id)
    {
-      return (IProcessDefinition) processDefinitions.findById(id);
+      return find(processDefinitions, id);
    }
 
    public Iterator getAllApplications()

@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ApplicationException;
@@ -1796,7 +1797,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                IModel refModel = pkg.getReferencedModel();
                if (refModel != null)
                {
-                  intf = refModel.findProcessDefinition(ref.getId());
+                  String uuid = pd.getStringAttribute("carnot:connection:uuid");
+                  intf = refModel.findProcessDefinition(StringUtils.isEmpty(uuid)
+                        ? ref.getId() : ref.getId() + "?uuid=" + uuid);
                }
             }
          }

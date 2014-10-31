@@ -24,29 +24,31 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * <p>
  * A {@link ServiceCommand} that queries the database for the <i>Processing Time</i> of one
- * or more given <i>Activity Instances</i>. <i>Processing Time</i> is defined as the overall time
+ * or more given <i>Process Instances</i>. <i>Processing Time</i> is defined as the overall time
+ * of the <i>Process Instance's</i> constituent <i>Activity Instances</i> (including those in subprocesses)
  * spent in state {@link ActivityInstanceState#Application} and only applies to <i>Interactive
  * Activities</i>.
  * </p>
  *
  * @author Nicolas.Werlein
  */
-public class QueryActivityInstanceProcessingTimeCommand implements ServiceCommand
+public class QueryProcessInstanceProcessingTimeCommand implements ServiceCommand
 {
-   private static final long serialVersionUID = 2131157154875979598L;
+   private static final long serialVersionUID = 7835839785006007895L;
 
    private final Set<Long> oids;
 
@@ -55,9 +57,9 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
     * ctor
     * </p>
     *
-    * @param oid the activity instance oid to query
+    * @param oid the process instance oid to query
     */
-   public QueryActivityInstanceProcessingTimeCommand(final long oid)
+   public QueryProcessInstanceProcessingTimeCommand(final long oid)
    {
       this(Collections.singleton(oid));
    }
@@ -67,21 +69,21 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
     * ctor
     * </p>
     *
-    * @param oids the activity instance oids to query
+    * @param oids the process instance oids to query
     */
-   public QueryActivityInstanceProcessingTimeCommand(final Set<Long> oids)
+   public QueryProcessInstanceProcessingTimeCommand(final Set<Long> oids)
    {
       this.oids = oids;
    }
 
    /**
     * <p>
-    * Calculates the <i>Activity Instance Processing Times</i>.
+    * Calculates the <i>Process Instance Processing Times</i>.
     * </p>
     *
     * @param ignored a {@link ServiceFactory} instance which is <b>not</b> used during the call and therefore may be {@code null}
     *
-    * @return the activity instance processing times
+    * @return the process instance processing times
     */
    @Override
    public ProcessingTimes execute(final ServiceFactory ignored)
@@ -92,13 +94,15 @@ public class QueryActivityInstanceProcessingTimeCommand implements ServiceComman
       final BoundFunction sumOfDurations = Functions.constantExpression("SUM((CASE WHEN " + ActivityInstanceHistoryBean.FIELD__UNTIL + " = 0 THEN " + now + " ELSE " + ActivityInstanceHistoryBean.FIELD__UNTIL + " END) - " + ActivityInstanceHistoryBean.FIELD__FROM + ")");
 
       final QueryDescriptor queryDesc = QueryDescriptor.from(ActivityInstanceHistoryBean.class);
-      queryDesc.select(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, sumOfDurations);
-      queryDesc.where(
-            andTerm(
-                  inList(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, oids.iterator()),
-                  isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
-                  inList(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, new int[] { PerformerType.USER, PerformerType.MODEL_PARTICIPANT, PerformerType.USER_GROUP })));
-      queryDesc.groupBy(ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE);
+      queryDesc.select(ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, sumOfDurations);
+      queryDesc.innerJoin(ProcessInstanceHierarchyBean.class)
+               .on(ActivityInstanceHistoryBean.FR__PROCESS_INSTANCE, ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE)
+               .where(
+                     andTerm(
+                           inList(ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, oids.iterator()),
+                           isEqual(ActivityInstanceHistoryBean.FR__STATE, ActivityInstanceState.APPLICATION),
+                           inList(ActivityInstanceHistoryBean.FR__PERFORMER_KIND, new int[] { PerformerType.USER, PerformerType.MODEL_PARTICIPANT, PerformerType.USER_GROUP })));
+      queryDesc.groupBy(ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE);
 
       final Session session = (Session) SessionFactory.getSession(SessionProperties.DS_NAME_AUDIT_TRAIL);
       final ResultSet rs = session.executeQuery(queryDesc);

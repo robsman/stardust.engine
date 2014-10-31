@@ -39,7 +39,12 @@ public class StatisticsQueryModelConstants
    /**
     * the ID of the process definition having two interactive activities and one application activity
     */
-   /* package-private */ static final String PROCESS_DEF_ID_PROCESSING_TIME = MODEL_ID_PREFIX + "ProcessingTime";
+   /* package-private */ static final String PROCESS_DEF_ID_AI_PROCESSING_TIME = MODEL_ID_PREFIX + "AIProcessingTime";
+
+   /**
+    * the ID of the process definition having two subprocesses
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_PI_PROCESSING_TIME_A = MODEL_ID_PREFIX + "PIProcessingTime_A";
 
 
    /**
@@ -48,7 +53,7 @@ public class StatisticsQueryModelConstants
    /* package-private */ static final String ACTIVITY_ID_WORK = "Work";
 
    /**
-    * the ID of the last interactive activity of process definition {@link #PROCESS_DEF_ID_PROCESSING_TIME}
+    * the ID of the last interactive activity of process definition {@link #PROCESS_DEF_ID_AI_PROCESSING_TIME}
     */
    /* package-private */ static final String ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY = "LastInteractiveActivity";
 }

@@ -18,7 +18,7 @@ import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelCon
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID_PREFIX;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_DO_WORK;
-import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_PROCESSING_TIME;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_AI_PROCESSING_TIME;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -101,7 +101,7 @@ public class ActivityInstanceStatisticsQueryTest
    {
       final Set<String> processIds = newHashSet();
       processIds.add(PROCESS_DEF_ID_DO_WORK);
-      processIds.add(PROCESS_DEF_ID_PROCESSING_TIME);
+      processIds.add(PROCESS_DEF_ID_AI_PROCESSING_TIME);
 
       final ActivityStatisticsQuery query = ActivityStatisticsQuery.forProcessIds(processIds);
       setCriticalExecutionTimePolicy(query);
@@ -115,7 +115,7 @@ public class ActivityInstanceStatisticsQueryTest
    {
       final Set<ProcessDefinition> processDefs = newHashSet();
       processDefs.add(sf.getQueryService().getProcessDefinition(PROCESS_DEF_ID_DO_WORK));
-      processDefs.add(sf.getQueryService().getProcessDefinition(PROCESS_DEF_ID_PROCESSING_TIME));
+      processDefs.add(sf.getQueryService().getProcessDefinition(PROCESS_DEF_ID_AI_PROCESSING_TIME));
 
       final ActivityStatisticsQuery query = ActivityStatisticsQuery.forProcesses(processDefs);
       setCriticalExecutionTimePolicy(query);
@@ -144,7 +144,7 @@ public class ActivityInstanceStatisticsQueryTest
 
    private void startProcessDefProcessingTime() throws InterruptedException, TimeoutException
    {
-      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PROCESSING_TIME, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_AI_PROCESSING_TIME, null, true);
 
       final ActivityInstance firstInteractiveAi = sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
@@ -171,7 +171,7 @@ public class ActivityInstanceStatisticsQueryTest
       final IActivityStatistics workAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_DO_WORK, MODEL_ID_PREFIX + ACTIVITY_ID_WORK);
       assertForProcessDef(workAiStats);
 
-      final IActivityStatistics lastInteractiveAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_PROCESSING_TIME, MODEL_ID_PREFIX + ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY);
+      final IActivityStatistics lastInteractiveAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_AI_PROCESSING_TIME, MODEL_ID_PREFIX + ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY);
       assertForProcessDef(lastInteractiveAiStats);
    }
 

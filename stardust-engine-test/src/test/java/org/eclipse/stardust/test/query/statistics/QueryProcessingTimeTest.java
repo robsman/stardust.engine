@@ -241,6 +241,7 @@ public class QueryProcessingTimeTest
 
    private void assertThatAiProcessingTimeIsCorrect(final ProcessingTime processingTime)
    {
+      // TODO do not use this pretty vague lower-upper-bound approach, but determine the exact times by means of AIs' historical states
       final Bound bound = aiOidToProcessingTimeExpectations.get(processingTime.oid());
 
       assertThat(processingTime.processingTime(), greaterThanOrEqualTo(bound.lower()));
@@ -249,6 +250,7 @@ public class QueryProcessingTimeTest
 
    private void assertThatPiProcessingTimeIsCorrect(final ProcessingTime processingTime)
    {
+      // TODO do not use this pretty vague lower-upper-bound approach, but determine the exact times by means of AIs' historical states
       final Bound bound = piOidToProcessingTimeExpectations.get(processingTime.oid());
 
       assertThat(processingTime.processingTime(), greaterThanOrEqualTo(bound.lower()));

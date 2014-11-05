@@ -111,6 +111,10 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
       final Class[] paramTypes;
       final Object[] paramValues;
 
+
+      // Update the tunnelingContext's principal if needed.
+      updateTunnelingContext();
+
       if (null != tunneledContext
             && !("remove".equals(method.getName()) && (null == args || args.length == 0)))
       {
@@ -140,9 +144,6 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
          paramTypes = method.getParameterTypes();
          paramValues = args;
       }
-
-      // Update the tunnelingContext's principal if needed.
-      updateTunnelingContext();
 
       // work for florin
       // bug #3137: check what exception is coming and why it's incorrectly unwrapped

@@ -92,7 +92,7 @@ public class WebServiceEnv implements ModelResolver
       return modelCache;
    }
 
-   private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter()
+   private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter(null)
    {
       protected Model getModel(long oid)
       {

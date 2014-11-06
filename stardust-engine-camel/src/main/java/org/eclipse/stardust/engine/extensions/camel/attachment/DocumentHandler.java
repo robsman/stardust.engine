@@ -1,7 +1,12 @@
 package org.eclipse.stardust.engine.extensions.camel.attachment;
 
 import static org.apache.camel.Exchange.FILE_NAME_ONLY;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.*;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_ATTACHMENTS_AP_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_TEMPLATE_CONFIGURATION_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_CONTENT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_NAME;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TARGET_PATH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -309,16 +314,20 @@ public class DocumentHandler
                .getApplication().getAllAttributes();
          if (extendedAttributes != null && extendedAttributes.size() > 0)
          {
-            dynamicTemplateConfigurations = exchange.getIn().getHeader("attachments", Map.class);
+            dynamicTemplateConfigurations = exchange.getIn().getHeader(MAIL_ATTACHMENTS_AP_ID, Map.class);
             if(dynamicTemplateConfigurations != null)
             {
-               List<TemplateConfiguration> listTemplateConfiguration = (List<TemplateConfiguration>) dynamicTemplateConfigurations.get("attachments");
-               templateConfigurationsEA = new Gson().toJson(listTemplateConfiguration);
-               processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
+               if(dynamicTemplateConfigurations.size() == 1)
+               {
+                  List<TemplateConfiguration> listTemplateConfiguration = (List<TemplateConfiguration>) dynamicTemplateConfigurations
+                        .get(dynamicTemplateConfigurations.keySet().iterator().next());
+                  templateConfigurationsEA = new Gson().toJson(listTemplateConfiguration);
+                  processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
+               }
             } else
             {
                templateConfigurationsEA = (String) extendedAttributes
-               .get("stardust:emailOverlay::templateConfigurations");
+               .get(MAIL_TEMPLATE_CONFIGURATION_ATT);
                if (StringUtils.isNotEmpty(templateConfigurationsEA))
                {
                   processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);

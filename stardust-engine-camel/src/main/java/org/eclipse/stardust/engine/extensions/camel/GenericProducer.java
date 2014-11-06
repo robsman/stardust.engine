@@ -158,9 +158,13 @@ public class GenericProducer
     */
    public void executeMessage(Object message, Map<String, Object> headers) throws Exception
    {
-      template.sendBodyAndHeaders(this.endpointName, message, headers == null
-            ? Collections.<String, Object> emptyMap()
-            : headers);
+      Exchange exchange = new DefaultExchange(camelContext);
+      exchange.setPattern(ExchangePattern.InOut);
+      CamelMessage inMessage=new CamelMessage();
+      inMessage.setBody(message);
+      inMessage.setHeaders(headers == null ? Collections.<String, Object> emptyMap() : headers);
+      exchange.setIn(inMessage);
+      template.send(endpointName, exchange);
    }
 
    /**

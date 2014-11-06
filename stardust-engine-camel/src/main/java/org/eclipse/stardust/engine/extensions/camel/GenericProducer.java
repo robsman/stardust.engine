@@ -158,13 +158,7 @@ public class GenericProducer
     */
    public void executeMessage(Object message, Map<String, Object> headers) throws Exception
    {
-      Exchange exchange = new DefaultExchange(camelContext);
-      exchange.setPattern(ExchangePattern.InOut);
-      CamelMessage inMessage=new CamelMessage();
-      inMessage.setBody(message);
-      inMessage.setHeaders(headers == null ? Collections.<String, Object> emptyMap() : headers);
-      exchange.setIn(inMessage);
-      template.send(endpointName, exchange);
+      sendMessage(message, headers, ExchangePattern.InOnly);
    }
 
    /**
@@ -181,8 +175,12 @@ public class GenericProducer
     */
    public Object sendBodyInOut(Object message, Map<String, Object> headers) throws Exception
    {
+      return sendMessage(message, headers, ExchangePattern.InOut);
+   }
+
+   private Object sendMessage(Object message, Map<String, Object> headers, ExchangePattern pattern){
       Exchange exchange = new DefaultExchange(camelContext);
-      exchange.setPattern(ExchangePattern.InOut);
+      exchange.setPattern(pattern);
       CamelMessage inMessage=new CamelMessage();
       inMessage.setBody(message);
       inMessage.setHeaders(headers == null ? Collections.<String, Object> emptyMap() : headers);

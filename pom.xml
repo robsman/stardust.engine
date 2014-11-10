@@ -40,6 +40,7 @@
             <module>stardust-engine-test</module>
             <module>stardust-engine-ws-cxf</module>
             <module>stardust-engine-camel</module>
+            <module>stardust-engine-camel-test</module>
          </modules>
       </profile>
    </profiles>

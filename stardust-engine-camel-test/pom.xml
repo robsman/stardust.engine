@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.eclipse.stardust</groupId>
+    <artifactId>product-parent</artifactId>
+    <version>9.9.9-SNAPSHOT</version>
+    <relativePath>../../product/product-parent/pom.xml</relativePath>
+  </parent>
+
+  <groupId>org.eclipse.stardust.engine</groupId>
+  <artifactId>stardust-engine-test-camel</artifactId>
+
+  <name>Stardust Engine Test (with Camel)</name>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>carnot-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>carnot-spring</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>stardust-engine-test</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>stardust-engine-camel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>stardust-engine-test</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.stardust.engine</groupId>
+      <artifactId>jta-jencks-module</artifactId>
+      <scope>test</scope>
+      <type>pom</type>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast-ra</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

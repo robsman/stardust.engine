@@ -92,19 +92,17 @@ public class WebServiceEnv implements ModelResolver
       return modelCache;
    }
 
-   private ModelDetails.SchemaLocatorAdapter schemaLocator = new ModelDetails.SchemaLocatorAdapter(null)
-   {
-      protected Model getModel(long oid)
-      {
-         return WebServiceEnv.this.getModel((int) oid);
-      }
-   };
-
    private void registerSchemaLocator(Model model)
    {
       if (model instanceof ModelDetails)
       {
-         ((ModelDetails) model).setSchemaLocatorAdapter(schemaLocator);
+         ((ModelDetails) model).setSchemaLocatorAdapter(new ModelDetails.SchemaLocatorAdapter(model)
+         {
+            protected Model getModel(long oid)
+            {
+               return WebServiceEnv.this.getModel((int) oid);
+            }
+         });
       }
    }
 

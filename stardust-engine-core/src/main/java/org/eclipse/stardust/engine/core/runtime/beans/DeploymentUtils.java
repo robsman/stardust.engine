@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.engine.api.dto.DeploymentInfoDetails;
 import org.eclipse.stardust.engine.api.model.IActivity;
@@ -165,7 +166,10 @@ public class DeploymentUtils
          if (ref != null)
          {
             IModel model = ref.getExternalPackage().getReferencedModel();
-            if (deletedElement == ModelRefBean.getPrimaryImplementation(model.findProcessDefinition(ref.getId()), null, null))
+            String uuid = deletedElement.getStringAttribute("carnot:connection:uuid");
+            IProcessDefinition refProcess = model.findProcessDefinition(StringUtils.isEmpty(uuid)
+                  ? ref.getId() : ref.getId() + "?uuid=" + uuid);
+            if (deletedElement == ModelRefBean.getPrimaryImplementation(refProcess, null, null))
             {
                problems.add(new Inconsistency(Inconsistency.ERROR, deletedElement, PRIMARY_IMPLEMENTATION,
                      deletedElement, "{" + model.getId() + "}" + ref.getId(), model.getModelOID()));

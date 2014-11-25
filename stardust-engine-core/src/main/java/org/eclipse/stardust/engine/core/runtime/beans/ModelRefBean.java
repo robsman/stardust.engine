@@ -17,15 +17,12 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -291,72 +288,39 @@ public class ModelRefBean extends PersistentBean implements Serializable
 
    public static List<IModel> getUsedModels(IModel model)
    {
-      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
-      ComparisonTerm modelPredicate = Predicates.isEqual(FR__MODEL_OID, model.getModelOID());
-      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
-            .select(FIELD__REF_OID)
-            .where(Predicates.andTerm(typePredicate, modelPredicate));
-      ResultSet resultSet = session.executeQuery(query);
-      try
-      {
-         ModelManager manager = ModelManagerFactory.getCurrent();
-         List<IModel> result = CollectionUtils.newList();
-         while (resultSet.next())
-         {
-            IModel used = manager.findModel(resultSet.getLong(1));
-            if (used != null)
-            {
-               result.add(used);
-            }
-         }
-         return result;
-      }
-      catch (SQLException e)
-      {
-         trace.warn("Failed executing query.", e);
-         throw new PublicException(e);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(resultSet);
-      }
+      return CollectionUtils.newListFromIterator(
+            new TransformingIterator<IExternalPackage, IModel>(model.getExternalPackages().iterator(),
+                  new Functor<IExternalPackage, IModel>()
+                  {
+                     @Override
+                     public IModel execute(IExternalPackage pkg)
+                     {
+                        return pkg.getReferencedModel();
+                     }
+                  }));
    }
 
-   public static List<IModel> getUsingModels(IModel model)
+   public static List<IModel> getUsingModels(final IModel model)
    {
-      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
-      ComparisonTerm modelPredicate = Predicates.isEqual(FR__REF_OID, model.getModelOID());
-      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
-            .select(FIELD__MODEL_OID)
-            .where(Predicates.andTerm(typePredicate, modelPredicate));
-      ResultSet resultSet = session.executeQuery(query);
-      try
-      {
-         ModelManager manager = ModelManagerFactory.getCurrent();
-         List<IModel> result = CollectionUtils.newList();
-         while (resultSet.next())
-         {
-            IModel using = manager.findModel(resultSet.getLong(1));
-            if (using != null)
-            {
-               result.add(using);
-            }
-         }
-         return result;
-      }
-      catch (SQLException e)
-      {
-         trace.warn("Failed executing query.", e);
-         throw new PublicException(e);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(resultSet);
-      }
+      return CollectionUtils.newListFromIterator(
+            new FilteringIterator<IModel>(ModelManagerFactory.getCurrent().getAllModels(),
+                  new Predicate<IModel>()
+                  {
+                     @Override
+                     public boolean accept(IModel other)
+                     {
+                        for (IExternalPackage pkg : other.getExternalPackages())
+                        {
+                           if (model == pkg.getReferencedModel())
+                           {
+                              return true;
+                           }
+                        }
+                        return false;
+                     }
+                  }));
    }
-   
+
    public long getModelOid()
    {
       return modelOid;
@@ -447,7 +411,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       IActivityInstance currentAi = env.getCurrentActivityInstance();
       if (currentAi == null)
       {
-         referenceDeployment = ModelDeploymentBean.getLastDeployment();
+         referenceDeployment = -1;
          referenceTime = System.currentTimeMillis();
       }
       else
@@ -483,7 +447,8 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          implementationId = process.getModel().getId();
       }
-      IProcessDefinition primaryImplementation = getPrimaryImplementation(referenceTime, referenceDeployment, interfaceOid, processQID, implementationId);
+      IProcessDefinition primaryImplementation = getPrimaryImplementation(process, referenceTime, referenceDeployment,
+            interfaceOid, processQID, implementationId);
       if (primaryImplementation == null && data != null && processInstance != null)
       {
          throw new NonInteractiveApplicationException("Unable to find a valid implementation for '" + processQID + "'.",
@@ -498,10 +463,12 @@ public class ModelRefBean extends PersistentBean implements Serializable
       ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.IMPLEMENTS.ordinal());
       ComparisonTerm modelPredicate = Predicates.isEqual(FR__MODEL_OID, interfaceOid);
       ComparisonTerm refIdPredicate = Predicates.isEqual(FR__REF_OID, runtimeProcessOid);
-      ComparisonTerm deploymentPredicate = Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
+      ComparisonTerm deploymentPredicate = referenceDeployment < 0 ? null : Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
       QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
             .select(FIELD__ID)
-            .where(Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate, deploymentPredicate));
+            .where(referenceDeployment < 0
+                  ? Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate)
+                  : Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate, deploymentPredicate));
       query.getQueryExtension().addOrderBy(FR__DEPLOYMENT, false);
       ResultSet resultSet = jdbcSession.executeQuery(query);
       try
@@ -523,7 +490,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
       return null;
    }
 
-   private static IProcessDefinition getPrimaryImplementation(long referenceTimestamp, long referenceDeployment,
+   private static IProcessDefinition getPrimaryImplementation(IProcessDefinition interfaceProcess, long referenceTimestamp, long referenceDeployment,
          long interfaceOid, QName processId, String implementationId)
    {
       QName qname = QName.valueOf(implementationId);
@@ -542,14 +509,34 @@ public class ModelRefBean extends PersistentBean implements Serializable
       String localPart = processId.getLocalPart();
       ModelManager manager = ModelManagerFactory.getCurrent();
 
-      PredicateTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
-      PredicateTerm modelPredicate = Predicates.isEqual(FR__REF_OID, interfaceOid);
-      PredicateTerm deploymentPredicate = Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
-      PredicateTerm validFromPredicate = Predicates.lessOrEqual(ModelDeploymentBean.FR__VALID_FROM, referenceTimestamp);
+      if (referenceDeployment < 0)
+      {
+         IProcessDefinition implementation = null;
+         for (IModel candidate : getUsingModels((IModel) interfaceProcess.getModel()))
+         {
+            if (mId.equals(candidate.getId()))
+            {
+               Date from = (Date) candidate.getAttribute(PredefinedConstants.VALID_FROM_ATT);
+               if (from == null || from.getTime() <= referenceTimestamp)
+               {
+                  IProcessDefinition process = findImplementation(candidate, processId, pId, localPart, sameModel);
+                  if (process != null)
+                  {
+                     implementation = process;
+                  }
+               }
+            }
+         }
+         return implementation;
+      }
+
+      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
+      ComparisonTerm modelPredicate = Predicates.isEqual(FR__REF_OID, interfaceOid);
+      ComparisonTerm deploymentPredicate = Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
+      ComparisonTerm validFromPredicate = Predicates.lessOrEqual(ModelDeploymentBean.FR__VALID_FROM, referenceTimestamp);
       QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
             .select(FIELD__MODEL_OID)
-            .where(new AndTerm(new PredicateTerm[] {
-                  typePredicate, modelPredicate, deploymentPredicate, validFromPredicate}));
+            .where(Predicates.andTerm(typePredicate, modelPredicate, deploymentPredicate, validFromPredicate));
       query.getQueryExtension().addOrderBy(FR__DEPLOYMENT, false);
       query.innerJoin(ModelDeploymentBean.class).on(FR__DEPLOYMENT, ModelDeploymentBean.FIELD__OID);
 
@@ -563,33 +550,7 @@ public class ModelRefBean extends PersistentBean implements Serializable
             IModel candidate = manager.findModel(candidateOid);
             if (candidate != null && mId.equals(candidate.getId()))
             {
-               IProcessDefinition process = null;
-               if (sameModel)
-               {
-                  process = candidate.findProcessDefinition(pId == null ? localPart : pId);
-               }
-               else
-               {
-                  List<IProcessDefinition> impls = candidate.getAllImplementingProcesses(processId);
-                  if (impls != null && !impls.isEmpty())
-                  {
-                     if (pId == null)
-                     {
-                        process = impls.get(0);
-                     }
-                     else
-                     {
-                        for (IProcessDefinition impl : impls)
-                        {
-                           if (pId.equals(impl.getId()))
-                           {
-                              process = impl;
-                              break;
-                           }
-                        }
-                     }
-                  }
-               }
+               IProcessDefinition process = findImplementation(candidate, processId, pId, localPart, sameModel);
                if (process != null)
                {
                   return process;
@@ -607,6 +568,39 @@ public class ModelRefBean extends PersistentBean implements Serializable
       {
          QueryUtils.closeResultSet(resultSet);
       }
+   }
+
+   protected static IProcessDefinition findImplementation(IModel candidate,
+         QName processId, String pId, String localPart, boolean sameModel)
+   {
+      IProcessDefinition process = null;
+      if (sameModel)
+      {
+         process = candidate.findProcessDefinition(pId == null ? localPart : pId);
+      }
+      else
+      {
+         List<IProcessDefinition> impls = candidate.getAllImplementingProcesses(processId);
+         if (impls != null && !impls.isEmpty())
+         {
+            if (pId == null)
+            {
+               process = impls.get(0);
+            }
+            else
+            {
+               for (IProcessDefinition impl : impls)
+               {
+                  if (pId.equals(impl.getId()))
+                  {
+                     process = impl;
+                     break;
+                  }
+               }
+            }
+         }
+      }
+      return process;
    }
 
    public static void deleteForModel(long modelOid, Session session)

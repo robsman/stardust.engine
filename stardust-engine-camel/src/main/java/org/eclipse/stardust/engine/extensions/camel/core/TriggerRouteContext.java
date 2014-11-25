@@ -23,7 +23,9 @@ public abstract class TriggerRouteContext extends RouteContext
    {
       return this.trigger.getId();
    }
-
+   public String getDescription(){
+      return Util.getDescription(getCurrentPartition(), getModelId(), getId());
+   }
    public String getUserName()
    {
       return Util.getUserName(this.trigger);
@@ -53,14 +55,14 @@ public abstract class TriggerRouteContext extends RouteContext
    {
       return Util.getConversionStrategy(this.trigger);
    }
-   
+
    public String getEventImplementation()
    {
       return Util.getEventImplementation(this.trigger);
    }
    /**
     * mark route as transacted by default
-    * 
+    *
     * @return
     */
    public boolean markTransacted()

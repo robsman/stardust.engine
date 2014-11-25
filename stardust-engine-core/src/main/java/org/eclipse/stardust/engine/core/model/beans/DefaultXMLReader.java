@@ -1930,8 +1930,8 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                if (declaration != null)
                {
                   return StructuredTypeRtUtils.getSchema(model, declaration);
-               }
-            }
+      }
+   }
          }
          return null;
       }

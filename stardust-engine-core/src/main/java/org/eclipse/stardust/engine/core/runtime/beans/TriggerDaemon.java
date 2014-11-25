@@ -210,6 +210,11 @@ public class TriggerDaemon implements IDaemon
       return type;
    }
 
+   public long getDefaultPeriodicity()
+   {
+      return 5;
+   }
+
    /**
     * Performs the mapping of trigger parameters to appropriate process data.
     *

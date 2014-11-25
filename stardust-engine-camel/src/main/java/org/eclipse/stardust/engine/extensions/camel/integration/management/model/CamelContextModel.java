@@ -3,7 +3,6 @@ package org.eclipse.stardust.engine.extensions.camel.integration.management.mode
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 
@@ -19,6 +18,8 @@ public class CamelContextModel {
 	@Expose
 	private boolean stopped;
 	@Expose
+	private String status = "";
+	@Expose
 	private String uptime;
 	@Expose
 	private String version;
@@ -32,6 +33,16 @@ public class CamelContextModel {
 		this.stopped = camelContext.getStatus().isStopped();
 		this.uptime = camelContext.getUptime();
 		this.version = camelContext.getVersion();
+		if (camelContext.getStatus().isStarted()){
+			this.status = "Started";
+		}else if (camelContext.getStatus().isStopped()){
+			this.status = "Stopped";
+		}else if (camelContext.getStatus().isSuspended()){
+			this.status = "Suspended";
+		}else {
+			this.status = "";
+		}
+	
 	}
 
 	public String getContextId() {
@@ -62,7 +73,15 @@ public class CamelContextModel {
 	public void setStopped(boolean stopped) {
 		this.stopped = stopped;
 	}
+	
+	public String getStatus() {
+		return status;
+	}
 
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
 	public String getUptime() {
 		return camelContext.getUptime();
 	}
@@ -79,7 +98,7 @@ public class CamelContextModel {
 		this.version = version;
 	}
 
-	public CamelContext getCamelContext() {
+	public ModelCamelContext getCamelContext() {
 		return camelContext;
 	}
 

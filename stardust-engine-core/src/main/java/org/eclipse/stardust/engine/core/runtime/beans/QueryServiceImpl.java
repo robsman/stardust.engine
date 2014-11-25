@@ -164,8 +164,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          }
          ResultIterator rawResult = queryEvaluator.executeFetch();
 
-         boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
-         Class<?> targetClass = useLazilyLoadingObjects ? LazilyLoadingActivityInstanceDetails.class : ActivityInstanceDetails.class;
+         Class<? extends ActivityInstance> targetClass = determineActivityInstanceDetailsClass();
          try
          {
             return ProcessQueryPostprocessor.findMatchingActivityInstanceDetails(query, rawResult, targetClass);
@@ -188,8 +187,9 @@ public class QueryServiceImpl implements QueryService, Serializable
             getDefaultEvaluationContext()).executeFetch();
       try
       {
+         Class<? extends ActivityInstance> targetClass = determineActivityInstanceDetailsClass();
          return (ActivityInstance) ProcessQueryPostprocessor.findFirstMatchingActivityInstanceDetails(
-               query, rawResult, ActivityInstanceDetails.class);
+               query, rawResult, targetClass);
       }
       finally
       {
@@ -204,8 +204,9 @@ public class QueryServiceImpl implements QueryService, Serializable
             getDefaultEvaluationContext()).executeFetch();
       try
       {
+         Class<? extends ProcessInstance> targetClass = determineProcessInstanceDetailsClass();
          return (ProcessInstance) ProcessQueryPostprocessor.findFirstMatchingProcessInstanceDetails(
-               query, rawResult, ProcessInstanceDetails.class);
+               query, rawResult, targetClass);
       }
       finally
       {
@@ -248,8 +249,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
                getDefaultEvaluationContext()).executeFetch();
 
-         boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
-         Class<?> targetClass = useLazilyLoadingObjects ? LazilyLoadingProcessInstanceDetails.class : ProcessInstanceDetails.class;
+         Class<? extends ProcessInstance> targetClass = determineProcessInstanceDetailsClass();
          try
          {
             return ProcessQueryPostprocessor.findMatchingProcessInstancesDetails(query, rawResult, targetClass);
@@ -998,6 +998,18 @@ public class QueryServiceImpl implements QueryService, Serializable
       return resourcebundle;
    }
 
+   private Class<? extends ProcessInstance> determineProcessInstanceDetailsClass()
+   {
+      boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
+      return useLazilyLoadingObjects ? LazilyLoadingProcessInstanceDetails.class : ProcessInstanceDetails.class;
+   }
+
+   private Class<? extends ActivityInstance> determineActivityInstanceDetailsClass()
+   {
+      boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
+      return useLazilyLoadingObjects ? LazilyLoadingActivityInstanceDetails.class : ActivityInstanceDetails.class;
+   }
+
    private static boolean isFilteringWorkitemsOnly(ActivityInstanceQuery query)
    {
       if (query.getPolicy(EvaluateByWorkitemsPolicy.class) != null)
@@ -1006,5 +1018,4 @@ public class QueryServiceImpl implements QueryService, Serializable
       }
       return false;
    }
-
 }

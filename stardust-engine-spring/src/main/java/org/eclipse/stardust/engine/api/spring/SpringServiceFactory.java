@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractSessionAwareServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
@@ -166,11 +167,12 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
                if (signedPrincipal instanceof InvokerPrincipal)
                {
                   // pass principal created during previous login
-                  InvokerPrincipalUtils.setCurrent((InvokerPrincipal) signedPrincipal);
+                  InvokerPrincipalUtils.setCurrent(LoginUtils.getReauthenticationPrincipal(outerPrincipal, (InvokerPrincipal) signedPrincipal));
                }
                else
                {
-                  InvokerPrincipalUtils.setCurrent(new InvokerPrincipal(user.getUserId(), user.getProperties()));
+                  InvokerPrincipal principal = new InvokerPrincipal(user.getUserId(), user.getProperties());
+                  InvokerPrincipalUtils.setCurrent(LoginUtils.getReauthenticationPrincipal(outerPrincipal, principal));
                }
             }
             else

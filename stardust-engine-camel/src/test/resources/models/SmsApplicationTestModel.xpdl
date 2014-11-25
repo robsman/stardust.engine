@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="SmsApplicationTestModel" Name="SmsApplicationTestModel">
+   <PackageHeader>
+      <XPDLVersion>2.1</XPDLVersion>
+      <Vendor>SunGard CSA LLC, IPP</Vendor>
+      <Created>Mon Jul 14 11:48:35 WAT 2014</Created>
+   </PackageHeader>
+   <RedefinableHeader PublicationStatus="UNDER_REVISION">
+      <Author>Fradj.ZAYEN</Author>
+      <Version>1</Version>
+   </RedefinableHeader>
+   <ConformanceClass GraphConformance="NON_BLOCKED"/>
+   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="Person" Name="Person">
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:per="http://www.infinity.com/bpm/model/Model143/Person" targetNamespace="http://www.infinity.com/bpm/model/Model143/Person">
+               <xsd:complexType name="Person">
+                  <xsd:sequence>
+                     <xsd:element name="firstName" type="xsd:string"/>
+                     <xsd:element name="lastName" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="Person" type="per:Person"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+   </TypeDeclarations>
+   <Participants>
+      <Participant Id="Administrator" Name="Administrator">
+         <ParticipantType Type="ROLE"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="25"/>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+   </Participants>
+   <Applications>
+      <Application Id="SMSInvocation" Name="SMS Invocation">
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="44" Type="camelSpringProducerApplication">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="48" Id="personInput" Name="personInput" Direction="IN" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="Person"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="smsIntegrationOverlay"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::hostname" Value="localhost"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::port" Value="8056"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::username" Value="smppclient1"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::password" Value="testPW"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::sourceaddress" Value="[IPP]"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::destinationaddress" Value="0021652010755"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::messagecontent" Value="Hi {{personInput.firstName}} {{personInput.lastName}}&#10;Your subscription is about to expire.&#10;Could you please contact our sales department.&#10;&#10;&#10;Thanks&#10;--&#10;Technical Support"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toNativeObject&quot;/&gt;&#10;&lt;setHeader headerName=&quot;CamelLanguageScript&quot;&gt;&#10;   &lt;constant&gt;&#10;function setOutHeader(key, output){&#10;exchange.out.headers.put(key,output);}&#10;function formatDate(format,value){&#10;  return new java.text.SimpleDateFormat(format).format(value);}&#10;function isArray(obj) {&#10;&#9;if (Array.isArray) {&#10;&#9;&#9;return Array.isArray(obj);&#10;&#9;} else {&#10;&#9;return Object.prototype.toString.call(obj) === '[object Array]';&#10;&#9;}&#10;}&#10;function visitMembers(obj, callback) {&#10;&#9;var i = 0, length = obj.length;&#10;&#9;if (isArray(obj)) {&#10;&#9;&#9;for(; i &amp;lt; length; i++) {&#10;&#9;&#9;obj[i]= callback(i, obj[i]);&#10;&#9;&#9;}&#10;} else {&#10;&#9;&#9;for (i in obj) {&#10;&#9;&#9;obj[i]=  callback(i, obj[i]);}&#10;&#9;}&#10;&#9;return obj;&#10;}&#10;function recursiveFunction(key, val) {&#10;&#9;if (val instanceof Object || isArray(val)) {&#10;&#9;&#9;return visitMembers(val, recursiveFunction);&#10;&#9;} else {&#10;&#9;&#9;return actualFunction(val, typeof val);&#10;&#9;}&#10;}&#10;function actualFunction(value, type) {&#10;&#9;var dataAsLong;&#10;&#9;if (type === 'string') {&#10;&#9;&#9;dataAsLong =new RegExp(/\/Date\((-?\d*)\)\//).exec(value);&#10;&#9;if (dataAsLong) {&#10;&#9;&#9;return new java.util.Date(+dataAsLong[1]);&#10;&#9;}&#10;}&#10;return value;&#10;}&#10;     String.prototype.hashCode = function() {        var hash = 0;&#10;        if (this == 0) return hash;&#10;        for (var i = 0; i &amp;lt; this.length; i++) {&#10;           var character = this.charCodeAt(i);&#10;           hash = ((hash&amp;lt;&amp;lt;5)-hash)+character;&#10;           hash = hash &amp;amp; hash;&#10;        }&#10;        return hash;&#10;     }&#10;var personInput;&#10;if(request.headers.get('personInput')!=null){&#10;personInput =  eval('(' + request.headers.get('personInput')+ ')');&#10;personInput=visitMembers(personInput, recursiveFunction);&#10;}&#10;&#10;&lt;![CDATA[      response = 'Hi ' + personInput.firstName + ' ' + personInput.lastName + ' Your subscription is about to expire. Could you please contact our sales department.   Thanks -- Technical Support';&#10;]]&gt;      setOutHeader('response', response);&#10;   &lt;/constant&gt;&#10;&lt;/setHeader&gt;&#10;&lt;to uri=&quot;language:javascript&quot;/&gt;&#10;&lt;setBody&gt;&#10;   &lt;simple&gt;$simple{in.header.response}&lt;/simple&gt;&#10;&lt;/setBody&gt;&#10;&lt;to uri=&quot;smpp://smppclient1@localhost:8056?lazySessionCreation=true&amp;amp;password=${testPW:Password}&amp;amp;destAddr=0021652010755&amp;amp;sourceAddr=[IPP]&quot;/&gt;"/>
+                     <carnot:Attribute Name="stardust:smsIntegrationOverlay::useCVforPassowrd" Value="${testPW:Password}"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+   </Applications>
+   <DataFields>
+      <DataField Id="PROCESS_ID" Name="Process OID" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="20" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="ROOT_PROCESS_ID" Name="Root Process OID" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="21" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="PROCESS_PRIORITY" Name="Process Priority" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="22" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="CURRENT_LOCALE" Name="Current Locale" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="23" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="CURRENT_DATE" Name="Current Date" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="DATETIME"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="24" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="Person" Name="Person" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="Person"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="55" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+   </DataFields>
+   <WorkflowProcesses>
+      <WorkflowProcess Id="SendSMSProcess" Name="SendSMSProcess" AccessLevel="PUBLIC">
+         <ProcessHeader>
+            <Description/>
+         </ProcessHeader>
+         <Activities>
+            <Activity Id="PopulateCustomerdata" Name="Populate Customer data">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="57" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="60" Id="Person" Name="Person" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="Person"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SendSMS" Name="Send SMS">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="SMSInvocation">
+                        <ActualParameters>
+                           <ActualParameter>Person</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="62" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="74" Id="Person" Name="Person" Direction="IN" Context="application">
+                              <carnot:DataRef Id="Person"/>
+                              <carnot:AccessPointRef Id="personInput"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="ccc13014-2fef-43b4-8d8c-eaffd8452a66" Name="" From="PopulateCustomerdata" To="SendSMS">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="66"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="49">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="54" Id="ManualTrigger1" Name="Start" Type="manual">
+                        <carnot:Description/>
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="eventClass" Value="none"/>
+                           <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="52" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="51" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="427" Height="670" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="50" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="393" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="51">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="53" X="107" Y="55" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="DATA" Oid="56" X="13" Y="240" Width="100" Height="70" ModelElement="Person"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="58" X="72" Y="163" Width="180" Height="50" ModelElement="PopulateCustomerdata"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="63" X="72" Y="318" Width="180" Height="50" ModelElement="SendSMS"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="59" SourceSymbol="53" TargetSymbol="58" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="61" SourceSymbol="56" TargetSymbol="58" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="65" SourceSymbol="56" TargetSymbol="63" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="67" ModelElement="ccc13014-2fef-43b4-8d8c-eaffd8452a66" SourceSymbol="58" TargetSymbol="63" SourceAnchor="bottom" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+   </WorkflowProcesses>
+   <ExtendedAttributes>
+      <ExtendedAttribute Name="CarnotExt">
+         <carnot:Package Oid="0" CarnotVersion="8.0.0" ModelOid="0">
+            <carnot:MetaTypes>
+               <carnot:DataTypes>
+                  <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.core.pojo.data.PrimitiveAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="2" Id="serializable" Name="Serializable Data" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.core.pojo.data.JavaBeanAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.pojo.data.SerializableValidator"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="3" Id="entity" Name="Entity Bean" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanValidator"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="4" Id="plainXML" Name="XML Document" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.xml.data.XPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.xml.data.XMLValidator"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="5" Id="struct" Name="Structured Data" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator"/>
+                        <carnot:Attribute Name="carnot:engine:dataFilterExtension" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+                        <carnot:Attribute Name="carnot:engine:dataLoader" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="6" Id="dmsDocument" Name="Document" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentValidator"/>
+                        <carnot:Attribute Name="carnot:engine:dataFilterExtension" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+                        <carnot:Attribute Name="carnot:engine:dataLoader" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="7" Id="dmsDocumentList" Name="Document List" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListValidator"/>
+                        <carnot:Attribute Name="carnot:engine:dataFilterExtension" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+                        <carnot:Attribute Name="carnot:engine:dataLoader" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="8" Id="dmsFolder" Name="Folder" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentValidator"/>
+                        <carnot:Attribute Name="carnot:engine:dataFilterExtension" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+                        <carnot:Attribute Name="carnot:engine:dataLoader" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+                  <carnot:DataType Oid="9" Id="dmsFolderList" Name="Folder List" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:evaluator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListAccessPathEvaluator"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsDocumentListValidator"/>
+                        <carnot:Attribute Name="carnot:engine:dataFilterExtension" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataFilterExtension"/>
+                        <carnot:Attribute Name="carnot:engine:dataLoader" Value="org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader"/>
+                     </carnot:Attributes>
+                  </carnot:DataType>
+               </carnot:DataTypes>
+               <carnot:ApplicationTypes>
+                  <carnot:ApplicationType Oid="10" Id="sessionBean" Name="Session Bean Application" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.ejb.app.SessionBeanAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.ejb.app.SessionBeanApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.ejb.SessionBeanValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="11" Id="plainJava" Name="Plain Java Application" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.pojo.app.PlainJavaValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="12" Id="jms" Name="JMS Application" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jms.app.JMSValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="13" Id="webservice" Name="Web Service Application" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="26" Id="camelSpringProducerApplication" Name="Camel Producer Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="73" Id="messageTransformationBean" Name="Message Transformation Bean" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageTransformationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageProcessingValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+               </carnot:ApplicationTypes>
+               <carnot:ApplicationContextTypes>
+                  <carnot:ApplicationContextType Oid="14" Id="default" Name="Default Context" IsPredefined="true" HasApplicationPath="false" HasMappingId="true"/>
+                  <carnot:ApplicationContextType Oid="15" Id="engine" Name="Engine Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="16" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="17" Id="application" Name="Noninteractive Application Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="18" Id="processInterface" Name="Process Interface Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+               </carnot:ApplicationContextTypes>
+               <carnot:TriggerTypes>
+                  <carnot:TriggerType Oid="19" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.triggers.manual.ManualTriggerValidator"/>
+                     </carnot:Attributes>
+                  </carnot:TriggerType>
+                  <carnot:TriggerType Oid="71" Id="camel" Name="Camel Trigger" IsPredefined="true" IsPullTrigger="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
+                        <carnot:Attribute Name="carnot:engine:runtimeValidator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
+                     </carnot:Attributes>
+                  </carnot:TriggerType>
+               </carnot:TriggerTypes>
+               <carnot:EventConditionTypes/>
+               <carnot:EventActionTypes/>
+               <carnot:LinkTypes/>
+            </carnot:MetaTypes>
+            <carnot:Modelers/>
+            <carnot:Diagrams/>
+            <carnot:Views/>
+            <carnot:Attributes>
+               <carnot:Attribute Name="ipp:model:modified" Value="Thu Sep 25 17:03:48 WAT 2014"/>
+               <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[{&quot;timestamp&quot;:&quot;2014-09-17T15:13:52.332Z&quot;,&quot;userFirstName&quot;:&quot;Master&quot;,&quot;userLastName&quot;:&quot;Of the Universe&quot;,&quot;userAccount&quot;:&quot;motu&quot;,&quot;content&quot;:&quot;comment \\ contain backslash&quot;}]}"/>
+               <carnot:Attribute Name="ipp:variables[0]:name" Value="testPW:Password" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="testPW" Type="String"/>
+            </carnot:Attributes>
+         </carnot:Package>
+      </ExtendedAttribute>
+   </ExtendedAttributes>
+</Package>

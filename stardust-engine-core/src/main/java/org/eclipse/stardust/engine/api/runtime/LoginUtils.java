@@ -21,8 +21,10 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
 
 
@@ -30,7 +32,7 @@ public class LoginUtils
 {
    /**
     * Overwrite loginProperties with existing credentials.
-    *  
+    *
     * @param loginProperties
     * @param credentials
     */
@@ -41,13 +43,13 @@ public class LoginUtils
       {
          loginProperties.put(SecurityProperties.PARTITION, partition);
       }
-   
+
       String realm = (String) credentials.get(SecurityProperties.CRED_REALM);
       if ( !StringUtils.isEmpty(realm))
       {
          loginProperties.put(SecurityProperties.REALM, realm);
       }
-   
+
       String domain = (String) credentials.get(SecurityProperties.CRED_DOMAIN);
       if ( !StringUtils.isEmpty(domain))
       {
@@ -59,7 +61,7 @@ public class LoginUtils
    {
       return mergeDefaultCredentials(Parameters.instance(), loginProperties);
    }
-   
+
    public static Map mergeDefaultCredentials(Parameters params, Map loginProperties)
    {
       String partition = (String) loginProperties.get(SecurityProperties.PARTITION);
@@ -87,10 +89,10 @@ public class LoginUtils
 
          loginProperties.put(SecurityProperties.DOMAIN, domain);
       }
-      
+
       return loginProperties;
    }
-   
+
    public static String getPartitionId(Map properties)
    {
       String partitionId = (String) properties.get(SecurityProperties.PARTITION);
@@ -100,7 +102,7 @@ public class LoginUtils
                BpmRuntimeError.AUTHx_AUTH_PARTITION_NOT_SPECIFIED.raise(),
                LoginFailedException.UNKNOWN_PARTITION);
       }
-   
+
       return partitionId;
    }
 
@@ -113,7 +115,7 @@ public class LoginUtils
                BpmRuntimeError.AUTHx_AUTH_DOMAIN_NOT_SPECIFIED.raise(),
                LoginFailedException.UNKNOWN_DOMAIN);
       }
-   
+
       return domainId;
    }
 
@@ -126,7 +128,7 @@ public class LoginUtils
                BpmRuntimeError.AUTHx_AUTH_REALM_NOT_SPECIFIED.raise(),
                LoginFailedException.UNKNOWN_REALM);
       }
-   
+
       return realmId;
    }
 
@@ -166,12 +168,12 @@ public class LoginUtils
                   params.set(CachedAuditTrailPartitionBean.PRP_PARTITION_CACHE,
                         partitionCache);
                }
-               
+
                partition = new CachedAuditTrailPartitionBean(partition);
                partitionCache.put(partitionId, partition);
             }
          }
-         
+
          return partition;
       }
       catch (ObjectNotFoundException e)
@@ -180,7 +182,7 @@ public class LoginUtils
                LoginFailedException.UNKNOWN_PARTITION);
       }
    }
-   
+
    public static IAuditTrailPartition findPartition(Parameters params, short partitionOid)
    {
       try
@@ -219,12 +221,12 @@ public class LoginUtils
                   params.set(CachedAuditTrailPartitionBean.PRP_PARTITION_CACHE,
                         partitionCache);
                }
-               
+
                partition = new CachedAuditTrailPartitionBean(partition);
                partitionCache.put(partition.getId(), partition);
             }
          }
-         
+
          return partition;
       }
       catch (ObjectNotFoundException e)
@@ -233,9 +235,9 @@ public class LoginUtils
                LoginFailedException.UNKNOWN_PARTITION);
       }
    }
-   
+
    /**
-    * 
+    *
     * @param properties
     * @return
     */
@@ -255,7 +257,7 @@ public class LoginUtils
       {
          boolean cacheDomains = params.getBoolean(KernelTweakingProperties.CACHE_DOMAINS,
                true);
-         
+
          if (cacheDomains && (partition instanceof CachedAuditTrailPartitionBean))
          {
             domain = ((CachedAuditTrailPartitionBean) partition).findCachedDomain(domainId);
@@ -279,7 +281,7 @@ public class LoginUtils
                LoginFailedException.UNKNOWN_DOMAIN);
       }
    }
-   
+
    public static IUserDomain findUserDomain(Parameters params,
          IAuditTrailPartition partition, long domainOid)
    {
@@ -289,7 +291,7 @@ public class LoginUtils
       {
          boolean cacheDomains = params.getBoolean(KernelTweakingProperties.CACHE_DOMAINS,
                true);
-         
+
          if (cacheDomains && (partition instanceof CachedAuditTrailPartitionBean))
          {
             domain = ((CachedAuditTrailPartitionBean) partition).findCachedDomain(domainOid);
@@ -313,7 +315,7 @@ public class LoginUtils
                LoginFailedException.UNKNOWN_DOMAIN);
       }
    }
-   
+
    public static IUserRealm findUserRealm(Map properties)
    {
       return findUserRealm(Parameters.instance(), properties);
@@ -332,7 +334,7 @@ public class LoginUtils
          throw new LoginFailedException(e.getError(), LoginFailedException.UNKNOWN_REALM);
       }
    }
-   
+
    /**
     * @param account
     * @param properties
@@ -350,7 +352,7 @@ public class LoginUtils
 
       return UserUtils.isUserMatchingIdSpec(user, userIdSpec);
    }
-   
+
    public static boolean isLoginLoggingDisabled(IUser user)
    {
       String userIdSpec = Parameters.instance().getString(
@@ -358,7 +360,7 @@ public class LoginUtils
 
       return UserUtils.isUserMatchingIdSpec(user, userIdSpec);
    }
-   
+
    public static boolean isUserExpired(IUser user)
    {
       Date now = new Date();
@@ -371,11 +373,43 @@ public class LoginUtils
 
       return true;
    }
-   
+
    public static LoginFailedException createAccountExpiredException(IUser user)
    {
       return new LoginFailedException(BpmRuntimeError.AUTHx_EXP_ACCOUNT_EXPIRED.raise(user
             .getRealmQualifiedAccount()), LoginFailedException.ACCOUNT_EXPIRED);
+   }
+
+   /**
+    * Merges the re-authentication properties of the outer {@link InvokerPrincipal} to the
+    * inner {@link InvokerPrincipal}.
+    *
+    * @param outer
+    *           Can contain property {@link AbstractLoginInterceptor#REAUTH_USER_ID}
+    * @param inner
+    *           The inner principal exists after the first call and is reused.
+    * @return If the outer principal contains re-authentication properties a new principal
+    *         based on the inner principal with re-authentication properties of the outer
+    *         principal, else the inner principal.
+    */
+   public static InvokerPrincipal getReauthenticationPrincipal(InvokerPrincipal outer,
+         InvokerPrincipal inner)
+   {
+      if (outer != null && inner != null)
+      {
+         Map outerProperties = outer.getProperties();
+         if (outerProperties != null && outerProperties.containsKey(AbstractLoginInterceptor.REAUTH_USER_ID))
+         {
+            Map mergedProperties = new HashMap(inner.getProperties());
+            mergedProperties.put(AbstractLoginInterceptor.REAUTH_USER_ID, outerProperties.get(AbstractLoginInterceptor.REAUTH_USER_ID));
+            mergedProperties.put(AbstractLoginInterceptor.REAUTH_PASSWORD,
+                  outerProperties.get(AbstractLoginInterceptor.REAUTH_PASSWORD));
+
+            return new InvokerPrincipal(inner.getName(), mergedProperties,
+                  inner.getSignature());
+         }
+      }
+      return inner;
    }
 
 }

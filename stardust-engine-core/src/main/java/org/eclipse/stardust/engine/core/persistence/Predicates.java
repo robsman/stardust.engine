@@ -59,6 +59,11 @@ public abstract class Predicates
       return new OrTerm(new PredicateTerm[] { lhs, rhs });
    }
 
+   public static OrTerm orTerm(PredicateTerm pred1, PredicateTerm pred2, PredicateTerm pred3)
+   {
+      return new OrTerm(new PredicateTerm[] { pred1, pred2, pred3 });
+   }
+
    /**
     * Creates a <code>IS NULL</code> comparison predicate for a alphanumeric attribute.
     *

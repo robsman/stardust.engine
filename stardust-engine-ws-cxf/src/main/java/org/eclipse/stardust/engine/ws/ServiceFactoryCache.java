@@ -21,12 +21,16 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 /**
@@ -43,6 +47,9 @@ public class ServiceFactoryCache
 
    private final long expirationInterval = Parameters.instance().getInteger(
 		   "Carnot.WebService.SessionCache.Timeout", 300 /* 5m */) * 1000L;
+
+   private final long reAuthenticationInterval = Parameters.instance().getInteger(
+         "Carnot.WebService.SessionCache.ReAuthenticationInterval", -1);
 
    private final boolean updateOnAccess = Parameters.instance().getBoolean(
 		   "Carnot.WebService.SessionCache.RenewOnAccess", true);
@@ -239,12 +246,15 @@ public class ServiceFactoryCache
 
       final AtomicLong lastAccessTime = new AtomicLong();
 
+      final AtomicLong lastAuthTime = new AtomicLong();
+
       public CacheEntry(CacheKey key, ServiceFactory sf)
       {
          this.key = key;
          this.sf = sf;
 
          lastAccessTime.set(System.currentTimeMillis());
+         lastAuthTime.set(System.currentTimeMillis());
       }
 
       boolean isExpired()
@@ -255,9 +265,62 @@ public class ServiceFactoryCache
       void acquire()
       {
          refCount.incrementAndGet();
+         long newAccessTime = System.currentTimeMillis();
          if (updateOnAccess)
          {
-        	lastAccessTime.set(System.currentTimeMillis());
+        	lastAccessTime.set(newAccessTime);
+         }
+         synchronized (lastAuthTime)
+         {
+            if (reAuthenticationInterval > -1 && (newAccessTime - lastAuthTime.get() > reAuthenticationInterval))
+            {
+               setReauthAttributes();
+               lastAuthTime.set(newAccessTime);
+            }
+         }
+      }
+
+      private void setReauthAttributes()
+      {
+         InvokerPrincipal current = InvokerPrincipalUtils.getCurrent();
+         if (current == null)
+         {
+            Map<Object, Object> props = CollectionUtils.newMap();
+            props.put(AbstractLoginInterceptor.REAUTH_OUTER_PRINCIPAL, null);
+            current = new InvokerPrincipal(key.userId, props);
+         }
+
+         @SuppressWarnings("unchecked")
+         Map<String, String> properties = current.getProperties();
+
+         properties.put(AbstractLoginInterceptor.REAUTH_USER_ID, key.userId);
+         properties.put(AbstractLoginInterceptor.REAUTH_PASSWORD, key.password);
+
+         InvokerPrincipalUtils.setCurrent(current);
+      }
+
+      private void removeReauthProperties()
+      {
+         InvokerPrincipal current = InvokerPrincipalUtils.getCurrent();
+         if (current != null)
+         {
+            @SuppressWarnings("unchecked")
+            Map<String, String> properties = current.getProperties();
+
+            if (properties != null)
+            {
+               if (properties.containsKey(AbstractLoginInterceptor.REAUTH_USER_ID))
+               {
+                  properties.remove(AbstractLoginInterceptor.REAUTH_USER_ID);
+                  properties.remove(AbstractLoginInterceptor.REAUTH_PASSWORD);
+                  InvokerPrincipalUtils.setCurrent(current);
+               }
+               else if (properties.containsKey(AbstractLoginInterceptor.REAUTH_OUTER_PRINCIPAL))
+               {
+                  InvokerPrincipalUtils.removeCurrent();
+               }
+            }
+
          }
       }
 
@@ -269,6 +332,7 @@ public class ServiceFactoryCache
       void release()
       {
          this.refCount.decrementAndGet();
+         removeReauthProperties();
       }
 
       void close()

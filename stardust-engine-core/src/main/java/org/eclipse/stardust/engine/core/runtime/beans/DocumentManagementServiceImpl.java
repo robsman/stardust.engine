@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.checkWriteInArchiveMode;
 import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getUserContext;
 
 import java.io.Serializable;
@@ -60,6 +61,30 @@ public class DocumentManagementServiceImpl
    private RepositoryManager getProvider()
    {
       return RepositoryManager.getInstance();
+   }
+
+   private void checkAdministratorRole()
+   {
+      PropertyLayer layer = ParametersFacade.pushLayer(Collections.singletonMap(
+            UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core));
+      try
+      {
+         User userDetails = (User) DetailsFactory.create(SecurityProperties.getUser(),
+               IUser.class, UserDetails.class);
+         if (!userDetails.isAdministrator())
+         {
+            throw new DocumentManagementServiceException(
+                  BpmRuntimeError.DMS_SECURITY_ERROR_ADMIN_REQUIRED.raise());
+         }
+      }
+      finally
+      {
+         if (layer != null)
+         {
+            ParametersFacade.popLayer();
+            layer = null;
+         }
+      }
    }
 
    @Override
@@ -196,6 +221,7 @@ public class DocumentManagementServiceImpl
    public Document createDocument(String folderId, DocumentInfo document)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().createDocument(folderId, document);
    }
 
@@ -203,6 +229,7 @@ public class DocumentManagementServiceImpl
    public Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().createDocument(folderId, document, content, encoding);
    }
 
@@ -211,6 +238,7 @@ public class DocumentManagementServiceImpl
    public Document versionDocument(String documentId, String versionLabel)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       IRepositoryService dms = getProvider().getImplicitService();
       if (dms instanceof ILegacyRepositoryService)
       {
@@ -226,6 +254,7 @@ public class DocumentManagementServiceImpl
    public Document versionDocument(String documentId, String versionComment,
          String versionLabel) throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().versionDocument(documentId, versionComment, versionLabel);
    }
 
@@ -233,6 +262,7 @@ public class DocumentManagementServiceImpl
    public void removeDocumentVersion(String documentId, String documentRevisionId)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       getProvider().getImplicitService().removeDocumentVersion(documentId, documentRevisionId);
    }
 
@@ -240,6 +270,7 @@ public class DocumentManagementServiceImpl
    public Document moveDocument(String documentId, String targetPath)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().moveDocument(documentId, targetPath);
    }
 
@@ -249,6 +280,7 @@ public class DocumentManagementServiceImpl
          String versionLabel, boolean keepLocked)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       IRepositoryService dms = getProvider().getImplicitService();
       if (dms instanceof ILegacyRepositoryService)
       {
@@ -265,6 +297,7 @@ public class DocumentManagementServiceImpl
          String versionComment, String versionLabel, boolean keepLocked)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().updateDocument(document, createNewRevision, versionComment, versionLabel, keepLocked);
    }
 
@@ -274,6 +307,7 @@ public class DocumentManagementServiceImpl
          boolean createNewRevision, String versionLabel, boolean keepLocked)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       IRepositoryService dms = getProvider().getImplicitService();
       if (dms instanceof ILegacyRepositoryService)
       {
@@ -290,6 +324,7 @@ public class DocumentManagementServiceImpl
          boolean createNewRevision, String versionComment, String versionLabel,
          boolean keepLocked) throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().updateDocument(document, content, encoding, createNewRevision, versionComment, versionLabel, keepLocked);
    }
 
@@ -297,6 +332,7 @@ public class DocumentManagementServiceImpl
    public String requestDocumentContentUpload(String documentId)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       IRepositoryService dms = getProvider().getImplicitService();
       Document document = dms.getDocument(documentId);
 
@@ -317,6 +353,7 @@ public class DocumentManagementServiceImpl
    public void removeDocument(String documentId)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       getProvider().getImplicitService().removeDocument(documentId);
    }
 
@@ -324,12 +361,14 @@ public class DocumentManagementServiceImpl
    public Folder createFolder(String parentFolderId, FolderInfo folder)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().createFolder(parentFolderId, folder);
    }
 
    @Override
    public Folder updateFolder(Folder folder) throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().updateFolder(folder);
    }
 
@@ -337,6 +376,7 @@ public class DocumentManagementServiceImpl
    public void removeFolder(String folderId, boolean recursive)
          throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       getProvider().getImplicitService().removeFolder(folderId, recursive);
    }
 
@@ -367,6 +407,7 @@ public class DocumentManagementServiceImpl
    @Override
    public void setPolicy(String resourceId, AccessControlPolicy policy)
    {
+      checkWriteInArchiveMode();
       getProvider().getImplicitService().setPolicy(resourceId, policy);
    }
 
@@ -374,6 +415,7 @@ public class DocumentManagementServiceImpl
    public RepositoryMigrationReport migrateRepository(int batchSize,
          boolean evaluateTotalCount) throws DocumentManagementServiceException
    {
+      checkWriteInArchiveMode();
       return getProvider().getImplicitService().migrateRepository(batchSize, evaluateTotalCount);
    }
 
@@ -435,30 +477,6 @@ public class DocumentManagementServiceImpl
    {
       checkAdministratorRole();
       getProvider().setDefaultRepository(repositoryId);
-   }
-
-   private void checkAdministratorRole()
-   {
-      PropertyLayer layer = ParametersFacade.pushLayer(Collections.singletonMap(
-            UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core));
-      try
-      {
-         User userDetails = (User) DetailsFactory.create(SecurityProperties.getUser(),
-               IUser.class, UserDetails.class);
-         if (!userDetails.isAdministrator())
-         {
-            throw new DocumentManagementServiceException(
-                  BpmRuntimeError.DMS_SECURITY_ERROR_ADMIN_REQUIRED.raise());
-         }
-      }
-      finally
-      {
-         if (layer != null)
-         {
-            ParametersFacade.popLayer();
-            layer = null;
-         }
-      }
    }
 
    @Override

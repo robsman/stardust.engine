@@ -24,8 +24,12 @@ import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.LoginUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
 import org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
 
 
@@ -108,6 +112,9 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
       final Class<?>[] paramTypes;
       final Object[] paramValues;
 
+      // Update the tunnelingContext's principal if needed.
+      updateTunnelingContext();
+
       if (null != tunneledContext
             && !("remove".equals(method.getName()) && (null == args || args.length == 0)))
       {
@@ -148,6 +155,24 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
       catch (Throwable t)
       {
          throw unwrapException(t);
+      }
+   }
+
+   private void updateTunnelingContext()
+   {
+      if (tunneledContext != null)
+      {
+         InvokerPrincipal outer = InvokerPrincipalUtils.getCurrent();
+         InvokerPrincipal inner = tunneledContext.getInvokerPrincipal();
+
+         InvokerPrincipal principal = LoginUtils.getReauthenticationPrincipal(outer,
+               inner);
+         if (principal != null
+               && principal.getProperties().containsKey(
+                     AbstractLoginInterceptor.REAUTH_USER_ID))
+         {
+            tunneledContext = new TunneledContext(principal);
+         }
       }
    }
 

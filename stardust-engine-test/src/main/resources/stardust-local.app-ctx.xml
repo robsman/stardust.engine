@@ -42,7 +42,7 @@
 
    <!-- JTA Transaction Manager -->
    <bean id="jtaTxManager" class="org.springframework.transaction.jta.JtaTransactionManager">
-      <property name="userTransaction" ref="xaTransactionManager" />
+      <property name="transactionManager" ref="xaTransactionManager" />
    </bean>
 
    <!-- Audit Trail Data Source -->
@@ -72,8 +72,7 @@
    </bean>
 
    <!-- JCA Resource Resolver -->
-   <bean name="carnotJcaResourceResolver"
-		class="org.eclipse.stardust.engine.spring.integration.jca.DefaultJcaResourceResolver" />
+   <bean name="carnotJcaResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jca.DefaultJcaResourceResolver" />
 
    <!-- JMS Resource Resolver -->
    <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />

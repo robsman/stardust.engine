@@ -720,6 +720,16 @@
 
 					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
 						minOccurs="0" />
+						
+						
+					<element name="transitions">
+						<complexType>
+							<sequence>
+								<element name="transition" type="tns:Transition"
+									minOccurs="0" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
 
 					<element name="implementedProcessInterface" type="tns:ProcessInterface"
 						minOccurs="0" />
@@ -850,6 +860,10 @@
 
 					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
 						minOccurs="0" />
+
+					<element name="joinType" type="tns:GatewayType" minOccurs="0" />
+					<element name="splitType" type="tns:GatewayType" minOccurs="0" />
+											
 				</sequence>
 			</extension>
 		</complexContent>
@@ -2619,6 +2633,21 @@
 			<element name="name" type="string"/>
 		</sequence>
 	</complexType>
+	
+	<complexType name="Transition">
+		<annotation>
+			<documentation>
+				The client view of a workflow transition.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="id" type="string" />
+			<element name="sourceActivityId" type="string" />
+			<element name="targetActivityId" type="string" />
+			<element name="condition" type="string" />
+			<element name="conditionType" type="tns:ConditionType" minOccurs="0" />
+		</sequence>
+	</complexType>
 
 	<!--  Simple types -->
 
@@ -2722,6 +2751,21 @@
 			<enumeration value="PASS_WITH_CORRECTION" />
 			<enumeration value="PASS_NO_CORRECTION" />
 			<enumeration value="FAILED" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="GatewayType">
+		<restriction base="string">
+			<enumeration value="And" />
+			<enumeration value="Or" />
+			<enumeration value="Xor" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="ConditionType">
+		<restriction base="string">
+			<enumeration value="Condition" />
+			<enumeration value="Otherwise" />
 		</restriction>
 	</simpleType>
 		

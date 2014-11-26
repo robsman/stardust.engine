@@ -93,6 +93,7 @@ import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.Activity;
+import org.eclipse.stardust.engine.api.model.Activity.GatewayType;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.ConditionalPerformer;
@@ -122,6 +123,8 @@ import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.model.RoleInfo;
 import org.eclipse.stardust.engine.api.model.SchemaType;
+import org.eclipse.stardust.engine.api.model.Transition;
+import org.eclipse.stardust.engine.api.model.Transition.ConditionType;
 import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
@@ -215,6 +218,7 @@ import org.eclipse.stardust.engine.api.ws.PermissionStatesXto.PermissionStateXto
 import org.eclipse.stardust.engine.api.ws.PermissionsXto.PermissionXto;
 import org.eclipse.stardust.engine.api.ws.PreferenceEntryXto.ValueListXto;
 import org.eclipse.stardust.engine.api.ws.ProcessDefinitionXto.ActivitiesXto;
+import org.eclipse.stardust.engine.api.ws.ProcessDefinitionXto.TransitionsXto;
 import org.eclipse.stardust.engine.api.ws.UserQueryResultXto.UsersXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto;
@@ -885,10 +889,72 @@ public class XmlAdapterUtils
       res.setEventHandlers(toWs(pd.getAllEventHandlers(),
             new EventHandlerDefinitionsXto()));
 
+      res.setTransitions(marshallTransitions(pd.getAllTransitions()));
+      
       res.setDeclaredProcessInterface(marshallProcessInterface(model, pd.getDeclaredProcessInterface(), resolver));
       res.setImplementedProcessInterface(marshallProcessInterface(model, pd.getImplementedProcessInterface(), resolver));
 
       return res;
+   }
+   
+   private static TransitionsXto marshallTransitions(List<Transition> transitions)
+   {
+      TransitionsXto ret = null;
+      
+      if (transitions != null)
+      {
+         ret = new TransitionsXto();
+         
+         for (Transition transition : transitions)
+         {
+            ret.getTransition().add(toWs(transition));
+         }         
+      }
+      
+      return ret;
+   }
+   
+   private static TransitionXto toWs(Transition transition)
+   {
+      TransitionXto ret = null;
+      
+      if (transition != null)
+      {
+         ret = new TransitionXto();
+         
+         ret.setCondition(transition.getCondition());
+         ret.setConditionType(toWs(transition.getConditionType()));
+         ret.setId(transition.getId());
+         ret.setSourceActivityId(transition.getSourceActivityId());
+         ret.setTargetActivityId(transition.getTargetActivityId());
+      }
+      
+      return ret;
+   }
+   
+   private static ConditionTypeXto toWs(ConditionType conditionType)
+   {
+      ConditionTypeXto ret = null;
+      
+      if (conditionType != null)
+      {
+         if (ConditionType.Condition.equals(conditionType))
+         {
+            ret = ConditionTypeXto.CONDITION;
+         }
+         else if (ConditionType.Otherwise.equals(conditionType))
+         {
+            ret = ConditionTypeXto.OTHERWISE;
+         }
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Marshaling of ConditionType not supported for: "
+                        + conditionType.name());
+         }         
+      }
+      
+      return ret;
    }
 
    private static ProcessInterfaceXto marshallProcessInterface(Model model,
@@ -1079,8 +1145,40 @@ public class XmlAdapterUtils
       res.setEventHandlers(toWs(ad.getAllEventHandlers(),
             new EventHandlerDefinitionsXto()));
 
+      
+      res.setJoinType(marshalGatewayType(ad.getJoinType()));
+      res.setSplitType(marshalGatewayType(ad.getSplitType()));
+      
       return res;
    }
+   
+   private static GatewayTypeXto marshalGatewayType(
+         GatewayType gatewayType)
+   {
+      GatewayTypeXto ret = null;
+      if (gatewayType != null)
+      {
+         if (GatewayType.And.equals(gatewayType))
+         {
+            ret = GatewayTypeXto.AND;
+         }
+         else if (GatewayType.Or.equals(gatewayType))
+         {
+            ret = GatewayTypeXto.OR;
+         }
+         else if (GatewayType.Xor.equals(gatewayType))
+         {
+            ret = GatewayTypeXto.XOR;
+         }
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Marshaling of GatewayType not supported for: "
+                        + gatewayType.name());
+         }
+      }
+      return ret;
+   }   
 
    private static ApplicationXto toWs(Application application)
    {

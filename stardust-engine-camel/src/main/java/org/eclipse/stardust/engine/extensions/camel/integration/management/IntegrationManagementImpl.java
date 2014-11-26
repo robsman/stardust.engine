@@ -119,37 +119,21 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 		return convertObjectToJsonString(routeCamelModelList);
 	}
 
-	public String getTriggerConsumerRoutesList(String contextId) {
-
-		List<CamelContextModel> contexts =initCamelContextModel();
-		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
-		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
-		if (ccm != null) {
-			for (RouteCamelModel data : ccm.getRoutes()) {
-				if (data.getId().startsWith("Consumer-")){
-					routeCamelModelList.add(data);
-				}
-			}
-		}
-		return convertObjectToJsonString(routeCamelModelList);	
-		}
-	
-	public String getApplicationConsumerRoutesList(String contextId) {
+	public String getOtherRoutesList(String contextId) {
 		
 		List<CamelContextModel> contexts =initCamelContextModel();
 		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
 		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
 		if (ccm != null) {
 			for (RouteCamelModel data : ccm.getRoutes()) {
-				if ((data.getId().startsWith("Consumer") && (!data.getId().startsWith("Consumer-")))){
+				if ((!data.getId().startsWith("Consumer") && (!data.getId().startsWith("Producer")))){
 					routeCamelModelList.add(data);
 				}
 			}
 		}
 		return convertObjectToJsonString(routeCamelModelList);
-
 	}
-	
+
 	public void startRouteService( String contextId, String routeId) {
 		LOGGER.info("--> Starting route : " + routeId);
 		ModelCamelContext camelcontext=(ModelCamelContext) applicationContext.getBean(contextId);

@@ -131,6 +131,11 @@ public class DocumentHandler
       exchange.getIn().setBody(null);
    }
 
+   private ProcessDefinition findProcessDefinitionByProcessInstance(ServiceFactory sf,ProcessInstance pi){
+      DeployedModel model=sf.getQueryService().getModel(pi.getModelOID());
+      ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition("{"+model.getId()+"}"+pi.getProcessID());
+      return processDefinition;
+   }
    /**
     * Convert message body to Document
     *
@@ -161,7 +166,7 @@ public class DocumentHandler
          {
             ActivityInstance activityInstance = i.next();
             ProcessInstance pi = activityInstance.getProcessInstance();
-            ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition(pi.getProcessID());
+            ProcessDefinition processDefinition = findProcessDefinitionByProcessInstance(sf,pi);
             boolean processAttachmentSupport = processDefinition.getDataPath(PROCESS_ATTACHMENTS) != null ? true : false;
             Object messageContent = exchange.getIn().getBody();
             if (messageContent instanceof DmsDocumentBean)
@@ -396,7 +401,7 @@ public class DocumentHandler
          {
             ActivityInstance activityInstance = i.next();
             ProcessInstance pi = activityInstance.getProcessInstance();
-            ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition(pi.getProcessID());
+            ProcessDefinition processDefinition = findProcessDefinitionByProcessInstance(sf,pi);
             boolean processAttachmentSupport = processDefinition.getDataPath(PROCESS_ATTACHMENTS) != null ? true : false;
             List<Document> listProcessAttachments = null;
             

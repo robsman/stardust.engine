@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -116,7 +118,6 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
-
 /**
  * @author rsauer
  * @version $Revision: 28247 $
@@ -188,7 +189,18 @@ public class ProcessInstanceUtils
 
    public static List<Note> getNotes(IProcessInstance pi, ProcessInstance contextObject)
    {
-      List<AbstractPropertyWithUser> notesAsProperties = pi.getNotes();
+      TreeSet<AbstractPropertyWithUser> notesAsProperties = new TreeSet<AbstractPropertyWithUser>(
+            new Comparator<AbstractPropertyWithUser>()
+            {
+               @Override
+               public int compare(AbstractPropertyWithUser o1, AbstractPropertyWithUser o2)
+               {
+                  return o1.getLastModificationTime().compareTo(
+                        o2.getLastModificationTime());
+               }
+            });
+
+      notesAsProperties.addAll(pi.getNotes());
       List<Note> notes = new ArrayList<Note>(notesAsProperties.size());
 
       for (Iterator<AbstractPropertyWithUser> iterator = notesAsProperties.iterator(); iterator.hasNext();)

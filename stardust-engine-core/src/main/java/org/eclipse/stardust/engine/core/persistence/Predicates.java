@@ -507,4 +507,46 @@ public abstract class Predicates
    {
    // utility class
    }
+
+   /**
+    * This prevents the count limitation of items in a single IN term on e.g. ORACLE.
+    *
+    * @param fieldRef The target field reference.
+    * @param oids A List of oids.
+    * @param chunkSize size of each chunk contained in each or term (500 is a good value, oracle10g is limited to 1000)
+    * @return OrTerm containing inList statements if there are more then chunkSize elements.
+    */
+   public static PredicateTerm inList(final FieldRef fieldRef,
+         final List oids, final int chunkSize)
+   {
+      final PredicateTerm oidPredicate;
+
+      final int listSize = oids.size();
+      if (listSize <= chunkSize)
+      {
+         oidPredicate = Predicates.inList(fieldRef, oids);
+      }
+      else
+      {
+         int fromIdx = 0;
+         int toIdx = chunkSize;
+
+         OrTerm orTerm = new OrTerm();
+
+         do
+         {
+            List oidSubList = oids.subList(fromIdx, toIdx);
+            orTerm.add(Predicates.inList(fieldRef, oidSubList));
+
+            fromIdx = fromIdx + chunkSize;
+            toIdx = listSize >= toIdx + chunkSize
+                  ? toIdx + chunkSize
+                  : listSize;
+         }
+         while (fromIdx < toIdx);
+
+         oidPredicate = orTerm;
+      }
+      return oidPredicate;
+   }
 }

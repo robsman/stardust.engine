@@ -44,28 +44,16 @@ import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.query.PrefetchConstants;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
-import org.eclipse.stardust.engine.api.runtime.UserInfo;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
@@ -78,6 +66,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
@@ -221,10 +210,18 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          }
          break;
       case WITH_LAST_USER_PERFORMER:
-         pair = ActivityInstanceHistoryBean
-               .getLastUserPerformerForActivityInstance(activityInstance);
-         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
-         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();
+         // Get from prefetch cache
+         BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+         Map<Long,ActivityInstanceHistoryBean> lastUserPerformerCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.HIST_STATE_AIH_CACHE);
+         ActivityInstanceHistoryBean lastUserPerformer = lastUserPerformerCache == null ? null : lastUserPerformerCache.get(activityInstance.getOID());
+
+         if (lastUserPerformer == null)
+         {
+            // Fetch if not in cache
+            pair = ActivityInstanceHistoryBean.getLastUserPerformerForActivityInstance(activityInstance);
+            lastUserPerformer = pair.getFirst();
+         }
+
          if (lastUserPerformer != null)
          {
             historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(

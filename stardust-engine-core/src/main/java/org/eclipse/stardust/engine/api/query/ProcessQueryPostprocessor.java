@@ -10,9 +10,23 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
+import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -27,16 +41,69 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
+import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
+import org.eclipse.stardust.engine.core.persistence.Column;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Joins;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet;
 import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet.ValueType;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.MultiplePersistentResultSet;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TableAliasDecorator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.AbstractProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.TransientBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
@@ -284,6 +351,8 @@ public class ProcessQueryPostprocessor
                   QueryUtils.getTimeOut(query));
          }
 
+         prefetchNotes(queryResult.iterator(), QueryUtils.getTimeOut(query));
+
          if (descriptorPolicy.includeDescriptors())
          {
             // prefetching of scopePI done during descriptor value prefetch
@@ -517,6 +586,14 @@ public class ProcessQueryPostprocessor
          // process instances are prefetched inside findMatchingActivityInstances
          prefetchDescriptorValues(queryResult.iterator(), QueryUtils.getTimeOut(query), descriptorPolicy);
 
+         if (HistoricalStatesPolicy.WITH_LAST_USER_PERFORMER.equals(statesPolicy))
+         {
+            prefetchLastUserPerformers(queryResult.iterator(), query);
+         }
+
+         // prefetch notes
+         prefetchNotes(queryResult.iterator(), QueryUtils.getTimeOut(query));
+
          List activityDetails = DetailsFactory.createCollection(queryResult.iterator(),
                IActivityInstance.class, targetClass);
 
@@ -615,23 +692,30 @@ public class ProcessQueryPostprocessor
 
    private static void prefetchStartingUsers(Iterator piItr, int timeout)
    {
-      Set<Long> piSet = new HashSet<Long>();
+      Set<Long> startingUserOids = new HashSet<Long>();
       while (piItr.hasNext())
       {
-         piSet.add(new Long(((ProcessInstanceBean) piItr.next()).getStartingUserOID()));
+         startingUserOids.add(new Long(((ProcessInstanceBean) piItr.next()).getStartingUserOID()));
       }
 
+      prefetchUsers(startingUserOids, timeout);
+   }
+
+   private static void prefetchUsers(Set<Long> userOids, int timeout)
+   {
+      if ( !CollectionUtils.isEmpty(userOids))
+      {
       int instancesBatchSize = Parameters.instance().getInteger(
             KernelTweakingProperties.USER_PREFETCH_N_PARALLEL_INSTANCES,
             Parameters.instance().getInteger(
                   KernelTweakingProperties.DESCRIPTOR_PREFETCH_BATCH_SIZE,
                   PREFETCH_BATCH_SIZE));
       Set<Long> prefetchStartingUsers = new HashSet<Long>();
-      for (Long startingUserOid : piSet)
+         for (Long userOid : userOids)
       {
-         if (startingUserOid > 0)
+            if (userOid > 0)
          {
-            prefetchStartingUsers.add(startingUserOid);
+               prefetchStartingUsers.add(userOid);
          }
          if (prefetchStartingUsers.size() == instancesBatchSize)
          {
@@ -639,8 +723,10 @@ public class ProcessQueryPostprocessor
          }
       }
 
-      // This term reference will be used for later modification of its value expression
-      ComparisonTerm termTemplate = Predicates.inList(UserBean.FR__OID, new ArrayList());
+         // This term reference will be used for later modification of its value
+         // expression
+         ComparisonTerm termTemplate = Predicates.inList(UserBean.FR__OID,
+               new ArrayList());
 
       QueryExtension queryExtension = QueryExtension.where(termTemplate);
 
@@ -649,8 +735,9 @@ public class ProcessQueryPostprocessor
          trace.debug("Prefetching " + prefetchStartingUsers.size() + " user(s)");
       }
 
-      performPrefetch(UserBean.class, queryExtension, termTemplate, prefetchStartingUsers, true, timeout,
-            instancesBatchSize);
+         performPrefetch(UserBean.class, queryExtension, termTemplate,
+               prefetchStartingUsers, true, timeout, instancesBatchSize);
+   }
    }
 
    private static void prefetchStartingActivityInstances(
@@ -795,6 +882,218 @@ public class ProcessQueryPostprocessor
       performPrefetch(LogEntryBean.class, //
             QueryExtension.where(Predicates.andTerm(aiTermTemplate, logCodeTypePredicate)), //
             aiTermTemplate, aiSet, false, timeout, PREFETCH_BATCH_SIZE);
+   }
+
+   private static void prefetchNotes(Iterator instanceItr, int timeOut)
+   {
+      if (ProcessInstanceUtils.isLoadNotesEnabled())
+      {
+         Set<Long> oids = CollectionUtils.newSet();
+         Class< ? > propertyImplementationClass = ProcessInstanceProperty.class;
+         while (instanceItr.hasNext())
+         {
+            IdentifiablePersistent instance = (IdentifiablePersistent) instanceItr.next();
+
+            if (instance instanceof IActivityInstance)
+            {
+               IActivityInstance ai = (IActivityInstance) instance;
+               oids.add(ai.getProcessInstance().getScopeProcessInstanceOID());
+            }
+            if (instance instanceof IProcessInstance)
+            {
+               IProcessInstance pi = (IProcessInstance) instance;
+               oids.add(pi.getScopeProcessInstanceOID());
+            }
+         }
+
+         if ( !oids.isEmpty())
+         {
+            final String noteAttributeName = "NOTE";
+            final FieldRef oidFieldRef = TypeDescriptor.get(propertyImplementationClass)
+                  .fieldRef(AbstractProperty.FIELD__OBJECT_OID);
+            final FieldRef nameFieldRef = TypeDescriptor.get(propertyImplementationClass)
+                  .fieldRef(AbstractProperty.FIELD__NAME);
+
+            Iterator i = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
+                  .getIterator(
+                        propertyImplementationClass,
+                        QueryExtension.where(Predicates.andTerm(
+                              Predicates.inList(oidFieldRef, new ArrayList(oids), 500),
+                              Predicates.isEqual(nameFieldRef, noteAttributeName))));
+
+            Map noteAttributesCache = CollectionUtils.newHashMap();
+            Map<Long, TransientBigDataHandler> largeNotes = CollectionUtils.newTreeMap();
+            while (i.hasNext())
+            {
+               AbstractProperty property = (AbstractProperty) i.next();
+
+               if (property.getType() == BigData.BIG_STRING)
+               {
+                  // Cache notes with big strings in transient data handlers.
+                  TransientBigDataHandler transientDataHandler = new TransientBigDataHandler();
+                  largeNotes.put(property.getOID(), transientDataHandler);
+
+                  // Replace original data handler, the value will be filled later.
+                  property.setDataHandler(transientDataHandler);
+               }
+
+               Object existingProperty = noteAttributesCache.get(property.getObjectOID());
+               if (existingProperty instanceof List)
+               {
+                  List noteAttributeList = (List) existingProperty;
+                  noteAttributeList.add(property);
+               }
+               else
+               {
+                  List noteAttributeList = new ArrayList();
+                  noteAttributeList.add(property);
+                  noteAttributesCache.put(property.getObjectOID(), noteAttributeList);
+               }
+            }
+
+            if (!largeNotes.isEmpty())
+            {
+               // Fill transient data handler cache.
+               ClosableIterator recordsFromDisk = SessionFactory
+                     .getSession(SessionFactory.AUDIT_TRAIL)
+                     .getIterator(
+                           LargeStringHolder.class,
+                           QueryExtension
+                                 .where(
+                                       andTerm(
+                                             Predicates.inList(
+                                                   LargeStringHolder.FR__OBJECTID,
+                                                   new ArrayList(largeNotes.keySet()),
+                                                   500),
+                                             isEqual(
+                                                   LargeStringHolder.FR__DATA_TYPE,
+                                                   LargeStringHolder
+                                                         .tableNameForPersistent(propertyImplementationClass))))
+                                 .addOrderBy(LargeStringHolder.FR__OBJECTID)
+                                 .addOrderBy(LargeStringHolder.FR__OID));
+
+               // Merge large strings to complete note text.
+               try
+               {
+                  StringBuilder sb = new StringBuilder();
+                  long lastObjectOid = -1;
+                  while (recordsFromDisk.hasNext())
+                  {
+                     LargeStringHolder part = (LargeStringHolder) recordsFromDisk.next();
+                     long currentObjectOid = part.getObjectID();
+                     if (currentObjectOid != lastObjectOid && lastObjectOid != -1)
+                     {
+                        // This note text belongs to the next objectOid, write complete
+                        // string, start new string builder.
+                        TransientBigDataHandler transientBigDataHandler = largeNotes.get(lastObjectOid);
+                        transientBigDataHandler.write(sb.toString(), false);
+                        sb = new StringBuilder();
+                     }
+
+                     // Append to string.
+                     sb.append(part.getData());
+                     lastObjectOid = currentObjectOid;
+
+                     if (!recordsFromDisk.hasNext())
+                     {
+                        // Write last entry.
+                        TransientBigDataHandler transientBigDataHandler = largeNotes.get(currentObjectOid);
+                        transientBigDataHandler.write(sb.toString(), false);
+                     }
+                  }
+               }
+               finally
+               {
+                  recordsFromDisk.close();
+               }
+            }
+
+            BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor
+                  .getCurrent();
+            bpmRuntimeEnv.setProperty(PrefetchConstants.NOTES_PI_CACHE,
+                  noteAttributesCache);
+         }
+      }
+   }
+
+   private static void prefetchLastUserPerformers(Iterator instanceItr, Query query)
+   {
+      Set<Long> oids = CollectionUtils.newSet();
+      while (instanceItr.hasNext())
+      {
+         IdentifiablePersistent instance = (IdentifiablePersistent) instanceItr.next();
+
+         if (instance instanceof IActivityInstance)
+         {
+            IActivityInstance ai = (IActivityInstance) instance;
+            oids.add(ai.getOID());
+         }
+      }
+
+      if ( !oids.isEmpty())
+      {
+         PredicateTerm oidPredicate = Predicates.inList(
+               ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, new ArrayList(oids), 500);
+         QueryExtension qe = QueryExtension.where(Predicates.andTerm(oidPredicate,
+               Predicates.isEqual(ActivityInstanceHistoryBean.FR__STATE,
+                     ActivityInstanceState.APPLICATION)));
+         qe.getOrderCriteria().add(ActivityInstanceHistoryBean.FR__FROM, false);
+         Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+         ResultIterator<ActivityInstanceHistoryBean> i = session.getIterator(
+               ActivityInstanceHistoryBean.class, qe);
+
+         Map<Long, IUser> foundUsers = CollectionUtils.newMap();
+         Map<Long, ActivityInstanceHistoryBean> foundBeans = CollectionUtils.newMap();
+         Set<Long> prefetchUsers = CollectionUtils.newSet();
+         try
+         {
+            ActivityInstanceHistoryBean candidate = null;
+            while (i.hasNext())
+            {
+               candidate = i.next();
+               ActivityInstanceState state = candidate.getState();
+               long aiOid = candidate.getActivityInstance().getOID();
+               if ((ActivityInstanceState.Completed == state)
+                     || (ActivityInstanceState.Aborted == state))
+               {
+                  // if terminated get user
+                  if ( !foundUsers.containsKey(aiOid))
+                  {
+                     foundUsers.put(aiOid, candidate.getOnBehalfOfUser());
+                  }
+               }
+               else
+               {
+                  // if not terminated get history bean
+                  if ( !foundBeans.containsKey(aiOid))
+                  {
+                     foundBeans.put(aiOid, candidate);
+                     prefetchUsers.add(candidate.getOnBehalfOfUserOid());
+                     prefetchUsers.add(candidate.getUserOid());
+                     prefetchUsers.add(candidate.getUserPerformerOid());
+                  }
+               }
+            }
+         }
+         finally
+         {
+            i.close();
+         }
+
+         // Cache foundUsers and foundBeans.
+         BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+
+         bpmRuntimeEnv.setProperty(PrefetchConstants.HIST_STATE_AIH_CACHE, foundBeans);
+
+         bpmRuntimeEnv
+               .setProperty(
+                     PrefetchConstants.HIST_STATE_PERFORMED_ON_BEHALF_OF_USER_CACHE,
+                     foundUsers);
+
+         // Prefetch users
+         prefetchUsers(prefetchUsers, QueryUtils.getTimeOut(query));
+      }
    }
 
    private static void prefetchDescriptorValues(Iterator instanceItr, int timeout, DescriptorPolicy descriptorPolicy)

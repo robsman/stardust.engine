@@ -312,4 +312,18 @@ public class CamelDmsUtils
       }
       return fileName;
    }
+   
+   public static Document getDocumentUsingRepositoryLocation(DocumentManagementService dms, String repositoryLocation)
+   {
+      Document document = null;
+      if (!repositoryLocation.startsWith("/"))
+      {
+         if(!repositoryLocation.contains("templates/"))
+            repositoryLocation = "templates/" + repositoryLocation;
+         
+         repositoryLocation = "/artifacts/" + repositoryLocation;
+      }
+      document = dms.getDocument(repositoryLocation);
+      return document;
+   }
 }

@@ -95,6 +95,7 @@ public final class CamelConstants
    public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
    public static final String MAIL_ATTACHMENTS_AP_ID= "mailAttachmentsAP";
    public static final String MAIL_TEMPLATE_CONFIGURATION_ATT = "stardust:emailOverlay::templateConfigurations";
+   public static final String DOCUMENT_REQUEST_AP_ID= "DOCUMENT_REQUEST";
 
    private CamelConstants()
    {}

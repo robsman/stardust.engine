@@ -30,7 +30,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class SpringUtils
 {
    private static final Logger trace = LogManager.getLogger(SpringUtils.class);
-   
+
    // TODO revert to Spring singleton
    private static ApplicationContext singleton;
 
@@ -46,7 +46,7 @@ public class SpringUtils
 
       return result;
    }
-   
+
    public static synchronized void setApplicationContext(ConfigurableApplicationContext ctxt)
    {
       Parameters parameters = Parameters.instance();
@@ -66,21 +66,22 @@ public class SpringUtils
          Parameters parameters = Parameters.instance();
          String contextFile = parameters.getString(
                SpringConstants.PRP_APPLICATION_CONTEXT_FILE, "carnot-spring-context.xml");
+         String[] contextFiles = contextFile.split(",");
          String contextClass = parameters.getString(
-               SpringConstants.PRP_APPLICATION_CONTEXT_CLASS, 
+               SpringConstants.PRP_APPLICATION_CONTEXT_CLASS,
                ClassPathXmlApplicationContext.class.getName());
-         singleton = (ApplicationContext) Reflect.createInstance(contextClass, 
-               new Class[] { String.class }, 
-               new Object[] { contextFile });
-         
+         singleton = (ApplicationContext) Reflect.createInstance(contextClass,
+               new Class[] { String[].class },
+               new Object[] { contextFiles });
+
          trace.warn("Bootstrapped new Spring application context " + singleton);
       }
-      
+
       setApplicationContext((ConfigurableApplicationContext) singleton);
 
       return singleton;
    }
-   
+
    public static ApplicationContext getWebApplicationContext()
    {
       try
@@ -98,7 +99,7 @@ public class SpringUtils
          }
          return ContextLoader.getCurrentWebApplicationContext();
       }
-      catch (IllegalStateException e) 
+      catch (IllegalStateException e)
       {
          // seems that we're not in a web environment
       }

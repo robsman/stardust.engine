@@ -112,7 +112,7 @@ public class DocumentHandler
       else
       {
          if (((String) exchange.getIn().getHeader("CamelTemplatingTemplate"))
-               .endsWith(".docx"))
+               .endsWith(".docx") || exchange.getIn().getHeader("CamelTemplatingFormat").equals("docx"))
          {
             ByteArrayOutputStream out = exchange.getIn().getBody(
                   ByteArrayOutputStream.class);
@@ -285,7 +285,7 @@ public class DocumentHandler
       }
    }
 
-   private ServiceFactory getServiceFactory()
+   private static ServiceFactory getServiceFactory()
    {
       ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
       if (sf == null)
@@ -355,35 +355,69 @@ public class DocumentHandler
             templateConfigurationsEA, token);
       for (TemplateConfiguration template : templateConfigurations)
       {
-         Exchange newExchange = new DefaultExchange(camelContext);
-         newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
-         newExchange.getIn().setBody(exchange.getIn().getBody());
-         newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
-         newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
-         newExchange
-               .getIn()
-               .setHeader(
-                     "CamelTemplatingFormat",
-                     (template != null && StringUtils.isNotEmpty(template.getPath()) && template
-                           .getPath().endsWith(".docx")) ? "docx" : "text");
-         newExchange.getIn().setHeader("CamelTemplatingTemplate", (template.getPath()));
-         newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
-         newExchange
-               .getIn()
-               .setHeader(
-                     "CamelTemplatingConvertToPdf",
-                     (template != null && StringUtils.isNotEmpty(template.getFormat()) && template
-                           .getFormat().equalsIgnoreCase("pdf")) ? true : false);
-         Exchange reponse = null;
-         if (template.getSource().equalsIgnoreCase("repository"))
+          // only process document template
+         if(template.isTemplate())
          {
-            reponse = producer.send("direct://templateFromRepository", newExchange);
-            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
-         }
-         else if (template.getSource().equalsIgnoreCase("classpath"))
-         {
-            reponse = producer.send("direct://templateFromClasspath", newExchange);
-            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+            Exchange newExchange = new DefaultExchange(camelContext);
+            newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
+            newExchange.getIn().setBody(exchange.getIn().getBody());
+            newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
+            newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
+            newExchange
+                  .getIn()
+                  .setHeader(
+                        "CamelTemplatingFormat",
+                        (template != null && StringUtils.isNotEmpty(template.getPath()) && template
+                              .getPath().endsWith(".docx")) ? "docx" : "text");
+            newExchange.getIn().setHeader("CamelTemplatingTemplate", (template.getPath()));
+            newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
+            newExchange
+                  .getIn()
+                  .setHeader(
+                        "CamelTemplatingConvertToPdf",
+                        (template != null && StringUtils.isNotEmpty(template.getFormat()) && template
+                              .getFormat().equalsIgnoreCase("pdf")) ? true : false);
+            Exchange reponse = null;
+            if (template.getSource().equalsIgnoreCase("repository"))
+            {
+               reponse = producer.send("direct://templateFromRepository", newExchange);
+               exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+            }
+            else if (template.getSource().equalsIgnoreCase("classpath"))
+            {
+               reponse = producer.send("direct://templateFromClasspath", newExchange);
+               exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+               
+            } else if(template.getSource().equalsIgnoreCase("data"))
+            {
+               
+               ServiceFactory sf = getServiceFactory();
+               DocumentManagementService dms = sf.getDocumentManagementService();
+               DmsDocumentBean document = (DmsDocumentBean) exchange.getIn().getHeader(template.getName());
+               if(document != null)
+               {
+                  //override CamelTemplatingFormat using dmsDocumentBean data Type
+                  if(document.getContentType().equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                  {
+                     newExchange
+                     .getIn()
+                     .setHeader(
+                           "CamelTemplatingFormat", "docx");
+                  }
+                  byte[] content = dms.retrieveDocumentContent(document.getId());
+                  newExchange.getIn().setHeader("CamelTemplatingTemplateContent", content);
+                  reponse = producer.send("direct://templateFromData", newExchange);
+                  // delete processed template document from header
+                  exchange.getIn().removeHeader(template.getName());
+                  exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+               } else
+               {
+                  if(logger.isDebugEnabled())
+                  {
+                     logger.error("The provided document " + template.getName() +" is null ");
+                  }
+               }
+            }
          }
       }
    }

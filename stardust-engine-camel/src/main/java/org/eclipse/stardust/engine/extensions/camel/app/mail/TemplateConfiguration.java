@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class TemplateConfiguration
 {
+   @SerializedName("tTemplate")
+   private boolean template;
+   
    @SerializedName("tName")
    private String name;
 
@@ -15,6 +18,16 @@ public class TemplateConfiguration
 
    @SerializedName("tSource")
    private String source;
+   
+   public boolean isTemplate()
+   {
+      return template;
+   }
+
+   public void setTemplate(boolean template)
+   {
+      this.template = template;
+   }
 
    public String getName()
    {

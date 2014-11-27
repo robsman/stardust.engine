@@ -10,7 +10,6 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.query.statistics;
 
-import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY;
@@ -18,13 +17,9 @@ import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelCon
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_AI_PROCESSING_TIME;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_PI_PROCESSING_TIME_A;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -36,8 +31,13 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
+import org.eclipse.stardust.common.config.GlobalParameters;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.TimestampProvider;
+import org.eclipse.stardust.engine.api.dto.HistoricalState;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessDefinitionFilter;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
@@ -49,12 +49,14 @@ import org.eclipse.stardust.engine.core.query.statistics.ProcessingTimes;
 import org.eclipse.stardust.engine.core.query.statistics.ProcessingTimes.ProcessingTime;
 import org.eclipse.stardust.engine.core.query.statistics.QueryActivityInstanceProcessingTimeCommand;
 import org.eclipse.stardust.engine.core.query.statistics.QueryProcessInstanceProcessingTimeCommand;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.TestTimestampProvider;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
@@ -81,9 +83,7 @@ public class QueryProcessingTimeTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
 
-   private Map<Long, Bound> aiOidToProcessingTimeExpectations = newHashMap();
-   private Map<Long, Bound> piOidToProcessingTimeExpectations = newHashMap();
-
+   private final TimestampProvider testTimestampProvider = new TestTimestampProvider();
 
    @Test
    public void testAiProcessingTimeSeparatelyForEachAi()
@@ -167,13 +167,16 @@ public class QueryProcessingTimeTest
          startProcessDefAiProcessingTime();
          startProcessDefPiProcessingTime();
       }
+
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, testTimestampProvider);
+      Parameters.instance().set(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, HistoricalStatesPolicy.WITH_HIST_STATES);
    }
 
    @After
    public void tearDown()
    {
-      aiOidToProcessingTimeExpectations.clear();
-      piOidToProcessingTimeExpectations.clear();
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
+      Parameters.instance().set(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, HistoricalStatesPolicy.NO_HIST_STATES);
    }
 
    private void startProcessDefAiProcessingTime() throws InterruptedException, TimeoutException
@@ -181,7 +184,6 @@ public class QueryProcessingTimeTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_AI_PROCESSING_TIME, null, true);
 
       final ActivityInstance firstInteractiveAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
-      aiOidToProcessingTimeExpectations.put(Long.valueOf(firstInteractiveAi.getOID()), new Bound(2 * ONE_HUNDRED_MS, 8 * ONE_HUNDRED_MS));
       sf.getWorkflowService().activate(firstInteractiveAi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
       sf.getWorkflowService().suspend(firstInteractiveAi.getOID(), null);
@@ -193,9 +195,11 @@ public class QueryProcessingTimeTest
       ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY);
 
       final ActivityInstance lastInteractiveAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
-      aiOidToProcessingTimeExpectations.put(Long.valueOf(lastInteractiveAi.getOID()), new Bound(ONE_HUNDRED_MS));
       sf.getWorkflowService().activate(lastInteractiveAi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
+      sf.getWorkflowService().suspendToDefaultPerformer(lastInteractiveAi.getOID());
+      Thread.sleep(ONE_HUNDRED_MS);
+      sf.getWorkflowService().activate(lastInteractiveAi.getOID());
 
       /* do not complete AI/PI */
    }
@@ -203,7 +207,6 @@ public class QueryProcessingTimeTest
    private void startProcessDefPiProcessingTime() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PI_PROCESSING_TIME_A, null, true);
-      piOidToProcessingTimeExpectations.put(Long.valueOf(pi.getOID()), new Bound(6 * ONE_HUNDRED_MS, 12 * ONE_HUNDRED_MS));
 
       final ActivityInstance aFirstAi = sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
       Thread.sleep(ONE_HUNDRED_MS);
@@ -241,70 +244,48 @@ public class QueryProcessingTimeTest
 
    private void assertThatAiProcessingTimeIsCorrect(final ProcessingTime processingTime)
    {
-      // TODO do not use this pretty vague lower-upper-bound approach, but determine the exact times by means of AIs' historical states
-      final Bound bound = aiOidToProcessingTimeExpectations.get(processingTime.oid());
-
-      assertThat(processingTime.processingTime(), greaterThanOrEqualTo(bound.lower()));
-      assertThat(processingTime.processingTime(), lessThanOrEqualTo(bound.upper()));
+      final long expectedProcessingTime = calculateExpectedProcessingTimeForAi(processingTime.oid());
+      assertThat(processingTime.processingTime(), equalTo(expectedProcessingTime));
    }
 
    private void assertThatPiProcessingTimeIsCorrect(final ProcessingTime processingTime)
    {
-      // TODO do not use this pretty vague lower-upper-bound approach, but determine the exact times by means of AIs' historical states
-      final Bound bound = piOidToProcessingTimeExpectations.get(processingTime.oid());
-
-      assertThat(processingTime.processingTime(), greaterThanOrEqualTo(bound.lower()));
-      assertThat(processingTime.processingTime(), lessThanOrEqualTo(bound.upper()));
+      final long expectedProcessingTime = calculateExpectedProcessingTimeForPi(processingTime.oid());
+      assertThat(processingTime.processingTime(), equalTo(expectedProcessingTime));
    }
 
-   private static final class Bound
+   private long calculateExpectedProcessingTimeForAi(final long oid)
    {
-      private final long lower;
-      private final Long upper;
-
-      private final Long startTime;
-
-      public Bound(final long lower, final long upper)
+      final ActivityInstance ai = sf.getWorkflowService().getActivityInstance(oid);
+      if ( !ai.getActivity().isInteractive())
       {
-         this.lower = lower;
-         this.upper = Long.valueOf(upper);
-
-         this.startTime = null;
+         return 0;
       }
 
-      public Bound(final long lower)
-      {
-         this.lower = lower;
-         this.upper = null;
-
-         this.startTime = Long.valueOf(new Date().getTime());
-      }
-
-      public long lower()
-      {
-         return lower;
-      }
-
-      public long upper()
-      {
-         if (upper == null)
+      long result = 0;
+      for (final HistoricalState h : ai.getHistoricalStates()) {
+         if (h.getState() != ActivityInstanceState.Application)
          {
-            final long maxProcessingTime = new Date().getTime() - startTime.longValue();
-            return maxProcessingTime;
+            continue;
          }
-         return upper.longValue();
+
+         final long until = (h.getUntil().getTime() != 0) ? h.getUntil().getTime() : testTimestampProvider.getTimestamp().getTime();
+         result += until - h.getFrom().getTime();
       }
 
-      @Override
-      public String toString()
+      return result;
+   }
+
+   private long calculateExpectedProcessingTimeForPi(final long oid)
+   {
+      long result = 0;
+
+      final ActivityInstances ais = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findForProcessInstance(oid));
+      for (final ActivityInstance ai : ais)
       {
-         final StringBuilder sb = new StringBuilder();
-
-         sb.append("lower: ").append(lower).append(", ");
-         sb.append("upper: ").append(upper).append(", ");
-         sb.append("startTime: ").append(startTime);
-
-         return sb.toString();
+         result += calculateExpectedProcessingTimeForAi(ai.getOID());
       }
+
+      return result;
    }
 }

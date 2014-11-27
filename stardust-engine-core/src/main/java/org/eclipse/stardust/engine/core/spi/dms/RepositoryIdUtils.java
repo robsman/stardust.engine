@@ -155,7 +155,9 @@ public class RepositoryIdUtils
          if (resource instanceof DmsDocumentBean)
          {
             String revisionId = ((Document) resource).getRevisionId();
-            if (!StringUtils.isEmpty(revisionId) && !RepositoryConstants.VERSION_UNVERSIONED.equals(revisionId))
+            if (!StringUtils.isEmpty(revisionId)
+                  && !RepositoryConstants.VERSION_UNVERSIONED.equals(revisionId)
+                  && !RepositoryConstants.VERSION_VERSIONED.equals(revisionId))
             {
                String prefixedRevisionId = addRepositoryId(revisionId, repositoryId);
                ((DmsDocumentBean) resource).setRevisionId(prefixedRevisionId);

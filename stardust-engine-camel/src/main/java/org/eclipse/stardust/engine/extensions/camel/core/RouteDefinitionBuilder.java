@@ -138,7 +138,7 @@ public class RouteDefinitionBuilder
       String modelId = routeContext.getModelId();
       StringBuilder routeDefinition = new StringBuilder();
       routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_HEADER);
-      routeDefinition.append(route(routeId, true));
+      routeDefinition.append(route(routeId, routeContext.getAutostartupValue()));
       routeDefinition.append(description(routeContext.getDescription()));
       Boolean consumerBpmTypeConverter =  routeContext.getConsumerBpmTypeConverter();
       if (!StringUtils.isEmpty(providedRouteConfig))
@@ -265,7 +265,7 @@ public class RouteDefinitionBuilder
       String routeId = routeContext.getRouteId();
       StringBuilder routeDefinition = new StringBuilder();
       routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_HEADER);
-      routeDefinition.append(route(routeId, true));
+      routeDefinition.append(route(routeId, routeContext.getAutostartupValue()));
       routeDefinition.append(description(routeContext.getDescription()));
       // TODO: define the behavior when a required parameter is missing
       if (StringUtils.isEmpty(applicationId))

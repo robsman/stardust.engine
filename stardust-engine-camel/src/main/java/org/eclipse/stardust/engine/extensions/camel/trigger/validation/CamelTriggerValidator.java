@@ -12,20 +12,18 @@ package org.eclipse.stardust.engine.extensions.camel.trigger.validation;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
+import static org.eclipse.stardust.engine.extensions.camel.Util.buildExceptionMessage;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getModelId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getProcessId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.camel.Route;
 import org.apache.camel.model.ModelCamelContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -45,8 +43,6 @@ import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.EndpointHelper;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateTriggerRouteAction;
-
-import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelTriggerValidator implements TriggerValidator,
         TriggerValidatorEx {
@@ -219,11 +215,10 @@ public class CamelTriggerValidator implements TriggerValidator,
                catch (Exception e1)
                {
                   //throw new RuntimeException(e);
-                  inconsistencies.add(new Inconsistency(e1.getCause().getMessage(), trigger, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(buildExceptionMessage(e), trigger, Inconsistency.ERROR));
                }
                
-               
-               inconsistencies.add(new Inconsistency(e.getCause().getMessage(), trigger, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(buildExceptionMessage(e), trigger, Inconsistency.ERROR));
             }
         }
 

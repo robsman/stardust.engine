@@ -14,17 +14,21 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
 import java.util.List;
 
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.dms.repository.mock.MockProvider;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -262,5 +266,66 @@ public class DmsSanityTest
       Document fetchedDoc = getDms().getDocument(DOC_PATH);
       Assert.assertEquals("stringValue1", fetchedDoc.getProperties().get("string1"));
       Assert.assertEquals("intValue1", fetchedDoc.getProperties().get("int1"));
+   }
+
+   /**
+    * Tests if write operation is forbidden when AuditTrail is running in archive mode.
+    * For default repository (jcr-vfs provider)
+    */
+   @Test
+   public void testArchiveModeWriteForbidden()
+   {
+      GlobalParameters globals = GlobalParameters.globals();
+
+      globals.set(Constants.CARNOT_ARCHIVE_AUDITTRAIL, true);
+      try
+      {
+         getDms().createDocument("/", DmsUtils.createDocumentInfo("test2.txt"));
+      }
+      catch (DocumentManagementServiceException dmse)
+      {
+         String id = dmse.getError().getId();
+         Assert.assertEquals("DMS02003", id);
+         if (!"DMS02003".equals(id))
+         {
+            throw dmse;
+         }
+      }
+      finally
+      {
+         globals.set(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+      }
+   }
+
+   /**
+    * Tests if write operation is forbidden when AuditTrail is running in archive mode.
+    * For non jcr-vfs provider (mock repository).
+    * @See {@link MockProvider}
+    */
+   @Test
+   public void testArchiveModeWriteForbiddenMockRepo()
+   {
+      GlobalParameters globals = GlobalParameters.globals();
+
+      globals.set(Constants.CARNOT_ARCHIVE_AUDITTRAIL, true);
+      try
+      {
+         String mockRepoRoot = RepositoryIdUtils.addRepositoryId("/",
+               MockProvider.DEFAULT_REPO_ID);
+         getDms().createDocument(mockRepoRoot, DmsUtils.createDocumentInfo("test2.txt"));
+      }
+      catch (DocumentManagementServiceException dmse)
+      {
+         String id = dmse.getError().getId();
+         Assert.assertEquals("DMS02003", id);
+         if (!"DMS02003".equals(id))
+         {
+            throw dmse;
+         }
+      }
+      finally
+      {
+         globals.set(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+      }
    }
 }

@@ -433,6 +433,11 @@ public class Util
       return isProducer;
    }
 
+   public static String getDescription(final String partition, final String modelId, final String elementId)
+   {
+      StringBuilder description = new StringBuilder("This route is related to "+elementId+" defined in "+modelId+". The partition is :"+partition);
+      return description.toString();
+   }
    /**
     *
     * @param partitionId
@@ -685,5 +690,35 @@ public class Util
    public static String getEventImplementation(final ITrigger trigger)
    {
       return (String) trigger.getAttribute(CamelConstants.TRIGGER_INTEGRATION_OVERLAY_ATT);
+   }
+   
+   /**
+    * Lookup Exception Detail Message.
+    * @param throwable
+    * @return
+    */
+   private static String getThrowableDetailMessage(Throwable throwable)
+   {
+      return throwable.getMessage() != null
+            ? throwable.getMessage()
+            : getThrowableDetailMessage(throwable.getCause());
+   }
+   
+   /**
+    * Build exception msg for inconsistencies
+    * @param Exception
+    * @return
+    */
+   public static String buildExceptionMessage(Exception e)
+   {
+      String msg =e.getMessage();
+      if(e.getCause() != null)
+      {
+         msg += " Cause ";
+         msg += e.getCause().getClass().getName();
+         msg += ": ";
+         msg += getThrowableDetailMessage(e.getCause());
+      }
+      return msg;
    }
 }

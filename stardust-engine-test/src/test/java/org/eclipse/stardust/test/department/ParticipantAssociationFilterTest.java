@@ -42,41 +42,43 @@ import org.junit.rules.TestRule;
  * {@link org.eclipse.stardust.engine.api.query.ParticipantAssociationFilter}
  * wrt. the <i>Department</i> functionality.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ParticipantAssociationFilterTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String ORG1_USERNAME_1 = "org1_1";
    private static final String ORG1_USERNAME_2 = "org1_2";
-   
+   private static final String ORG1_USERNAME_3 = "org1_3";
+
    private static final String DEP_ID_U = "u";
    private static final String DEP_ID_V = "v";
-   
+
    private User org1User1;
    private User org1User2;
-   
+   private User org1User3;
+
    private Organization org1;
-   
+
    private Department uDep;
    private Department vDep;
-   
+
    private ModelParticipantInfo org1uGrant;
    private ModelParticipantInfo org1vGrant;
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-   
+
    @Before
    public void setUp()
    {
@@ -85,7 +87,7 @@ public class ParticipantAssociationFilterTest
       createAllDepartments();
       createScopedGrants();
    }
-   
+
    /**
     * <p>
     * Assuming there are no users with a particular grant,
@@ -96,10 +98,10 @@ public class ParticipantAssociationFilterTest
    public void testForParticipantNoGrants()
    {
       final Users users = getUsersFor(org1uGrant);
-      
+
       assertEquals(0, users.size());
    }
-   
+
    /**
     * <p>
     * Assuming there is exactly on user with a particular grant,
@@ -111,13 +113,13 @@ public class ParticipantAssociationFilterTest
    public void testForParticipantOrg1uGrantOneUser()
    {
       UserHome.addGrants(sf, org1User1, org1uGrant);
-      
+
       final Users users = getUsersFor(org1uGrant);
-      
+
       assertEquals(1, users.size());
       assertEquals(org1User1, users.get(0));
    }
-   
+
    /**
     * <p>
     * Assuming there are exactly two users with a particular grant,
@@ -130,19 +132,19 @@ public class ParticipantAssociationFilterTest
    {
       UserHome.addGrants(sf, org1User1, org1uGrant);
       UserHome.addGrants(sf, org1User2, org1uGrant);
-      
+
       final Users users = getUsersFor(org1uGrant);
-      
+
       assertEquals(2, users.size());
       assertTrue(users.contains(org1User1));
       assertTrue(users.contains(org1User2));
-   }   
-   
+   }
+
    /**
     * <p>
-    * Assuming there is exactly one user (user1) with two particular
+    * Assuming there are exactly two users (user1 and user3) with two particular
     * grants on departments, filtering via an AND term for both of
-    * these grants will return this and only this user mentioned above.
+    * these grants will return these and only these users mentioned above.
     * </p>
     */
    @Test
@@ -150,13 +152,15 @@ public class ParticipantAssociationFilterTest
    {
       UserHome.addGrants(sf, org1User1, org1uGrant, org1vGrant);
       UserHome.addGrants(sf, org1User2, org1uGrant);
-      
+      UserHome.addGrants(sf, org1User3, org1uGrant, org1vGrant);
+
       final Users users = getUsersForAndTerm(org1uGrant, org1vGrant);
-      
-      assertEquals(1, users.size());
-      assertEquals(org1User1, users.get(0));
+
+      assertEquals(2, users.size());
+      assertTrue(users.contains(org1User1));
+      assertTrue(users.contains(org1User3));
    }
-   
+
    /**
     * <p>
     * Assuming there are exactly two user (user1 and user2) with one
@@ -170,9 +174,9 @@ public class ParticipantAssociationFilterTest
    {
       UserHome.addGrants(sf, org1User1, org1uGrant);
       UserHome.addGrants(sf, org1User2, org1vGrant);
-      
+
       final Users users = getUsersForOrTerm(org1uGrant, org1vGrant);
-      
+
       assertEquals(2, users.size());
       assertTrue(users.contains(org1User1));
       assertTrue(users.contains(org1User2));
@@ -182,25 +186,26 @@ public class ParticipantAssociationFilterTest
    {
       org1 = (Organization) sf.getQueryService().getParticipant(ORG1_ID);
    }
-   
+
    private void createOrg1Users()
    {
       org1User1 = UserHome.create(sf, ORG1_USERNAME_1, org1);
       org1User2 = UserHome.create(sf, ORG1_USERNAME_2, org1);
+      org1User3 = UserHome.create(sf, ORG1_USERNAME_3, org1);
    }
-   
+
    private void createAllDepartments()
    {
       uDep = sf.getAdministrationService().createDepartment(DEP_ID_U, DEP_ID_U, null, null, org1);
       vDep = sf.getAdministrationService().createDepartment(DEP_ID_V, DEP_ID_V, null, null, org1);
    }
-   
+
    private void createScopedGrants()
    {
       org1uGrant = uDep.getScopedParticipant(org1);
       org1vGrant = vDep.getScopedParticipant(org1);
    }
-   
+
    private Users getUsersFor(final ModelParticipantInfo p1)
    {
       final ParticipantAssociationFilter filter = ParticipantAssociationFilter.forParticipant(p1);
@@ -208,7 +213,7 @@ public class ParticipantAssociationFilterTest
       userQuery.where(filter);
       return sf.getQueryService().getAllUsers(userQuery);
    }
-   
+
    private Users getUsersForAndTerm(final ModelParticipantInfo p1, final ModelParticipantInfo p2)
    {
       final ParticipantAssociationFilter f1 = ParticipantAssociationFilter.forParticipant(p1);
@@ -217,7 +222,7 @@ public class ParticipantAssociationFilterTest
       userQuery.getFilter().addAndTerm().and(f1).and(f2);
       return sf.getQueryService().getAllUsers(userQuery);
    }
-   
+
    private Users getUsersForOrTerm(final ModelParticipantInfo p1, final ModelParticipantInfo p2)
    {
       final ParticipantAssociationFilter f1 = ParticipantAssociationFilter.forParticipant(p1);

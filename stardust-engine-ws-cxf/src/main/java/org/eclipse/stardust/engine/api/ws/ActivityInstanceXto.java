@@ -53,6 +53,10 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="descriptorDefinitions" type="{http://eclipse.org/stardust/ws/v2012a/api}DataPaths" minOccurs="0"/>
  *         &lt;element name="historicalStates" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalStates" minOccurs="0"/>
  *         &lt;element name="historicalEvents" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalEvents" minOccurs="0"/>
+ *         &lt;element name="criticality" type="{http://www.w3.org/2001/XMLSchema}double"/>
+ *         &lt;element name="qualityAssuranceInfo" type="{http://eclipse.org/stardust/ws/v2012a/api}QualityAssuranceInfo" minOccurs="0"/>
+ *         &lt;element name="qualityAssuranceState" type="{http://eclipse.org/stardust/ws/v2012a/api}QualityAssuranceState" minOccurs="0"/>
+ *         &lt;element name="attributes" type="{http://eclipse.org/stardust/ws/v2012a/api}ActivityInstanceAttributes" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -89,7 +93,11 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "instanceProperties",
     "descriptorDefinitions",
     "historicalStates",
-    "historicalEvents"
+    "historicalEvents",
+    "criticality",
+    "qualityAssuranceInfo",
+    "qualityAssuranceState",
+    "attributes"
 })
 public class ActivityInstanceXto {
 
@@ -134,6 +142,10 @@ public class ActivityInstanceXto {
     protected DataPathsXto descriptorDefinitions;
     protected HistoricalStatesXto historicalStates;
     protected HistoricalEventsXto historicalEvents;
+    protected double criticality;
+    protected QualityAssuranceInfoXto qualityAssuranceInfo;
+    protected QualityAssuranceStateXto qualityAssuranceState;
+    protected ActivityInstanceAttributesXto attributes;
 
     /**
      * Gets the value of the oid property.
@@ -725,6 +737,94 @@ public class ActivityInstanceXto {
      */
     public void setHistoricalEvents(HistoricalEventsXto value) {
         this.historicalEvents = value;
+    }
+
+    /**
+     * Gets the value of the criticality property.
+     * 
+     */
+    public double getCriticality() {
+        return criticality;
+    }
+
+    /**
+     * Sets the value of the criticality property.
+     * 
+     */
+    public void setCriticality(double value) {
+        this.criticality = value;
+    }
+
+    /**
+     * Gets the value of the qualityAssuranceInfo property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link QualityAssuranceInfoXto }
+     *     
+     */
+    public QualityAssuranceInfoXto getQualityAssuranceInfo() {
+        return qualityAssuranceInfo;
+    }
+
+    /**
+     * Sets the value of the qualityAssuranceInfo property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link QualityAssuranceInfoXto }
+     *     
+     */
+    public void setQualityAssuranceInfo(QualityAssuranceInfoXto value) {
+        this.qualityAssuranceInfo = value;
+    }
+
+    /**
+     * Gets the value of the qualityAssuranceState property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link QualityAssuranceStateXto }
+     *     
+     */
+    public QualityAssuranceStateXto getQualityAssuranceState() {
+        return qualityAssuranceState;
+    }
+
+    /**
+     * Sets the value of the qualityAssuranceState property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link QualityAssuranceStateXto }
+     *     
+     */
+    public void setQualityAssuranceState(QualityAssuranceStateXto value) {
+        this.qualityAssuranceState = value;
+    }
+
+    /**
+     * Gets the value of the attributes property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ActivityInstanceAttributesXto }
+     *     
+     */
+    public ActivityInstanceAttributesXto getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * Sets the value of the attributes property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ActivityInstanceAttributesXto }
+     *     
+     */
+    public void setAttributes(ActivityInstanceAttributesXto value) {
+        this.attributes = value;
     }
 
 }

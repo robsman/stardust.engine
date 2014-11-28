@@ -73,11 +73,7 @@ import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
-import org.eclipse.stardust.engine.core.model.utils.SearchableList;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
@@ -104,7 +100,7 @@ public class ModelBean extends RootElementBean
    private static final long serialVersionUID = 3L;
 
    private static final Logger trace = LogManager.getLogger(ModelBean.class);
-   
+
    private static final String IPP_VARIABLES = "ipp:variables[";
    private static final String IPP_VARIABLES_DESCRIPTION = "]:description";
    private static final String IPP_VARIABLES_DEFAULT_VALUE = "]:defaultValue";
@@ -153,7 +149,7 @@ public class ModelBean extends RootElementBean
    private int defaultConditionalPerformerId = 1;
    private int defaultDiagramId = 1;
    private int defaultViewId = 1;
-   
+
    private Set<String> configurationVariableReferences = CollectionUtils.newSet();
    private QualityAssuranceBean qualityAssuranceBean;
 
@@ -217,7 +213,7 @@ public class ModelBean extends RootElementBean
    public List checkConsistency()
    {
       List inconsistencies = CollectionUtils.newList();
-      
+
       if (!validateReferences(inconsistencies))
       {
          return inconsistencies;
@@ -226,7 +222,7 @@ public class ModelBean extends RootElementBean
       super.checkConsistency(inconsistencies);
 
       try
-      {         
+      {
          IQualityAssurance qualityAssurance = getQualityAssurance();
          if (qualityAssurance != null)
          {
@@ -247,7 +243,7 @@ public class ModelBean extends RootElementBean
             if (!duplicatesInfo.isEmpty())
             {
                for (IQualityAssuranceCode qaCode : duplicatesInfo.keySet())
-               {               
+               {
                   Integer duplicatesCount = duplicatesInfo.get(qaCode);
                   String code = qaCode.getCode();
 
@@ -256,7 +252,7 @@ public class ModelBean extends RootElementBean
                }
             }
          }
-         
+
          for (IData data : getData())
          {
             data.checkConsistency(inconsistencies);
@@ -276,7 +272,7 @@ public class ModelBean extends RootElementBean
          {
             ((IModelParticipant) i.next()).checkConsistency(inconsistencies);
          }
-         
+
          IModelParticipant administrator = findParticipant("Administrator");
          if (administrator == null)
          {
@@ -288,16 +284,16 @@ public class ModelBean extends RootElementBean
             BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_PARTICIPANT_MUST_BE_A_ROLE.raise();
             inconsistencies.add(new Inconsistency(error, administrator, Inconsistency.ERROR));
          }
-         
+
          if (!scripting.isSupported())
          {
             BpmValidationError error = BpmValidationError.MDL_UNSUPPORTED_SCRIPT_LANGUAGE.raise(scripting.getType());
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
-         
+
          if (ModelManagerFactory.isAvailable())
          {
-            if (administrator.getAllOrganizations().hasNext())
+            if (administrator != null && administrator.getAllOrganizations().hasNext())
             {
                BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_IS_NOT_ALLOWED_TO_HAVE_RELATIONSHIPS_TO_ANY_ORGANIZATION.raise();
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
@@ -327,14 +323,14 @@ public class ModelBean extends RootElementBean
                }
             }
          }
-         
+
        ModelElementList typeDecls = getTypeDeclarations();
        for (int i = 0; i < typeDecls.size(); i++)
        {
           TypeDeclarationBean typeDecl = (TypeDeclarationBean) typeDecls.get(i);
           typeDecl.checkConsistency(inconsistencies);
        }
-       
+
          Set<String> configurationVariableReferences = getConfigurationVariableReferences();
          Set<IConfigurationVariableDefinition> configurationVariableDefinitions = getConfigurationVariableDefinitionsFullNames();
          Set<String> definedVarNames = CollectionUtils.newSet();
@@ -362,7 +358,7 @@ public class ModelBean extends RootElementBean
                BpmValidationError error = BpmValidationError.MDL_NO_DEFAULT_VALUE_FOR_CONFIGURATION_VARIABLE.raise(varDefinition.getName());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
-            
+
             if ( !configurationVariableReferences.contains(varDefinition.getName()))
             {
                BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_NEVER_USED.raise(varDefinition.getName());
@@ -375,7 +371,7 @@ public class ModelBean extends RootElementBean
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
-         
+
          for (String varReferenceName : configurationVariableReferences)
          {
             if ( !definedVarNames.contains(varReferenceName))
@@ -384,7 +380,7 @@ public class ModelBean extends RootElementBean
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
-         
+
          return inconsistencies;
       }
       catch (ApplicationException ae)
@@ -442,7 +438,7 @@ public class ModelBean extends RootElementBean
 
       return duplicatesInfo;
    }
-   
+
    private boolean validateReferences(List<Inconsistency> inconsistencies)
    {
       for (IExternalPackage externalPackage : externalPackages)
@@ -459,7 +455,7 @@ public class ModelBean extends RootElementBean
             return addReferenceInconsistency(inconsistencies, externalPackage);
          }
       }
-      
+
       if (ModelManagerFactory.isAvailable())
       {
          Date ref = (Date) getAttribute(PredefinedConstants.VALID_FROM_ATT);
@@ -605,7 +601,7 @@ public class ModelBean extends RootElementBean
          throw new PublicException(
                BpmRuntimeError.MDL_TYPEDECLARATION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
-      
+
       markModified();
 
       TypeDeclarationBean typeDeclaration = new TypeDeclarationBean(id, name,
@@ -759,15 +755,92 @@ public class ModelBean extends RootElementBean
    {
       return (ITypeDeclaration) typeDeclarations.findById(id);
    }
-   
+
    public IApplication findApplication(String id)
    {
-      return (IApplication) applications.findById(id);
+      return find(applications, id);
    }
 
    public IData findData(String id)
    {
-      return data.find(id);
+      return find(data, id);
+   }
+
+   private static <T extends IdentifiableElement> T find(Link list, String id)
+   {
+      String uuid = null;
+      int ix = id.indexOf('?');
+      if (ix >= 0)
+      {
+         for (String token : id.substring(ix + 1).split("&"))
+         {
+            if (token.startsWith("uuid="))
+            {
+               uuid = token.substring(5);
+               break;
+            }
+         }
+         id = id.substring(0, ix);
+      }
+      T item = (T) list.findById(id);
+      if (uuid != null)
+      {
+         String elementUUID = item.getStringAttribute("carnot:model:uuid");
+         if (item == null || !uuid.equals(elementUUID))
+         {
+            for (Iterator iterator = list.iterator(); iterator.hasNext();)
+            {
+               T other = (T) iterator.next();
+               if (other != item)
+               {
+                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  if (uuid.equals(elementUUID))
+                  {
+                     return other;
+                  }
+               }
+            }
+         }
+      }
+      return item;
+   }
+
+   private static <T extends IdentifiableElement> T find(SearchableList<T> list, String id)
+   {
+      String uuid = null;
+      int ix = id.indexOf('?');
+      if (ix >= 0)
+      {
+         for (String token : id.substring(ix + 1).split("&"))
+         {
+            if (token.startsWith("uuid="))
+            {
+               uuid = token.substring(5);
+               break;
+            }
+         }
+         id = id.substring(0, ix);
+      }
+      T item = list.find(id);
+      if (uuid != null)
+      {
+         String elementUUID = item.getStringAttribute("carnot:model:uuid");
+         if (item == null || !uuid.equals(elementUUID))
+         {
+            for (T other : list)
+            {
+               if (other != item)
+               {
+                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  if (uuid.equals(elementUUID))
+                  {
+                     return other;
+                  }
+               }
+            }
+         }
+      }
+      return item;
    }
 
    public Diagram findDiagram(String id)
@@ -782,12 +855,12 @@ public class ModelBean extends RootElementBean
 
    public IModelParticipant findParticipant(String id)
    {
-      return participants.find(id);
+      return find(participants, id);
    }
 
    public IProcessDefinition findProcessDefinition(String id)
    {
-      return (IProcessDefinition) processDefinitions.findById(id);
+      return find(processDefinitions, id);
    }
 
    public Iterator getAllApplications()
@@ -809,7 +882,7 @@ public class ModelBean extends RootElementBean
    {
       return data.iterator();
    }
-   
+
    public ModelElementList<IData> getData()
    {
       return data;
@@ -1010,7 +1083,7 @@ public class ModelBean extends RootElementBean
    {
       eventActionTypes.remove(type);
    }
-   
+
    public Iterator getAllApplicationContextTypes()
    {
       return applicationContextTypes.iterator();
@@ -1407,7 +1480,7 @@ public class ModelBean extends RootElementBean
    {
       this.scripting = scripting;
    }
-   
+
    public void addToExternalPackages(IExternalPackage externalPackage)
    {
       externalPackages.add(externalPackage);
@@ -1422,7 +1495,7 @@ public class ModelBean extends RootElementBean
    {
       return ModelUtils.findById(externalPackages, id);
    }
-   
+
    public Set<IConfigurationVariableDefinition> getConfigurationVariableDefinitions()
    {
       Set<IConfigurationVariableDefinition> defs = CollectionUtils.newSet();
@@ -1449,7 +1522,7 @@ public class ModelBean extends RootElementBean
       }
       return defs;
    }
-   
+
    public Set<IConfigurationVariableDefinition> getConfigurationVariableDefinitionsFullNames()
    {
       Set<IConfigurationVariableDefinition> defs = CollectionUtils.newSet();
@@ -1481,10 +1554,10 @@ public class ModelBean extends RootElementBean
    {
       return Collections.unmodifiableSet(configurationVariableReferences);
    }
-   
+
    public void setConfigurationVariableReferences(Set<String> configurationVariableReferences)
    {
-      this.configurationVariableReferences = configurationVariableReferences; 
+      this.configurationVariableReferences = configurationVariableReferences;
    }
 
    public IProcessDefinition getImplementingProcess(QName processId)
@@ -1511,7 +1584,7 @@ public class ModelBean extends RootElementBean
    public IQualityAssurance createQualityAssurance()
    {
       qualityAssuranceBean = new QualityAssuranceBean();
-      
+
       return qualityAssuranceBean;
    }
 

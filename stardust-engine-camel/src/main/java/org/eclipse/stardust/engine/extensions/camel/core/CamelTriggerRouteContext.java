@@ -87,9 +87,15 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
     * 
     * @return
     */
-   public boolean autoStartRoute()
+   public Boolean autoStartRoute()
    {
-      return true;
+
+	   Boolean startup = true;
+	   if (trigger.getAttribute("carnot:engine:camel::autoStartup") != null){
+		   startup = (Boolean) trigger.getAttribute("carnot:engine:camel::autoStartup");
+	   }
+	  return startup;
+
    }
 
    /**

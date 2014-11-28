@@ -12,8 +12,7 @@ package org.eclipse.stardust.test.multimodel;
 
 /**
  * <p>
- * This class contains constants related to the model
- * used for workflow service tests.
+ * This class contains constants related to the model used for multi-model tests.
  * </p>
  *
  * @author Robert.Sauer

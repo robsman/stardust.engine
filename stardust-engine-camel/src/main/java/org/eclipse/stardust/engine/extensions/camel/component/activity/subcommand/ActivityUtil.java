@@ -123,36 +123,7 @@ public class ActivityUtil
       }
 
       ActivityInstances result = queryService.getAllActivityInstances(aiQuery);
-
-      Long expectedResultSize = endpoint.evaluateExpectedResultSize(exchange, false);
-
-      LOG.info("Expected result size is evaluated to " + expectedResultSize + ".");
-      long defaultExpectedResultSize = -1;// unlimitedSize
-
-      if (expectedResultSize == null)
-      {
-         LOG.info("Expected result size is set to unlimitted.");
-         expectedResultSize = defaultExpectedResultSize;
-      }
-
-      if (result.size() == expectedResultSize)
-      {
-         LOG.info("Result size matches expected result size.");
-         return result;
-      }
-      else
-      {
-         if (expectedResultSize == -1)
-            return result;
-         else
-         {
-            String error = result.size() + " activity instances found - " + expectedResultSize
-                  + " activity instances expected.";
-
-            LOG.error(error);
-            throw new UnexpectedResultException(error);
-         }
-      }
+      return result;
    }
 
    public static boolean matches(Exchange exchange, ActivityInstance activityInstance, QueryService queryService)

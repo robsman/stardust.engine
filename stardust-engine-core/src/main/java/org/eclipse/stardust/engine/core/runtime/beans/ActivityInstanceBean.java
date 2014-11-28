@@ -432,7 +432,14 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public final void setState(int state)
    {
-      setState(state, SecurityProperties.getUserOID());
+      if (getActivity().isInteractive())
+      {
+         setState(state, SecurityProperties.getUserOID());
+      }
+      else 
+      {
+         setState(state, 0);
+      }
    }
 
    /**

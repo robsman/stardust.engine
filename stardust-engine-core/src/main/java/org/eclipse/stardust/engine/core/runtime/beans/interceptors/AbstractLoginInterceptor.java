@@ -72,10 +72,17 @@ import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
  */
 public class AbstractLoginInterceptor implements MethodInterceptor
 {
+   public static final String REAUTH_OUTER_PRINCIPAL = "Security.ReauthOuterPrincipal";
+
+   public static final String REAUTH_USER_ID = "Security.ReauthUserId";
+
+   public static final String REAUTH_PASSWORD = "Security.ReauthPassword";
+
    private static final Logger trace = LogManager.getLogger(AbstractLoginInterceptor.class);
 
    public static final String METHODNAME_LOGIN = "login";
    public static final String METHODNAME_LOGOUT = "logout";
+
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
@@ -176,6 +183,9 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                      SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
                loggedInUser.getProperties());
 
+         // Re-authentication if re-auth properties are set on the InvokerPrincipal.
+         doReauthentication(loggedInUser);
+
          if (null != user && LoginUtils.isUserExpired(user))
          {
             throw LoginUtils.createAccountExpiredException(user);
@@ -193,23 +203,11 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
    private void doSecurityCheck(LoggedInUser user)
    {
-      InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
-      if (principal == null)
-      {
-         Object signedPrincipal = user.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
-         if (signedPrincipal instanceof InvokerPrincipal)
-         {
-            principal = (InvokerPrincipal) signedPrincipal;
-         }
-         else
-         {
-            trace.warn("No principal provided.");
-            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
-         }
-      }
+      InvokerPrincipal principal = getPrincipal(user);
 
       if (SecurityProperties.isInternalAuthentication())
       {
+         // Check principal signature
          boolean ok = InvokerPrincipalUtils.checkPrincipalSignature(principal);
          if ( !ok)
          {
@@ -225,6 +223,49 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          {
             trace.warn("The principal '" + principal + "' is invalid.");
             throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+         }
+      }
+   }
+
+   private InvokerPrincipal getPrincipal(LoggedInUser user)
+   {
+      InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
+      if (principal == null)
+      {
+         Object signedPrincipal = user.getProperties().get(InvokerPrincipal.PRP_SIGNED_PRINCIPAL);
+         if (signedPrincipal instanceof InvokerPrincipal)
+         {
+            principal = (InvokerPrincipal) signedPrincipal;
+         }
+         else
+         {
+            trace.warn("No principal provided.");
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
+         }
+      }
+      return principal;
+   }
+
+   private void doReauthentication(LoggedInUser user)
+   {
+      // Check if re-authentication properties are present and do login check.
+      InvokerPrincipal principal = getPrincipal(user);
+      Map properties = principal.getProperties();
+      if (properties.containsKey(REAUTH_USER_ID))
+      {
+         String username = (String) properties.get(REAUTH_USER_ID);
+         String password = (String) properties.get(REAUTH_PASSWORD);
+         ExternalLoginResult login = LoginServiceFactory.getService().login(username,
+               password, Collections.unmodifiableMap(properties));
+
+         if ( !login.wasSuccessful())
+         {
+            throw login.getLoginFailedReason();
+         }
+         else
+         {
+            properties.remove(REAUTH_USER_ID);
+            properties.remove(REAUTH_PASSWORD);
          }
       }
    }

@@ -35,8 +35,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullEventEmitter;
 public class EventDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(EventDaemon.class);
-   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
-   
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;
+
    public static final String ID = AdministrationService.EVENT_DAEMON;
 
    public EventDaemon()
@@ -58,14 +58,14 @@ public class EventDaemon implements IDaemon
          {
             final long currentTime = now.getTime();
             DependentObjectsCache modelCache = ModelManagerFactory.getCurrent().getDependentCache();
-            
+
             boolean timerEventsEvaluated = false;
-            
+
             Iterator emitters = modelCache.getEmitters();
             while ((nEvents < batchSize) && emitters.hasNext())
             {
                PullEventEmitter emitter = (PullEventEmitter) emitters.next();
-               
+
                // evaluate timestamp events only once (CRNT-3702)
                if (emitter instanceof TimeStampEmitter)
                {
@@ -75,19 +75,19 @@ public class EventDaemon implements IDaemon
                   }
                   timerEventsEvaluated = true;
                }
-               
+
                ClosableIterator events = null;
                try
                {
                   // find events due to be handled
                   events = emitter.execute(currentTime);
-                  
+
                   while ((nEvents < batchSize) && events.hasNext())
                   {
                      ++nEvents;
-                     
+
                      final Event event = (Event) events.next();
-                     
+
                      try
                      {
                         // perform event handling in separate TX to make sure failure in
@@ -96,7 +96,7 @@ public class EventDaemon implements IDaemon
                         {
                            protected void invoke()
                            {
-                              daemonLogger.info("Event Daemon, process event '" + event.toString() + "'.");                              
+                              daemonLogger.info("Event Daemon, process event '" + event.toString() + "'.");
                               EventUtils.processPullEvent(event);
                            }
                         });
@@ -105,7 +105,7 @@ public class EventDaemon implements IDaemon
                      {
                         // TODO eventually disable event or reduce priority of event to
                         // keep future noise down
-                        
+
                         AuditTrailLogger.getInstance(LogCode.EVENT,
                               EventUtils.getEventSourceInstance(event)).warn(
                                     MessageFormat.format("Failed processing event {0}.",
@@ -127,7 +127,7 @@ public class EventDaemon implements IDaemon
             factory.release(jobManager);
          }
       }
-      
+
       return (nEvents >= batchSize) ? IDaemon.WORK_PENDING : IDaemon.WORK_DONE;
    }
 
@@ -167,5 +167,10 @@ public class EventDaemon implements IDaemon
    public String getType()
    {
       return ID;
+   }
+
+   public long getDefaultPeriodicity()
+   {
+      return 5;
    }
 }

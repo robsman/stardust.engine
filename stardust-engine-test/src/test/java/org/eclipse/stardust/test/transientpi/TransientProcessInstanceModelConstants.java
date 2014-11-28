@@ -246,6 +246,11 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE = MODEL_ID_PREFIX + "ChangeAuditTrailPersistence_MultipleTimes";
 
+   /**
+    * the ID of the process definition handling big structured data
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_BIG_STRUCTURED_DATA = MODEL_ID_PREFIX + "BigStructuredData";
+
 
    /**
     * the name of the process definition started by a timer trigger
@@ -284,6 +289,21 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     * the ID of the data determining the second audit trail persistence mode to change to
     */
    /* package-private */ static final String DATA_ID_AUDIT_TRAIL_PERSISTENCE_2 = "AuditTrailPersistence_2";
+
+   /**
+    * the ID of the big structured data
+    */
+   /* package-private */ static final String DATA_ID_BIG_STRUCT_DATA = "BigStructuredData";
+
+   /**
+    * the SDT data path of the big {@link String} data in {@link #DATA_ID_BIG_STRUCT_DATA}
+    */
+   /* package-private */ static final String DATA_PATH_BIG_STRING_DATA = "myString";
+
+   /**
+    * the in data path of the big {@link String} data in {@link #DATA_ID_BIG_STRUCT_DATA}
+    */
+   /* package-private */ static final String IN_DATA_PATH_BIG_STRING_DATA = "BigStringData";
 
    /**
     * the out data path for the primitive data 'Fail'

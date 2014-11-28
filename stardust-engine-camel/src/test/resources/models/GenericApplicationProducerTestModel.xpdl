@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericApplicationProducerTestModel" Name="GenericApplicationProducerTestModel">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericApplicationProducerTestModel" Name="GenericApplicationProducerTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -243,7 +244,24 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="1013" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
-                  <carnot:AccessPoints/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="1180" Id="person" Name="person (Person)" Direction="IN" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="Person"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="RootElement" Value="person"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="1181" Id="address" Name="address (Address)" Direction="OUT" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="Address"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="RootElement" Value="address"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
@@ -251,6 +269,12 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:testBean?method=complete&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::processContextHeaders" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="person" Type="String"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="address" Type="String"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -275,13 +299,14 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot;/&gt;&#13;&#10;&lt;to uri=&quot;vm:outboundvm&quot;/&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot;/&gt;&#13;&#10;&lt;to uri=&quot;direct:outboundvm&quot;/&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="send"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
                      <carnot:Attribute Name="carnot:engine:camel::processContextHeaders" Value="true"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="input" Type="String"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -1278,11 +1303,11 @@
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="1022" Id="Person" Name="Person" Direction="IN" Context="application">
                               <carnot:DataRef Id="Person"/>
-                              <carnot:AccessPointRef Id="oParam1"/>
+                              <carnot:AccessPointRef Id="person"/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="1024" Id="Address" Name="Address" Direction="OUT" Context="application">
                               <carnot:DataRef Id="Address"/>
-                              <carnot:AccessPointRef Id="returnValue"/>
+                              <carnot:AccessPointRef Id="address"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -1507,10 +1532,11 @@
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword}"/>
+                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;vm:outboundvm&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;direct:outboundvm&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt; "/>
                            <carnot:Attribute Name="eventClass" Value="message"/>
+                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1892,7 +1918,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="7.2.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="8.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -2251,9 +2277,9 @@
                <carnot:Attribute Name="project-planning:effortParameter[21]:type" Value="org.eclipse.stardust.modeling.project.effort.EffortByKeyParameter"/>
                <carnot:Attribute Name="project-planning:effortParameter[21]:name" Value="Complexity"/>
                <carnot:Attribute Name="project-planning:effortParameter[21]:initializers" Value="High=1.0;1.0;1.0;1.0;1.0,Medium=1.0;1.0;1.0;1.0;1.0,Low=1.0;1.0;1.0;1.0;1.0"/>
-               <carnot:Attribute Name="ipp:variables[0]:name" Value="camelTriggerUsername" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[0]:name" Value="camelTriggerUsername:String" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="motu" Type="String"/>
-               <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword:Password" Type="String"/>
                <carnot:Attribute Name="ipp:variables[1]:defaultValue" Value="motu" Type="String"/>
             </carnot:Attributes>
          </carnot:Package>

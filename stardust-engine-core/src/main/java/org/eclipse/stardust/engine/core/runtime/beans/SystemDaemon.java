@@ -23,7 +23,6 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.spi.runtime.ISystemAction;
 
 
-
 /**
  * @author ubirkemeyer
  * @version $Revision: 31061 $
@@ -31,7 +30,7 @@ import org.eclipse.stardust.engine.core.spi.runtime.ISystemAction;
 public class SystemDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(SystemDaemon.class);
-   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;
 
    public static final String ID = AdministrationService.SYSTEM_DAEMON;
 
@@ -80,7 +79,7 @@ public class SystemDaemon implements IDaemon
          ISystemAction action = actions.get(currentAction++);
          try
          {
-            daemonLogger.info("System Daemon, process action '" + action.toString() + "'.");                                          
+            daemonLogger.info("System Daemon, process action '" + action.toString() + "'.");
             action.run();
          }
          catch (Throwable t)
@@ -97,12 +96,17 @@ public class SystemDaemon implements IDaemon
             return IDaemon.WORK_DONE;
          }
       }
-      
+
       return (nActions >= batchSize) ? IDaemon.WORK_PENDING : IDaemon.WORK_DONE;
    }
 
    public String getType()
    {
       return ID;
+   }
+
+   public long getDefaultPeriodicity()
+   {
+      return 5;
    }
 }

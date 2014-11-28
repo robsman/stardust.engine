@@ -1678,7 +1678,14 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       // translate using FilterOrTerm of DataFilters
       if (dataFiltersOrTerm != null)
       {
-         return visit(dataFiltersOrTerm, context);
+         if (dataFiltersOrTerm.getParts().isEmpty())
+         {
+            return Predicates.isEqual(ProcessInstanceBean.FR__OID, -1);
+         }
+         else
+         {
+            return visit(dataFiltersOrTerm, context);
+         }
       }
       else
       {

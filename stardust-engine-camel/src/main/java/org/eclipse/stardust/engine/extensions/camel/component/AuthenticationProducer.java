@@ -2,11 +2,16 @@ package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Authenticate.COMMAND_REMOVE_CURRENT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Authenticate.COMMAND_SET_CURRENT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Authenticate.COMMAND_CURRENT_TX;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PARTITION;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.runtime.CredentialProvider;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 
@@ -74,6 +79,19 @@ public class AuthenticationProducer extends AbstractIppProducer
       else if (COMMAND_REMOVE_CURRENT.equals(endpoint.getSubCommand()))
       {
          ClientEnvironment.removeCurrent();
+      }
+      else if(COMMAND_CURRENT_TX.equals(endpoint.getSubCommand()))
+      {
+         ServiceFactory sf = ServiceFactoryLocator.get(CredentialProvider.CURRENT_TX);
+         if(sf == null)
+         {
+            throw new IllegalStateException("currentTx command is invoked in the wrong context: Outside of an ongoing IPP transaction");
+         } else if(SecurityProperties.getUser() == null)
+         {
+               throw new IllegalStateException("User not initialized. " +
+                     "CurrentTx command is invoked in the wrong context: Outside of an ongoing IPP transaction");
+         }
+         ClientEnvironment.setCurrent(sf);
       }
    }
 

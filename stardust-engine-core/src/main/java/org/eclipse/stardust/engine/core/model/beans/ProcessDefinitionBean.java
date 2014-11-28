@@ -358,7 +358,9 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          IModel refModel = externalReference.getExternalPackage().getReferencedModel();
          if (refModel != null)
          {
-            IProcessDefinition refProcess = refModel.findProcessDefinition(externalReference.getId());
+            String uuid = getStringAttribute("carnot:connection:uuid");
+            IProcessDefinition refProcess = refModel.findProcessDefinition(StringUtils.isEmpty(uuid)
+                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
             if (refProcess == null)
             {
                BpmValidationError error = BpmValidationError.PD_PROCESS_INTERFACE_NOT_RESOLVED.raise(qname);

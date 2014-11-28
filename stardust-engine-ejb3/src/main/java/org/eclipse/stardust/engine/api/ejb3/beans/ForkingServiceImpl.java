@@ -30,6 +30,7 @@ import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
+import org.eclipse.stardust.engine.core.runtime.beans.DaemonFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
@@ -148,7 +149,8 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
          {
             TimerService service = sessionContext.getTimerService();
             long periodicity = Parameters.instance().getLong(
-                  innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX, 5) * 1000;
+                  innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX,
+                  DaemonFactory.instance().get(innerCarrier.getType()).getDefaultPeriodicity()) * 1000;
             service.createTimer(periodicity, periodicity, innerCarrier);
             shouldStart = true;
             trace.info("Timer '" + innerCarrier.getType() + "' started.");

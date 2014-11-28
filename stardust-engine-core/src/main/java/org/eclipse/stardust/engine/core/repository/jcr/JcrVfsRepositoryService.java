@@ -70,7 +70,6 @@ import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.EngineRepositoryMigrationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
@@ -1229,12 +1228,7 @@ public class JcrVfsRepositoryService
 
       if (vfsOperation instanceof IVfsWriteOperationCallback)
       {
-         // prevent write in archive mode
-         if (Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
-         {
-            throw new DocumentManagementServiceException(
-                  BpmRuntimeError.DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE.raise());
-         }
+         RepositoryProviderUtils.checkWriteInArchiveMode();
       }
 
       try

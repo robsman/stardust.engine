@@ -1428,16 +1428,16 @@ public class AdministrationServiceImpl
 
    private void checkInternalAuthentified()
    {
-      if ( !isInternalAuthentication())
+      if ( !isInternalAuthorization())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.AUTHx_OPERATION_FAILED_REQUIRES_INTERNAL_AUTH.raise());
       }
    }
 
-   public boolean isInternalAuthentication()
+   public boolean isInternalAuthorization()
    {
-      return SecurityProperties.isInternalAuthentication();
+      return SecurityProperties.isInternalAuthorization();
    }
 
    public void flushCaches()

@@ -772,7 +772,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       for (Iterator i = getAllRoles();i.hasNext();)
       {
          IRole role = (IRole) i.next();
-         if (role != null && roleId.equals(role.getId()))
+         if (role != null && roleId.equals(role.getQualifiedId()))
          {
             return true;
          }

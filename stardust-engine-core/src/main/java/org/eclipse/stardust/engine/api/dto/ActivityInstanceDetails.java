@@ -163,8 +163,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       processDefinitionId = processDefinition.getId();
       IProcessInstance processInstance = activityInstance.getProcessInstance();
       processInstanceOID = processInstance.getOID();
-      scopeProcessInstanceNoteAvailable = processInstance.getScopeProcessInstance()
-            .isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_NOTE);
+      scopeProcessInstanceNoteAvailable = ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance());
       criticality = activityInstance.getCriticality();
 
       performer = initPerformer(activityInstance);
@@ -263,6 +262,12 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI / PI / AI / ...
          Map<String, Object> props = CollectionUtils.newMap();
          props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Core);
+
+         if (ProcessInstanceUtils.isLoadNotesEnabled() && ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance())) {
+            // will be fetching activity notes, so it does not harm to ship process notes as well
+            props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.WithProperties);
+         }
+
          if (parameters.get(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS) == null)
          {
             props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, true);

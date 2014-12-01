@@ -75,8 +75,11 @@ public class Serialization
             if (mappedClass != null)
             {
                ObjectStreamClass localOsc = ObjectStreamClass.lookup(mappedClass);
-               trace.warn("Replacing serialVersionUID for class " + osc.getName() + ": "
-                     + osc.getSerialVersionUID() + "-->" + localOsc.getSerialVersionUID());
+               if (osc.getSerialVersionUID() != localOsc.getSerialVersionUID())
+               {
+                  trace.warn("Replacing serialVersionUID for class " + osc.getName() + ": " + osc.getSerialVersionUID()
+                        + "-->" + localOsc.getSerialVersionUID());
+               }
                osc = localOsc;
             }
             return osc;

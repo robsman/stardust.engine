@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -21,10 +23,9 @@ import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
-
 
 /**
  *
@@ -87,6 +88,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    private long untilTimestamp;
 
    // TODO domain OID
+   @SuppressWarnings("unused")
    private long domain;
 
    /**
@@ -276,11 +278,29 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
 
+   public long getProcessInstanceOid()
+   {
+      fetch();
+
+      return processInstance;
+   }
+
    public IProcessInstance getProcessInstance()
    {
       fetch();
 
       return ProcessInstanceBean.findByOID(processInstance);
+   }
+
+   /*
+    * Retrieves the OID of the activity instances for which the log has been
+    * written.
+    */
+   public long getActivityInstanceOid()
+   {
+      fetch();
+
+      return activityInstance;
    }
 
    /*
@@ -292,6 +312,30 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       fetch();
 
       return ActivityInstanceBean.findByOID(activityInstance);
+   }
+
+   public IActivity getActivity()
+   {
+      fetch();
+
+      // try to leverage if a previous query has retrieved the associated work item
+      org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) PropertyLayerProviderInterceptor
+            .getCurrent().getAuditTrailSession();
+      Collection<PersistenceController> wiCache = jdbcSession.getCache(WorkItemBean.class);
+      if (!wiCache.isEmpty())
+      {
+         for (PersistenceController wiPc : wiCache)
+         {
+            WorkItemBean wi = (WorkItemBean) wiPc.getPersistent();
+            if (wi.getActivityInstanceOID() == activityInstance)
+            {
+               return wi.getActivity();
+            }
+         }
+      }
+
+      // otherwise load AI and resolve activity
+      return getActivityInstance().getActivity();
    }
 
    /*
@@ -332,7 +376,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       fetch();
 
       return PerformerUtils.decodePerformer(PerformerType.get(performerKind), performer,
-            (IModel) getActivityInstance().getActivity().getModel());
+            (IModel) getActivity().getModel());
    }
 
    /**
@@ -370,7 +414,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       fetch();
 
       return PerformerUtils.decodePerformer(PerformerType.get(onBehalfOfKind), onBehalfOf,
-            (IModel) getActivityInstance().getActivity().getModel());
+            (IModel) getActivity().getModel());
    }
 
    /**

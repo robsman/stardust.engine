@@ -29,12 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -190,22 +188,16 @@ public class ProcessInstanceUtils
 
    public static List<Note> getNotes(IProcessInstance pi, ProcessInstance contextObject)
    {
-      TreeSet<AbstractPropertyWithUser> notesAsProperties = new TreeSet<AbstractPropertyWithUser>(
-            new Comparator<AbstractPropertyWithUser>()
+      List<AbstractPropertyWithUser> notesAsProperties = pi.getNotes();
+      Collections.sort(notesAsProperties, new Comparator<AbstractPropertyWithUser>()
             {
                @Override
                public int compare(AbstractPropertyWithUser o1, AbstractPropertyWithUser o2)
                {
-                  if(o1.getLastModificationTime() == o2.getLastModificationTime())
-                  {
-                     return o1.getLastModificationTime().compareTo(
-                           o2.getLastModificationTime());
-                  }
-                  return CompareHelper.compare(o1.getOID(), o2.getOID());
+                  return o1.getLastModificationTime().compareTo(
+                        o2.getLastModificationTime());
                }
             });
-
-      notesAsProperties.addAll(pi.getNotes());
       List<Note> notes = new ArrayList<Note>(notesAsProperties.size());
 
       for (Iterator<AbstractPropertyWithUser> iterator = notesAsProperties.iterator(); iterator.hasNext();)

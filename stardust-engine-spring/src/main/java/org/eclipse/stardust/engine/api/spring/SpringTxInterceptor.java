@@ -36,6 +36,12 @@ public class SpringTxInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = 1L;
 
+   private static final String REPORTING_SERVICE_CLASS_NAME = "org.eclipse.stardust.reporting.rt.service.ReportingService";
+   /**
+    * no particular timeout, but just a quite huge value
+    */
+   private static final int REPORTING_TX_TIMEOUT = 999999999;
+
    private final AbstractSpringServiceBean serviceBean;
 
    private final TxRollbackPolicy txRollbackPolicy;
@@ -52,7 +58,12 @@ public class SpringTxInterceptor implements MethodInterceptor
             serviceBean.getTransactionManager());
       txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
       //txTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-      
+
+      if (REPORTING_SERVICE_CLASS_NAME.equals(invocation.getMethod().getDeclaringClass().getName()))
+      {
+         txTemplate.setTimeout(REPORTING_TX_TIMEOUT);
+      }
+
       return txTemplate.execute(new SpringTxCallback()
       {
          @Override
@@ -67,14 +78,14 @@ public class SpringTxInterceptor implements MethodInterceptor
             this.txStatus = status;
 
             final ITransactionStatus outerTxStatus = TransactionUtils.getCurrentTxStatus(invocation.getParameters());
-            
+
             final PropertyLayer localProps = ParametersFacade.pushLayer(
                   invocation.getParameters(), Collections.EMPTY_MAP);
-            
+
             try
             {
                TransactionUtils.registerTxStatus(localProps, this);
-               
+
                return invocation.proceed();
             }
             catch (RuntimeException e)
@@ -105,31 +116,31 @@ public class SpringTxInterceptor implements MethodInterceptor
             {
                // unregister txStatus
                ParametersFacade.popLayer(invocation.getParameters());
-               
+
                if ((null != outerTxStatus)
                      && (outerTxStatus != TransactionUtils.NO_OP_TX_STATUS)
                      && status.isRollbackOnly())
                {
                   outerTxStatus.setRollbackOnly();
                }
-               
+
                this.txStatus = null;
             }
          }
 
       });
    }
-   
+
    public static abstract class SpringTxCallback
          implements TransactionCallback, ITransactionStatus, TransactionPolicyAdvisor
    {
       protected TransactionStatus txStatus;
-      
+
       public boolean isRollbackOnly()
       {
          return (null != txStatus) ? txStatus.isRollbackOnly() : false;
       }
-      
+
       public void setRollbackOnly()
       {
          if (null != txStatus)

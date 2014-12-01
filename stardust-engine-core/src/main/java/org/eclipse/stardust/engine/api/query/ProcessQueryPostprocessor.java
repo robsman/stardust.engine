@@ -1053,7 +1053,7 @@ public class ProcessQueryPostprocessor
             {
                candidate = i.next();
                ActivityInstanceState state = candidate.getState();
-               long aiOid = candidate.getActivityInstance().getOID();
+               long aiOid = candidate.getActivityInstanceOid();
                if ((ActivityInstanceState.Completed == state)
                      || (ActivityInstanceState.Aborted == state))
                {

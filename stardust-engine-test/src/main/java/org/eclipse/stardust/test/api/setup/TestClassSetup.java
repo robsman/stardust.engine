@@ -117,8 +117,8 @@ public class TestClassSetup extends ExternalResource
 
    /**
     * <p>
-    * Initializes the object with the username password pair and the models to deploy. Furthermore, it specifies which forking service
-    * mode to use.
+    * Initializes the object with the username password pair and the models to deploy (including optional deployment options).
+    * Furthermore, it specifies which forking service mode to use.
     * </p>
     *
     * @param userPwdPair the credentials of the user in whose context the setup will be done; must not be null

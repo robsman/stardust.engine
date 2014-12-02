@@ -4,7 +4,7 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 
 /**
  * <p>
- * This class allows to specify {@link DeploymentOptions} in addition to the <i>Model(s)</i> to be deployed.
+ * This class allows to specify {@link DeploymentOptions} in addition to the model(s) to be deployed.
  * </p>
  *
  * @author Nicolas.Werlein
@@ -20,16 +20,17 @@ public class TestModels
     * </p>
     *
     * @param deploymentOptions the {@link DeploymentOptions} to use when deploying the models specified, may be {@code null}
-    * @param modelNames the <i>Model(s)</i> to be deployed, identified by <i>Model Name</i>, must not be {@code null} or empty
+    * @param modelNames the model(s)to be deployed, identified by model name, must not be {@code null} or empty
     */
    public TestModels(final DeploymentOptions deploymentOptions, final String ... modelNames)
    {
-      this.deploymentOptions = deploymentOptions;
+      /* deployment options may be null */
       if (modelNames == null || modelNames.length == 0)
       {
          throw new IllegalArgumentException("At least one model must be specified.");
       }
 
+      this.deploymentOptions = deploymentOptions;
       this.modelNames = modelNames;
    }
 
@@ -38,7 +39,7 @@ public class TestModels
     * Initializes a new instance of {@link TestModels} with the parameters given.
     * </p>
     *
-    * @param modelNames the <i>Model(s)</i> to be deployed, identified by <i>Model Name</i>, must not be {@code null} or empty
+    * @param modelNames the model(s)to be deployed, identified by model name, must not be {@code null} or empty
     */
    public TestModels(final String ... modelNames)
    {
@@ -54,7 +55,7 @@ public class TestModels
    }
 
    /**
-    * @return the <i>Model Name(s)</i> associated with this object
+    * @return the model name(s) associated with this object
     */
    public String[] modelNames() {
       return modelNames;

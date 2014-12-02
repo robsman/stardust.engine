@@ -55,9 +55,9 @@
       <property name="connectionManager" ref="auditTrailConnectionManager" />
    </bean>
    <bean id="auditTrailDataSource" class="org.h2.jdbcx.JdbcDataSource" lazy-init="true">
-      <property name="URL" value="${AuditTrail.URL}" />
-      <property name="user" value="${AuditTrail.User}" />
-      <property name="password" value="${AuditTrail.Password}" />
+      <property name="URL" value="$carnot.properties{AuditTrail.URL}" />
+      <property name="user" value="$carnot.properties{AuditTrail.User}" />
+      <property name="password" value="$carnot.properties{AuditTrail.Password}" />
    </bean>
    <bean id="auditTrailConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
       <property name="transactionManager" ref="xaTransactionManager" />
@@ -80,5 +80,7 @@
    <!-- Property resolver for properties from 'carnot.properties' -->
    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
       <property name="location" value="classpath:carnot.properties" />
+      <property name="placeholderPrefix" value="$carnot.properties{" />
+      <property name="placeholderSuffix" value="}" />
    </bean>
 </beans>

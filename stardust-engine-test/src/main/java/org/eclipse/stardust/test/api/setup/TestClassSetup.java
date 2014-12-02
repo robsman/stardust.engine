@@ -23,10 +23,12 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.context.ApplicationContext;
 
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
+import org.eclipse.stardust.test.api.util.TestModels;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.SpringAppContext;
@@ -67,6 +69,7 @@ public class TestClassSetup extends ExternalResource
    private final H2Server dbms;
    private final SpringAppContext springAppCtx;
 
+   private final DeploymentOptions deploymentOptions;
    private final String[] modelNames;
    private final UsernamePasswordPair userPwdPair;
    private final ForkingServiceMode forkingServiceMode;
@@ -105,7 +108,42 @@ public class TestClassSetup extends ExternalResource
 
       this.userPwdPair = userPwdPair;
       this.forkingServiceMode = forkingServiceMode;
+      this.deploymentOptions = null;
       this.modelNames = (modelNames != null) ? modelNames : new String[0];
+
+      this.dbms = new H2Server();
+      this.springAppCtx = new SpringAppContext();
+   }
+
+   /**
+    * <p>
+    * Initializes the object with the username password pair and the models to deploy. Furthermore, it specifies which forking service
+    * mode to use.
+    * </p>
+    *
+    * @param userPwdPair the credentials of the user in whose context the setup will be done; must not be null
+    * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
+    * @param models the {@link TestModels} to deploy, must not be {@code null}
+    */
+   public TestClassSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final TestModels models)
+   {
+      if (userPwdPair == null)
+      {
+         throw new NullPointerException("User password pair must not be null.");
+      }
+      if (forkingServiceMode == null)
+      {
+         throw new NullPointerException("Forking service mode must not be null.");
+      }
+      if (models == null)
+      {
+         throw new NullPointerException("Deployables must not be null.");
+      }
+
+      this.userPwdPair = userPwdPair;
+      this.forkingServiceMode = forkingServiceMode;
+      this.deploymentOptions = models.deploymentOptions();
+      this.modelNames = models.modelNames();
 
       this.dbms = new H2Server();
       this.springAppCtx = new SpringAppContext();
@@ -157,7 +195,7 @@ public class TestClassSetup extends ExternalResource
       if (modelNames.length > 0)
       {
          LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-         RtEnvHome.deploy(sf.getAdministrationService(), null, modelNames);
+         RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, modelNames);
       }
 
       LOG.info("<--- ... setup of test environment done.");

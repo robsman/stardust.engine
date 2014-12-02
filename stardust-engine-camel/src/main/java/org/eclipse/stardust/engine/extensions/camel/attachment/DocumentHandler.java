@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
+import org.eclipse.stardust.engine.extensions.camel.CamelMessage;
 import org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfiguration;
 import org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfigurationUtils;
 import org.eclipse.stardust.engine.extensions.camel.converter.BpmTypeConverter;
@@ -353,9 +354,9 @@ public class DocumentHandler
          if(template.isTemplate())
          {
             Exchange newExchange = new DefaultExchange(camelContext);
-            newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
-            newExchange.getIn().setBody(exchange.getIn().getBody());
-            newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
+            CamelMessage camelMessage = new CamelMessage();
+            camelMessage.copyFrom(exchange.getIn());
+            newExchange.setIn(camelMessage);
             newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
             newExchange
                   .getIn()
@@ -496,8 +497,9 @@ public class DocumentHandler
                   // only process txt, docx, xml, csv document: better exploit of pdf conversion functionality 
                   // provided by engine template
                   Exchange newExchange = new DefaultExchange(camelContext);
-                  newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
-                  newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
+                  CamelMessage camelMessage = new CamelMessage();
+                  camelMessage.copyFrom(exchange.getIn());
+                  newExchange.setIn(camelMessage);
                   newExchange.getIn().setHeader("CamelTemplatingConvertToPdf",
                         (Boolean) requestItem.get("ConvertToPDF"));
                   newExchange.getIn().setHeader("CamelTemplatingOutputName", (String) requestItem.get("Name"));

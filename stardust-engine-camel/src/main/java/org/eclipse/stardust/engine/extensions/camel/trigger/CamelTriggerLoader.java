@@ -10,7 +10,6 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateTriggerRouteAction;
 import org.eclipse.stardust.engine.extensions.camel.util.LoadPartitionsAction;
 import org.springframework.beans.BeansException;
@@ -23,7 +22,7 @@ public class CamelTriggerLoader implements ApplicationContextAware
 
    private ForkingService forkingService;
    private List<CamelContext> camelContexts;
-   private List<DataConverter> dataConverters;
+   //private List<DataConverter> dataConverters;
    private ApplicationContext springContext;
    private String partitionId;
 
@@ -58,16 +57,6 @@ public class CamelTriggerLoader implements ApplicationContextAware
 
    }
 
-   public List<DataConverter> getDataConverters()
-   {
-      return dataConverters;
-   }
-
-   public void setDataConverters(List<DataConverter> dataConverters)
-   {
-      this.dataConverters = dataConverters;
-   }
-
    public void setPartitionId(String partitionId)
    {
       this.partitionId = partitionId;
@@ -85,7 +74,7 @@ public class CamelTriggerLoader implements ApplicationContextAware
       if (bpmRt != null && this.partitionId != null)
       {
 
-         Action action = new CreateTriggerRouteAction(bpmRt, this.partitionId, this.springContext, this.dataConverters);
+         Action action = new CreateTriggerRouteAction(bpmRt, this.partitionId, this.springContext);
 
          action.execute();
 
@@ -108,7 +97,7 @@ public class CamelTriggerLoader implements ApplicationContextAware
          {
             String partition = i.next();
             this.forkingService
-                  .isolate(new CreateTriggerRouteAction(partition, this.springContext, this.dataConverters));
+                  .isolate(new CreateTriggerRouteAction(partition, this.springContext));
          }
       }
    }

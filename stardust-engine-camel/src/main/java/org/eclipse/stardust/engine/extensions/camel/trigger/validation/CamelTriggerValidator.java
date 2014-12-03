@@ -201,7 +201,7 @@ public class CamelTriggerValidator implements TriggerValidator,
 	                            .getBean("camelTriggerLoader");
 
 	                    Action<?> action = new CreateTriggerRouteAction(bpmRt,
-	                            partitionId, applicationContext, camelTriggerLoader.getDataConverters(), trigger);
+	                            partitionId, applicationContext, trigger);
 
 	                    action.execute();
 

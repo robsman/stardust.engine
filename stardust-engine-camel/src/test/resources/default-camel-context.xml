@@ -4,51 +4,17 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-     
-    <!-- TODO  remove all deprecated Bean in IPP 8.2-->
+
+	<!-- TODO remove all deprecated Bean in IPP 8.2 -->
 	<bean id="camelTriggerLoader"
 		class="org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader">
-	 	<property name="forkingService" ref="carnotForkingService" />
-		<property name="dataConverters">
-			<list>
-				<ref bean="documentDataConverter" />
-				<ref bean="sdtFileConverter" />
-				<ref bean="docListFileConverter" />
-			</list>
-		</property>
+		<property name="forkingService" ref="carnotForkingService" />
 	</bean>
 
 	<bean id="camelApplicationLoader"
 		class="org.eclipse.stardust.engine.extensions.camel.app.CamelApplicationLoader">
-		 <property name="forkingService" ref="carnotForkingService" />
-	</bean>
-	
-	<bean id="documentDataConverter"
-		class="org.eclipse.stardust.engine.extensions.camel.converter.DocumentDataConverter">
-		<property name="fromEndpoint"
-			value="org.eclipse.stardust.engine.api.runtime.FileEndpoint" />
-		<property name="targetType" value="dmsDocument" />
-	</bean>
-
-	<bean id="sdtFileConverter"
-		class="org.eclipse.stardust.engine.extensions.camel.converter.SDTFileConverter">
-		<property name="fromEndpoint"
-			value="org.eclipse.stardust.engine.api.runtime.FileEndpoint" />
-		<property name="targetType" value="struct" />
-		<property name="translator" ref="structuredDataTranslator" />
-	</bean>
-	<bean id="structuredDataTranslator"
-		class="org.eclipse.stardust.engine.extensions.camel.util.converter.StructuredDataTranslator">
 		<property name="forkingService" ref="carnotForkingService" />
 	</bean>
-
-	<bean id="docListFileConverter"
-		class="org.eclipse.stardust.engine.extensions.camel.converter.DocumentListFileConverter">
-		<property name="fromEndpoint"
-			value="org.eclipse.stardust.engine.api.runtime.FileEndpoint" />
-		<property name="targetType" value="dmsDocumentList" />
-		<property name="batchSize" value="2" />
-	</bean> 
 
 	<bean name="bpmTypeConverter"
 		class="org.eclipse.stardust.engine.extensions.camel.converter.BpmTypeConverter" />
@@ -59,20 +25,23 @@
 	<bean id="sqlPrepareStatementStrategy"
 		class="org.eclipse.stardust.engine.extensions.camel.sql.SqlPrepareStatementStrategy" />
 
-    <bean id="documentHandler"
-        class="org.eclipse.stardust.engine.extensions.camel.attachment.DocumentHandler" />
+	<bean id="documentHandler"
+		class="org.eclipse.stardust.engine.extensions.camel.attachment.DocumentHandler" />
 
 	<bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
 		<property name="transactionManager" ref="carnotTxManager" />
 		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
 	</bean>
-	<errorHandler useOriginalMessage="true" id="myErrorHandler" type="TransactionErrorHandler"
-		transactionManagerRef="jtaTxManager" xmlns="http://camel.apache.org/schema/spring">
-		<redeliveryPolicy maximumRedeliveries="4"
-			redeliveryDelay="10000"/>
-	</errorHandler>
-	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext" trace="true"
+
+	<errorHandler useOriginalMessage="true" id="myErrorHandler"
+		type="TransactionErrorHandler" transactionManagerRef="jtaTxManager"
 		xmlns="http://camel.apache.org/schema/spring">
+		<redeliveryPolicy maximumRedeliveries="4"
+			redeliveryDelay="10000" />
+	</errorHandler>
+
+	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext"
+		trace="true" xmlns="http://camel.apache.org/schema/spring">
 	</camelContext>
 
 </beans>

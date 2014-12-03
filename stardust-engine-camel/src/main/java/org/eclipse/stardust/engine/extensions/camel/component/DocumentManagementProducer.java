@@ -14,11 +14,10 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.converter.DocumentDataConverter;
 
 public class DocumentManagementProducer extends AbstractIppProducer
 {
-   static Logger logger = LogManager.getLogger(DocumentDataConverter.class);
+   static Logger logger = LogManager.getLogger(DocumentManagementProducer.class);
 
    private DocumentManagementEndpoint endpoint;
 

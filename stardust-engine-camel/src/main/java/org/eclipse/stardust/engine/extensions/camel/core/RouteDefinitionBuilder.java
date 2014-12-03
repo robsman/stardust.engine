@@ -567,20 +567,6 @@ public class RouteDefinitionBuilder
 
       return header.toString();
    }
-   /**
-    *
-    *
-    * @deprecated
-    */
-   private static String buildMultiModelDeploymentId(CamelTriggerRouteContext routeContext)
-   {
-
-      if (!StringUtils.isEmpty(routeContext.getModelId()) && !StringUtils.isEmpty(routeContext.getProcessId()))
-      {
-         return "modelId=" + routeContext.getModelId() + "&amp;processId=" + routeContext.getProcessId();
-      }
-      return "processId=" + routeContext.getProcessId();
-   }
 
    private static StringBuffer insertPostHeaders(MappingExpression mappingExpression)
    {

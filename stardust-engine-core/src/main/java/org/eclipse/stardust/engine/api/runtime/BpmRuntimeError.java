@@ -12,9 +12,7 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.text.MessageFormat;
 
-import org.eclipse.stardust.common.error.BaseErrorCaseMessages;
 import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.PublicException;
 
 
 /**

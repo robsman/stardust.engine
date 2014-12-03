@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
+import org.eclipse.stardust.common.rt.IMessageWithTtl;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -139,6 +140,12 @@ public class EJBForkingService implements ForkingService
             }
 
             final QueueSender sender = rtEnv.retrieveUnidentifiedQueueSender(session);
+            
+            if (action instanceof IMessageWithTtl)
+            {
+               sender.setTimeToLive(((IMessageWithTtl) action).getTimeToLive());
+            }
+            
             Message message = session.createMapMessage();
             action.fillMessage(message);
             sender.send(queue, message);

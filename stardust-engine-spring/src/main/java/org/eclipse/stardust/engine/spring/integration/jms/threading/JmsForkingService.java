@@ -14,6 +14,7 @@ import javax.jms.*;
 
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.rt.IActionCarrier;
+import org.eclipse.stardust.common.rt.IMessageWithTtl;
 import org.eclipse.stardust.engine.api.spring.AbstractSpringForkingServiceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
@@ -77,6 +78,11 @@ public class JmsForkingService extends AbstractSpringForkingServiceBean
          }
          
          // TODO verify availability of target queue
+         
+         if (action instanceof IMessageWithTtl)
+         {
+            jmsTemplate.setTimeToLive(((IMessageWithTtl) action).getTimeToLive());
+         }
          
          jmsTemplate.send(targetQueue, new MessageCreator()
          {

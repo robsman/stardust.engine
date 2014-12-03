@@ -153,6 +153,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
                   DaemonFactory.instance().get(innerCarrier.getType()).getDefaultPeriodicity()) * 1000;
             service.createTimer(periodicity, periodicity, innerCarrier);
             shouldStart = true;
+            innerCarrier.setTimeToLive(periodicity);
             trace.info("Timer '" + innerCarrier.getType() + "' started.");
          }
       }

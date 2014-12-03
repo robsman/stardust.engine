@@ -183,6 +183,8 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
                   innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX,
                   DaemonFactory.instance().get(innerCarrier.getType()).getDefaultPeriodicity()) * 1000;
             service.createTimer(periodicity, periodicity, innerCarrier);
+            innerCarrier.setTimeToLive(periodicity);
+            
             shouldStart = true;
             trace.info("Timer '" + innerCarrier.getType() + "' started.");
          }

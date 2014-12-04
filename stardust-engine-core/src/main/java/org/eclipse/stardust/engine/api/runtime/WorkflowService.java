@@ -1167,21 +1167,6 @@ public interface WorkflowService extends Service
          AccessForbiddenException;
 
    /**
-    * @deprecated
-    *
-    * Retrieves the active model.
-    *
-    * @return the active model.
-    *
-    * @throws ObjectNotFoundException if there is no active model.
-    */
-   @ExecutionPermission(
-         id=ExecutionPermission.Id.readModelData,
-         defaults={ExecutionPermission.Default.ALL})
-   DeployedModel getModel()
-         throws ObjectNotFoundException;
-
-   /**
     * Retrieves (parts of) the worklist of the currently logged-in user.
     *
     * @param query An instance of class {@link WorklistQuery} describing the requested
@@ -1220,6 +1205,9 @@ public interface WorkflowService extends Service
 
    /**
     * Activates the next activity instance after the specified one in the same process instance.
+    * The activation is based on a given time frame between the completion of the current and the
+    * instantiation of the next activity. There might occur scenarios where this method will not
+    * be able to retrieve the next activity due to the runtime situation
     *
     * @param activityInstanceOID the OID of the last completed activity instance.
     *
@@ -1242,7 +1230,10 @@ public interface WorkflowService extends Service
 
    /**
     * Activates the next activity instance for the specified process instance.
-    *
+    * The activation is based on a given time frame between the completion of the current and the
+    * instantiation of the next activity. There might occur scenarios where this method will not
+    * be able to retrieve the next activity due to the runtime situation
+    * 
     * @param processInstanceOID the OID of the process instance.
     *
     * @return the {@link ActivityInstance} that was activated.

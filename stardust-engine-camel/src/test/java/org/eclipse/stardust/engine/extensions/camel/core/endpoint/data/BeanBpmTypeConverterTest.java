@@ -34,7 +34,7 @@ public class BeanBpmTypeConverterTest
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:default-camel-context.xml"});
+            "classpath:META-INF/spring/default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       resultEndpoint =camelContext.getEndpoint("mock:result", MockEndpoint.class);

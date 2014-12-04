@@ -26,7 +26,7 @@ public class ProducerBodyDataMappingTest
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/application/generic/producer/ProducerApplicationTest-context.xml", "classpath:carnot-spring-context.xml",
-      "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
+      "classpath:jackrabbit-jcr-context.xml","classpath:META-INF/spring/default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
 //      testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");

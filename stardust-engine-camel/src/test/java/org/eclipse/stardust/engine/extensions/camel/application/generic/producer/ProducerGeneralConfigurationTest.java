@@ -35,7 +35,7 @@ public class ProducerGeneralConfigurationTest
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/application/generic/producer/ProducerApplicationTest-context.xml", "classpath:carnot-spring-context.xml",
-      "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
+      "classpath:jackrabbit-jcr-context.xml","classpath:META-INF/spring/default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       resultEndpoint =camelContext.getEndpoint("mock:result", MockEndpoint.class);
@@ -98,11 +98,11 @@ public class ProducerGeneralConfigurationTest
 
       dataMap.put("Person", personMap);
 
-      sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testLegacyJmsRequest", dataMap, true);
-
+      ProcessInstance pi=sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testLegacyJmsRequest", dataMap, true);
+      assertNotNull(pi);
+      Thread.sleep(3000);
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       query.getFilter().add(new ProcessDefinitionFilter("testLegacyJmsResponseTrigger"));
-      Thread.sleep(3000);
       ProcessInstance pInstance = sf.getQueryService().findFirstProcessInstance(query);
 
       assertNotNull(pInstance);

@@ -125,7 +125,10 @@ public class ExtractPageCommand implements ServiceCommand
             // properties.put(CommonProperties.COMMENTS, page.getDescription());
             document = ExtractPageUtil.createDocument(sf, targetFolder.getId(), page.content, newDocumentName,
                   mimeType, properties, page.getAnnotations());
-            ExtractPageUtil.addAndSaveProcessAttachment(sf, pi, document);
+            // Overwrite eventually copied process attachments.
+            List<Document> documents = CollectionUtils.newArrayList();
+            documents.add(document);
+            ExtractPageUtil.saveProcessAttachments(sf, pi, documents);
          }
 
          page.setStartedProcessInstance(pi);
@@ -206,7 +209,10 @@ public class ExtractPageCommand implements ServiceCommand
             // properties.put(CommonProperties.COMMENTS, page.getDescription());
             Document document = ExtractPageUtil.createDocument(sf, processFolder.getId(), page.content,
                   newDocumentName, mimeType, properties, page.getAnnotations());
-            ExtractPageUtil.addAndSaveProcessAttachment(sf, pi, document);
+            // Overwrite eventually copied process attachments.
+            List<Document> documents = CollectionUtils.newArrayList();
+            documents.add(document);
+            ExtractPageUtil.saveProcessAttachments(sf, pi, documents);
             page.setDocument(document);
          }
          page.setStartedProcessInstance(pi);

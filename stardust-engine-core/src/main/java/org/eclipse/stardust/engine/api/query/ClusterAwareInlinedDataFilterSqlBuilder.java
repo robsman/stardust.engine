@@ -188,20 +188,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                // first use of this specific cluster, setup join
                final int idx = cntxt.clusterJoins.size() + 1;
                final String clusterAlias = "PR_DVCL" + idx;
-               if (joinFactory.isProcInstQuery)
-               {
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
-                              .getProcessInstanceColumn());
-               }
-               else
-               {
-                  Join glue = joinFactory.getGlueJoin();
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE), cluster
-                              .getProcessInstanceColumn());
 
-                  clusterJoin.setDependency(glue);
+               clusterJoin = new Join(cluster, clusterAlias) //
+                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+
+               Join scopePiGlueJoin = joinFactory.getGlueJoin();
+               if (null != scopePiGlueJoin)
+               {
+                  clusterJoin.setDependency(scopePiGlueJoin);
                }
 
                cntxt.clusterJoins.put(joinKey, clusterJoin);
@@ -269,20 +263,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                // first use of this specific cluster, setup join
                final int idx = clusterJoins.size() + 1;
                final String clusterAlias = "PR_DVCL" + idx;
-               if (joinFactory.isProcInstQuery)
-               {
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
-                              .getProcessInstanceColumn());
-               }
-               else
-               {
-                  Join glue = joinFactory.getGlueJoin();
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE), cluster
-                              .getProcessInstanceColumn());
 
-                  clusterJoin.setDependency(glue);
+               clusterJoin = new Join(cluster, clusterAlias) //
+                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+
+               Join scopePiGlueJoin = joinFactory.getGlueJoin();
+               if (null != scopePiGlueJoin)
+               {
+                  clusterJoin.setDependency(scopePiGlueJoin);
                }
 
                clusterJoin.setRequired(false);

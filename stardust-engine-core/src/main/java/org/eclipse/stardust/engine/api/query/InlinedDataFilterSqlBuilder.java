@@ -178,21 +178,13 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
 
          if (AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode)
          {
-            if (isProcInstQuery)
-            {
-               dvJoin = new Join(dvClass, dvAlias)//
-                     .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
-                           dvProcessInstanceField.fieldName);
-            }
-            else
-            {
-               Join glue = getGlueJoin();
+            dvJoin = new Join(dvClass, dvAlias)//
+                  .on(getScopePiFieldRef(), dvProcessInstanceField.fieldName);
 
-               dvJoin = new Join(dvClass, dvAlias)//
-                     .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE),
-                           dvProcessInstanceField.fieldName);
-
-               dvJoin.setDependency(glue);
+            Join scopePiGlueJoin = getGlueJoin();
+            if (null != scopePiGlueJoin)
+            {
+               dvJoin.setDependency(scopePiGlueJoin);
             }
          }
          else if (AbstractDataFilter.MODE_SUBPROCESSES == dataFilterMode)
@@ -236,20 +228,14 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
 
             Join pisJoin;
             pisAlias = "PR_PIS" + idx;
-            if (isProcInstQuery)
-            {
-               pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
-                     .on(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
-                           ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
-            }
-            else
-            {
-               Join glue = getGlueJoin();
-               pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
-                     .on(glue.fieldRef(FIELD_GLUE_ROOT_PROCESS_INSTANCE),
-                           ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
 
-               pisJoin.setDependency(glue);
+            pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
+                  .on(getRootPiFieldRef(), ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
+
+            Join rootPiGlueJoin = getGlueJoin();
+            if (null != rootPiGlueJoin)
+            {
+               pisJoin.setDependency(rootPiGlueJoin);
             }
 
             dataJoinMapping.put(new Pair(Integer.valueOf(
@@ -270,9 +256,47 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          return dvJoin;
       }
 
+      protected FieldRef getScopePiFieldRef()
+      {
+         if (isProcInstQuery)
+         {
+            return ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE;
+         }
+         else if (isAiQueryUsingWorkItem)
+         {
+            return WorkItemBean.FR__SCOPE_PROCESS_INSTANCE;
+         }
+         else
+         {
+            Join scopePiGlueJoin = getGlueJoin();
+            return scopePiGlueJoin.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE);
+         }
+      }
+
+      protected FieldRef getRootPiFieldRef()
+      {
+         if (isProcInstQuery)
+         {
+            return ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE;
+         }
+         else if (isAiQueryUsingWorkItem)
+         {
+            return WorkItemBean.FR__ROOT_PROCESS_INSTANCE;
+         }
+         else
+         {
+            Join scopePiGlueJoin = getGlueJoin();
+            return scopePiGlueJoin.fieldRef(FIELD_GLUE_ROOT_PROCESS_INSTANCE);
+         }
+      }
+
       protected Join getGlueJoin()
       {
-         if (null == glueJoin)
+         if (isProcInstQuery || isAiQueryUsingWorkItem)
+         {
+            return null;
+         }
+         else if (null == glueJoin)
          {
             glueJoin = (Join) context.getPredicateJoins().get(ProcessInstanceBean.class);
 

@@ -10,11 +10,13 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataValueFactory;
 import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -96,7 +98,13 @@ public class ClusterAwareXPathEvaluator implements ExtendedAccessPathEvaluator, 
          StructuredDataValueBean valueHolder = (StructuredDataValueBean) dataSource.getCachedStructuredDataValue(xPathOid);
          if(valueHolder != null)
          {
-            return valueHolder.getValue();
+            Object value = valueHolder.getValue();
+            if ((value instanceof String)
+                  && ((BigData.STRING != typedXPath.getType()) && (BigData.BIG_STRING != typedXPath.getType())))
+            {
+               value = StructuredDataValueFactory.convertTo(typedXPath.getType(), (String) value);
+            }
+            return value;
          }
       }
       

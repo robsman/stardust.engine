@@ -86,14 +86,14 @@ public class UserDetails implements User
       initDetailsLevel();
 
       init(user); // Minimal
-      
+
       fetchPreviousLoginTime(user); // Core
       fetchUserProperties(user); // WithProperties
       fetchPreferences(user); // moduleId[]
       fetchGrants(user); // Full
 
       List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
-      
+
       fetchIsAdministrator(user, activeModels); // Core
       fetchPermissions(user, activeModels); // Core
    }
@@ -160,7 +160,7 @@ public class UserDetails implements User
                newGrants.add(new AddedGrant(grant.getQualifiedId(), null));
             }
          }
-         
+
          for (Iterator i = user.getAllUserGroups(false); i.hasNext();)
          {
             IUserGroup group = (IUserGroup) i.next();
@@ -194,18 +194,15 @@ public class UserDetails implements User
       permissions = CollectionUtils.newHashMap();
       if (UserDetailsLevel.Minimal != detailsLevel)
       {
-         fetchPermission(user, activeModels, Permissions.MODEL_MANAGE_AUTHORIZATION, null);
-         fetchPermission(user, activeModels, null, "modifyUser", User.class);
-         fetchPermission(user, activeModels, null, "getUser", long.class);
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.MANAGE_AUTHORIZATION));
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.MODIFY_USER_DATA));
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.READ_USER_DATA));
       }
    }
 
-   private void fetchPermission(IUser user, List<IModel> activeModels,
-         String name, String method, Class<?>... types)
+   protected void fetchPermission(IUser user, List<IModel> activeModels,
+         AuthorizationContext ctx)
    {
-      AuthorizationContext ctx = name == null
-            ? AuthorizationContext.create(UserService.class, method, types)
-            : AuthorizationContext.create(new ClientPermission(name));
       ctx.setUser(user);
       if (activeModels.isEmpty())
       {
@@ -775,7 +772,7 @@ public class UserDetails implements User
          throw new InvalidValueException(
                BpmRuntimeError.BPMRT_INVALID_VALUE.raise(probability));
       }
-      
+
       qualityAssurancePropability = probability;
    }
 }

@@ -100,11 +100,11 @@ public class Authorization2
             else
             {
                long aiOid = ((Long) args[0]).longValue();
-               if (ExecutionPermission.Id.abortActivityInstances.name().equals(permission.id) &&
+               if (ExecutionPermission.Id.abortActivityInstances == permission.id() &&
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
                   // change context to process instance if you want to abort the complete process hierarchy
-                  permission = new ClientPermission(Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  permission = ClientPermission.ABORT_PROCESS_INSTANCES;
 
                   IActivityInstance activityInstance = ActivityInstanceBean.findByOID(aiOid);
                   IProcessInstance processInstance = activityInstance.getProcessInstance();
@@ -117,7 +117,7 @@ public class Authorization2
                {
                   if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
                   {
-                     permission = permission.clone(ExecutionPermission.Id.abortActivityInstances.name());
+                     permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
                      TransitionTarget target = (TransitionTarget) args[1];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation
@@ -161,8 +161,7 @@ public class Authorization2
                   User user = (User) args[0];
                   if (UserUtils.isUserGrantOrGroupModified(user))
                   {
-                     ClientPermission xpermission = new ClientPermission(
-                           Permissions.MODEL_MANAGE_AUTHORIZATION);
+                     ClientPermission xpermission = ClientPermission.MANAGE_AUTHORIZATION;
                      AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                      xcontext.setModels(models);
                      requiredGrant = checkPermission(xcontext);
@@ -183,8 +182,7 @@ public class Authorization2
                      && method.getName().equals("joinProcessInstance"))
                {
 
-                  ClientPermission xpermission = new ClientPermission(
-                        Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  ClientPermission xpermission = ClientPermission.ABORT_PROCESS_INSTANCES;
                   AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                   authorizationPredicate = new ProcessInstanceAuthorization2Predicate(
                         xcontext);
@@ -204,8 +202,7 @@ public class Authorization2
                   }
                   if (abortProcess)
                   {
-                     ClientPermission xpermission = new ClientPermission(
-                           Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                     ClientPermission xpermission = ClientPermission.ABORT_PROCESS_INSTANCES;
                      AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                      authorizationPredicate = new ProcessInstanceAuthorization2Predicate(xcontext);
                   }
@@ -233,8 +230,7 @@ public class Authorization2
                      }
                      if (PreferenceScope.REALM.equals(scope))
                      {
-                        ClientPermission realmPermission = new ClientPermission(
-                              Permissions.MODEL_SAVE_OWN_REALM_SCOPE_PREFERENCES);
+                        ClientPermission realmPermission = ClientPermission.SAVE_OWN_REALM_SCOPE_PREFERENCES;
                         AuthorizationContext realmContext = AuthorizationContext.create(realmPermission);
                         realmContext.setModels(models);
                         requiredGrant = checkPermission(realmContext);
@@ -245,8 +241,7 @@ public class Authorization2
                      }
                      else if (PreferenceScope.PARTITION.equals(scope))
                      {
-                        ClientPermission partitionPermission = new ClientPermission(
-                              Permissions.MODEL_SAVE_OWN_PARTITION_SCOPE_PREFERENCES);
+                        ClientPermission partitionPermission = ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES;
                         AuthorizationContext partitionContext = AuthorizationContext.create(partitionPermission);
                         partitionContext.setModels(models);
                         requiredGrant = checkPermission(partitionContext);
@@ -269,7 +264,7 @@ public class Authorization2
                   requiredGrant = checkPermission(context);
                }
 
-               if (ExecutionPermission.Id.manageDeputies.name().equals(permission.id))
+               if (ExecutionPermission.Id.manageDeputies == permission.id())
                {
                   IUser user = context.getUser();
                   // 1st attribute is the user, 2nd deputy user
@@ -299,7 +294,7 @@ public class Authorization2
                else
                {
                   pi = ProcessInstanceBean.findByOID((Long) args[0]);
-                  if (ExecutionPermission.Id.abortProcessInstances.name().equals(permission.id) &&
+                  if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
                         AbortScope.RootHierarchy.equals(args[args.length - 1]))
                   {
                      // change to root process instance if you want to abort the complete process hierarchy
@@ -655,32 +650,32 @@ public class Authorization2
    }
 
    private static Object evaluateDataPath(AuthorizationContext context,
-	         final IData dataObject, String dataPath, final Object dataValue)
-	   {
-	      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject, dataPath);
-	      SymbolTable symbolTable = new SymbolTable()
-	      {
-	         public Object lookupSymbol(String name)
-	         {
-	            if (name.equals(dataObject.getId()))
-	            {
-	               return dataValue;
-	            }
-	            return null;
-	         }
+            final IData dataObject, String dataPath, final Object dataValue)
+      {
+         ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject, dataPath);
+         SymbolTable symbolTable = new SymbolTable()
+         {
+            public Object lookupSymbol(String name)
+            {
+               if (name.equals(dataObject.getId()))
+               {
+                  return dataValue;
+               }
+               return null;
+            }
 
-	         public AccessPoint lookupSymbolType(String name)
-	         {
-	            if (name.equals(dataObject.getId()))
-	            {
-	               return dataObject;
-	            }
-	            return null;
-	         }
-	      };
-	      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
-	      return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
-	   }
+            public AccessPoint lookupSymbolType(String name)
+            {
+               if (name.equals(dataObject.getId()))
+               {
+                  return dataObject;
+               }
+               return null;
+            }
+         };
+         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
+         return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
+      }
 
    private static void findRestricted(List<IOrganization> restrictions, IModelParticipant participant)
    {
@@ -703,7 +698,7 @@ public class Authorization2
 
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel activeModel = modelManager.findActiveModel();
-      Map<ExecutionPermission.Scope, Set<String>> processed = CollectionUtils.newMap();
+      Map<ExecutionPermission.Scope, Set<ExecutionPermission.Id>> processed = CollectionUtils.newMap();
       Map<ModelElement, Scope> scopesMap = CollectionUtils.newMap();
       Method[] methods = cls.getMethods();
       for (Method method : methods)
@@ -811,25 +806,25 @@ public class Authorization2
       return Parameters.instance().getBoolean(serviceName + ".Guarded", true);
    }
 
-   private static boolean isPermissionProcessed(Map<ExecutionPermission.Scope, Set<String>> processed,
+   private static boolean isPermissionProcessed(Map<ExecutionPermission.Scope, Set<ExecutionPermission.Id>> processed,
          ClientPermission permission)
    {
-      Set<String> ids = processed.get(permission.scope());
+      Set<ExecutionPermission.Id> ids = processed.get(permission.scope());
       if (ids == null)
       {
          ids = CollectionUtils.newSet();
-         ids.add(permission.id);
+         ids.add(permission.id());
          processed.put(permission.scope(), ids);
       }
       else
       {
-         if (ids.contains(permission.id))
+         if (ids.contains(permission.id()))
          {
             return true;
          }
          else
          {
-            ids.add(permission.id);
+            ids.add(permission.id());
          }
       }
       return false;

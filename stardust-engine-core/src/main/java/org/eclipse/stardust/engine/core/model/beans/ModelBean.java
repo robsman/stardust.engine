@@ -10,69 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.CardinalityKey;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IApplicationType;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IEventActionType;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.ILinkType;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IModeler;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssurance;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ITriggerType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IView;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.Scripting;
-import org.eclipse.stardust.engine.api.query.UserQuery;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.*;
 import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
@@ -83,6 +36,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 /**
@@ -299,17 +253,17 @@ public class ModelBean extends RootElementBean
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             Set<String> grants = new HashSet<String>();
-            addAllGrants(grants, QueryService.class, "getAllUsers", UserQuery.class);
-            addAllGrants(grants, AdministrationService.class, "deployModel", String.class, int.class);
-            addAllGrants(grants, AdministrationService.class, "cleanupRuntimeAndModels");
-            addAllGrants(grants, AdministrationService.class, "recoverRuntimeEnvironment");
-            addAllGrants(grants, AdministrationService.class, "getAllDaemons", boolean.class);
-            addAllGrants(grants, AdministrationService.class, "flushCaches");
-            addAllGrants(grants, AdministrationService.class, "getAuditTrailHealthReport");
-            addAllGrants(grants, UserService.class, "modifyUser", User.class);
-            addAllGrants(grants, QueryService.class, "getActiveModel");
-            addAllGrants(grants, AdministrationService.class, "getDepartment", long.class);
-            addAllGrants(grants, AdministrationService.class, "removeDepartment", long.class);
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.CONTROL_PROCESS_ENGINE));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.DEPLOY_PROCESS_MODEL));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MANAGE_DAEMONS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_AUDIT_TRAIL));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_DEPARTMENTS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_USER_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_AUDIT_TRAIL_STATISTICS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_DEPARTMENTS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_MODEL_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_USER_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.RUN_RECOVERY));
 
             Iterator allParticipants = getAllParticipants();
             while (allParticipants.hasNext())
@@ -586,9 +540,8 @@ public class ModelBean extends RootElementBean
       return scopedOrg;
    }
 
-   private void addAllGrants(Set<String> grants, Class service, String method, Class... params)
+   protected void addAllGrants(Set<String> grants, AuthorizationContext authorizationContext)
    {
-      AuthorizationContext authorizationContext = AuthorizationContext.create(service, method, params);
       authorizationContext.setModels(Collections.singletonList((IModel) this));
       grants.addAll(Arrays.asList(authorizationContext.getGrants()));
    }

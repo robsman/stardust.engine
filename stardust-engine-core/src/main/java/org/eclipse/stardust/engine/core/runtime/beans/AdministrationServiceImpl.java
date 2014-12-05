@@ -67,6 +67,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
@@ -944,7 +945,7 @@ public class AdministrationServiceImpl
       if (Parameters.instance().getBoolean("AdministrationService.Guarded", true))
       {
          // after that part, the models and definitions may be out of sync with the piOids
-         AuthorizationContext ctx = AuthorizationContext.create(AdministrationService.class, "deleteProcesses", List.class);
+         AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.MODIFY_AUDIT_TRAIL_UNCHANGEABLE);
          if (!ctx.isAdminOverride())
          {
             ModelManager modelManager = ModelManagerFactory.getCurrent();

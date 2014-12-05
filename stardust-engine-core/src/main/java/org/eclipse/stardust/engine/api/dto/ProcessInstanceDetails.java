@@ -40,6 +40,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 
 /**
  * <p/>
@@ -253,23 +254,22 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       initDescriptors(processInstance, descriptorDefinitions, descriptors);
 
       permissions = CollectionUtils.newHashMap();
-      AuthorizationContext ctx = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
+      AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      PermissionState ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-      permissions.put(ctx.getPermissionId(), ps);
+      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
 
-      ctx = AuthorizationContext.create(AdministrationService.class, "setProcessInstancePriority", long.class, int.class);
+      ctx = AuthorizationContext.create(ClientPermission.MODIFY_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-      permissions.put(ctx.getPermissionId(), ps);
+      permissions.put(ctx.getPermissionId(),
+            Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
 
       boolean isCase = processInstance.isCaseProcessInstance();
       if (isCase)
       {
-         ctx = AuthorizationContext.create(WorkflowService.class, "joinCase", long.class, long[].class);
+         ctx = AuthorizationContext.create(ClientPermission.MODIFY_CASE);
          ctx.setProcessInstance(processInstance);
-         ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-         permissions.put(ctx.getPermissionId(), ps);
+         permissions.put(ctx.getPermissionId(),
+               Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
       }
 
       try

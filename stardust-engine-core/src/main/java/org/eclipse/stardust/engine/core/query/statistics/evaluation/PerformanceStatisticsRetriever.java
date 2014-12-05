@@ -12,57 +12,30 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.ParticipantDepartmentPair;
-import org.eclipse.stardust.engine.core.query.statistics.api.PerformanceStatisticsQuery;
-import org.eclipse.stardust.engine.core.query.statistics.api.ProcessCumulationPolicy;
+import org.eclipse.stardust.engine.core.query.statistics.api.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.PerformanceStatistics.ModelParticipantPerformance;
 import org.eclipse.stardust.engine.core.query.statistics.api.PerformanceStatistics.PerformanceDetails;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
 import org.eclipse.stardust.engine.core.query.statistics.utils.PkRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
@@ -159,9 +132,8 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                      ModelPersistorBean.FR__PARTITION, //
                      SecurityProperties.getPartitionOid()));
       }
-      
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getActivityInstance", long.class);
+
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
@@ -184,7 +156,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             long aiOid = rs.getLong(1);
             long piOid = rs.getLong(2);
             int performerKind = rs.getInt(3);
@@ -214,7 +186,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                currentUserPerformer = 0;
                break;
             }
-            
+
             ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid,
                   currentPerformer, currentUserPerformer, department);
             if (!guarded || Authorization2.hasPermission(ctx))
@@ -224,12 +196,12 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
 
                IActivity activity = modelManager.findActivity(modelOid, activityRtOid);
                IProcessDefinition scopeProcess = modelManager.findProcessDefinition(modelOid, processRtOid);
-   
+
                if (PerformerType.ModelParticipant.equals(onBehalfOfKind))
                {
-                  IModelParticipant onBehalfOf = modelManager.findModelParticipant(modelOid, performerOid);                  
-                  String qualifiedMPId = ModelUtils.getQualifiedId(onBehalfOf);                  
-                  
+                  IModelParticipant onBehalfOf = modelManager.findModelParticipant(modelOid, performerOid);
+                  String qualifiedMPId = ModelUtils.getQualifiedId(onBehalfOf);
+
                   ParticipantDepartmentPair onBehalfOfPair =
                      new ParticipantDepartmentPair(qualifiedMPId, department);
                   ModelParticipantPerformance wo = mpPerformance.get(onBehalfOfPair);
@@ -243,7 +215,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                      wo = new ModelParticipantPerformance(mpi);
                      mpPerformance.put(onBehalfOfPair, wo);
                   }
-   
+
                   if (wo !=null)
                   {
                      updateWorklistOutline(wo, priority, aiOid, piOid, activity, scopeProcess);
@@ -291,7 +263,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
             .select(new Column[] {
                   ActivityInstanceBean.FR__OID,
                   ProcessInstanceBean.FR__OID,
-                  ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_KIND, 
+                  ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_KIND,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF,
                   ActivityInstanceBean.FR__MODEL,
                   ActivityInstanceBean.FR__LAST_MODIFICATION_TIME,
@@ -328,7 +300,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
       // join cumulation PI
       Join piJoin = StatisticsQueryUtils.joinCumulationPi(woq, completedAisQuery,
             ActivityInstanceBean.FR__PROCESS_INSTANCE);
-      
+
       if (!singlePartition)
       {
          // restrict PIs to current partition
@@ -338,7 +310,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                      ModelPersistorBean.FR__PARTITION, //
                      SecurityProperties.getPartitionOid()));
       }
-      
+
       authPredicate.addRawPrefetch(completedAisQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
 
       StatisticsQueryUtils.executeQuery(completedAisQuery, new IResultSetTemplate()
@@ -352,7 +324,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             long aiOid = rs.getLong(1);
             long piOid = rs.getLong(2);
             int performerKind = rs.getInt(3);
@@ -381,7 +353,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                currentUserPerformer = 0;
                break;
             }
-            
+
             ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid,
                   currentPerformer, currentUserPerformer, department);
             if (!guarded || Authorization2.hasPermission(ctx))
@@ -409,7 +381,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                      wo = new ModelParticipantPerformance(mpi);
                      mpPerformance.put(onBehalfOfPair, wo);
                   }
-   
+
                   updateWorklistOutline(wo, priority, aiOid, piOid);
                }
             }
@@ -469,9 +441,9 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                   ModelPersistorBean.FR__PARTITION,
                   SecurityProperties.getPartitionOid()));
       }
-      
+
       // TODO: apply prefetching here as well?
-      
+
       StatisticsQueryUtils.executeQuery(userStatusQuery, new IResultSetTemplate()
       {
          private final ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -504,7 +476,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
                mpwo = new ModelParticipantPerformance(mpi);
                mpPerformance.put(onBehalfOfPair, mpwo);
             }
-            
+
             if (userRegistry.registerPk(mpwo, userOid))
             {
                mpwo.nUsers++;

@@ -33,9 +33,7 @@ import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
 /**
@@ -250,11 +248,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
       permissions = CollectionUtils.newHashMap();
       PermissionState ps = PermissionState.Denied;
-      AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class, "abortActivityInstance", long.class);
+      AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_ACTIVITY_INSTANCES);
       if (!isTerminated())
       {
          ctx.setActivityInstance(activityInstance);
-         if(Authorization2.hasPermission(ctx))
+         if (Authorization2.hasPermission(ctx))
          {
             ps = PermissionState.Granted;
          }
@@ -262,7 +260,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       permissions.put(ctx.getPermissionId(), ps);
 
       ps = PermissionState.Denied;
-      ctx = AuthorizationContext.create(WorkflowService.class, "delegateToUser", long.class, long.class);
+      ctx = AuthorizationContext.create(ClientPermission.DELEGATE_TO_OTHER);
       if (activity.isInteractive())
       {
          ctx.setActivityInstance(activityInstance);

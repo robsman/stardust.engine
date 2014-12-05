@@ -28,9 +28,7 @@ import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplat
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
@@ -51,12 +49,11 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
                      + WorklistProcessFiltersQuery.class.getName());
       }
 
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getActivityInstance", long.class);
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate predicate = new AbstractAuthorization2Predicate(ctx) {};
-      
+
       WorklistProcessFiltersQuery wpfq = (WorklistProcessFiltersQuery) query;
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(WorkItemBean.class) //
@@ -79,7 +76,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
                   WorkItemBean.FR__DEPARTMENT,
                   ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
             });
-      
+
       ParticipantInfo participant = wpfq.getParticipant();
       if (participant != null)
       {
@@ -110,7 +107,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
          {
             throw new InternalException("Unsupported participant type: " + participant.getClass());
          }
-         
+
          ComparisonTerm performerTerm = Predicates.isEqual(WorkItemBean.FR__PERFORMER, performerOid);
          ComparisonTerm performerKindTerm = Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND, performerKind);
          DepartmentInfo department = participant instanceof ModelParticipantInfo ?
@@ -143,7 +140,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
       }
 
       predicate.addRawPrefetch(sqlQuery, WorkItemBean.FR__SCOPE_PROCESS_INSTANCE);
-      
+
       final WorklistProcessFiltersResult result = new WorklistProcessFiltersResult(wpfq);
 
       StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
@@ -151,7 +148,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
          public void handleRow(ResultSet rs) throws SQLException
          {
             predicate.accept(rs);
-            
+
             long processRtOid = rs.getLong(1);
             long modelOid = rs.getLong(2);
             long activityRtOid = rs.getLong(3);
@@ -160,7 +157,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
             long department = rs.getLong(6);
             long scopePiOid = rs.getLong(7);
             long count = rs.getLong(8);
-            
+
             long currentPerformer = 0;
             long currentUserPerformer = 0;
             switch (performerKind)
@@ -178,7 +175,7 @@ public class WorklistProcessFiltersRetriever implements IActivityInstanceQueryEv
                currentUserPerformer = 0;
                break;
             }
-            
+
             ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid,
                   currentPerformer, currentUserPerformer, department);
             if (!guarded || Authorization2.hasPermission(ctx))

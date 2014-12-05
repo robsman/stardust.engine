@@ -12,27 +12,15 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.ActivityStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
@@ -40,14 +28,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
-
 
 /**
  * @author rsauer
@@ -133,8 +118,7 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
 
          sqlQuery.where(predicate);
 
-         final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-               "getActivityInstance", long.class);
+         final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
          final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
                && !ctx.isAdminOverride();
          final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};

@@ -122,10 +122,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 
 /**
  * @author mgille
@@ -2224,8 +2221,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (null != currentUser && 0 != currentUser.getOID()
             && 0 != (flags & WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE))
       {
-         AuthorizationContext context = AuthorizationContext.create(
-               WorkflowService.class, "activate", long.class);
+         AuthorizationContext context = AuthorizationContext.create(ClientPermission.PERFORM_ACTIVITY);
          // (fh) ai at #0 is excluded.
          for (int t = performedAis.size() - 1; t > 0; t--)
          {

@@ -436,7 +436,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          setState(state, SecurityProperties.getUserOID());
       }
-      else 
+      else
       {
          setState(state, 0);
       }
@@ -1244,7 +1244,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw e;
       }
 
-      ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();      
+      ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();
 
       if (plan != null && plan.hasNextActivity())
       {
@@ -2240,7 +2240,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       delegateToParticipant(participant, null, null);
    }
 
-   @ExecutionPermission(id = ExecutionPermission.Id.delegateToDepartment, scope = ExecutionPermission.Scope.activity, defaults = {ExecutionPermission.Default.ADMINISTRATOR})
+   @ExecutionPermission(id = ExecutionPermission.Id.delegateToDepartment,
+         scope = ExecutionPermission.Scope.activity,
+         defaults = {ExecutionPermission.Default.ADMINISTRATOR})
    public void delegateToParticipant(IModelParticipant participant,
          IDepartment newDepartment, IDepartment lastDepartment)
          throws AccessForbiddenException
@@ -2319,7 +2321,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       IDepartment targetDepartment = getTargetDepartment(participant, newDepartment);
-      if ( !isCompatible(participant, targetDepartment, oldDepartment))
+      if (!isCompatible(participant, targetDepartment, oldDepartment))
       {
          Method method;
          try

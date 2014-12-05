@@ -98,18 +98,13 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.WorkItemAuthorizationForAIQuery2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -152,8 +147,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          if(isFilteringWorkitemsOnly(query))
          {
             rte.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
-                  AuthorizationContext.create(QueryService.class,
-                        "getAllActivityInstances", ActivityInstanceQuery.class)));
+                  AuthorizationContext.create(ClientPermission.QUERY_ACTIVITY_INSTANCE_DATA)));
 
             queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
          }
@@ -304,8 +298,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       {
          final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          runtimeEnvironment.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
-               AuthorizationContext.create(QueryService.class, "getActivityInstancesCount",
-                     ActivityInstanceQuery.class)));
+               AuthorizationContext.create(ClientPermission.QUERY_ACTIVITY_INSTANCE_DATA)));
          // removal of state filters necessary before processing as WorkItemQuery??
          queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
       }

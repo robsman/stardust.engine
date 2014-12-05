@@ -18,7 +18,6 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
@@ -26,11 +25,9 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -41,6 +38,7 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Default;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
@@ -48,11 +46,7 @@ public class AuthorizationContext
 {
    private static final String[] ALL_PERMISSIONS = {Authorization2.ALL};
    private static final String[] EMPTY = {};
-
-   private static final Map<Method, ClientPermission> permissionCache =
-		   new ConcurrentHashMap<Method, ClientPermission>();
-   private static final Map<AuthorizationContext.MethodKey, Method> methodCache =
-		   new ConcurrentHashMap<AuthorizationContext.MethodKey, Method>();
+   private static final Id[] IMPLIED = {};
 
    private ClientPermission permission;
 
@@ -62,7 +56,6 @@ public class AuthorizationContext
    private ModelElement modelElement;
    private IProcessInstance processInstance;
    private IActivityInstance activityInstance;
-   private static ThreadLocal<Method> calledMethod = new ThreadLocal<Method>();
 
    private long scopeProcessInstanceOid;
    private long currentPerformer;
@@ -89,9 +82,9 @@ public class AuthorizationContext
       this.permission = permission;
       if (permission != null)
       {
-         String id = permission.id;
+         Id id = permission.id();
          Scope scope = permission.scope();
-         String[] implied = permission == null ? EMPTY : permission.implied();
+         Id[] implied = permission == null ? IMPLIED : permission.implied();
          permissionIds = new String[1 + implied.length];
          permissionIds[0] = Authorization2.PREFIX + (scope == Scope.workitem ? Scope.activity : scope) + '.' + id;
          for (int i = 1; i < permissionIds.length; i++)
@@ -114,35 +107,16 @@ public class AuthorizationContext
             }
          }
 
-         Id permissionId = getId(id);
-         if (scope == Scope.activity
-               && permissionId == Id.readActivityInstanceData
-          || scope == Scope.workitem
-               && permissionId == Id.readActivityInstanceData
-          || scope == Scope.data
-               && permissionId == Id.readDataValues)
+         if (id == Id.readActivityInstanceData && (scope == Scope.activity || scope == Scope.workitem)
+          || id == Id.readDataValues && scope == Scope.data)
          {
-            AuthorizationContext ctx = create(WorkflowService.class, "getProcessInstance", long.class);
+            AuthorizationContext ctx = create(ClientPermission.READ_PROCESS_INSTANCE_DATA);
             if (!ctx.isAdminOverride())
             {
                dependency = ctx;
             }
          }
       }
-   }
-
-   private Id getId(String id)
-   {
-      Id permissionId = null;
-      try
-      {
-         permissionId = Id.valueOf(id);
-      }
-      catch (Exception ex)
-      {
-         // (fh) ignore since it might be a user defined permission
-      }
-      return permissionId;
    }
 
    private void clear()
@@ -342,7 +316,7 @@ public class AuthorizationContext
       if (permission.changeable())
       {
          String def = null;
-         Id permissionId = getId(permission.id);
+         Id permissionId = permission.id();
          Scope scope = permission.scope();
          if (scope == Scope.activity
                && permissionId == Id.abortActivityInstances)
@@ -371,7 +345,7 @@ public class AuthorizationContext
          }
       }
 
-      ExecutionPermission.Default[] defaults = permission.defaults();
+      Default[] defaults = permission.defaults();
       if (defaults.length == 0)
       {
          return EMPTY;
@@ -398,29 +372,7 @@ public class AuthorizationContext
 
    private String[] getCachedGrants()
    {
-      // add the scope to the permission cache attribute
-      // TODO: Currently this is done for scope "workitem" only. Should the scope be added in general?
-      String scopePostfix = ""; //$NON-NLS-1$
-      if (permission != null && ExecutionPermission.Scope.workitem == permission.scope())
-      {
-         scopePostfix = ":" + ExecutionPermission.Scope.workitem.toString(); //$NON-NLS-1$
-      }
-      String permissionCacheAtt = "2" + permissionIds[0] + scopePostfix; //$NON-NLS-1$
-
-      Method calledMethod = AuthorizationContext.calledMethod.get();
-      if (calledMethod != null)
-      {
-         String postFix = calledMethod.getDeclaringClass().getName() + "#" + calledMethod.getName(); //$NON-NLS-1$
-         Class< ? >[] parameterTypes = calledMethod.getParameterTypes();
-         for (Class< ? > theClass : parameterTypes)
-         {
-            postFix += "#" + theClass.getName(); //$NON-NLS-1$
-         }
-
-         permissionCacheAtt += "##" + postFix; //$NON-NLS-1$
-      }
-
-      String[] permissions = (String[]) modelElement.getRuntimeAttribute(permissionCacheAtt);
+      String[] permissions = (String[]) modelElement.getRuntimeAttribute(permission.uniqueKey());
       if (permissions == null)
       {
          boolean isAll = false;
@@ -439,7 +391,7 @@ public class AuthorizationContext
             }
          }
          permissions = isAll ? ALL_PERMISSIONS : grants.toArray(new String[grants.size()]);
-         modelElement.setRuntimeAttribute(permissionCacheAtt, permissions);
+         modelElement.setRuntimeAttribute(permission.uniqueKey(), permissions);
       }
       return permissions;
    }
@@ -459,7 +411,7 @@ public class AuthorizationContext
          }
          if (ALL_PERMISSIONS != permissions)
          {
-            ExecutionPermission.Default[] fixed = this.permission.fixed();
+            Default[] fixed = this.permission.fixed();
             if (fixed.length > 0)
             {
                Set<String> set = newSet();
@@ -686,86 +638,9 @@ public class AuthorizationContext
       return DepartmentUtils.getOrganization(department, modelOid);
    }
 
-   public static AuthorizationContext create(Class target, String methodName, Class ... parameterTypes)
-   {
-      try
-      {
-         MethodKey key = new MethodKey(target, methodName, parameterTypes);
-         Method method = methodCache.get(key);
-         if (method == null)
-         {
-            method = target.getMethod(methodName, parameterTypes);
-            methodCache.put(key, method);
-         }
-         return create(method);
-      }
-      catch (Exception ex)
-      {
-         throw new InternalException(ex);
-      }
-   }
-
-   private static final class MethodKey
-   {
-      private Class target;
-      private String methodName;
-      private Class[] parameterTypes;
-
-      public MethodKey(Class target, String methodName, Class[] parameterTypes)
-      {
-         this.target = target;
-         this.methodName = methodName;
-         this.parameterTypes = parameterTypes;
-      }
-
-      @Override
-      public int hashCode()
-      {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + methodName.hashCode();
-         result = prime * result + Arrays.hashCode(parameterTypes);
-         result = prime * result + target.hashCode();
-         return result;
-      }
-
-      @Override
-      public boolean equals(Object obj)
-      {
-         if (this == obj)
-         {
-            return true;
-         }
-         if (obj == null)
-         {
-            return false;
-         }
-         if (getClass() != obj.getClass())
-         {
-            return false;
-         }
-         MethodKey other = (MethodKey) obj;
-         return target.equals(other.target) && methodName.equals(other.methodName)
-               && Arrays.equals(parameterTypes, other.parameterTypes);
-      }
-   }
-
    public static AuthorizationContext create(Method method)
    {
-      if (method == null)
-      {
-         return new AuthorizationContext(null);
-      }
-      AuthorizationContext.calledMethod.set(method);
-
-      ClientPermission cp = permissionCache.get(method);
-      if (cp == null)
-      {
-         ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-         cp = permission == null ? ClientPermission.NULL : new ClientPermission(permission);
-         permissionCache.put(method, cp);
-      }
-      return new AuthorizationContext(cp == ClientPermission.NULL ? null : cp);
+      return new AuthorizationContext(method == null ? null : ClientPermission.getPermission(method));
    }
 
    public static AuthorizationContext create(ClientPermission permission)

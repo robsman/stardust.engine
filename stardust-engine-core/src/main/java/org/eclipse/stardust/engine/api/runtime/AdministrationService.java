@@ -69,8 +69,7 @@ public interface AdministrationService extends Service
     *
     * @param The rules or null.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
-         defaults={ExecutionPermission.Default.ADMINISTRATOR})
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
    void setPasswordRules(PasswordRules rules);
 
    /**
@@ -546,8 +545,7 @@ public interface AdministrationService extends Service
     *
     * @see #forceCompletion(long, Map)
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend,
-         changeable=true)
+   @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
    ActivityInstance forceSuspendToDefaultPerformer(long activityInstanceOID)
          throws ObjectNotFoundException, ConcurrencyException,
          IllegalStateChangeException, AccessForbiddenException;
@@ -703,12 +701,7 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
     * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
     */
-   // @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences,
-   // scope = ExecutionPermission.Scope.model)
-   // @ExecutionPermission(id = ExecutionPermission.Id.saveOwnRealmScopePreferences,
-   // scope = ExecutionPermission.Scope.model)
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnUserScopePreferences,
-         scope = ExecutionPermission.Scope.model,
          defaults = {ExecutionPermission.Default.ALL})
    void savePreferences(Preferences preferences) throws AccessForbiddenException;
 
@@ -722,12 +715,7 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
     * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
     */
-   // @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences,
-   // scope = ExecutionPermission.Scope.model)
-   // @ExecutionPermission(id = ExecutionPermission.Id.saveOwnRealmScopePreferences,
-   // scope = ExecutionPermission.Scope.model)
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnUserScopePreferences,
-         scope = ExecutionPermission.Scope.model,
          defaults = {ExecutionPermission.Default.ALL})
    void savePreferences(List<Preferences> preferences) throws AccessForbiddenException;
 
@@ -787,8 +775,7 @@ public interface AdministrationService extends Service
     * @throws AccessForbiddenException if the current user does not have the required privilege.
     * @throws InvalidArgumentException if <tt>configurationVariables</tt> is null.
     */
-   @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences,
-         scope = ExecutionPermission.Scope.model)
+   @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    List<ModelReconfigurationInfo> saveConfigurationVariables(ConfigurationVariables configurationVariables, boolean force) throws AccessForbiddenException;
 
    /**
@@ -811,8 +798,7 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if <tt>permissions</tt> is null.
     * @throws ValidationException if changed grants are not valid in the active model.
     */
-   @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences,
-         scope = ExecutionPermission.Scope.model)
+   @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    public void setGlobalPermissions(RuntimePermissions permissions) throws AccessForbiddenException;
 
 }

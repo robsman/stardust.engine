@@ -212,9 +212,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          // Get from prefetch cache
          BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
          Map<Long,ActivityInstanceHistoryBean> lastUserPerformerCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.HIST_STATE_AIH_CACHE);
-         ActivityInstanceHistoryBean lastUserPerformer = lastUserPerformerCache == null ? null : lastUserPerformerCache.get(activityInstance.getOID());
 
-         if (lastUserPerformer == null)
+         ActivityInstanceHistoryBean lastUserPerformer;
+         if (lastUserPerformerCache != null)
+         {
+            lastUserPerformer = lastUserPerformerCache.get(activityInstance.getOID());
+         }
+         else
          {
             // Fetch if not in cache
             pair = ActivityInstanceHistoryBean.getLastUserPerformerForActivityInstance(activityInstance);

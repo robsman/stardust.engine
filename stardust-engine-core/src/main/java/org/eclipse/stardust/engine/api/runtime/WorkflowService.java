@@ -1167,6 +1167,21 @@ public interface WorkflowService extends Service
          AccessForbiddenException;
 
    /**
+    * @deprecated
+    *
+    * Retrieves the active model.
+    *
+    * @return the active model.
+    *
+    * @throws ObjectNotFoundException if there is no active model.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readModelData,
+         defaults={ExecutionPermission.Default.ALL})
+   DeployedModel getModel()
+         throws ObjectNotFoundException;
+
+   /**    
     * Retrieves (parts of) the worklist of the currently logged-in user.
     *
     * @param query An instance of class {@link WorklistQuery} describing the requested

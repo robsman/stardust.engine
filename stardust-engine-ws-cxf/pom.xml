@@ -5,11 +5,11 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <modelVersion>4.0.0</modelVersion>
 
@@ -192,7 +192,7 @@
          </plugin>
       </plugins>
    </build>
-   
+
    <profiles>
       <profile>
          <id>strict-import</id>
@@ -205,7 +205,7 @@
          <properties>
             <!-- Importing with strict data contract validation. Currently valid exception are:
                  - XmlValue
-                 If other types a refused a new incompatibility was introduced into the 
+                 If other types a refused a new incompatibility was introduced into the
                  contract and needs to be reviewed.
             -->
             <svcutil.import.options>/dataContractOnly</svcutil.import.options>
@@ -330,7 +330,7 @@
             </plugins>
          </build>
       </profile>
-      
+
       <profile>
          <id>codegen</id>
          <properties>
@@ -349,7 +349,7 @@
                   </configuration>
                   <executions>
                      <execution>
-                        <id>xjc</id>
+                        <id>xjc-StardustBpmTypes</id>
                         <phase>process-sources</phase>
                         <goals>
                            <goal>xjc</goal>
@@ -360,9 +360,82 @@
                            <extension>true</extension>
                            <bindingDirectory>${wsdl.dir}</bindingDirectory>
                            <bindingFiles>StardustBpmTypes-binding.xml</bindingFiles>
-                           <arguments>-episode ${wsdl.dir}/StardustBpmTypes-episode.xml</arguments>
+                           <arguments>-no-header -episode ${wsdl.dir}/StardustBpmTypes-episode.xml</arguments>
                            <packageName>org.eclipse.stardust.engine.api.ws</packageName>
                            <clearOutputDir>false</clearOutputDir>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>xjc-StardustBpmQueryTypes</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                           <schemaDirectory>${wsdl.dir}</schemaDirectory>
+                           <schemaFiles>StardustBpmQueryTypes.xsd</schemaFiles>
+                           <extension>true</extension>
+                           <bindingDirectory>${wsdl.dir}</bindingDirectory>
+                           <bindingFiles>StardustBpmTypes-episode.xml,StardustBpmQueryTypes-binding.xml</bindingFiles>
+                           <arguments>-no-header -episode ${wsdl.dir}/StardustBpmQueryTypes-episode.xml</arguments>
+                           <packageName>org.eclipse.stardust.engine.api.ws.query</packageName>
+                           <clearOutputDir>false</clearOutputDir>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.cxf</groupId>
+                  <artifactId>cxf-codegen-plugin</artifactId>
+                  <version>2.6.1</version>
+                  <executions>
+                     <execution>
+                        <id>wsdl2java-ws-api</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>wsdl2java</goal>
+                        </goals>
+                        <configuration>
+                           <sourceRoot>${basedir}/src/main/java</sourceRoot>
+                           <wsdlOptions>
+                              <wsdlOption>
+                                 <wsdl>${wsdl.dir}/StardustBpmService.wsdl</wsdl>
+                                 <bindingFiles>
+                                    <bindingFile>${wsdl.dir}/StardustBpmService-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.dir}/StardustBpmTypes-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.dir}/StardustBpmQueryTypes-episode.xml</bindingFile>
+                                 </bindingFiles>
+                                 <extraargs>
+                                    <extraarg>-verbose</extraarg>
+                                    <extraarg>-p</extraarg>
+                                    <extraarg>org.eclipse.stardust.engine.ws</extraarg>
+                                 </extraargs>
+                              </wsdlOption>
+                           </wsdlOptions>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>wsdl2java-interactions</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                           <goal>wsdl2java</goal>
+                        </goals>
+                        <configuration>
+                           <sourceRoot>${basedir}/src/main/java</sourceRoot>
+                           <wsdlOptions>
+                              <wsdlOption>
+                                 <wsdl>${wsdl.dir}/StardustBpmInteractionsService.wsdl</wsdl>
+                                 <bindingFiles>
+                                    <bindingFile>${wsdl.dir}/StardustBpmInteractionsService-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.dir}/StardustBpmTypes-episode.xml</bindingFile>
+                                 </bindingFiles>
+                                 <extraargs>
+                                    <extraarg>-verbose</extraarg>
+                                    <extraarg>-p</extraarg>
+                                    <extraarg>org.eclipse.stardust.engine.ws.interactions</extraarg>
+                                 </extraargs>
+                              </wsdlOption>
+                           </wsdlOptions>
                         </configuration>
                      </execution>
                   </executions>

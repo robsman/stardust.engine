@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.spring;
 
+import static org.eclipse.stardust.engine.api.spring.SpringConstants.REPORTING_TX_TIMEOUT;
+
 import java.util.Collections;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
@@ -21,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.interceptor.TransactionPolicyAdvisor;
+
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionStatus;
@@ -37,10 +41,6 @@ public class SpringTxInterceptor implements MethodInterceptor
    private static final long serialVersionUID = 1L;
 
    private static final String REPORTING_SERVICE_CLASS_NAME = "org.eclipse.stardust.reporting.rt.service.ReportingService";
-   /**
-    * no particular timeout, but just a quite huge value
-    */
-   private static final int REPORTING_TX_TIMEOUT = 999999999;
 
    private final AbstractSpringServiceBean serviceBean;
 
@@ -61,7 +61,11 @@ public class SpringTxInterceptor implements MethodInterceptor
 
       if (REPORTING_SERVICE_CLASS_NAME.equals(invocation.getMethod().getDeclaringClass().getName()))
       {
-         txTemplate.setTimeout(REPORTING_TX_TIMEOUT);
+         int txTimeout = Parameters.instance().getInteger(REPORTING_TX_TIMEOUT, -1);
+         if (txTimeout != -1)
+         {
+            txTemplate.setTimeout(txTimeout);
+         }
       }
 
       return txTemplate.execute(new SpringTxCallback()

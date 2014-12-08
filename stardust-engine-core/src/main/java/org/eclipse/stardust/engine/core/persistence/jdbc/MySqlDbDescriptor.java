@@ -158,7 +158,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
 
    public String getCreateTableOptions()
    {
-      return "TYPE=InnoDB";
+      return "ENGINE=InnoDB";
    }
 
    public String getIdentityColumnQualifier()

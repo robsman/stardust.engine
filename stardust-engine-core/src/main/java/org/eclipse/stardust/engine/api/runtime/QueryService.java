@@ -338,6 +338,14 @@ public interface QueryService extends Service
    List<ActivityInstance> getAuditTrail(long processInstanceOID)
          throws ObjectNotFoundException;
 
+   // TODO: documentations, permissions
+   /*@ExecutionPermission(
+         id=ExecutionPermission.Id.readDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defer=true,
+         defaults={ExecutionPermission.Default.ALL})*/
+   BusinessObjects getBusinessObjects(BusinessObjectQuery query);
+
    /**
     * Retrieves the list of model descriptions for all deployed models.
     *

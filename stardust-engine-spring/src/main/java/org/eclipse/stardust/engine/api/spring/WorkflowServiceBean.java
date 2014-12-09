@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 60537 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IWorkflowService
 {
@@ -884,6 +884,44 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).execute(serviceCmd);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable initialValue)
+    */
+   public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         createBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+         initialValue)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            serviceProxy).createBusinessObjectInstance(
+            modelId, businessObjectId, initialValue);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable newValue)
+    */
+   public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         updateBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+         newValue)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            serviceProxy).updateBusinessObjectInstance(
+            modelId, businessObjectId, newValue);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object primaryKey)
+    */
+   public void deleteBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object
+         primaryKey)
+   {
+      ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            serviceProxy).deleteBusinessObjectInstance(
+            modelId, businessObjectId, primaryKey);
    }
 
 	public WorkflowServiceBean()

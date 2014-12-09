@@ -502,6 +502,20 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          java.rmi.RemoteException;
          
     /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getBusinessObjects(
+     *     org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+     */
+    public org.eclipse.stardust.engine.api.query.BusinessObjects
+         getBusinessObjects(
+         org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
      * Retrieves the list of model descriptions for all deployed models.
      *
      * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription}

@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 public interface RemoteWorkflowService extends javax.ejb.EJBObject
 {
@@ -25,13 +25,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Activates the interactive activity instance identified by the
      * <code>activityInstanceOID</code>.
-     *
+     * 
      * <p>Activating means:
      * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
      * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
      * </p>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: suspended, hibernated or application</li>
      * <li>Process state before: active, interrupted</li>
@@ -79,11 +79,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -148,11 +148,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -220,11 +220,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          flags)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -290,11 +290,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -362,7 +362,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          flags)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -395,7 +395,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -432,12 +432,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.util.Set ids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -475,12 +475,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -518,12 +518,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          suspendToDefaultPerformer(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -564,11 +564,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -607,11 +607,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          suspendToUser(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -653,11 +653,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -704,11 +704,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          suspendToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -760,12 +760,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -805,12 +805,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          suspendToParticipant(long activityInstanceOID, java.lang.String participant)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -855,11 +855,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -911,7 +911,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          participant, org.eclipse.stardust.engine.api.model.ContextData outData)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Change the state of the specified activity instance to HIBERNATED.
      *
@@ -941,11 +941,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          hibernate(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state after: active</li></ul>
      * </p>
@@ -977,7 +977,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          startProcess(java.lang.String id, java.util.Map data, boolean synchronously)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Spawns a process as subprocess of the specified process instance. The spawned
      * process executes asynchronously but has to be completed before the parent process is
@@ -1028,7 +1028,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          java.util.Map data)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Spawns multiple processes as subprocesses of the specified process instance. The
      * spawned processes execute asynchronously but have to be completed before the parent
@@ -1074,7 +1074,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long parentProcessInstanceOid, java.util.List subprocessSpawnInfo)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1141,7 +1141,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          java.util.Map data, boolean abortProcessInstance, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1199,7 +1199,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.SpawnOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a case process instance which groups the specified members as subprocesses.
      *
@@ -1249,7 +1249,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          java.lang.String name, java.lang.String description, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Adds the process instances referenced by the specified memberOids to the specified
      * case process instance.
@@ -1295,7 +1295,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long caseOid, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes the process instances referenced by the specified memberOids from the
      * specified case process instance.
@@ -1341,7 +1341,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long caseOid, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Merges the specified source case process instances into the target case process
      * instance
@@ -1394,7 +1394,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          mergeCases(long targetCaseOid, long[] sourceCaseOids, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Delegates the case process instance to the specified participant.
      *
@@ -1439,7 +1439,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Aborts the specified process instance and joins the data into the specified target
      * process instance. Existing data values of the target process instance are not
@@ -1480,7 +1480,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1494,7 +1494,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1544,7 +1544,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          abortActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1554,7 +1554,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1618,12 +1618,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after:
@@ -1665,9 +1665,9 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
-     *
+     * 
      *
      * @deprecated Retrieves the active model.
      *
@@ -1685,7 +1685,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves (parts of) the worklist of the currently logged-in user.
      *
@@ -1707,7 +1707,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getWorklist(org.eclipse.stardust.engine.api.query.WorklistQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Activates the next activity instance from the given worklist query if any.
      *
@@ -1735,10 +1735,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.query.WorklistQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Activates the next activity instance after the specified one in the same process
      * instance.
+     * The activation is based on a given time frame between the completion of the current and the
+     * instantiation of the next activity. There might occur scenarios where this method will not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param activityInstanceOID the OID of the last completed activity instance.
      *
@@ -1767,9 +1770,12 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          activateNextActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Activates the next activity instance for the specified process instance.
+     * The activation is based on a given time frame between the completion of the current and the
+     * instantiation of the next activity. There might occur scenarios where this method will not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param processInstanceOID the OID of the process instance.
      *
@@ -1798,7 +1804,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          activateNextActivityInstanceForProcessInstance(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Sets an OUT data path on a process instance as specified in the corresponding
      * process definition.
@@ -1831,7 +1837,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long processInstanceOID, java.lang.String id, java.lang.Object object)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Sets multiple OUT data paths on a process instance as specified in the corresponding
      * process definition.
@@ -1863,7 +1869,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     public void setOutDataPaths(long processInstanceOID, java.util.Map values)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves an IN data path on a process instance as specified in the corresponding
      * process definition.
@@ -1891,7 +1897,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long processInstanceOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves multiple IN data paths from a process instance as specified in the
      * corresponding process definition.
@@ -1921,7 +1927,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getInDataPaths(long processInstanceOID, java.util.Set ids)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Delegates the specified activitiy instance to the default worklist of the
      * corresponding activity.
@@ -1955,7 +1961,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          delegateToDefaultPerformer(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -2003,7 +2009,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          delegateToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -2038,7 +2044,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          delegateToParticipant(long activityInstanceOID, java.lang.String performer)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Delegates the activity instance to the specified participant as follows:
      * <ul>
@@ -2094,7 +2100,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          participant)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified ActivityInstance.
      *
@@ -2117,7 +2123,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified process instance.
      *
@@ -2140,7 +2146,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getProcessInstance(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * TODO
      *
@@ -2169,7 +2175,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getProcessResults(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2206,7 +2212,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2238,7 +2244,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2266,7 +2272,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          bindActivityEventHandler(long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2294,7 +2300,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          bindProcessEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Unbinds an event handler from the specified activity instance.
      *
@@ -2322,7 +2328,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          unbindActivityEventHandler(long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Unbinds an event handler from the specified process instance.
      *
@@ -2350,7 +2356,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          unbindProcessEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified activity instance.
      *
@@ -2375,7 +2381,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified process instance.
      *
@@ -2399,7 +2405,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getProcessInstanceEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the possible targets for forward transitions starting from the specified
      * activity instance.
@@ -2431,7 +2437,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.ScanDirection direction)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Performs the transition from the specified activity instance to the specified target.
      *
@@ -2476,7 +2482,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          complete)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the list of process definitions that can be started by the current user.
      *
@@ -2493,7 +2499,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getStartableProcessDefinitions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -2507,7 +2513,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     public org.eclipse.stardust.engine.api.runtime.User getUser()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -2522,7 +2528,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          getPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Sets specific attributes of a process instance.
      * At the moment attributes has to be bound to a scope process instance.
@@ -2559,7 +2565,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes attributes)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Sets attributes for an activity instance
      *
@@ -2599,7 +2605,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes attributes)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Logs an audit trail event of type <code>LogCode.EXTERNAL</code>.
      *
@@ -2627,10 +2633,10 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          java.lang.String message, java.lang.Throwable throwable)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Executes a {@link ServiceCommand} in a single engine transaction.
-     *
+     * 
      * If the service command implements <code>{@link Configurable}</code>, the following
      * option may be provided:
      * <ul>
@@ -2661,7 +2667,51 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.core.runtime.command.ServiceCommand serviceCmd)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(
+     *     java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+     *     initialValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         createBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+         initialValue)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(
+     *     java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+     *     newValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         updateBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
+         newValue)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(
+     *     java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object
+     *     primaryKey)
+     */
+    public void deleteBusinessObjectInstance(
+         java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object
+         primaryKey)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

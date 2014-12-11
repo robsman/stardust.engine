@@ -375,7 +375,7 @@ public class QueryServiceImpl implements QueryService, Serializable
    }
 
    @Override
-   public BusinessObjects getBusinessObjects(BusinessObjectQuery query)
+   public BusinessObjects getAllBusinessObjects(BusinessObjectQuery query)
    {
       return BusinessObjectUtils.getBusinessObjects(query);
    }

@@ -1791,12 +1791,41 @@ public interface WorkflowService extends Service
     */
    Serializable execute(ServiceCommand serviceCmd) throws ServiceCommandException;
 
-   // TODO: documentation, permissions
-   BusinessObject createBusinessObjectInstance(String modelId, String businessObjectId, Serializable initialValue);
+   /**
+    * Creates a new business object instance if it does not exist.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param initialValue the initial value of the business instance (can be null).
+    * @return the newly created business object instance.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   BusinessObject createBusinessObjectInstance(String qualifiedBusinessObjectId, Object initialValue);
 
-   // TODO: documentation, permissions
-   BusinessObject updateBusinessObjectInstance(String modelId, String businessObjectId, Serializable newValue);
+   /**
+    * Updates the value of a business object instance.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param newValue the new value of the business instance (can be null).
+    * @return the updated business object instance.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   BusinessObject updateBusinessObjectInstance(String qualifiedBusinessObjectId, Object newValue);
 
-   // TODO: documentation, permissions
-   void deleteBusinessObjectInstance(String modelId, String businessObjectId, Object primaryKey);
+   /**
+    * Deletes a business object instance.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param primaryKey the primary key identifying the instance to be deleted.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   void deleteBusinessObjectInstance(String qualifiedBusinessObjectId, Object primaryKey);
 }

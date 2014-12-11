@@ -477,14 +477,20 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.rmi.RemoteException;
          
     /**
+     * Returns the business objects satisfying the query.
+     *
+     * @param query the business objects query.
+     *
+     * @return a list of business objects, possibly empty.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getBusinessObjects(
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(
      *     org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
      */
     public org.eclipse.stardust.engine.api.query.BusinessObjects
-         getBusinessObjects(
+         getAllBusinessObjects(
          org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;

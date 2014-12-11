@@ -159,10 +159,10 @@ public interface QueryService extends org.eclipse.stardust.engine.core.runtime.e
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
     */
     public org.eclipse.stardust.engine.api.query.BusinessObjects
-         getBusinessObjects(
+         getAllBusinessObjects(
          org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;

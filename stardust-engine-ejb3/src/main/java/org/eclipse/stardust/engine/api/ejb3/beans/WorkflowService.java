@@ -629,31 +629,28 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable initialValue)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
     */
     public org.eclipse.stardust.engine.api.runtime.BusinessObject
          createBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
-         initialValue, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable newValue)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
     */
     public org.eclipse.stardust.engine.api.runtime.BusinessObject
          updateBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
-         newValue, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object primaryKey)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
     */
     public void deleteBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object
-         primaryKey, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          }

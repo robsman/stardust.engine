@@ -1993,12 +1993,12 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     }
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable initialValue)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
     */
    public org.eclipse.stardust.engine.api.runtime.BusinessObject
          createBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
-         initialValue, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
@@ -2006,7 +2006,7 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
-            service).createBusinessObjectInstance(modelId, businessObjectId, initialValue);
+            service).createBusinessObjectInstance(qualifiedBusinessObjectId, initialValue);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -2023,12 +2023,12 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     }
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable newValue)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
     */
    public org.eclipse.stardust.engine.api.runtime.BusinessObject
          updateBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.io.Serializable
-         newValue, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
@@ -2036,7 +2036,7 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
-            service).updateBusinessObjectInstance(modelId, businessObjectId, newValue);
+            service).updateBusinessObjectInstance(qualifiedBusinessObjectId, newValue);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -2053,11 +2053,11 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     }
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object primaryKey)
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
     */
    public void deleteBusinessObjectInstance(
-         java.lang.String modelId, java.lang.String businessObjectId, java.lang.Object
-         primaryKey, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
@@ -2065,7 +2065,7 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
-            service).deleteBusinessObjectInstance(modelId, businessObjectId, primaryKey);
+            service).deleteBusinessObjectInstance(qualifiedBusinessObjectId, primaryKey);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

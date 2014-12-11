@@ -22,8 +22,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public long getUsersCount(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -52,8 +52,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public long
          getUserGroupsCount(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -82,8 +82,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public long
          getProcessInstancesCount(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -112,8 +112,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public long
          getActivityInstancesCount(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -142,8 +142,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public long
          getLogEntriesCount(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -172,8 +172,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.query.Users
          getAllUsers(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -202,8 +202,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.query.UserGroups
          getAllUserGroups(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -232,8 +232,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.query.ProcessInstances
          getAllProcessInstances(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -262,8 +262,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.query.ActivityInstances
          getAllActivityInstances(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -292,8 +292,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.query.LogEntries
          getAllLogEntries(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -322,8 +322,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.User
          findFirstUser(
          org.eclipse.stardust.engine.api.query.UserQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -352,8 +352,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.UserGroup
          findFirstUserGroup(
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -382,8 +382,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          findFirstProcessInstance(
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -412,8 +412,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          findFirstActivityInstance(
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -442,8 +442,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.LogEntry
          findFirstLogEntry(
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -472,7 +472,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public
          java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(
-         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         long processInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
@@ -497,10 +498,10 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     }
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
     */
    public org.eclipse.stardust.engine.api.query.BusinessObjects
-         getBusinessObjects(
+         getAllBusinessObjects(
          org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
@@ -510,7 +511,7 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          return ((org.eclipse.stardust.engine.api.runtime.QueryService)
-            service).getBusinessObjects(query);
+            service).getAllBusinessObjects(query);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -532,8 +533,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -562,8 +563,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public
          java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -591,8 +592,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getActiveModelDescription(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -621,8 +622,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.Models
          getModels(
          org.eclipse.stardust.engine.api.query.DeployedModelQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -678,7 +679,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(long modelOid, int revision)
     */
    public boolean wasRedeployed(
-         long modelOid, int revision, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         long modelOid, int revision,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
@@ -735,8 +737,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
          long modelOID, boolean computeAliveness,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -764,8 +766,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public org.eclipse.stardust.engine.api.runtime.DeployedModel
          getActiveModel(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -851,8 +853,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(
          long modelOID, java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -880,8 +882,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -939,8 +941,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.ProcessDefinitions
          getProcessDefinitions(
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -969,8 +971,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.DataQueryResult
          getAllData(
          org.eclipse.stardust.engine.api.query.DataQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1027,8 +1029,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public org.eclipse.stardust.engine.api.model.Participant getParticipant(
          long modelOID, java.lang.String id,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1056,8 +1058,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public java.util.List<org.eclipse.stardust.engine.api.model.Participant>
          getAllParticipants(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1114,8 +1116,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1143,8 +1145,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public byte[] getSchemaDefinition(
          long modelOID, java.lang.String typeDeclarationId,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1174,8 +1176,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
          findAllDepartments(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1205,8 +1207,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
          findDepartment(
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1235,8 +1237,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.Document
          findFirstDocument(
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1265,8 +1267,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.Documents
          getAllDocuments(
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1296,8 +1298,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
          getPreferences(
          org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
          java.lang.String moduleId, java.lang.String preferencesId,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1327,8 +1329,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
          java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
          getAllPreferences(
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1356,8 +1358,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
     */
    public org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo
          getRuntimeEnvironmentInfo(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try
@@ -1386,8 +1388,8 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
    public org.eclipse.stardust.engine.api.runtime.ResourceBundle
          getResourceBundle(
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)throws
-         org.eclipse.stardust.common.error.WorkflowException
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map<?, ?> __invocationContextBackup = null;
       try

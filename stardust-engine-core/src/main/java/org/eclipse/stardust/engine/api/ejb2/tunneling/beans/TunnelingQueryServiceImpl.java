@@ -823,14 +823,20 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
     }
 
     /**
+     * Returns the business objects satisfying the query.
+     *
+     * @param query the business objects query.
+     *
+     * @return a list of business objects, possibly empty.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getBusinessObjects(
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(
      *     org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
      */
     public org.eclipse.stardust.engine.api.query.BusinessObjects
-         getBusinessObjects(
+         getAllBusinessObjects(
          org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
@@ -840,7 +846,7 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          return ((org.eclipse.stardust.engine.api.runtime.QueryService)
-            service).getBusinessObjects(query);
+            service).getAllBusinessObjects(query);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

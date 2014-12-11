@@ -42,6 +42,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -133,6 +135,9 @@ public class BusinessObjectUtils
 
    private static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
    {
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      Authorization2Predicate auth = runtimeEnvironment == null ? null : runtimeEnvironment.getAuthorizationPredicate();
+
       Set<IData> allData = CollectionUtils.newSet();
 
       Long modelOID = queryEvaluator.getModelOid();
@@ -141,27 +146,27 @@ public class BusinessObjectUtils
          IModel model = modelManager.findModel(modelOID);
          if (model != null)
          {
-            addModelData(allData, model, queryEvaluator);
+            addModelData(allData, model, queryEvaluator, auth);
          }
       }
       else
       {
          for (Iterator<IModel> models = modelManager.getAllModels(); models.hasNext();)
          {
-            addModelData(allData, models.next(), queryEvaluator);
+            addModelData(allData, models.next(), queryEvaluator, auth);
          }
       }
       return allData;
    }
 
-   private static void addModelData(Set<IData> allData, IModel model, BusinessObjectQueryPredicate queryEvaluator)
+   private static void addModelData(Set<IData> allData, IModel model, BusinessObjectQueryPredicate queryEvaluator, Authorization2Predicate auth)
    {
       if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
       {
          for (Iterator<IData> data = model.getData().iterator(); data.hasNext();)
          {
             IData item = data.next();
-            if (queryEvaluator.accept(item))
+            if (queryEvaluator.accept(item) && (auth == null || auth.accept(data)))
             {
                allData.add(item);
             }
@@ -315,7 +320,7 @@ public class BusinessObjectUtils
       return session.findFirst(ProcessInstanceBean.class, desc.getQueryExtension());
    }
 
-   private static Object getPK(IData data, Serializable value)
+   private static Object getPK(IData data, Object value)
    {
       String pkId = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
       if (value instanceof Map)
@@ -329,14 +334,14 @@ public class BusinessObjectUtils
       throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
    }
 
-   public static BusinessObject createInstance(String modelId, String businessObjectId, Serializable initialValue)
+   public static BusinessObject createInstance(String businessObjectId, Object initialValue)
          throws ObjectNotFoundException, InvalidArgumentException
    {
       if (initialValue == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("initialValue"));
       }
-      IData data = findDataForUpdate(modelId, businessObjectId);
+      IData data = findDataForUpdate(businessObjectId);
       lockData(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, initialValue));
       if (pi != null)
@@ -358,14 +363,14 @@ public class BusinessObjectUtils
       atdb.lock();
    }
 
-   public static BusinessObject updateInstance(String modelId, String businessObjectId, Serializable value)
+   public static BusinessObject updateInstance(String businessObjectId, Object value)
          throws ObjectNotFoundException, InvalidArgumentException
    {
       if (value == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("value"));
       }
-      IData data = findDataForUpdate(modelId, businessObjectId);
+      IData data = findDataForUpdate(businessObjectId);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, value));
       if (pi == null)
       {
@@ -376,10 +381,10 @@ public class BusinessObjectUtils
       return updateBusinessObjectInstance(pi, data, value);
    }
 
-   public static void deleteInstance(String modelId, String businessObjectId,
+   public static void deleteInstance(String businessObjectId,
          Object pkValue)
    {
-      IData data = findDataForUpdate(modelId, businessObjectId);
+      IData data = findDataForUpdate(businessObjectId);
       IProcessInstance pi = findUnboundProcessInstance(data, pkValue);
       if (pi == null)
       {
@@ -391,7 +396,7 @@ public class BusinessObjectUtils
             (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL));
    }
 
-   private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Serializable newValue)
+   private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
    {
       pi.setOutDataValue(data, null, newValue);
       Serializable dataValue = (Serializable) pi.getInDataValue(data, null);
@@ -399,9 +404,13 @@ public class BusinessObjectUtils
       return new BusinessObjectDetails(data.getModel().getId(), data.getId(), data.getName(), null, Collections.singletonList(value));
    }
 
-   private static IData findDataForUpdate(String modelId, String businessObjectId)
+   private static IData findDataForUpdate(String qualifiedBusinessObjectId)
          throws ObjectNotFoundException, InvalidArgumentException
    {
+      QName qname = QName.valueOf(qualifiedBusinessObjectId);
+      String modelId = qname.getNamespaceURI();
+      String businessObjectId = qname.getLocalPart();
+
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findActiveModel(modelId);
       if (model == null)

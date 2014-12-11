@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
+import javax.xml.namespace.QName;
+
 /**
  *
  * @author Florin.Herinean
@@ -110,17 +112,17 @@ public class BusinessObjectQuery extends Query
       return query;
    }
 
-   public static BusinessObjectQuery findForBusinessObject(String modelId, String businessObjectId)
+   public static BusinessObjectQuery findForBusinessObject(String qualifiedBusinessObjectId)
    {
-      BusinessObjectQuery query = BusinessObjectQuery.findInModel(modelId);
-      query.where(BUSINESS_OBJECT_ID.isEqual(businessObjectId));
+      QName qname = QName.valueOf(qualifiedBusinessObjectId);
+      BusinessObjectQuery query = BusinessObjectQuery.findInModel(qname.getNamespaceURI());
+      query.where(BUSINESS_OBJECT_ID.isEqual(qname.getLocalPart()));
       return query;
    }
 
-   public static BusinessObjectQuery findWithPrimaryKey(String modelId, String businessObjectId, Object pk)
+   public static BusinessObjectQuery findWithPrimaryKey(String qualifiedBusinessObjectId, Object pk)
    {
-      BusinessObjectQuery query = BusinessObjectQuery.findInModel(modelId);
-      query.where(BUSINESS_OBJECT_ID.isEqual(businessObjectId));
+      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(qualifiedBusinessObjectId);
       query.where(pk instanceof Number
             ? PRIMARY_KEY.isEqual(((Number) pk).longValue())
             : PRIMARY_KEY.isEqual(pk.toString()));

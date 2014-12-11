@@ -2387,20 +2387,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    }
 
    @Override
-   public BusinessObject createBusinessObjectInstance(String modelId, String businessObjectId, Serializable initialValue)
+   public BusinessObject createBusinessObjectInstance(String businessObjectId, Object initialValue)
    {
-      return BusinessObjectUtils.createInstance(modelId, businessObjectId, initialValue);
+      return BusinessObjectUtils.createInstance(businessObjectId, initialValue);
    }
 
    @Override
-   public BusinessObject updateBusinessObjectInstance(String modelId, String businessObjectId, Serializable newValue)
+   public BusinessObject updateBusinessObjectInstance(String businessObjectId, Object newValue)
    {
-      return BusinessObjectUtils.updateInstance(modelId, businessObjectId, newValue);
+      return BusinessObjectUtils.updateInstance(businessObjectId, newValue);
    }
 
    @Override
-   public void deleteBusinessObjectInstance(String modelId, String businessObjectId, Object primaryKey)
+   public void deleteBusinessObjectInstance(String businessObjectId, Object primaryKey)
    {
-      BusinessObjectUtils.deleteInstance(modelId, businessObjectId, primaryKey);
+      BusinessObjectUtils.deleteInstance(businessObjectId, primaryKey);
    }
 }

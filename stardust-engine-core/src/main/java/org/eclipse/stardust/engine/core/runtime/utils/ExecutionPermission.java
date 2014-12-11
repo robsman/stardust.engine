@@ -112,6 +112,10 @@ public @interface ExecutionPermission {
        */
       modifyCase,
       /**
+       * permission to modify process data values
+       */
+      modifyDataValues,
+      /**
        * permission to modify process instances
        */
       modifyProcessInstances,

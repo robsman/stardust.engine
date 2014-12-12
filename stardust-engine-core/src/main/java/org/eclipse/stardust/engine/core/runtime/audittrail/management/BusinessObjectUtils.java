@@ -263,7 +263,7 @@ public class BusinessObjectUtils
                   values.put(data, list);
                }
                Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-               list.add(new BusinessObjectDetails.ValueDetails(piOid, (Serializable) value));
+               list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
             }
          }
          catch (Exception e)
@@ -399,7 +399,7 @@ public class BusinessObjectUtils
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
    {
       pi.setOutDataValue(data, null, newValue);
-      Serializable dataValue = (Serializable) pi.getInDataValue(data, null);
+      Object dataValue = pi.getInDataValue(data, null);
       BusinessObjectDetails.Value value = new BusinessObjectDetails.ValueDetails(pi.getOID(), dataValue);
       return new BusinessObjectDetails(data.getModel().getId(), data.getId(), data.getName(), null, Collections.singletonList(value));
    }

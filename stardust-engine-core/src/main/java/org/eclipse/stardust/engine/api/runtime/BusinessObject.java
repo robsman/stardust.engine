@@ -44,7 +44,7 @@ public interface BusinessObject extends Serializable
    {
       long getProcessInstanceOid();
 
-      Serializable getValue();
+      Object getValue();
    }
 
    /**

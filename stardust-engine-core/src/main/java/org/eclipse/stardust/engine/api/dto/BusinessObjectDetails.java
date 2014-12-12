@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -74,9 +73,9 @@ public class BusinessObjectDetails implements BusinessObject
    public static class ValueDetails implements Value
    {
       private long processInstanceOid;
-      private Serializable value;
+      private Object value;
 
-      public ValueDetails(long processInstanceOid, Serializable value)
+      public ValueDetails(long processInstanceOid, Object value)
       {
          this.processInstanceOid = processInstanceOid;
          this.value = value;
@@ -87,7 +86,7 @@ public class BusinessObjectDetails implements BusinessObject
          return processInstanceOid;
       }
 
-      public Serializable getValue()
+      public Object getValue()
       {
          return value;
       }

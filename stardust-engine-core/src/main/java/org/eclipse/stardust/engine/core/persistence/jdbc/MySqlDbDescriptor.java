@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
@@ -22,8 +25,13 @@ import org.eclipse.stardust.common.error.InternalException;
  */
 public class MySqlDbDescriptor extends IdentityColumnDbDriver
 {
-   // It is a keyword since version 5.0
-   private static final String CONDITION_IDENTIFIER = "CONDITION";
+   private static final String[] keywords = {
+      // keyword since version 5.0
+      "CONDITION", 
+      // Keyword since 5.6
+      "PARTITION"
+   };
+   private static final Set<String> keywordSet = new HashSet<String>(Arrays.asList(keywords));
 
    public DBMSKey getDbmsKey()
    {
@@ -56,7 +64,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
             buffer.append(", ");
          }
 
-         buffer.append(indexDescriptor.getColumns()[n]);
+         buffer.append(quoteIdentifier(indexDescriptor.getColumns()[n]));
       }
       buffer.append(")");
 
@@ -178,7 +186,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
    
    public String quoteIdentifier(String identifier)
    {
-      if (CONDITION_IDENTIFIER.equalsIgnoreCase(identifier))
+      if (identifier != null && keywordSet.contains(identifier.toUpperCase()))
       {
          return "`" + identifier + "`";
       }

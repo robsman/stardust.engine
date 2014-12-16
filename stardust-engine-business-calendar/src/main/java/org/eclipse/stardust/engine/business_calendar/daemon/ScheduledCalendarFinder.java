@@ -28,7 +28,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 {
    public ScheduledCalendarFinder(Date executionDate)
    {
-      super(new DocumentManagementServiceImpl(), executionDate, ".bpmcal", "/business-calendars");
+      super(new DocumentManagementServiceImpl(), null, executionDate, ".bpmcal", "/business-calendars");
    }
 
    @Override

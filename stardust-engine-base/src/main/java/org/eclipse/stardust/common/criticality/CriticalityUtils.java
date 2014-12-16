@@ -53,9 +53,7 @@ public class CriticalityUtils
     *
     * @param categories the {@link CriticalityCategory} to browse
     * @param criticalityValue the <i>Criticality</i> to test
-    * @return the {@link CriticalityCategory} for the given <i>Criticality</i>
-    *
-    * @throws IllegalArgumentException if no matching {@link CriticalityCategory} can be found
+    * @return the {@link CriticalityCategory} for the given <i>Criticality</i>, or {@code null} if a matching {@link CriticalityCategory} cannot be found
     */
    public static CriticalityCategory findMatchingCriticalityCategory(final Set<CriticalityCategory> categories, final double criticalityValue)
    {
@@ -67,6 +65,6 @@ public class CriticalityUtils
          }
       }
 
-      throw new IllegalArgumentException("No matching criticality category found for value '" + criticalityValue + "'.");
+      return null;
    }
 }

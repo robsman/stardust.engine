@@ -23,26 +23,34 @@ import java.util.Set;
  */
 public class CriticalityUtils
 {
-   private static final String CATEGORY_NAME_LOW = "Low";
-   private static final String CATEGORY_NAME_MEDIUM = "Medium";
-   private static final String CATEGORY_NAME_HIGH = "High";
+   /* package-private */ static final double LOW_CATEGORY_LOWER_BOUND = 0.0;
+   /* package-private */ static final double LOW_CATEGORY_UPPER_BOUND = 0.333;
+   /* package-private */ static final double MEDIUM_CATEGORY_LOWER_BOUND = LOW_CATEGORY_UPPER_BOUND;
+   /* package-private */ static final double MEDIUM_CATEGORY_UPPER_BOUND = 0.666;
+   /* package-private */ static final double HIGH_CATEGORY_LOWER_BOUND = MEDIUM_CATEGORY_UPPER_BOUND;
+   /* package-private */ static final double HIGH_CATEGORY_UPPER_BOUND = 1.0;
+
+   /* package-private */ static final String CATEGORY_NAME_LOW = "Low";
+   /* package-private */ static final String CATEGORY_NAME_MEDIUM = "Medium";
+   /* package-private */ static final String CATEGORY_NAME_HIGH = "High";
 
    /**
     * <p>
-    * The default <i>Criticality Categories</i> that apply, if no explicit <i>Criticality Categories</i> have been defined.
+    * The default <i>Criticality Categories</i> that apply, if no explicit <i>Criticality Categories</i> have been defined. The returned
+    * {@link Set} is sorted by ascending value of {@link CriticalityCategory#lowerBound()}.
     * </p>
     *
     * @param categoryNameLow the name of the default {@link CriticalityCategory} <i>Low</i>; may be null, in that case {@code "Low"} will be used
     * @param categoryNameMedium the name of the default {@link CriticalityCategory} <i>Medium</i>; may be null, in that case {@code "Medium"} will be used
     * @param categoryNameHigh the name of the default {@link CriticalityCategory} <i>High</i>; may be null, in that case {@code "High"} will be used
-    * @return the default categories
+    * @return the sorted default categories
     */
    public static Set<CriticalityCategory> getCriticalityDefaultCategories(final String categoryNameLow, final String categoryNameMedium, final String categoryNameHigh)
    {
       final Set<CriticalityCategory> result = newTreeSet();
-      result.add(new CriticalityCategory(0.0, 0.333, categoryNameLow != null ? categoryNameLow : CATEGORY_NAME_LOW));
-      result.add(new CriticalityCategory(0.334, 0.666, categoryNameMedium != null ? categoryNameMedium : CATEGORY_NAME_MEDIUM));
-      result.add(new CriticalityCategory(0.667, 1.0, categoryNameHigh != null ? categoryNameHigh : CATEGORY_NAME_HIGH));
+      result.add(new CriticalityCategory(LOW_CATEGORY_LOWER_BOUND, LOW_CATEGORY_UPPER_BOUND, categoryNameLow != null ? categoryNameLow : CATEGORY_NAME_LOW));
+      result.add(new CriticalityCategory(MEDIUM_CATEGORY_LOWER_BOUND, MEDIUM_CATEGORY_UPPER_BOUND, categoryNameMedium != null ? categoryNameMedium : CATEGORY_NAME_MEDIUM));
+      result.add(new CriticalityCategory(HIGH_CATEGORY_LOWER_BOUND, HIGH_CATEGORY_UPPER_BOUND, categoryNameHigh != null ? categoryNameHigh : CATEGORY_NAME_HIGH));
       return result;
    }
 

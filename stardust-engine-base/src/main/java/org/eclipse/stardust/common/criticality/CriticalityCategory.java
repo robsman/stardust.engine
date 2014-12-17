@@ -14,9 +14,10 @@ import org.eclipse.stardust.common.StringUtils;
 
 /**
  * <p>
- * This class represents a <i>Criticality Category</i> comprising a lower and upper bound as well as
- * a name. A <i>Criticality</i> falls into a particular <i>Criticality Category</i>, if and only if
- * its corresponding value is between lower and upper bounds (including boundaries).
+ * This class represents a <i>Criticality Category</i> comprising an lower and upper bound as well as a name.
+ * A <i>Criticality</i> falls into a particular <i>Criticality Category</i>, if and only if its corresponding
+ * value is greater than the lower bound and less than or equal to the upper bound. However, the <i>Criticality</i>
+ * {@code 0.0} falls into the <i>Criticality Category</i> having a lower bound equal to {@code 0.0}.
  * </p>
  *
  * @author Nicolas.Werlein
@@ -86,7 +87,11 @@ public class CriticalityCategory implements Comparable<CriticalityCategory>
     */
    public boolean matches(final double criticalityValue)
    {
-      return criticalityValue >= lowerBound && criticalityValue <= upperBound;
+      if (criticalityValue == 0.0 && lowerBound == 0.0)
+      {
+         return true;
+      }
+      return criticalityValue > lowerBound && criticalityValue <= upperBound;
    }
 
    /* (non-Javadoc)
@@ -127,7 +132,7 @@ public class CriticalityCategory implements Comparable<CriticalityCategory>
    {
       final StringBuilder sb = new StringBuilder();
       sb.append(name).append(": ");
-      sb.append("[").append(lowerBound).append(", ").append(upperBound).append("]");
+      sb.append(lowerBound == 0.0 ? "[" : "(").append(lowerBound).append(", ").append(upperBound).append("]");
       return sb.toString();
    }
 

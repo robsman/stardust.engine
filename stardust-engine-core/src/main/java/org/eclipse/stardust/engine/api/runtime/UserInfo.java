@@ -20,5 +20,9 @@ import org.eclipse.stardust.engine.api.model.DynamicParticipantInfo;
  */
 public interface UserInfo extends DynamicParticipantInfo
 {
+   String getAccount();
 
+   String getFirstName();
+
+   String getLastName();
 }

@@ -188,20 +188,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                // first use of this specific cluster, setup join
                final int idx = cntxt.clusterJoins.size() + 1;
                final String clusterAlias = "PR_DVCL" + idx;
-               if (joinFactory.isProcInstQuery)
-               {
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
-                              .getProcessInstanceColumn());
-               }
-               else
-               {
-                  Join glue = joinFactory.getGlueJoin();
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE), cluster
-                              .getProcessInstanceColumn());
 
-                  clusterJoin.setDependency(glue);
+               clusterJoin = new Join(cluster, clusterAlias) //
+                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+
+               Join scopePiGlueJoin = joinFactory.getGlueJoin();
+               if (null != scopePiGlueJoin)
+               {
+                  clusterJoin.setDependency(scopePiGlueJoin);
                }
 
                cntxt.clusterJoins.put(joinKey, clusterJoin);
@@ -213,6 +207,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
                selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
                selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn(), ignorePreparedStatements));
+               // Workaround: cluster column count needs to be dividable by 3,
+               // third column can be any number as nValueColumns are never prefetched
+               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
 
                return NOTHING;
             }
@@ -266,20 +263,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                // first use of this specific cluster, setup join
                final int idx = clusterJoins.size() + 1;
                final String clusterAlias = "PR_DVCL" + idx;
-               if (joinFactory.isProcInstQuery)
-               {
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
-                              .getProcessInstanceColumn());
-               }
-               else
-               {
-                  Join glue = joinFactory.getGlueJoin();
-                  clusterJoin = new Join(cluster, clusterAlias) //
-                        .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE), cluster
-                              .getProcessInstanceColumn());
 
-                  clusterJoin.setDependency(glue);
+               clusterJoin = new Join(cluster, clusterAlias) //
+                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+
+               Join scopePiGlueJoin = joinFactory.getGlueJoin();
+               if (null != scopePiGlueJoin)
+               {
+                  clusterJoin.setDependency(scopePiGlueJoin);
                }
 
                clusterJoin.setRequired(false);
@@ -754,7 +745,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
                if (null != slot)
                {
-                  // prefetch hints can only be strings
+                  // prefetch hints can only be strings (solve workaround line 217 if number values should be prefetched too)
                   final int classificationKey = getClassificationKey(filter.getOperand());
                   boolean dataIsNumericValue = !isPrefetchHint &&
                      classificationKey == BigData.NUMERIC_VALUE;

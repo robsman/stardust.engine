@@ -32,8 +32,13 @@ public class RepositoryConstants
    public static final String ROOT_FOLDER_PATH = PATH_SEPARATOR;
 
    /**
-    * The revision name and revision id of a non versioned {@link Document}.
+    * The revision name and revision id of a non versioned {@link Document} working copy.
     */
    public static final String VERSION_UNVERSIONED = "UNVERSIONED";
+
+   /**
+    * The revision name and revision id of a versioned {@link Document} working copy.
+    */
+   public static final String VERSION_VERSIONED = "VERSIONED";
 
 }

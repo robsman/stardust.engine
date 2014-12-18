@@ -42,11 +42,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 public class DetailsFactory
 {
    private static final Logger trace = LogManager.getLogger(DetailsFactory.class);
-   
+
    public static ModelParticipant createModelDetails(IModelParticipant participant, IDepartment department)
    {
       ModelParticipant detail = (ModelParticipant) createParticipantDetails(participant);
-      
+
       if (department != null)
       {
          final Department departmentDetail = create(department, IDepartment.class,
@@ -117,8 +117,8 @@ public class DetailsFactory
                public String getDescription()
                {
                   return orgDetail.getDescription();
-               }               
-               
+               }
+
                public String getName()
                {
                   return orgDetail.getName();
@@ -150,12 +150,12 @@ public class DetailsFactory
                {
                   return orgDetail.isDepartmentScoped();
                }
-               
+
                public boolean definesDepartmentScope()
                {
                   return orgDetail.definesDepartmentScope();
                }
-               
+
                @Override
                public boolean equals(Object obj)
                {
@@ -171,11 +171,11 @@ public class DetailsFactory
                      return orgDetailsEquals;
                   }
                }
-               
+
                @Override
                public int hashCode()
                {
-                  // only use the hash code from the unbound participant 
+                  // only use the hash code from the unbound participant
                   return orgDetail.hashCode();
                }
 
@@ -241,8 +241,8 @@ public class DetailsFactory
                public String getDescription()
                {
                   return roleDetails.getDescription();
-               }               
-               
+               }
+
                public String getName()
                {
                   return roleDetails.getName();
@@ -274,12 +274,12 @@ public class DetailsFactory
                {
                   return roleDetails.isDepartmentScoped();
                }
-               
+
                public boolean definesDepartmentScope()
                {
                   return roleDetails.definesDepartmentScope();
                }
-               
+
                @Override
                public boolean equals(Object obj)
                {
@@ -295,11 +295,11 @@ public class DetailsFactory
                      return roleDetailsEquals;
                   }
                }
-               
+
                @Override
                public int hashCode()
                {
-                  // only use the hash code from the unbound participant 
+                  // only use the hash code from the unbound participant
                   return roleDetails.hashCode();
                }
 
@@ -315,10 +315,10 @@ public class DetailsFactory
                   + participant.getClass() + " is currently not supported.");
          }
       }
-      
+
       return detail;
    }
-   
+
    public static ModelParticipantInfo createModelInfoDetails(
          IModelParticipant participant, IDepartment department)
    {
@@ -348,13 +348,13 @@ public class DetailsFactory
 
       return detail;
    }
-   
+
    private static final String PRP_CTOR_CACHE_DC = DetailsFactory.class.getName() + ".CtorCache.WithDetailsCache";
-   
+
    private static final String PRP_CTOR_CACHE_NO_DC = DetailsFactory.class.getName() + ".CtorCache.WithoutDetailsCache";
-   
+
    private static final Object NO_CTOR = new Object();
-   
+
    public static Participant createParticipantDetails(IParticipant participant)
    {
       Participant details = null;
@@ -401,7 +401,7 @@ public class DetailsFactory
          if (participant instanceof IModelParticipant)
          {
             // get or create uncached info details object
-            
+
             final Pair pair = new Pair(participant, null);
             if (participant instanceof IOrganization)
             {
@@ -503,7 +503,7 @@ public class DetailsFactory
       }
       return detail;
    }
-   
+
    public static DataPath create(IDataPath internal)
    {
       if (internal == null)
@@ -759,7 +759,7 @@ public class DetailsFactory
                   ctorCache.putIfAbsent(detailsType, NO_CTOR);
                }
             }
-            
+
             Constructor<? extends T> ctor = (ctorCache.get(detailsType) instanceof Constructor)
                   ? (Constructor) ctorCache.get(detailsType)
                   : null;
@@ -770,7 +770,7 @@ public class DetailsFactory
             }
             else
             {
-               throw new InternalException("Details type " + detailsType.getName() + " does not declare a propert constructor.");
+               throw new InternalException("Details type " + detailsType.getName() + " does not declare a proper constructor.");
             }
          }
       }

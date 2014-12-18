@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.spring;
 
+import static org.eclipse.stardust.engine.api.spring.SpringConstants.REPORTING_TX_TIMEOUT;
+
 import java.util.Collections;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
@@ -21,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.TxRollbackPolicy;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.interceptor.TransactionPolicyAdvisor;
+
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionStatus;
@@ -35,6 +39,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class SpringTxInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = 1L;
+
+   private static final String REPORTING_SERVICE_CLASS_NAME = "org.eclipse.stardust.reporting.rt.service.ReportingService";
 
    private final AbstractSpringServiceBean serviceBean;
 
@@ -52,7 +58,16 @@ public class SpringTxInterceptor implements MethodInterceptor
             serviceBean.getTransactionManager());
       txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
       //txTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-      
+
+      if (REPORTING_SERVICE_CLASS_NAME.equals(invocation.getMethod().getDeclaringClass().getName()))
+      {
+         int txTimeout = Parameters.instance().getInteger(REPORTING_TX_TIMEOUT, -1);
+         if (txTimeout != -1)
+         {
+            txTemplate.setTimeout(txTimeout);
+         }
+      }
+
       return txTemplate.execute(new SpringTxCallback()
       {
          @Override
@@ -67,14 +82,14 @@ public class SpringTxInterceptor implements MethodInterceptor
             this.txStatus = status;
 
             final ITransactionStatus outerTxStatus = TransactionUtils.getCurrentTxStatus(invocation.getParameters());
-            
+
             final PropertyLayer localProps = ParametersFacade.pushLayer(
                   invocation.getParameters(), Collections.EMPTY_MAP);
-            
+
             try
             {
                TransactionUtils.registerTxStatus(localProps, this);
-               
+
                return invocation.proceed();
             }
             catch (RuntimeException e)
@@ -105,31 +120,31 @@ public class SpringTxInterceptor implements MethodInterceptor
             {
                // unregister txStatus
                ParametersFacade.popLayer(invocation.getParameters());
-               
+
                if ((null != outerTxStatus)
                      && (outerTxStatus != TransactionUtils.NO_OP_TX_STATUS)
                      && status.isRollbackOnly())
                {
                   outerTxStatus.setRollbackOnly();
                }
-               
+
                this.txStatus = null;
             }
          }
 
       });
    }
-   
+
    public static abstract class SpringTxCallback
          implements TransactionCallback, ITransactionStatus, TransactionPolicyAdvisor
    {
       protected TransactionStatus txStatus;
-      
+
       public boolean isRollbackOnly()
       {
          return (null != txStatus) ? txStatus.isRollbackOnly() : false;
       }
-      
+
       public void setRollbackOnly()
       {
          if (null != txStatus)

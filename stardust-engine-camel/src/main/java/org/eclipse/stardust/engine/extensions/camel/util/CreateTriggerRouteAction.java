@@ -178,7 +178,7 @@ public class CreateTriggerRouteAction implements Action<Object>
 
             if (logger.isDebugEnabled())
             {
-               logger.debug(route.getRouteDefinition());
+               logger.debug(route.print());
             }
 
             RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils

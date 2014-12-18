@@ -19,7 +19,7 @@ public interface SpringConstants
    final String ATTR_BEAN_ID = SCOPE_SPRING_RT + "beanId";
 
    final String PRP_APPLICATION_CONTEXT_FILE = "Carnot.Spring.ApplicationContextFile";
-   
+
    final String PRP_APPLICATION_CONTEXT_CLASS = "Carnot.Spring.ApplicationContextClass";
 
    final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
@@ -41,6 +41,8 @@ public interface SpringConstants
    final String BEAN_ID_USER_SERVICE = "carnotUserService";
 
    final String BEAN_ID_FORKING_SERVICE = "carnotForkingService";
-   
+
+   final String REPORTING_TX_TIMEOUT = "Carnot.Spring.TxTimeout.Reporting";
+
    String ATTR_CARNOT_PRINCIPAL = "carnot::principal";
 }

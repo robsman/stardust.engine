@@ -18,6 +18,10 @@ public class UserInfoDetails extends DynamicParticipantInfoDetails implements Us
 {
    private static final long serialVersionUID = 1L;
 
+   private final String firstName;
+
+   private final String lastName;
+
    public UserInfoDetails(long oid)
    {
       this(oid, null, null);
@@ -25,16 +29,42 @@ public class UserInfoDetails extends DynamicParticipantInfoDetails implements Us
 
    public UserInfoDetails(long oid, String id, String name)
    {
+      this(oid, id, name, null, null);
+   }
+
+   public UserInfoDetails(long oid, String id, String name, String firstName, String lastName)
+   {
       super(oid, id, name);
+
+      this.firstName = firstName;
+      this.lastName = lastName;
    }
    
    public UserInfoDetails(UserInfo user)
    {
-      this(user.getOID(), user.getId(), user.getName());
+      this(user.getOID(), user.getId(), user.getName(), user.getFirstName(), user.getLastName());
    }
    
    public UserInfoDetails(IUser user)
    {
-      this(user.getOID(), user.getId(), user.getName());
+      this(user.getOID(), user.getId(), user.getName(), user.getFirstName(), user.getLastName());
+   }
+
+   @Override
+   public String getAccount()
+   {
+      return getId();
+   }
+
+   @Override
+   public String getFirstName()
+   {
+      return firstName;
+   }
+
+   @Override
+   public String getLastName()
+   {
+      return lastName;
    }
 }

@@ -10,13 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -26,7 +20,6 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-
 
 /**
  * Data holder to transfer the read-only process definition data to the client
@@ -39,6 +32,7 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
    private List<Trigger> triggers = new ArrayList<Trigger>();
    private final List<DataPath> dataPaths;
    private final List<Activity> activities;
+   private final List<Transition> transitions;
    private final List<EventHandler> eventHandlers;
    private final ProcessDefinitionDetailsLevel detailsLevel;
    private String description;
@@ -54,9 +48,9 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
 
       detailsLevel = ProcessDefinitionDetailsLevel.FULL;
 
-      for (Iterator i = processDefinition.getAllTriggers(); i.hasNext();)
+      for (ITrigger trigger : processDefinition.getTriggers())
       {
-         triggers.add(new TriggerDetails(this, (ITrigger) i.next()));
+         triggers.add(new TriggerDetails(this, trigger));
       }
 
       dataPaths = DetailsFactory.<DataPath, DataPathDetails> createCollection(
@@ -64,6 +58,12 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
 
       activities = DetailsFactory.<Activity, ActivityDetails> createCollection(
             processDefinition.getActivities(), IActivity.class, ActivityDetails.class);
+
+      List<Transition> transitionDetails = DetailsFactory.<Transition, TransitionDetails> createCollection(
+            processDefinition.getTransitions(), ITransition.class, TransitionDetails.class);
+      transitions = transitionDetails.isEmpty()
+            ? Collections.<Transition>emptyList()
+            : Collections.unmodifiableList(transitionDetails);
 
       Parameters parameters = Parameters.instance();
       if (parameters.getBoolean(
@@ -122,7 +122,7 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
       }
 
       eventHandlers = DetailsFactory.<EventHandler, EventHandlerDetails> createCollection(
-            processDefinition.getAllEventHandlers(), IEventHandler.class,
+            processDefinition.getEventHandlers(), IEventHandler.class,
             EventHandlerDetails.class);
 
       description = processDefinition.getDescription();
@@ -178,10 +178,12 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
       if (ProcessDefinitionDetailsLevel.FULL.equals(this.detailsLevel))
       {
          this.activities = template.activities;
+         this.transitions = template.transitions;
       }
       else
       {
-         activities = Collections.EMPTY_LIST;
+         activities = Collections.emptyList();
+         transitions = Collections.emptyList();
       }
 
       this.declaredProcessInterface = template.declaredProcessInterface;
@@ -218,6 +220,11 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
       return Collections.unmodifiableList(activities);
    }
 
+   public List<Transition> getAllTransitions()
+   {
+      return transitions;
+   }
+
    public Activity getActivity(String id)
    {
       return (Activity) ModelApiUtils.firstWithId(activities.iterator(), id);
@@ -251,5 +258,58 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
    public String toString()
    {
       return "ProcessDefinitionDetails: " + getName();
+   }
+
+   @Override
+   public List<Transition> getIncommingTransitions(Activity activity)
+   {
+      List<Transition> result = new ArrayList<Transition>();
+      for (Transition transition : transitions)
+      {
+         if (activity.getId().equals(transition.getTargetActivityId()))
+         {
+            result.add(transition);
+         }
+      }
+      return result;
+   }
+
+   @Override
+   public List<Transition> getOutgoingTransitions(Activity activity)
+   {
+      List<Transition> result = new ArrayList<Transition>();
+      for (Transition transition : transitions)
+      {
+         if (activity.getId().equals(transition.getSourceActivityId()))
+         {
+            result.add(transition);
+         }
+      }
+      return result;
+   }
+
+   @Override
+   public Transition getTransition(String transitionId)
+   {
+      for (Transition transition : transitions)
+      {
+         if (transition.getId().equals(transitionId))
+         {
+            return transition;
+         }
+      }
+      return null;
+   }
+
+   @Override
+   public Activity getSourceActivity(Transition transition)
+   {
+      return getActivity(transition.getSourceActivityId());
+   }
+
+   @Override
+   public Activity getTargetActivity(Transition transition)
+   {
+      return getActivity(transition.getTargetActivityId());
    }
 }

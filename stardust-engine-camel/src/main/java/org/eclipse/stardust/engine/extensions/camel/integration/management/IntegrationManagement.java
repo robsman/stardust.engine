@@ -18,9 +18,7 @@ public interface IntegrationManagement {
 
 	String getConsumerRoutesList(String contextId);
 
-	String getTriggerConsumerRoutesList(String contextId);
-
-	String getApplicationConsumerRoutesList(String contextId);
+	String getOtherRoutesList(String contextId);
 
 	void startRouteService(String contextId, String routeId);
 

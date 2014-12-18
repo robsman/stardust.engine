@@ -25,9 +25,8 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 
 public class TimestampProviderUtils
 {
+   public static final String PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE = TimestampProvider.class.getName()+".CachedInstance";
 
-   private static final String PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE = TimestampProvider.class.getName()+".CachedInstance";
-   
    public static long getTimeStampValue()
    {
       TimestampProvider provider = getProvider();
@@ -38,24 +37,24 @@ public class TimestampProviderUtils
             ? ((RealtimeTimestampProvider) provider).getTimestampValue()
             : provider.getTimestamp().getTime();
    }
-   
+
    public static Date getTimeStamp()
    {
       return getProvider().getTimestamp();
    }
-   
+
    public static TimestampProvider getProvider()
    {
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       TimestampProvider result = rtEnv.getTimestampProvider();
 
       if (null == result)
       {
          final GlobalParameters globals = GlobalParameters.globals();
-         
+
          TimestampProvider cachedProvider = (TimestampProvider) globals.get(PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE);
-         
+
          if (null != cachedProvider)
          {
             result = cachedProvider;
@@ -92,7 +91,7 @@ public class TimestampProviderUtils
                      }
                   });
          }
-         
+
          if (null != result)
          {
             rtEnv.setTimestampProvider(result);

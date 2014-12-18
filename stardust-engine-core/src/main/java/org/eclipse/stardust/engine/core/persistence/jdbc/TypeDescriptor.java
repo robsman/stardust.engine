@@ -48,7 +48,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
 {
    private static final Logger trace = LogManager.getLogger(TypeDescriptor.class);
-   
+
    private static final String TABLE_NAME_ANNOTATION = "TABLE_NAME";
    private static final String DEFAULT_ALIAS_ANNOTATION = "DEFAULT_ALIAS";
    private static final String LOCK_TABLE_NAME_ANNOTATION = "LOCK_TABLE_NAME";
@@ -61,17 +61,17 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    private final String UNIQUE_IDX_ANNOTATION_SUFFIX = "_UNIQUE" + IDX_ANNOTATION_SUFFIX;
 
    private static final String COLUMN_LENGTH_ANNOTATION_SUFFIX = "_COLUMN_LENGTH";
-   
+
    private static final String LOADER_ANNOTATION = "LOADER";
-   
+
    private static final String SECRET_ANNOTATION = "_SECRET";
-   
+
    private static final String USE_LITERALS_SUFFIX = "_USE_LITERALS";
 
    private final Class type;
    private final String tableName;
    private final String defaultAlias;
-   
+
    private final String lockTableName;
    private final String lockIndexName;
    private final ITableDescriptor tdLockTable;
@@ -95,14 +95,16 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    public static TypeDescriptor get(final Class type)
    {
       final TypeDescriptorRegistry tdRegistry = TypeDescriptorRegistry.current();
-      
+
       TypeDescriptor result = tdRegistry.getDescriptor(type);
 
       if (null == result)
       {
          trace.warn("Persistent type not known at engine initialization: " + type);
-         
+
          result = new TypeDescriptor(type);
+         // Register new type for caching.
+         tdRegistry.registerDescriptor(result);
       }
 
       return result;
@@ -206,7 +208,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                "Failed to lookup for decryption key getter method " + methodName + "().");
       }
    }
-   
+
    private static boolean getTryDeferredInsert(Class type)
    {
       Boolean b = (Boolean) Reflect.getStaticFieldValue(type, TRY_DEFERRED_INSERT_ANNOTATION);
@@ -377,11 +379,11 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       this(null, type);
    }
-   
+
    public TypeDescriptor(String schemaName, Class type)
    {
       super(schemaName);
-      
+
       this.type = type;
 
       this.tableName = getTableName(type);
@@ -390,8 +392,8 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
       this.lockTableName = getLockTableName(type);
       this.lockIndexName = getLockIndexName(type);
       this.tdLockTable = isDistinctLockTableName() ? new LockTableDescriptor(this) : null;
-      this.tryDeferredInsert = getTryDeferredInsert(type); 
-      
+      this.tryDeferredInsert = getTryDeferredInsert(type);
+
       Class loaderClass = (Class) Reflect.getStaticFieldValue(type, LOADER_ANNOTATION);
       if (loaderClass != null)
       {
@@ -419,7 +421,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
       // initializing the PK
 
       this.pkFields = getPKFields(type);
-      
+
       if (trace.isDebugEnabled())
       {
          if (1 == pkFields.length)
@@ -585,7 +587,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                   "_ENCRYPT_FUNCTION");
             String _unwrapFunction = (String) readAnnotation(type, field.getName(),
                   "_DECRYPT_FUNCTION");
-            
+
             Boolean secret = (Boolean) readAnnotation(type, field.getName(),
                   SECRET_ANNOTATION);
 
@@ -595,7 +597,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
             {
                columnLength = new Integer(0);
             }
-            persistentFields.add(new FieldDescriptor(field, columnLength.intValue(), 
+            persistentFields.add(new FieldDescriptor(field, columnLength.intValue(),
                   _wrapFunction, _unwrapFunction, Boolean.TRUE.equals(secret)));
          }
          else if (Persistent.class.isAssignableFrom(field.getType()))
@@ -604,11 +606,11 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
 
             Class targetType = field.getType();
             Field[] pkFields = getPKFields(targetType);
-            
+
             Assert.condition(1 == pkFields.length, "Linked target type " + targetType
                   + " has more than one PK field.");
-            
-            Integer fkFieldLength = getColumnLength(targetType, pkFields[0]); 
+
+            Integer fkFieldLength = getColumnLength(targetType, pkFields[0]);
             if (fkFieldLength == null)
             {
                fkFieldLength = new Integer(0);
@@ -624,7 +626,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                         + "' not found on '" + targetType + "'.");
                }
             }
-            
+
             String isMandatory = (String) readAnnotation(type, field.getName(),
                   "_MANDATORY");
 
@@ -641,7 +643,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                {
                   this.parents = CollectionUtils.newArrayList();
                }
-               
+
                parents.add(link);
             }
          }
@@ -706,7 +708,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                   + field.getType().getName() + "' cannot be mapped.");
          }
       }
-      
+
       if ( !parents.isEmpty())
       {
          this.parents = Collections.unmodifiableList(parents);
@@ -714,9 +716,9 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    }
 
    /**
-    * Returns the table name which is associated to the specific type described by this 
+    * Returns the table name which is associated to the specific type described by this
     * TypeDescriptor instance.
-    * 
+    *
     * @return The instance data table name.
     */
    public String getTableName()
@@ -735,23 +737,23 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
     * returned by {@link #getTableName()}. In case that special handling is necessary
     * when both names are distinct the method {@link #isDistinctLockTableName()} should
     * be called.
-    * 
+    *
     * @return The locking table name.
     */
    public String getLockTableName()
    {
       return lockTableName;
    }
-   
+
    /**
-    * 
+    *
     * @return The index name for the corresponding locking table.
     */
    public String getLockIndexName()
    {
       return lockIndexName;
    }
-   
+
    public ITableDescriptor getLockTableDescriptor()
    {
       return isDistinctLockTableName() ? tdLockTable : this;
@@ -760,7 +762,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    /**
     * This method returns true in case that the locking table name differs from
     * the data table name.
-    *   
+    *
     * @return true when {@link #getLockTableName()} not equal to {@link #getTableName()}
     */
    public boolean isDistinctLockTableName()
@@ -856,7 +858,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       return pkSequence != null;
    }
-   
+
    public boolean hasField(String fieldName)
    {
       for (Iterator<FieldDescriptor> i = getPersistentFields().iterator(); i.hasNext();)
@@ -939,7 +941,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
 
    /**
     * Returns the PK of a PersistenceController in a format suitable as a map key.
-    * Identities are guaranteed to be unique per given PK. 
+    * Identities are guaranteed to be unique per given PK.
     */
    public Object getIdentityKey(Persistent persistent)
    {
@@ -956,7 +958,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                      || IdentifiablePersistent.class.isAssignableFrom(pkFields[0].getType())))
          {
             Object pkValue = pkFields[0].get(persistent);
-            
+
             if (pkValue instanceof Long)
             {
                return pkValue;
@@ -971,7 +973,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
             {
                throw new InternalException("Unsupported PK value: " + pkValue);
             }
-            
+
          }
          else
          {
@@ -1002,7 +1004,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
 
    /**
     * Returns the PK of a PersistenceController in a format suitable as a map key.
-    * Identities are guaranteed to be unique per given PK. 
+    * Identities are guaranteed to be unique per given PK.
     */
    public Object getIdentityKey(Object pkValue)
    {
@@ -1148,7 +1150,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       return (FieldDescriptor) persistentFields.get(index);
    }
-   
+
    public FieldDescriptor getPersistentField(Field field)
    {
       int index = getFieldColumnIndex(field);
@@ -1167,8 +1169,8 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
     * is set. Otherwise the properties value will be used.
     * <br/><br/>
     * Be aware: Overwriting column length by property is restricted to subclasses of {@link AbstractProperty}.
-    *  
-    * @param type 
+    *
+    * @param type
     * @param field
     * @return
     */
@@ -1207,7 +1209,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       return literalFields.contains(fieldName);
    }
-   
+
    static CompositeKey createKey(int length)
    {
       return length == 2 ? new CompositeKey2() : new CompositeKeyN(length);
@@ -1227,7 +1229,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       void setKey(int i, Object pkValue);
    }
-   
+
    private static class CompositeKeyN implements CompositeKey
    {
       private Comparable[] keys;
@@ -1281,11 +1283,11 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    {
       private Comparable key0;
       private Comparable key1;
-      
+
       private CompositeKey2()
       {
       }
-      
+
       public void setKey(int i, Object pkValue)
       {
          Comparable c = pkValue instanceof Comparable ? (Comparable) pkValue : String.valueOf(pkValue);

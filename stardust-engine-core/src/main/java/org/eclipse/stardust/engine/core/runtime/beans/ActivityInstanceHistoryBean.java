@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -21,10 +23,9 @@ import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
-
 
 /**
  *
@@ -44,9 +45,9 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    public static final String FIELD__ON_BEHALF_OF_KIND = "onBehalfOfKind";
    public static final String FIELD__ON_BEHALF_OF = "onBehalfOf";
    public static final String FIELD__ON_BEHALF_OF_DEPARTMENT = "onBehalfOfDepartment";
-   public static final String FIELD__ON_BEHALF_OF_USER = "onBehalfOfUser";   
+   public static final String FIELD__ON_BEHALF_OF_USER = "onBehalfOfUser";
    public static final String FIELD__USER = "workflowUser";
-   
+
    public static final FieldRef FR__PROCESS_INSTANCE = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__PROCESS_INSTANCE);
    public static final FieldRef FR__ACTIVITY_INSTANCE = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ACTIVITY_INSTANCE);
    public static final FieldRef FR__STATE = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__STATE);
@@ -59,7 +60,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    public static final FieldRef FR__ON_BEHALF_OF_KIND = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_KIND);
    public static final FieldRef FR__ON_BEHALF_OF = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF);
    public static final FieldRef FR__ON_BEHALF_OF_DEPARTMENT = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_DEPARTMENT);
-   public static final FieldRef FR__ON_BEHALF_OF_USER = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_USER);   
+   public static final FieldRef FR__ON_BEHALF_OF_USER = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_USER);
    public static final FieldRef FR__USER = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__USER);
 
    public static final String TABLE_NAME = "act_inst_history";
@@ -81,25 +82,26 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    private long activityInstance;
 
    private int state;
-   
+
    private long fromTimestamp;
 
    private long untilTimestamp;
 
    // TODO domain OID
+   @SuppressWarnings("unused")
    private long domain;
 
    /**
     * Contains the performer type according to  {@link PerformerType}.
     */
    private int performerKind;
-   
+
    /**
     * Contains the OID of the associated performer. The performer type is encoded in field
     * {@link #performerKind}.
     */
    private long performer;
-   
+
    /**
     * Contains the OID of the associated department.
     */
@@ -110,13 +112,13 @@ public class ActivityInstanceHistoryBean extends PersistentBean
     * {@link PerformerType#User}.
     */
    private int onBehalfOfKind;
-   
+
    /**
     * Contains the OID of the performer this activity was executed on behalf of. The
     * on-behalf-of performer type is encoded in field {@link #onBehalfOfKind}.
     */
    private long onBehalfOf;
-   
+
    /**
     * Contains the OID of the department this activity was executed on behalf of.
     */
@@ -126,29 +128,29 @@ public class ActivityInstanceHistoryBean extends PersistentBean
     * Contains the OID of the user this activity was executed on behalf of.
     */
    private long onBehalfOfUser;
-      
-   
+
+
    private long workflowUser;
-   
+
    /**
-    * Gets all historic states instantiated on behalf of the activity instance 
-    * <tt>activityInstance</tt> in ascending order with respect to field {@link #FR__FROM} . 
+    * Gets all historic states instantiated on behalf of the activity instance
+    * <tt>activityInstance</tt> in ascending order with respect to field {@link #FR__FROM} .
     */
    public static Iterator getAllForActivityInstance(IActivityInstance activityInstance)
    {
       return getAllForActivityInstance(activityInstance, true);
    }
-   
+
    /**
-    * Gets last historic state instantiated on behalf of the activity instance 
-    * <tt>activityInstance</tt> in given order with respect to field {@link #FR__FROM} . 
+    * Gets last historic state instantiated on behalf of the activity instance
+    * <tt>activityInstance</tt> in given order with respect to field {@link #FR__FROM} .
     */
    public static Pair<ActivityInstanceHistoryBean, IUser> getLastForActivityInstance(
          IActivityInstance activityInstance)
    {
       return getLast(activityInstance, null);
    }
-   
+
    /**
     * Gets last historic state that contain a user performer instantiated on behalf of the
     * activity instance <tt>activityInstance</tt> in given order with respect to field
@@ -208,14 +210,14 @@ public class ActivityInstanceHistoryBean extends PersistentBean
          }
       }
    }
-   
+
       private boolean isTerminated()
       {
          ActivityInstanceState state = getState();
          return (ActivityInstanceState.Completed == state)
                || (ActivityInstanceState.Aborted == state);
       }
-   
+
    public static Iterator<ActivityInstanceHistoryBean> getAllForActivityInstance(
          IActivityInstance activityInstance, boolean ascending)
    {
@@ -226,7 +228,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
             .getVector(ActivityInstanceHistoryBean.class, qe)
             .iterator();
    }
-   
+
    public static boolean existsForDepartment(long departmentOid)
    {
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -250,7 +252,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       this.activityInstance = activityInstance.getOID();
 
       this.state = state.getValue();
-      
+
       this.fromTimestamp = (null != from) ? from.getTime() : 0l;
       this.untilTimestamp = (null != until) ? until.getTime() : 0l;
 
@@ -260,20 +262,27 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       this.performerKind = encodedPerformer.kind.getValue();
       this.performer = encodedPerformer.oid;
       this.department = encodedPerformer.departmentOid;
-      
+
       if (null == encodedOnBehalfOf)
       {
          encodedOnBehalfOf = PerformerUtils.encodeParticipant(null);
       }
-      
+
       this.onBehalfOfKind = encodedOnBehalfOf.kind.getValue();
       this.onBehalfOf = encodedOnBehalfOf.oid;
       this.onBehalfOfDepartment = encodedOnBehalfOf.departmentOid;
-      this.onBehalfOfUser = onBehalfOfUser;      
-      
+      this.onBehalfOfUser = onBehalfOfUser;
+
       this.workflowUser = workflowUser;
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
+   }
+
+   public long getProcessInstanceOid()
+   {
+      fetch();
+
+      return processInstance;
    }
 
    public IProcessInstance getProcessInstance()
@@ -284,16 +293,51 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    }
 
    /*
+    * Retrieves the OID of the activity instances for which the log has been
+    * written.
+    */
+   public long getActivityInstanceOid()
+   {
+      fetch();
+
+      return activityInstance;
+   }
+
+   /*
     * Retrieves the activity instances for which the log has been
     * written.
     */
    public IActivityInstance getActivityInstance()
    {
       fetch();
-      
+
       return ActivityInstanceBean.findByOID(activityInstance);
    }
-   
+
+   public IActivity getActivity()
+   {
+      fetch();
+
+      // try to leverage if a previous query has retrieved the associated work item
+      org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) PropertyLayerProviderInterceptor
+            .getCurrent().getAuditTrailSession();
+      Collection<PersistenceController> wiCache = jdbcSession.getCache(WorkItemBean.class);
+      if (!wiCache.isEmpty())
+      {
+         for (PersistenceController wiPc : wiCache)
+         {
+            WorkItemBean wi = (WorkItemBean) wiPc.getPersistent();
+            if (wi.getActivityInstanceOID() == activityInstance)
+            {
+               return wi.getActivity();
+            }
+         }
+      }
+
+      // otherwise load AI and resolve activity
+      return getActivityInstance().getActivity();
+   }
+
    /*
     * Retrieves the type of the log.
     */
@@ -332,7 +376,20 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       fetch();
 
       return PerformerUtils.decodePerformer(PerformerType.get(performerKind), performer,
-            (IModel) getActivityInstance().getActivity().getModel());
+            (IModel) getActivity().getModel());
+   }
+
+   /**
+    * @return returns the Oid of the user performer. If the performer is not a {@link IUser} or there is no performer <code>0</code> is returned.
+    */
+   public long getUserPerformerOid()
+   {
+      fetch();
+      if (PerformerType.User.equals(PerformerType.get(performerKind)))
+      {
+         return performer;
+      }
+      return 0;
    }
 
    /**
@@ -357,9 +414,9 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       fetch();
 
       return PerformerUtils.decodePerformer(PerformerType.get(onBehalfOfKind), onBehalfOf,
-            (IModel) getActivityInstance().getActivity().getModel());
+            (IModel) getActivity().getModel());
    }
-   
+
    /**
     * Retrieves the department the activity instance was executed on behalf of.
     */
@@ -381,7 +438,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       return new PerformerUtils.EncodedPerformer(PerformerType.get(onBehalfOfKind),
             onBehalfOf, onBehalfOfDepartment);
    }
-   
+
    public long getOnBehalfOfUserOid()
    {
       fetch();
@@ -398,26 +455,26 @@ public class ActivityInstanceHistoryBean extends PersistentBean
     * public void setOnBehalfOf(IParticipant onBehalfOf) { PerformerUtils.EncodedPerformer
     * encodedOnBehalfOf = PerformerUtils.encodeParticipant(onBehalfOf);
     * this.setEncodedOnBehalfOf(encodedOnBehalfOf); }
-    * 
+    *
     * public void setOnBehalfOf(IParticipant onBehalfOf, IDepartment onBehalfOfDepartment)
     * { PerformerUtils.EncodedPerformer encodedOnBehalfOf = PerformerUtils
     * .encodeParticipant(onBehalfOf, onBehalfOfDepartment);
     * this.setEncodedOnBehalfOf(encodedOnBehalfOf); }
-    * 
+    *
     * public void setEncodedOnBehalfOf(PerformerUtils.EncodedPerformer encodedOnBehalfOf)
     * { if (null == encodedOnBehalfOf) { encodedOnBehalfOf =
     * PerformerUtils.encodeParticipant(null); }
-    * 
+    *
     * int newOnBehalfOfKind = encodedOnBehalfOf.kind.getValue(); long newOnBehalfOf =
     * encodedOnBehalfOf.oid; long newOnBehalfOfDepartment =
     * encodedOnBehalfOf.departmentOid;
-    * 
+    *
     * if (newOnBehalfOfKind != this.onBehalfOfKind) {
     * markModified(FIELD__ON_BEHALF_OF_KIND); this.onBehalfOfKind = newOnBehalfOfKind; }
-    * 
+    *
     * if (newOnBehalfOf != this.onBehalfOf) { markModified(FIELD__ON_BEHALF_OF);
     * this.onBehalfOf = newOnBehalfOf; }
-    * 
+    *
     * if (newOnBehalfOfDepartment != this.onBehalfOfDepartment) {
     * markModified(FIELD__ON_BEHALF_OF_DEPARTMENT); this.onBehalfOfDepartment =
     * newOnBehalfOfDepartment; } }
@@ -429,7 +486,14 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    public IUser getUser()
    {
       fetch();
-      
+
       return (0 != workflowUser) ? UserBean.findByOid(workflowUser) : null;
+   }
+
+   public long getUserOid()
+   {
+      fetch();
+
+      return workflowUser;
    }
 }

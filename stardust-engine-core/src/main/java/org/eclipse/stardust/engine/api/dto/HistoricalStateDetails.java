@@ -86,11 +86,11 @@ public class HistoricalStateDetails implements HistoricalState
    public HistoricalStateDetails(ActivityInstanceHistoryBean historicalState)
    {
       super();
-      this.activityId = historicalState.getActivityInstance().getActivity().getId();
-      this.activityInstanceOid = historicalState.getActivityInstance().getOID();
-      this.processDefinitionId = historicalState.getProcessInstance()
+      this.activityId = historicalState.getActivity().getId();
+      this.activityInstanceOid = historicalState.getActivityInstanceOid();
+      this.processDefinitionId = historicalState.getActivity()
             .getProcessDefinition().getId();
-      this.processInstanceOid = historicalState.getProcessInstance().getOID();
+      this.processInstanceOid = historicalState.getProcessInstanceOid();
       this.state = historicalState.getState();
       this.from = historicalState.getFrom();
       this.until = historicalState.getUntil();

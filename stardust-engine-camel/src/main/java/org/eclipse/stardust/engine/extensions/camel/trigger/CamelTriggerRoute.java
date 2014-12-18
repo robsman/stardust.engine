@@ -20,6 +20,7 @@ public class CamelTriggerRoute
 {
    private ITrigger trigger;
    private StringBuilder routeDefinition;
+   private CamelTriggerRouteContext routeContext;
 
    public CamelTriggerRoute(CamelContext camelContext, ITrigger trigger, String partition) throws IOException,
          ClassNotFoundException, InstantiationException, IllegalAccessException,
@@ -28,12 +29,11 @@ public class CamelTriggerRoute
       this.trigger = trigger;
       if (!StringUtils.isEmpty(getProvidedRouteConfiguration(this.trigger)))
       {
-         CamelTriggerRouteContext routeContext = new CamelTriggerRouteContext(
+          routeContext = new CamelTriggerRouteContext(
                this.trigger, partition, camelContext.getName());
          StringBuilder route = createRouteDefintionForCamelTrigger(routeContext);
          routeDefinition = route;
       }
-
    }
 
    public StringBuilder getRouteDefinition()
@@ -58,4 +58,13 @@ public class CamelTriggerRoute
 
       return data;
    }
+   /**
+    * used to replace ippPassword value by xxxxxx in console
+    * 
+    * @return
+    */
+   public String print() {
+      return routeDefinition.toString().replaceAll("<setHeader headerName=\"ippPassword\"><constant>"+routeContext.getPassword()+"</constant></setHeader>", "<setHeader headerName=\"ippPassword\"><constant>xxxxxx</constant></setHeader>");
+}
+
 }

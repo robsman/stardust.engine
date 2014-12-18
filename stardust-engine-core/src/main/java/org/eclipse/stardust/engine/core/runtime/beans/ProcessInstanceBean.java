@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
@@ -1630,10 +1631,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
    }
 
-   public List/*<Attribute>*/ getNotes()
+   public List/* <Attribute> */getNotes()
    {
-      List noteAttributes = (List) getPropertyValue(PI_NOTE);
-      if(null == noteAttributes)
+      // Lookup prefetch cache.
+      BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+      Map<Long, List> notesCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.NOTES_PI_CACHE);
+      List noteAttributes = notesCache == null ? null : notesCache.get(this.getOID());
+
+      if (noteAttributes == null)
+      {
+         noteAttributes = (List) getPropertyValue(PI_NOTE);
+      }
+
+      if (null == noteAttributes)
       {
          return Collections.EMPTY_LIST;
       }

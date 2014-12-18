@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.compatibility.extensions.dms.data.DocumentSetEvaluator.DocumentSetTypeDescription;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
@@ -143,8 +144,16 @@ public class DocumentEvaluator implements AccessPathEvaluator
          }
          else if (handle instanceof Long)
          {
+            // Fetch from cache only
             String memento = LargeStringHolder.getLargeString(
-                  ((Long) handle).longValue(), DocumentTypeDescription.class);
+                  ((Long) handle).longValue(), DocumentSetTypeDescription.class, false);
+
+            if ( !StringUtils.isEmpty(memento))
+            {
+               // Consider disk only if not found in cache
+               memento = LargeStringHolder.getLargeString(((Long) handle).longValue(),
+                     DocumentSetTypeDescription.class, true);
+            }
 
             if ( !StringUtils.isEmpty(memento))
             {

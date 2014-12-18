@@ -25,9 +25,10 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -273,7 +274,27 @@ public class UserDetails implements User
    {
       if (previousLoginTime != null && UserDetailsLevel.Minimal != detailsLevel)
       {
-         Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         UserSessionBean latestSessionAccordingToCache = null;
+         Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         // try to leverage a previous resolution's result
+         for (PersistenceController usPc : session.getCache(UserSessionBean.class))
+         {
+            UserSessionBean us = (UserSessionBean) usPc.getPersistent();
+            if ((us.getUserOid() == user.getOID()) && (us.getStartTime().before(previousLoginTime)))
+            {
+               if ((null == latestSessionAccordingToCache) || latestSessionAccordingToCache.getStartTime().before(us.getStartTime()))
+               {
+                  latestSessionAccordingToCache = us;
+               }
+            }
+         }
+         if (null != latestSessionAccordingToCache)
+         {
+            previousLoginTime = latestSessionAccordingToCache.getStartTime();
+            return;
+         }
+
+         // nothing cached, have to resolve from DB
          UserSessionBean result = (UserSessionBean) session.findFirst(UserSessionBean.class,
                QueryExtension.where(Predicates.andTerm(
                      Predicates.isEqual(UserSessionBean.FR__USER, user.getOID()),

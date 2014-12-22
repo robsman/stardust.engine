@@ -856,6 +856,7 @@
                   <include>api/query/AttributeOrder.java</include>
                   <include>api/query/AttributedScopedFilter.java</include>
                   <include>api/query/BinaryOperatorFilter.java</include>
+                  <include>api/query/BusinessObjectQuery.java</include>
                   <include>api/query/CasePolicy.java</include>
                   <include>api/query/DataFilter.java</include>
                   <include>api/query/DataQuery.java</include>

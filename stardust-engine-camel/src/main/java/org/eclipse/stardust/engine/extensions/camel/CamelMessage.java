@@ -1,6 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.camel.Message;
@@ -61,6 +62,11 @@ public class CamelMessage extends DefaultMessage
       }
       return headers.remove(name);
    }
+   
+   @Override
+   public boolean removeHeaders(String pattern) {
+      return removeHeaders(pattern, (String[]) null);
+  }
 
    @Override
    public DefaultMessage newInstance()
@@ -83,23 +89,24 @@ public class CamelMessage extends DefaultMessage
    }
 
    @Override
-   public boolean removeHeaders(String pattern)
+   public boolean removeHeaders(String pattern, String... excludePatterns)
    {  
       if (!hasHeaders()) {
          return false;
      }
 
      boolean matches = false;
-     for (Map.Entry<String, Object> entry : headers.entrySet()) {
-         String key = entry.getKey();
-         if (EndpointHelper.matchPattern(key, pattern)) {
-             if (pattern != null && isExcludePatternMatch(key, pattern)) {
-                 continue;
-             }
-             matches = true;
-             headers.remove(entry.getKey());
-         }
-
+     // to avoid Concurrent Modification on Headers, use iterator
+     for (Iterator<Map.Entry<String, Object>> it = headers.entrySet().iterator(); it.hasNext();) {
+        Map.Entry<String, Object> entry = it.next(); 
+        String key = entry.getKey();
+        if (EndpointHelper.matchPattern(key, pattern)) {
+           if (excludePatterns != null && isExcludePatternMatch(key, excludePatterns)) {
+               continue;
+           }
+           matches = true;
+           it.remove();
+       }
      }
      return matches;
    }

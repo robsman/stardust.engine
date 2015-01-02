@@ -401,6 +401,27 @@ public class Util
    {
       return ai.getActivity().getApplicationContext("default");
    }
+   
+   /**
+   * Return the ApplicationContext which provides out data mappings.
+   * If no data mappings is provided the Default context will be used.
+   * @param ai
+   * @return ApplicationContext
+   */
+  public static ApplicationContext getActivityInstanceContext(final ActivityInstance ai)
+  {
+     ApplicationContext context = getActivityInstanceDefaultContext(ai);
+     List<ApplicationContext> applicationContexts = ai.getActivity().getAllApplicationContexts();
+     for (ApplicationContext applicationContext : applicationContexts)
+     {
+        if(applicationContext.getAllOutDataMappings() != null && !applicationContext.getAllOutDataMappings().isEmpty())
+        {
+           context = applicationContext;
+           break;
+        }
+     }
+     return context;
+  }
 
    /**
     *

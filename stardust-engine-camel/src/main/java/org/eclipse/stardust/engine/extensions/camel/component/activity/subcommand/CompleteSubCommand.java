@@ -1,10 +1,15 @@
 package org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_INSTANCES;
-import static org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand.ActivityUtil.*;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getActivityInstanceContext;
+import static org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand.ActivityUtil.findActivities;
+import static org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand.ActivityUtil.matches;
+
 import java.util.Collections;
 import java.util.Map;
+
 import org.apache.camel.Exchange;
+
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -51,19 +56,12 @@ public class CompleteSubCommand extends AbstractSubCommand
 
          // TODO introduce 'force' parameter to force completion via
          // Admin Service
-
-         ApplicationContext context = ai.getActivity().getApplicationContext("application") != null ? ai.getActivity()
-               .getApplicationContext("application") : ai.getActivity().getApplicationContext("default");
-
+         ApplicationContext context = getActivityInstanceContext(ai);
+        
          if (matches(exchange, ai,getQueryService()))
          {
             LOG.info("Process completion of activity instance with OID " + ai.getOID() + ".");
-            if (context == null && dataOutput != null && !dataOutput.isEmpty())
-               wf.activateAndComplete(ai.getOID(), null, dataOutput);
-            else if (context == null && dataOutput.isEmpty())
-               wf.activateAndComplete(ai.getOID(), null, null);
-            else
-               wf.activateAndComplete(ai.getOID(), context.getId(), dataOutput);
+            wf.activateAndComplete(ai.getOID(), context.getId(), dataOutput);
 
          }
          else

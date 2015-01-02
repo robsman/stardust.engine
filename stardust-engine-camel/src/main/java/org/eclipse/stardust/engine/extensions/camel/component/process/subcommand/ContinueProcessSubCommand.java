@@ -1,10 +1,13 @@
 package org.eclipse.stardust.engine.extensions.camel.component.process.subcommand;
 
+import static org.eclipse.stardust.engine.extensions.camel.Util.getActivityInstanceContext;
+
 import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
 
+import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -42,9 +45,11 @@ public class ContinueProcessSubCommand extends AbstractSubCommand
       // Complete AIs
       // WorkflowService wfService =
       // ClientEnvironment.getCurrentServiceFactory().getWorkflowService();
+      ApplicationContext context = null;
       for (ActivityInstance ai : (List<ActivityInstance>) result)
       {
-         getWorkflowService().activateAndComplete(ai.getOID(), null, dataOutput);
+         context = getActivityInstanceContext(ai);
+         getWorkflowService().activateAndComplete(ai.getOID(), context.getId(), dataOutput);
       }
       // TODO set a list of the activity OIDs in the message header to
       // provide context

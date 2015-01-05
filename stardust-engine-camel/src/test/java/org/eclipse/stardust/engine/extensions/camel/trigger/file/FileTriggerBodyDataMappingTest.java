@@ -44,7 +44,7 @@ public class FileTriggerBodyDataMappingTest
                   "classpath:META-INF/spring/default-camel-context.xml"});
       serviceFactoryAccess = (ServiceFactoryAccess) ctx
             .getBean("ippServiceFactoryAccess");
-      File dir = new File("./target/FileDirectory");
+      File dir = new File("target/FileDirectory");
       dir.mkdirs();
       try
       {
@@ -59,7 +59,7 @@ public class FileTriggerBodyDataMappingTest
    @Test
    public void fileTriggerToPrimitive() throws Exception
    {
-      createFile("./target/FileDirectory/PD", "primitiveDataFile.txt",
+      createFile("target/FileDirectory/PD", "primitiveDataFile.txt",
             "primitiveData content from test class");
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -87,7 +87,7 @@ public class FileTriggerBodyDataMappingTest
    public void fileTriggerToSDT() throws Exception
    {
       createFile(
-            "./target/FileDirectory/SDT",
+            "target/FileDirectory/SDT",
             "Person.xml",
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
       Thread.sleep(5000);
@@ -120,7 +120,7 @@ public class FileTriggerBodyDataMappingTest
    @Test
    public void fileTriggerToDocument() throws Exception
    {
-      createFile("./target/FileDirectory/Document", "DocumentFile.txt",
+      createFile("target/FileDirectory/Document", "DocumentFile.txt",
             "Document File Content");
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();

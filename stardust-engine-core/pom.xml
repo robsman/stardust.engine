@@ -147,7 +147,7 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.components</groupId>
-         <artifactId>jcr-vfs</artifactId>
+         <artifactId>jcr-vfs-factory</artifactId>
          <scope>compile</scope>
          <version>${project.version}</version>
          <optional>true</optional>

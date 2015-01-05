@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
@@ -51,26 +51,42 @@ public class GenericTriggerIncludeConverterTest
       serviceFactoryAccess = (ServiceFactoryAccess) ctx
             .getBean("ippServiceFactoryAccess");
    }
-
+   private static Date getDate(int day, int month, int year)
+   {
+      Calendar dob1 = Calendar.getInstance();
+      dob1.set(Calendar.MONTH, month);
+      dob1.set(Calendar.DATE, day);
+      dob1.set(Calendar.YEAR, year);
+      return dob1.getTime();
+   }
+   private static Date getDate(int day, int month, int year, int hours, int minutes)
+   {
+      Calendar dob1 = Calendar.getInstance();
+      dob1.set(Calendar.MONTH, month);
+      dob1.set(Calendar.DATE, day);
+      dob1.set(Calendar.YEAR, year);
+      dob1.set(Calendar.HOUR, hours);
+      dob1.set(Calendar.MINUTE, minutes);
+      return dob1.getTime();
+   }
    @Test
    public void genericTriggerFromXmlConverter() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String xmlMessage = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?> <Structured >   <stringField>some text in Xml</stringField>   <intField>121</intField>   <longField>1222</longField>   <dateField>2002-09-24-06:00</dateField> </Structured>";
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+      
+      String xmlMessage = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?> <Structured >   <stringField>some text in Xml</stringField>   <intField>121</intField>   <longField>1222</longField>   <dateField>"+formatter.format(getDate(24, Calendar.SEPTEMBER, 2002,6,0))+"</dateField> </Structured>";
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("XmlData", xmlMessage);
-
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromXml", dataMap, true);
       assertNotNull(pInstance);
-      Thread.sleep(1000);
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerConverterTestModel}FromXml"));
       ProcessInstance pi = pis.get(0);
       sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
       Map< ? , ? > response = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(
             pi.getOID(), "Structured");
-
       assertNotNull(response);
       assertTrue(response instanceof Map);
       assertTrue(response.get("intField") instanceof Integer);
@@ -80,18 +96,17 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(1222L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("24-09-02", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(24, Calendar.SEPTEMBER, 2002)),  formatDate((Date) response.get("dateField")));
 
    }
 
    @Test
    public void genericTriggerFromCsvConverter() throws Exception
    {
-
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String jsonMessage = "stringField#intField#longField#dateField\nString Field in Csv#33#2222222#Tue May 13 00:00:00 WAT 2014";
+      String stringMessage = "stringField#intField#longField#dateField\nString Field in Csv#33#2222222#Tue May 13 00:00:00 WAT 2014";
       Map<String, Object> dataMap = new HashMap<String, Object>();
-      dataMap.put("CsvData", jsonMessage);
+      dataMap.put("CsvData", stringMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromCSV", dataMap, true);
       assertNotNull(pInstance);
@@ -111,7 +126,7 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(2222222L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("13-05-14", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(13, Calendar.MAY, 2014)),  formatDate((Date) response.get("dateField")));
    }
 
    @Test
@@ -119,7 +134,9 @@ public class GenericTriggerIncludeConverterTest
    {
 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String jsonMessage = "{\"intField\":22,\"longField\":11,\"stringField\":\"String Field\",\"dateField\":\"2014-05-12T00:00:00.000\"}";
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      
+      String jsonMessage = "{\"intField\":22,\"longField\":11,\"stringField\":\"String Field\",\"dateField\":\""+formatter.format(getDate(12,Calendar.MAY,2014))+"\"}";
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("JsonData", jsonMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
@@ -141,14 +158,13 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(11L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("12-05-14", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(12, Calendar.MAY, 2014)), formatDate((Date) response.get("dateField")));
    }
 
    @SuppressWarnings("rawtypes")
    @Test
    public void genericTriggerFromListCsvConverter() throws Exception
    {
-
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String csvListMessage = "stringField#intField#longField#dateField\nFirst Line#12#45454#Tue May 27 00:00:00 WAT 2014\nSecondLine#41#95854#Sun May 18 00:00:00 WAT 2014";
       Map<String, Object> dataMap = new HashMap<String, Object>();
@@ -156,7 +172,6 @@ public class GenericTriggerIncludeConverterTest
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromListCSV", dataMap, true);
       assertNotNull(pInstance);
-      Thread.sleep(1000);
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery
                   .findAlive("{GenericTriggerConverterTestModel}FromListCSV"));
@@ -186,7 +201,7 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(secondElement.get("longField") instanceof Long);
       assertEquals(95854L, secondElement.get("longField"));
       assertTrue(secondElement.get("dateField") instanceof Date);
-      assertEquals("18-05-14", formatDate((Date) secondElement.get("dateField")));
+      assertEquals(formatDate(getDate(18, Calendar.MAY, 2014)),  formatDate((Date) secondElement.get("dateField")));
    }
 
    @SuppressWarnings("rawtypes")
@@ -194,13 +209,14 @@ public class GenericTriggerIncludeConverterTest
    public void genericTriggerFromListJsonConverter() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String jsonListMessage = "[{\"intField\":123,\"longField\":321414,\"stringField\":\"First Element In Json List\",\"dateField\":\"2014-05-01T00:00:00.000\"},{\"intField\":847,\"longField\":215245,\"stringField\":\"SecondElement In Json List\",\"dateField\":\"2014-01-21T00:00:00.000\"}]";
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      
+      String jsonListMessage = "[{\"intField\":123,\"longField\":321414,\"stringField\":\"First Element In Json List\",\"dateField\":\""+formatter.format(getDate(1,Calendar.MAY,2014))+"\"},{\"intField\":847,\"longField\":215245,\"stringField\":\"SecondElement In Json List\",\"dateField\":\""+formatter.format(getDate(21,Calendar.JANUARY,2014))+"\"}]";
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("JsonListData", jsonListMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromListJSON", dataMap, true);
       assertNotNull(pInstance);
-      Thread.sleep(1000);
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery
                   .findAlive("{GenericTriggerConverterTestModel}FromListJson"));
@@ -223,9 +239,7 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(firstElement.get("longField") instanceof Long);
       assertEquals(321414L, firstElement.get("longField"));
       assertTrue(firstElement.get("dateField") instanceof Date);
-      // assertEquals("Thu May 01 00:00:00 WAT 2014",
-      // firstElement.get("dateField").toString());
-      assertEquals("01-05-14", formatDate((Date) firstElement.get("dateField")));
+      assertEquals(formatDate(getDate(1, Calendar.MAY, 2014)),  formatDate((Date) firstElement.get("dateField")));
       assertTrue(secondElement.get("intField") instanceof Integer);
       assertEquals(847, secondElement.get("intField"));
       assertTrue(secondElement.get("stringField") instanceof String);
@@ -233,9 +247,7 @@ public class GenericTriggerIncludeConverterTest
       assertTrue(secondElement.get("longField") instanceof Long);
       assertEquals(215245L, secondElement.get("longField"));
       assertTrue(secondElement.get("dateField") instanceof Date);
-      // assertEquals("Tue Jan 21 00:00:00 WAT 2014",
-      // secondElement.get("dateField").toString());
-      assertEquals("21-01-14", formatDate((Date) secondElement.get("dateField")));
+      assertEquals(formatDate(getDate(21, Calendar.JANUARY, 2014)), formatDate((Date) secondElement.get("dateField")));
 
    }
 

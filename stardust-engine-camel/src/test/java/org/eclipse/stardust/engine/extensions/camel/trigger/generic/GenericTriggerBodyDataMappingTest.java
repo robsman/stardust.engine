@@ -46,12 +46,9 @@ public class GenericTriggerBodyDataMappingTest
       try
       {
          ProducerTemplate producer = camelContext.createProducerTemplate();
-         Thread.sleep(1000);
          producer.sendBody("direct:startGenericTriggerToPrimitive", "primitiveData content from test class Generic Trigger");
-         Thread.sleep(1000);
          producer.sendBody("direct:startGenericTriggerToSdt",
                "<person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
-         Thread.sleep(2000);
       }
       catch (Exception e)
       {
@@ -81,7 +78,6 @@ public class GenericTriggerBodyDataMappingTest
    @Test
    public void genericTriggerToSdt() throws Exception
    {
-      Thread.sleep(2000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToSdt"));

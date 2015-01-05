@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -104,13 +105,13 @@ public class GenericTriggerIncludeConverterTest
    public void genericTriggerFromCsvConverter() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String stringMessage = "stringField#intField#longField#dateField\nString Field in Csv#33#2222222#Tue May 13 00:00:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      String stringMessage = "stringField#intField#longField#dateField\nString Field in Csv#33#2222222#"+formatter.format(getDate(13, Calendar.MAY, 2014))+"";
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("CsvData", stringMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromCSV", dataMap, true);
       assertNotNull(pInstance);
-      Thread.sleep(1000);
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerConverterTestModel}FromCsv"));
       ProcessInstance pi = pis.get(0);
@@ -141,7 +142,6 @@ public class GenericTriggerIncludeConverterTest
       dataMap.put("JsonData", jsonMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(
             "{GenericTriggerConverterTestModel}TestFromJSON", dataMap, true);
-      Thread.sleep(1000);
       assertNotNull(pInstance);
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerConverterTestModel}FromJson"));
@@ -166,7 +166,8 @@ public class GenericTriggerIncludeConverterTest
    public void genericTriggerFromListCsvConverter() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      String csvListMessage = "stringField#intField#longField#dateField\nFirst Line#12#45454#Tue May 27 00:00:00 WAT 2014\nSecondLine#41#95854#Sun May 18 00:00:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      String csvListMessage = "stringField#intField#longField#dateField\nFirst Line#12#45454#"+formatter.format(getDate(27,Calendar.MAY,2014))+"\nSecondLine#41#95854#"+formatter.format(getDate(18,Calendar.MAY,2014))+"";
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("CsvListData", csvListMessage);
       ProcessInstance pInstance = sf.getWorkflowService().startProcess(

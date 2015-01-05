@@ -128,7 +128,9 @@ public class FileTriggerIncludeConverterTest
    @Test
    public void testCsvConverterWithFileTrigger() throws Exception
    {
-      String csvFileContent = "stringField,intField,longField,dateField\ntext in csv file,123,789,Wed May 28 11:30:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      
+      String csvFileContent = "stringField,intField,longField,dateField\ntext in csv file,123,789,"+formatter.format(getDate(28,Calendar.MAY,2014,11,30));
       createFile("./target/FileDirectory/CSV", "messageFile.csv", csvFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -157,7 +159,8 @@ public class FileTriggerIncludeConverterTest
    @Test
    public void testListCsvConverterWithFileTrigger() throws Exception
    {
-      String csvFileContent = "stringField#intField#longField#dateField\nFirst Line#12#45454#Tue May 27 00:00:00 WAT 2014\nSecondLine#41#95854#Sun May 18 00:00:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      String csvFileContent = "stringField#intField#longField#dateField\nFirst Line#12#45454#"+formatter.format(getDate(27,Calendar.MAY,2014))+"\nSecondLine#41#95854#"+formatter.format(getDate(18,Calendar.MAY,2014));
       createFile("./target/FileDirectory/ListCSV", "messageFile.csv", csvFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();

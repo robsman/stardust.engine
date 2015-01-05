@@ -35,7 +35,7 @@ public class FileTriggerTestSuite
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
-      
+
       try
       {
          for (String deployedModelId : deployedModels)

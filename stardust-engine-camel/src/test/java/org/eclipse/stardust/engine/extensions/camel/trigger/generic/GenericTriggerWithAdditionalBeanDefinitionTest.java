@@ -46,7 +46,6 @@ private static final Logger trace = LogManager.getLogger(GenericTriggerWithAddit
          ProducerTemplate producer = camelContext.createProducerTemplate();
          // body is the 2nd parameter, it's empty in this case.
          producer.sendBody("direct:startGenericTriggerWithAdditionalBean", "message");
-         Thread.sleep(3000);
       }
       catch (Exception e)
       {

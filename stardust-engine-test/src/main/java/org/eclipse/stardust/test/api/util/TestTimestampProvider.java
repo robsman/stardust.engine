@@ -36,7 +36,9 @@ public class TestTimestampProvider implements TimestampProvider
       /* time they are executed, e.g. when calculating the duration of not yet completed PIs         */
       try
       {
-         final Date date = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US).parse("1/1/2080");
+         final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMAN);
+         dateFormat.setTimeZone(TestTimeZoneProvider.FIXED_TEST_TIME_ZONE);
+         final Date date = dateFormat.parse("1.1.2080");
          cal = Calendar.getInstance();
          cal.setTime(date);
       }

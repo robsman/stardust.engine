@@ -192,6 +192,17 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+    */
+   public org.eclipse.stardust.engine.api.query.BusinessObjects
+         getAllBusinessObjects(
+         org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getAllBusinessObjects(query);
+   }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllModelDescriptions()
     */
    public

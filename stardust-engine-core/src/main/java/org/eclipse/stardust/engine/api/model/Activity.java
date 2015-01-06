@@ -24,30 +24,84 @@ import java.util.Set;
  */
 public interface Activity extends ModelElement, EventAware
 {
+   /**
+    * Enumeration of gateway types.
+    */
+   public enum GatewayType
+   {
+      /**
+       * AND gateway, meaning that the activity will be executed only after all
+       * incomming transitions have been followed. After completion of the activity,
+       * all outgoing transitions will be followed.
+       */
+      And,
+
+      /**
+       * OR gateway (inclusive), meaning that the activity will be executed only after all
+       * possible incomming transitions have been followed. After completion of the activity,
+       * all outgoing transitions having conditions that evaluates to true will be followed.
+       */
+      Or,
+
+      /**
+       * XOR gateway (exclusive), meaning that the activity will be executed for each
+       * incomming transition. After completion of the activity, first outgoing transition
+       * having condition that evaluates to true will be followed.
+       */
+      Xor
+   }
+
+   /**
+    * Gets the flow join type for this activity.
+    * <p>Null if there is no join.</p>
+    */
+   GatewayType getJoinType();
+
+   /**
+    * Gets the flow split type for this activity.
+    * <p>Null if there is no split.</p>
+    */
+   GatewayType getSplitType();
+
+   /**
+    * TODO
+    */
    boolean isQualityAssuranceEnabled();
-   
+
+   /**
+    * TODO
+    */
    ModelParticipant getQualityAssurancePerformer();
-   
+
+   /**
+    * TODO
+    */
    int getDefaultQualityAssuranceProbability();
-   
+
+   /**
+    * TODO
+    */
    String getQualityAssuranceFormula();
-   
+
+   /**
+    * TODO
+    */
    Set<QualityAssuranceCode> getAllQualityAssuranceCodes();
-   
+
    /**
     * Gets the runtime OID of the model element.
     * <p>
     * Contrary to the element OID, runtime element OIDs are guaranteed to be stable over
     * model versions for model elements of same type and identical fully qualified IDs.
     * </p>
-    * 
+    *
     * <p>
     * The fully qualified ID of a model element consists of the concatenation of the fully
     * qualified element ID of its parent element, if existent, and the element ID.
     * </p>
-    * 
+    *
     * @return the runtime model element OID
-    * 
+    *
     * @see ModelElement#getElementOID()
     */
    long getRuntimeElementOID();
@@ -72,14 +126,14 @@ public interface Activity extends ModelElement, EventAware
     * @return true if the activity is manual or executes an interactive application.
     */
    boolean isInteractive();
-   
+
    /**
     * Gets the id of the process definition containing this activity.
-    * 
+    *
     * @return the id of the containing process definition.
     */
    String getProcessDefinitionId();
-   
+
    /**
     * Gets the noninteractive application executed by this activity, if any
     *
@@ -98,20 +152,20 @@ public interface Activity extends ModelElement, EventAware
    /**
     * Gets the specified application context.
     *
-    * @param id the ID of the application context (possible IDs include 
-    * {@link PredefinedConstants#DEFAULT_CONTEXT}, {@link PredefinedConstants#ENGINE_CONTEXT} 
-    * and {@link PredefinedConstants#APPLICATION_CONTEXT}) 
+    * @param id the ID of the application context (possible IDs include
+    * {@link PredefinedConstants#DEFAULT_CONTEXT}, {@link PredefinedConstants#ENGINE_CONTEXT}
+    * and {@link PredefinedConstants#APPLICATION_CONTEXT})
     *
     * @return the application context or null if no application context with the specified id was found.
     */
    ApplicationContext getApplicationContext(String id);
-   
+
    /**
     * Gets the participant assigned as a performer to the activity in the workflow model.
     * <p />
     * If the activity is not interactive or no default performer is assigned,
     * <code>null</code> is returned.
-    * 
+    *
     * @return The default performer as defined in the model.
     */
    ModelParticipant getDefaultPerformer();
@@ -123,7 +177,7 @@ public interface Activity extends ModelElement, EventAware
     * If no performer or a conditional performer is assigned, <code>null</code> is
     * returned.
     * </p>
-    * 
+    *
     * @deprecated Superseded by {@link #getDefaultPerformer()}. The old behavior was to
     *             silently resolve conditional performers if possible and return the ID of
     *             the resolved participant. Migration to the new API probably requires
@@ -139,7 +193,7 @@ public interface Activity extends ModelElement, EventAware
     * If no performer or a conditional performer is assigned, <code>null</code> is
     * returned.
     * </p>
-    * 
+    *
     * @deprecated Superseded by {@link #getDefaultPerformer()}. The old behavior was to
     *             silently resolve conditional performers if possible and return the name
     *             of the resolved participant. Migration to the new API probably requires
@@ -147,24 +201,24 @@ public interface Activity extends ModelElement, EventAware
     *             {@link ConditionalPerformer#getResolvedPerformer()} instead.
     */
    String getDefaultPerformerName();
-   
+
    /**
     * Retrieves a reference to an external application or process definition.
-    * 
+    *
     * @return the reference
     */
    Reference getReference();
-   
+
    /**
     * Gets the id of the process definition this activity will start as subprocess.
-    * 
+    *
     * @return the id of the process definition
     */
    String getImplementationProcessDefinitionId();
-   
+
    /**
     * Gets the qualified id of the process definition this activity will start as subprocess.
-    * 
+    *
     * @return the qualified id of the process definition in the form '{<namespace>}<processId>'
     */
    String getQualifiedImplementationProcessDefinitionId();

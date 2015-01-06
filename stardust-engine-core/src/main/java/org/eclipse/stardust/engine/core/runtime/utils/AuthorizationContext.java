@@ -481,7 +481,7 @@ public class AuthorizationContext
             }
          }
       }
-      else
+      else if (modelElement != null)
       {
          Set<Entry<String, Object>> entrySet = modelElement.getAllAttributes().entrySet();
          for (Entry<String, Object> entry : entrySet)

@@ -3,7 +3,6 @@
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 /**
@@ -14,6 +13,8 @@ import javax.ejb.Remote;
 @Remote
 public interface RemoteQueryService extends QueryService
 {
+
+
 
 
 

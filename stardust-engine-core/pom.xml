@@ -148,7 +148,7 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.components</groupId>
-         <artifactId>jcr-vfs</artifactId>
+         <artifactId>jcr-vfs-factory</artifactId>
          <scope>compile</scope>
          <version>${project.version}</version>
          <optional>true</optional>
@@ -728,6 +728,7 @@
                   <include>api/model/Role.java</include>
                   <include>api/model/RoleInfo.java</include>
                   <include>api/model/SubProcessModeKey.java</include>
+                  <include>api/model/Transition.java</include>
                   <include>api/model/Trigger.java</include>
                   <include>api/model/TypeDeclaration.java</include>
                   <include>api/model/XpdlType.java</include>
@@ -856,6 +857,7 @@
                   <include>api/query/AttributeOrder.java</include>
                   <include>api/query/AttributedScopedFilter.java</include>
                   <include>api/query/BinaryOperatorFilter.java</include>
+                  <include>api/query/BusinessObjectQuery.java</include>
                   <include>api/query/CasePolicy.java</include>
                   <include>api/query/DataFilter.java</include>
                   <include>api/query/DataQuery.java</include>

@@ -16,15 +16,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.*;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.ContextData;
-import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.dto.*;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
@@ -74,7 +71,7 @@ public interface WorkflowService extends Service
     * <li>Adding the activity instance to the logged-in user's worklist.</li>
     * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
     * </p>
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: suspended, hibernated or application</li>
     * <li>Process state before: active, interrupted</li>
@@ -91,8 +88,8 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
     *         instance is already terminated.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
     *         and the current user is the one who worked on the previous workflow instance.
     *
     * @see #activateAndComplete
@@ -109,7 +106,7 @@ public interface WorkflowService extends Service
    /**
     * Completes the interactive activity instance identified by the
     * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-    * 
+    *
     * <p>State Changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -131,9 +128,9 @@ public interface WorkflowService extends Service
     *         be written is invalid, most probably as of a type conflict in case of
     *         statically typed data.
     * @throws AccessForbiddenException if the current user is not allowed to complete the activity.
-    * @throws IllegalOperationException if the specified activity instance is a 
+    * @throws IllegalOperationException if the specified activity instance is a
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
-    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).                             
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
     * @see #activateAndComplete(long, String, Map)
     * @see #complete(long, String, Map, int)
     */
@@ -150,7 +147,7 @@ public interface WorkflowService extends Service
    /**
     * Completes the interactive activity instance identified by the
     * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-    * 
+    *
     * <p>State Changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -175,7 +172,7 @@ public interface WorkflowService extends Service
     *         statically typed data.
     * @throws AccessForbiddenException if the activity instance is
     *         already terminated.
-    * @throws IllegalOperationException if the specified activity instance is a 
+    * @throws IllegalOperationException if the specified activity instance is a
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
     *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
     *
@@ -213,13 +210,13 @@ public interface WorkflowService extends Service
     *         statically typed data.
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
-    *         instance is already terminated.            
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance 
-    * @throws IllegalOperationException if the specified activity instance is a 
+    *         instance is already terminated.
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the current user is the one who worked on the previous workflow instance
+    * @throws IllegalOperationException if the specified activity instance is a
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
-    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).             
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
     *
     * @see #activate(long)
     * @see #complete(long, String, Map)
@@ -255,16 +252,16 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws InvalidValueException if one of the <code>outData</object> values to
     *         be written is invalid, most probably as of a type conflict in case of
-    *         statically typed data.            
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance         
+    *         statically typed data.
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the current user is the one who worked on the previous workflow instance
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
     *         instance is already terminated.
-    * @throws IllegalOperationException if the specified activity instance is a 
+    * @throws IllegalOperationException if the specified activity instance is a
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
-    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).             
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
     * @see #activateAndComplete(long, String, Map)
     * @see #activate(long)
     * @see #complete(long, String, Map)
@@ -340,7 +337,7 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the same worklist
     * in which it was prior to activation, and the specified activity instance will be
     * set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -373,7 +370,7 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the worklist of the
     * default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -403,7 +400,7 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the worklist of the
     * default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -435,7 +432,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * current user, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -466,7 +463,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * current user, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -497,7 +494,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided user, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -514,10 +511,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the specified user is the one who worked on the previous workflow instance  
-    *         
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the specified user is the one who worked on the previous workflow instance
+    *
     * @see #suspendToUser(long, long, String, Map)
     */
    @ExecutionPermission(
@@ -531,7 +528,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided user, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -550,9 +547,9 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the specified user is the one who worked on the previous workflow instance  
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the specified user is the one who worked on the previous workflow instance
     * @see #suspendToUser(long, long)
     */
    @ExecutionPermission(
@@ -567,7 +564,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided performer, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -598,7 +595,7 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided performer, and the specified activity instance will be set to SUSPENDED state.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -630,7 +627,7 @@ public interface WorkflowService extends Service
 
    /**
     * Suspends the activity instance and, if the participant is not null, delegates it to the specified participant.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Activity state before: application</li>
     * <li>Process state before: active, interrupted</li>
@@ -647,10 +644,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the activity instance is already terminated or is
     *         currently processed by another user or the current user does not have the
     *         required permission or if the delegation target is not granted to execute
-    *         the activity instance or if the activity instance is already terminated. 
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the passed participant is a user who worked on the previous workflow instance              
+    *         the activity instance or if the activity instance is already terminated.
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the passed participant is a user who worked on the previous workflow instance
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -681,7 +678,7 @@ public interface WorkflowService extends Service
    /**
     * Starts the process specified by the given <code>ID</code> using the provided data
     * and returns the OID of the newly created process instance.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Process state after: active</li></ul>
     * </p>
@@ -830,7 +827,7 @@ public interface WorkflowService extends Service
     *           The oid of the process to spawn from.
     * @param spawnProcessID
     *           The id of the process definition to spawn as a new root process.
-    * @param options          
+    * @param options
     *           Options that controls how the spawning operation has to be performed.
     * @return The {@link ProcessInstance} that was spawned.
     *
@@ -846,7 +843,7 @@ public interface WorkflowService extends Service
     *            implemented).
     * @throws ConcurrencyException
     *            if a lock on process instances cannot be obtained.
-    */   
+    */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
          scope=ExecutionPermission.Scope.model,
@@ -992,9 +989,9 @@ public interface WorkflowService extends Service
     *            if <code>caseOid</code> is not a case process instance.
     * @throws AccessForbiddenException
     *            if the user is not the owner of the case.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the specified user is the one who worked on the previous workflow instance          
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the specified user is the one who worked on the previous workflow instance
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1051,13 +1048,13 @@ public interface WorkflowService extends Service
     * using <code>AbortScope.RootHierarchy</code>.
     * <p/>
     * Note: Abort is performed asynchronously.
-    * 
+    *
     * <p>State changes
     * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
     * <li>Process state before: active, interrupted</li>
-    * <li>State after: 
+    * <li>State after:
     * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its root process, all contained sub-processes and activities that are not yet completed changes to aborted.
-    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted. 
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted.
     * <br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
     * </p>
     *
@@ -1091,13 +1088,13 @@ public interface WorkflowService extends Service
     * aborting user is a valid performing participant for this activity.
     * <p/>
     * Note: Abort is performed asynchronously.
-    * 
+    *
     * <p>State changes
     * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
     * <li>Process state before: active, interrupted</li>
-    * <li>State after: 
+    * <li>State after:
     * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its root process, all contained sub-processes and activities that are not yet completed changes to aborted.
-    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted. 
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted.
     * <br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
     * </p>
     *
@@ -1138,12 +1135,12 @@ public interface WorkflowService extends Service
     * Aborts the specified process instance. Depending on the scope, it will abort either
     * this process instance only (including eventual subprocesses) or the whole process
     * hierarchy starting with the root process.
-    * 
+    *
     * <p>State changes:
     * <ul><li>Process state before: active, interrupted</li>
     * <li>State after:
     * <br><i>If abort scope is root hierarchy:</i> The state of root process, all sub-processes and activities that are not yet completed changes to aborted.</li>
-    * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its subprocesses and activities that are not yet completed changes to aborted. 
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its subprocesses and activities that are not yet completed changes to aborted.
     * </li></ul>
     * </p>
     *
@@ -1181,7 +1178,7 @@ public interface WorkflowService extends Service
    DeployedModel getModel()
          throws ObjectNotFoundException;
 
-   /**    
+   /**
     * Retrieves (parts of) the worklist of the currently logged-in user.
     *
     * @param query An instance of class {@link WorklistQuery} describing the requested
@@ -1204,9 +1201,9 @@ public interface WorkflowService extends Service
     * Activates the next activity instance from the given worklist query if any.
     *
     * @param worklist query.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance 
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the current user is the one who worked on the previous workflow instance
     *
     * @return the {@link ActivityInstance} that was activated.
     */
@@ -1228,9 +1225,9 @@ public interface WorkflowService extends Service
     *
     * @return the {@link ActivityInstance} that was activated.
     *
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance 
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the current user is the one who worked on the previous workflow instance
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     */
    @ExecutionPermission(
@@ -1248,14 +1245,14 @@ public interface WorkflowService extends Service
     * The activation is based on a given time frame between the completion of the current and the
     * instantiation of the next activity. There might occur scenarios where this method will not
     * be able to retrieve the next activity due to the runtime situation
-    * 
+    *
     * @param processInstanceOID the OID of the process instance.
     *
     * @return the {@link ActivityInstance} that was activated.
     *
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance 
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the current user is the one who worked on the previous workflow instance
     * @throws ObjectNotFoundException if there is no process instance with the specified OID.
     */
    @ExecutionPermission(
@@ -1399,10 +1396,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws AccessForbiddenException if the delegation target is not granted to execute
-    *         the activity instance or if the activity instance is already terminated. 
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the specified user is the one who worked on the previous workflow instance                    
+    *         the activity instance or if the activity instance is already terminated.
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the specified user is the one who worked on the previous workflow instance
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1449,10 +1446,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the activity instance is already terminated or is
     *         currently processed by another user or the current user does not have the
     *         required permission or if the delegation target is not granted to execute
-    *         the activity instance or if the activity instance is already terminated.           
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the specified user is the one who worked on the previous workflow instance           
+    *         the activity instance or if the activity instance is already terminated.
+    * @throws IllegalOperationException if the specified activity instance is a
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
+    *         and the specified user is the one who worked on the previous workflow instance
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1663,7 +1660,7 @@ public interface WorkflowService extends Service
 
    /**
     * Retrieves the possible targets for forward transitions starting from the specified activity instance.
-    * 
+    *
     * @param activityInstanceOid the oid of the activity instance from where the transition will be performed.
     * @param options search options, if null then TransitionOptions.DEFAULT will be used.
     * @param direction TODO
@@ -1672,17 +1669,17 @@ public interface WorkflowService extends Service
     */
    List<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
          throws ObjectNotFoundException;
-   
+
    /**
     * Performs the transition from the specified activity instance to the specified target.
-    * 
+    *
     * @param activityInstanceOid the oid of the activity instance from where the transition will be performed.
     * @param target the transition target.
     * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
     * @return the activity instance from which the transition was performed.
     * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
     *         did not originate from the specified activity instance, or the activity instance was already terminated
-    *         or the process instance containing the activity instance has more than one active activity instance.  
+    *         or the process instance containing the activity instance has more than one active activity instance.
     * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
@@ -1759,8 +1756,8 @@ public interface WorkflowService extends Service
     * and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes()} contains a null element
     * @throws InvalidArgumentException - when the specified quality assurance {@link ActivityInstanceAttributes#getActivityInstanceOid()} instance is marked as
     * {@link ResultState#PASS_WITH_CORRECTION} or {@link ResultState#FAILED}, the corresponding activity for this activity instance
-    * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied    
-    * 
+    * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied
+    *
     */
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException, InvalidArgumentException;
@@ -1793,4 +1790,42 @@ public interface WorkflowService extends Service
     * @throws ServiceCommandException that encapsulates any exception thrown during the execution of the command.
     */
    Serializable execute(ServiceCommand serviceCmd) throws ServiceCommandException;
+
+   /**
+    * Creates a new business object instance if it does not exist.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param initialValue the initial value of the business instance (can be null).
+    * @return the newly created business object instance.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   BusinessObject createBusinessObjectInstance(String qualifiedBusinessObjectId, Object initialValue);
+
+   /**
+    * Updates the value of a business object instance.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param newValue the new value of the business instance (can be null).
+    * @return the updated business object instance.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   BusinessObject updateBusinessObjectInstance(String qualifiedBusinessObjectId, Object newValue);
+
+   /**
+    * Deletes a business object instance.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object.
+    * @param primaryKey the primary key identifying the instance to be deleted.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
+   void deleteBusinessObjectInstance(String qualifiedBusinessObjectId, Object primaryKey);
 }

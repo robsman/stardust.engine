@@ -491,6 +491,10 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       {
          value = new Period(data.getShortStringValue());
       }
+      else if (data.getType() == BigData.DECIMAL)
+      {
+         value = new BigDecimal(data.getShortStringValue());
+      }
       else if (data.getType() == BigData.STRING)
       {
          value = data.getShortStringValue();

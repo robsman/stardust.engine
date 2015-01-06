@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2013 SunGard CSA LLC and others.
+    Copyright (c) 2014 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -15,9 +15,7 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   <!-- Stardust Engine Application Context -->
-   <import resource="classpath:stardust-local.app-ctx.xml" />
+   <bean id="a" class="org.eclipse.stardust.test.examples.MyAppCtxTest.FirstSpringBean" />
 
-   <!-- Forking Service Mode: Native Threading -->
-   <import resource="classpath:stardust-local-forking-native-threading.app-ctx.xml" />
+   <bean id="b" class="org.eclipse.stardust.test.examples.MyAppCtxTest.SecondSpringBean" />
 </beans>

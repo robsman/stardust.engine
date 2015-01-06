@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingRemoteService
 {
@@ -62,8 +62,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -127,13 +127,10 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     activity instance is a
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -198,13 +195,10 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     activity instance is a
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -262,20 +256,17 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     activity instance is a
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -327,8 +318,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -341,13 +332,10 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     activity instance is a
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -701,8 +689,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -756,8 +744,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -911,8 +899,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *     and the passed participant is a user who worked on the previous workflow
      *     orkflow instance
      *     <em>Instances of {@link
@@ -1183,7 +1171,7 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *               The oid of the process to spawn from.
      * @param spawnProcessID
      *               The id of the process definition to spawn as a new root process.
-     * @param options          
+     * @param options
      *               Options that controls how the spawning operation has to be performed.
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was spawned.
@@ -1456,8 +1444,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1534,13 +1522,13 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after: 
+     * <li>State after:
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted. 
+     * subprocesses and activities also changes to aborted.
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -1596,13 +1584,13 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
-     * <li>State after: 
+     * <li>State after:
      * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
      * root process, all contained sub-processes and activities that are not yet completed
      * changes to aborted.
      * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
      * changes to aborted. If activity instance is a subprocess then the state of contained
-     * subprocesses and activities also changes to aborted. 
+     * subprocesses and activities also changes to aborted.
      * <br>If the last activity of the process is aborted and is not a subprocess then the
      * process state will be set to completed.</li></ul>
      * </p>
@@ -1669,7 +1657,7 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      * <br><i>If abort scope is root hierarchy:</i> The state of root process, all
      * sub-processes and activities that are not yet completed changes to aborted.</li>
      * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its
-     * subprocesses and activities that are not yet completed changes to aborted. 
+     * subprocesses and activities that are not yet completed changes to aborted.
      * </li></ul>
      * </p>
      *
@@ -1758,8 +1746,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      * @param worklist query.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1784,6 +1772,11 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
     /**
      * Activates the next activity instance after the specified one in the same process
      * instance.
+     * The activation is based on a given time frame between the completion of the current
+     * and the
+     * instantiation of the next activity. There might occur scenarios where this method will
+     * not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param activityInstanceOID the OID of the last completed activity instance.
      *
@@ -1791,8 +1784,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -1817,6 +1810,11 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
          
     /**
      * Activates the next activity instance for the specified process instance.
+     * The activation is based on a given time frame between the completion of the current
+     * and the
+     * instantiation of the next activity. There might occur scenarios where this method will
+     * not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param processInstanceOID the OID of the process instance.
      *
@@ -1824,8 +1822,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2044,8 +2042,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2136,8 +2134,8 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     activity instance is a
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}
      *             and the specified user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -2749,6 +2747,66 @@ public interface TunnelingRemoteWorkflowService extends javax.ejb.EJBObject, org
     public java.io.Serializable
          execute(
          org.eclipse.stardust.engine.core.runtime.command.ServiceCommand serviceCmd,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Creates a new business object instance if it does not exist.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param initialValue the initial value of the business instance (can be null).
+     *
+     * @return the newly created business object instance.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         createBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Updates the value of a business object instance.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param newValue the new value of the business instance (can be null).
+     *
+     * @return the updated business object instance.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         updateBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Deletes a business object instance.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param primaryKey the primary key identifying the instance to be deleted.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
+     */
+    public void deleteBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;

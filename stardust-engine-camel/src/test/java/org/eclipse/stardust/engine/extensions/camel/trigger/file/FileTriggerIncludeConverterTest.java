@@ -6,8 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -15,7 +17,6 @@ import javax.annotation.Resource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -48,11 +49,29 @@ public class FileTriggerIncludeConverterTest
             .getBean("ippServiceFactoryAccess");
    }
 
+   private static Date getDate(int day, int month, int year)
+   {
+      Calendar dob1 = Calendar.getInstance();
+      dob1.set(Calendar.MONTH, month);
+      dob1.set(Calendar.DATE, day);
+      dob1.set(Calendar.YEAR, year);
+      return dob1.getTime();
+   }
+   private static Date getDate(int day, int month, int year, int hours, int minutes)
+   {
+      Calendar dob1 = Calendar.getInstance();
+      dob1.set(Calendar.MONTH, month);
+      dob1.set(Calendar.DATE, day);
+      dob1.set(Calendar.YEAR, year);
+      dob1.set(Calendar.HOUR, hours);
+      dob1.set(Calendar.MINUTE, minutes);
+      return dob1.getTime();
+   }
    @Test
    public void testXmlConverterWithFileTrigger() throws Exception
    {
-
-      String xmlFileContent = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>   <Structured>    <stringField>text in xml file</stringField>     <intField>565</intField>   <longField>126954</longField>    <dateField>2014-09-24-06:00</dateField>   </Structured>";
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+      String xmlFileContent = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>   <Structured>    <stringField>text in xml file</stringField>     <intField>565</intField>   <longField>126954</longField>    <dateField>"+formatter.format(getDate(24, Calendar.SEPTEMBER, 2002,6,0))+"</dateField>   </Structured>";
       createFile("./target/FileDirectory/XML", "messageFile.xml", xmlFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -74,14 +93,14 @@ public class FileTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(126954L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("24-09-14", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(24, Calendar.SEPTEMBER, 2002)), formatDate((Date) response.get("dateField")));
    }
 
    @Test
    public void testJsonConverterWithFileTrigger() throws Exception
    {
-
-      String jsonFileContent = "{\"intField\":456,\"longField\":789444,\"stringField\":\"text in Json file\",\"dateField\":\"2014-05-28T00:00:00.000\"}";
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      String jsonFileContent = "{\"intField\":456,\"longField\":789444,\"stringField\":\"text in Json file\",\"dateField\":\""+formatter.format(getDate(28,Calendar.MAY,2014))+"\"}";
       createFile("./target/FileDirectory/Json", "messageFile.json", jsonFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -103,13 +122,15 @@ public class FileTriggerIncludeConverterTest
       assertTrue(response.get("longField") instanceof Long);
       assertEquals(789444L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
-      assertEquals("28-05-14", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(28, Calendar.MAY, 2014)), formatDate((Date) response.get("dateField")));
    }
 
    @Test
    public void testCsvConverterWithFileTrigger() throws Exception
    {
-      String csvFileContent = "stringField,intField,longField,dateField\ntext in csv file,123,789,Wed May 28 11:30:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      
+      String csvFileContent = "stringField,intField,longField,dateField\ntext in csv file,123,789,"+formatter.format(getDate(28,Calendar.MAY,2014,11,30));
       createFile("./target/FileDirectory/CSV", "messageFile.csv", csvFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -132,14 +153,14 @@ public class FileTriggerIncludeConverterTest
       assertEquals(789L, response.get("longField"));
       assertTrue(response.get("dateField") instanceof Date);
       //assertEquals("Wed May 28 11:30:00 WAT 2014", response.get("dateField").toString());
-      assertEquals("28-05-14", formatDate((Date) response.get("dateField")));
+      assertEquals(formatDate(getDate(28, Calendar.MAY, 2014)), formatDate((Date) response.get("dateField")));
    }
 
    @Test
    public void testListCsvConverterWithFileTrigger() throws Exception
    {
-
-      String csvFileContent = "stringField#intField#longField#dateField\nFirst Line#12#45454#Tue May 27 00:00:00 WAT 2014\nSecondLine#41#95854#Sun May 18 00:00:00 WAT 2014";
+      SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
+      String csvFileContent = "stringField#intField#longField#dateField\nFirst Line#12#45454#"+formatter.format(getDate(27,Calendar.MAY,2014))+"\nSecondLine#41#95854#"+formatter.format(getDate(18,Calendar.MAY,2014));
       createFile("./target/FileDirectory/ListCSV", "messageFile.csv", csvFileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -174,7 +195,7 @@ public class FileTriggerIncludeConverterTest
       assertTrue(secondElement.get("longField") instanceof Long);
       assertEquals(95854L, secondElement.get("longField"));
       assertTrue(secondElement.get("dateField") instanceof Date);
-      assertEquals("18-05-14", formatDate((Date) secondElement.get("dateField")));
+      assertEquals(formatDate(getDate(18, Calendar.MAY, 2014)), formatDate((Date) secondElement.get("dateField")));
    }
 
 }

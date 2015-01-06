@@ -44,6 +44,8 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;/complexType>
  *         &lt;/element>
  *         &lt;element name="eventHandlers" type="{http://eclipse.org/stardust/ws/v2012a/api}EventHandlerDefinitions" minOccurs="0"/>
+ *         &lt;element name="joinType" type="{http://eclipse.org/stardust/ws/v2012a/api}GatewayType" minOccurs="0"/>
+ *         &lt;element name="splitType" type="{http://eclipse.org/stardust/ws/v2012a/api}GatewayType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -61,7 +63,9 @@ import javax.xml.bind.annotation.XmlType;
     "defaultPerformer",
     "application",
     "interactionContexts",
-    "eventHandlers"
+    "eventHandlers",
+    "joinType",
+    "splitType"
 })
 public class ActivityDefinitionXto
     extends ModelElementXto
@@ -79,6 +83,8 @@ public class ActivityDefinitionXto
     @XmlElement(required = true)
     protected ActivityDefinitionXto.InteractionContextsXto interactionContexts;
     protected EventHandlerDefinitionsXto eventHandlers;
+    protected GatewayTypeXto joinType;
+    protected GatewayTypeXto splitType;
 
     /**
      * Gets the value of the rtOid property.
@@ -246,6 +252,54 @@ public class ActivityDefinitionXto
      */
     public void setEventHandlers(EventHandlerDefinitionsXto value) {
         this.eventHandlers = value;
+    }
+
+    /**
+     * Gets the value of the joinType property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link GatewayTypeXto }
+     *     
+     */
+    public GatewayTypeXto getJoinType() {
+        return joinType;
+    }
+
+    /**
+     * Sets the value of the joinType property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link GatewayTypeXto }
+     *     
+     */
+    public void setJoinType(GatewayTypeXto value) {
+        this.joinType = value;
+    }
+
+    /**
+     * Gets the value of the splitType property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link GatewayTypeXto }
+     *     
+     */
+    public GatewayTypeXto getSplitType() {
+        return splitType;
+    }
+
+    /**
+     * Sets the value of the splitType property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link GatewayTypeXto }
+     *     
+     */
+    public void setSplitType(GatewayTypeXto value) {
+        this.splitType = value;
     }
 
 

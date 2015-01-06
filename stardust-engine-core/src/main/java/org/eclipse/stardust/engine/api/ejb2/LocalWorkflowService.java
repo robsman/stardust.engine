@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 60537
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
 {
@@ -25,13 +25,13 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     /**
      * Activates the interactive activity instance identified by the
      * <code>activityInstanceOID</code>.
-     *
+     * 
      * <p>Activating means:
      * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
      * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
      * </p>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: suspended, hibernated or application</li>
      * <li>Process state before: active, interrupted</li>
@@ -78,11 +78,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance activate(
          long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -126,12 +126,9 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -146,11 +143,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance complete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * <p>State Changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -195,12 +192,9 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -217,11 +211,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
          flags)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -264,12 +258,9 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -286,11 +277,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          activateAndComplete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates and completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
-     *
+     * 
      * If the activity is activated to be immediately completed, this method is more
      * efficient than invoking activate(...) and complete(...) separately.
      *
@@ -334,12 +325,9 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a
-     *     quality assurance instance and no {@link
-     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *             quality assurance instance and no {@link ActivityInstanceAttributes}
      *     has been set before({@link
-     *     ({@link
-     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
-     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     ({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -357,7 +345,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
          flags)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -389,7 +377,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public java.io.Serializable getInDataValue(
          long activityInstanceOID, java.lang.String context, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all evaluated IN data mappings that match the provided application context
      * for the specified activity.
@@ -425,12 +413,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          getInDataValues(
          long activityInstanceOID, java.lang.String context, java.util.Set ids)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -467,12 +455,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData
          outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -509,12 +497,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -554,11 +542,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          suspendToDefaultPerformer(
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -596,11 +584,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -641,11 +629,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          suspendToUser(
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -691,11 +679,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -746,12 +734,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, long userOID, java.lang.String context, java.util.Map
          outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -790,12 +778,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToParticipant(long activityInstanceOID, java.lang.String participant)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -839,11 +827,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, java.lang.String participant, java.lang.String context,
          java.util.Map outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application</li>
      * <li>Process state before: active, interrupted</li>
@@ -894,7 +882,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
          participant, org.eclipse.stardust.engine.api.model.ContextData outData)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Change the state of the specified activity instance to HIBERNATED.
      *
@@ -923,11 +911,11 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          hibernate(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state after: active</li></ul>
      * </p>
@@ -958,7 +946,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(java.lang.String id, java.util.Map data, boolean synchronously)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a process as subprocess of the specified process instance. The spawned
      * process executes asynchronously but has to be completed before the parent process is
@@ -1008,7 +996,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
          java.util.Map data)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns multiple processes as subprocesses of the specified process instance. The
      * spawned processes execute asynchronously but have to be completed before the parent
@@ -1053,7 +1041,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          spawnSubprocessInstances(
          long parentProcessInstanceOid, java.util.List subprocessSpawnInfo)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1119,7 +1107,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long processInstanceOid, java.lang.String spawnProcessID, boolean copyData,
          java.util.Map data, boolean abortProcessInstance, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Spawns a new root process and creates a link of type
      * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
@@ -1176,7 +1164,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long processInstanceOid, java.lang.String spawnProcessID,
          org.eclipse.stardust.engine.api.runtime.SpawnOptions options)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates a case process instance which groups the specified members as subprocesses.
      *
@@ -1225,7 +1213,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          createCase(
          java.lang.String name, java.lang.String description, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Adds the process instances referenced by the specified memberOids to the specified
      * case process instance.
@@ -1270,7 +1258,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance joinCase(
          long caseOid, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes the process instances referenced by the specified memberOids from the
      * specified case process instance.
@@ -1315,7 +1303,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance leaveCase(
          long caseOid, long[] memberOids)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Merges the specified source case process instances into the target case process
      * instance
@@ -1367,7 +1355,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          mergeCases(long targetCaseOid, long[] sourceCaseOids, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the case process instance to the specified participant.
      *
@@ -1411,7 +1399,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          delegateCase(
          long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified process instance and joins the data into the specified target
      * process instance. Existing data values of the target process instance are not
@@ -1451,7 +1439,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          joinProcessInstance(
          long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1465,7 +1453,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1514,7 +1502,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          abortActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified activity instance, effectively aborting the whole process
      * instance hierarchy this activity instance belongs to.
@@ -1524,7 +1512,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
-     *
+     * 
      * <p>State changes
      * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1587,12 +1575,12 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOid,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after:
@@ -1633,9 +1621,9 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long processInstanceOid,
          org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
-     *
+     * 
      *
      * @deprecated Retrieves the active model.
      *
@@ -1652,7 +1640,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves (parts of) the worklist of the currently logged-in user.
      *
@@ -1673,7 +1661,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.query.Worklist
          getWorklist(org.eclipse.stardust.engine.api.query.WorklistQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance from the given worklist query if any.
      *
@@ -1700,10 +1688,15 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          activateNextActivityInstance(
          org.eclipse.stardust.engine.api.query.WorklistQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance after the specified one in the same process
      * instance.
+     * The activation is based on a given time frame between the completion of the current
+     * and the
+     * instantiation of the next activity. There might occur scenarios where this method will
+     * not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param activityInstanceOID the OID of the last completed activity instance.
      *
@@ -1731,9 +1724,14 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Activates the next activity instance for the specified process instance.
+     * The activation is based on a given time frame between the completion of the current
+     * and the
+     * instantiation of the next activity. There might occur scenarios where this method will
+     * not
+     * be able to retrieve the next activity due to the runtime situation
      *
      * @param processInstanceOID the OID of the process instance.
      *
@@ -1761,7 +1759,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstanceForProcessInstance(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets an OUT data path on a process instance as specified in the corresponding
      * process definition.
@@ -1793,7 +1791,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public void setOutDataPath(
          long processInstanceOID, java.lang.String id, java.lang.Object object)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets multiple OUT data paths on a process instance as specified in the corresponding
      * process definition.
@@ -1824,7 +1822,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      */
     public void setOutDataPaths(long processInstanceOID, java.util.Map values)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves an IN data path on a process instance as specified in the corresponding
      * process definition.
@@ -1851,7 +1849,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public java.lang.Object getInDataPath(
          long processInstanceOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves multiple IN data paths from a process instance as specified in the
      * corresponding process definition.
@@ -1880,7 +1878,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public java.util.Map<java.lang.String,java.io.Serializable>
          getInDataPaths(long processInstanceOID, java.util.Set ids)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activitiy instance to the default worklist of the
      * corresponding activity.
@@ -1913,7 +1911,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToDefaultPerformer(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -1960,7 +1958,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the specified activity instance to a specific performer.
      *
@@ -1994,7 +1992,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToParticipant(long activityInstanceOID, java.lang.String performer)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Delegates the activity instance to the specified participant as follows:
      * <ul>
@@ -2049,7 +2047,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
          participant)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified ActivityInstance.
      *
@@ -2071,7 +2069,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          getActivityInstance(long activityInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified process instance.
      *
@@ -2093,7 +2091,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          getProcessInstance(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * TODO
      *
@@ -2121,7 +2119,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public java.util.Map<java.lang.String,java.io.Serializable>
          getProcessResults(long processInstanceOID)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2157,7 +2155,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long activityInstanceOID,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2188,7 +2186,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          long processInstanceOID,
          org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified activity instance.
      *
@@ -2215,7 +2213,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          bindActivityEventHandler(long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds an event handler to the specified process instance.
      *
@@ -2242,7 +2240,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          bindProcessEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Unbinds an event handler from the specified activity instance.
      *
@@ -2269,7 +2267,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          unbindActivityEventHandler(long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Unbinds an event handler from the specified process instance.
      *
@@ -2296,7 +2294,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          unbindProcessEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified activity instance.
      *
@@ -2320,7 +2318,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          getActivityInstanceEventHandler(
          long activityInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets the binding state of an event handler for the specified process instance.
      *
@@ -2343,7 +2341,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
          getProcessInstanceEventHandler(long processInstanceOID, java.lang.String handler)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the possible targets for forward transitions starting from the specified
      * activity instance.
@@ -2374,7 +2372,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.api.runtime.TransitionOptions options,
          org.eclipse.stardust.engine.api.runtime.ScanDirection direction)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Performs the transition from the specified activity instance to the specified target.
      *
@@ -2418,7 +2416,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
          complete)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of process definitions that can be started by the current user.
      *
@@ -2434,7 +2432,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getStartableProcessDefinitions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves information on the current user.
      *
@@ -2447,7 +2445,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
      */
     public org.eclipse.stardust.engine.api.runtime.User getUser()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -2461,7 +2459,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
          getPermissions()
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets specific attributes of a process instance.
      * At the moment attributes has to be bound to a scope process instance.
@@ -2497,7 +2495,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          setProcessInstanceAttributes(
          org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes attributes)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Sets attributes for an activity instance
      *
@@ -2536,7 +2534,7 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          setActivityInstanceAttributes(
          org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes attributes)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Logs an audit trail event of type <code>LogCode.EXTERNAL</code>.
      *
@@ -2563,10 +2561,10 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          org.eclipse.stardust.engine.api.dto.ContextKind contextType, long contextOid,
          java.lang.String message, java.lang.Throwable throwable)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Executes a {@link ServiceCommand} in a single engine transaction.
-     *
+     * 
      * If the service command implements <code>{@link Configurable}</code>, the following
      * option may be provided:
      * <ul>
@@ -2596,7 +2594,61 @@ public interface LocalWorkflowService extends javax.ejb.EJBLocalObject
          execute(
          org.eclipse.stardust.engine.core.runtime.command.ServiceCommand serviceCmd)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
+    /**
+     * Creates a new business object instance if it does not exist.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param initialValue the initial value of the business instance (can be null).
+     *
+     * @return the newly created business object instance.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         createBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Updates the value of a business object instance.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param newValue the new value of the business instance (can be null).
+     *
+     * @return the updated business object instance.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
+     */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         updateBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Deletes a business object instance.
+     *
+     * @param qualifiedBusinessObjectId the qualified id of the business object.
+     * @param primaryKey the primary key identifying the instance to be deleted.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(
+     *     java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
+     */
+    public void deleteBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException;
 

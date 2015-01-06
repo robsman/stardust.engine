@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.ws.servlet;
 
+import static java.util.Collections.emptySet;
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +25,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.servlet.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -50,6 +57,13 @@ import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
@@ -68,12 +82,6 @@ import org.eclipse.stardust.engine.ws.processinterface.GenericWebServiceProvider
 import org.eclipse.stardust.engine.ws.processinterface.GenericWebServiceProviderWssUsernameToken;
 import org.eclipse.stardust.engine.ws.processinterface.WsUtils;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 
 /**
@@ -190,6 +198,22 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          throws IOException, ServletException
    {
       filterChain.doFilter(request, response);
+   }
+
+   /**
+    * @return the {@link Bus}es held by this {@link DynamicCXFServlet}, or an empty {@link Set} if the servlet hasn't been initialized yet or is already destroyed
+    */
+   protected Set<Bus> getBuses()
+   {
+      if (staticServletDelegate == null || dynamicServletDelegate == null)
+      {
+         return emptySet();
+      }
+
+      final Set<Bus> buses = newHashSet();
+      buses.add(staticServletDelegate.bus);
+      buses.add(dynamicServletDelegate.bus);
+      return buses;
    }
 
    /**
@@ -351,11 +375,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          /* nothing to do */
       }
       
-      protected Bus getBus()
-      {
-         return bus;
-      }
-
       protected void destroyApplicationContext(final ConfigurableApplicationContext appCtx)
       {
          appCtx.close();

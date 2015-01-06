@@ -64,6 +64,7 @@ public final class CamelConstants
    public static final String PROCESS_CONTEXT_HEADERS_EXT_ATT = CAMEL_SCOPE + ""+COLON+"processContextHeaders";
    public static final String INCLUDE_ATTRIBUTES_AS_HEADERS_EXT_ATT = CAMEL_SCOPE + ""+COLON+"includeAttributesAsHeaders";
    public static final String TRANSACTED_ROUTE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"transactedRoute";
+   public static final String AUTO_STARTUP_ROUTE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"autoStartup";
 
    public static final String DEFAULT_CAMEL_CONTEXT_ID = "defaultCamelContext";
    
@@ -94,6 +95,7 @@ public final class CamelConstants
    public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
    public static final String MAIL_ATTACHMENTS_AP_ID= "mailAttachmentsAP";
    public static final String MAIL_TEMPLATE_CONFIGURATION_ATT = "stardust:emailOverlay::templateConfigurations";
+   public static final String DOCUMENT_REQUEST_AP_ID= "DOCUMENT_REQUEST";
 
    private CamelConstants()
    {}

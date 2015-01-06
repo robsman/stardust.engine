@@ -1182,6 +1182,7 @@
          <xsd:enumeration value="IllegalStateChangeException" />
          <xsd:enumeration value="InvalidArgumentException" />
          <xsd:enumeration value="InvalidEncodingException" />
+         <xsd:enumeration value="InvalidPasswordException" />
          <xsd:enumeration value="InvalidValueException" />
          <xsd:enumeration value="LoginFailedException" />
          <xsd:enumeration value="ModelParsingException" />

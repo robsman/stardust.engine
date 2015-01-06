@@ -42,6 +42,17 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;/complexType>
  *         &lt;/element>
  *         &lt;element name="eventHandlers" type="{http://eclipse.org/stardust/ws/v2012a/api}EventHandlerDefinitions" minOccurs="0"/>
+ *         &lt;element name="transitions">
+ *           &lt;complexType>
+ *             &lt;complexContent>
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                 &lt;sequence>
+ *                   &lt;element name="transition" type="{http://eclipse.org/stardust/ws/v2012a/api}Transition" maxOccurs="unbounded" minOccurs="0"/>
+ *                 &lt;/sequence>
+ *               &lt;/restriction>
+ *             &lt;/complexContent>
+ *           &lt;/complexType>
+ *         &lt;/element>
  *         &lt;element name="implementedProcessInterface" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInterface" minOccurs="0"/>
  *         &lt;element name="declaredProcessInterface" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInterface" minOccurs="0"/>
  *       &lt;/sequence>
@@ -60,6 +71,7 @@ import javax.xml.bind.annotation.XmlType;
     "triggers",
     "activities",
     "eventHandlers",
+    "transitions",
     "implementedProcessInterface",
     "declaredProcessInterface"
 })
@@ -76,6 +88,8 @@ public class ProcessDefinitionXto
     @XmlElement(required = true)
     protected ProcessDefinitionXto.ActivitiesXto activities;
     protected EventHandlerDefinitionsXto eventHandlers;
+    @XmlElement(required = true)
+    protected ProcessDefinitionXto.TransitionsXto transitions;
     protected ProcessInterfaceXto implementedProcessInterface;
     protected ProcessInterfaceXto declaredProcessInterface;
 
@@ -216,6 +230,30 @@ public class ProcessDefinitionXto
     }
 
     /**
+     * Gets the value of the transitions property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ProcessDefinitionXto.TransitionsXto }
+     *     
+     */
+    public ProcessDefinitionXto.TransitionsXto getTransitions() {
+        return transitions;
+    }
+
+    /**
+     * Sets the value of the transitions property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ProcessDefinitionXto.TransitionsXto }
+     *     
+     */
+    public void setTransitions(ProcessDefinitionXto.TransitionsXto value) {
+        this.transitions = value;
+    }
+
+    /**
      * Gets the value of the implementedProcessInterface property.
      *
      * @return
@@ -318,6 +356,65 @@ public class ProcessDefinitionXto
                 activity = new ArrayList<ActivityDefinitionXto>();
             }
             return this.activity;
+        }
+
+    }
+
+
+    /**
+     * <p>Java class for anonymous complex type.
+     * 
+     * <p>The following schema fragment specifies the expected content contained within this class.
+     * 
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;element name="transition" type="{http://eclipse.org/stardust/ws/v2012a/api}Transition" maxOccurs="unbounded" minOccurs="0"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     * 
+     * 
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {
+        "transition"
+    })
+    public static class TransitionsXto {
+
+        protected List<TransitionXto> transition;
+
+        /**
+         * Gets the value of the transition property.
+         * 
+         * <p>
+         * This accessor method returns a reference to the live list,
+         * not a snapshot. Therefore any modification you make to the
+         * returned list will be present inside the JAXB object.
+         * This is why there is not a <CODE>set</CODE> method for the transition property.
+         * 
+         * <p>
+         * For example, to add a new item, do as follows:
+         * <pre>
+         *    getTransition().add(newItem);
+         * </pre>
+         * 
+         * 
+         * <p>
+         * Objects of the following type(s) are allowed in the list
+         * {@link TransitionXto }
+         * 
+         * 
+         */
+        public List<TransitionXto> getTransition() {
+            if (transition == null) {
+                transition = new ArrayList<TransitionXto>();
+            }
+            return this.transition;
         }
 
     }

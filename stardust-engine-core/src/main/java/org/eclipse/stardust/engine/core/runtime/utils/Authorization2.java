@@ -134,12 +134,25 @@ public class Authorization2
          case data:
             if (permission.defer())
             {
-               // TODO: If necessary, then how to implement it?
-               // authorizationPredicate = new DataAuthorization2Predicate(context);
+               authorizationPredicate = new DataAuthorization2Predicate(context);
             }
             else
             {
-               // TODO: If necessary, then how to implement it?
+               if (args[0] instanceof String)
+               {
+                  QName qname = QName.valueOf((String) args[0]);
+                  IModel model = ModelManagerFactory.getCurrent().findActiveModel(qname.getNamespaceURI());
+                  if (model != null)
+                  {
+                     IData data = model.findData(qname.getLocalPart());
+                     if (data != null)
+                     {
+                        context.setModelElementData(data);
+                     }
+                  }
+               }
+               // TODO: else ?
+               requiredGrant = checkPermission(context);
             }
             break;
          case model:

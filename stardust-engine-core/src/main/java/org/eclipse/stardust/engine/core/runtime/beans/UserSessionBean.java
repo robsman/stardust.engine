@@ -106,6 +106,16 @@ public class UserSessionBean extends IdentifiablePersistentBean
    /*
     * Retrieves the session's user.
     */
+   public long getUserOid()
+   {
+      fetch();
+
+      return workflowUser;
+   }
+
+   /*
+    * Retrieves the session's user.
+    */
    public IUser getUser()
    {
       fetch();

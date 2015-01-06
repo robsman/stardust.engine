@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 60537 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -19,7 +19,7 @@ import javax.ejb.Local;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 @Local
 public interface WorkflowService extends org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService
@@ -29,15 +29,16 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#activate(long activityInstanceOID)
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance activate(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#complete(long activityInstanceOID, java.lang.String context, java.util.Map outData)
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance complete(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData,
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -46,8 +47,9 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
          complete(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData, int flags,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -55,7 +57,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateAndComplete(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData,
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -64,8 +67,9 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
          activateAndComplete(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData, int flags,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -81,7 +85,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public java.util.Map<java.lang.String,java.io.Serializable>
          getInDataValues(
-         long activityInstanceOID, java.lang.String context, java.util.Set ids,
+         long activityInstanceOID, java.lang.String context,
+         java.util.Set<java.lang.String> ids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -90,7 +95,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspend(
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData
-         outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -98,8 +104,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -107,7 +113,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData,
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -116,8 +123,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -125,7 +132,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
-         long activityInstanceOID, java.lang.String context, java.util.Map outData,
+         long activityInstanceOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -143,8 +151,9 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToUser(
-         long activityInstanceOID, long userOID, java.lang.String context, java.util.Map
-         outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long activityInstanceOID, long userOID, java.lang.String context,
+         java.util.Map<java.lang.String,?> outData,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -162,8 +171,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToParticipant(
          long activityInstanceOID, java.lang.String participant, java.lang.String context,
-         java.util.Map outData, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.Map<java.lang.String,?> outData,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -181,8 +190,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          hibernate(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -190,8 +199,9 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(
-         java.lang.String id, java.util.Map data, boolean synchronously,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.lang.String id, java.util.Map<java.lang.String,?> data, boolean
+         synchronously, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -200,8 +210,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnSubprocessInstance(
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.Map<java.lang.String,?> data,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -210,8 +220,10 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstance>
          spawnSubprocessInstances(
-         long parentProcessInstanceOid, java.util.List subprocessSpawnInfo,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long parentProcessInstanceOid,
+         java.util.List<org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo>
+         subprocessSpawnInfo, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -220,7 +232,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnPeerProcessInstance(
          long processInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data, boolean abortProcessInstance, java.lang.String comment,
+         java.util.Map<java.lang.String,? extends java.io.Serializable> data, boolean
+         abortProcessInstance, java.lang.String comment,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -291,8 +304,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          abortActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -319,7 +332,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getModel()
     */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel
-         getModel(org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         getModel(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -345,8 +359,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -354,8 +368,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstanceForProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -370,7 +384,7 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#setOutDataPaths(long processInstanceOID, java.util.Map values)
     */
     public void setOutDataPaths(
-         long processInstanceOID, java.util.Map values,
+         long processInstanceOID, java.util.Map<java.lang.String,?> values,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -387,7 +401,7 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public java.util.Map<java.lang.String,java.io.Serializable>
          getInDataPaths(
-         long processInstanceOID, java.util.Set ids,
+         long processInstanceOID, java.util.Set<java.lang.String> ids,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -396,8 +410,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -433,8 +447,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          getActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -442,8 +456,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          getProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -451,8 +465,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     */
     public java.util.Map<java.lang.String,java.io.Serializable>
          getProcessResults(
-         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -548,7 +562,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
          performAdHocTransition(
          long activityInstanceOid,
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
-         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -564,7 +579,8 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getUser()
     */
     public org.eclipse.stardust.engine.api.runtime.User
-         getUser(org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         getUser(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -609,6 +625,32 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public java.io.Serializable
          execute(
          org.eclipse.stardust.engine.core.runtime.command.ServiceCommand serviceCmd,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue)
+    */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         createBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object initialValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#updateBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue)
+    */
+    public org.eclipse.stardust.engine.api.runtime.BusinessObject
+         updateBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object newValue,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#deleteBusinessObjectInstance(java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey)
+    */
+    public void deleteBusinessObjectInstance(
+         java.lang.String qualifiedBusinessObjectId, java.lang.Object primaryKey,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          }

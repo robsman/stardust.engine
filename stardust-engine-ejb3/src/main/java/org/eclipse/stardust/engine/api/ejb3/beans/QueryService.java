@@ -154,8 +154,17 @@ public interface QueryService extends org.eclipse.stardust.engine.core.runtime.e
     public
          java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(
-         long processInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllBusinessObjects(org.eclipse.stardust.engine.api.query.BusinessObjectQuery query)
+    */
+    public org.eclipse.stardust.engine.api.query.BusinessObjects
+         getAllBusinessObjects(
+         org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -206,8 +215,8 @@ public interface QueryService extends org.eclipse.stardust.engine.core.runtime.e
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(long modelOid, int revision)
     */
     public boolean wasRedeployed(
-         long modelOid, int revision, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long modelOid, int revision,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**

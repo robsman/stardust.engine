@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.api.dto;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -60,7 +62,7 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
             processDefinition.getActivities(), IActivity.class, ActivityDetails.class);
 
       List<Transition> transitionDetails = DetailsFactory.<Transition, TransitionDetails> createCollection(
-            processDefinition.getTransitions(), ITransition.class, TransitionDetails.class);
+            getNonRelocationTransitions(processDefinition), ITransition.class, TransitionDetails.class);
       transitions = transitionDetails.isEmpty()
             ? Collections.<Transition>emptyList()
             : Collections.unmodifiableList(transitionDetails);
@@ -311,5 +313,27 @@ public class ProcessDefinitionDetails extends AuditTrailModelElementDetails
    public Activity getTargetActivity(Transition transition)
    {
       return getActivity(transition.getTargetActivityId());
+   }
+
+   /**
+    * Returns all transitions for given process definition excluding internal relocation transitions.
+    *
+    * @param processDefinition process definition to get transitions from
+    * @return all transitions excluding relocation transitions
+    */
+   private List<ITransition> getNonRelocationTransitions(
+         IProcessDefinition processDefinition)
+   {
+      return CollectionUtils.newArrayListFromIterator(new FilteringIterator<ITransition>(
+            processDefinition.getTransitions().iterator(), new Predicate<ITransition>()
+            {
+               @Override
+               public boolean accept(ITransition transition)
+               {
+                  return transition != null
+                        && !PredefinedConstants.RELOCATION_TRANSITION_ID
+                              .equals(transition.getId());
+               }
+            }));
    }
 }

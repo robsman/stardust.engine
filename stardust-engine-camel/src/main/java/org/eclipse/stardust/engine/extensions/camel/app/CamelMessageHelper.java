@@ -194,39 +194,42 @@ public class CamelMessageHelper
          Iterator<DataMapping> outDataMappings = context.getAllOutDataMappings().iterator();
 
          Application application = ai.getActivity().getApplication();
-
-         while (outDataMappings.hasNext())
+         if(application != null)
          {
-            DataMapping mapping = outDataMappings.next();
-
-            AccessPoint accessPoint = mapping.getApplicationAccessPoint();
-
-            if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint))
+            while (outDataMappings.hasNext())
             {
-               Object bodyOutAP = getBodyOutAccessPoint(application) != null
-                     ? getBodyOutAccessPoint(application)
-                     : "returnValue";
+               DataMapping mapping = outDataMappings.next();
 
-               CamelMessageLocation location = accessPoint.getId().equals(bodyOutAP) || bodyOutAP == null
-                     ? CamelMessageLocation.BODY
-                     : CamelMessageLocation.HEADER;
+               AccessPoint accessPoint = mapping.getApplicationAccessPoint();
 
-               if((accessPoint.getDirection().equals(Direction.IN_OUT) || accessPoint.getDirection().equals(Direction.OUT))
-                     && isValidAccessPoint(application, accessPoint) && !CamelMessageLocation.BODY.equals(location)
-                     && accessPoint.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS))
+               if (isValidAccessPoint(ai.getActivity().getApplication(), accessPoint))
                {
-                  map.put(mapping.getId(), getDocumentOutDataAccessPoint(message, ai, accessPoint));
-               }
-               else if (CamelMessageLocation.BODY.equals(location))
-               {
-                  map.put(mapping.getId(), message.getBody());
-               }
-               else if (CamelMessageLocation.HEADER.equals(location))
-               {
-                  map.put(mapping.getId(), message.getHeader(mapping.getId()));
+                  Object bodyOutAP = getBodyOutAccessPoint(application) != null
+                        ? getBodyOutAccessPoint(application)
+                        : "returnValue";
+
+                  CamelMessageLocation location = accessPoint.getId().equals(bodyOutAP) || bodyOutAP == null
+                        ? CamelMessageLocation.BODY
+                        : CamelMessageLocation.HEADER;
+
+                  if((accessPoint.getDirection().equals(Direction.IN_OUT) || accessPoint.getDirection().equals(Direction.OUT))
+                        && isValidAccessPoint(application, accessPoint) && !CamelMessageLocation.BODY.equals(location)
+                        && accessPoint.getAccessPathEvaluatorClass().equals(CamelConstants.VFS_DOCUMENT_ACCESS_PATHE_EVALUATOR_CLASS))
+                  {
+                     map.put(mapping.getId(), getDocumentOutDataAccessPoint(message, ai, accessPoint));
+                  }
+                  else if (CamelMessageLocation.BODY.equals(location))
+                  {
+                     map.put(mapping.getId(), message.getBody());
+                  }
+                  else if (CamelMessageLocation.HEADER.equals(location))
+                  {
+                     map.put(mapping.getId(), message.getHeader(mapping.getId()));
+                  }
                }
             }
          }
+         
       }
       return map;
    }

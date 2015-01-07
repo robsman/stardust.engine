@@ -1,7 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_INSTANCES;
-import static org.eclipse.stardust.engine.extensions.camel.Util.getActivityInstanceContext;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getFirstApplicationContextWithOutMappings;
 import static org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand.ActivityUtil.findActivities;
 import static org.eclipse.stardust.engine.extensions.camel.component.activity.subcommand.ActivityUtil.matches;
 
@@ -56,12 +56,15 @@ public class CompleteSubCommand extends AbstractSubCommand
 
          // TODO introduce 'force' parameter to force completion via
          // Admin Service
-         ApplicationContext context = getActivityInstanceContext(ai);
+         ApplicationContext context = getFirstApplicationContextWithOutMappings(ai);
         
          if (matches(exchange, ai,getQueryService()))
          {
             LOG.info("Process completion of activity instance with OID " + ai.getOID() + ".");
-            wf.activateAndComplete(ai.getOID(), context.getId(), dataOutput);
+            wf.activateAndComplete(
+                  ai.getOID(), 
+                  null == context ? null : context.getId(),
+                  (null == dataOutput || dataOutput.isEmpty()) ? null : dataOutput);
 
          }
          else

@@ -26,8 +26,8 @@ import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.SchemaType;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
-import org.w3c.dom.Document;
 
 /**
  * <p>
@@ -46,7 +46,7 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
 
    @GET
    @Produces(MediaType.APPLICATION_XML)
-   public Document get()
+   public String get()
    {
       try
       {
@@ -74,7 +74,7 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
       }
    }
 
-   private Document getXSDDocument(final XpdlType xpdlType)
+   private String getXSDDocument(final XpdlType xpdlType)
    {
       if ( !(xpdlType instanceof SchemaType))
       {
@@ -84,7 +84,7 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
       }
 
       final SchemaType schemaType = (SchemaType) xpdlType;
-      return schemaType.getSchema().getDocument();
+      return XmlUtils.toString(schemaType.getSchema().getDocument());
    }
 }
 

@@ -19,7 +19,7 @@
       <profile>
          <id>download-eclipse-deps</id>
          <activation>
-            <activeByDefault>true</activeByDefault>
+            <activeByDefault>false</activeByDefault>
          </activation>
          <modules>
             <module>eclipse-collector</module>

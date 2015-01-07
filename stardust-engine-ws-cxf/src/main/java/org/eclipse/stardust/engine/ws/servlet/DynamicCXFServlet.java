@@ -25,11 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -82,12 +78,13 @@ import org.eclipse.stardust.engine.ws.processinterface.GenericWebServiceProvider
 import org.eclipse.stardust.engine.ws.processinterface.WsUtils;
 
 
+
 /**
  * <p>
  * The web service servlet which is able to provide static as well as dynamic endpoints
  * (reconfiguration of dynamic endpoints does not affect the static ones).
  * </p>
- *
+ * 
  * @author Nicolas.Werlein
  * @author Roland.Stamm
  * @version $Revision: 56704 $
@@ -122,11 +119,11 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
     * the servlet delegate for dynamic requests, i.e. requests targeting dynamic endpoints
     */
    private ServletDelegate dynamicServletDelegate;
-
+   
    private static String CLIENT_CONTEXT_PARAM = "clientContext";
-
+   
    private static String context = null;
-
+   
    public static String getClientContext()
    {
       return context;
@@ -134,7 +131,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
    /*
     * (non-Javadoc)
-    *
+    * 
     * @see org.apache.cxf.transport.servlet.AbstractHTTPServlet#init(javax.servlet
     * .ServletConfig)
     */
@@ -142,7 +139,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
    public void init(final ServletConfig servletConfig) throws ServletException
    {
       super.init(servletConfig);
-
+           
       context = servletConfig.getInitParameter(CLIENT_CONTEXT_PARAM);
       context = context != null ? context.toLowerCase() : null;
 
@@ -155,7 +152,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
    /*
     * (non-Javadoc)
-    *
+    * 
     * @see javax.servlet.GenericServlet#destroy()
     */
    @Override
@@ -185,6 +182,19 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
       }
    }
 
+   @Override
+   protected Bus getBus()
+   {
+      return staticServletDelegate != null ? staticServletDelegate.getBus() : null;
+   }
+
+   @Override
+   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+         throws IOException, ServletException
+   {
+      filterChain.doFilter(request, response);
+   }
+
    /**
     * @return the {@link Bus}es held by this {@link DynamicCXFServlet}, or an empty {@link Set} if the servlet hasn't been initialized yet or is already destroyed
     */
@@ -206,7 +216,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
     * Wraps all required objects a servlet has to hold in order to be able to provide CXF
     * web services.
     * </p>
-    *
+    * 
     * @author Nicolas.Werlein
     * @version $Revision: 56704 $
     */
@@ -359,7 +369,12 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
       {
          /* nothing to do */
       }
-
+      
+      public Bus getBus()
+      {
+         return bus;
+      }
+      
       protected void destroyApplicationContext(final ConfigurableApplicationContext appCtx)
       {
          appCtx.close();
@@ -428,7 +443,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
     * <p>
     * Represents a servlet delegate for static endpoints.
     * </p>
-    *
+    * 
     * @author Nicolas.Werlein
     * @version $Revision: 56704 $
     */
@@ -477,7 +492,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
     * <p>
     * Represents a servlet delegate for dynamic endpoints.
     * </p>
-    *
+    * 
     * @author Nicolas.Werlein
     * @version $Revision: 56704 $
     */
@@ -569,7 +584,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          String modelId = null;
          String pathInfo = request.getPathInfo();
          Map<?, ?> parameterMap = request.getParameterMap();
-
+         
          if (pathInfo == null || "/".equals(pathInfo) || parameterMap.containsKey("stylesheet"))
          {
             // Return blank page for calls that would run into NullPointerException.
@@ -580,7 +595,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          else if ("GET".equals(request.getMethod()))
          {
             // WSDL or WSDL listing request. Determine partition and modelId if specified.
-
+            
             partitionId = request.getParameter("partition");
 
             modelId = request.getParameter("modelId");
@@ -593,16 +608,16 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
             // partitionId is in WsAdressing header.
             partitionId = GenericWebServiceEnv.instance().getPartitionId();
-            modelId = GenericWebServiceEnv.instance().getModelId();
+            modelId = GenericWebServiceEnv.instance().getModelId();  
          }
-
+         
          // Fallback to partitionId and modelId in URL
          if (partitionId == null && modelId == null)
          {
             Pair<String, String> extracted = extractFromUrl(pathInfo);
             partitionId = extracted.getFirst();
             modelId = extracted.getSecond();
-
+            
             // initialize environment for web service call
             if ( !"GET".equals(request.getMethod()))
             {
@@ -615,7 +630,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          {
             partitionId = PredefinedConstants.DEFAULT_PARTITION_ID;
          }
-
+         
          // limit to enabled partitions
          List<String> enabledPartitions = WsUtils.getEnabledPartitions();
          if (enabledPartitions != null && !enabledPartitions.isEmpty()
@@ -742,7 +757,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          ctx.registerBeanDefinition(CONFIGURATION_ENDPOINT_ID, configurationEndpoint);
 
          ctx.refresh();
-
+         
          currentEndpointContexts.put(CONFIGURATION_ENDPOINT_ID, ctx);
 
          return ctx;
@@ -779,7 +794,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
                // loading endpoint names from configuration
                nameProvider.initEndpointNames(partitionId);
-
+               
                if ((System.currentTimeMillis() - lastSync.get(partitionId).get()) > endpointSyncPeriod)
                {
                   Set<Pair<AuthMode, String>> endpointNameSet = nameProvider.getEndpointNameSet(partitionId);

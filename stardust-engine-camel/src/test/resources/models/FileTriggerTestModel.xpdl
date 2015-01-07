@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="FileTriggerTestModel" Name="FileTriggerTestModel">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="FileTriggerTestModel" Name="FileTriggerTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -315,6 +314,7 @@
                <carnot:WorkflowProcess Oid="530">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="535" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="544" Id="input" Name="input" Direction="OUT" Type="struct">
                               <carnot:Attributes>
@@ -335,14 +335,12 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/XML?move=done&amp;amp;fileName=messageFile.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/XML?fileName=messageFile.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="input" Type="String"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="input"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerInboundConversion" Value="fromXML"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -415,6 +413,7 @@
                <carnot:WorkflowProcess Oid="549">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="554" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="566" Id="content" Name="content" Direction="OUT" Type="struct">
                               <carnot:Attributes>
@@ -435,14 +434,12 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/Json?move=done&amp;amp;fileName=messageFile.json&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/Json?fileName=messageFile.json&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="content" Type="String"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="content"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerInboundConversion" Value="fromJSON"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -515,6 +512,7 @@
                <carnot:WorkflowProcess Oid="568">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="573" Id="ManualTrigger1" Name="From CSV" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="584" Id="content" Name="content" Direction="OUT" Type="struct">
                               <carnot:Attributes>
@@ -535,14 +533,12 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/CSV?move=done&amp;amp;fileName=messageFile.csv&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/CSV?fileName=messageFile.csv&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="content" Type="String"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="content"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerInboundConversion" Value="fromCSV?delimiter=,"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -615,6 +611,7 @@
                <carnot:WorkflowProcess Oid="757">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="762" Id="ManualTrigger1" Name="From List CSV" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="786" Id="elmts" Name="elmts" Direction="OUT" Type="struct">
                               <carnot:Attributes>
@@ -635,14 +632,12 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/ListCSV?move=done&amp;amp;fileName=messageFile.csv&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/ListCSV?fileName=messageFile.csv&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerInboundConversion" Value="fromCSV?delimiter=#"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="elmts" Type="String"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="elmts"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -715,6 +710,7 @@
                <carnot:WorkflowProcess Oid="788">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="797" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="848" Id="CamelFileNameOnly" Name="CamelFileNameOnly" Direction="OUT" Type="primitive">
                               <carnot:Attributes>
@@ -735,12 +731,11 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/PrimitiveInHeader?move=done&amp;amp;fileName=messageFile.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/PrimitiveInHeader?fileName=messageFile.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -813,6 +808,7 @@
                <carnot:WorkflowProcess Oid="850">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="859" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="862" Id="primitiveDataFile" Name="primitiveDataFile" Direction="OUT" Type="primitive">
                               <carnot:Attributes>
@@ -833,12 +829,10 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/PD?move=done&amp;amp;fileName=primitiveDataFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://.\target\FileDirectory\PD?fileName=primitiveDataFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="primitiveDataFile" Type="String"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="primitiveDataFile"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -911,6 +905,7 @@
                <carnot:WorkflowProcess Oid="854">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="882" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="888" Id="Person" Name="Person" Direction="OUT" Type="struct">
                               <carnot:Attributes>
@@ -931,12 +926,10 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/SDT?move=done&amp;amp;fileName=Person.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://.\target\FileDirectory\SDT?fileName=Person.xml&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Person" Type="String"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Person"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1012,6 +1005,7 @@
                <carnot:WorkflowProcess Oid="902">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="907" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="921" Id="documentFile" Name="documentFile" Direction="OUT" Type="dmsDocument">
                               <carnot:Attributes>
@@ -1034,12 +1028,10 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/Document?move=done&amp;amp;fileName=DocumentFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://.\target\FileDirectory\Document?fileName=DocumentFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="documentFile" Type="String"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="documentFile"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1112,6 +1104,7 @@
                <carnot:WorkflowProcess Oid="926">
                   <carnot:Triggers>
                      <carnot:Trigger Oid="931" Id="ManualTrigger1" Name="File Trigger" Type="camel">
+                        <carnot:Description/>
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="935" Id="SplitData" Name="SplitData" Direction="OUT" Type="primitive">
                               <carnot:Attributes>
@@ -1132,12 +1125,10 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/SplitTest?move=done&amp;amp;fileName=SplitFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;split &gt;&lt;tokenize token=&quot;\n&quot; /&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;&lt;/split&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://.\target\FileDirectory\SplitTest?fileName=SplitFile.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;split &gt;&lt;tokenize token=&quot;\n&quot; /&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;&lt;/split&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SplitData" Type="String"/>
-                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
-                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SplitData"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1177,7 +1168,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="8.2.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="8.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -1286,22 +1277,6 @@
                   <carnot:ApplicationContextType Oid="16" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="17" Id="application" Name="Noninteractive Application Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="18" Id="processInterface" Name="Process Interface Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
-                  <carnot:ApplicationContextType Oid="946" Id="jfc" Name="JFC Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false">
-                     <carnot:Attributes>
-                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jfc/icon.gif"/>
-                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCContextTypePanel"/>
-                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCAccessPointProvider"/>
-                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCValidator"/>
-                        <carnot:Attribute Name="carnot:exdesk:instance" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCApplicationInstance"/>
-                     </carnot:Attributes>
-                  </carnot:ApplicationContextType>
-                  <carnot:ApplicationContextType Oid="947" Id="jsp" Name="JSP Application" IsPredefined="true" HasApplicationPath="false" HasMappingId="true">
-                     <carnot:Attributes>
-                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jsp/icon.gif"/>
-                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPContextTypePanel"/>
-                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPValidator"/>
-                     </carnot:Attributes>
-                  </carnot:ApplicationContextType>
                </carnot:ApplicationContextTypes>
                <carnot:TriggerTypes>
                   <carnot:TriggerType Oid="19" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">

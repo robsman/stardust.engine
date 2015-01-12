@@ -462,7 +462,7 @@ public class AuthorizationContext
    {
       Set<String> set = newSet();
       if (this.permission.scope() == Scope.model &&
-            Parameters.instance().getBoolean(Permissions.PREFIX + "usePreferences", true))
+            Parameters.instance().getBoolean(SecurityProperties.AUTHORIZATION_USE_PREFERENCES_STORE_PROPERTY, true))
       {
          IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
          if (preferenceStore != null)

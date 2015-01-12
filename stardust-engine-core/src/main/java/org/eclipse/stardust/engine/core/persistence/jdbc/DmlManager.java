@@ -2331,7 +2331,7 @@ public class DmlManager
             final ResultSet rs = stmt.executeQuery();
             stopTime = System.currentTimeMillis();
 
-            resultSet = ManagedResultSet.createManager(stmt, rs);
+            resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
          else
          {
@@ -2342,7 +2342,7 @@ public class DmlManager
             final ResultSet rs = stmt.executeQuery(statementString);
             stopTime = System.currentTimeMillis();
 
-            resultSet = ManagedResultSet.createManager(stmt, rs);
+            resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
          session.monitorSqlExecution(statementString, startTime, stopTime);
 
@@ -2399,7 +2399,7 @@ public class DmlManager
             final ResultSet rs = stmt.executeQuery();
             stopTime = System.currentTimeMillis();
 
-            resultSet = ManagedResultSet.createManager(stmt, rs);
+            resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
          else
          {
@@ -2410,7 +2410,7 @@ public class DmlManager
             final ResultSet rs = stmt.executeQuery(statementString);
             stopTime = System.currentTimeMillis();
 
-            resultSet = ManagedResultSet.createManager(stmt, rs);
+            resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
          session.monitorSqlExecution(statementString, startTime, stopTime);
 

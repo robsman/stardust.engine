@@ -46,7 +46,7 @@ public class FileTriggerHeaderDataMappingTest
    public void fileTriggerToPrimitiveInHeader() throws Exception
    {
       String fileContent = "primitiveData content from test class";
-      createFile("./target/FileDirectory/PrimitiveInHeader", "messageFile.xml", fileContent);
+      createFile("target/FileDirectory/PrimitiveInHeader", "messageFile.xml", fileContent);
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(

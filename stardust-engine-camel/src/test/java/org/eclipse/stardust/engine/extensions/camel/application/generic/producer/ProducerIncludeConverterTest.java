@@ -48,7 +48,7 @@ public class ProducerIncludeConverterTest
       serviceFactoryAccess = (ServiceFactoryAccess) ctx
             .getBean("ippServiceFactoryAccess");
 
-      File dir = new File("./target/FileDirectory");
+      File dir = new File("target/FileDirectory");
       dir.mkdirs();
    }
 

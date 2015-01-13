@@ -104,7 +104,7 @@ public class GenericTriggerBodyDataMappingTest
    @Test
    public void genericTriggerToDocument() throws Exception
    {
-      createFile("./target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
+      createFile("target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(

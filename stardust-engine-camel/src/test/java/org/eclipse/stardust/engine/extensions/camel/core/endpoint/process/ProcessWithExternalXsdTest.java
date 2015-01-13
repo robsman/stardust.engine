@@ -51,7 +51,7 @@ public class ProcessWithExternalXsdTest
       {
          RouteDefinition routeDefinition = new RouteDefinition();
          routeDefinition.startupOrder(1).autoStartup(true).from("direct:/createFile")
-               .to("file://./target/incoming/customer?fileName=Person.xml");
+               .to("file://target/incoming/customer?fileName=Person.xml");
          ((ModelCamelContext) camelContext).addRouteDefinition(routeDefinition);
          ProducerTemplate fileProducer = camelContext.createProducerTemplate();
          fileProducer.sendBody("direct:/createFile",

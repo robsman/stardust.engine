@@ -86,7 +86,7 @@ public class GenericTriggerHeaderDataMappingTest
    @Test
    public void genericTriggerToSdtInHeader() throws Exception
    {
-      createFile("./target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
+      createFile("target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToSdtInHeader"));

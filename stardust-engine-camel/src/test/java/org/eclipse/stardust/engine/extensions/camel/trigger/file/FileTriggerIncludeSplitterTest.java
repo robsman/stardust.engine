@@ -45,7 +45,7 @@ public class FileTriggerIncludeSplitterTest
    @Test
    public void testSplitWithFileTrigger() throws Exception
    {
-      createFile("./target/FileDirectory/SplitTest", "SplitFile.txt", "line1\nline2");
+      createFile("target/FileDirectory/SplitTest", "SplitFile.txt", "line1\nline2");
       Thread.sleep(5000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(

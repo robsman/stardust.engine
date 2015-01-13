@@ -11,14 +11,14 @@ import org.eclipse.stardust.common.Direction;
 
 
 /**
- *
+ * 
  * 			ToDo
- *
- *
+ * 			
+ * 
  * <p>Java class for FormalParameter complex type.
- *
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * 
  * <pre>
  * &lt;complexType name="FormalParameter">
  *   &lt;complexContent>
@@ -36,8 +36,8 @@ import org.eclipse.stardust.common.Direction;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FormalParameter", propOrder = {
@@ -67,11 +67,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the id property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getId() {
         return id;
@@ -79,11 +79,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the id property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setId(String value) {
         this.id = value;
@@ -91,11 +91,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the name property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getName() {
         return name;
@@ -103,11 +103,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the name property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setName(String value) {
         this.name = value;
@@ -115,11 +115,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the direction property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public Direction getDirection() {
         return direction;
@@ -127,11 +127,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the direction property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setDirection(Direction value) {
         this.direction = value;
@@ -139,11 +139,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the type property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link QName }
-     *
+     *     
      */
     public QName getType() {
         return type;
@@ -151,11 +151,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the type property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link QName }
-     *
+     *     
      */
     public void setType(QName value) {
         this.type = value;
@@ -163,11 +163,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the typeId property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getTypeId() {
         return typeId;
@@ -175,11 +175,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the typeId property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setTypeId(String value) {
         this.typeId = value;
@@ -187,11 +187,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the dataId property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getDataId() {
         return dataId;
@@ -199,11 +199,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the dataId property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setDataId(String value) {
         this.dataId = value;
@@ -211,11 +211,11 @@ public class FormalParameterXto {
 
     /**
      * Gets the value of the attributes property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link AttributesXto }
-     *
+     *     
      */
     public AttributesXto getAttributes() {
         return attributes;
@@ -223,11 +223,11 @@ public class FormalParameterXto {
 
     /**
      * Sets the value of the attributes property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link AttributesXto }
-     *
+     *     
      */
     public void setAttributes(AttributesXto value) {
         this.attributes = value;

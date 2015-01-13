@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Query container for building complex queries for activity instances.
  *         
  * 
- * <p>Java class for ActivityQuery complex type.
+ * <p>Java-Klasse für ActivityQuery complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ActivityQuery">

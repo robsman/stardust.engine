@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Used to reference attributes which are specific to every query type.
  *         
  * 
- * <p>Java class for AttributeReference complex type.
+ * <p>Java-Klasse für AttributeReference complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="AttributeReference">
@@ -34,11 +34,11 @@ public class AttributeReferenceXto
     extends OperandXto
 {
 
-    @XmlAttribute
+    @XmlAttribute(name = "entity")
     protected String entity;
 
     /**
-     * Gets the value of the entity property.
+     * Ruft den Wert der entity-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -50,7 +50,7 @@ public class AttributeReferenceXto
     }
 
     /**
-     * Sets the value of the entity property.
+     * Legt den Wert der entity-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

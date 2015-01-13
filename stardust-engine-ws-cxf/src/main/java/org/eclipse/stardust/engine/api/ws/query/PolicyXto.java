@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
  *          which model version to use or what subset to deliver.
  *          
  * 
- * <p>Java class for Policy complex type.
+ * <p>Java-Klasse für Policy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Policy">
@@ -60,24 +60,24 @@ import javax.xml.bind.annotation.XmlType;
 public class PolicyXto {
 
     @XmlElements({
-        @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
-        @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
-        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
-        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
-        @XmlElement(name = "processDefinitionDetailsPolicy", type = ProcessDefinitionDetailsPolicyXto.class),
-        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
-        @XmlElement(name = "criticalCostPerExecutionPolicy", type = CriticalCostPerExecutionPolicyXto.class),
+        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
         @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class),
+        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
+        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
+        @XmlElement(name = "processDefinitionDetailsPolicy", type = ProcessDefinitionDetailsPolicyXto.class),
+        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
+        @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
         @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
-        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
-        @XmlElement(name = "excludeUserPolicy", type = ExcludeUserPolicyXto.class),
+        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
+        @XmlElement(name = "criticalCostPerExecutionPolicy", type = CriticalCostPerExecutionPolicyXto.class),
         @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
         @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
-        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
+        @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class),
         @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class),
-        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
-        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
-        @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class)
+        @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
+        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
+        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
+        @XmlElement(name = "excludeUserPolicy", type = ExcludeUserPolicyXto.class)
     })
     protected List<EvaluationPolicyXto> subsetPolicyOrSubFolderPolicyOrModelVersionPolicy;
 
@@ -99,24 +99,24 @@ public class PolicyXto {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link HistoricalStatesPolicyXto }
-     * {@link UserDetailsPolicyXto }
-     * {@link ModelVersionPolicyXto }
-     * {@link CasePolicyXto }
-     * {@link ProcessDefinitionDetailsPolicyXto }
-     * {@link DescriptorPolicyXto }
-     * {@link CriticalCostPerExecutionPolicyXto }
+     * {@link SubsetPolicyXto }
      * {@link SubFolderPolicyXto }
+     * {@link ModelVersionPolicyXto }
+     * {@link DescriptorPolicyXto }
+     * {@link ProcessDefinitionDetailsPolicyXto }
+     * {@link ProcessInstanceDetailsPolicyXto }
+     * {@link HistoricalStatesPolicyXto }
      * {@link HistoricalEventPolicyXto }
-     * {@link EvaluateByWorkitemsPolicyXto }
-     * {@link ExcludeUserPolicyXto }
+     * {@link CriticalExecutionTimePolicyXto }
+     * {@link CriticalCostPerExecutionPolicyXto }
      * {@link CriticalProcessingTimePolicyXto }
      * {@link PerformanceCriticalityPolicyXto }
-     * {@link CriticalExecutionTimePolicyXto }
-     * {@link TimeoutPolicyXto }
-     * {@link SubsetPolicyXto }
-     * {@link ProcessInstanceDetailsPolicyXto }
      * {@link ProcessCumulationPolicyXto }
+     * {@link TimeoutPolicyXto }
+     * {@link UserDetailsPolicyXto }
+     * {@link CasePolicyXto }
+     * {@link EvaluateByWorkitemsPolicyXto }
+     * {@link ExcludeUserPolicyXto }
      * 
      * 
      */

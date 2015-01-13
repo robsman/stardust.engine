@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy to include or exclude descriptors.
  *          
  * 
- * <p>Java class for DescriptorPolicy complex type.
+ * <p>Java-Klasse für DescriptorPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DescriptorPolicy">
@@ -42,7 +42,7 @@ public class DescriptorPolicyXto
     protected boolean includeDescriptors;
 
     /**
-     * Gets the value of the includeDescriptors property.
+     * Ruft den Wert der includeDescriptors-Eigenschaft ab.
      * 
      */
     public boolean isIncludeDescriptors() {
@@ -50,7 +50,7 @@ public class DescriptorPolicyXto
     }
 
     /**
-     * Sets the value of the includeDescriptors property.
+     * Legt den Wert der includeDescriptors-Eigenschaft fest.
      * 
      */
     public void setIncludeDescriptors(boolean value) {

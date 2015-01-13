@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="IllegalStateChangeException"/>
  *     &lt;enumeration value="InvalidArgumentException"/>
  *     &lt;enumeration value="InvalidEncodingException"/>
- *     &lt;enumeration value="InvalidPasswordException"/>
  *     &lt;enumeration value="InvalidValueException"/>
  *     &lt;enumeration value="LoginFailedException"/>
  *     &lt;enumeration value="ModelParsingException"/>
@@ -103,8 +102,6 @@ public enum BpmFaultCodeXto {
     INVALID_ARGUMENT_EXCEPTION("InvalidArgumentException"),
     @XmlEnumValue("InvalidEncodingException")
     INVALID_ENCODING_EXCEPTION("InvalidEncodingException"),
-    @XmlEnumValue("InvalidPasswordException")
-    INVALID_PASSWORD_EXCEPTION("InvalidPasswordException"),
     @XmlEnumValue("InvalidValueException")
     INVALID_VALUE_EXCEPTION("InvalidValueException"),
     @XmlEnumValue("LoginFailedException")

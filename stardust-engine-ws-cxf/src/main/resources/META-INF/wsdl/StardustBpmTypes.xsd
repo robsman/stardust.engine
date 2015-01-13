@@ -720,16 +720,6 @@
 
 					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
 						minOccurs="0" />
-						
-						
-					<element name="transitions">
-						<complexType>
-							<sequence>
-								<element name="transition" type="tns:Transition"
-									minOccurs="0" maxOccurs="unbounded" />
-							</sequence>
-						</complexType>
-					</element>
 
 					<element name="implementedProcessInterface" type="tns:ProcessInterface"
 						minOccurs="0" />
@@ -860,10 +850,6 @@
 
 					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
 						minOccurs="0" />
-
-					<element name="joinType" type="tns:GatewayType" minOccurs="0" />
-					<element name="splitType" type="tns:GatewayType" minOccurs="0" />
-											
 				</sequence>
 			</extension>
 		</complexContent>
@@ -2634,18 +2620,57 @@
 		</sequence>
 	</complexType>
 	
-	<complexType name="Transition">
+	<complexType name="BusinessObjects">
+		<sequence>
+			<element name="businessObject" type="tns:BusinessObject"
+				minOccurs="0" maxOccurs="unbounded" />		
+		</sequence>
+	</complexType>
+
+	<complexType name="BusinessObject">
 		<annotation>
 			<documentation>
-				The client view of a workflow transition.
 			</documentation>
 		</annotation>
 		<sequence>
 			<element name="id" type="string" />
-			<element name="sourceActivityId" type="string" />
-			<element name="targetActivityId" type="string" />
-			<element name="condition" type="string" />
-			<element name="conditionType" type="tns:ConditionType" minOccurs="0" />
+			<element name="modelId" type="string" />
+			<element name="name" type="string" />
+			<element name="values" type="tns:BusinessObjectValues" />
+			<element name="items" type="tns:BusinessObjectDefinitions" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectValues">
+		<sequence>
+			<element name="value" type="tns:BusinessObjectValue"
+				minOccurs="0" maxOccurs="unbounded" />			
+		</sequence>
+	</complexType>
+
+	<complexType name="BusinessObjectDefinitions">
+		<sequence>
+			<element name="item" type="tns:BusinessObjectDefinition"
+				minOccurs="0" maxOccurs="unbounded" />			
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectValue">
+		<sequence>
+			<element name="processInstanceOid" type="long" />
+			<element name="value" type="tns:Parameter" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectDefinition">
+		<sequence>
+			<element name="name" type="string" />
+			<element name="type" type="int" />
+			<element name="typeName" type="QName" />
+			<element name="key" type="boolean" />
+			<element name="primaryKey" type="boolean" />
+			<element name="items" type="tns:BusinessObjectDefinitions" minOccurs="0" maxOccurs="unbounded" />
+			<element name="isList" type="boolean" />
 		</sequence>
 	</complexType>
 
@@ -2751,21 +2776,6 @@
 			<enumeration value="PASS_WITH_CORRECTION" />
 			<enumeration value="PASS_NO_CORRECTION" />
 			<enumeration value="FAILED" />
-		</restriction>
-	</simpleType>
-	
-	<simpleType name="GatewayType">
-		<restriction base="string">
-			<enumeration value="And" />
-			<enumeration value="Or" />
-			<enumeration value="Xor" />
-		</restriction>
-	</simpleType>
-	
-	<simpleType name="ConditionType">
-		<restriction base="string">
-			<enumeration value="Condition" />
-			<enumeration value="Otherwise" />
 		</restriction>
 	</simpleType>
 		

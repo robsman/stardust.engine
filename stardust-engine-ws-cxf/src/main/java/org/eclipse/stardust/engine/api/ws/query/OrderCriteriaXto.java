@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		OrderCriteria are used to sort the result of a query.
  *         
  * 
- * <p>Java class for OrderCriteria complex type.
+ * <p>Java-Klasse für OrderCriteria complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="OrderCriteria">

@@ -26,7 +26,7 @@
 
    <wsdl:message name="bpmFault">
       <wsdl:part element="impl:bpmFault" name="parameters" />
-   </wsdl:message>
+   </wsdl:message> 
 
    <!-- WorkflowService -->
 
@@ -275,6 +275,30 @@
    <wsdl:message name="joinProcessInstanceResponse">
       <wsdl:part element="impl:joinProcessInstanceResponse" name="parameters"/>
    </wsdl:message>
+   
+   <wsdl:message name="createBusinessObjectInstanceRequest">
+   	  <wsdl:part element="impl:createBusinessObjectInstance" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="createBusinessObjectInstanceResponse">
+   	  <wsdl:part element="impl:createBusinessObjectInstanceResponse" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="updateBusinessObjectInstanceRequest">
+   	  <wsdl:part element="impl:updateBusinessObjectInstance" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="updateBusinessObjectInstanceResponse">
+   	  <wsdl:part element="impl:updateBusinessObjectInstanceResponse" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="deleteBusinessObjectInstanceRequest">
+   	  <wsdl:part element="impl:deleteBusinessObjectInstance" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="deleteBusinessObjectInstanceResponse">
+   	  <wsdl:part element="impl:deleteBusinessObjectInstanceResponse" name="parameters" />
+   </wsdl:message>      
 
    <!-- QueryService -->
 
@@ -444,6 +468,14 @@
 
    <wsdl:message name="findModelsResponse">
       <wsdl:part element="impl:findModelsResponse" name="parameters"/>
+   </wsdl:message>
+   
+   <wsdl:message name="getAllBusinessObjectsRequest">
+   	   <wsdl:part element="impl:getAllBusinessObjects" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllBusinessObjectsResponse">
+   	   <wsdl:part element="impl:getAllBusinessObjectsResponse" name="parameters"/>
    </wsdl:message>
 
    <!-- DocumentManagement -->
@@ -1490,6 +1522,34 @@
          <wsdl:output message="impl:abortProcessInstanceResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
+      
+      <wsdl:operation name="createBusinessObjectInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+		 Creates a new business object instance if it does not exist.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createBusinessObjectInstanceRequest" />
+         <wsdl:output message="impl:createBusinessObjectInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>      
+
+      <wsdl:operation name="updateBusinessObjectInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+		 Updates the value of a business object instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:updateBusinessObjectInstanceRequest" />
+         <wsdl:output message="impl:updateBusinessObjectInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>      
+
+      <wsdl:operation name="deleteBusinessObjectInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+		 Deletes a business object instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deleteBusinessObjectInstanceRequest" />
+         <wsdl:output message="impl:deleteBusinessObjectInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>      
+
 
    </wsdl:portType>
 
@@ -1718,6 +1778,15 @@
          <wsdl:output message="impl:findModelsResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
+      
+      <wsdl:operation name="getAllBusinessObjects" parameterOrder="parameters">
+         <wsdl:documentation>
+         documentation
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllBusinessObjectsRequest" />
+         <wsdl:output message="impl:getAllBusinessObjectsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>      
 
    </wsdl:portType>
 
@@ -3034,6 +3103,45 @@ The MigrationReport returned by each call contains information about: Total reso
          </wsdl:fault>
       </wsdl:operation>
 
+      <wsdl:operation name="createBusinessObjectInstance">
+         <wsdlsoap:operation soapAction="createBusinessObjectInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+      
+      <wsdl:operation name="updateBusinessObjectInstance">
+         <wsdlsoap:operation soapAction="updateBusinessObjectInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+      
+      <wsdl:operation name="deleteBusinessObjectInstance">
+         <wsdlsoap:operation soapAction="deleteBusinessObjectInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>            
+
    </wsdl:binding>
 
    <wsdl:binding name="IQueryServiceSoapBinding" type="impl:IQueryService">
@@ -3341,6 +3449,19 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="findModels">
          <wsdlsoap:operation soapAction="findModels" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllBusinessObjects">
+         <wsdlsoap:operation soapAction="getAllBusinessObjects" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>

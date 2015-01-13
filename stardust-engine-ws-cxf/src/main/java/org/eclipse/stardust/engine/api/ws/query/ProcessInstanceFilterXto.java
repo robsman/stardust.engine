@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Filter criterion for matching specific process instances.
  *         
  * 
- * <p>Java class for ProcessInstanceFilter complex type.
+ * <p>Java-Klasse für ProcessInstanceFilter complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceFilter">
@@ -40,11 +40,11 @@ public class ProcessInstanceFilterXto
 {
 
     protected long processOid;
-    @XmlAttribute
+    @XmlAttribute(name = "includingSubprocesses")
     protected Boolean includingSubprocesses;
 
     /**
-     * Gets the value of the processOid property.
+     * Ruft den Wert der processOid-Eigenschaft ab.
      * 
      */
     public long getProcessOid() {
@@ -52,7 +52,7 @@ public class ProcessInstanceFilterXto
     }
 
     /**
-     * Sets the value of the processOid property.
+     * Legt den Wert der processOid-Eigenschaft fest.
      * 
      */
     public void setProcessOid(long value) {
@@ -60,7 +60,7 @@ public class ProcessInstanceFilterXto
     }
 
     /**
-     * Gets the value of the includingSubprocesses property.
+     * Ruft den Wert der includingSubprocesses-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -76,7 +76,7 @@ public class ProcessInstanceFilterXto
     }
 
     /**
-     * Sets the value of the includingSubprocesses property.
+     * Legt den Wert der includingSubprocesses-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

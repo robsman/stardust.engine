@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.ApplicationException;
@@ -1005,6 +1006,115 @@ public class WorkflowServiceFacade implements IWorkflowService
          ProcessInstance pi = wfs.abortProcessInstance(oid, XmlAdapterUtils.unmarshalAbortScope(abortScope));
 
          return toWs(pi);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public BusinessObjectXto updateBusinessObjectInstance(
+         String qualifiedBusinessObjectId, ParameterXto newValue) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = currentWebServiceEnvironment();
+         
+         WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
+
+         QName qname = QName.valueOf(qualifiedBusinessObjectId);
+         String modelId = qname.getNamespaceURI();         
+         
+         Model model = null;
+         try
+         {
+            model = wsEnv.getActiveModel(modelId);
+         }
+         catch (Throwable e)
+         {
+            trace.warn("Could not access model information for unmarshaling. "
+                  + e.getMessage());
+         }         
+         
+         BusinessObject biObject = wfs.updateBusinessObjectInstance(
+               qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
+                     qualifiedBusinessObjectId, newValue));
+        
+        return toWs(biObject);               
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public void deleteBusinessObjectInstance(String qualifiedBusinessObjectId,
+         ParameterXto primaryKey) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = currentWebServiceEnvironment();
+         
+         WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
+               
+         QName qname = QName.valueOf(qualifiedBusinessObjectId);
+         String modelId = qname.getNamespaceURI();         
+         
+         Model model = null;
+         try
+         {
+            model = wsEnv.getActiveModel(modelId);
+         }
+         catch (Throwable e)
+         {
+            trace.warn("Could not access model information for unmarshaling. "
+                  + e.getMessage());
+         }           
+         
+         BusinessObject biObject = wfs.updateBusinessObjectInstance(
+               qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
+                     qualifiedBusinessObjectId, primaryKey));
+                 
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }      
+   }
+
+   @Override
+   public BusinessObjectXto createBusinessObjectInstance(
+         String qualifiedBusinessObjectId, ParameterXto initialValue) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = currentWebServiceEnvironment();
+         
+         WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
+         
+         QName qname = QName.valueOf(qualifiedBusinessObjectId);
+         String modelId = qname.getNamespaceURI();         
+         
+         Model model = null;
+         try
+         {
+            model = wsEnv.getActiveModel(modelId);
+         }
+         catch (Throwable e)
+         {
+            trace.warn("Could not access model information for unmarshaling. "
+                  + e.getMessage());
+         }           
+         
+         BusinessObject biObject = wfs.createBusinessObjectInstance(
+               qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
+                     qualifiedBusinessObjectId, initialValue));
+        
+        return toWs(biObject);               
       }
       catch (ApplicationException e)
       {

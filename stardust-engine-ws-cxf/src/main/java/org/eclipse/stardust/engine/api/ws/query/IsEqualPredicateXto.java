@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for IsEqualPredicate complex type.
+ * <p>Java-Klasse für IsEqualPredicate complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="IsEqualPredicate">
@@ -30,11 +30,11 @@ public class IsEqualPredicateXto
     extends BinaryPredicateXto
 {
 
-    @XmlAttribute
+    @XmlAttribute(name = "caseSensitive")
     protected Boolean caseSensitive;
 
     /**
-     * Gets the value of the caseSensitive property.
+     * Ruft den Wert der caseSensitive-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -50,7 +50,7 @@ public class IsEqualPredicateXto
     }
 
     /**
-     * Sets the value of the caseSensitive property.
+     * Legt den Wert der caseSensitive-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

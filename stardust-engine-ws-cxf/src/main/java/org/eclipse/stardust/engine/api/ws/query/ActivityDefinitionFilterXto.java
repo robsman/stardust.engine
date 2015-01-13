@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  *  		and to a process definition scope by using the 'processId' element.
  *         
  * 
- * <p>Java class for ActivityDefinitionFilter complex type.
+ * <p>Java-Klasse für ActivityDefinitionFilter complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ActivityDefinitionFilter">
@@ -54,13 +54,13 @@ public class ActivityDefinitionFilterXto
     @XmlElement(required = true)
     protected String activityId;
     protected String processId;
-    @XmlAttribute
+    @XmlAttribute(name = "includingSubprocesses")
     protected Boolean includingSubprocesses;
-    @XmlAttribute
+    @XmlAttribute(name = "modelOids")
     protected List<Long> modelOids;
 
     /**
-     * Gets the value of the activityId property.
+     * Ruft den Wert der activityId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -72,7 +72,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Sets the value of the activityId property.
+     * Legt den Wert der activityId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -84,7 +84,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Gets the value of the processId property.
+     * Ruft den Wert der processId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -96,7 +96,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Sets the value of the processId property.
+     * Legt den Wert der processId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -108,7 +108,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Gets the value of the includingSubprocesses property.
+     * Ruft den Wert der includingSubprocesses-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -124,7 +124,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Sets the value of the includingSubprocesses property.
+     * Legt den Wert der includingSubprocesses-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -36,6 +36,7 @@ import org.eclipse.stardust.engine.api.query.UserGroups;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.ws.*;
+import org.eclipse.stardust.engine.api.ws.query.BusinessObjectQueryXto;
 import org.eclipse.stardust.engine.api.ws.query.DeployedModelQueryXto;
 import org.eclipse.stardust.engine.api.ws.query.DocumentQueryXto;
 import org.eclipse.stardust.engine.api.ws.query.PreferenceQueryXto;
@@ -615,4 +616,24 @@ public class QueryServiceFacade implements IQueryService
       return null;
    }
 
+   @Override
+   public BusinessObjectsXto getAllBusinessObjects(
+         BusinessObjectQueryXto businessObjectQuery) throws BpmFault
+   {
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      
+      QueryService qs = wsEnv.getServiceFactory().getQueryService();
+      
+      try
+      {
+         qs.getAllBusinessObjects(QueryAdapterUtils.unmarshalBusinessObjectQuery(businessObjectQuery));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
 }
+

@@ -17,9 +17,9 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
  *         Restricts the resulting items to the ones having or not having a specific process state.
  *         
  * 
- * <p>Java class for ProcessStateFilter complex type.
+ * <p>Java-Klasse für ProcessStateFilter complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ProcessStateFilter">
@@ -58,7 +58,7 @@ public class ProcessStateFilterXto
     protected ProcessStateFilterXto.StatesXto states;
 
     /**
-     * Gets the value of the states property.
+     * Ruft den Wert der states-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -70,7 +70,7 @@ public class ProcessStateFilterXto
     }
 
     /**
-     * Sets the value of the states property.
+     * Legt den Wert der states-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -83,9 +83,9 @@ public class ProcessStateFilterXto
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -109,9 +109,9 @@ public class ProcessStateFilterXto
     public static class StatesXto {
 
         @XmlElement(type = String.class)
-        @XmlJavaTypeAdapter(Adapter2 .class)
+        @XmlJavaTypeAdapter(Adapter3 .class)
         protected List<ProcessInstanceState> state;
-        @XmlAttribute
+        @XmlAttribute(name = "inclusive")
         protected Boolean inclusive;
 
         /**
@@ -144,7 +144,7 @@ public class ProcessStateFilterXto
         }
 
         /**
-         * Gets the value of the inclusive property.
+         * Ruft den Wert der inclusive-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -160,7 +160,7 @@ public class ProcessStateFilterXto
         }
 
         /**
-         * Sets the value of the inclusive property.
+         * Legt den Wert der inclusive-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is

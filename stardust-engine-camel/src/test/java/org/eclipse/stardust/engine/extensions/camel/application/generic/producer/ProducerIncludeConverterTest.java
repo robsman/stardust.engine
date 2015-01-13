@@ -91,9 +91,6 @@ public class ProducerIncludeConverterTest
       cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
       cal.set(Calendar.DATE, 24);
       cal.set(Calendar.YEAR, 1987);
-      // cal.set(Calendar.HOUR, 13);
-      // cal.set(Calendar.MINUTE, 45);
-      // cal.set(Calendar.SECOND, 52);
       myDate = cal.getTime();
       person.put("DOB", formatter.format(myDate));
       personList.add(person);
@@ -101,9 +98,6 @@ public class ProducerIncludeConverterTest
       cal.set(Calendar.MONTH, Calendar.MAY);
       cal.set(Calendar.DATE, 11);
       cal.set(Calendar.YEAR, 1981);
-      // cal.set(Calendar.HOUR, 03);
-      // cal.set(Calendar.MINUTE, 25);
-      // cal.set(Calendar.SECOND, 12);
       myDate = cal.getTime();
       person = new HashMap<String, Object>();
       person.put("FirstName", "ABC");
@@ -119,7 +113,6 @@ public class ProducerIncludeConverterTest
             "{CsvConverterModelTest}FromSdtToCsv", dataMap, true);
 
       assertNotNull(pInstance);
-      Thread.sleep(2000);
       String csvOutput = (String) sf.getWorkflowService().getInDataPath(
             pInstance.getOID(), "csvOutput");
       assertNotNull(csvOutput);

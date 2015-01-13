@@ -9,10 +9,10 @@ import java.io.File;
 
 import javax.annotation.Resource;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -46,22 +46,14 @@ public class FileTriggerBodyDataMappingTest
             .getBean("ippServiceFactoryAccess");
       File dir = new File("target/FileDirectory");
       dir.mkdirs();
-      try
-      {
-         Thread.sleep(2000);
-      }
-      catch (InterruptedException e)
-      {
-         e.printStackTrace();
-      }
    }
-
+   
    @Test
    public void fileTriggerToPrimitive() throws Exception
    {
       createFile("target/FileDirectory/PD", "primitiveDataFile.txt",
             "primitiveData content from test class");
-      Thread.sleep(5000);
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerToPrimitiveBDM"));
@@ -90,7 +82,7 @@ public class FileTriggerBodyDataMappingTest
             "target/FileDirectory/SDT",
             "Person.xml",
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
-      Thread.sleep(5000);
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerToSdtBDM"));
@@ -122,7 +114,7 @@ public class FileTriggerBodyDataMappingTest
    {
       createFile("target/FileDirectory/Document", "DocumentFile.txt",
             "Document File Content");
-      Thread.sleep(5000);
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerToDocumentBDM"));

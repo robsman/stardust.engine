@@ -73,7 +73,7 @@ public class FileTriggerIncludeConverterTest
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
       String xmlFileContent = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>   <Structured>    <stringField>text in xml file</stringField>     <intField>565</intField>   <longField>126954</longField>    <dateField>"+formatter.format(getDate(24, Calendar.SEPTEMBER, 2002,6,0))+"</dateField>   </Structured>";
       createFile("target/FileDirectory/XML", "messageFile.xml", xmlFileContent);
-      Thread.sleep(5000);
+      Thread.sleep(3000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerFromXML"));
@@ -102,7 +102,7 @@ public class FileTriggerIncludeConverterTest
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
       String jsonFileContent = "{\"intField\":456,\"longField\":789444,\"stringField\":\"text in Json file\",\"dateField\":\""+formatter.format(getDate(28,Calendar.MAY,2014))+"\"}";
       createFile("target/FileDirectory/Json", "messageFile.json", jsonFileContent);
-      Thread.sleep(5000);
+      Thread.sleep(3000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerFromJSON"));
@@ -132,7 +132,7 @@ public class FileTriggerIncludeConverterTest
       
       String csvFileContent = "stringField,intField,longField,dateField\ntext in csv file,123,789,"+formatter.format(getDate(28,Calendar.MAY,2014,11,30));
       createFile("target/FileDirectory/CSV", "messageFile.csv", csvFileContent);
-      Thread.sleep(5000);
+      Thread.sleep(3000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerFromCSV"));
@@ -162,7 +162,7 @@ public class FileTriggerIncludeConverterTest
       SimpleDateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy",Locale.US);
       String csvFileContent = "stringField#intField#longField#dateField\nFirst Line#12#45454#"+formatter.format(getDate(27,Calendar.MAY,2014))+"\nSecondLine#41#95854#"+formatter.format(getDate(18,Calendar.MAY,2014));
       createFile("target/FileDirectory/ListCSV", "messageFile.csv", csvFileContent);
-      Thread.sleep(5000);
+      Thread.sleep(3000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileTriggerFromListCSV"));

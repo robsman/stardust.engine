@@ -34,13 +34,11 @@ public class ConsumerHeaderDataMappingTest
    @Test
    public void testConsumerRouteProcessMessageInHeader() throws Exception
    {
-
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String message = "Message send to consumer route in header";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerDataInHeaderProcess", null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBodyAndHeader("direct:startConsumeConsumeMessageInHeader", "", "MessageInHeader", message);
-      Thread.sleep(1000);
       Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "MessageInHeader");
       assertNotNull(result);
       assertTrue(result instanceof String);
@@ -49,6 +47,5 @@ public class ConsumerHeaderDataMappingTest
             .findAlive("{GenericApplicationConsumerTestModel}TestConsumerDataInHeaderProcess");
       ActivityInstances activityInstances = sf.getQueryService().getAllActivityInstances(activityInstanceQuery);
       sf.getWorkflowService().activateAndComplete(activityInstances.get(0).getOID(), null, null);
-
    }
 }

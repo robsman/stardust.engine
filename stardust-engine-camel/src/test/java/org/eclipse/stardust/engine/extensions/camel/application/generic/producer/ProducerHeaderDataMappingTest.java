@@ -33,11 +33,9 @@ public class ProducerHeaderDataMappingTest
    public void testHeaderInDataMappingsPrimitive() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       resultEndpoint.expectedHeaderReceived("input1", "header1");
       resultEndpoint.expectedHeaderReceived("input2", "header2");
       resultEndpoint.expectedHeaderReceived("input3", "header3");
-
       sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testHeaderInDataMappingsPrimitive", null, true);
       resultEndpoint.assertIsSatisfied();
       resultEndpoint.reset();
@@ -47,18 +45,14 @@ public class ProducerHeaderDataMappingTest
    public void testHeaderInBodyInMappingsMixed() throws Exception
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       resultEndpoint.expectedHeaderReceived("input1", "header1");
       resultEndpoint.expectedHeaderReceived("input2", "header2");
-
       Map<String, Object> dataMap = new HashMap<String, Object>();
       Map<String, Object> expectedBody = new HashMap<String, Object>();
       expectedBody.put("firstName", "Manali");
       expectedBody.put("lastName", "Mungikar");
       dataMap.put("Person", expectedBody);
-
       resultEndpoint.expectedBodiesReceived(expectedBody);
-
       sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testHeaderInBodyInMappingsMixed", dataMap, true);
       resultEndpoint.assertIsSatisfied();
       resultEndpoint.reset();

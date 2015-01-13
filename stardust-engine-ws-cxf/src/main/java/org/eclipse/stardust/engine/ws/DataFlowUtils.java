@@ -908,25 +908,17 @@ public class DataFlowUtils
       String businessObjectId = qname.getLocalPart();
 
       ModelResolver env = currentWebServiceEnvironment();
-//      final ModelManager modelManager = ModelManagerFactory.getCurrent();
-//
-//      
-//      
-//      IModel model = modelManager.findActiveModel(modelId);      
       
       if (model == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
       }
- //     ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);
       
       Data data = model.getData(businessObjectId);
       if (data == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(businessObjectId));
       }
-//      Data dataDetails = DetailsFactory.create(data,
-//            Data.class, DataDetails.class);
       
       return unmarshalDataValue(model, data, null, null, param, env);
    }

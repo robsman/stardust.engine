@@ -94,8 +94,10 @@ import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.Filt
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.NoOpTransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
@@ -1644,7 +1646,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          trace.debug(this + ", flushing!");
       }
 
-      final TransientProcessInstanceSupport transientPiSupport = new TransientProcessInstanceSupport(dbDescriptor.supportsSequences());
 
       try
       {
@@ -1687,6 +1688,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          boolean supportsAsynchWrite = params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWrite", false);
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
 
+         final AbstractTransientProcessInstanceSupport transientPiSupport;
          if (supportsAsynchWrite)
          {
             for (Iterator i = pis.values().iterator(); i.hasNext();)
@@ -1696,11 +1698,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                supportsAsynchWrite &= pcPi.isCreated() && pi.isTerminated();
             }
+            transientPiSupport = new NoOpTransientProcessInstanceSupport();
          }
          else if (ProcessInstanceUtils.isTransientPiSupportEnabled())
          {
             final Map<Object, PersistenceController> ais = objCacheRegistry.get(ActivityInstanceBean.class);
-            transientPiSupport.init(pis, ais);
+            transientPiSupport = AbstractTransientProcessInstanceSupport.newInstance(dbDescriptor.supportsSequences(), pis, ais);
+         }
+         else
+         {
+            transientPiSupport = new NoOpTransientProcessInstanceSupport();
          }
 
          BlobBuilder blobBuilder = null;
@@ -3425,7 +3432,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       if (ProcessInstanceUtils.isTransientPiSupportEnabled() && isTransientPersistentCandidate(typeManager))
       {
-         final Persistent transientPersistent = TransientProcessInstanceSupport.loadProcessInstanceGraphIfExistent(new PersistentKey(oid, type), this);
+         final Persistent transientPersistent = TransientProcessInstanceUtils.loadProcessInstanceGraphIfExistent(new PersistentKey(oid, type), this);
          if (transientPersistent != null)
          {
             return transientPersistent;
@@ -3708,7 +3715,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          if (trace.isDebugEnabled())
          {
-            trace.debug(this + " has returned JDBC connection " 
+            trace.debug(this + " has returned JDBC connection "
                   + LogUtils.instanceInfo(jdbcConnection) + ".");
          }
 

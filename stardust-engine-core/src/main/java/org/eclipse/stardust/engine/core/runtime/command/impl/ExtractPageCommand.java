@@ -21,6 +21,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
@@ -32,8 +34,12 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.DocumentAnnotations;
 
@@ -149,7 +155,7 @@ public class ExtractPageCommand implements ServiceCommand
       WorkflowService workflowService = sf.getWorkflowService();
       List<SubprocessSpawnInfo> infoList = CollectionUtils.newArrayList();
 
-      Map<String, Document> data = null;
+      Map<String, Document> data = CollectionUtils.newHashMap();
       List<ProcessInstance> spawnProcesses = new ArrayList<ProcessInstance>();
       for (PageModel page : pages)
       {
@@ -163,10 +169,12 @@ public class ExtractPageCommand implements ServiceCommand
             Document document = ExtractPageUtil.createDocument(sf, sourceDocumentPath, page.content, newDocumentName,
                   mimeType, properties, page.getAnnotations());
             // set DATAID to new spawn process
-            data = CollectionUtils.newHashMap();
             data.put(page.getDataId(), document);
             page.setDocument(document);
          }
+         
+         // DMS data should not be copied, so initialize it with null values.
+         setDmsDataNull(data);
          
          if(!page.isAbortProcessInstance())
          {
@@ -218,6 +226,30 @@ public class ExtractPageCommand implements ServiceCommand
          page.setStartedProcessInstance(pi);
       }
       return spawnProcesses;
+   }
+
+   /**
+    * Add dataId with null value for all existing dms data that does not already contain
+    * the extracted page.
+    * 
+    * @param data data that can already contain an extracted page.
+    */
+   private void setDmsDataNull(Map<String, Document> data)
+   {
+      if (processInstance != null)
+      {
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+         IModel model = modelManager.findModel(processInstance.getModelOID());
+         ModelElementList<IData> allData = model.getData();
+         for (IData iData : allData)
+         {
+            if (StructuredTypeRtUtils.isDmsType(iData.getType().getId())
+                  && !data.containsKey(iData.getId()))
+            {
+               data.put(iData.getId(), null);
+            }
+         }
+      }
    }
 
    public ProcessInstance getProcessInstance()
@@ -451,7 +483,7 @@ public class ExtractPageCommand implements ServiceCommand
 
             doc = documentManagementService.createDocument(targetId, docInfo, byteContents, null);
             // for creating version
-            documentManagementService.versionDocument(doc.getId(), ZERO);
+            documentManagementService.versionDocument(doc.getId(), null, ZERO);
          }
 
          return doc;
@@ -497,22 +529,6 @@ public class ExtractPageCommand implements ServiceCommand
             List<Document> processAttachments)
       {
          sf.getWorkflowService().setOutDataPath(processInstance.getOID(), PROCESS_ATTACHMENTS, processAttachments);
-      }
-
-      /**
-       * updates the provided process instance with provided new document
-       *
-       * @param processInstance
-       * @param document
-       * @return
-       */
-      public static boolean addAndSaveProcessAttachment(ServiceFactory sf, ProcessInstance processInstance,
-            Document document)
-      {
-         List<Document> processAttachments = fetchProcessAttachments(sf, processInstance);
-         processAttachments.add(document);
-         saveProcessAttachments(sf, processInstance, processAttachments);
-         return true;
       }
 
       /**

@@ -12,6 +12,9 @@ package org.eclipse.stardust.engine.api.query;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelAwareQueryPredicate;
+
 /**
  *
  * @author Florin.Herinean
@@ -81,6 +84,18 @@ public class BusinessObjectQuery extends Query
    private static final FilterableAttribute MODEL_ID = new FilterableAttributeImpl(
          BusinessObjectQuery.class, MODEL_ID_ATTRIBUTE);
 
+   /**
+    * Attribute to filter for a specific model. <br>
+    * <b>Please Note: </b>Currently only supports one single Operator.isEqual(modelOid) term to
+    * filter for exactly one modelOid.
+    *
+    * @see {@link #findAllForModel(long)}
+    * @see {@link #findUsedInProcess(long, String)}
+    *
+    */
+   private static final FilterableAttribute MODEL_OID = new FilterableAttributeImpl(
+         BusinessObjectQuery.class, ModelAwareQueryPredicate.INTERNAL_MODEL_OID_ATTRIBUTE);
+
    public static final FilterVerifier FILTER_VERIFYER = new FilterScopeVerifier(
          new WhitelistFilterVerifyer(new Class[] {
                FilterTerm.class,
@@ -123,6 +138,34 @@ public class BusinessObjectQuery extends Query
    public static BusinessObjectQuery findWithPrimaryKey(String qualifiedBusinessObjectId, Object pk)
    {
       BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(qualifiedBusinessObjectId);
+      query.where(pk instanceof Number
+            ? PRIMARY_KEY.isEqual(((Number) pk).longValue())
+            : PRIMARY_KEY.isEqual(pk.toString()));
+      return query;
+   }
+
+   public static BusinessObjectQuery findInModel(long modelOid)
+   {
+      BusinessObjectQuery query = findAll();
+      query.where(MODEL_OID.isEqual(modelOid));
+      return query;
+   }
+
+   public static BusinessObjectQuery findForBusinessObject(long modelOid, String businessObjectId)
+   {
+      QName qname = QName.valueOf(businessObjectId);
+      BusinessObjectQuery query = BusinessObjectQuery.findInModel(modelOid);
+      if (!StringUtils.isEmpty(qname.getNamespaceURI()))
+      {
+         query.where(MODEL_ID.isEqual(qname.getNamespaceURI()));
+      }
+      query.where(BUSINESS_OBJECT_ID.isEqual(qname.getLocalPart()));
+      return query;
+   }
+
+   public static BusinessObjectQuery findWithPrimaryKey(long modelOid, String businessObjectId, Object pk)
+   {
+      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(modelOid, businessObjectId);
       query.where(pk instanceof Number
             ? PRIMARY_KEY.isEqual(((Number) pk).longValue())
             : PRIMARY_KEY.isEqual(pk.toString()));

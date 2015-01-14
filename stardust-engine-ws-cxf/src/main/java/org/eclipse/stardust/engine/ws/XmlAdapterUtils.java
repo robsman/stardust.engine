@@ -132,6 +132,7 @@ import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
 import org.eclipse.stardust.engine.api.query.LogEntries;
@@ -5937,6 +5938,23 @@ public class XmlAdapterUtils
          xto.setValue(paramXto);
       }
       
+      return xto;
+   }
+
+   public static BusinessObjectsXto marshalBusinessObjects(BusinessObjects bo)
+   {
+      BusinessObjectsXto xto = null;
+      if (bo != null)
+      {
+         xto = new BusinessObjectsXto();
+         
+         for (BusinessObject obj : bo)
+         {
+            xto.getBusinessObject().add(toWs(obj));
+         }
+         
+         xto.getBusinessObject();
+      }
       return xto;
    }
     

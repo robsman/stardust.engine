@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.query.LogEntries;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.query.UserGroups;
@@ -626,7 +627,9 @@ public class QueryServiceFacade implements IQueryService
       
       try
       {
-         qs.getAllBusinessObjects(QueryAdapterUtils.unmarshalBusinessObjectQuery(businessObjectQuery));
+         BusinessObjects bo = qs.getAllBusinessObjects(QueryAdapterUtils.unmarshalBusinessObjectQuery(businessObjectQuery));
+         
+         return XmlAdapterUtils.marshalBusinessObjects(bo);
       }
       catch (ApplicationException e)
       {

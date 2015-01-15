@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.dto;
 /**
  * <p>
  * Encapsulates the <i>Audit Trail Persistence</i> mode the
- * engine is running in.
+ * process instance is running in.
  * </p>
  *
  * @author Nicolas.Werlein
@@ -23,15 +23,23 @@ public enum AuditTrailPersistence {
 
    /**
     * <p>
-    * The <i>Audit Trail Persistence</i> mode if nothing is defined explicitly:
-    * meaning that it falls back to the standard behavior (see {@link #IMMEDIATE}).
+    * The <i>Audit Trail Persistence</i> mode if nothing is defined explicitly, meaning
+    * that it falls back to the standard behavior: If it's an asynchronous process instance,
+    * it will inherit the {@link AuditTrailPersistence} of the originating process instance,
+    * otherwise it will be {@link #IMMEDIATE} effectively.
     * </p>
     */
    ENGINE_DEFAULT
    {
       @Override
-      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to, final boolean notYetWrittenToTheDb)
       {
+         if (notYetWrittenToTheDb)
+         {
+            /* all state changes are allowed */
+            return;
+         }
+
          if (to == ENGINE_DEFAULT)
          {
             /* allowed */
@@ -50,7 +58,7 @@ public enum AuditTrailPersistence {
    TRANSIENT
    {
       @Override
-      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to, final boolean ignored)
       {
          if (to == TRANSIENT || to == DEFERRED || to == IMMEDIATE)
          {
@@ -71,7 +79,7 @@ public enum AuditTrailPersistence {
    DEFERRED
    {
       @Override
-      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to, final boolean ignored)
       {
          if (to == TRANSIENT || to == DEFERRED || to == IMMEDIATE)
          {
@@ -92,7 +100,7 @@ public enum AuditTrailPersistence {
    IMMEDIATE
    {
       @Override
-      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to)
+      public void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to, final boolean ignored)
       {
          if (to == IMMEDIATE)
          {
@@ -111,10 +119,11 @@ public enum AuditTrailPersistence {
     * </p>
     *
     * @param to the state for which it should be checked whether a state change from the current state is allowed
+    * @param notYetWrittenToTheDb whether the corresponding process instance has not been written to the database yet
     *
     * @throws IllegalStateException if the state change is not allowed
     */
-   public abstract void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to);
+   public abstract void assertThatStateChangeIsAllowedTo(final AuditTrailPersistence to, final boolean notYetWrittenToTheDb);
 
    /**
     * <p>

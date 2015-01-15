@@ -249,7 +249,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          IUser user, Map<String, ? > data, boolean isSubprocess)
    {
       return createInstance(processDefinition, null, null, user, data, isSubprocess);
-   }   
+   }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
@@ -394,7 +394,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          processInstance.doBindAutomaticlyBoundEvents();
       }
-         
+
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
@@ -1621,7 +1621,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          setPropertyValue(PI_NOTE, buffer.toString());
       }
    }
-   
+
    public void addExistingNote(ProcessInstanceProperty srcNote)
    {
       super.addProperty(srcNote.clone(this.getOID()));
@@ -1764,7 +1764,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
-      oldValue.assertThatStateChangeIsAllowedTo(newValue);
+      oldValue.assertThatStateChangeIsAllowedTo(newValue, getPersistenceController().isCreated());
 
       final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
       if (isGlobalOverride)

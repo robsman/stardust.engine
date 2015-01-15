@@ -133,7 +133,6 @@ import org.springframework.transaction.UnexpectedRollbackException;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class TransientProcessInstanceTest extends AbstractTransientProcessInstanceTest
 {
@@ -1167,14 +1166,15 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#ENGINE_DEFAULT}) such that it causes the whole process instance graph
-    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
+    * being {@link AuditTrailPersistence#ENGINE_DEFAULT} when the starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
    @Test
    public void testTransientProcessAsyncSubprocessEngineDefault() throws Exception
    {
+      // TODO [CRNT-26302] adapt test case
+
       enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT, null, true);
@@ -1195,14 +1195,15 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#TRANSIENT}) such that it causes the whole process instance graph
-    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
+    * being {@link AuditTrailPersistence#TRANSIENT} when the starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
    @Test
    public void testTransientProcessAsyncSubprocessTransient() throws Exception
    {
+      // TODO [CRNT-26302] adapt test case
+
       enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT, null, true);
@@ -1223,14 +1224,15 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#DEFERRED}) such that it causes the whole process instance graph
-    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
+    * being {@link AuditTrailPersistence#DEFERRED} when the starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
    @Test
    public void testTransientProcessAsyncSubprocessDeferred() throws Exception
    {
+      // TODO [CRNT-26302] adapt test case
+
       enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED, null, true);
@@ -1251,14 +1253,15 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
     *
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#IMMEDIATE}) such that it causes the whole process instance graph
-    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
+    * being {@link AuditTrailPersistence#IMMEDIATE} when the starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
    @Test
    public void testTransientProcessAsyncSubprocessImmediate() throws Exception
    {
+      // TODO [CRNT-26302] adapt test case
+
       enableTransientProcessesSupport();
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE, null, true);
@@ -1270,6 +1273,142 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(subPiOid), is(true));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#ENGINE_DEFAULT} when the starting process instance is
+    * {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testDeferredProcessAsyncSubprocessEngineDefault() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#TRANSIENT} when the starting process instance is
+    * {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testDeferredProcessAsyncSubprocessTransient() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#DEFERRED} when the starting process instance is
+    * {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testDeferredProcessAsyncSubprocessDeferred() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#IMMEDIATE} when the starting process instance is
+    * {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testDeferredProcessAsyncSubprocessImmediate() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#ENGINE_DEFAULT} when the starting process instance is
+    * {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testImmediateProcessAsyncSubprocessEngineDefault() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#TRANSIENT} when the starting process instance is
+    * {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testImmediateProcessAsyncSubprocessTransient() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#DEFERRED} when the starting process instance is
+    * {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testImmediateProcessAsyncSubprocessDeferred() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * being {@link AuditTrailPersistence#IMMEDIATE} when the starting process instance is
+    * {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testImmediateProcessAsyncSubprocessImmediate() throws Exception
+   {
+      // TODO [CRNT-26302] implement test case
    }
 
    /**

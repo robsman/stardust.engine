@@ -2633,6 +2633,7 @@
 			</documentation>
 		</annotation>
 		<sequence>
+			<element name="modelOid" type="long" />
 			<element name="id" type="string" />
 			<element name="modelId" type="string" />
 			<element name="name" type="string" />

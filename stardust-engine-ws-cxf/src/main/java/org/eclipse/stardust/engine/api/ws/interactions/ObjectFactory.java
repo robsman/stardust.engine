@@ -34,11 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinitionResponse }
+     * Create an instance of {@link SetOutputParameters }
      * 
      */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
+    public SetOutputParameters createSetOutputParameters() {
+        return new SetOutputParameters();
     }
 
     /**
@@ -50,11 +50,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwner }
+     * Create an instance of {@link GetInputParametersResponse }
      * 
      */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinitionResponse }
+     * 
+     */
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
     }
 
     /**
@@ -66,19 +74,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetInputParameters }
+     * Create an instance of {@link GetOwnerResponse }
      * 
      */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
     }
 
     /**
-     * Create an instance of {@link GetInputParametersResponse }
+     * Create an instance of {@link GetOwner }
      * 
      */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
+    public GetOwner createGetOwner() {
+        return new GetOwner();
     }
 
     /**
@@ -90,19 +98,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwnerResponse }
+     * Create an instance of {@link GetInputParameters }
      * 
      */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
-    }
-
-    /**
-     * Create an instance of {@link SetOutputParameters }
-     * 
-     */
-    public SetOutputParameters createSetOutputParameters() {
-        return new SetOutputParameters();
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
     }
 
     /**

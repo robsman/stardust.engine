@@ -5837,7 +5837,8 @@ public class XmlAdapterUtils
       if(biObject != null)
       {
          xto = new BusinessObjectXto();
-                  
+               
+         xto.setModelOid(biObject.getModelOid());
          xto.setId(biObject.getId());
          xto.setModelId(biObject.getModelId());
          xto.setName(biObject.getName());

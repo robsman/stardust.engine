@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="modelOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="modelId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
@@ -32,6 +33,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "BusinessObject", propOrder = {
+    "modelOid",
     "id",
     "modelId",
     "name",
@@ -40,6 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class BusinessObjectXto {
 
+    protected long modelOid;
     @XmlElement(required = true)
     protected String id;
     @XmlElement(required = true)
@@ -50,6 +53,22 @@ public class BusinessObjectXto {
     protected BusinessObjectValuesXto values;
     @XmlElement(required = true)
     protected BusinessObjectDefinitionsXto items;
+
+    /**
+     * Gets the value of the modelOid property.
+     * 
+     */
+    public long getModelOid() {
+        return modelOid;
+    }
+
+    /**
+     * Sets the value of the modelOid property.
+     * 
+     */
+    public void setModelOid(long value) {
+        this.modelOid = value;
+    }
 
     /**
      * Gets the value of the id property.

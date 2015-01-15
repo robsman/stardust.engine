@@ -47,10 +47,6 @@ public class SignalMessageAcceptor implements MessageAcceptor, Stateless
 {
 	private static final Logger trace = LogManager.getLogger(DefaultMessageAcceptor.class);
 
-	public SignalMessageAcceptor()
-	{
-	}
-
 	public boolean isStateless()
 	{
 		return true;
@@ -79,7 +75,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, Stateless
 //
 //				return executeRawQuery(query);
 			}
-		} 
+		}
 		catch (JMSException e) {
 			throw new PublicException(e);
 		}
@@ -128,7 +124,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, Stateless
 
 	public String getName()
 	{
-		return "Default acceptor";
+		return "Signal event acceptor";
 	}
 
 	public boolean hasPredefinedAccessPoints(StringKey id)

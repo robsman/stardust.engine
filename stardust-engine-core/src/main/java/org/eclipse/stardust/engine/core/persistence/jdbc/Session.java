@@ -2036,10 +2036,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   /* as long as the PIs are not completed 'transient' and 'deferred' are handled equally */
                   transientPiSupport.writeToInMemStorage(blobBuilder);
                }
-               else if (transientPiSupport.isDeferredPersist() || transientPiSupport.isTransientExecutionCancelled())
-               {
-                  writeIntoAuditTrail(blobBuilder);
-               }
                else if (blobBuilder instanceof ByteArrayBlobBuilder || blobBuilder instanceof ByteArrayBlobBuilderMediator)
                {
                   writeIntoAuditTrail(blobBuilder);

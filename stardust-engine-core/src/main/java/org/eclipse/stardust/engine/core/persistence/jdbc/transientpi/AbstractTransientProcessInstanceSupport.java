@@ -117,11 +117,6 @@ public abstract class AbstractTransientProcessInstanceSupport
    public abstract boolean arePisTransientExecutionCandidates();
 
    /**
-    * @return whether the process instance graph persist operation will be deferred
-    */
-   public abstract boolean isDeferredPersist();
-
-   /**
     * @return whether the current session is executed transiently
     */
    public abstract boolean isCurrentSessionTransient();

@@ -117,15 +117,6 @@ public class NoOpTransientProcessInstanceSupport extends AbstractTransientProces
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#isDeferredPersist()
-    */
-   @Override
-   public boolean isDeferredPersist()
-   {
-      return false;
-   }
-
-   /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#newBlobBuilder()
     */
    @Override

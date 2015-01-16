@@ -172,15 +172,6 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#isDeferredPersist()
-    */
-   @Override
-   public boolean isDeferredPersist()
-   {
-      return deferredPersist;
-   }
-
-   /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#isCurrentSessionTransient()
     */
    @Override
@@ -214,7 +205,6 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    public boolean persistentsNeedToBeWrittenToBlob()
    {
       final boolean transientExecutionIntermediateState = isCurrentSessionTransient() && !areAllPisCompleted();
-      final boolean deferredPersist = isDeferredPersist();
       final boolean cancelledTransientExecution = isTransientExecutionCancelled();
 
       return transientExecutionIntermediateState || deferredPersist || cancelledTransientExecution;

@@ -58,14 +58,9 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
 
    private final boolean cancelTransientExecution;
 
-   /* package-private */ MultipleRootPisTransientProcessInstanceSupport(final Set<Long> rootPiOids, final boolean pisAreTransientExecutionCandidates, final boolean cancelTransientExecution, final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
+   /* package-private */ MultipleRootPisTransientProcessInstanceSupport(final Set<Long> rootPiOids, final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       this.rootPiOids = rootPiOids;
-      this.pisAreTransientExecutionCandidates = pisAreTransientExecutionCandidates;
-
-      // TODO [CRNT-26302] add transient PI support for more than one root PI
-      this.cancelTransientExecution = true;
-      resetTransientPiProperty(pis);
 
       for (final Long rootPiOid : rootPiOids)
       {
@@ -73,6 +68,18 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
          allPersistentKeysToBeDeleted.put(rootPiOid, new HashSet<PersistentKey>());
 
          chunkOfPersistentsToBeInserted.put(rootPiOid, new ArrayList<Persistent>());
+      }
+
+      pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis);
+      if (pisAreTransientExecutionCandidates)
+      {
+         // TODO [CRNT-26302] add transient PI support for more than one root PI
+         resetTransientPiProperty(pis);
+         cancelTransientExecution = true;
+      }
+      else
+      {
+         cancelTransientExecution = false;
       }
    }
 
@@ -217,7 +224,7 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    public boolean persistentsNeedToBeWrittenToBlob()
    {
       // TODO [CRNT-26302] add transient PI support for more than one root PI
-      return true;
+      return isTransientExecutionCancelled();
    }
 
    /* (non-Javadoc)
@@ -227,6 +234,32 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    public BlobBuilder newBlobBuilder()
    {
       return new ByteArrayBlobBuilderMediator(rootPiOids);
+   }
+
+   private boolean determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
+   {
+      // TODO [CRNT-26302] cope with more than one root PI
+
+      if (pis == null || pis.isEmpty())
+      {
+         return false;
+      }
+
+      for (final PersistenceController pc : pis.values())
+      {
+         if ( !pc.isCreated())
+         {
+            return false;
+         }
+
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+         if ( !ProcessInstanceUtils.isTransientExecutionScenario(pi))
+         {
+            return false;
+         }
+      }
+
+      return true;
    }
 
    private ByteArrayBlobBuilderMediator castToByteArrayBlobBuilderMediator(final BlobBuilder blobBuilder)

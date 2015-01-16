@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
@@ -54,40 +55,47 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
 
    private final boolean pisAreTransientExecutionCandidates;
 
-   private boolean deferredPersist = false;
+   private final boolean cancelTransientExecution;
 
-   private boolean transientSession = false;
+   private final boolean transientSession;
 
-   private boolean allPisAreCompleted = false;
+   private final boolean deferredPersist;
 
-   private boolean cancelTransientExecution = false;
+   private final boolean allPisAreCompleted;
+
 
    /**
     * <p>
     * The constructor initializing an object of this class with its initial state.
     * </p>
     */
-   /* package-private */ UniqueRootPiTransientProcessInstanceSupport(final Long rootPiOid, final boolean pisAreTransientExecutionCandidates, final boolean cancelTransientExecution, final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
+   /* package-private */ UniqueRootPiTransientProcessInstanceSupport(final Long rootPiOid, final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       this.rootPiOid = rootPiOid;
-      this.pisAreTransientExecutionCandidates = pisAreTransientExecutionCandidates;
-      this.cancelTransientExecution = cancelTransientExecution;
 
-      if (cancelTransientExecution)
+      pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis);
+      if ( !pisAreTransientExecutionCandidates)
       {
+         cancelTransientExecution = isSwitchFromTransientOrDeferredToImmediate(pis);
+         transientSession = false;
+         deferredPersist = false;
+         allPisAreCompleted = false;
          return;
       }
 
-      determineWhetherCurrentSessionIsTransient(pis, (ais != null) ? ais : Collections.<Object, PersistenceController>emptyMap());
-      if ( !isCurrentSessionTransient())
+      transientSession = determineWhetherCurrentSessionIsTransient(pis, (ais != null) ? ais : Collections.<Object, PersistenceController>emptyMap());
+      if ( !transientSession)
       {
          resetTransientPiProperty(pis);
-         this.cancelTransientExecution = true;
+         cancelTransientExecution = true;
+         deferredPersist = false;
+         allPisAreCompleted = false;
          return;
       }
 
-      determineWhetherItsDeferredPersist(pis);
-      determineWhetherAllPIsAreCompleted(pis);
+      cancelTransientExecution = false;
+      deferredPersist = determineWhetherItsDeferredPersist(pis);
+      allPisAreCompleted = determineWhetherAllPIsAreCompleted(pis);
    }
 
    /* (non-Javadoc)
@@ -218,10 +226,51 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       return new ByteArrayBlobBuilder();
    }
 
-   private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
+   private boolean determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
    {
-      transientSession = true;
+      if (pis == null || pis.isEmpty())
+      {
+         return false;
+      }
 
+      for (final PersistenceController pc : pis.values())
+      {
+         if ( !pc.isCreated())
+         {
+            return false;
+         }
+
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+         if ( !ProcessInstanceUtils.isTransientExecutionScenario(pi))
+         {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   private boolean isSwitchFromTransientOrDeferredToImmediate(final Map<Object, PersistenceController> pis)
+   {
+      if (pis == null || pis.isEmpty())
+      {
+         return false;
+      }
+
+      final IProcessInstance rootPi = ProcessInstanceBean.findByOID(rootPiOid);
+      final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
+      final boolean wasTransient = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.TRANSIENT;
+      final boolean wasDeferred = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
+      if (isImmediateNow && (wasTransient || wasDeferred))
+      {
+         return true;
+      }
+
+      return false;
+   }
+
+   private boolean determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
+   {
       for (final PersistenceController pc : ais.values())
       {
          final IActivityInstance ai = (IActivityInstance) pc.getPersistent();
@@ -230,10 +279,9 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
             continue;
          }
 
-         transientSession &= ai.isCompleted();
-         if ( !isCurrentSessionTransient())
+         if ( !ai.isCompleted())
          {
-            return;
+            return false;
          }
       }
 
@@ -246,12 +294,13 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
          final boolean piIsNotAborted = pi.getState() != ProcessInstanceState.Aborted;
          final boolean piIsNotAborting = pi.getState() != ProcessInstanceState.Aborting;
 
-         transientSession &= piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted && piIsNotAborting;
-         if ( !isCurrentSessionTransient())
+         if ( !(piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted && piIsNotAborting))
          {
-            return;
+            return false;
          }
       }
+
+      return true;
    }
 
    private boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
@@ -266,27 +315,25 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
     *  if it was not the case, {@link #transientSession} would be <code>false</code> and this
     *  method would not have been invoked
     */
-   private void determineWhetherItsDeferredPersist(final Map<Object, PersistenceController> pis)
+   private boolean determineWhetherItsDeferredPersist(final Map<Object, PersistenceController> pis)
    {
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-      deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
+      return rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
    }
 
-   private void determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis)
+   private boolean determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis)
    {
-      allPisAreCompleted = true;
-
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
-         allPisAreCompleted &= pi.getState() == ProcessInstanceState.Completed;
-
-         if ( !areAllPisCompleted())
+         if ( !(pi.getState() == ProcessInstanceState.Completed))
          {
-            return;
+            return false;
          }
       }
+
+      return true;
    }
 
    private ByteArrayBlobBuilder castToByteArrayBlobBuilder(final BlobBuilder blobBuilder)

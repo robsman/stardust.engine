@@ -29,7 +29,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
@@ -55,22 +54,14 @@ public abstract class AbstractTransientProcessInstanceSupport
          return new NoOpTransientProcessInstanceSupport();
       }
 
-      final boolean pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis);
       final Set<Long> rootPis = determineRootProcessInstances(pis.values());
-      final boolean cancelTransientExecution = pisAreTransientExecutionCandidates ? false : isSwitchFromTransientOrDeferredToImmediate(pis, rootPis);
-
-      if ( !pisAreTransientExecutionCandidates && !cancelTransientExecution)
-      {
-         return new NoOpTransientProcessInstanceSupport();
-      }
-
       if (rootPis.size() == 1)
       {
-         return new UniqueRootPiTransientProcessInstanceSupport(rootPis.iterator().next(), pisAreTransientExecutionCandidates, cancelTransientExecution, pis, ais);
+         return new UniqueRootPiTransientProcessInstanceSupport(rootPis.iterator().next(), pis, ais);
       }
       else
       {
-         return new MultipleRootPisTransientProcessInstanceSupport(rootPis, pisAreTransientExecutionCandidates, cancelTransientExecution, pis, ais);
+         return new MultipleRootPisTransientProcessInstanceSupport(rootPis, pis, ais);
       }
    }
 
@@ -178,56 +169,6 @@ public abstract class AbstractTransientProcessInstanceSupport
             persistentKeys.add(persistentKey);
          }
       }
-   }
-
-   private static boolean determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
-   {
-      boolean result = (pis != null) && !pis.isEmpty();
-
-      if ( !result)
-      {
-         return result;
-      }
-
-      for (final PersistenceController pc : pis.values())
-      {
-         if ( !pc.isCreated())
-         {
-            result = false;
-            break;
-         }
-
-         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
-         result &= ProcessInstanceUtils.isTransientExecutionScenario(pi);
-         if ( !result)
-         {
-            break;
-         }
-      }
-
-      return result;
-   }
-
-   private static boolean isSwitchFromTransientOrDeferredToImmediate(final Map<Object, PersistenceController> pis, final Set<Long> rootPis)
-   {
-      if (pis == null || pis.isEmpty())
-      {
-         return false;
-      }
-
-      for (final Long oid : rootPis)
-      {
-         final IProcessInstance rootPi = ProcessInstanceBean.findByOID(oid);
-         final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
-         final boolean wasTransient = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.TRANSIENT;
-         final boolean wasDeferred = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
-         if (isImmediateNow && (wasTransient || wasDeferred))
-         {
-            return true;
-         }
-      }
-
-      return false;
    }
 
    private static Set<Long> determineRootProcessInstances(final Collection<PersistenceController> pis)

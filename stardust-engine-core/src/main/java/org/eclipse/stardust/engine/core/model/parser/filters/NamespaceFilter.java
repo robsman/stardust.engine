@@ -151,7 +151,8 @@ public class NamespaceFilter
     */
    public void addReplacement(String namespaceUri, String replacementUri)
    {
-      replacedNamespaces.put(namespaceUri, replacementUri);
+      /* org.codehaus.woodstox:woodstox-core-asl:4.2.0 expects namespace uris to be interned */
+      replacedNamespaces.put(namespaceUri.intern(), replacementUri.intern());
    }
 
    private String replace(String uri)

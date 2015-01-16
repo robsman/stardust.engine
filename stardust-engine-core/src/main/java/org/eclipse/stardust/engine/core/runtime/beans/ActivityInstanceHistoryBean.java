@@ -31,7 +31,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerf
  *
  */
 public class ActivityInstanceHistoryBean extends PersistentBean
-      implements IActivityInstanceHistory
+      implements IActivityInstanceHistory, IProcessInstanceAware
 {
    public static final String FIELD__PROCESS_INSTANCE = ActivityInstanceBean.FIELD__PROCESS_INSTANCE;
    public static final String FIELD__ACTIVITY_INSTANCE = WorkItemBean.FIELD__ACTIVITY_INSTANCE;

@@ -121,7 +121,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * @author mgille
  */
 public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
-      implements IActivityInstance
+      implements IActivityInstance, IProcessInstanceAware
 {
    private static final long serialVersionUID = 1L;
 

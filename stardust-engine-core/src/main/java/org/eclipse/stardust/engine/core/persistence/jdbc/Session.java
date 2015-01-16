@@ -95,6 +95,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.MultipleRootPisTransientProcessInstanceSupport.ByteArrayBlobBuilderMediator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.NoOpTransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
@@ -1726,7 +1727,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             else
             {
-               blobBuilder = new ByteArrayBlobBuilder();
+               blobBuilder = transientPiSupport.newBlobBuilder();
             }
 
             blobBuilder.init(params);
@@ -1833,7 +1834,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                if (transientPiSupport.persistentsNeedToBeWrittenToBlob())
                {
-                  transientPiSupport.writeToBlob(persistentToBeInserted, blobBuilder, dmlManager.getTypeDescriptor());
+                  transientPiSupport.writeToBlob(blobBuilder, dmlManager.getTypeDescriptor());
                }
 
                /* do not write the current entry to the database, but proceed with the next one */
@@ -2039,7 +2040,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                {
                   writeIntoAuditTrail(blobBuilder);
                }
-               else if (blobBuilder instanceof ByteArrayBlobBuilder)
+               else if (blobBuilder instanceof ByteArrayBlobBuilder || blobBuilder instanceof ByteArrayBlobBuilderMediator)
                {
                   writeIntoAuditTrail(blobBuilder);
                }
@@ -2079,18 +2080,31 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private void writeIntoAuditTrail(final BlobBuilder blobBuilder)
    {
-      BlobReader blobReader = new ByteArrayBlobReader(((ByteArrayBlobBuilder) blobBuilder).getBlob());
+      final Collection<ByteArrayBlobBuilder> blobBuilders;
+      if (blobBuilder instanceof ByteArrayBlobBuilderMediator)
+      {
+         blobBuilders = ((ByteArrayBlobBuilderMediator) blobBuilder).getBlobBuilders();
+      }
+      else
+      {
+         blobBuilders = Collections.singleton(((ByteArrayBlobBuilder) blobBuilder));
+      }
 
-      blobReader.init(params);
-      blobReader.nextBlob();
+      for (final ByteArrayBlobBuilder b : blobBuilders)
+      {
+         BlobReader blobReader = new ByteArrayBlobReader(b.getBlob());
 
-      ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
-      persistor.persistBlob(blobReader);
+         blobReader.init(params);
+         blobReader.nextBlob();
 
-      // TODO configure
-      persistor.writeIntoAuditTrail(this, 1);
+         ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
+         persistor.persistBlob(blobReader);
 
-      blobReader.close();
+         // TODO configure
+         persistor.writeIntoAuditTrail(this, 1);
+
+         blobReader.close();
+      }
    }
 
    private void remove(AbstractCache externalCache, Persistent persistent)

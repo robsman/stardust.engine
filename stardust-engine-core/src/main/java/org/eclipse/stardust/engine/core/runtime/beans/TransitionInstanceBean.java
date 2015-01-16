@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
  *
  */
 public class TransitionInstanceBean extends IdentifiablePersistentBean
-      implements ITransitionInstance
+      implements ITransitionInstance, IProcessInstanceAware
 {
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";

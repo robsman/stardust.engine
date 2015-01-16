@@ -15,7 +15,7 @@ import org.eclipse.stardust.engine.core.persistence.FieldRef;
 /**
  *
  */
-public class ActivityInstanceProperty extends AbstractPropertyWithUser
+public class ActivityInstanceProperty extends AbstractPropertyWithUser implements IActivityInstanceAware
 {
    public static final String FIELD__OID = AbstractProperty.FIELD__OID;
    public static final String FIELD__OBJECT_OID = AbstractProperty.FIELD__OBJECT_OID;
@@ -55,5 +55,11 @@ public class ActivityInstanceProperty extends AbstractPropertyWithUser
    public ActivityInstanceProperty(long activityInstance, String name,Object value)
    {
       super(activityInstance, name, value);
+   }
+
+   @Override
+   public IActivityInstance getActivityInstance()
+   {
+      return ActivityInstanceBean.findByOID(getObjectOID());
    }
 }

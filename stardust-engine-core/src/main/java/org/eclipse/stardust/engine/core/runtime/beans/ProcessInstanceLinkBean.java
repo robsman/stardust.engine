@@ -19,7 +19,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
-public class ProcessInstanceLinkBean extends PersistentBean implements IProcessInstanceLink
+public class ProcessInstanceLinkBean extends PersistentBean implements IProcessInstanceLink, IProcessInstanceAware
 {
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
    public static final String FIELD__LINKED_PROCESS_INSTANCE = "linkedProcessInstance";

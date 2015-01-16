@@ -18,6 +18,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
@@ -25,7 +26,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class EventBindingBean extends IdentifiablePersistentBean
+public class EventBindingBean extends IdentifiablePersistentBean implements IProcessInstanceAware
 {
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__OBJECT_OID = "objectOID";
@@ -57,7 +58,7 @@ public class EventBindingBean extends IdentifiablePersistentBean
          FIELD__TARGET_STAMP, FIELD__PARTITION };
 
    static final boolean type_USE_LITERALS = true;
-   
+
    private long objectOID;
    private int type;
 
@@ -66,7 +67,7 @@ public class EventBindingBean extends IdentifiablePersistentBean
 
    private long bindStamp;
    private long targetStamp;
-   
+
    private long partition;
 
    public static EventBindingBean find(int objectType, long objectOID,
@@ -87,7 +88,7 @@ public class EventBindingBean extends IdentifiablePersistentBean
    public static Iterator findAllNonTimerEvents(short partitionOid)
    {
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
-            EventBindingBean.class, // 
+            EventBindingBean.class, //
             QueryExtension.where(Predicates.andTerm( //
                   Predicates.lessThan(FR__TYPE, EventUtils.DEACTIVE_TYPE),//
                   Predicates.isEqual(FR__TARGET_STAMP, 0),//
@@ -171,11 +172,11 @@ public class EventBindingBean extends IdentifiablePersistentBean
       fetch();
       if(type != newType)
       {
-         type = newType;         
+         type = newType;
          markModified(FIELD__TYPE);
       }
    }
-   
+
    public void setTargetStamp(long stamp)
    {
       fetch();
@@ -191,12 +192,12 @@ public class EventBindingBean extends IdentifiablePersistentBean
       fetch();
       return (short) partition;
    }
-   
+
    @Override
    public String toString()
    {
       final StringBuilder sb = new StringBuilder();
-      
+
       sb.append("Event binding [");
       sb.append("oid = ").append(getOID()).append(", ");
       sb.append("type = ").append(getType()).append(", ");
@@ -204,7 +205,23 @@ public class EventBindingBean extends IdentifiablePersistentBean
       sb.append("object oid = ").append(getObjectOID()).append(", ");
       sb.append("handler oid = ").append(getHandlerOID());
       sb.append("]");
-      
+
       return sb.toString();
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      int eventType = getType();
+      if (eventType == Event.ACTIVITY_INSTANCE)
+      {
+         return ActivityInstanceBean.findByOID(getObjectOID()).getProcessInstance();
+      }
+      else if (eventType == Event.PROCESS_INSTANCE)
+      {
+         return ProcessInstanceBean.findByOID(getObjectOID());
+      }
+
+      throw new UnsupportedOperationException("Cannot determine the process instance due to an unknown event type: '" + eventType + "'.");
    }
 }

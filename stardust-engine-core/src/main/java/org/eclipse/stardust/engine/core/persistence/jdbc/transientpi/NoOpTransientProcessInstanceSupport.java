@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import java.util.List;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
@@ -80,10 +81,10 @@ public class NoOpTransientProcessInstanceSupport extends AbstractTransientProces
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToBlob(java.util.List, org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToBlob(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor)
     */
    @Override
-   public void writeToBlob(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
+   public void writeToBlob(final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
    {
       /* no-op */
    }
@@ -122,5 +123,132 @@ public class NoOpTransientProcessInstanceSupport extends AbstractTransientProces
    public boolean isDeferredPersist()
    {
       return false;
+   }
+
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#newBlobBuilder()
+    */
+   @Override
+   public BlobBuilder newBlobBuilder()
+   {
+      return new NoOpBlobBuilder();
+   }
+
+   /**
+    * <p>
+    * A {@link BlobBuilder} implementation that does nothing, i.e. all operations are no-ops.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
+   private static final class NoOpBlobBuilder implements BlobBuilder
+   {
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#init(org.eclipse.stardust.common.config.Parameters)
+       */
+      @Override
+      public void init(final Parameters params)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#persistAndClose()
+       */
+      @Override
+      public void persistAndClose()
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#startInstancesSection(java.lang.String, int)
+       */
+      @Override
+      public void startInstancesSection(final String tableName, final int nInstances)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeBoolean(boolean)
+       */
+      @Override
+      public void writeBoolean(final boolean value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeByte(byte)
+       */
+      @Override
+      public void writeByte(final byte value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeChar(char)
+       */
+      @Override
+      public void writeChar(final char value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeDouble(double)
+       */
+      @Override
+      public void writeDouble(final double value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeFloat(float)
+       */
+      @Override
+      public void writeFloat(final float value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeInt(int)
+       */
+      @Override
+      public void writeInt(final int value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeLong(long)
+       */
+      @Override
+      public void writeLong(final long value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeShort(short)
+       */
+      @Override
+      public void writeShort(final short value)
+      {
+         /* no-op */
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder#writeString(java.lang.String)
+       */
+      @Override
+      public void writeString(final String value)
+      {
+         /* no-op */
+      }
    }
 }

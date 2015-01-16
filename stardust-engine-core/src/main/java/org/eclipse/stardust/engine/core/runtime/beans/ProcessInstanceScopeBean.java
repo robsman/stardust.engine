@@ -15,7 +15,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
 public class ProcessInstanceScopeBean extends PersistentBean implements
-      IProcessInstanceScope
+      IProcessInstanceScope, IProcessInstanceAware
 {
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
    public static final String FIELD__SCOPE_PROCESS_INSTANCE = "scopeProcessInstance";

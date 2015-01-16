@@ -96,14 +96,13 @@ public abstract class AbstractTransientProcessInstanceSupport
 
    /**
     * <p>
-    * Writes the given {@link Persistent}s to the process instance blob.
+    * Writes the {@link Persistent}s given by means of the last invocation of {@link #addPersistentToBeInserted(List)} to the process instance blob.
     * </p>
     *
-    * @param persistentsToBeInserted the {@link Persistent}s that need to be written to the blob
     * @param blobBuilder the blob builder responsible for writing to the blob
     * @param typeDesc the {@link TypeDescriptor} of the {@link Persistent} to be written
     */
-   public abstract void writeToBlob(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc);
+   public abstract void writeToBlob(final BlobBuilder blobBuilder, final TypeDescriptor typeDesc);
 
    /**
     * <p>
@@ -150,6 +149,11 @@ public abstract class AbstractTransientProcessInstanceSupport
     * @return whether all {@link Persistent}s associated with the currently processed process instance graph need to be written to the process instance blob
     */
    public abstract boolean persistentsNeedToBeWrittenToBlob();
+
+   /**
+    * @return an appropriate {@link BlobBuilder} for the particular {@link AbstractTransientProcessInstanceSupport} implementation
+    */
+   public abstract BlobBuilder newBlobBuilder();
 
    protected final void resetTransientPiProperty(final Map<Object, PersistenceController> pis)
    {

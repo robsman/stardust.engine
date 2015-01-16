@@ -47,9 +47,10 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
 {
    private final Long rootPiOid;
 
-   private final Set<PersistentKey> persistentKeysToBeInserted = newHashSet();
+   private final Set<PersistentKey> allPersistentKeysToBeInserted = newHashSet();
+   private final Set<PersistentKey> allPersistentKeysToBeDeleted = newHashSet();
 
-   private final Set<PersistentKey> persistentKeysToBeDeleted = newHashSet();
+   private List<Persistent> chunkOfPersistentsToBeInserted;
 
    private final boolean pisAreTransientExecutionCandidates;
 
@@ -95,7 +96,8 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    @Override
    public void addPersistentToBeInserted(final List<Persistent> persistentsToBeInserted)
    {
-      collectPersistentKeys(persistentsToBeInserted, persistentKeysToBeInserted);
+      collectPersistentKeys(persistentsToBeInserted, allPersistentKeysToBeInserted);
+      this.chunkOfPersistentsToBeInserted = persistentsToBeInserted;
    }
 
    /* (non-Javadoc)
@@ -104,16 +106,16 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    @Override
    public void addPersistentToBeDeleted(final Persistent persistentToBeDeleted)
    {
-      collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), persistentKeysToBeDeleted);
+      collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), allPersistentKeysToBeDeleted);
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToBlob(java.util.List, org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToBlob(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor)
     */
    @Override
-   public void writeToBlob(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
+   public void writeToBlob(final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
    {
-      ProcessBlobWriter.writeInstances(blobBuilder, typeDesc, persistentsToBeInserted);
+      ProcessBlobWriter.writeInstances(blobBuilder, typeDesc, chunkOfPersistentsToBeInserted);
    }
 
    /* (non-Javadoc)
@@ -123,11 +125,11 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    public void cleanUpInMemStorage()
    {
       final boolean purgePiGraph;
-      final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(persistentKeysToBeDeleted);
+      final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(allPersistentKeysToBeDeleted);
       if (!isCurrentSessionTransient() || areAllPisCompleted())
       {
          purgePiGraph = true;
-         keysToBeDeleted.addAll(persistentKeysToBeInserted);
+         keysToBeDeleted.addAll(allPersistentKeysToBeInserted);
       }
       else
       {
@@ -146,15 +148,10 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    @Override
    public void writeToInMemStorage(final BlobBuilder blobBuilder)
    {
-      if ( !(blobBuilder instanceof ByteArrayBlobBuilder))
-      {
-         throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
-      }
-
-      final byte[] blob = ((ByteArrayBlobBuilder) blobBuilder).getBlob();
+      final byte[] blob = castToByteArrayBlobBuilder(blobBuilder).getBlob();
       final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
 
-      TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, persistentKeysToBeInserted);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, allPersistentKeysToBeInserted);
    }
 
    /* (non-Javadoc)
@@ -213,6 +210,12 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       final boolean cancelledTransientExecution = isTransientExecutionCancelled();
 
       return transientExecutionIntermediateState || deferredPersist || cancelledTransientExecution;
+   }
+
+   @Override
+   public BlobBuilder newBlobBuilder()
+   {
+      return new ByteArrayBlobBuilder();
    }
 
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
@@ -284,5 +287,15 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
             return;
          }
       }
+   }
+
+   private ByteArrayBlobBuilder castToByteArrayBlobBuilder(final BlobBuilder blobBuilder)
+   {
+      if ( !(blobBuilder instanceof ByteArrayBlobBuilder))
+      {
+         throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
+      }
+
+      return (ByteArrayBlobBuilder) blobBuilder;
    }
 }

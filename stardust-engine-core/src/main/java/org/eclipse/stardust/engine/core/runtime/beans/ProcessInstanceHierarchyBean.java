@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 
 public class ProcessInstanceHierarchyBean extends PersistentBean implements
-      IProcessInstanceHierarchy
+      IProcessInstanceHierarchy, IProcessInstanceAware
 {
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
    public static final String FIELD__SUB_PROCESS_INSTANCE = "subProcessInstance";

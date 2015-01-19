@@ -94,6 +94,8 @@ public final class CamelConstants
    public static final String GENERIC_ENDPOINT_OVERLAY= "genericEndpointOverlay";
    public static final String TRIGGER_INTEGRATION_OVERLAY_ATT = PredefinedConstants.ENGINE_SCOPE +"integration"+COLON+""+COLON+"overlay";
    public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
+   public static final String MAIL_ATTACHMENTS_AP_ID= "mailAttachmentsAP";
+   public static final String MAIL_TEMPLATE_CONFIGURATION_ATT = "stardust:emailOverlay::templateConfigurations";
    /**
     * Returns the key of a value in the map
     * 
@@ -171,6 +173,7 @@ public final class CamelConstants
       {
          public static final String COMMAND_SET_CURRENT = "setCurrent";
          public static final String COMMAND_REMOVE_CURRENT = "removeCurrent";
+         public static final String COMMAND_CURRENT_TX = "currentTx";
       }
       public static final class Activity
       {

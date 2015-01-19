@@ -12,6 +12,8 @@ public class Util
          throws IOException
    {
       File dir = new File(path);
+      if(!dir.exists())
+         dir.mkdirs();
       String loc = dir.getCanonicalPath() + File.separator + fileName;
       FileWriter fstream = new FileWriter(loc, true);
       BufferedWriter out = new BufferedWriter(fstream);

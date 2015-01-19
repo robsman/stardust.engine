@@ -50,7 +50,106 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 		}
 		return convertObjectToJsonString(routeCamelModelList);
 	}
+	
+	// start all routes
+	public void startAllRoutes(String contextId) {
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				startRouteService(contextId, data.getId()); 
+			}
+		}	
+	}
+	
+	// start all routes
+	public void stopAllRoutes(String contextId) {
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				ModelCamelContext camelContext=ccm.getCamelContext();
+				
+				try {
+					camelContext.stopRoute(data.getId());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}	
+	}
+	
+	public void startCamelContext(String contextId) {
+		List<CamelContextModel> contexts = initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		ccm.start();
+	}
+	
+	public void stopCamelContext(String contextId) {
+		List<CamelContextModel> contexts = initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		ccm.stop();
+	}
+	
+	public String getProducerRoutesList(String contextId) {
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				if (data.getId().startsWith("Producer")){
+					routeCamelModelList.add(data);
+				}
+			}
+		}
+		return convertObjectToJsonString(routeCamelModelList);
+	}
+	
+	public String getConsumerRoutesList(String contextId) {
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				if (data.getId().startsWith("Consumer")){
+					routeCamelModelList.add(data);
+				}
+			}
+		}
+		return convertObjectToJsonString(routeCamelModelList);
+	}
+	
+	public String getTriggerConsumerRoutesList(String contextId) {
 
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				if (data.getId().startsWith("Consumer-")){
+					routeCamelModelList.add(data);
+				}
+			}
+		}
+		return convertObjectToJsonString(routeCamelModelList);	
+	}
+	
+	public String getApplicationConsumerRoutesList(String contextId) {
+		
+		List<CamelContextModel> contexts =initCamelContextModel();
+		CamelContextModel ccm = searchCamelContextModel(contexts,contextId);
+		List<RouteCamelModel> routeCamelModelList = new ArrayList<RouteCamelModel>();
+		if (ccm != null) {
+			for (RouteCamelModel data : ccm.getRoutes()) {
+				if ((data.getId().startsWith("Consumer") && (!data.getId().startsWith("Consumer-")))){
+					routeCamelModelList.add(data);
+				}
+			}
+		}
+		return convertObjectToJsonString(routeCamelModelList);
+
+	}
+	
 	public void startRouteService( String contextId, String routeId) {
 		LOGGER.info("--> Starting route : " + routeId);
 		ModelCamelContext camelcontext=(ModelCamelContext) applicationContext.getBean(contextId);

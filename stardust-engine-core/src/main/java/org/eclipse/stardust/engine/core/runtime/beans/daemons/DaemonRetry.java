@@ -16,6 +16,8 @@ import java.util.List;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -34,11 +36,14 @@ public class DaemonRetry
 
    private ForkingService service;
 
+   private static final Logger trace = LogManager.getLogger(DaemonRetry.class);
+
    public DaemonRetry(ForkingService service)
    {
       this.service = service;
       retries = Parameters.instance().getInteger(DaemonProperties.DAEMON_RETRY_NUMBER, 3);
       delay = Parameters.instance().getInteger(DaemonProperties.DAEMON_RETRY_DELAY, 500);
+      retries = retries >= 0 ? retries : 0;
       retriesLeft = retries;
    }
 
@@ -49,9 +54,19 @@ public class DaemonRetry
 
    public void handleException(Exception e) throws Exception
    {
+      if (retriesLeft > 0)
+      {
+         trace.warn("Unexpected exception : " + e.getMessage());
+         trace.warn("Retrying "
+               + retriesLeft
+               + ((1 < retriesLeft)
+                     ? " times with " + delay + " ms delay."
+                     : " time with " + delay + " ms delay."));
+      }
       retriesLeft--;
       if (!hasRetriesLeft())
       {
+         trace.warn("All " + retries + " retries failed.");
          throw e;
       }
    }
@@ -72,6 +87,7 @@ public class DaemonRetry
       List<String> receivers = getAllAdminMailAddresses();
       if (!receivers.isEmpty() && mailPropertiesAvailable())
       {
+         trace.warn("Daemon execution will be stopped now. Sending mail to all admin users.");
          MailHelper.sendSimpleMessage(receivers.toArray(new String[receivers.size()]),
                "All retries failed.",
                "All retries for daemon execution failed. It will be stopped now. " + e);

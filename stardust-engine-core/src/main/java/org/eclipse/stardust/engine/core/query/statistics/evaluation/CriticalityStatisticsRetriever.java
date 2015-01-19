@@ -43,9 +43,9 @@ import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryRes
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
 
 /**
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class CriticalityStatisticsRetriever implements IActivityInstanceQueryEvaluator
 {
@@ -190,7 +190,7 @@ public class CriticalityStatisticsRetriever implements IActivityInstanceQueryEva
 
    private List<List<Long>> getSubLists(Set<Long> processRtOidFilter, int maxProcessOids)
    {
-      List<Long> processRtOids = new ArrayList<Long>(processRtOidFilter);
+      List<Long> processRtOids = (processRtOidFilter != null) ? new ArrayList<Long>(processRtOidFilter) : new ArrayList<Long>();
       List<List<Long>> processRtOidSubLists = new ArrayList<List<Long>>();
       for (int i = 0; i < processRtOids.size(); i += maxProcessOids)
       {

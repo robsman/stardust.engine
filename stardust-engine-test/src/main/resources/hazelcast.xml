@@ -20,7 +20,7 @@
    </group>
 
    <network>
-      <port auto-increment="false">5810</port>
+      <port auto-increment="false">5811</port>
 
       <join>
          <aws enabled="false" />

@@ -433,10 +433,10 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
          }
 
          // in this case we must remove the old entries
-         if (null == oldEntries &&
-               (value == null ||
-                     value instanceof Map && ((Map) value).size() == 0 ||
-                     value instanceof Map && ((Map) value).size() > 0 && oldEntries_ != null))
+         if (null == oldEntries
+               && (value == null || value instanceof Map
+                     && (((Map) value).size() == 0 || hasOnlyEmptyLists((Map) value) || ((Map) value).size() > 0
+                           && oldEntries_ != null)))
          {
             oldEntries = this.getIndexes(scopeProcessInstanceOid, dataRtOid,
                   session, xPathMap);
@@ -534,6 +534,31 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
 
          return accessPointInstance;
       }
+   }
+
+   /**
+    * Structures containing only empty collections should be treated like the value <code>null</code> and also be removed.
+    *
+    * @param map the structured map to analyze.
+    * @return <code>true</code> if the map only contains empty collections.
+    */
+   private boolean hasOnlyEmptyLists(Map map)
+   {
+      for (Object value : map.values())
+      {
+         if (value instanceof Collection)
+         {
+            if (!((Collection) value).isEmpty())
+            {
+               return false;
+            }
+         }
+         else
+         {
+            return false;
+         }
+      }
+      return true;
    }
 
    private boolean setIndexValue(Set /*<StructuredDataValueBean>*/ oldEntries, Set /*<StructuredDataValueBean>*/ newEntries,

@@ -28,19 +28,24 @@ public class FindProcessSubCommand extends AbstractSubCommand
    public void process(Exchange exchange) throws Exception
    {
       ProcessInstances result = findProcesses(exchange, getQueryService());
-      if (result.size() == 1)
+
+      Long expectedResultSize = endpoint.evaluateExpectedResultSize(exchange, false);
+
+      long defaultExpectedResultSize = -1;// unlimitedSize
+      if (expectedResultSize == null)
       {
-         // return PI and set Header with POID
-         exchange.getIn().setHeader(PROCESS_INSTANCES, result.get(0));
-         exchange.getIn().setHeader(PROCESS_INSTANCE_OID, result.get(0).getOID());
+         LOG.info("Expected result size is set to unlimitted.");
+         expectedResultSize = defaultExpectedResultSize;
       }
       else
       {
-         exchange.getIn().setHeader(PROCESS_INSTANCES, result);
+         LOG.info("Expected result size is evaluated to " + expectedResultSize + ".");
       }
+      processResult(exchange,expectedResultSize,  result);
    }
 
-   private ProcessInstances findProcesses(Exchange exchange, QueryService queryService) throws UnexpectedResultException
+   private ProcessInstances findProcesses(Exchange exchange, QueryService queryService)
+         throws UnexpectedResultException
    {
       ProcessInstanceQuery piQuery;
       String processId = endpoint.evaluateProcessId(exchange, false);
@@ -99,30 +104,36 @@ public class FindProcessSubCommand extends AbstractSubCommand
          }
       }
       ProcessInstances result = queryService.getAllProcessInstances(piQuery);
-      Long expectedResultSize = endpoint.evaluateExpectedResultSize(exchange, false);
-      LOG.info("Expected result size is evaluated to " + expectedResultSize + ".");
-      long defaultExpectedResultSize = -1;// unlimitedSize
-      if (expectedResultSize == null)
-      {
-         LOG.info("Expected result size is set to unlimitted.");
-         expectedResultSize = defaultExpectedResultSize;
-      }
-      if (result.size() == expectedResultSize)
+      return result;
+   }
+
+   private void processResult(Exchange exchange, long expectedResultSize, Object instances) throws UnexpectedResultException
+   {
+      ProcessInstances result=(ProcessInstances)instances;
+
+      if (result.size() == expectedResultSize && result.size() == 1)
       {
          LOG.info("Result size matches expected result size.");
-         return result;
+         exchange.getIn().setHeader(PROCESS_INSTANCES, result.get(0));
+         exchange.getIn().setHeader(PROCESS_INSTANCE_OID, result.get(0).getOID());
+      }
+      else if (result.size() == expectedResultSize)
+      {
+         LOG.info("Result size matches expected result size.");
+         exchange.getIn().setHeader(PROCESS_INSTANCES, result);
       }
       else
       {
          if (expectedResultSize == -1)
-            return result;
+            exchange.getIn().setHeader(PROCESS_INSTANCES, result);
          else
          {
-            String error = result.size() + " activity instances found - " + expectedResultSize
-                  + " activity instances expected.";
+            String error = result.size() + " process instances found - "
+                  + expectedResultSize + " process instances expected.";
             LOG.error(error);
             throw new UnexpectedResultException(error);
          }
       }
+
    }
 }

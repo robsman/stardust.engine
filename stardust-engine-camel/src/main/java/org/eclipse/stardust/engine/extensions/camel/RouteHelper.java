@@ -46,7 +46,7 @@ public class RouteHelper
 
    /**
     * Stops a running route in a Camel Context
-    * 
+    *
     * @param camelContext
     * @param runningRouteId
     */
@@ -69,7 +69,7 @@ public class RouteHelper
 
    /**
     * Stops and removes a running route in camelContext
-    * 
+    *
     * @param camelContext
     * @param routeId
     */
@@ -104,7 +104,7 @@ public class RouteHelper
 
    /**
     * Removes a route definition in camelContext
-    * 
+    *
     * @param camelContext
     * @param routeId
     */
@@ -123,7 +123,7 @@ public class RouteHelper
 
    /**
     * takes a standard spring xml file and loads its content.
-    * 
+    *
     * @param beanDefinition
     *           the bean definition
     * @param applicationcontext
@@ -179,7 +179,7 @@ public class RouteHelper
       }
 
    }
-  
+
    /**
     *
     * @param application
@@ -206,7 +206,7 @@ public class RouteHelper
       }
 
       String routeDefinition = createProducerXmlConfiguration(routeContext);
-      
+
       if (logger.isDebugEnabled())
       {
          logger.debug("Starting Producer Route " + routeId + "  will be added to " + context.getName() + " for partition " + partition);
@@ -225,7 +225,7 @@ public class RouteHelper
    public static void loadRouteDefinition(String routeDefinition, CamelContext camelContext) throws Exception
    {
       RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils
-            .toInputStream(routeDefinition.toString()));
+            .toInputStream(routeDefinition.toString(),"UTF-8"));
 
       if (routes != null && routes.getRoutes() != null && !routes.getRoutes().isEmpty())
       {
@@ -266,7 +266,7 @@ public class RouteHelper
       }
 
       String routeDefinition = createConsumerXmlConfiguration(consumerContext);
-      
+
       if (logger.isDebugEnabled())
       {
          logger.debug("Consumer Route " + routeId + "  will be added to " + context.getName() + " for partition " + partitionId);
@@ -384,7 +384,7 @@ public class RouteHelper
         if(camelContext!=null && !camelContext.getRouteDefinitions().isEmpty()){
            List<RouteDefinition> routesDefinitions=new ArrayList<RouteDefinition>();
            routesDefinitions.addAll(camelContext.getRouteDefinitions());
-           
+
            for(RouteDefinition routeDefinition:routesDefinitions){
               try{
               if(routeDefinition.getId().equalsIgnoreCase(routeId))

@@ -371,30 +371,32 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          {
             if (!resolved)
             {
-         if (schemaLocatorAdapter == null)
-         {
-            schemaLocatorAdapter = new SchemaLocatorAdapter();
-         }
-         Resource resource = schemaLocatorAdapter.addModel(this);
-         for (int i = 0; i < unmodifiableTypeDeclarations.size(); i++)
-         {
-            TypeDeclarationDetails decl = (TypeDeclarationDetails) unmodifiableTypeDeclarations.get(i);
-            XpdlType type = decl.getXpdlType();
-            if (type instanceof SchemaTypeDetails)
-            {
-               SchemaTypeDetails schema = (SchemaTypeDetails) type;
-               XSDSchema xsdSchema = schema.getSchema();
-               if (xsdSchema != null)
+               if (schemaLocatorAdapter == null)
                {
-                  ((InternalEObject) xsdSchema).eSetResource((Internal) resource, null);
-                  xsdSchema.reset();
+                  schemaLocatorAdapter = new SchemaLocatorAdapter(this);
+               }
+               for (int i = 0; i < unmodifiableTypeDeclarations.size(); i++)
+               {
+                  TypeDeclarationDetails decl = (TypeDeclarationDetails) unmodifiableTypeDeclarations.get(i);
+                  XpdlType type = decl.getXpdlType();
+                  if (type instanceof SchemaTypeDetails)
+                  {
+                     SchemaTypeDetails schema = (SchemaTypeDetails) type;
+                     XSDSchema xsdSchema = schema.getSchema();
+                     if (xsdSchema != null)
+                     {
+                        synchronized (xsdSchema)
+                        {
+                           ((InternalEObject) xsdSchema).eSetResource((Internal) schemaLocatorAdapter.createResource(), null);
+                           xsdSchema.reset();
+                        }
+                     }
+                  }
+               }
+               resolved = true;
                }
             }
          }
-         resolved = true;
-      }
-   }
-      }
    }
 
    public void setSchemaLocatorAdapter(SchemaLocatorAdapter schemaLocatorAdapter)
@@ -408,14 +410,14 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       private Model model;
       private ResourceSetImpl resourceSet;
 
-      public SchemaLocatorAdapter()
+      public SchemaLocatorAdapter(Model model)
       {
+         this.model = model;
          resourceSet = new ResourceSetImpl();
       }
 
-      public Resource addModel(Model model)
+      public Resource createResource()
       {
-         this.model = model;
          Resource resource = new XSDResourceImpl(URI.createURI(XMLConstants.NS_CARNOT_WORKFLOWMODEL_31));
          resource.eAdapters().add(this);
          resourceSet.getResources().add(resource);

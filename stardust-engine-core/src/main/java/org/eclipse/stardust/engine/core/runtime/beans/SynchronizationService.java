@@ -188,8 +188,7 @@ public abstract class SynchronizationService
          throws ObjectNotFoundException
    {
       Pair<IDepartment, Boolean> departmentPair;
-
-      if (SecurityProperties.isInternalAuthentication()
+      if (SecurityProperties.isInternalAuthorization()
             || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
                   false))
       {

@@ -12,8 +12,11 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -24,11 +27,15 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.Column;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatistics.OpenActivities;
 import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatistics.OpenActivitiesDetails;
+import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
@@ -67,11 +74,11 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
 
       final Date now = new Date();
       final long nowInMilli = now.getTime();
-      
+
       Calendar cal = Calendar.getInstance();
       cal.setTime(now);
       setTimeToDayEnd(cal);
-      
+
       // history starts one month back
       int daysOfHistory = calculateHistoryDays(cal);
       final List<Long> historyTimestamps = CollectionUtils.newList();
@@ -80,8 +87,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          cal.add(Calendar.DAY_OF_MONTH, -1);
          historyTimestamps.add(new Long(cal.getTimeInMillis()));
       }
-      
-      
+
+
       Date intervalStart = cal.getTime();
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class) //
@@ -147,9 +154,9 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-      
+
       authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
-            
+
       StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
       {
          private final ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -167,7 +174,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             Long piOid = rs.getLong(1);
             Long aiOid = rs.getLong(2);
             long fromTime = rs.getLong(3);
@@ -182,7 +189,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             long department = rs.getLong(12);
             long scopePiOid = rs.getLong(13);
             int state = rs.getInt(14);
-            
+
             long currentPerformer = 0;
             long currentUserPerformer = 0;
             switch (performerKind)
@@ -200,7 +207,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                currentUserPerformer = 0;
                break;
             }
-            
+
             ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid,
                   currentPerformer, currentUserPerformer, department);
             if (!guarded || Authorization2.hasPermission(ctx))
@@ -210,13 +217,13 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                tsUntil = untilTime;
 
                IProcessDefinition cumulationProcess = modelManager.findProcessDefinition(modelOid, cumulationProcessRtOid);
-               String qualifiedId = ModelUtils.getQualifiedId(cumulationProcess);                  
+               String qualifiedId = ModelUtils.getQualifiedId(cumulationProcess);
 
                tsPiStart.setTime(piStartTime);
 
                ParticipantInfo performer = DepartmentUtils.getParticipantInfo(
                      PerformerType.get(performerKind), performerOid, department, modelOid);
-               
+
                OpenActivities oa = result.findOpenActivities(qualifiedId, performer);
                OpenActivitiesDetails priorityRecord = oa.getDetailsForPriority(priority);
 
@@ -225,7 +232,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                {
                   isHibernated = true;
                }
-               
+
                updateStatistics(priorityRecord, piOid, aiOid, cumulationProcess, isHibernated);
             }
          }
@@ -241,7 +248,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                   // AI was pending at this point in time
                   oad.pendingAisHistory[i]++;
                   oad.getPendingAiInstancesHistory(i).add(aiOid);
-                  
+
                   if (!registerNewPi(dayEnd, cumulationPiOid, oad, pendingPisPool))
                   {
                      oad.pendingPisHistory[i]++;
@@ -259,7 +266,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                      }
                   }
                }
-               
+
             }
 
             if (tsFrom < nowInMilli && ((0 == tsUntil) || !(tsUntil < nowInMilli)))
@@ -271,7 +278,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                {
                   oad.hibernatedAis++;
                   oad.hibernatedAiInstances.add(aiOid);
-                  
+
                }
                if (registerNewPi(nowInMilli, cumulationPiOid, oad, pendingPisPool))
                {
@@ -283,19 +290,19 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                {
                   oad.pendingCriticalAis++;
                   oad.pendingCriticalAiInstances.add(aiOid);
-                  
+
                   if (isHibernated)
                   {
                      oad.hibernatedCriticalAis++;
                      oad.hibernatedCriticalAiInstances.add(aiOid);
                   }
-                  
+
                   if (registerNewPi(nowInMilli, cumulationPiOid, oad, criticalPisPool))
                   {
                      oad.pendingPis++;
                   }
                }
-            }                      
+            }
          }
       });
 
@@ -338,12 +345,12 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          return false;
       }
    }
-   
+
    private int calculateHistoryDays(Calendar now)
    {
       Calendar start = (Calendar) now.clone();
       start.add(Calendar.MONTH, -1);
-      
+
       int daysBetween = 0;
       while (start.before(now))
       {
@@ -351,9 +358,9 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          daysBetween++;
       }
       return daysBetween;
-      
+
    }
-   
+
    private void setTimeToDayEnd(Calendar cal)
    {
       int year = cal.get(Calendar.YEAR);

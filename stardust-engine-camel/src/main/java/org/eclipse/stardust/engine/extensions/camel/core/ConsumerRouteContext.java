@@ -12,7 +12,10 @@ public class ConsumerRouteContext extends ApplicationRouteContext
       this.partitionId = partitionId;
       this.camelContextId = camelContextId;
    }
-   
+   public String getDescription()
+   {
+      return Util.getDescription(getPartitionId(), getModelId(), getId());
+   }
    public String getUserProvidedRouteConfiguration()
    {
 
@@ -23,13 +26,13 @@ public class ConsumerRouteContext extends ApplicationRouteContext
    {
       return Util.getRouteId(partitionId, getModelId(), null, getId(), false);
    }
-   
-   
+
+
    public String getConsumerInboundConversion()
    {
       return (String) application.getAttribute(CamelConstants.CONSUMER_INBOUND_CONVERSION);
    }
-   
+
    public Boolean getConsumerBpmTypeConverter()
    {
       Object value=application.getAttribute(CamelConstants.CONSUMER_BPM_TYPE_CONVERTER);
@@ -39,6 +42,6 @@ public class ConsumerRouteContext extends ApplicationRouteContext
          if(value instanceof Boolean)
             return (Boolean) value;
          else
-            return Boolean.parseBoolean((String)value); 
+            return Boolean.parseBoolean((String)value);
    }
 }

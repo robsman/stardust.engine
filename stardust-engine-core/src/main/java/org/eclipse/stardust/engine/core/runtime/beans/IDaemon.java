@@ -43,6 +43,8 @@ public interface IDaemon
    // @todo (france, ub): usage of getType is dubious (not 1-1)
    String getType();
 
+   long getDefaultPeriodicity();
+
    public static final class ExecutionResult extends StringKey
    {
       private static final long serialVersionUID = 1;

@@ -73,11 +73,7 @@ import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
-import org.eclipse.stardust.engine.core.model.utils.SearchableList;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
@@ -762,12 +758,89 @@ public class ModelBean extends RootElementBean
    
    public IApplication findApplication(String id)
    {
-      return (IApplication) applications.findById(id);
+      return find(applications, id);
    }
 
    public IData findData(String id)
    {
-      return data.find(id);
+      return find(data, id);
+   }
+
+   private static <T extends IdentifiableElement> T find(Link list, String id)
+   {
+      String uuid = null;
+      int ix = id.indexOf('?');
+      if (ix >= 0)
+      {
+         for (String token : id.substring(ix + 1).split("&"))
+         {
+            if (token.startsWith("uuid="))
+            {
+               uuid = token.substring(5);
+               break;
+            }
+         }
+         id = id.substring(0, ix);
+      }
+      T item = (T) list.findById(id);
+      if (uuid != null)
+      {
+         String elementUUID = item.getStringAttribute("carnot:model:uuid");
+         if (item == null || !uuid.equals(elementUUID))
+         {
+            for (Iterator iterator = list.iterator(); iterator.hasNext();)
+            {
+               T other = (T) iterator.next();
+               if (other != item)
+               {
+                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  if (uuid.equals(elementUUID))
+                  {
+                     return other;
+                  }
+               }
+            }
+         }
+      }
+      return item;
+   }
+
+   private static <T extends IdentifiableElement> T find(SearchableList<T> list, String id)
+   {
+      String uuid = null;
+      int ix = id.indexOf('?');
+      if (ix >= 0)
+      {
+         for (String token : id.substring(ix + 1).split("&"))
+         {
+            if (token.startsWith("uuid="))
+            {
+               uuid = token.substring(5);
+               break;
+            }
+         }
+         id = id.substring(0, ix);
+      }
+      T item = list.find(id);
+      if (uuid != null)
+      {
+         String elementUUID = item.getStringAttribute("carnot:model:uuid");
+         if (item == null || !uuid.equals(elementUUID))
+         {
+            for (T other : list)
+            {
+               if (other != item)
+               {
+                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  if (uuid.equals(elementUUID))
+                  {
+                     return other;
+                  }
+               }
+            }
+         }
+      }
+      return item;
    }
 
    public Diagram findDiagram(String id)
@@ -782,12 +855,12 @@ public class ModelBean extends RootElementBean
 
    public IModelParticipant findParticipant(String id)
    {
-      return participants.find(id);
+      return find(participants, id);
    }
 
    public IProcessDefinition findProcessDefinition(String id)
    {
-      return (IProcessDefinition) processDefinitions.findById(id);
+      return find(processDefinitions, id);
    }
 
    public Iterator getAllApplications()

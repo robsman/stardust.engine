@@ -16,7 +16,7 @@ import com.google.gson.annotations.Expose;
 
 public class RouteCamelModel {
 
-	RouteDefinition route;
+	private RouteDefinition route;
 	CamelContext context;
 	ProducerTemplate template;
 	private Element statisticElement;
@@ -67,6 +67,8 @@ public class RouteCamelModel {
 	private String lastExchangeFailureExchangeId;
 	@Expose
 	private String status;
+	@Expose
+	private String description;
 
 	void initResponseValues() {
 		this.id = statisticElement.getAttributeValue("id");
@@ -115,6 +117,13 @@ public class RouteCamelModel {
 				.getAttributeValue("lastExchangeFailureExchangeId");
 		this.status = template.requestBody("controlbus:route?routeId=" + id
 				+ "&action=status", null, String.class);
+		if ( route.getDescription() != null){
+			this.description = route.getDescription().getText();
+		}
+		else{
+			this.description = "";
+		}
+		
 	}
 
 	public String getId() {
@@ -300,7 +309,31 @@ public class RouteCamelModel {
 			String lastExchangeFailureExchangeId) {
 		this.lastExchangeFailureExchangeId = lastExchangeFailureExchangeId;
 	}
+	
+	public String getStatus() {
+		return status;
+	}
 
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}	
+	
+	public RouteDefinition getRoute() {
+		return route;
+	}
+
+	public void setRoute(RouteDefinition route) {
+		this.route = route;
+	}
+	
 	public RouteCamelModel(CamelContext context, RouteDefinition route) {
 		this.route = route;
 		this.context = context;

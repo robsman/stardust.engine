@@ -69,18 +69,24 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.xml.StaticNamespaceContext;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ConditionalPerformerInfoDetails;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DepartmentInfoDetails;
 import org.eclipse.stardust.engine.api.dto.HistoricalState;
 import org.eclipse.stardust.engine.api.dto.ModelParticipantDetails;
 import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
 import org.eclipse.stardust.engine.api.dto.ModelReconfigurationInfoDetails;
+import org.eclipse.stardust.engine.api.dto.Note;
 import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
 import org.eclipse.stardust.engine.api.dto.PasswordRulesDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
 import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
 import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
@@ -112,6 +118,7 @@ import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
+import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.model.RoleInfo;
 import org.eclipse.stardust.engine.api.model.SchemaType;
@@ -179,6 +186,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessScope;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.api.runtime.ResourceInfo;
@@ -2241,6 +2249,8 @@ public class XmlAdapterUtils
          res.setActivityName(ai.getActivity().getName());
          res.setProcessDefinitionId(ai.getProcessDefinitionId());
 
+         res.setCriticality(ai.getCriticality());
+         
          // TODO replace with regular getter
          if (ai instanceof ActivityInstanceDetails)
          {
@@ -2307,6 +2317,12 @@ public class XmlAdapterUtils
 
          res.setHistoricalEvents(marshalHistoricalEvents(ai.getHistoricalEvents()));
 
+         res.setQualityAssuranceInfo(marshalQualityAssuranceInfo(ai.getQualityAssuranceInfo()));
+         
+         res.setQualityAssuranceState(marshalQualityAssuranceState(ai.getQualityAssuranceState()));
+
+         res.setAttributes(marshalActivityInstanceAttributes(ai.getAttributes()));
+         
          final ModelParticipant defaultPerformer = ai.getActivity().getDefaultPerformer();
          if (defaultPerformer instanceof ConditionalPerformer)
          {
@@ -2320,6 +2336,157 @@ public class XmlAdapterUtils
          }
       }
       return res;
+   }
+
+   private static ActivityInstanceAttributesXto marshalActivityInstanceAttributes(
+         ActivityInstanceAttributes attributes)
+   {
+      ActivityInstanceAttributesXto ret = null;
+      if (attributes != null)
+      {
+         ret = new ActivityInstanceAttributesXto();
+         
+         ret.setActivityInstanceOid(attributes.getActivityInstanceOid());
+         ret.getNotes().addAll(marshalNotes(attributes.getNotes()));
+         ret.setQualityAssuranceResult(marshalQualityAssuranceResult(attributes.getQualityAssuranceResult()));
+      }
+      return ret;
+   }
+
+   private static Collection< ? extends NoteXto> marshalNotes(List<Note> notes)
+   {
+      List<NoteXto> ret = null;
+      if (notes != null)
+      {
+         ret = CollectionUtils.newArrayList();
+         for (Note note : notes)
+         {                       
+            NoteXto xto = new NoteXto();
+            xto.setText(note.getText());
+            xto.setTimestamp(note.getTimestamp());
+            xto.setUser(XmlAdapterUtils.toWs(note.getUser()));
+
+            if (ContextKind.ActivityInstance.equals(note.getContextKind()))
+            {
+               xto.setActivityOid(note.getContextOid());
+            }
+            else if (ContextKind.ProcessInstance.equals(note.getContextKind()))
+            {
+               xto.setProcessOid(note.getContextOid());
+            }
+                        
+            ret.add(xto);
+         }
+      }
+      return ret;
+   }
+
+   private static QualityAssuranceResultXto marshalQualityAssuranceResult(
+         QualityAssuranceResult qualityAssuranceResult)
+   {
+      QualityAssuranceResultXto ret = null;
+      if (qualityAssuranceResult != null)
+      {
+         ret = new QualityAssuranceResultXto();
+         ret.setAssignFailedInstanceToLastPerformer(qualityAssuranceResult.isAssignFailedInstanceToLastPerformer());
+         ret.setQualityAssuranceState(marshalQualityAssuranceResultState(qualityAssuranceResult.getQualityAssuranceState()));
+         ret.getQualityAssuranceCodes().addAll(marshalQualityAssuranceCodes(qualityAssuranceResult.getQualityAssuranceCodes()));
+      }
+      return ret;
+   }
+
+   private static Collection< ? extends QualityAssuranceCodeXto> marshalQualityAssuranceCodes(
+         Set<QualityAssuranceCode> qualityAssuranceCodes)
+   {
+      Set<QualityAssuranceCodeXto> ret = null;
+      if (qualityAssuranceCodes != null)
+      {
+         ret = CollectionUtils.newSet();
+         
+         for (QualityAssuranceCode qaCode : qualityAssuranceCodes)
+         {
+            QualityAssuranceCodeXto qaCodeXto = new QualityAssuranceCodeXto();
+            qaCodeXto.setCode(qaCode.getCode());
+            qaCodeXto.setDescription(qaCode.getDescription());
+            qaCodeXto.setName(qaCode.getName());
+            
+            ret.add(qaCodeXto);
+         }
+      }
+      return ret;
+   }
+
+   private static ResultStateXto marshalQualityAssuranceResultState(
+         ResultState qualityAssuranceResultState)
+   {
+      ResultStateXto ret = null;
+      if (qualityAssuranceResultState != null)
+      {
+         if (ResultState.FAILED.equals(qualityAssuranceResultState))
+         {
+            ret = ResultStateXto.FAILED;
+         }
+         else if (ResultState.PASS_NO_CORRECTION.equals(qualityAssuranceResultState))
+         {
+            ret = ResultStateXto.PASS_NO_CORRECTION;
+         }
+         else if (ResultState.PASS_WITH_CORRECTION.equals(qualityAssuranceResultState))
+         {
+            ret = ResultStateXto.PASS_WITH_CORRECTION;
+         }
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Marshaling of ResultState not supported for: "
+                        + qualityAssuranceResultState.name());
+         }
+      }
+      return ret;
+   }
+
+   private static QualityAssuranceStateXto marshalQualityAssuranceState(
+         QualityAssuranceState qualityAssuranceState)
+   {
+      QualityAssuranceStateXto ret = null;
+      if (qualityAssuranceState != null)
+      {
+         if (QualityAssuranceState.IS_QUALITY_ASSURANCE.equals(qualityAssuranceState))
+         {
+            ret = QualityAssuranceStateXto.IS_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceState.IS_REVISED.equals(qualityAssuranceState))
+         {
+            ret = QualityAssuranceStateXto.IS_REVISED;
+         }
+         else if (QualityAssuranceState.NO_QUALITY_ASSURANCE.equals(qualityAssuranceState))
+         {
+            ret = QualityAssuranceStateXto.NO_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED.equals(qualityAssuranceState))
+         {
+            ret = QualityAssuranceStateXto.QUALITY_ASSURANCE_TRIGGERED;
+         }
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Marshaling of QualityAssuranceState not supported for: "
+                        + qualityAssuranceState.name());
+         }
+      }
+      return ret;
+   }
+
+   private static QualityAssuranceInfoXto marshalQualityAssuranceInfo(
+         QualityAssuranceInfo qualityAssuranceInfo)
+   {
+      QualityAssuranceInfoXto ret = null;
+      if (qualityAssuranceInfo != null)
+      {
+         ret = new QualityAssuranceInfoXto();
+         ret.setFailedQualityAssuranceInstance(toWs(qualityAssuranceInfo.getFailedQualityAssuranceInstance()));
+         ret.setMonitoredInstance(toWs(qualityAssuranceInfo.getMonitoredInstance()));
+      }
+      return ret;
    }
 
    private static PermissionStatesXto marshalPermissionStates(

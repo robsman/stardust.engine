@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.persistence.jms;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -204,16 +205,29 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
       }
    }
 
+   /**
+    * Due to the maximum byte size limitations of {@link DataOutputStream#writeUTF(String)} and {@link DataInputStream#readUTF()}
+    * for a {@link String}, the {@link String} to read might have been split up and needs to be reconstructed from separate portions.
+    */
    public String readString() throws InternalException
    {
       try
       {
-         return dis.readUTF();
+         /* Determine how many portions need to be read to be able to reconstruct the original string ... */
+         int nPortions = dis.readInt();
+
+         /* ... read all portions and reconstruct the string by concatenation */
+         StringBuilder sb = new StringBuilder();
+         for (int i = 0; i < nPortions; i++)
+         {
+            String s = dis.readUTF();
+            sb.append(s);
+         }
+         return sb.toString();
       }
       catch (IOException ioe)
       {
          throw new InternalException("Failed reading value from blob.", ioe);
       }
    }
-
 }

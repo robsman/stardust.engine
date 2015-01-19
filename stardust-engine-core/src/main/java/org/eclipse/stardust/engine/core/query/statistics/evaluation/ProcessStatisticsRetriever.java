@@ -18,7 +18,6 @@ import java.util.Set;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -107,13 +106,13 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
             ProcessInstanceState.COMPLETED, ProcessInstanceState.ABORTED}));
 
       final Set<Long> processRtOidFilter = StatisticsQueryUtils.extractProcessFilter(psq.getFilter());
-      
+
       final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
             "getProcessInstance", long.class);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-      
+
       authPredicate.addRawPrefetch(sqlQuery, ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE);
 
       final ProcessStatisticsResult result = new ProcessStatisticsResult(psq);
@@ -127,7 +126,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             long piOid = rs.getLong(1);
             long cumulationPiOid = rs.getLong(2);
             long modelOid = rs.getLong(3);
@@ -143,23 +142,23 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
                if (!guarded || Authorization2.hasPermission(ctx))
                {
                   IProcessDefinition process = (IProcessDefinition) ctx.getModelElement();
-   
+
                   boolean isCritical = false;
                   boolean isInterrupted = false;
-                  
+
                   if (piOid == cumulationPiOid)
                   {
                      tsPiStart.setTime(piStartTime);
-   
+
                      isCritical = criticalityPolicy.isCriticalDuration(priority, tsPiStart,
                            now, process);
                   }
-                  
+
                   if (state == ProcessInstanceState.INTERRUPTED)
                   {
                      isInterrupted = true;
                   }
-                  
+
                   String elementId = ModelUtils.getQualifiedId(process);
                   result.addPriorizedInstances(elementId, priority, piOid, isCritical, isInterrupted);
                }

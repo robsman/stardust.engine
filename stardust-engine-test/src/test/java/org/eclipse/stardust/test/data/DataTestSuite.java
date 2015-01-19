@@ -26,7 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * This test suite bundles tests for functionality regarding
  * process data.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -35,12 +35,13 @@ import org.junit.runners.Suite.SuiteClasses;
                DefaultValuePrimitiveDataTest.class,
                PrimitiveDataInOutDataMappingsTest.class,
                PrimitiveDataInOutDataPathsTest.class,
-               InitialValuePrimitiveDataTest.class
+               InitialValuePrimitiveDataTest.class,
+               StructuredDataSanityTest.class
              })
 public class DataTestSuite
 {
    /* test suite */
-   
+
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

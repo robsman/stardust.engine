@@ -1,13 +1,17 @@
 package org.eclipse.stardust.engine.extensions.camel.attachment;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TARGET_PATH;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_NAME;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_CONTENT;
 import static org.apache.camel.Exchange.FILE_NAME_ONLY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_ATTACHMENTS_AP_ID;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_TEMPLATE_CONFIGURATION_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_CONTENT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_NAME;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TARGET_PATH;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +19,6 @@ import java.util.Map;
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
@@ -32,6 +34,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfiguration;
@@ -158,6 +161,8 @@ public class DocumentHandler
          {
             ActivityInstance activityInstance = i.next();
             ProcessInstance pi = activityInstance.getProcessInstance();
+            ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition(pi.getProcessID());
+            boolean processAttachmentSupport = processDefinition.getDataPath(PROCESS_ATTACHMENTS) != null ? true : false;
             Object messageContent = exchange.getIn().getBody();
             if (messageContent instanceof DmsDocumentBean)
             {
@@ -165,9 +170,15 @@ public class DocumentHandler
                StringBuilder defaultPath = new StringBuilder(
                      org.eclipse.stardust.engine.api.runtime.DmsUtils.composeDefaultPath(
                            pi.getScopeProcessInstanceOID(), pi.getStartTime()))
-                     .append("/")
-                     .append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER)
-                     .append("/").append(dmsDocumentBean.getName());
+                     .append("/");
+               if(processAttachmentSupport)
+               {
+                  defaultPath.append(DocumentRepositoryFolderNames.PROCESS_ATTACHMENTS_SUBFOLDER);
+               } else
+               {
+                  defaultPath.append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER);
+               }
+               defaultPath.append("/").append(dmsDocumentBean.getName());
                document = dms.getDocument(defaultPath.toString());
             }
             else
@@ -199,9 +210,21 @@ public class DocumentHandler
                   fileName = (String) exchange.getIn().getHeader(DOCUMENT_NAME);
                }
                document = CamelDmsUtils.storeDocument(dms, pi, jcrDocumentContent,
-                     fileName, false);
+                     fileName, processAttachmentSupport);
+               if(document != null && processAttachmentSupport)
+               {
+                  List<Document> listProcessAttachments = (List<Document>) sf.getWorkflowService().getInDataPath(pi.getOID(), PROCESS_ATTACHMENTS);
+                  // initialize it if necessary
+                  if (null == listProcessAttachments)
+                  {
+                     listProcessAttachments = new ArrayList<Document>();
+                  }
+                  listProcessAttachments.add(document);
+                  sf.getWorkflowService().setOutDataPath(pi.getOID(), PROCESS_ATTACHMENTS, listProcessAttachments);
+               }
             }
          }
+         
       }
       return document;
    }
@@ -281,6 +304,7 @@ public class DocumentHandler
       ModelCamelContext camelContext = (ModelCamelContext) exchange.getContext();
       ProducerTemplate producer = camelContext.createProducerTemplate();
       String templateConfigurationsEA;
+      Map<String, Object> dynamicTemplateConfigurations = null;
       List<ActivityInstance> instances = BpmTypeConverter
             .lookupActivityInstance(exchange);
       for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
@@ -290,61 +314,76 @@ public class DocumentHandler
                .getApplication().getAllAttributes();
          if (extendedAttributes != null && extendedAttributes.size() > 0)
          {
-            templateConfigurationsEA = (String) extendedAttributes
-                  .get("stardust:emailOverlay::templateConfigurations");
-            if (StringUtils.isNotEmpty(templateConfigurationsEA))
+            dynamicTemplateConfigurations = exchange.getIn().getHeader(MAIL_ATTACHMENTS_AP_ID, Map.class);
+            if(dynamicTemplateConfigurations != null)
             {
-               Gson gson = new Gson();
-               Type token = new TypeToken<List<TemplateConfiguration>>()
+               if(dynamicTemplateConfigurations.size() == 1)
                {
-               }.getType();
-               List<TemplateConfiguration> templateConfigurations = gson.fromJson(
-                     templateConfigurationsEA, token);
-               for (TemplateConfiguration template : templateConfigurations)
+                  List<TemplateConfiguration> listTemplateConfiguration = (List<TemplateConfiguration>) dynamicTemplateConfigurations
+                        .get(dynamicTemplateConfigurations.keySet().iterator().next());
+                  templateConfigurationsEA = new Gson().toJson(listTemplateConfiguration);
+                  processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
+               }
+            } else
+            {
+               templateConfigurationsEA = (String) extendedAttributes
+               .get(MAIL_TEMPLATE_CONFIGURATION_ATT);
+               if (StringUtils.isNotEmpty(templateConfigurationsEA))
                {
-                  Exchange newExchange = new DefaultExchange(camelContext);
-                  newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
-                  newExchange.getIn().setBody(exchange.getIn().getBody());
-                  newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
-                  newExchange.getIn().setHeader("CamelTemplatingLocation",
-                        template.getSource());
-                  newExchange
-                        .getIn()
-                        .setHeader(
-                              "CamelTemplatingFormat",
-                              (template != null
-                                    && StringUtils.isNotEmpty(template.getPath()) && template
-                                    .getPath().endsWith(".docx")) ? "docx" : "text");
-                  newExchange.getIn().setHeader("CamelTemplatingTemplate",
-                        (template.getPath()));
-                  newExchange.getIn().setHeader("CamelTemplatingOutputName",
-                        template.getName());
-                  newExchange
-                        .getIn()
-                        .setHeader(
-                              "CamelTemplatingConvertToPdf",
-                              (template != null
-                                    && StringUtils.isNotEmpty(template.getFormat()) && template
-                                    .getFormat().equalsIgnoreCase("pdf")) ? true : false);
-                  Exchange reponse = null;
-                  if (template.getSource().equalsIgnoreCase("repository"))
-                  {
-                     reponse = producer.send("direct://templateFromRepository",
-                           newExchange);
-                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
-                  }
-                  else if (template.getSource().equalsIgnoreCase("classpath"))
-                  {
-                     reponse = producer.send("direct://templateFromClasspath",
-                           newExchange);
-                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
-                  }
+                  processTemplateConfigurations(exchange, camelContext, producer, templateConfigurationsEA);
                }
             }
+            
+         }
+      }
+   }
+   
+   private static void processTemplateConfigurations(Exchange exchange,
+         ModelCamelContext camelContext, ProducerTemplate producer,
+         String templateConfigurationsEA)
+   {
+      Gson gson = new Gson();
+      Type token = new TypeToken<List<TemplateConfiguration>>()
+      {
+      }.getType();
+      List<TemplateConfiguration> templateConfigurations = gson.fromJson(
+            templateConfigurationsEA, token);
+      for (TemplateConfiguration template : templateConfigurations)
+      {
+         Exchange newExchange = new DefaultExchange(camelContext);
+         newExchange.getIn().setHeaders(exchange.getIn().getHeaders());
+         newExchange.getIn().setBody(exchange.getIn().getBody());
+         newExchange.getIn().setAttachments(exchange.getIn().getAttachments());
+         newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
+         newExchange
+               .getIn()
+               .setHeader(
+                     "CamelTemplatingFormat",
+                     (template != null && StringUtils.isNotEmpty(template.getPath()) && template
+                           .getPath().endsWith(".docx")) ? "docx" : "text");
+         newExchange.getIn().setHeader("CamelTemplatingTemplate", (template.getPath()));
+         newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
+         newExchange
+               .getIn()
+               .setHeader(
+                     "CamelTemplatingConvertToPdf",
+                     (template != null && StringUtils.isNotEmpty(template.getFormat()) && template
+                           .getFormat().equalsIgnoreCase("pdf")) ? true : false);
+         Exchange reponse = null;
+         if (template.getSource().equalsIgnoreCase("repository"))
+         {
+            reponse = producer.send("direct://templateFromRepository", newExchange);
+            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+         }
+         else if (template.getSource().equalsIgnoreCase("classpath"))
+         {
+            reponse = producer.send("direct://templateFromClasspath", newExchange);
+            exchange.getIn().setAttachments(reponse.getIn().getAttachments());
          }
       }
    }
 
+   @SuppressWarnings("unchecked")
    public void storeExchangeAttachments(Exchange exchange) throws CreateDocumentException, IOException
    {
       if (exchange != null)
@@ -357,18 +396,46 @@ public class DocumentHandler
          {
             ActivityInstance activityInstance = i.next();
             ProcessInstance pi = activityInstance.getProcessInstance();
-
+            ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition(pi.getProcessID());
+            boolean processAttachmentSupport = processDefinition.getDataPath(PROCESS_ATTACHMENTS) != null ? true : false;
+            List<Document> listProcessAttachments = null;
+            
+            if (!processAttachmentSupport)
+            {
+               logger.warn("Process attachments is not enabled for "+ processDefinition.getId() + " process");
+               
+            } else{
+               listProcessAttachments = (List<Document>) sf.getWorkflowService().getInDataPath(pi.getOID(), PROCESS_ATTACHMENTS);
+               // initialize it if necessary
+               if (null == listProcessAttachments)
+               {
+                  listProcessAttachments = new ArrayList<Document>();
+               }
+            }
+            
+            Document attachmentDocument = null;
             Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
+            
             for (String attachmentName : attachments.keySet())
             {
                DataHandler attachment = attachments.get(attachmentName);
                if(attachment.getContent() instanceof byte[]){
-                  CamelDmsUtils.storeDocument(dms, pi, (byte[]) attachment.getContent(),attachmentName, false);
+                  attachmentDocument = CamelDmsUtils.storeDocument(dms, pi, (byte[]) attachment.getContent(),attachmentName, processAttachmentSupport);
                }else if (attachment.getContent() instanceof String){
-                  CamelDmsUtils.storeDocument(dms, pi,  ((String)attachment.getContent()).getBytes(),attachmentName, false);
+                  attachmentDocument = CamelDmsUtils.storeDocument(dms, pi,  ((String)attachment.getContent()).getBytes(),attachmentName, processAttachmentSupport);
                }else{
-
+                  // TODO
                }
+
+               if(processAttachmentSupport && attachmentDocument != null)
+               {
+                  listProcessAttachments.add(attachmentDocument);
+               }
+            }
+            
+            if(processAttachmentSupport && !listProcessAttachments.isEmpty())
+            {
+               sf.getWorkflowService().setOutDataPath(pi.getOID(), PROCESS_ATTACHMENTS, listProcessAttachments);
             }
          }
 

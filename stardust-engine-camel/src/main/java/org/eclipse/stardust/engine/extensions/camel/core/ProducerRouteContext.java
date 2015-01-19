@@ -26,10 +26,14 @@ public class ProducerRouteContext extends ApplicationRouteContext
 
    public String getRouteId()
    {
-      return Util.getRouteId(partitionId, getModelId(), null,
-            getId(), true);
+      return Util.getRouteId(partitionId, getModelId(), null, getId(), true);
    }
-   
+
+   public String getDescription()
+   {
+      return Util.getDescription(getPartitionId(), getModelId(), getId());
+   }
+
    public boolean addApplicationAttributesToHeaders()
    {
       String providedRoute = getUserProvidedRouteConfiguration();

@@ -19,10 +19,13 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.engine.api.query.PreferenceQuery;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 
 public class RepositoryProviderUtils
 {
@@ -124,6 +127,20 @@ public class RepositoryProviderUtils
             MODULE_ID_REPOSITORY_MANAGER, PREFERENCES_ID_SETTINGS);
 
       return (String) preferences.getPreferences().get(DEFAULT_REPOSITORY_ID);
+   }
+
+   /**
+    * Throws an exception if {@link Constants#CARNOT_ARCHIVE_AUDITTRAIL} is set.
+    * This method should only be called for write operations.
+    */
+   public static void checkWriteInArchiveMode()
+   {
+      // prevent write in archive mode
+      if (Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
+      {
+         throw new DocumentManagementServiceException(
+               BpmRuntimeError.DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE.raise());
+      }
    }
 
 

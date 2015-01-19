@@ -35,7 +35,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><description>This route is related to test_trigger defined in TEST_MODEL. The partition is :default</description><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder
@@ -43,7 +43,7 @@ public class CamelTriggerRouteBuilderTest
                         new CamelTriggerRouteContext(trigger, "default",
                               "defaultCamelContext", new ArrayList<DataConverter>())).toString());
    }
-   
+
    @Test
    public void testRouteGenerationTransactedEASetToTrue()
    {
@@ -63,7 +63,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><description>This route is related to test_trigger defined in TEST_MODEL. The partition is :default</description><from uri=\"direct:testStartProcessWithoutData\"/><transacted ref=\"required\" /><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder
@@ -71,7 +71,7 @@ public class CamelTriggerRouteBuilderTest
                         new CamelTriggerRouteContext(trigger, "default",
                               "defaultCamelContext", new ArrayList<DataConverter>())).toString());
    }
-   
+
    @Test
    public void testRouteGenerationTransactedEASetToFalse()
    {
@@ -91,7 +91,7 @@ public class CamelTriggerRouteBuilderTest
             .setAttribute("carnot:engine:camel::camelRouteExt",
                   "<from uri=\"direct:testStartProcessWithoutData\" /><to uri=\"ipp:direct\"; />");
       StringBuilder expected = new StringBuilder(
-            "<route id=\"Consumer870758176\" autoStartup=\"true\"><from uri=\"direct:testStartProcessWithoutData\"/><to uri=\"ipp:process:start\"/>\n</route>");
+            "<route id=\"Consumer870758176\" autoStartup=\"true\"><description>This route is related to test_trigger defined in TEST_MODEL. The partition is :default</description><from uri=\"direct:testStartProcessWithoutData\"/><to uri=\"ipp:process:start\"/>\n</route>");
       assertEquals(
             expected.toString(),
             RouteDefinitionBuilder

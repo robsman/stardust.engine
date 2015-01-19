@@ -18,10 +18,12 @@ import javax.ejb.SessionContext;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.J2eeSecurityLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalProvider;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 
@@ -79,7 +81,11 @@ public class SessionBeanLoginInterceptor extends J2eeSecurityLoginInterceptor
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
-      boolean useInvokerPrincipal = useInvokerPrincipal(invocation);
+      InvokerPrincipal invokerPrincipal = InvokerPrincipalUtils.getCurrent();
+      final boolean useInvokerPrincipal = (null != invokerPrincipal
+            && invokerPrincipal.getProperties() != null && !invokerPrincipal.getProperties()
+            .containsKey(AbstractLoginInterceptor.REAUTH_OUTER_PRINCIPAL));
+
 
       PropertyLayer props = useInvokerPrincipal
             ? PropertyLayerProviderInterceptor.getCurrent()

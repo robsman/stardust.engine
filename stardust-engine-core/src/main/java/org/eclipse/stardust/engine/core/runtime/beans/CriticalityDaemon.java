@@ -196,4 +196,10 @@ public class CriticalityDaemon implements IDaemon
    {
       return ID;
    }
+
+
+   public long getDefaultPeriodicity()
+   {
+      return 5;
+   }
 }

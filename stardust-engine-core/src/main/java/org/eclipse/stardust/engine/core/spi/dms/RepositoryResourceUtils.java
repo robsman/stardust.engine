@@ -43,7 +43,18 @@ public class RepositoryResourceUtils
     * All other values are <code>null</code>.
     * If more information about the document is available please use {@link #createDocument(String, String, long, String, Date, Date)}.
     * <p>
-    * Only parameters that cannot be changed via setters on {@link Document} are available.
+    * Only parameters that cannot be changed via setters on {@link Document} are
+    * available.
+    * <p>
+    * <b>Important Note on IDs</b><br>
+    * Ensuring a good performance the id of the document should be shorter than 100 Bytes
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * <pre>
+    * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
+    * </pre>
+    * It is discouraged to use URLs or file paths as IDs as they tend to get long, have
+    * no significant difference at the start of the string and it is possible to guess other IDs.
+    * <p>
     * @param id The unique identifier of the document.
     * @return The new document instance.
     */
@@ -60,7 +71,16 @@ public class RepositoryResourceUtils
     * The document revisionId and revisionName default to {@link RepositoryConstants#VERSION_UNVERSIONED}.
     * <p>
     * Only parameters that cannot be changed via setters on {@link Document} are available.
-    *
+    * <p>
+    * <b>Important Note on IDs</b><br>
+    * Ensuring a good performance the id of the document should be shorter than 100 Bytes
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * <pre>
+    * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
+    * </pre>
+    * It is discouraged to use URLs or file paths as IDs as they tend to get long, have
+    * no significant difference at the start of the string and it is possible to guess other IDs.
+    * <p>
     * @param id The unique identifier of the document.
     * @param path The path of the document. As path separator {@link RepositoryConstants#PATH_SEPARATOR} is expected.
     * @param size The size of the content.
@@ -98,7 +118,16 @@ public class RepositoryResourceUtils
     * The document name defaults to the specified document id but can be changed via {@link Document#setName(String)}.
     * <p>
     * Only parameters that cannot be changed via setters on {@link Document} are available.
-    *
+    * <p>
+    * <b>Important Note on IDs</b><br>
+    * Ensuring a good performance the id of the document should be shorter than 100 Bytes
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * <pre>
+    * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
+    * </pre>
+    * It is discouraged to use URLs or file paths as IDs as they tend to get long, have
+    * no significant difference at the start of the string and it is possible to guess other IDs.
+    * <p>
     * @param id The unique identifier of the document.
     * @param path The path of the document. As path separator {@link RepositoryConstants#PATH_SEPARATOR} is expected.
     * @param size The size of the content.
@@ -140,7 +169,16 @@ public class RepositoryResourceUtils
     * The folder name defaults to the specified folder id but can be changed via {@link Folder#setName(String)}.
     * <p>
     * Only parameters that cannot be changed via setters on {@link Folder} are available.
-    *
+    * <p>
+    * <b>Important Note on IDs</b><br>
+    * Ensuring a good performance the id of the folder should be shorter than 100 Bytes
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * <pre>
+    * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
+    * </pre>
+    * It is discouraged to use URLs or file paths as IDs as they tend to get long, have
+    * no significant difference at the start of the string and it is possible to guess other IDs.
+    * <p>
     * @param id The unique identifier of the folder.
     * @param path The path of the folder. As path separator {@link RepositoryConstants#PATH_SEPARATOR} is expected.
     * @param dateCreated The date the folder was created

@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.dms.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.log.LogManager;
@@ -23,20 +27,21 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.query.DataQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.Resource;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.DataQueryEvaluator;
-import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * Responsible to sync existing AuditTrail document data and folder data.
@@ -57,26 +62,22 @@ public class DmsResourceSyncManager
 
    public void documentChanged(Document oldDocument, Document newDocument)
    {
-      ServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
-
       ParametersFacade.pushLayer(Collections.singletonMap(
             AbstractVfsResourceAccessPathEvaluator.IS_INTERNAL_DOCUMENT_SYNC_CALL, true));
       try
       {
+         Set<Long> allProcessInstances = getScopePisHavingDocument(oldDocument);
 
-         ProcessInstanceQuery piWithDocQuery = ProcessInstanceQuery.findHavingDocument(oldDocument);
-         ProcessInstances allProcessInstances = sf.getQueryService()
-               .getAllProcessInstances(piWithDocQuery);
-
-         for (ProcessInstance processInstance : allProcessInstances)
+         for (Long processInstanceOid : allProcessInstances)
          {
-            ProcessInstanceBean piBean = ProcessInstanceBean.findByOID(processInstance.getOID());
+            ProcessInstanceBean piBean = ProcessInstanceBean
+                  .findByOID(processInstanceOid);
 
             IModel model = (IModel) piBean.getProcessDefinition().getModel();
             Iterator<IData> allData = model.getData().iterator();
 
-            DataQuery dataQuery = DataQuery.findUsedInProcess(
-                  processInstance.getModelOID(), processInstance.getProcessID());
+            DataQuery dataQuery = DataQuery.findUsedInProcess(piBean.getModelOID(),
+                  piBean.getProcessDefinition().getId());
             DataQueryEvaluator dataQueryEvaluator = new DataQueryEvaluator(dataQuery);
             FilteringIterator<IData> dataIterator = new FilteringIterator<IData>(allData,
                   dataQueryEvaluator);
@@ -85,91 +86,95 @@ public class DmsResourceSyncManager
             {
                final IData iData = dataIterator.next();
 
-               AccessPoint triggeringAccessPoint = Parameters.instance()
+               AccessPoint triggeringAccessPoint = Parameters
+                     .instance()
                      .getObject(
                            AbstractVfsResourceAccessPathEvaluator.DMS_SYNC_CURRENT_ACCESS_POINT,
                            null);
 
-               // The triggering accesspoint must not be synchronized, it is handled in the call which has triggered the synchronization.
-               if ( !iData.equals(triggeringAccessPoint))
+               // The triggering accesspoint must not be synchronized, it is handled in
+               // the call which has triggered the synchronization.
+               if (!iData.equals(triggeringAccessPoint))
                {
 
-               String dataTypeId = iData.getType().getId();
-               if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
-               {
+                  String dataTypeId = iData.getType().getId();
+                  if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
+                  {
                      Object value = piBean.getInDataValue(iData, null);
 
-                  if (value instanceof Document)
-                  {
-                     Document existingDocument = (Document) value;
-                     if (resourceIdEquals(existingDocument.getId(), oldDocument.getId()))
+                     if (value instanceof Document)
                      {
-                        // needs update
-                        piBean.setOutDataValue(iData, "", newDocument);
-                     }
-                  }
-                  else if (value == null)
-                  {
-                     // was null, data not initialized yet
-                  }
-                  else
-                  {
-                     trace.warn("Dms data value not of type Document: " + value);
-                  }
-
-               }
-               else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
-               {
-                     Object value = piBean.getInDataValue(iData, null);
-
-                  if (value instanceof List)
-                  {
-                     List<Document> existingDocumentList = (List<Document>) value;
-                     List<Document> documentList = CollectionUtils.newArrayList();
-                     for (Document existingDocument : existingDocumentList)
-                     {
-                        if (resourceIdEquals(existingDocument.getId(), oldDocument.getId()))
+                        Document existingDocument = (Document) value;
+                        if (resourceIdEquals(existingDocument.getId(),
+                              oldDocument.getId()))
                         {
-                           if (newDocument != null)
+                           // needs update
+                           piBean.setOutDataValue(iData, "", newDocument);
+                        }
+                     }
+                     else if (value == null)
+                     {
+                        // was null, data not initialized yet
+                     }
+                     else
+                     {
+                        trace.warn("Dms data value not of type Document: " + value);
+                     }
+
+                  }
+                  else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
+                  {
+                     Object value = piBean.getInDataValue(iData, null);
+
+                     if (value instanceof List)
+                     {
+                        List<Document> existingDocumentList = (List<Document>) value;
+                        List<Document> documentList = CollectionUtils.newArrayList();
+                        for (Document existingDocument : existingDocumentList)
+                        {
+                           if (resourceIdEquals(existingDocument.getId(),
+                                 oldDocument.getId()))
                            {
-                              documentList.add(newDocument);
+                              if (newDocument != null)
+                              {
+                                 documentList.add(newDocument);
+                              }
+                           }
+                           else
+                           {
+                              documentList.add(existingDocument);
                            }
                         }
-                        else
+
+                        if (documentList.isEmpty())
                         {
-                           documentList.add(existingDocument);
+                           // don't set empty list of no documents are contained.
+                           documentList = null;
+                        }
+
+                        if (!existingDocumentList.equals(documentList))
+                        {
+                           piBean.setOutDataValue(iData, "", documentList);
                         }
                      }
-
-                     if (documentList.isEmpty())
+                     else if (value == null)
                      {
-                        // don't set empty list of no documents are contained.
-                        documentList = null;
+                        // was null, data not initialized yet
                      }
-
-                     if ( !existingDocumentList.equals(documentList))
+                     else
                      {
-                        piBean.setOutDataValue(iData, "", documentList);
+                        trace.warn("Dms data value not of type List<Document>: " + value);
                      }
                   }
-                  else if (value == null)
+                  else if (DmsConstants.DATA_TYPE_DMS_FOLDER.equals(dataTypeId))
                   {
-                     // was null, data not initialized yet
+                     // TODO to be implemented in later version
                   }
-                  else
+                  else if (DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(dataTypeId))
                   {
-                     trace.warn("Dms data value not of type List<Document>: " + value);
+                     // TODO to be implemented in later version
                   }
                }
-               else if (DmsConstants.DATA_TYPE_DMS_FOLDER.equals(dataTypeId))
-               {
-                  // TODO to be implemented in later version
-               }
-               else if (DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(dataTypeId))
-               {
-                  // TODO to be implemented in later version
-               }
-            }
             }
 
          }
@@ -181,24 +186,101 @@ public class DmsResourceSyncManager
 
    }
 
+   private Set<Long> getScopePisHavingDocument(Document oldDocument)
+   {
+      final String documentsIdXPath = AuditTrailUtils.DOCS_DOCUMENTS + "/"
+            + AuditTrailUtils.RES_ID;
+
+      // Fetch XPath Oids from runtimeOid cache.
+      Set<Long> xPathOids = CollectionUtils.newHashSet();
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      List<IModel> models = modelManager.findActiveModels();
+      for (IModel iModel : models)
+      {
+         ModelElementList<IData> allData = iModel.getData();
+         for (IData iData : allData)
+         {
+            String dataTypeId = iData.getType().getId();
+            if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
+            {
+               xPathOids.add(modelManager.getRuntimeOid(iData, AuditTrailUtils.RES_ID));
+            }
+            else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
+            {
+               xPathOids.add(modelManager.getRuntimeOid(iData, documentsIdXPath));
+            }
+         }
+      }
+
+      Set<Long> scopePiOids = CollectionUtils.newHashSet();
+      ResultSet rsScopePiOids = null;
+      try
+      {
+         Session session = (Session) SessionFactory
+               .getSession(SessionFactory.AUDIT_TRAIL);
+         String truncatedDocumentId = StringUtils.cutString(oldDocument.getId(),
+               StructuredDataValueBean.string_value_COLUMN_LENGTH);
+
+         QueryDescriptor queryDescriptor = QueryDescriptor
+               .from(ProcessInstanceBean.class).select(ProcessInstanceBean.FIELD__OID);
+
+         queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, "PR_sdv1").on(
+               ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+               StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+
+         queryDescriptor
+               .where(Predicates.andTerm(Predicates.inList(
+                     StructuredDataValueBean.FR__XPATH, xPathOids.iterator()), //
+                     Predicates.isEqual(StructuredDataValueBean.FR__TYPE_KEY,
+                           BigData.STRING), //
+                     Predicates.orTerm( //
+                           Predicates.isEqual(StructuredDataValueBean.FR__STRING_VALUE,
+                                 truncatedDocumentId), //
+                           Predicates
+                                 .isEqual(StructuredDataValueBean.FR__STRING_VALUE,
+                                       RepositoryIdUtils
+                                             .stripRepositoryId(truncatedDocumentId)))));
+
+         rsScopePiOids = session.executeQuery(queryDescriptor);
+
+         while (rsScopePiOids.next())
+         {
+            scopePiOids.add(rsScopePiOids.getLong(1));
+         }
+      }
+      catch (SQLException sqle)
+      {
+         final String message = "Exeception on DmsResource Synchronization. ";
+         trace.warn(message, sqle);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rsScopePiOids);
+      }
+      return scopePiOids;
+   }
+
    /**
     * Compares {@link Resource} Ids considering legacy Ids without repositoryId prefix.<br>
-    * The prefix pointing to the repositoryId {@link RepositoryManager#SYSTEM_REPOSITORY_ID} is optional.
+    * The prefix pointing to the repositoryId
+    * {@link RepositoryManager#SYSTEM_REPOSITORY_ID} is optional.
     * <p>
     * For example: <br>
     * '{urn:repository:default}{jcr-uuid}ABC' == '{jcr-uuid}ABC'.<br>
     * However: <br>
     * '{urn:repository:newRepository}{jcr-uuid}ABC' != '{jcr-uuid}ABC'
     */
-   private boolean resourceIdEquals(String id1, String id2)
+   private static boolean resourceIdEquals(String id1, String id2)
    {
       String repositoryId1 = RepositoryIdUtils.extractRepositoryId(id1);
       String repositoryId2 = RepositoryIdUtils.extractRepositoryId(id2);
-      if (repositoryId1 == null && repositoryId2 != null && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
+      if (repositoryId1 == null && repositoryId2 != null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
       {
          return id1.equals(RepositoryIdUtils.stripRepositoryId(id2));
       }
-      else if (repositoryId1 != null && repositoryId2 == null && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
+      else if (repositoryId1 != null && repositoryId2 == null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
       {
          return RepositoryIdUtils.stripRepositoryId(id1).equals(id2);
       }
@@ -206,7 +288,7 @@ public class DmsResourceSyncManager
       {
          return id1.equals(id2);
       }
-      
+
    }
 
    public void folderChanged(Folder oldFolder, Folder newFolder)

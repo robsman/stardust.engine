@@ -2582,6 +2582,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
    }
    
+   /**
+    * This method is called when importing an activity instance from an archive.
+    * This is the only time this should be called, it initialized the initial performer
+    * attribute which is necessary upon session flushing
+    */
    public void prepareForImportFromArchive() {
       recordInitialPerformer();
    }

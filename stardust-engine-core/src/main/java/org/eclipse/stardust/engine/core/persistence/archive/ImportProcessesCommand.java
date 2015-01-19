@@ -8,6 +8,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 
 /**
+ * This class allows a request to import archived processes instances. The processes are
+ * imported from a byte[]. The class returns the number of processes imported.
  * 
  * @author Jolene.Saayman
  * @version $Revision: $
@@ -15,11 +17,11 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 public class ImportProcessesCommand implements ServiceCommand
 {
    private static final long serialVersionUID = 1L;
-   
+
    private final byte[] rawData;
-   
+
    /**
-    * @param processInstanceOids Oids of process instances to export
+    * @param rawData This contains the data that needs to be imported in byte[] format
     */
    public ImportProcessesCommand(byte[] rawData)
    {
@@ -30,14 +32,19 @@ public class ImportProcessesCommand implements ServiceCommand
    @Override
    public Serializable execute(ServiceFactory sf)
    {
-      if (rawData != null) {
-         
-         final Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         
-         ExportImportSupport.loadProcessInstanceGraph(rawData, session);
-        
+      int importCount;
+      if (rawData != null)
+      {
+
+         final Session session = (Session) SessionFactory
+               .getSession(SessionFactory.AUDIT_TRAIL);
+
+         importCount = ExportImportSupport.loadProcessInstanceGraph(rawData, session);
+
+      } else {
+         importCount = 0;
       }
-      return null;
+      return importCount;
    }
 
 }

@@ -12,16 +12,23 @@ package org.eclipse.stardust.test.archive;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +44,7 @@ import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceHierarchyFilter;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -77,7 +85,89 @@ public class ArchiveTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
    @Test
-   public void testExportImport() throws Exception
+   public void importNull() {
+      WorkflowService workflowService = sf.getWorkflowService();
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(null));
+      assertEquals(0, count);
+   }
+   
+   @Test
+   public void invalidProcessInstanceOid() {
+      WorkflowService workflowService = sf.getWorkflowService();
+      List<Long> oids = Arrays.asList(-1L);
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(0, count);
+      assertNull(rawData);
+   }
+
+   @Test
+   public void invalidProcessInstanceOidNull() {
+      WorkflowService workflowService = sf.getWorkflowService();
+      Long oid = null;
+      List<Long> oids = Arrays.asList(oid);
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNull(rawData);
+   }
+   
+   @Test
+   public void invalidProcessInstanceOidBlankList() {
+      WorkflowService workflowService = sf.getWorkflowService();
+      List<Long> oids = new ArrayList<Long>();
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNull(rawData);
+   }
+   
+   @Test
+   public void testExportImportSimple() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+
+      completeNextActivity(pi, null, null);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNotNull(rawData);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+
+   @Test
+   public void testExportImportSimpleManual() throws Exception
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
@@ -85,18 +175,11 @@ public class ArchiveTest
       final ProcessInstance pi = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
 
-      final ActivityInstance ai1 = sf.getQueryService().findFirstActivityInstance(
-            ActivityInstanceQuery.findAlive(pi.getProcessID()));
-      Map<String, String> outData = new HashMap<String, String>();
-      outData.put(ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data");
-      final ActivityInstance writeActivity = sf.getWorkflowService()
-            .activateAndComplete(ai1.getOID(), null, outData);
+      final ActivityInstance writeActivity = completeNextActivity(pi,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data");
 
-      final ActivityInstance ai2 = sf.getQueryService().findFirstActivityInstance(
-            ActivityInstanceQuery.findAlive(pi.getProcessID()));
-      final ActivityInstance readActivity = sf.getWorkflowService()
-            .activateAndComplete(ai2.getOID(), null, null);
-      
+      completeNextActivity(pi, null, null);
+
       ProcessInstanceStateBarrier.instance().await(pi.getOID(),
             ProcessInstanceState.Completed);
 
@@ -109,13 +192,14 @@ public class ArchiveTest
       ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
       aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
 
-      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
-      ActivityInstances activities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(instances);
-      assertNotNull(activities);
-      assertEquals(1, instances.size());
-      assertEquals(3, activities.size());
-      assertEquals(pi.getOID(), instances.get(0).getOID());
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(3, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
@@ -123,62 +207,343 @@ public class ArchiveTest
       byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
       assertNotNull(rawData);
 
-      instances = queryService.getAllProcessInstances(pQuery);
-      activities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(instances);
-      assertNotNull(activities);
-      assertEquals(0, instances.size());
-      assertEquals(0, activities.size());
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
       assertDataNotExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data");
 
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      workflowService.execute(new ImportProcessesCommand(rawData));
-      instances = queryService.getAllProcessInstances(pQuery);
-      activities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(instances);
-      assertNotNull(activities);
-      assertEquals(1, instances.size());
-      assertEquals(3, activities.size());
-      ProcessInstance restoredProcess = (ProcessInstance) instances.get(0);
-      assertEquals(pi.getOID(), restoredProcess.getOID());
-      assertEquals(pi.getScopeProcessInstanceOID(),
-            restoredProcess.getScopeProcessInstanceOID());
-      assertEquals(pi.getRootProcessInstanceOID(),
-            restoredProcess.getRootProcessInstanceOID());
-      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
-            hasEntryInDbForObject("PROCINST_SCOPE", "SCOPEPROCESSINSTANCE", pi.getOID()),
-            is(true));
-      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
-            hasEntryInDbForObject("PROCINST_SCOPE", "ROOTPROCESSINSTANCE", pi.getOID()),
-            is(true));
-      for (ActivityInstance activity : activities)
-      {
-         assertThat(
-               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
-               hasEntryInDbForObject("ACTIVITY_INSTANCE", "OID", activity.getOID()),
-               is(true));
-         if (activity.getOID() == readActivity.getOID()) {
-            assertEquals(readActivity.getState(), activity.getState());
-            assertEquals(readActivity.getStartTime(), activity.getStartTime());
-            assertEquals(readActivity.getCurrentPerformer(), activity.getCurrentPerformer());
-            assertEquals(readActivity.getPerformedBy(), activity.getPerformedBy());
-            assertEquals(readActivity.getLastModificationTime(), activity.getLastModificationTime());
-            assertEquals(readActivity.getModelOID(), activity.getModelOID());
-         }
-         if (activity.getOID() == writeActivity.getOID()) {
-            assertEquals(writeActivity.getState(), activity.getState());
-            assertEquals(writeActivity.getStartTime(), activity.getStartTime());
-            assertEquals(writeActivity.getCurrentPerformer(), activity.getCurrentPerformer());
-            assertEquals(writeActivity.getPerformedBy(), activity.getPerformedBy());
-            assertEquals(writeActivity.getLastModificationTime(), activity.getLastModificationTime());
-            assertEquals(writeActivity.getModelOID(), activity.getModelOID());
-         }
-      }
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertActivityInstancesEquals(oldActivities, newActivities);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data");
+
+   }
+
+   private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
+         String textData)
+   {
+      final ActivityInstance ai1 = sf.getQueryService().findFirstActivityInstance(
+            ActivityInstanceQuery.findAlive(pi.getProcessID()));
+      Map<String, String> outData;
+      if (dataId != null)
+      {
+         outData = new HashMap<String, String>();
+         outData.put(dataId, textData);
+      }
+      else
+      {
+         outData = null;
+      }
+      final ActivityInstance writeActivity = sf.getWorkflowService().activateAndComplete(
+            ai1.getOID(), null, outData);
+      return writeActivity;
+
+   }
+
+   @Test
+   public void testExportImportSubProcessesInModel() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      String dataInput1 = "aaaa";
+      String dataInput2 = "bbb";
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+
+      final ActivityInstance writeActivityOuter = completeNextActivity(pi,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLE);
+      querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      assertNotNull(subProcessInstancesSimple);
+      assertEquals(1, subProcessInstancesSimple.size());
+      ProcessInstance subSimple = subProcessInstancesSimple.iterator().next();
+      completeNextActivity(subSimple, null, null);
+
+      ProcessInstanceQuery querySubManual = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL);
+      querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesManual = queryService
+            .getAllProcessInstances(querySubManual);
+      assertNotNull(subProcessInstancesManual);
+      assertEquals(1, subProcessInstancesManual.size());
+      ProcessInstance subSimpleManual = subProcessInstancesManual.iterator().next();
+      ActivityInstance writeActivitySub = completeNextActivity(subSimpleManual,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+      completeNextActivity(subSimpleManual, null, null);
+
+      completeNextActivity(pi, null, null);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+
+      assertDataExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      ProcessInstanceQuery pQueryRoot = new ProcessInstanceQuery();
+      pQueryRoot.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuerySubSimple = new ActivityInstanceQuery();
+      aQuerySubSimple.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subSimple
+            .getOID()));
+      ActivityInstanceQuery aQuerySubSimpleManual = new ActivityInstanceQuery();
+      aQuerySubSimpleManual.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID
+            .isEqual(subSimpleManual.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances oldInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances oldInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances oldActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances oldActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+      assertNotNull(oldInstances);
+      assertNotNull(oldInstancesSubSimple);
+      assertNotNull(oldInstancesSubManual);
+      assertNotNull(oldActivities);
+      assertNotNull(oldActivitiesSubSimple);
+      assertNotNull(oldActivitiesSubSimpleManual);
+      assertEquals(1, oldInstances.size());
+      assertEquals(5, oldActivities.size());
+      assertEquals(2, oldActivitiesSubSimple.size());
+      assertEquals(3, oldActivitiesSubSimpleManual.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNotNull(rawData);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances clearedInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances clearedInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances clearedActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances clearedActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedInstancesSubSimple);
+      assertNotNull(clearedInstancesSubManual);
+      assertNotNull(clearedActivities);
+      assertNotNull(clearedActivitiesSubSimple);
+      assertNotNull(clearedActivitiesSubSimpleManual);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedInstancesSubSimple.size());
+      assertEquals(0, clearedInstancesSubManual.size());
+      assertEquals(0, clearedActivities.size());
+      assertEquals(0, clearedActivitiesSubSimple.size());
+      assertEquals(0, clearedActivitiesSubSimpleManual.size());
+      assertDataNotExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataNotExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(3, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances newInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances newInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances newActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances newActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
+      assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+      assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
+      assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
+            newActivitiesSubSimpleManual);
+      assertDataExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+   }
+
+   @Test
+   public void testExportImportSubProcessesInModelExplicitRequestForSubProcesses() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      String dataInput1 = "aaaa";
+      String dataInput2 = "bbb";
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+
+      final ActivityInstance writeActivityOuter = completeNextActivity(pi,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLE);
+      querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      assertNotNull(subProcessInstancesSimple);
+      assertEquals(1, subProcessInstancesSimple.size());
+      ProcessInstance subSimple = subProcessInstancesSimple.iterator().next();
+      completeNextActivity(subSimple, null, null);
+
+      ProcessInstanceQuery querySubManual = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL);
+      querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesManual = queryService
+            .getAllProcessInstances(querySubManual);
+      assertNotNull(subProcessInstancesManual);
+      assertEquals(1, subProcessInstancesManual.size());
+      ProcessInstance subSimpleManual = subProcessInstancesManual.iterator().next();
+      ActivityInstance writeActivitySub = completeNextActivity(subSimpleManual,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+      completeNextActivity(subSimpleManual, null, null);
+
+      completeNextActivity(pi, null, null);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+
+      assertDataExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      ProcessInstanceQuery pQueryRoot = new ProcessInstanceQuery();
+      pQueryRoot.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuerySubSimple = new ActivityInstanceQuery();
+      aQuerySubSimple.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subSimple
+            .getOID()));
+      ActivityInstanceQuery aQuerySubSimpleManual = new ActivityInstanceQuery();
+      aQuerySubSimpleManual.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID
+            .isEqual(subSimpleManual.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances oldInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances oldInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances oldActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances oldActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+      assertNotNull(oldInstances);
+      assertNotNull(oldInstancesSubSimple);
+      assertNotNull(oldInstancesSubManual);
+      assertNotNull(oldActivities);
+      assertNotNull(oldActivitiesSubSimple);
+      assertNotNull(oldActivitiesSubSimpleManual);
+      assertEquals(1, oldInstances.size());
+      assertEquals(5, oldActivities.size());
+      assertEquals(2, oldActivitiesSubSimple.size());
+      assertEquals(3, oldActivitiesSubSimpleManual.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID(), subSimple.getOID(), subSimpleManual.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNotNull(rawData);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances clearedInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances clearedInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances clearedActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances clearedActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedInstancesSubSimple);
+      assertNotNull(clearedInstancesSubManual);
+      assertNotNull(clearedActivities);
+      assertNotNull(clearedActivitiesSubSimple);
+      assertNotNull(clearedActivitiesSubSimpleManual);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedInstancesSubSimple.size());
+      assertEquals(0, clearedInstancesSubManual.size());
+      assertEquals(0, clearedActivities.size());
+      assertEquals(0, clearedActivitiesSubSimple.size());
+      assertEquals(0, clearedActivitiesSubSimpleManual.size());
+      assertDataNotExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataNotExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
+
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(3, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances newInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances newInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances newActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances newActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
+      assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+      assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
+      assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
+            newActivitiesSubSimpleManual);
+      assertDataExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1);
+
+      assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2);
 
    }
    
@@ -269,4 +634,98 @@ public class ArchiveTest
          assertFalse(errorMsg.toString(), found);
       }
    }
+
+   private void assertProcessInstancesEquals(ProcessInstances oldInstances,
+         ProcessInstances newInstances) throws Exception
+   {
+      int countCompared = 0;
+      assertNotNull(newInstances);
+      assertEquals(oldInstances.size(), newInstances.size());
+      for (ProcessInstance process : oldInstances)
+      {
+         assertThat(
+               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               hasEntryInDbForObject("PROCINST_SCOPE", "SCOPEPROCESSINSTANCE",
+                     process.getScopeProcessInstanceOID()), is(true));
+         assertThat(
+               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               hasEntryInDbForObject("PROCINST_SCOPE", "ROOTPROCESSINSTANCE",
+                     process.getRootProcessInstanceOID()), is(true));
+         for (ProcessInstance newProcess : newInstances)
+         {
+            if (process.getOID() == newProcess.getOID())
+            {
+               assertObjectEquals(process, newProcess);
+               countCompared++;
+               break;
+            }
+         }
+      }
+      assertEquals(oldInstances.size(), countCompared);
+   }
+
+   private void assertActivityInstancesEquals(ActivityInstances oldActivities,
+         ActivityInstances newActivities) throws Exception
+   {
+      int countCompared = 0;
+      assertNotNull(newActivities);
+      assertEquals(oldActivities.size(), newActivities.size());
+      for (ActivityInstance activity : oldActivities)
+      {
+         assertThat(
+               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               hasEntryInDbForObject("ACTIVITY_INSTANCE", "OID", activity.getOID()),
+               is(true));
+         for (ActivityInstance newActivity : newActivities)
+         {
+            if (activity.getOID() == newActivity.getOID())
+            {
+               assertObjectEquals(activity, newActivity);
+               countCompared++;
+               break;
+            }
+         }
+      }
+      assertEquals(oldActivities.size(), countCompared);
+   }
+
+   private void assertObjectEquals(Object a, Object b) throws Exception
+   {
+      if (a == null && b == null)
+      {
+         return;
+      }
+      if (a == null && b != null)
+      {
+         fail("Original object was null but imported object is not: " + b);
+      }
+      BeanInfo beanInfo = Introspector.getBeanInfo(a.getClass());
+
+      for (PropertyDescriptor property : beanInfo.getPropertyDescriptors())
+      {
+         Object valueA = property.getReadMethod().invoke(b);
+         Object valueB = property.getReadMethod().invoke(b);
+         if (property.getPropertyType().getPackage() != null
+               && property.getPropertyType().getPackage().getName()
+                     .contains("org.eclipse.stardust.engine"))
+         {
+            assertObjectEquals(valueA, valueB);
+            return;
+         }
+         else
+         {
+            if (property.getPropertyType().isArray())
+            {
+               assertArrayEquals(property.getName() + " not equals. Expected " + valueA
+                     + " but got " + valueB, (Object[]) valueA, (Object[]) valueB);
+            }
+            else
+            {
+               assertEquals(property.getName() + " not equals. Expected " + valueA
+                     + " but got " + valueB, valueA, valueB);
+            }
+         }
+      }
+   }
+
 }

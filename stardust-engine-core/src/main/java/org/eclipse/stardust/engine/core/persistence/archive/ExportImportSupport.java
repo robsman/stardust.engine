@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
@@ -37,43 +39,69 @@ public class ExportImportSupport
 
    /**
     * <p>
-    * Loads the process instance graph contained in the raw data and attaches all included {@link Persistent}s to the
-    * given {@link Session}'s cache. 
+    * Loads the process instance graph contained in the raw data and attaches all included
+    * {@link Persistent}s to the given {@link Session}'s cache.
     * </p>
     *
-    * @param rawData the raw byte array that needs to be deserialized
-    * @param session the session the {@link Persistent}s should be populated to
+    * @param rawData
+    *           the raw byte array that needs to be deserialized
+    * @param session
+    *           the session the {@link Persistent}s should be populated to
     */
-   public static void loadProcessInstanceGraph(byte[] rawData, final Session session)
+   public static int loadProcessInstanceGraph(byte[] rawData, final Session session)
    {
+      int count;
       if (rawData == null)
       {
-         return;
+         count = 0;
       }
-      
-      final ProcessInstanceGraphBlob blob = new ProcessInstanceGraphBlob(rawData);
-
-      Set<Persistent> persistents = TransientProcessInstanceUtils.loadProcessInstanceGraph(blob, session, null);
-      populateProcessInstanceScope(persistents, session);
+      else
+      {
+         final ProcessInstanceGraphBlob blob = new ProcessInstanceGraphBlob(rawData);
+         Set<Persistent> persistents = TransientProcessInstanceUtils
+               .loadProcessInstanceGraph(blob, session, null);
+         if (CollectionUtils.isNotEmpty(persistents))
+         {
+            count = prepareObjectsForImport(persistents, session);
+         }
+         else
+         {
+            count = 0;
+         }
+      }
+      return count;
    }
-   
-   private static void populateProcessInstanceScope(final Set<Persistent> persistents, final Session session)
+
+   private static int prepareObjectsForImport(final Set<Persistent> persistents,
+         final Session session)
    {
 
+      int count = 0;
       for (final Persistent p : persistents)
       {
-         if (p instanceof ProcessInstanceBean) {
-            ProcessInstanceBean processInstance = (ProcessInstanceBean)p;
-            if(processInstance.getScopeProcessInstance() != null) {
-               new ProcessInstanceScopeBean(
-                     processInstance, processInstance.getScopeProcessInstance(), processInstance.getRootProcessInstance());
+         if (p instanceof ProcessInstanceBean)
+         {
+            ProcessInstanceBean processInstance = (ProcessInstanceBean) p;
+            if (processInstance.getScopeProcessInstance() != null)
+            {
+               // we need to explicitly create the scope bean like this, it can't be
+               // imported normally. this constructor calls session.cluster which is
+               // necessary to be called only once.
+               new ProcessInstanceScopeBean(processInstance,
+                     processInstance.getScopeProcessInstance(),
+                     processInstance.getRootProcessInstance());
             }
+            count++;
          }
-         if (p instanceof ActivityInstanceBean) {
+         if (p instanceof ActivityInstanceBean)
+         {
             ActivityInstanceBean activity = (ActivityInstanceBean) p;
+            // initialized the initial performer attribute which is necessary upon
+            // session flushing
             activity.prepareForImportFromArchive();
          }
       }
+      return count;
    }
 
 }

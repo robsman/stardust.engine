@@ -160,7 +160,7 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
 
             if ( !keysToBeDeleted.isEmpty())
             {
-               TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph, Collections.singleton(rootPiOid));
+               TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph, rootPiOid);
             }
          }
       }

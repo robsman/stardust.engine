@@ -38,7 +38,7 @@ import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
 
 /**
  * <p>
- * TODO JavaDoc
+ * Contains utility methods for common tasks wrt. transient process execution.
  * </p>
  *
  * @author Nicolas.Werlein

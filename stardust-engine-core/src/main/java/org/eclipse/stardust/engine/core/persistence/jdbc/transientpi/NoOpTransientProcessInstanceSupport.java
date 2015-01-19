@@ -20,7 +20,8 @@ import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 
 /**
  * <p>
- * TODO JavaDoc
+ * An {@link AbstractTransientProcessInstanceSupport} implementation that just swallows the call, i.e. the methods
+ * are implemented as no-ops.
  * </p>
  *
  * @author Nicolas.Werlein

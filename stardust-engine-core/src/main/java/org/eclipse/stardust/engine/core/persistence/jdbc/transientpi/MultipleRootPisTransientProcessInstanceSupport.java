@@ -44,7 +44,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
- * TODO JavaDoc
+ * An {@link AbstractTransientProcessInstanceSupport} implementation if there's more than one root process instance
+ * for the {@link Persistent}s being flushed.
  * </p>
  *
  * @author Nicolas.Werlein

@@ -40,7 +40,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 /**
  * <p>
- * TODO JavaDoc
+ * During {@link org.eclipse.stardust.engine.core.persistence.jdbc.Session#flush()} this class and its subclasses manage the proper handling of {@link Persistent}s
+ * when running in transient process mode.
  * </p>
  *
  * @author Nicolas.Werlein
@@ -196,8 +197,6 @@ public abstract class AbstractTransientProcessInstanceSupport
 
       ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
       persistor.persistBlob(blobReader);
-
-      // TODO configure
       persistor.writeIntoAuditTrail(session, 1);
 
       blobReader.close();

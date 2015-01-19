@@ -37,12 +37,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
- * This class aims at facilitating reoccurring operations when processing
- * transient processes.
+ * An {@link AbstractTransientProcessInstanceSupport} implementation if there's only one root process instance
+ * (common case) for the {@link Persistent}s being flushed.
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransientProcessInstanceSupport
 {

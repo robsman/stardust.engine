@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
@@ -76,7 +76,7 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis);
       if ( !pisAreTransientExecutionCandidates)
       {
-         cancelTransientExecution = isSwitchFromTransientOrDeferredToImmediate(pis);
+         cancelTransientExecution = isSwitchFromTransientOrDeferredToImmediate();
          transientSession = false;
          deferredPersist = false;
          allPisAreCompleted = false;
@@ -86,7 +86,7 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       transientSession = determineWhetherCurrentSessionIsTransient(pis, (ais != null) ? ais : Collections.<Object, PersistenceController>emptyMap());
       if ( !transientSession)
       {
-         resetTransientPiProperty(pis);
+         resetTransientPiProperty(pis, rootPiOid);
          cancelTransientExecution = true;
          deferredPersist = false;
          allPisAreCompleted = false;
@@ -132,8 +132,8 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    @Override
    public void cleanUpInMemStorage()
    {
-      final boolean purgePiGraph;
       final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(allPersistentKeysToBeDeleted);
+      final boolean purgePiGraph;
       if (!isCurrentSessionTransient() || areAllPisCompleted())
       {
          purgePiGraph = true;
@@ -151,15 +151,19 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToInMemStorage(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeBlob(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.Session, org.eclipse.stardust.common.config.Parameters)
     */
    @Override
-   public void writeToInMemStorage(final BlobBuilder blobBuilder)
+   public void storeBlob(final BlobBuilder blobBuilder, final Session session, final Parameters parameters)
    {
-      final byte[] blob = castToByteArrayBlobBuilder(blobBuilder).getBlob();
-      final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
-
-      TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, allPersistentKeysToBeInserted);
+      if (isCurrentSessionTransient() && !areAllPisCompleted())
+      {
+         writeToInMemStorage(blobBuilder);
+      }
+      else
+      {
+         writeToAuditTrail(blobBuilder, session, parameters);
+      }
    }
 
    /* (non-Javadoc)
@@ -218,11 +222,6 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
 
    private boolean determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
    {
-      if (pis == null || pis.isEmpty())
-      {
-         return false;
-      }
-
       for (final PersistenceController pc : pis.values())
       {
          if ( !pc.isCreated())
@@ -240,14 +239,9 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       return true;
    }
 
-   private boolean isSwitchFromTransientOrDeferredToImmediate(final Map<Object, PersistenceController> pis)
+   private boolean isSwitchFromTransientOrDeferredToImmediate()
    {
-      if (pis == null || pis.isEmpty())
-      {
-         return false;
-      }
-
-      final IProcessInstance rootPi = ProcessInstanceBean.findByOID(rootPiOid);
+      final IProcessInstance rootPi = ProcessInstanceBean.findByOID(rootPiOid.longValue());
       final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
       final boolean wasTransient = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.TRANSIENT;
       final boolean wasDeferred = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
@@ -293,17 +287,8 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       return true;
    }
 
-   private boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
-   {
-      final boolean isSuspended = ai.getState() == ActivityInstanceState.Suspended;
-      final boolean isSubprocessAi = ai.getActivity().getImplementationType() == ImplementationType.SubProcess;
-      return isSuspended && isSubprocessAi;
-   }
-
    /**
-    *  we can just take an arbitrary pi since it's guaranteed that all point to the same root pi:
-    *  if it was not the case, {@link #transientSession} would be <code>false</code> and this
-    *  method would not have been invoked
+    *  we can just take an arbitrary pi since it's guaranteed that all point to the same root pi
     */
    private boolean determineWhetherItsDeferredPersist(final Map<Object, PersistenceController> pis)
    {
@@ -334,5 +319,19 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       }
 
       return (ByteArrayBlobBuilder) blobBuilder;
+   }
+
+   private void writeToInMemStorage(final BlobBuilder blobBuilder)
+   {
+      final byte[] blob = castToByteArrayBlobBuilder(blobBuilder).getBlob();
+      final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
+
+      TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, allPersistentKeysToBeInserted);
+   }
+
+   private void writeToAuditTrail(final BlobBuilder blobBuilder, final Session session, final Parameters parameters)
+   {
+      final ByteArrayBlobBuilder bb = castToByteArrayBlobBuilder(blobBuilder);
+      writeOneBlobToAuditTrail(bb, session, parameters);
    }
 }

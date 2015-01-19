@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 
@@ -108,10 +109,10 @@ public class NoOpTransientProcessInstanceSupport extends AbstractTransientProces
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToInMemStorage(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToAuditTrail(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder)
     */
    @Override
-   public void writeToInMemStorage(final BlobBuilder blobBuilder)
+   public void storeBlob(final BlobBuilder blobBuilder, final Session session, final Parameters parameters)
    {
       /* no-op */
    }

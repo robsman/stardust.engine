@@ -39,10 +39,6 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.transaction.jta.JtaTransactionManager;
-
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
@@ -72,6 +68,9 @@ import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.util.JmsConstants;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.jta.JtaTransactionManager;
 
 /**
  * <p>

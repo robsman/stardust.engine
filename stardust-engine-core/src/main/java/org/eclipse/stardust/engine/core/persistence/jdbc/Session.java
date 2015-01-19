@@ -95,16 +95,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.MultipleRootPisTransientProcessInstanceSupport.ByteArrayBlobBuilderMediator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.NoOpTransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
@@ -2026,19 +2021,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                blobBuilder.persistAndClose();
 
+               transientPiSupport.storeBlob(blobBuilder, this, params);
+
                if (trace.isDebugEnabled())
                {
                   trace.debug("Persisted processes to BLOB.");
-               }
-
-               if (transientPiSupport.isCurrentSessionTransient() && !transientPiSupport.areAllPisCompleted())
-               {
-                  /* as long as the PIs are not completed 'transient' and 'deferred' are handled equally */
-                  transientPiSupport.writeToInMemStorage(blobBuilder);
-               }
-               else if (blobBuilder instanceof ByteArrayBlobBuilder || blobBuilder instanceof ByteArrayBlobBuilderMediator)
-               {
-                  writeIntoAuditTrail(blobBuilder);
                }
             }
             catch (PublicException e)
@@ -2071,35 +2058,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
-      }
-   }
-
-   private void writeIntoAuditTrail(final BlobBuilder blobBuilder)
-   {
-      final Collection<ByteArrayBlobBuilder> blobBuilders;
-      if (blobBuilder instanceof ByteArrayBlobBuilderMediator)
-      {
-         blobBuilders = ((ByteArrayBlobBuilderMediator) blobBuilder).getBlobBuilders();
-      }
-      else
-      {
-         blobBuilders = Collections.singleton(((ByteArrayBlobBuilder) blobBuilder));
-      }
-
-      for (final ByteArrayBlobBuilder b : blobBuilders)
-      {
-         BlobReader blobReader = new ByteArrayBlobReader(b.getBlob());
-
-         blobReader.init(params);
-         blobReader.nextBlob();
-
-         ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
-         persistor.persistBlob(blobReader);
-
-         // TODO configure
-         persistor.writeIntoAuditTrail(this, 1);
-
-         blobReader.close();
       }
    }
 

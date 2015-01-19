@@ -17,9 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
@@ -27,7 +30,12 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
+import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 /**
@@ -104,12 +112,15 @@ public abstract class AbstractTransientProcessInstanceSupport
 
    /**
     * <p>
-    * Writes the built process instance blob to the in-memory storage.
+    * Writes the built process instance blob to the in-mem storage or the audit trail db - or even both, which will
+    * be decided based on the current state and implementation.
     * </p>
     *
     * @param blobBuilder the blob builder encapsulating the built process instance blob
+    * @param session the session which is being flushed right now
+    * @param parameters the parameters to use
     */
-   public abstract void writeToInMemStorage(final BlobBuilder blobBuilder);
+   public abstract void storeBlob(final BlobBuilder blobBuilder, final Session session, final Parameters parameters);
 
    /**
     * @return whether the currently processed process instance is a candidate for transient execution
@@ -141,13 +152,16 @@ public abstract class AbstractTransientProcessInstanceSupport
     */
    public abstract BlobBuilder newBlobBuilder();
 
-   protected final void resetTransientPiProperty(final Map<Object, PersistenceController> pis)
+   protected final void resetTransientPiProperty(final Map<Object, PersistenceController> pis, final Long rootPiOid)
    {
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-         rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
+         if (rootPi.getOID() == rootPiOid.longValue())
+         {
+            rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
+         }
       }
    }
 
@@ -166,6 +180,29 @@ public abstract class AbstractTransientProcessInstanceSupport
       }
    }
 
+   protected final boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
+   {
+      final boolean isSuspended = ai.getState() == ActivityInstanceState.Suspended;
+      final boolean isSubprocessAi = ai.getActivity().getImplementationType() == ImplementationType.SubProcess;
+      return isSuspended && isSubprocessAi;
+   }
+
+   protected final void writeOneBlobToAuditTrail(final ByteArrayBlobBuilder blobBuilder, final Session session, final Parameters parameters)
+   {
+      BlobReader blobReader = new ByteArrayBlobReader(blobBuilder.getBlob());
+
+      blobReader.init(parameters);
+      blobReader.nextBlob();
+
+      ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
+      persistor.persistBlob(blobReader);
+
+      // TODO configure
+      persistor.writeIntoAuditTrail(session, 1);
+
+      blobReader.close();
+   }
+
    private static Set<Long> determineRootProcessInstances(final Collection<PersistenceController> pis)
    {
       final Set<Long> result = newHashSet();
@@ -179,11 +216,6 @@ public abstract class AbstractTransientProcessInstanceSupport
       if (result.isEmpty())
       {
          throw new IllegalStateException("Root process instance could not be determined.");
-      }
-
-      if (result.size() > 1)
-      {
-         LOGGER.warn("Root process instance is not unique (OIDs: " + result + ").");
       }
 
       return result;

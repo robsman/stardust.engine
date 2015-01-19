@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -25,8 +24,11 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
@@ -34,9 +36,11 @@ import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstanceAware;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceAware;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
@@ -56,36 +60,23 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
 
    private final Map<Long, Boolean> pisAreTransientExecutionCandidatesByRootPiOid = newHashMap();
    private final Map<Long, Boolean> cancelTransientExecutionByRootPiOid = newHashMap();
+   private final Map<Long, Boolean> transientSessionByRootPiOid = newHashMap();
+   private final Map<Long, Boolean> deferredPersistByRootPiOid = newHashMap();
+   private final Map<Long, Boolean> allPisAreCompletedByRootPiOid = newHashMap();
 
    private final boolean pisAreTransientExecutionCandidatesCumulated;
    private final boolean cancelTransientExecutionCumulated;
+   private final boolean transientSessionCumulated;
 
    /* package-private */ MultipleRootPisTransientProcessInstanceSupport(final Set<Long> rootPiOids, final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       this.rootPiOids = rootPiOids;
 
-      initCollections();
-
-      for (final Long rootPiOid : rootPiOids)
-      {
-         final boolean pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis, rootPiOid);
-         final boolean cancelTransientExecution;
-          if (pisAreTransientExecutionCandidates)
-          {
-             resetTransientPiProperty(pis);
-             cancelTransientExecution = true;
-          }
-          else
-          {
-             cancelTransientExecution = false;
-          }
-
-          pisAreTransientExecutionCandidatesByRootPiOid.put(rootPiOid, pisAreTransientExecutionCandidates);
-          cancelTransientExecutionByRootPiOid.put(rootPiOid, cancelTransientExecution);
-      }
+      initCollections(pis, ais);
 
       pisAreTransientExecutionCandidatesCumulated = cumulate(pisAreTransientExecutionCandidatesByRootPiOid);
       cancelTransientExecutionCumulated = cumulate(cancelTransientExecutionByRootPiOid);
+      transientSessionCumulated = cumulate(transientSessionByRootPiOid);
    }
 
    /* (non-Javadoc)
@@ -94,21 +85,22 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public void addPersistentToBeInserted(final List<Persistent> persistentsToBeInserted)
    {
-      // TODO [CRNT-26302] only process those persistents belonging to a pi graph applicable to this operation
-
       chunkOfPersistentsToBeInserted.clear();
       for (final Persistent p : persistentsToBeInserted)
       {
          final Long rootPiOid = Long.valueOf(determineRootPiOidFor(p));
-         collectPersistentKeys(Collections.singletonList(p), allPersistentKeysToBeInserted.get(rootPiOid));
-
-         List<Persistent> list = chunkOfPersistentsToBeInserted.get(rootPiOid);
-         if (list == null)
+         if (needBlobFor(rootPiOid))
          {
-            list = new ArrayList<Persistent>();
-            chunkOfPersistentsToBeInserted.put(rootPiOid, list);
+            collectPersistentKeys(Collections.singletonList(p), allPersistentKeysToBeInserted.get(rootPiOid));
+
+            List<Persistent> list = chunkOfPersistentsToBeInserted.get(rootPiOid);
+            if (list == null)
+            {
+               list = new ArrayList<Persistent>();
+               chunkOfPersistentsToBeInserted.put(rootPiOid, list);
+            }
+            list.add(p);
          }
-         list.add(p);
       }
    }
 
@@ -118,10 +110,11 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public void addPersistentToBeDeleted(final Persistent persistentToBeDeleted)
    {
-      // TODO [CRNT-26302] only process those persistents belonging to a pi graph applicable to this operation
-
       final Long rootPiOid = Long.valueOf(determineRootPiOidFor(persistentToBeDeleted));
-      collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), allPersistentKeysToBeDeleted.get(rootPiOid));
+      if (pisAreTransientExecutionCandidatesByRootPiOid.get(rootPiOid))
+      {
+         collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), allPersistentKeysToBeDeleted.get(rootPiOid));
+      }
    }
 
    /* (non-Javadoc)
@@ -130,13 +123,14 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public void writeToBlob(final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
    {
-      // TODO [CRNT-26302] only process those persistents belonging to a pi graph applicable to this operation
-
       final ByteArrayBlobBuilderMediator bb = castToByteArrayBlobBuilderMediator(blobBuilder);
       for (final Entry<Long, List<Persistent>> e : chunkOfPersistentsToBeInserted.entrySet())
       {
          final Long rootPiOid = e.getKey();
-         ProcessBlobWriter.writeInstances(bb.blobBuilders().get(rootPiOid), typeDesc, chunkOfPersistentsToBeInserted.get(rootPiOid));
+         if (needBlobFor(rootPiOid))
+         {
+            ProcessBlobWriter.writeInstances(bb.blobBuilders().get(rootPiOid), typeDesc, chunkOfPersistentsToBeInserted.get(rootPiOid));
+         }
       }
    }
 
@@ -146,32 +140,39 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public void cleanUpInMemStorage()
    {
-      // TODO [CRNT-26302] only process those persistents belonging to a pi graph applicable to this operation
-
       for (final Entry<Long, Set<PersistentKey>> p : allPersistentKeysToBeDeleted.entrySet())
       {
-         if ( !p.getValue().isEmpty())
+         final Long rootPiOid = p.getKey();
+         if (pisAreTransientExecutionCandidatesByRootPiOid.get(rootPiOid) || cancelTransientExecutionByRootPiOid.get(rootPiOid))
          {
-            TransientProcessInstanceStorage.instance().delete(p.getValue(), true, Collections.singleton(p.getKey()));
+            final Set<PersistentKey> keysToBeDeleted = CollectionUtils.newHashSet(p.getValue());
+            final boolean purgePiGraph;
+            if ( !transientSessionByRootPiOid.get(rootPiOid) || allPisAreCompletedByRootPiOid.get(rootPiOid))
+            {
+               purgePiGraph = true;
+               keysToBeDeleted.addAll(allPersistentKeysToBeInserted.get(rootPiOid));
+            }
+            else
+            {
+               purgePiGraph = false;
+            }
+
+            if ( !keysToBeDeleted.isEmpty())
+            {
+               TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph, Collections.singleton(rootPiOid));
+            }
          }
       }
    }
 
    /* (non-Javadoc)
-    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeToInMemStorage(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport#writeBlob(org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder, org.eclipse.stardust.engine.core.persistence.jdbc.Session, org.eclipse.stardust.common.config.Parameters)
     */
    @Override
-   public void writeToInMemStorage(final BlobBuilder blobBuilder)
+   public void storeBlob(final BlobBuilder blobBuilder, final Session session, final Parameters parameters)
    {
-      // TODO [CRNT-26302] only process those persistents belonging to a pi graph applicable to this operation
-
-      final ByteArrayBlobBuilderMediator bb = castToByteArrayBlobBuilderMediator(blobBuilder);
-      for (final Entry<Long, ByteArrayBlobBuilder> e : bb.blobBuilders().entrySet())
-      {
-         final Long rootPiOid = e.getKey();
-         final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(e.getValue().getBlob());
-         TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, allPersistentKeysToBeInserted.get(rootPiOid));
-      }
+      writeToInMemStorage(blobBuilder);
+      writeToAuditTrail(blobBuilder, session, parameters);
    }
 
    /* (non-Javadoc)
@@ -189,8 +190,7 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public boolean isCurrentSessionTransient()
    {
-      // TODO [CRNT-26302] add transient PI support for more than one root PI
-      return false;
+      return transientSessionCumulated;
    }
 
    /* (non-Javadoc)
@@ -199,7 +199,6 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public boolean areAllPisCompleted()
    {
-      // TODO [CRNT-26302] add transient PI support for more than one root PI
       return false;
    }
 
@@ -218,7 +217,10 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
    @Override
    public boolean persistentsNeedToBeWrittenToBlob()
    {
-      return arePisTransientExecutionCandidates() || isTransientExecutionCancelled();
+      /* we always do have at least one async subprocess stub which needs to be written either to the in-mem storage */
+      /* (if it's transient or deferred) or to the audit trail db (if it's immediate), i.e. in both cases it needs   */
+      /* to be written to the blob first                                                                             */
+      return true;
    }
 
    /* (non-Javadoc)
@@ -230,24 +232,54 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
       return new ByteArrayBlobBuilderMediator(rootPiOids);
    }
 
-   private void initCollections()
+   private void initCollections(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
       for (final Long rootPiOid : rootPiOids)
       {
          allPersistentKeysToBeInserted.put(rootPiOid, new HashSet<PersistentKey>());
          allPersistentKeysToBeDeleted.put(rootPiOid, new HashSet<PersistentKey>());
-
          chunkOfPersistentsToBeInserted.put(rootPiOid, new ArrayList<Persistent>());
+
+         final boolean pisAreTransientExecutionCandidates = determineWhetherPisAreTransientExecutionCandidates(pis, rootPiOid);
+         final boolean cancelTransientExecution;
+
+         if ( !pisAreTransientExecutionCandidates)
+         {
+            cancelTransientExecution = isSwitchFromTransientOrDeferredToImmediate(rootPiOid);
+            pisAreTransientExecutionCandidatesByRootPiOid.put(rootPiOid, Boolean.valueOf(pisAreTransientExecutionCandidates));
+            cancelTransientExecutionByRootPiOid.put(rootPiOid, Boolean.valueOf(cancelTransientExecution));
+            transientSessionByRootPiOid.put(rootPiOid, Boolean.FALSE);
+            deferredPersistByRootPiOid.put(rootPiOid, Boolean.FALSE);
+            allPisAreCompletedByRootPiOid.put(rootPiOid, Boolean.FALSE);
+            continue;
+         }
+
+         final boolean transientSession = determineWhetherCurrentSessionIsTransient(pis, ais, rootPiOid);
+         if ( !transientSession)
+         {
+            resetTransientPiProperty(pis, rootPiOid);
+            cancelTransientExecution = true;
+            pisAreTransientExecutionCandidatesByRootPiOid.put(rootPiOid, Boolean.valueOf(pisAreTransientExecutionCandidates));
+            cancelTransientExecutionByRootPiOid.put(rootPiOid, Boolean.valueOf(cancelTransientExecution));
+            transientSessionByRootPiOid.put(rootPiOid, Boolean.valueOf(transientSession));
+            deferredPersistByRootPiOid.put(rootPiOid, Boolean.FALSE);
+            allPisAreCompletedByRootPiOid.put(rootPiOid, Boolean.FALSE);
+            continue;
+         }
+
+         cancelTransientExecution = false;
+         final boolean deferredPersist = determineWhetherItsDeferredPersist(pis, rootPiOid);
+         final boolean allPisAreCompleted = determineWhetherAllPIsAreCompleted(pis, rootPiOid);
+         pisAreTransientExecutionCandidatesByRootPiOid.put(rootPiOid, Boolean.valueOf(pisAreTransientExecutionCandidates));
+         cancelTransientExecutionByRootPiOid.put(rootPiOid, Boolean.valueOf(cancelTransientExecution));
+         transientSessionByRootPiOid.put(rootPiOid, Boolean.valueOf(transientSession));
+         deferredPersistByRootPiOid.put(rootPiOid, Boolean.valueOf(deferredPersist));
+         allPisAreCompletedByRootPiOid.put(rootPiOid, Boolean.valueOf(allPisAreCompleted));
       }
    }
 
    private boolean determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis, final Long rootPiOid)
    {
-      if (pis == null || pis.isEmpty())
-      {
-         return false;
-      }
-
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
@@ -269,6 +301,97 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
       }
 
       return true;
+   }
+
+   private boolean isSwitchFromTransientOrDeferredToImmediate(final Long rootPiOid)
+   {
+      final IProcessInstance rootPi = ProcessInstanceBean.findByOID(rootPiOid.longValue());
+      final boolean isImmediateNow = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE;
+      final boolean wasTransient = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.TRANSIENT;
+      final boolean wasDeferred = rootPi.getPreviousAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
+      if (isImmediateNow && (wasTransient || wasDeferred))
+      {
+         return true;
+      }
+
+      return false;
+   }
+
+   private boolean determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais, final Long rootPiOid)
+   {
+      for (final PersistenceController pc : ais.values())
+      {
+         final IActivityInstance ai = (IActivityInstance) pc.getPersistent();
+
+         if (ProcessInstanceUtils.getActualRootPI(ai.getProcessInstance()).getOID() != rootPiOid)
+         {
+            continue;
+         }
+
+         if (isSuspendedSubprocessActivityInstance(ai))
+         {
+            continue;
+         }
+
+         if ( !ai.isCompleted())
+         {
+            return false;
+         }
+      }
+
+      for (final PersistenceController pc : pis.values())
+      {
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+
+         if (ProcessInstanceUtils.getActualRootPI(pi).getOID() != rootPiOid)
+         {
+            continue;
+         }
+
+         final boolean piDoesNotExistInDB = pc.isCreated();
+         final boolean piIsNotInterrupted = pi.getState() != ProcessInstanceState.Interrupted;
+         final boolean piIsNotAborted = pi.getState() != ProcessInstanceState.Aborted;
+         final boolean piIsNotAborting = pi.getState() != ProcessInstanceState.Aborting;
+
+         if ( !(piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted && piIsNotAborting))
+         {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   private boolean determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis, final Long rootPiOid)
+   {
+      for (final PersistenceController pc : pis.values())
+      {
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+
+         if (ProcessInstanceUtils.getActualRootPI(pi).getOID() != rootPiOid)
+         {
+            continue;
+         }
+
+         if ( !(pi.getState() == ProcessInstanceState.Completed))
+         {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   private boolean determineWhetherItsDeferredPersist(final Map<Object, PersistenceController> pis, final Long rootPiOid)
+   {
+      final IProcessInstance pi = ProcessInstanceBean.findByOID(rootPiOid);
+      final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+      return rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
+   }
+
+   private boolean needBlobFor(final Long rootPiOid)
+   {
+      return transientSessionByRootPiOid.get(rootPiOid) || !allPisAreCompletedByRootPiOid.get(rootPiOid);
    }
 
    private boolean cumulate(final Map<Long, Boolean> map)
@@ -310,6 +433,33 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
       }
 
       return ProcessInstanceUtils.getActualRootPI(pi).getOID();
+   }
+
+   private void writeToInMemStorage(final BlobBuilder blobBuilder)
+   {
+      final ByteArrayBlobBuilderMediator bb = castToByteArrayBlobBuilderMediator(blobBuilder);
+      for (final Entry<Long, ByteArrayBlobBuilder> e : bb.blobBuilders().entrySet())
+      {
+         final Long rootPiOid = e.getKey();
+         if (transientSessionByRootPiOid.get(rootPiOid) && !allPisAreCompletedByRootPiOid.get(rootPiOid))
+         {
+            final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(e.getValue().getBlob());
+            TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, allPersistentKeysToBeInserted.get(rootPiOid));
+         }
+      }
+   }
+
+   private void writeToAuditTrail(final BlobBuilder blobBuilder, final Session session, final Parameters parameters)
+   {
+      final Map<Long, ByteArrayBlobBuilder> blobBuilders = ((ByteArrayBlobBuilderMediator) blobBuilder).blobBuilders();
+      for (final Entry<Long, ByteArrayBlobBuilder> e : blobBuilders.entrySet())
+      {
+         final Long rootPiOid = e.getKey();
+         if ( !transientSessionByRootPiOid.get(rootPiOid) || (deferredPersistByRootPiOid.get(rootPiOid) && allPisAreCompletedByRootPiOid.get(rootPiOid)))
+         {
+            writeOneBlobToAuditTrail(e.getValue(), session, parameters);
+         }
+      }
    }
 
    /**
@@ -408,11 +558,6 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
       public void writeString(final String value) throws InternalException
       {
          throw new UnsupportedOperationException();
-      }
-
-      public Collection<ByteArrayBlobBuilder> getBlobBuilders()
-      {
-         return blobBuilders.values();
       }
 
       /* package-private */ Map<Long, ByteArrayBlobBuilder> blobBuilders()

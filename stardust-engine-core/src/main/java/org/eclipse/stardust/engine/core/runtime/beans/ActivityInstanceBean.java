@@ -2581,6 +2581,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
    }
+   
+   public void prepareForImportFromArchive() {
+      recordInitialPerformer();
+   }
 
    public QualityAssuranceState getQualityAssuranceState()
    {

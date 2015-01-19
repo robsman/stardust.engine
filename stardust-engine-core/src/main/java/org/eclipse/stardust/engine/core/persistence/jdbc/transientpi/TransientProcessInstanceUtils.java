@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
@@ -88,10 +90,18 @@ public class TransientProcessInstanceUtils
          return null;
       }
 
-      return loadProcessInstanceGraph(blob, session, pk);
+      Set<Persistent> results = loadProcessInstanceGraph(blob, session, pk);
+      if (CollectionUtils.isNotEmpty(results))
+      {
+         return results.iterator().next();
+      }
+      else
+      {
+         return null;
+      }
    }
 
-   private static Persistent loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
+   public static Set<Persistent> loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
    {
       final ProcessBlobReader reader = new ProcessBlobReader(session);
       final Set<Persistent> persistents = reader.readProcessBlob(blob);
@@ -123,7 +133,16 @@ public class TransientProcessInstanceUtils
          loadPersistent(p, session);
       }
 
-      return result;
+      if (pk != null)
+      {
+         Set<Persistent> results = new HashSet<Persistent>();
+         results.add(result);
+         return results;
+      }
+      else
+      {
+         return persistents;
+      }
    }
 
    private static boolean isPkNotSet(final Persistent persistent, final Session session)

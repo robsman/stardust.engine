@@ -460,6 +460,12 @@
 
 		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<testResources>
+		<testResource>
+            <directory>${project.basedir}/src/main/resources/config</directory>
+            <includes>
+               <include>**/default-camel-context.xml</include>
+            </includes>
+         </testResource>
 			<testResource>
 				<directory>${project.basedir}/src/test/java</directory>
 				<includes>

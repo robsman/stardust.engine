@@ -213,49 +213,53 @@ public class DmsResourceSyncManager
       }
 
       Set<Long> scopePiOids = CollectionUtils.newHashSet();
-      ResultSet rsScopePiOids = null;
-      try
+      if (!xPathOids.isEmpty())
       {
-         Session session = (Session) SessionFactory
-               .getSession(SessionFactory.AUDIT_TRAIL);
-         String truncatedDocumentId = StringUtils.cutString(oldDocument.getId(),
-               StructuredDataValueBean.string_value_COLUMN_LENGTH);
-
-         QueryDescriptor queryDescriptor = QueryDescriptor
-               .from(ProcessInstanceBean.class).select(ProcessInstanceBean.FIELD__OID);
-
-         queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, "PR_sdv1").on(
-               ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
-               StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-
-         queryDescriptor
-               .where(Predicates.andTerm(Predicates.inList(
-                     StructuredDataValueBean.FR__XPATH, xPathOids.iterator()), //
-                     Predicates.isEqual(StructuredDataValueBean.FR__TYPE_KEY,
-                           BigData.STRING), //
-                     Predicates.orTerm( //
-                           Predicates.isEqual(StructuredDataValueBean.FR__STRING_VALUE,
-                                 truncatedDocumentId), //
-                           Predicates
-                                 .isEqual(StructuredDataValueBean.FR__STRING_VALUE,
-                                       RepositoryIdUtils
-                                             .stripRepositoryId(truncatedDocumentId)))));
-
-         rsScopePiOids = session.executeQuery(queryDescriptor);
-
-         while (rsScopePiOids.next())
+         ResultSet rsScopePiOids = null;
+         try
          {
-            scopePiOids.add(rsScopePiOids.getLong(1));
+            Session session = (Session) SessionFactory
+                  .getSession(SessionFactory.AUDIT_TRAIL);
+            String truncatedDocumentId = StringUtils.cutString(oldDocument.getId(),
+                  StructuredDataValueBean.string_value_COLUMN_LENGTH);
+
+            QueryDescriptor queryDescriptor = QueryDescriptor.from(
+                  ProcessInstanceBean.class).select(ProcessInstanceBean.FIELD__OID);
+
+            queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, "PR_sdv1").on(
+                  ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+                  StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+
+            queryDescriptor
+                  .where(Predicates.andTerm(Predicates.inList(
+                        StructuredDataValueBean.FR__XPATH, xPathOids.iterator()), //
+                        Predicates.isEqual(StructuredDataValueBean.FR__TYPE_KEY,
+                              BigData.STRING), //
+                        Predicates.orTerm( //
+                              Predicates.isEqual(
+                                    StructuredDataValueBean.FR__STRING_VALUE,
+                                    truncatedDocumentId), //
+                              Predicates.isEqual(
+                                    StructuredDataValueBean.FR__STRING_VALUE,
+                                    RepositoryIdUtils
+                                          .stripRepositoryId(truncatedDocumentId)))));
+
+            rsScopePiOids = session.executeQuery(queryDescriptor);
+
+            while (rsScopePiOids.next())
+            {
+               scopePiOids.add(rsScopePiOids.getLong(1));
+            }
          }
-      }
-      catch (SQLException sqle)
-      {
-         final String message = "Exeception on DmsResource Synchronization. ";
-         trace.warn(message, sqle);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rsScopePiOids);
+         catch (SQLException sqle)
+         {
+            final String message = "Exeception on DmsResource Synchronization. ";
+            trace.warn(message, sqle);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rsScopePiOids);
+         }
       }
       return scopePiOids;
    }

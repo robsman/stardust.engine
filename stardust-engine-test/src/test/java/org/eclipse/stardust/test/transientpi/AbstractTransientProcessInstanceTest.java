@@ -79,10 +79,11 @@ import org.springframework.transaction.jta.JtaTransactionManager;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class AbstractTransientProcessInstanceTest
 {
+   private static final String EXPECTED_DATA_STRING = "SUCCESS";
+
    protected static final String PI_BLOBS_HOLDER_FIELD_NAME = "piBlobsHolder";
 
    protected static final String PERSISTENT_TO_ROOT_PI_FIELD_NAME = "persistentToRootPi";
@@ -328,7 +329,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class FailingApp
    {
@@ -346,7 +346,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class FirstTryFailsApp
    {
@@ -370,7 +369,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class SucceedingApp
    {
@@ -387,7 +385,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class SettingRollbackOnlyApp
    {
@@ -406,7 +403,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class AbortingApp
    {
@@ -424,7 +420,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class IsolatedQueryApp
    {
@@ -451,7 +446,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class WaitingApp
    {
@@ -480,7 +474,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class BigDataWriter
    {
@@ -504,7 +497,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class BigDataReader
    {
@@ -520,7 +512,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class ChangeAuditTrailPersistence
    {
@@ -530,6 +521,47 @@ public class AbstractTransientProcessInstanceTest
 
          final ProcessInstanceBean rootPi = ProcessInstanceBean.findByOID(rootPiOid);
          rootPi.setAuditTrailPersistence(newValue);
+      }
+   }
+
+   /**
+    * <p>
+    * This is the application used in the test model to init some {@link String} data.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
+   public static final class InitData
+   {
+      public String init()
+      {
+         return EXPECTED_DATA_STRING;
+      }
+   }
+
+   /**
+    * <p>
+    * This is the application used in the test model to verify that some {@link String} data
+    * has the expected value.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
+   public static final class VerifyData
+   {
+      private String data;
+
+      public void setData(final String data)
+      {
+         this.data = data;
+      }
+
+      public void verify()
+      {
+         if ( !EXPECTED_DATA_STRING.equals(data))
+         {
+            throw new IllegalStateException();
+         }
       }
    }
 

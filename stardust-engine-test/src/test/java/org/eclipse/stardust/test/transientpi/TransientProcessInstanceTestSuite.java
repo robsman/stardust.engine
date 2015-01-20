@@ -35,6 +35,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                 TransientProcessInstanceTest.class,
+                TransientProcessInstanceWriteBehindTest.class,
                 TransientProcessInstanceMonitoringTest.class
               })
 public class TransientProcessInstanceTestSuite

@@ -157,27 +157,6 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
 
    private static final String CASE_PI_DESCRIPTION = "<Case PI Description>";
 
-   private static final String ASSERTION_MSG_PI_STATE_CHECK = " - process instance state check";
-
-   private static final String ASSERTION_MSG_HAS_ENTRY_IN_DB = " - process instance entry in database";
-
-   private static final String ASSERTION_MSG_NO_SERIAL_AT_QUEUES = " - no serial activity thread queues";
-
-   private static final String ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY = " - is transient process instance storage empty";
-
-   private static final String ASSERTION_MSG_USER_DETAILS_LEVEL_CHECK = " - user details level check";
-
-   private static final String ASSERTION_MSG_USER_PROPS_ARE_EMPTY = " - starting user properties are empty";
-
-   private static final String ASSERTION_MSG_EXCEPTION_ID_CHECK = " - exception ID check";
-
-   private static final String ASSERTION_MSG_AUDIT_TRAIL_PERSISTENCE_CHECK = " - audit trail persistence check";
-
-   private static final String ASSERTION_MSG_STARTING_USER_CHECK = " - starting user check";
-
-   private static final String ASSERTION_MSG_SHOULD_NOT_BE_REACHED = " - line should not be reached";
-
-
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);

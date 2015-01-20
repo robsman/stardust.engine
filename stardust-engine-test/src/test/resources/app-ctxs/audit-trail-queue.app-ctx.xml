@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!-- Application context for an additional JMS Queue: Audit Trail Queue. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:amq="http://activemq.apache.org/schema/core"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                       http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotAuditTrailQueue" />
+      <property name="resource" ref="auditTrailQueue" />
+   </bean>
+
+   <amq:queue id="auditTrailQueue" physicalName="AuditTrailQueue" />
+</beans>

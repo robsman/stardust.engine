@@ -188,6 +188,16 @@ public abstract class AbstractTransientProcessInstanceSupport
       return isSuspended && isSubprocessAi;
    }
 
+   protected final ByteArrayBlobBuilder castToByteArrayBlobBuilder(final BlobBuilder blobBuilder)
+   {
+      if ( !(blobBuilder instanceof ByteArrayBlobBuilder))
+      {
+         throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
+      }
+
+      return (ByteArrayBlobBuilder) blobBuilder;
+   }
+
    protected final void writeOneBlobToAuditTrail(final ByteArrayBlobBuilder blobBuilder, final Session session, final Parameters parameters)
    {
       BlobReader blobReader = new ByteArrayBlobReader(blobBuilder.getBlob());

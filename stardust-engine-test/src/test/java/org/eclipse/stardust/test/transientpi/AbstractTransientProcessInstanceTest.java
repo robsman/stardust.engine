@@ -95,6 +95,16 @@ public class AbstractTransientProcessInstanceTest
    protected static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
    protected static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
 
+   protected static final String ASSERTION_MSG_PI_STATE_CHECK = " - process instance state check";
+   protected static final String ASSERTION_MSG_HAS_ENTRY_IN_DB = " - process instance entry in database";
+   protected static final String ASSERTION_MSG_NO_SERIAL_AT_QUEUES = " - no serial activity thread queues";
+   protected static final String ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY = " - is transient process instance storage empty";
+   protected static final String ASSERTION_MSG_USER_DETAILS_LEVEL_CHECK = " - user details level check";
+   protected static final String ASSERTION_MSG_USER_PROPS_ARE_EMPTY = " - starting user properties are empty";
+   protected static final String ASSERTION_MSG_EXCEPTION_ID_CHECK = " - exception ID check";
+   protected static final String ASSERTION_MSG_AUDIT_TRAIL_PERSISTENCE_CHECK = " - audit trail persistence check";
+   protected static final String ASSERTION_MSG_STARTING_USER_CHECK = " - starting user check";
+   protected static final String ASSERTION_MSG_SHOULD_NOT_BE_REACHED = " - line should not be reached";
 
    protected static volatile boolean appMayComplete;
 

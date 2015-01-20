@@ -310,16 +310,6 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
       return true;
    }
 
-   private ByteArrayBlobBuilder castToByteArrayBlobBuilder(final BlobBuilder blobBuilder)
-   {
-      if ( !(blobBuilder instanceof ByteArrayBlobBuilder))
-      {
-         throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
-      }
-
-      return (ByteArrayBlobBuilder) blobBuilder;
-   }
-
    private void writeToInMemStorage(final BlobBuilder blobBuilder)
    {
       final byte[] blob = castToByteArrayBlobBuilder(blobBuilder).getBlob();

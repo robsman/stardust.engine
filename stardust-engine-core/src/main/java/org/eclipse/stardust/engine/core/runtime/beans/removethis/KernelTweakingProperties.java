@@ -204,6 +204,10 @@ public final class KernelTweakingProperties
    public static final String TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE = "Carnot.Engine.Tuning.TransientProcesses.ExposeInMemStorage";
    public static final boolean TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE = true;
 
+   public static final String ASYNC_WRITE = "Carnot.Engine.Tuning.SupportAsyncAuditTrailWrite";
+
+   public static final String ASYNC_WRITE_VIA_JMS = "Carnot.Engine.Tuning.SupportAsyncAuditTrailWriteViaJms";
+
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";

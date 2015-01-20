@@ -96,6 +96,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenc
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.NoOpTransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TestAsyncWriteTransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
@@ -1681,7 +1682,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
 
-         boolean supportsAsynchWrite = params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWrite", false);
+         boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false);
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
 
          final AbstractTransientProcessInstanceSupport transientPiSupport;
@@ -1694,7 +1695,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                supportsAsynchWrite &= pcPi.isCreated() && pi.isTerminated();
             }
-            transientPiSupport = new NoOpTransientProcessInstanceSupport();
+            if (params.getBoolean(KernelTweakingProperties.ASYNC_WRITE_VIA_JMS, true))
+            {
+               transientPiSupport = new NoOpTransientProcessInstanceSupport();
+            }
+            else
+            {
+               transientPiSupport = new TestAsyncWriteTransientProcessInstanceSupport();
+            }
          }
          else if (ProcessInstanceUtils.isTransientPiSupportEnabled())
          {
@@ -1709,7 +1717,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          BlobBuilder blobBuilder = null;
          if (supportsAsynchWrite || transientPiSupport.persistentsNeedToBeWrittenToBlob())
          {
-            if (supportsAsynchWrite && params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWriteViaJms", true))
+            if (supportsAsynchWrite && params.getBoolean(KernelTweakingProperties.ASYNC_WRITE_VIA_JMS, true))
             {
                try
                {

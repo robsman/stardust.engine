@@ -22,5 +22,5 @@
       <property name="resource" ref="auditTrailQueue" />
    </bean>
 
-   <amq:queue id="auditTrailQueue" physicalName="AuditTrailQueue" />
+   <amq:queue id="auditTrailQueue" physicalName="CarnotAuditTrailQueue" />
 </beans>

@@ -22,7 +22,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
 
-import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -42,6 +41,7 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -75,8 +75,13 @@ public class TransientProcessInstanceWriteBehindTest extends AbstractTransientPr
    @Before
    public void setUp()
    {
-      final GlobalParameters params = GlobalParameters.globals();
-      params.set(KernelTweakingProperties.ASYNC_WRITE, true);
+      Parameters.instance().set(KernelTweakingProperties.ASYNC_WRITE, Boolean.TRUE);
+   }
+
+   @After
+   public void tearDown()
+   {
+      Parameters.instance().set(KernelTweakingProperties.ASYNC_WRITE, Boolean.FALSE);
    }
 
    public TransientProcessInstanceWriteBehindTest()

@@ -22,7 +22,7 @@ import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.context.ApplicationContext;
-
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
@@ -187,6 +187,7 @@ public class TestClassSetup extends ExternalResource
 
       LOG.info("---> Setting up the test environment ...");
 
+      dbms.init();
       dbms.start();
       dbms.createSchema();
       springAppCtx.bootstrap(forkingServiceMode, testClass);
@@ -234,6 +235,7 @@ public class TestClassSetup extends ExternalResource
       /* no need to drop the schema as the database content */
       /* is gone anyway as soon as the DBMS is stopped      */
       dbms.stop();
+      Parameters.instance().flush();
 
       LOG.info("<--- ... teardown of test environment done.");
    }
@@ -266,7 +268,7 @@ public class TestClassSetup extends ExternalResource
     * in order to directly execute SQL statements.
     * </p>
     *
-    * @throws IllegalStateException if the data source cannot be obtained from the <Spring Application Context
+    * @throws IllegalStateException if the data source cannot be obtained from the <i>Spring</i> Application Context
     *
     * @return the data source of the database backing this test setup
     */

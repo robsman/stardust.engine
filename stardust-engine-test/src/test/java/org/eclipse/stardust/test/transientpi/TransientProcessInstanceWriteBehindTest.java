@@ -101,9 +101,9 @@ public class TransientProcessInstanceWriteBehindTest extends AbstractTransientPr
       Parameters.instance().set(KernelTweakingProperties.ASYNC_WRITE_VIA_JMS, Boolean.TRUE);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED, null, true);
+      writeFromQueueToAuditTrail(pi.getOID(), JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
 
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_PI_STATE_CHECK, pi.getState(), is(ProcessInstanceState.Completed));
-      writeFromQueueToAuditTrail(pi.getOID(), JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
    }
 

@@ -34,7 +34,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
  */
 public class ExportImportSupport
 {
-   @SuppressWarnings("unused")
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
 
    /**
@@ -75,10 +74,16 @@ public class ExportImportSupport
    private static int prepareObjectsForImport(final Set<Persistent> persistents,
          final Session session)
    {
-
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("Loaded " + persistents.size() + " persistents:");
+      }
       int count = 0;
       for (final Persistent p : persistents)
       {
+         if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Persistent loaded: " + p.getClass().getSimpleName() + ". " + p.toString());
+         }
          if (p instanceof ProcessInstanceBean)
          {
             ProcessInstanceBean processInstance = (ProcessInstanceBean) p;
@@ -100,6 +105,9 @@ public class ExportImportSupport
             // session flushing
             activity.prepareForImportFromArchive();
          }
+      }
+      if (LOGGER.isDebugEnabled()) {
+         LOGGER.debug("Loaded " + count + " ProcessInstanceBeans");
       }
       return count;
    }

@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -30,6 +32,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 public class ExportProcessesCommand implements ServiceCommand
 {
    private static final long serialVersionUID = 1L;
+   private static final Logger LOGGER = LogManager.getLogger(ExportProcessesCommand.class);
 
    private final List<Long> processInstanceOids;
 
@@ -46,10 +49,18 @@ public class ExportProcessesCommand implements ServiceCommand
    @Override
    public Serializable execute(ServiceFactory sf)
    {
-
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("START Export");
+      }
       byte[] result;
       if (CollectionUtils.isNotEmpty(processInstanceOids))
       {
+
+         if (LOGGER.isDebugEnabled())
+         {
+            LOGGER.debug("Received " + processInstanceOids.size() + " oids to export");
+         }
          final Session session = (Session) SessionFactory
                .getSession(SessionFactory.AUDIT_TRAIL);
 
@@ -72,24 +83,43 @@ public class ExportProcessesCommand implements ServiceCommand
                      if (!uniqueOids.contains(subProcess.getOID()))
                      {
                         uniqueOids.add(subProcess.getOID());
+                        if (LOGGER.isDebugEnabled())
+                        {
+                           if (subProcess.getOID() != oid) {
+                              LOGGER.debug("Adding subprocess with oid " + subProcess.getOID()+ " to export");
+                           }
+                        }
                      }
                   }
                }
             }
          }
-
+         if (LOGGER.isDebugEnabled())
+         {
+            LOGGER.debug("Exporting " + uniqueOids.size() + " processInstances");
+         }
          if (CollectionUtils.isNotEmpty(uniqueOids))
          {
             ProcessElementExporter exporter = new ProcessElementExporter();
             ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Exporting...");
+            }
             // export processInstances
             processVisitor.visitProcessInstances(uniqueOids, session);
-
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Exporting complete. Starting Purging...");
+            }
             ProcessElementPurger purger = new ProcessElementPurger();
             processVisitor = new ProcessElementsVisitor(purger);
             // purge processInstances
             processVisitor.visitProcessInstances(uniqueOids, session);
-
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Purging Complete.");
+            }
             result = exporter.getBlob();
          }
          else
@@ -100,6 +130,10 @@ public class ExportProcessesCommand implements ServiceCommand
       else
       {
          result = null;
+      }
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("END Export");
       }
       return result;
    }

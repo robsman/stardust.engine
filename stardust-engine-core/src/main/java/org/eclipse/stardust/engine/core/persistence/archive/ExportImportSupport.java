@@ -22,7 +22,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 
 /**
  * <p>
@@ -46,8 +45,12 @@ public class ExportImportSupport
     *           the raw byte array that needs to be deserialized
     * @param session
     *           the session the {@link Persistent}s should be populated to
+    * @param filter
+    *           Filter to use when importing processes. Null filter will import all
+    *           processes.
     */
-   public static int loadProcessInstanceGraph(byte[] rawData, final Session session)
+   public static int loadProcessInstanceGraph(byte[] rawData, final Session session,
+         ImportFilter filter)
    {
       int count;
       if (rawData == null)
@@ -58,7 +61,7 @@ public class ExportImportSupport
       {
          final ProcessInstanceGraphBlob blob = new ProcessInstanceGraphBlob(rawData);
          Set<Persistent> persistents = TransientProcessInstanceUtils
-               .loadProcessInstanceGraph(blob, session, null);
+               .loadProcessInstanceGraph(blob, session, null, filter);
          if (CollectionUtils.isNotEmpty(persistents))
          {
             count = prepareObjectsForImport(persistents, session);
@@ -71,8 +74,7 @@ public class ExportImportSupport
       return count;
    }
 
-   private static int prepareObjectsForImport(final Set<Persistent> persistents,
-         final Session session)
+   private static int prepareObjectsForImport(final Set<Persistent> persistents, final Session session)
    {
       if (LOGGER.isDebugEnabled())
       {
@@ -81,24 +83,18 @@ public class ExportImportSupport
       int count = 0;
       for (final Persistent p : persistents)
       {
-         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Persistent loaded: " + p.getClass().getSimpleName() + ". " + p.toString());
+         if (LOGGER.isDebugEnabled())
+         {
+            LOGGER.debug("Persistent loaded: " + p.getClass().getSimpleName() + ". "
+                  + p.toString());
          }
          if (p instanceof ProcessInstanceBean)
          {
             ProcessInstanceBean processInstance = (ProcessInstanceBean) p;
-            if (processInstance.getScopeProcessInstance() != null)
-            {
-               // we need to explicitly create the scope bean like this, it can't be
-               // imported normally. this constructor calls session.cluster which is
-               // necessary to be called only once.
-               new ProcessInstanceScopeBean(processInstance,
-                     processInstance.getScopeProcessInstance(),
-                     processInstance.getRootProcessInstance());
-            }
+            processInstance.prepareForImportFromArchive();
             count++;
          }
-         if (p instanceof ActivityInstanceBean)
+         else if (p instanceof ActivityInstanceBean)
          {
             ActivityInstanceBean activity = (ActivityInstanceBean) p;
             // initialized the initial performer attribute which is necessary upon
@@ -106,10 +102,11 @@ public class ExportImportSupport
             activity.prepareForImportFromArchive();
          }
       }
-      if (LOGGER.isDebugEnabled()) {
+
+      if (LOGGER.isDebugEnabled())
+      {
          LOGGER.debug("Loaded " + count + " ProcessInstanceBeans");
       }
       return count;
    }
-
 }

@@ -94,6 +94,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.processInstanceOids = null;
       if (fromDate != null || toDate != null)
       {
+         // TODO : TimeZone?
          if (fromDate == null)
          {
             fromDate = new Date(0);

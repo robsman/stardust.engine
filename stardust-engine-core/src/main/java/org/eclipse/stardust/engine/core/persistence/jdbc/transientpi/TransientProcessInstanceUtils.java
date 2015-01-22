@@ -14,11 +14,7 @@ import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -26,17 +22,14 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
-import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptorRegistry;
+import org.eclipse.stardust.engine.core.persistence.archive.ImportFilter;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
@@ -49,38 +42,48 @@ public class TransientProcessInstanceUtils
 {
    /**
     * <p>
-    * Loads the process instance graph identified by the given root process instance OID, i.e. reads the corresponding
-    * process instance blob from the in-memory storage and attaches all included {@link Persistent}s to the
-    * given {@link Session}'s cache. If no matching process instance blob can be found in the in-memory storage, this
-    * method silently returns without modifying the {@link Session}.
+    * Loads the process instance graph identified by the given root process instance OID,
+    * i.e. reads the corresponding process instance blob from the in-memory storage and
+    * attaches all included {@link Persistent}s to the given {@link Session}'s cache. If
+    * no matching process instance blob can be found in the in-memory storage, this method
+    * silently returns without modifying the {@link Session}.
     * </p>
     *
-    * @param rootPiOid the root process instance OID whose process instance graph should be loaded
-    * @param session the session the {@link Persistent}s should be populated to
+    * @param rootPiOid
+    *           the root process instance OID whose process instance graph should be
+    *           loaded
+    * @param session
+    *           the session the {@link Persistent}s should be populated to
     */
-   public static void loadProcessInstanceGraphIfExistent(final long rootPiOid, final Session session)
+   public static void loadProcessInstanceGraphIfExistent(final long rootPiOid,
+         final Session session)
    {
-      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance().selectForRootPiOid(rootPiOid);
+      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance()
+            .selectForRootPiOid(rootPiOid);
       if (blob == null)
       {
          return;
       }
 
-      loadProcessInstanceGraph(blob, session, null);
+      loadProcessInstanceGraph(blob, session, null, null);
    }
 
    /**
     * <p>
-    * Loads the process instance graph identified by the given {@link PersistentKey}, i.e. reads the corresponding
-    * process instance blob from the in-memory storage and attaches all included {@link Persistent}s to the
-    * given {@link Session}'s cache. If no matching process instance blob can be found in the in-memory storage, this
-    * method silently returns without modifying the {@link Session}.
+    * Loads the process instance graph identified by the given {@link PersistentKey}, i.e.
+    * reads the corresponding process instance blob from the in-memory storage and
+    * attaches all included {@link Persistent}s to the given {@link Session}'s cache. If
+    * no matching process instance blob can be found in the in-memory storage, this method
+    * silently returns without modifying the {@link Session}.
     * </p>
     *
-    * @param pk the {@link PersistentKey} identifying a {@link Persistent} whose process instance graph should be loaded
-    * @param session the session the {@link Persistent}s should be populated to
-    * @return the resolved {@link Persistent} matching the given {@link PersistentKey}, or <code>null</code> if no matching process
-    *    instance blob can be found
+    * @param pk
+    *           the {@link PersistentKey} identifying a {@link Persistent} whose process
+    *           instance graph should be loaded
+    * @param session
+    *           the session the {@link Persistent}s should be populated to
+    * @return the resolved {@link Persistent} matching the given {@link PersistentKey}, or
+    *         <code>null</code> if no matching process instance blob can be found
     */
    public static Persistent loadProcessInstanceGraphIfExistent(final PersistentKey pk, final Session session)
    {
@@ -90,7 +93,7 @@ public class TransientProcessInstanceUtils
          return null;
       }
 
-      Set<Persistent> results = loadProcessInstanceGraph(blob, session, pk);
+      Set<Persistent> results = loadProcessInstanceGraph(blob, session, pk, null);
       if (CollectionUtils.isNotEmpty(results))
       {
          return results.iterator().next();
@@ -101,10 +104,22 @@ public class TransientProcessInstanceUtils
       }
    }
 
-   public static Set<Persistent> loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
+   /**
+    * 
+    * @param blob
+    * @param session
+    * @param pk
+    * @param filter
+    *           Filter to use when importing processes. Null filter will import all
+    *           processes.
+    * @return
+    */
+   public static Set<Persistent> loadProcessInstanceGraph(
+         final ProcessInstanceGraphBlob blob, final Session session,
+         final PersistentKey pk, ImportFilter filter)
    {
       final ProcessBlobReader reader = new ProcessBlobReader(session);
-      final Set<Persistent> persistents = reader.readProcessBlob(blob);
+      final Set<Persistent> persistents = reader.readProcessBlob(blob, filter);
 
       final Set<Persistent> deferredPersistents = newHashSet();
       Persistent result = null;
@@ -243,14 +258,17 @@ public class TransientProcessInstanceUtils
 
       /**
        * <p>
-       * Reads the given process instance blob in order to (re-) create
-       * all {@link Persistent}s encoded in it.
+       * Reads the given process instance blob in order to (re-) create all
+       * {@link Persistent}s encoded in it.
        * </p>
        *
-       * @param blob the blob to be read
+       * @param blob
+       *           the blob to be read
+       * @param filter
        * @return a set of all {@link Persistent}s encoded in the blob
        */
-      public Set<Persistent> readProcessBlob(final ProcessInstanceGraphBlob blob)
+      public Set<Persistent> readProcessBlob(final ProcessInstanceGraphBlob blob,
+            ImportFilter filter)
       {
          final Set<Persistent> persistents = new HashSet<Persistent>();
 
@@ -265,13 +283,37 @@ public class TransientProcessInstanceUtils
                throw new IllegalStateException("Unknown section marker '" + sectionMarker + "'.");
             }
 
-            readSection(reader, persistents);
+            readSection(reader, persistents, filter);
+         }
+
+         if (filter != null)
+         {
+            List<Persistent> removeList = new ArrayList<Persistent>();
+            for (Persistent p : persistents)
+            {
+               // process instances was already filtered out, we now also need to 
+               // delete related elements so they do not get persisted in db 
+               // and mark ones that should be created as created
+               if (!(p instanceof ProcessInstanceBean))
+               {
+                  if (filter.isInFilter(p))
+                  {
+                     p.getPersistenceController().markCreated();
+                  }
+                  else 
+                  {
+                     removeList.add(p);
+                  }
+               }
+            }
+            persistents.removeAll(removeList);
          }
 
          return persistents;
       }
 
-      private void readSection(final ByteArrayBlobReader reader, final Set<Persistent> persistents)
+      private void readSection(final ByteArrayBlobReader reader,
+            final Set<Persistent> persistents, ImportFilter filter)
       {
          final String tableName = reader.readString();
          final int instanceCount = reader.readInt();
@@ -287,9 +329,33 @@ public class TransientProcessInstanceUtils
 
             final Object[] linkBuffer = recreateLinkBuffer(reader, linkDescs);
             final DefaultPersistenceController pc = new DefaultPersistenceController(session, typeDesc, persistent, linkBuffer);
-            pc.markCreated();
+            
 
-            persistents.add(persistent);
+            if (filter == null) 
+            {
+               pc.markCreated();
+               persistents.add(persistent);
+            }
+            else
+            {
+               // we need to filter out Process Instances before we filter out
+               // their related objects, related objects only will have the processInstanceOid and not all the filter fields
+               // so when filtering we remember which processInstances are filtered out so we can later filter out related
+               // elements
+               if (persistent instanceof ProcessInstanceBean)
+               {
+                  boolean isInFilter = filter.isInFilter((ProcessInstanceBean)persistent);
+                  if (isInFilter)
+                  {
+                     persistents.add(persistent);
+                     pc.markCreated();
+                  }
+               }
+               else
+               {
+                  persistents.add(persistent);
+               }
+            }
          }
       }
 

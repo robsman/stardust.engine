@@ -2195,4 +2195,23 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return this;
    }
+
+   /**
+    * This method is called when importing a process instance from an archive. This is the
+    * only time this should be called, it initialized the ProcessInstanceScopeBean,
+    * startingActivity and startingUser
+    */
+   public void prepareForImportFromArchive()
+   {
+      if (getScopeProcessInstance() != null)
+      {
+         // we need to explicitly create the scope bean like this, it can't be
+         // imported normally. this constructor calls session.cluster which is
+         // necessary to be called only once.
+         new ProcessInstanceScopeBean(this, getScopeProcessInstance(),
+               getRootProcessInstance());
+      }
+      getStartingActivityInstance();
+      getStartingUser();
+   }
 }

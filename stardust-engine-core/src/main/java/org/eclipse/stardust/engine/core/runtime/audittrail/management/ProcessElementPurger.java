@@ -3,11 +3,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 

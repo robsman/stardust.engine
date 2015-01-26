@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.sysconsole;
 
+import java.io.CharArrayWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -17,6 +21,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.DeleteScriptGenerator;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 
 
@@ -34,6 +39,7 @@ public class DDLCommand extends ConsoleCommand
    {
       argTypes.register("-file", "-f", "file", "The DDL file name.", true);
       argTypes.register("-drop", "-d", "drop", "Creates DDL for dropping the schema.", false);
+      argTypes.register("-dropProcessInstances", "-pi", "dropProcessInstances", "Creates DDL for dropping process instances.", false);
       argTypes.register("-schemaName", "-s", "schemaName", "Specifies the schema name to be used.", true);
       argTypes.register("-" + STATEMENT_DELIMITER, "-sd", STATEMENT_DELIMITER,
             "Specifies the delimiter applied after each statement.", true);
@@ -64,6 +70,12 @@ public class DDLCommand extends ConsoleCommand
          SchemaHelper.generateDropSchemaDDL(file, schemaName, statementDelimiter);
          print("DDL file '" + file + "' generated.");
       }
+      else if (options.containsKey("dropProcessInstances"))
+      {
+         print("Writing DDL for dropping process instances to '" + file + "'.");
+         generateDeletePIScript(file);
+         print("DDL file '" + file + "' generated.");
+      }
       else
       {
          print("Writing DDL for Infinity schema generation to '" + file + "'.");
@@ -71,6 +83,36 @@ public class DDLCommand extends ConsoleCommand
          print("DDL file '" + file + "' generated.");
       }
       return 0;
+   }
+
+   private void generateDeletePIScript(String file)
+   {
+      DeleteScriptGenerator generator = new DeleteScriptGenerator();
+      generator.generateDeleteScripts();
+
+      FileWriter writer = null;
+      try
+      {
+         writer = new FileWriter(file);
+         generator.writeDeleteScript(writer);
+         writer.flush();
+      }
+      catch (IOException e)
+      {
+         print("Cannot write to file '" + file + "' generated.");
+         e.printStackTrace();
+      }
+      finally
+      {
+         try
+         {
+            writer.close();
+         }
+         catch (IOException e)
+         {
+            e.printStackTrace();
+         }
+      }
    }
 
    public String getSummary()

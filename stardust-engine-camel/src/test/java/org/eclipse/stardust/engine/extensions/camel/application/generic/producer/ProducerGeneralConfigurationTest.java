@@ -35,7 +35,7 @@ public class ProducerGeneralConfigurationTest
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/application/generic/producer/ProducerApplicationTest-context.xml", "classpath:carnot-spring-context.xml",
-      "classpath:jackrabbit-jcr-context.xml","classpath:META-INF/spring/default-camel-context.xml"});
+      "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       resultEndpoint =camelContext.getEndpoint("mock:result", MockEndpoint.class);
@@ -80,76 +80,54 @@ public class ProducerGeneralConfigurationTest
    @Test
    public void testLegacyJmsRequest() throws Exception
    {
-
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-      
       Map<String, Object> dataMap = new HashMap<String, Object>();
-
       Map<String, Object> addressMap = new HashMap<String, Object>();
       addressMap.put("addrLine1", "test1");
       addressMap.put("addrLine2", "test1");
       addressMap.put("zipCode", "test1");
       addressMap.put("city", "test1");
-
       Map<String, Object> personMap = new HashMap<String, Object>();
       personMap.put("firstName", "Manali");
       personMap.put("lastName", "Mungikar");
       personMap.put("address", addressMap);
-
       dataMap.put("Person", personMap);
-
       ProcessInstance pi=sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testLegacyJmsRequest", dataMap, true);
       assertNotNull(pi);
-      Thread.sleep(3000);
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       query.getFilter().add(new ProcessDefinitionFilter("testLegacyJmsResponseTrigger"));
       ProcessInstance pInstance = sf.getQueryService().findFirstProcessInstance(query);
-
       assertNotNull(pInstance);
-
       Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "PersonJSON");
-
       assertNotNull(result);
-
       Object expectedJSON = "{\"lastName\":\"Mungikar\",\"address\":{\"addrLine1\":\"test1\",\"addrLine2\":\"test1\",\"zipCode\":\"test1\",\"city\":\"test1\"},\"firstName\":\"Manali\"}";
-
       assertTrue(result.equals(expectedJSON));
-
    }
    
    @SuppressWarnings("unchecked")
    @Test
    public void testLegacySpringInvocation() throws Exception
    {
-
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       Map<String, Object> dataMap = new HashMap<String, Object>();
-
       Map<String, Object> addressMap = new HashMap<String, Object>();
       addressMap.put("addrLine1", "test1");
       addressMap.put("addrLine2", "test1");
       addressMap.put("zipCode", "test1");
       addressMap.put("city", "test1");
-
       Map<String, Object> personMap = new HashMap<String, Object>();
       personMap.put("firstName", "Manali");
       personMap.put("lastName", "Mungikar");
       personMap.put("address", addressMap);
-
       dataMap.put("Person", personMap);
-
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testLegacySpringInvocation", dataMap, true);
-
       Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "Address");
-
       assertNotNull(result);
       assertTrue(result instanceof Map< ? , ? >);
       assertTrue(((Map<String,Object>) result).get("addrLine1").equals(addressMap.get("addrLine1")));
       assertTrue(((Map<String,Object>) result).get("addrLine2").equals(addressMap.get("addrLine2")));
       assertTrue(((Map<String,Object>) result).get("zipCode").equals(addressMap.get("zipCode")));
       assertTrue(((Map<String,Object>) result).get("city").equals(addressMap.get("city")));
-
    }
    
    @Test 
@@ -157,47 +135,35 @@ public class ProducerGeneralConfigurationTest
    {
 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       final long id = System.currentTimeMillis();
-
       RouteBuilder builder = new RouteBuilder()
       {
-
          @Override
          public void configure() throws Exception
          {
-
             from("direct:outbound").process(new Processor()
             {
 
                public void process(Exchange exchange) throws Exception
                {
-
                   StringBuffer address = new StringBuffer();
-
                   address.append("<Address>");
                   address.append("<addrLine1>addrLine1</addrLine1>");
                   address.append("<addrLine2>addrLine2</addrLine2>");
                   address.append("<zipCode>zipCode</zipCode>");
                   address.append("<city>city</city>");
                   address.append("</Address>");
-
                   exchange.getOut().setBody(address.toString());
-
                   Map<String, Object> dataMap = new HashMap<String, Object>();
                   dataMap.put("ID", new Long(id).toString());
-
                   exchange.getOut().setHeader("ippDataFiltersMap", dataMap);
-
                }
             }).setHeader(CamelConstants.MessageProperty.PROCESS_ID, constant("testRequestReponseMessage"))
                   .setHeader(CamelConstants.MessageProperty.ACTIVITY_ID, constant("testRequestReponseMessage")).to("direct:inbound");
 
          }
       };
-
       ProducerTemplate producer = new DefaultProducerTemplate(camelContext);
-
       try
       {
          builder.addRoutesToCamelContext(camelContext);
@@ -215,63 +181,27 @@ public class ProducerGeneralConfigurationTest
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("ID", new Long(id).toString());
       dataMap.put("Person", personMap);
-
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testRequestReponseMessage", dataMap, true);
-
       assertNotNull(pInstance);
-
-//      try
-//      {
-//         Thread.currentThread().sleep(5000);
-//      }
-//      catch (InterruptedException e)
-//      {
-//         // move ahead
-//      }
-
-//      Map<String, Object> dataFilterMap = new HashMap<String, Object>();
-//      dataFilterMap.put("ID", new Long(id).toString());
-    //  sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pInstance.getOID());
-      // Exchange exchange = new DefaultExchange(this.camelContext);
-      // producer.send("direct:inbound", exchange);
-//      Map<String, Object> resultDataMap = (Map<String, Object>) sf.getWorkflowService().getInDataPath(
-//            pInstance.getOID(), "Address");
-//
-//      assertNotNull(resultDataMap);
-//
-//      assertTrue((String) resultDataMap.get("addrLine1"), equals("addrLine1"));
-//      assertTrue((String) resultDataMap.get("addrLine2"), equals("addrLine2"));
-//      assertTrue((String) resultDataMap.get("zipCode"), equals("zipCode"));
-//      assertTrue((String) resultDataMap.get("city"), equals("city"));
-
    }
    
-   @SuppressWarnings("static-access")
    @Test
    public void testProcessCorrelationMatch()
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       final ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testProcessCorrelationMatch", null, true);
-
       assertNotNull(pInstance);
-
       RouteBuilder builder = new RouteBuilder()
       {
-
          @Override
          public void configure() throws Exception
          {
-
             from("seda:testProcessCorrelationMatch")
                .setHeader(CamelConstants.MessageProperty.PROCESS_INSTANCE_OID, constant(pInstance.getOID()))
                .to("direct:testProcessCorrelationMatch");
-
          }
       };
-
       ProducerTemplate producer = new DefaultProducerTemplate(camelContext);
-
       try
       {
          builder.addRoutesToCamelContext(camelContext);
@@ -281,37 +211,21 @@ public class ProducerGeneralConfigurationTest
       {
          throw new RuntimeException(e);
       }
-
       producer.sendBody("seda:testProcessCorrelationMatch", "Hello World!");
       
-      try
-      {
-         Thread.currentThread().sleep(5000);
-      }
-      catch (InterruptedException e)
-      {
-         // move ahead
-      }
    }
    
    @Test
    public void testSpringInvocationWithBpmTypeConverter()
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
-
       Map<String, Object> personMap = new HashMap<String, Object>();
       personMap.put("firstName", "Manali");
       personMap.put("lastName", "Mungikar");
-
       Map<String, Object> dataMap = new HashMap<String, Object>();
       dataMap.put("Person", personMap);
-
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationProducerTestModel}testSpringInvocationWithBpmTypeConverter",
             dataMap, true);
-
       assertNotNull(pInstance);
-
    }
-   
-   
 }

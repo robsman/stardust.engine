@@ -102,8 +102,9 @@ public class BusinessObjectUtils
                }
                items = bo.getItems();
             }
-            return new BusinessObjectDetails(source.getModel().getId(), source.getId(), source.getName(),
-                  items, values == null ? null : values.get(source));
+            return new BusinessObjectDetails(source.getModel().getModelOID(), source.getModel().getId(),
+                  source.getId(), source.getName(), items,
+                  values == null ? null : values.get(source));
          }
       };
 
@@ -141,7 +142,11 @@ public class BusinessObjectUtils
       Set<IData> allData = CollectionUtils.newSet();
 
       Long modelOID = queryEvaluator.getModelOid();
-      if (modelOID != null)
+      if (modelOID == null)
+      {
+         modelOID = (long) PredefinedConstants.ALL_MODELS;
+      }
+      if (modelOID >= 0 || modelOID <= -100) // (fh) see special model oids in PredefinedConstants, i.e. ACTIVE_MODEL
       {
          IModel model = modelManager.findModel(modelOID);
          if (model != null)
@@ -151,9 +156,27 @@ public class BusinessObjectUtils
       }
       else
       {
-         for (Iterator<IModel> models = modelManager.getAllModels(); models.hasNext();)
+         Iterator<IModel> allModels;
+         switch ((int)(long)modelOID)
+         {
+         case PredefinedConstants.ACTIVE_MODEL:
+            allModels = modelManager.findActiveModels().iterator();
+            break;
+         case PredefinedConstants.LAST_DEPLOYED_MODEL:
+            allModels = modelManager.findLastDeployedModels().iterator();
+            break;
+         case PredefinedConstants.ALIVE_MODELS:
+            allModels = modelManager.getAllAliveModels();
+         default:
+            allModels = modelManager.getAllModels();
+         }
+         for (Iterator<IModel> models = allModels; models.hasNext();)
          {
             addModelData(allData, models.next(), queryEvaluator, auth);
+            if (modelOID == PredefinedConstants.ANY_MODEL && !allData.isEmpty())
+            {
+               break;
+            }
          }
       }
       return allData;
@@ -209,32 +232,37 @@ public class BusinessObjectUtils
                .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
                .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
 
-         FieldRef pkValueField = null;
-         switch (typeClassification)
-         {
-         case BigData.STRING_VALUE:
-            pkValueField = sdvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
-            break;
-         case BigData.NUMERIC_VALUE:
-            pkValueField = sdvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
-            break;
-         default:
-            // (fh) throw internal exception ?
-         }
-
          List<PredicateTerm> predicates = CollectionUtils.newList();
          predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
          predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOID));
          predicates.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), dataRtOID));
-         predicates.add(Predicates.isEqual(sdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pk));
-         if (pkValue instanceof Number)
+
+         if (pkValue != null || parsedTerm == null)
          {
-            predicates.add(Predicates.isEqual(pkValueField, ((Number) pkValue).longValue()));
+            FieldRef pkValueField = null;
+            switch (typeClassification)
+            {
+            case BigData.STRING_VALUE:
+               pkValueField = sdvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
+               break;
+            case BigData.NUMERIC_VALUE:
+               pkValueField = sdvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
+               break;
+            default:
+               // (fh) throw internal exception ?
+            }
+
+            predicates.add(Predicates.isEqual(sdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pk));
+            if (pkValue instanceof Number)
+            {
+               predicates.add(Predicates.isEqual(pkValueField, ((Number) pkValue).longValue()));
+            }
+            else if (pkValue != null)
+            {
+               predicates.add(Predicates.isEqual(pkValueField, pkValue.toString()));
+            }
          }
-         else if (pkValue != null)
-         {
-            predicates.add(Predicates.isEqual(pkValueField, pkValue.toString()));
-         }
+
          if (parsedTerm != null)
          {
             predicates.add(parsedTerm);
@@ -316,7 +344,7 @@ public class BusinessObjectUtils
                   : Predicates.isEqual(pkValueField, pkValue.toString())));
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      System.err.println(session.getDMLManager(desc.getType()).prepareSelectStatement(desc, true, null, true));
+      //System.err.println(session.getDMLManager(desc.getType()).prepareSelectStatement(desc, true, null, true));
       return session.findFirst(ProcessInstanceBean.class, desc.getQueryExtension());
    }
 
@@ -401,7 +429,8 @@ public class BusinessObjectUtils
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);
       BusinessObjectDetails.Value value = new BusinessObjectDetails.ValueDetails(pi.getOID(), dataValue);
-      return new BusinessObjectDetails(data.getModel().getId(), data.getId(), data.getName(), null, Collections.singletonList(value));
+      return new BusinessObjectDetails(data.getModel().getModelOID(), data.getModel().getId(),
+            data.getId(), data.getName(), null, Collections.singletonList(value));
    }
 
    private static IData findDataForUpdate(String qualifiedBusinessObjectId)
@@ -530,7 +559,8 @@ public class BusinessObjectUtils
       {
          items = createDescriptions(source, root.getChildXPaths(), true);
       }
-      return new BusinessObjectDetails(source.getModel().getId(), source.getId(), source.getName(), items, null);
+      return new BusinessObjectDetails(source.getModel().getModelOID(), source.getModel().getId(),
+            source.getId(), source.getName(), items, null);
    }
 
    private static List<Definition> createDescriptions(IData source, List<TypedXPath> xPaths, boolean top)
@@ -582,13 +612,13 @@ public class BusinessObjectUtils
                   if (upi == null)
                   {
                      lockData(data);
-                     System.err.println("Creating BO from regular PI data.");
+                     //System.err.println("Creating BO from regular PI data.");
                      upi = ProcessInstanceBean.createUnboundInstance((IModel) data.getModel());
                   }
                   else
                   {
                      upi.lock();
-                     System.err.println("Updating BO from regular PI data.");
+                     //System.err.println("Updating BO from regular PI data.");
                   }
                   upi.setOutDataValue(data, null, value);
                }

@@ -9,14 +9,14 @@ import javax.xml.namespace.QName;
 
 
 /**
- *
+ * 
  * 			Interface used to separate a process definition from its interface.
- *
- *
+ * 			
+ * 
  * <p>Java class for ProcessInterface complex type.
- *
+ * 
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * 
  * <pre>
  * &lt;complexType name="ProcessInterface">
  *   &lt;complexContent>
@@ -29,8 +29,8 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessInterface", propOrder = {
@@ -45,11 +45,11 @@ public class ProcessInterfaceXto {
 
     /**
      * Gets the value of the declaringProcessDefintionId property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link QName }
-     *
+     *     
      */
     public QName getDeclaringProcessDefintionId() {
         return declaringProcessDefintionId;
@@ -57,11 +57,11 @@ public class ProcessInterfaceXto {
 
     /**
      * Sets the value of the declaringProcessDefintionId property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link QName }
-     *
+     *     
      */
     public void setDeclaringProcessDefintionId(QName value) {
         this.declaringProcessDefintionId = value;
@@ -69,11 +69,11 @@ public class ProcessInterfaceXto {
 
     /**
      * Gets the value of the formalParameters property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link FormalParametersXto }
-     *
+     *     
      */
     public FormalParametersXto getFormalParameters() {
         return formalParameters;
@@ -81,11 +81,11 @@ public class ProcessInterfaceXto {
 
     /**
      * Sets the value of the formalParameters property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link FormalParametersXto }
-     *
+     *     
      */
     public void setFormalParameters(FormalParametersXto value) {
         this.formalParameters = value;

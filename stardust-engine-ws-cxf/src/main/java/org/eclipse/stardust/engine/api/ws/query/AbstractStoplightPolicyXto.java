@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for AbstractStoplightPolicy complex type.
+ * <p>Java-Klasse für AbstractStoplightPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="AbstractStoplightPolicy">
@@ -44,7 +44,7 @@ public abstract class AbstractStoplightPolicyXto
     protected float redPct;
 
     /**
-     * Gets the value of the yellowPct property.
+     * Ruft den Wert der yellowPct-Eigenschaft ab.
      * 
      */
     public float getYellowPct() {
@@ -52,7 +52,7 @@ public abstract class AbstractStoplightPolicyXto
     }
 
     /**
-     * Sets the value of the yellowPct property.
+     * Legt den Wert der yellowPct-Eigenschaft fest.
      * 
      */
     public void setYellowPct(float value) {
@@ -60,7 +60,7 @@ public abstract class AbstractStoplightPolicyXto
     }
 
     /**
-     * Gets the value of the redPct property.
+     * Ruft den Wert der redPct-Eigenschaft ab.
      * 
      */
     public float getRedPct() {
@@ -68,7 +68,7 @@ public abstract class AbstractStoplightPolicyXto
     }
 
     /**
-     * Sets the value of the redPct property.
+     * Legt den Wert der redPct-Eigenschaft fest.
      * 
      */
     public void setRedPct(float value) {

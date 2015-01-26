@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	    The 'policy' element used to specify policies e.g. a 'subsetPolicy' to limit results to a subset.
  * 		
  * 
- * <p>Java class for Query complex type.
+ * <p>Java-Klasse für Query complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Query">
@@ -48,6 +48,7 @@ import javax.xml.bind.annotation.XmlType;
     UserGroupQueryXto.class,
     DeployedModelQueryXto.class,
     ProcessDefinitionQueryXto.class,
+    BusinessObjectQueryXto.class,
     DocumentQueryXto.class,
     ProcessQueryXto.class,
     VariableDefinitionQueryXto.class,
@@ -61,7 +62,7 @@ public class QueryXto {
     protected PolicyXto policy;
 
     /**
-     * Gets the value of the predicate property.
+     * Ruft den Wert der predicate-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -73,7 +74,7 @@ public class QueryXto {
     }
 
     /**
-     * Sets the value of the predicate property.
+     * Legt den Wert der predicate-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -85,7 +86,7 @@ public class QueryXto {
     }
 
     /**
-     * Gets the value of the order property.
+     * Ruft den Wert der order-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -97,7 +98,7 @@ public class QueryXto {
     }
 
     /**
-     * Sets the value of the order property.
+     * Legt den Wert der order-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -109,7 +110,7 @@ public class QueryXto {
     }
 
     /**
-     * Gets the value of the policy property.
+     * Ruft den Wert der policy-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -121,7 +122,7 @@ public class QueryXto {
     }
 
     /**
-     * Sets the value of the policy property.
+     * Legt den Wert der policy-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

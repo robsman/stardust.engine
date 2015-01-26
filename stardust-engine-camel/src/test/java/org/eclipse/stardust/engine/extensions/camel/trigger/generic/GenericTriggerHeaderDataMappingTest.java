@@ -42,7 +42,7 @@ public class GenericTriggerHeaderDataMappingTest
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       try
@@ -55,7 +55,6 @@ public class GenericTriggerHeaderDataMappingTest
          projectMap.put("id", "22");
          projectMap.put("name", "Camel");
          projectMap.put("license", "ASF");
-         Thread.sleep(1000);
          producer.sendBodyAndHeader("direct:startGenericTriggerToSdtInHeader", "", "project", projectMap);
       }
       catch (Exception e)
@@ -87,8 +86,7 @@ public class GenericTriggerHeaderDataMappingTest
    @Test
    public void genericTriggerToSdtInHeader() throws Exception
    {
-      createFile("./target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
-      Thread.sleep(2000);
+      createFile("target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToSdtInHeader"));

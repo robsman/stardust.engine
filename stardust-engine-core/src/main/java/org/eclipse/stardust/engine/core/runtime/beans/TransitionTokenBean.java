@@ -19,7 +19,13 @@ import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DeferredInsertable;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -34,7 +40,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenManagerReg
  * @version $Revision$
  */
 public class TransitionTokenBean extends IdentifiablePersistentBean
-      implements DeferredInsertable
+      implements DeferredInsertable, IProcessInstanceAware
 {
    public static final Logger trace = LogManager.getLogger(TransitionTokenBean.class);
 
@@ -456,5 +462,11 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
          }
          return 1;
       }
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return ProcessInstanceBean.findByOID(getProcessInstanceOID());
    }
 }

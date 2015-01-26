@@ -9,10 +9,8 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.Messag
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
@@ -20,14 +18,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
-import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * when "carnot:engine:camel::includeAttributesAsHeaders" is true include Application's
@@ -39,10 +32,8 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class IncludeHeadersStrategyTest
 {
-   private static final transient Logger LOG = LoggerFactory.getLogger(IncludeHeadersStrategyTest.class);
 
    private static CamelContext defaultCamelContext;
-//   private static SpringTestUtils testUtils;
    /**
     * Use this service factory access for testing assumptions!
     */
@@ -57,22 +48,10 @@ public class IncludeHeadersStrategyTest
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       defaultCamelContext = (CamelContext) ctx.getBean("defaultCamelContext");
-//      testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
-
-//      ClassPathResource resource = new ClassPathResource("models/Camel_Application_type.xpdl");
-//      testUtils.setModelFile(resource);
-//      try
-//      {
-//         testUtils.deployModel();
-//      }
-//      catch (Exception e)
-//      {
-//         throw new RuntimeException(e);
-//      }
-      }
+   }
 
    @Test
    public void testIncludeProcessContextOnly()
@@ -107,8 +86,6 @@ public class IncludeHeadersStrategyTest
       MockEndpoint resultEndpoint = defaultCamelContext.getEndpoint("mock:includeAttributesOnly", MockEndpoint.class);
       Exchange exchange = resultEndpoint.getReceivedExchanges().get(0);
       assertNotNull(exchange);
-      // carnot:engine:camel::invocationPattern=send,
-      // carnot:engine:camel::supportsMultipleAccessPoints=true,
       assertNotNull(exchange.getIn().getHeader("carnot:engine:camel::camelContextId"));
       assertEquals("defaultCamelContext", exchange.getIn().getHeader("carnot:engine:camel::camelContextId"));
       assertNotNull(exchange.getIn().getHeader("carnot:engine:camel::invocationType"));
@@ -129,8 +106,6 @@ public class IncludeHeadersStrategyTest
       MockEndpoint resultEndpoint = defaultCamelContext.getEndpoint("mock:includeBoth", MockEndpoint.class);
       Exchange exchange = resultEndpoint.getReceivedExchanges().get(0);
       assertNotNull(exchange);
-      // carnot:engine:camel::invocationPattern=send,
-      // carnot:engine:camel::supportsMultipleAccessPoints=true,
       assertNotNull(exchange.getIn().getHeader("carnot:engine:camel::camelContextId"));
       assertEquals("defaultCamelContext", exchange.getIn().getHeader("carnot:engine:camel::camelContextId"));
       assertNotNull(exchange.getIn().getHeader("carnot:engine:camel::invocationType"));
@@ -160,8 +135,6 @@ public class IncludeHeadersStrategyTest
       MockEndpoint resultEndpoint = defaultCamelContext.getEndpoint("mock:defaultBehavior", MockEndpoint.class);
       Exchange exchange = resultEndpoint.getReceivedExchanges().get(0);
       assertNotNull(exchange);
-      // carnot:engine:camel::invocationPattern=send,
-      // carnot:engine:camel::supportsMultipleAccessPoints=true,
       assertTrue(exchange.getIn().getHeaders().size() == 1);
    }
 }

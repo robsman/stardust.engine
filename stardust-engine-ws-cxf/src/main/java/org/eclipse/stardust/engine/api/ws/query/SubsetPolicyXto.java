@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy for specifying retrieval of only a subset of found data.
  *          
  * 
- * <p>Java class for SubsetPolicy complex type.
+ * <p>Java-Klasse für SubsetPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="SubsetPolicy">
@@ -46,7 +46,7 @@ public class SubsetPolicyXto
     protected Integer skippedEntries;
 
     /**
-     * Gets the value of the evaluateTotalCount property.
+     * Ruft den Wert der evaluateTotalCount-Eigenschaft ab.
      * 
      */
     public boolean isEvaluateTotalCount() {
@@ -54,7 +54,7 @@ public class SubsetPolicyXto
     }
 
     /**
-     * Sets the value of the evaluateTotalCount property.
+     * Legt den Wert der evaluateTotalCount-Eigenschaft fest.
      * 
      */
     public void setEvaluateTotalCount(boolean value) {
@@ -62,7 +62,7 @@ public class SubsetPolicyXto
     }
 
     /**
-     * Gets the value of the maxSize property.
+     * Ruft den Wert der maxSize-Eigenschaft ab.
      * 
      */
     public int getMaxSize() {
@@ -70,7 +70,7 @@ public class SubsetPolicyXto
     }
 
     /**
-     * Sets the value of the maxSize property.
+     * Legt den Wert der maxSize-Eigenschaft fest.
      * 
      */
     public void setMaxSize(int value) {
@@ -78,7 +78,7 @@ public class SubsetPolicyXto
     }
 
     /**
-     * Gets the value of the skippedEntries property.
+     * Ruft den Wert der skippedEntries-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -90,7 +90,7 @@ public class SubsetPolicyXto
     }
 
     /**
-     * Sets the value of the skippedEntries property.
+     * Legt den Wert der skippedEntries-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

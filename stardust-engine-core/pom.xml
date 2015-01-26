@@ -116,7 +116,8 @@
       </dependency>
       <dependency>
          <groupId>org.codehaus.woodstox</groupId>
-         <artifactId>wstx-asl</artifactId>
+         <artifactId>woodstox-core-asl</artifactId>
+         <version>${woodstox-core-asl.version}</version>
          <scope>runtime</scope>
          <exclusions>
             <exclusion>
@@ -147,7 +148,7 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.components</groupId>
-         <artifactId>jcr-vfs</artifactId>
+         <artifactId>jcr-vfs-factory</artifactId>
          <scope>compile</scope>
          <version>${project.version}</version>
          <optional>true</optional>
@@ -557,25 +558,12 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-library</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.hamcrest</groupId>
-               <artifactId>hamcrest-core</artifactId>
-            </exclusion>
-         </exclusions>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>mockito-module</artifactId>
+         <version>${project.version}</version>
+         <scope>compile</scope>
+         <type>pom</type>
+         <optional>true</optional>
       </dependency>
    </dependencies>
    
@@ -727,6 +715,7 @@
                   <include>api/model/Role.java</include>
                   <include>api/model/RoleInfo.java</include>
                   <include>api/model/SubProcessModeKey.java</include>
+                  <include>api/model/Transition.java</include>
                   <include>api/model/Trigger.java</include>
                   <include>api/model/TypeDeclaration.java</include>
                   <include>api/model/XpdlType.java</include>
@@ -855,6 +844,7 @@
                   <include>api/query/AttributeOrder.java</include>
                   <include>api/query/AttributedScopedFilter.java</include>
                   <include>api/query/BinaryOperatorFilter.java</include>
+                  <include>api/query/BusinessObjectQuery.java</include>
                   <include>api/query/CasePolicy.java</include>
                   <include>api/query/DataFilter.java</include>
                   <include>api/query/DataQuery.java</include>

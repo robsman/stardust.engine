@@ -14,9 +14,9 @@ import javax.xml.namespace.QName;
  *         Used to convey values in binary predicates.
  *         
  * 
- * <p>Java class for ValueLiteral complex type.
+ * <p>Java-Klasse für ValueLiteral complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ValueLiteral">
@@ -38,11 +38,11 @@ public class ValueLiteralXto {
 
     @XmlValue
     protected String value;
-    @XmlAttribute
+    @XmlAttribute(name = "type")
     protected QName type;
 
     /**
-     * Gets the value of the value property.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class ValueLiteralXto {
     }
 
     /**
-     * Sets the value of the value property.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -66,7 +66,7 @@ public class ValueLiteralXto {
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -78,7 +78,7 @@ public class ValueLiteralXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -86,7 +86,7 @@ public class ProcessEndpointTest
    @BeforeClass
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
-            "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml","classpath:META-INF/spring/default-camel-context.xml"});
+            "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");

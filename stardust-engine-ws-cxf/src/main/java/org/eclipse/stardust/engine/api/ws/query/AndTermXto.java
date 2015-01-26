@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Identifies an 'and' conjunction for the nested predicate term.
  *         
  * 
- * <p>Java class for AndTerm complex type.
+ * <p>Java-Klasse für AndTerm complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="AndTerm">

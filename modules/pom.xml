@@ -43,6 +43,7 @@
       <module>jta-jencks-module</module>
       <module>logging-log4j-module</module>
       <module>logging-slf4j-log4j-module</module>
+      <module>mockito-module</module>
       <module>qdox-module</module>
       <module>spring-module</module>
       <module>web-client-module</module>

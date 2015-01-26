@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.api.runtime.PermissionState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
@@ -66,6 +68,19 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
 
    /** lazily created {@link ProcessInstance} object */
    private ProcessInstance processInstanceDetails;
+
+   private boolean userPerformerInitialized = false;
+   /** lazily created object */
+   private User userPerformer;
+
+   private boolean performerInitialized = false;
+   /** lazily created object */
+   private ParticipantInfo performer;
+
+   private boolean performedByUserInitialized = false;
+   /** lazily created object */
+   private UserInfo performedByUser;
+
 
    /** lazily created object */
    private String toStringInfo;
@@ -199,73 +214,133 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    @Override
    public long getUserPerformerOID()
    {
-      return getActivityInstanceDetails().getUserPerformerOID();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return (performer instanceof UserInfo) ? ((UserInfo) performer).getOID() : 0;
    }
 
    @Override
    public String getUserPerformerName()
    {
-      return getActivityInstanceDetails().getUserPerformerName();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return (performer instanceof UserInfo) ? performer.getName() : null;
    }
 
    @Override
    public User getUserPerformer()
    {
-      return getActivityInstanceDetails().getUserPerformer();
+      if ( !userPerformerInitialized)
+      {
+         userPerformer = initUserPerformer();
+      }
+
+      return userPerformer;
    }
 
    @Override
    public String getParticipantPerformerID()
    {
-      return getActivityInstanceDetails().getParticipantPerformerID();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return (performer == null || performer instanceof UserInfo) ? null : performer.getId();
    }
 
    @Override
    public String getParticipantPerformerName()
    {
-      return getActivityInstanceDetails().getParticipantPerformerName();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return (performer == null || performer instanceof UserInfo) ? null : performer.getName();
    }
 
    @Override
    public boolean isAssignedToUser()
    {
-      return getActivityInstanceDetails().isAssignedToUser();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return performer instanceof UserInfo;
    }
 
    @Override
    public boolean isAssignedToModelParticipant()
    {
-      return getActivityInstanceDetails().isAssignedToModelParticipant();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return performer instanceof ModelParticipantInfo;
    }
 
    @Override
    public boolean isAssignedToUserGroup()
    {
-      return getActivityInstanceDetails().isAssignedToUserGroup();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return performer instanceof UserGroupInfo;
    }
 
    @Override
    public ParticipantInfo getCurrentPerformer()
    {
-      return getActivityInstanceDetails().getCurrentPerformer();
+      if ( !performerInitialized)
+      {
+         performer = initPerformer();
+      }
+
+      return performer;
    }
 
    @Override
    public long getPerformedByOID()
    {
-      return getActivityInstanceDetails().getPerformedByOID();
+      if ( !performedByUserInitialized)
+      {
+         performedByUser = initPerformedByUser();
+      }
+
+      return (performedByUser == null) ? 0 : performedByUser.getOID();
    }
 
    @Override
    public String getPerformedByName()
    {
-      return getActivityInstanceDetails().getPerformedByName();
+      if ( !performedByUserInitialized)
+      {
+         performedByUser = initPerformedByUser();
+      }
+
+      return (performedByUser == null) ? null : performedByUser.getName();
    }
 
    @Override
    public UserInfo getPerformedBy()
    {
-      return getActivityInstanceDetails().getPerformedBy();
+      if ( !performedByUserInitialized)
+      {
+         performedByUser = initPerformedByUser();
+      }
+
+      return performedByUser;
    }
 
    @Override
@@ -429,6 +504,60 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          }
       }
       return processInstanceDetails;
+   }
+
+   private User initUserPerformer()
+   {
+      final User result;
+
+      ParametersFacade.pushLayer(aiDetailsParameters);
+      try
+      {
+         result = ActivityInstanceDetails.initUserPerformer(activityInstance, Parameters.instance());
+         userPerformerInitialized = true;
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+
+      return result;
+   }
+
+   private ParticipantInfo initPerformer()
+   {
+      final ParticipantInfo result;
+
+      ParametersFacade.pushLayer(aiDetailsParameters);
+      try
+      {
+         result = ActivityInstanceDetails.initPerformer(activityInstance);
+         performerInitialized = true;
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+
+      return result;
+   }
+
+   private UserInfo initPerformedByUser()
+   {
+      final UserInfo result;
+
+      ParametersFacade.pushLayer(aiDetailsParameters);
+      try
+      {
+         result = ActivityInstanceDetails.initPerformedByUser(activityInstance);
+         performedByUserInitialized = true;
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+
+      return result;
    }
 
    private String getToStringInfo()

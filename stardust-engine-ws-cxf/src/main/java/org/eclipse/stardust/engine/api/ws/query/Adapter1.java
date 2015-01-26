@@ -1,20 +1,20 @@
 
 package org.eclipse.stardust.engine.api.ws.query;
 
+import java.util.Date;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 
 public class Adapter1
-    extends XmlAdapter<String, ActivityInstanceState>
+    extends XmlAdapter<String, Date>
 {
 
 
-    public ActivityInstanceState unmarshal(String value) {
-        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseActivityInstanceState(value));
+    public Date unmarshal(String value) {
+        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseDateTime(value));
     }
 
-    public String marshal(ActivityInstanceState value) {
-        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.printActivityInstanceState(value));
+    public String marshal(Date value) {
+        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.printDateTime(value));
     }
 
 }

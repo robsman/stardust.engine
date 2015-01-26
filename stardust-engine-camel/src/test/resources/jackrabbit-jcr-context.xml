@@ -22,7 +22,7 @@
    <bean id="carnotJackrabbitRepository" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
       <property name="jndiName" value="jcr/ContentRepository" />
       <property name="repositoryConfig" value="repository.xml" />
-	  <property name="repositoryHome" value="./target/tmp/repository" />
+	  <property name="repositoryHome" value="target/tmp/repository" />
      <property name="bindToJndi" value="false" />
      
    </bean>

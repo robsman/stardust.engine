@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy for including historical states.
  *          
  * 
- * <p>Java class for HistoricalStatesPolicy complex type.
+ * <p>Java-Klasse für HistoricalStatesPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="HistoricalStatesPolicy">
@@ -42,7 +42,7 @@ public class HistoricalStatesPolicyXto
     protected String type;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class HistoricalStatesPolicyXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -12,7 +12,6 @@ import org.apache.camel.ProducerTemplate;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -39,19 +38,16 @@ public class GenericTriggerBodyDataMappingTest
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
 
       try
       {
          ProducerTemplate producer = camelContext.createProducerTemplate();
-         Thread.sleep(1000);
          producer.sendBody("direct:startGenericTriggerToPrimitive", "primitiveData content from test class Generic Trigger");
-         Thread.sleep(1000);
          producer.sendBody("direct:startGenericTriggerToSdt",
                "<person><FirstName>FN</FirstName><LastName>LN</LastName></person>");
-         Thread.sleep(2000);
       }
       catch (Exception e)
       {
@@ -81,7 +77,6 @@ public class GenericTriggerBodyDataMappingTest
    @Test
    public void genericTriggerToSdt() throws Exception
    {
-      Thread.sleep(2000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToSdt"));
@@ -108,8 +103,8 @@ public class GenericTriggerBodyDataMappingTest
    @Test
    public void genericTriggerToDocument() throws Exception
    {
-      createFile("./target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
-      Thread.sleep(5000);
+      createFile("target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToDocument"));

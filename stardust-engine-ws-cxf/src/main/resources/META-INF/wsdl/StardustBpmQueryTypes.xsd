@@ -225,6 +225,20 @@
      </extension>
     </complexContent>
    </complexType>
+   
+   <complexType name="BusinessObjectQuery">
+   	<annotation>
+   		<documentation>
+   		TODO: Documentation needed
+   		</documentation>
+   	</annotation>
+   	<complexContent>
+   		<extension base="tns:Query">
+   			<sequence>   			
+   			</sequence>
+   		</extension>
+   	</complexContent>
+   </complexType>
 
    <complexType name="Operand" abstract="true">
       <simpleContent>

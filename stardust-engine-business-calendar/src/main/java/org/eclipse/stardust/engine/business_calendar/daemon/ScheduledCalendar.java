@@ -20,6 +20,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.scheduling.ScheduledDocument;
 
 import com.google.gson.JsonArray;
@@ -57,7 +59,7 @@ public class ScheduledCalendar extends ScheduledDocument
                BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(
                      new QName(modelId, businessObjectId).toString(), primaryKey);
                query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
-               BusinessObjects result = getServiceFactory(getUser()).getQueryService().getAllBusinessObjects(query);
+               BusinessObjects result = getQueryService().getAllBusinessObjects(query);
                if (!result.isEmpty())
                {
                   BusinessObject bo = result.get(0);
@@ -74,7 +76,17 @@ public class ScheduledCalendar extends ScheduledDocument
             }
          }
 
-         getServiceFactory(getUser()).getWorkflowService().startProcess(processId, data, false);
+         getWorkflowService().startProcess(processId, data, false);
       }
+   }
+
+   protected WorkflowService getWorkflowService()
+   {
+      return getServiceFactory(getUser()).getWorkflowService();
+   }
+
+   protected QueryService getQueryService()
+   {
+      return getServiceFactory(getUser()).getQueryService();
    }
 }

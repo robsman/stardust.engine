@@ -2619,6 +2619,61 @@
 			<element name="name" type="string"/>
 		</sequence>
 	</complexType>
+	
+	<complexType name="BusinessObjects">
+		<sequence>
+			<element name="businessObject" type="tns:BusinessObject"
+				minOccurs="0" maxOccurs="unbounded" />		
+		</sequence>
+	</complexType>
+
+	<complexType name="BusinessObject">
+		<annotation>
+			<documentation>
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="modelOid" type="long" />
+			<element name="id" type="string" />
+			<element name="modelId" type="string" />
+			<element name="name" type="string" />
+			<element name="values" type="tns:BusinessObjectValues" />
+			<element name="items" type="tns:BusinessObjectDefinitions" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectValues">
+		<sequence>
+			<element name="value" type="tns:BusinessObjectValue"
+				minOccurs="0" maxOccurs="unbounded" />			
+		</sequence>
+	</complexType>
+
+	<complexType name="BusinessObjectDefinitions">
+		<sequence>
+			<element name="item" type="tns:BusinessObjectDefinition"
+				minOccurs="0" maxOccurs="unbounded" />			
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectValue">
+		<sequence>
+			<element name="processInstanceOid" type="long" />
+			<element name="value" type="tns:Parameter" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="BusinessObjectDefinition">
+		<sequence>
+			<element name="name" type="string" />
+			<element name="type" type="int" />
+			<element name="typeName" type="QName" />
+			<element name="key" type="boolean" />
+			<element name="primaryKey" type="boolean" />
+			<element name="items" type="tns:BusinessObjectDefinitions" minOccurs="0" maxOccurs="unbounded" />
+			<element name="isList" type="boolean" />
+		</sequence>
+	</complexType>
 
 	<!--  Simple types -->
 

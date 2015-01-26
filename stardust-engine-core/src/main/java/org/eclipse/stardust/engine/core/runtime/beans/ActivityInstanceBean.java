@@ -13,25 +13,67 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.TransactionFreezedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.dto.LazilyLoadingActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationType;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.runtime.ActivityExecutionUtils;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.PerformerType;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
@@ -39,10 +81,18 @@ import org.eclipse.stardust.engine.core.model.beans.QualityAssuranceActivityBean
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -50,17 +100,28 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
-import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ApplicationInstance;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author mgille
  */
 public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
-      implements IActivityInstance
+      implements IActivityInstance, IProcessInstanceAware
 {
    private static final long serialVersionUID = 1L;
 
@@ -1211,6 +1272,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             subProcess = ProcessInstanceBean.createInstance(
                   getActivity().getImplementationProcessDefinition(),
                   SecurityProperties.getUser(), Collections.EMPTY_MAP, true);
+            if (ActivityInstanceUtils.isTransientExecutionScenario(this))
+            {
+               if (subProcess.getAuditTrailPersistence() == AuditTrailPersistence.ENGINE_DEFAULT)
+               {
+                  subProcess.setAuditTrailPersistence(getProcessInstance().getAuditTrailPersistence());
+               }
+            }
          }
 
          if (separateData && copyAllData)

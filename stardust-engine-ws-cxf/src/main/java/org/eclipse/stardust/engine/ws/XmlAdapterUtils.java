@@ -35,6 +35,7 @@ import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalStructValue;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalStructValue;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.storeDocumentIntoDms;
+import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -64,6 +65,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ConfigurationError;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -73,8 +75,10 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ConditionalPerformerInfoDetails;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.DataDetails;
 import org.eclipse.stardust.engine.api.dto.DepartmentInfoDetails;
 import org.eclipse.stardust.engine.api.dto.HistoricalState;
+import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.dto.ModelParticipantDetails;
 import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
 import org.eclipse.stardust.engine.api.dto.ModelReconfigurationInfoDetails;
@@ -105,6 +109,8 @@ import org.eclipse.stardust.engine.api.model.EventAction;
 import org.eclipse.stardust.engine.api.model.EventHandler;
 import org.eclipse.stardust.engine.api.model.ExternalReference;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelElement;
@@ -126,6 +132,7 @@ import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
 import org.eclipse.stardust.engine.api.query.LogEntries;
@@ -145,6 +152,9 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ActivityScope;
 import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
 import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
@@ -230,6 +240,8 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryCapabilities;
@@ -5817,4 +5829,134 @@ public class XmlAdapterUtils
       xto.setVersioningSupported(capabilities.isVersioningSupported());
       xto.setWriteSupported(capabilities.isWriteSupported());
    }
+   
+   public static BusinessObjectXto toWs(BusinessObject biObject)
+   {
+      BusinessObjectXto xto = null;
+      
+      if(biObject != null)
+      {
+         xto = new BusinessObjectXto();
+               
+         xto.setModelOid(biObject.getModelOid());
+         xto.setId(biObject.getId());
+         xto.setModelId(biObject.getModelId());
+         xto.setName(biObject.getName());
+         
+         xto.setItems(marshalBusinessObjectsDefinitions(biObject.getItems()));
+         
+         xto.setValues(marshalBusinessObjectValuesXto(biObject.getValues(), biObject.getId(), biObject.getModelId()));
+         
+      }
+      return xto;
+   }
+   
+   private static BusinessObjectDefinitionsXto marshalBusinessObjectsDefinitions(
+         List<Definition> biDefinitions)
+   {
+      BusinessObjectDefinitionsXto xto = null;
+      
+      if (biDefinitions != null)
+      {
+         xto = new BusinessObjectDefinitionsXto();
+         
+         for (Definition definition : biDefinitions)
+         {
+            xto.getItem().add(marshalBusinessObjectsDefinition(definition));
+         }
+      }
+      
+      return xto;
+   }
+   
+   private static BusinessObjectValuesXto marshalBusinessObjectValuesXto(List<Value> biValues, String dataId, String modelId)
+   {
+      BusinessObjectValuesXto xto = null;
+      
+      if (biValues != null)
+      {
+         xto = new BusinessObjectValuesXto();
+         
+         for (Value value : biValues)
+         {
+            xto.getValue().add(marshalBusinessObjectsValue(value, dataId, modelId));
+         }
+      }
+      
+      return xto;
+   }
+   
+   private static BusinessObjectDefinitionXto marshalBusinessObjectsDefinition(Definition definition)
+   {
+      BusinessObjectDefinitionXto xto = null;
+      
+      if (definition != null)
+      {
+         xto = new BusinessObjectDefinitionXto();
+         
+         xto.setIsList(definition.isList());
+         xto.setKey(definition.isKey());
+         xto.setName(definition.getName());
+         xto.setPrimaryKey(definition.isPrimaryKey());
+         xto.setType(definition.getType());
+         xto.setTypeName(definition.getTypeName());
+      }
+      
+      return xto;
+   }
+   
+   private static BusinessObjectValueXto marshalBusinessObjectsValue(Value value, String dataId, String modelId)
+   {
+      BusinessObjectValueXto xto = null;
+      
+      if (value != null)
+      {
+         xto = new BusinessObjectValueXto();
+
+         ModelResolver env = currentWebServiceEnvironment();
+         final ModelManager modelManager = ModelManagerFactory.getCurrent();         
+         
+         IModel model = modelManager.findActiveModel(modelId);      
+         
+         if (model == null)
+         {
+            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
+         }
+         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);         
+         
+         IData data = model.findData(dataId);
+         if (data == null)
+         {
+            throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
+         }
+         Data dataDetails = (Data) DetailsFactory.create(data,
+               IData.class, DataDetails.class);         
+         
+         xto.setProcessInstanceOid(value.getProcessInstanceOid());
+
+         ParameterXto paramXto = DataFlowUtils.marshalStructValue(modelDetails,
+               dataDetails, dataDetails.getId(), null, (Serializable) value.getValue(), env);
+         xto.setValue(paramXto);
+      }
+      
+      return xto;
+   }
+
+   public static BusinessObjectsXto marshalBusinessObjects(BusinessObjects bo)
+   {
+      BusinessObjectsXto xto = null;
+      if (bo != null)
+      {
+         xto = new BusinessObjectsXto();
+         
+         for (BusinessObject obj : bo)
+         {
+            xto.getBusinessObject().add(toWs(obj));
+         }
+         
+         xto.getBusinessObject();
+      }
+      return xto;
+   }
+    
 }

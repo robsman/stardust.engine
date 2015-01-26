@@ -127,24 +127,74 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
    /* package-private */ static final String PROCESS_DEF_ID_SPLIT_XOR_JOIN = MODEL_ID_PREFIX + "SplitXORJoin";
 
    /**
-    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#ENGINE_DEFAULT}
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#ENGINE_DEFAULT}
     */
-   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT = MODEL_ID_PREFIX + "AsyncSubprocessEngineDefault";
+   /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT = MODEL_ID_PREFIX + "TransientProcessAsyncSubprocessEngineDefault";
 
    /**
-    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#TRANSIENT}
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#TRANSIENT}
     */
-   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT = MODEL_ID_PREFIX + "AsyncSubprocessTransient";
+   /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_TRANSIENT = MODEL_ID_PREFIX + "TransientProcessAsyncSubprocessTransient";
 
    /**
-    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#DEFERRED}
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#DEFERRED}
     */
-   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED = MODEL_ID_PREFIX + "AsyncSubprocessDeferred";
+   /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_DEFERRED = MODEL_ID_PREFIX + "TransientProcessAsyncSubprocessDeferred";
 
    /**
-    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
     */
-   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE = MODEL_ID_PREFIX + "AsyncSubprocessImmediate";
+   /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE = MODEL_ID_PREFIX + "TransientProcessAsyncSubprocessImmediate";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#DEFERRED} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#ENGINE_DEFAULT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT = MODEL_ID_PREFIX + "DeferredProcessAsyncSubprocessEngineDefault";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#DEFERRED} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#TRANSIENT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_TRANSIENT = MODEL_ID_PREFIX + "DeferredProcessAsyncSubprocessTransient";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#DEFERRED} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#DEFERRED}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_DEFERRED = MODEL_ID_PREFIX + "DeferredProcessAsyncSubprocessDeferred";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#DEFERRED} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE = MODEL_ID_PREFIX + "DeferredProcessAsyncSubprocessImmediate";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#IMMEDIATE} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#ENGINE_DEFAULT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT = MODEL_ID_PREFIX + "ImmediateProcessAsyncSubprocessEngineDefault";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#IMMEDIATE} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#TRANSIENT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_TRANSIENT = MODEL_ID_PREFIX + "ImmediateProcessAsyncSubprocessTransient";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#IMMEDIATE} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#DEFERRED}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_DEFERRED = MODEL_ID_PREFIX + "ImmediateProcessAsyncSubprocessDeferred";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#IMMEDIATE} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE = MODEL_ID_PREFIX + "ImmediateProcessAsyncSubprocessImmediate";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess for each {@link AuditTrailPersistence}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESSES = MODEL_ID_PREFIX + "AsyncSubprocesses";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains a {@link AuditTrailPersistence#TRANSIENT} asynchronous subprocess receiving data from the originating one
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DATA_PROCESS_STARTING_ASYNC_SUBPROCESS = MODEL_ID_PREFIX + "DataProcessStartingAsyncSubprocess";
 
    /**
     * the ID of the process definition that contains an activity aborting the whole process instance

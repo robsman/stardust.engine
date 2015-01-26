@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import static java.util.Collections.emptyList;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
+
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.engine.api.model.*;
@@ -47,7 +52,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
  */
 public class PermissionHelper
 {
-   private Map<Class<? extends Service>, List<Permission>> permissions = CollectionUtils.newMap();
+   private ConcurrentMap<Class<? extends Service>, Map<String, Set<Scope>>> permissionsCache = CollectionUtils.newConcurrentHashMap();
    private Set<String> startableProcesses = null;
    
    private boolean useCaches;
@@ -306,30 +311,45 @@ public class PermissionHelper
       {
          permissionId = permissionId.substring(Permissions.PREFIX.length());
       }
-      List<Permission> permissions = useCaches ? this.permissions.get(service.getClass()) : null;
-      if (permissions == null)
+      Map<String, Set<Scope>> cachedPermissions = useCaches ? this.permissionsCache.get(service.getClass()) : null;
+      if (null != cachedPermissions)
       {
-         if (service instanceof AdministrationService)
-         {
-            permissions = ((AdministrationService) service).getPermissions();
-         }
-         else if (service instanceof WorkflowService)
-         {
-            permissions = ((WorkflowService) service).getPermissions();
-         }
-         else if (service instanceof QueryService)
-         {
-            permissions = ((QueryService) service).getPermissions();
-         }
-         else
-         {
-            permissions = CollectionUtils.newList();
-         }
-         if (useCaches)
-         {
-            this.permissions.put(service.getClass(), permissions);
-         }
+         Set<Scope> permittedScopes = cachedPermissions.get(permissionId);
+         return permittedScopes.contains(scope);
       }
+
+      List<Permission> permissions;
+      if (service instanceof AdministrationService)
+      {
+         permissions = ((AdministrationService) service).getPermissions();
+      }
+      else if (service instanceof WorkflowService)
+      {
+         permissions = ((WorkflowService) service).getPermissions();
+      }
+      else if (service instanceof QueryService)
+      {
+         permissions = ((QueryService) service).getPermissions();
+      }
+      else
+      {
+         permissions = emptyList();
+      }
+      if (useCaches)
+      {
+         // transform permissions to allow for efficient permission evaluation
+         cachedPermissions = newHashMap();
+         for (Permission permission : permissions)
+         {
+            cachedPermissions.put(permission.getPermissionId(), newHashSet(permission.getScopes()));
+         }
+
+         this.permissionsCache.putIfAbsent(service.getClass(), cachedPermissions);
+
+         return hasPermission(service, permissionId, scope);
+      }
+
+      // no caching, determine permission against original structure
       for (Permission permission : permissions)
       {
          if (permission.getPermissionId().equals(permissionId))

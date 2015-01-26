@@ -19,13 +19,14 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.LazilyEvaluated;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 /**
  * Holds huge strings in CLOB-columns
  */
 public class ClobDataBean extends IdentifiablePersistentBean
-      implements Comparable, LazilyEvaluated
+      implements Comparable, LazilyEvaluated, IProcessInstanceAware
 {
    /**
     * Database meta information like table name, name of the PK, and name of
@@ -199,6 +200,24 @@ public class ClobDataBean extends IdentifiablePersistentBean
       {
          return getOID() < rhsHolder.getOID() ? -1 : 1;
       }
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      String ownerType = getOwnerType();
+      if (DataValueBean.TABLE_NAME.equals(ownerType))
+      {
+         return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findByOID(DataValueBean.class, getOwnerID()).getProcessInstance();
+      }
+      else if (StructuredDataValueBean.TABLE_NAME.equals(ownerType))
+      {
+         return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findByOID(StructuredDataValueBean.class, getOwnerID()).getProcessInstance();
+      }
+
+      // TODO are all owner types covered?
+
+      throw new UnsupportedOperationException("Cannot determine the process instance due to an unknown owner type: '" + ownerType + "'");
    }
 
    public static interface StringValueProvider

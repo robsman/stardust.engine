@@ -234,9 +234,12 @@
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
-                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword}"/>
+                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;direct:testStartProcessWithoutData&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
+                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="eventClass" Value="message"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -281,7 +284,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="8.0.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="8.2.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -644,6 +647,7 @@
                <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="motu" Type="String"/>
                <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword" Type="String"/>
                <carnot:Attribute Name="ipp:variables[1]:defaultValue" Value="motu" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[2]:name" Value="camelTriggerPassword:Password" Type="String"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

@@ -28,7 +28,7 @@ public class ConsumerBodyDataMappingTest
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
    }
@@ -36,14 +36,12 @@ public class ConsumerBodyDataMappingTest
    @Test
    public void testConsumerRouteProcessWithPrimitiveData() throws Exception
    {
-      Thread.sleep(1000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String message = "Message content consumed by a Create Generic Camel Endpoint saved in primitive data";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerRouteProcessWithPrimitiveData",
             null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumePrimitiveData", message);
-      Thread.sleep(1000);
       Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "ConsumedPrimitiveData");
       assertNotNull(result);
       assertTrue(result instanceof String);
@@ -59,13 +57,11 @@ public class ConsumerBodyDataMappingTest
    @Test
    public void testConsumerRouteProcessWithSDT() throws Exception
    {
-      Thread.sleep(2000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String message = "{\"creditCard\":{\"creditCardNumber\":451542,\"creditCardType\":\"VISA\"},\"lastName\":\"clientLN\",\"firstName\":\"clientFN\"}";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerRouteProcessWithSDT", null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeSDT", message);
-      Thread.sleep(1000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "ConsumedSdt");
       assertNotNull(result);
       assertTrue(result instanceof Map);

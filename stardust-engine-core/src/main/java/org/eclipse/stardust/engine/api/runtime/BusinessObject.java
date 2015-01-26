@@ -52,6 +52,13 @@ public interface BusinessObject extends Serializable
     *
     * @return The oid of this object
     */
+   long getModelOid();
+
+   /**
+    * Gets the oid of the model defining the business object.
+    *
+    * @return The oid of this object
+    */
    String getModelId();
 
    /**

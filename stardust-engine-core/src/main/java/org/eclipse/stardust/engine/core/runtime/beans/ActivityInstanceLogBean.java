@@ -23,7 +23,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  *
  */
 public class ActivityInstanceLogBean extends IdentifiablePersistentBean
-      implements IActivityInstanceLog
+      implements IActivityInstanceLog, IActivityInstanceAware
 {
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__TYPE = "type";
@@ -52,7 +52,7 @@ public class ActivityInstanceLogBean extends IdentifiablePersistentBean
    static final boolean type_USE_LITERALS = true;
 
    private int type;
-   
+
    private long stamp;
    private ActivityInstanceBean activityInstance;
    // @todo (france, ub): remove that field. it is never used

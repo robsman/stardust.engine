@@ -15,6 +15,7 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.ALTERNATIVE_IMPL_MODEL_ID;
 
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
@@ -35,8 +36,10 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                 TransientProcessInstanceTest.class,
+                TransientProcessInstanceWriteBehindTest.class,
                 TransientProcessInstanceMonitoringTest.class
               })
+@ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
 public class TransientProcessInstanceTestSuite
 {
    /* test suite */

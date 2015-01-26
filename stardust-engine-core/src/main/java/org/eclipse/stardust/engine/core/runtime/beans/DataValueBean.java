@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
  * Describes workflow data values being created and modified during process execution.
  */
 public class DataValueBean extends IdentifiablePersistentBean
-      implements IDataValue, BigData
+      implements IDataValue, BigData, IProcessInstanceAware
 {
    static final long serialVersionUID = 4318266384828760674L;
 

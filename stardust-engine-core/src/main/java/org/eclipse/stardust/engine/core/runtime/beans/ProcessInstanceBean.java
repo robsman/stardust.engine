@@ -34,7 +34,12 @@ import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -42,7 +47,20 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
@@ -56,7 +74,13 @@ import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -89,7 +113,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * @version $Revision$
  */
 public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
-      implements IProcessInstance
+      implements IProcessInstance, IProcessInstanceAware
 {
    private static final JavaAccessPoint JAVA_ENUM_ACCESS_POINT = new JavaAccessPoint("enum", "enum", Direction.IN_OUT);
 
@@ -248,7 +272,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          IUser user, Map<String, ? > data, boolean isSubprocess)
    {
       return createInstance(processDefinition, null, null, user, data, isSubprocess);
-   }   
+   }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
@@ -393,7 +417,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          processInstance.doBindAutomaticlyBoundEvents();
       }
-         
+
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
@@ -1620,7 +1644,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          setPropertyValue(PI_NOTE, buffer.toString());
       }
    }
-   
+
    public void addExistingNote(ProcessInstanceProperty srcNote)
    {
       super.addProperty(srcNote.clone(this.getOID()));
@@ -1630,10 +1654,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
    }
 
-   public List/*<Attribute>*/ getNotes()
+   public List/* <Attribute> */getNotes()
    {
-      List noteAttributes = (List) getPropertyValue(PI_NOTE);
-      if(null == noteAttributes)
+      // Lookup prefetch cache.
+      BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+      Map<Long, List> notesCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.NOTES_PI_CACHE);
+      List noteAttributes = notesCache == null ? null : notesCache.get(this.getOID());
+
+      if (noteAttributes == null)
+      {
+         noteAttributes = (List) getPropertyValue(PI_NOTE);
+      }
+
+      if (null == noteAttributes)
       {
          return Collections.EMPTY_LIST;
       }
@@ -1754,7 +1787,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
-      oldValue.assertThatStateChangeIsAllowedTo(newValue);
+      oldValue.assertThatStateChangeIsAllowedTo(newValue, getPersistenceController().isCreated());
 
       final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
       if (isGlobalOverride)
@@ -2155,5 +2188,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return ProcessInstanceBean.this;
       }
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return this;
    }
 }

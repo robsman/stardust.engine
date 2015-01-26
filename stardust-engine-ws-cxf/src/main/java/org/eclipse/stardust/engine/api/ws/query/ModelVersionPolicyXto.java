@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  *          currently active model version.
  *          
  * 
- * <p>Java class for ModelVersionPolicy complex type.
+ * <p>Java-Klasse für ModelVersionPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelVersionPolicy">
@@ -44,7 +44,7 @@ public class ModelVersionPolicyXto
     protected boolean restrictedToActiveModel;
 
     /**
-     * Gets the value of the restrictedToActiveModel property.
+     * Ruft den Wert der restrictedToActiveModel-Eigenschaft ab.
      * 
      */
     public boolean isRestrictedToActiveModel() {
@@ -52,7 +52,7 @@ public class ModelVersionPolicyXto
     }
 
     /**
-     * Sets the value of the restrictedToActiveModel property.
+     * Legt den Wert der restrictedToActiveModel-Eigenschaft fest.
      * 
      */
     public void setRestrictedToActiveModel(boolean value) {

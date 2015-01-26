@@ -23,14 +23,14 @@ public class DataEndpointTestSuite
    private static ServiceFactoryAccess serviceFactoryAccess;
    private static ServiceFactory sf;
    private static SpringTestUtils testUtils;
-   private static String[] deployedModels = {"BPMTypeConverterTestModel","BpmTypeConverterTestUsingIPPEndpointModel"};
+   private static String[] deployedModels = {"BpmTypeConverterTestModel","BpmTypeConverterTestUsingIPPEndpointModel"};
    
    @BeforeClass
    public static void beforeClass() {
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -56,7 +56,7 @@ public class DataEndpointTestSuite
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
       sf.getAdministrationService().cleanupRuntime(true);

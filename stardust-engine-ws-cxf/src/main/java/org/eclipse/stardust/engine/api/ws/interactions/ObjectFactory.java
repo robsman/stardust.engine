@@ -34,11 +34,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link BpmInteractionFaultXto }
+     * Create an instance of {@link SetOutputParameters }
      * 
      */
-    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
-        return new BpmInteractionFaultXto();
+    public SetOutputParameters createSetOutputParameters() {
+        return new SetOutputParameters();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinition }
+     * 
+     */
+    public GetDefinition createGetDefinition() {
+        return new GetDefinition();
     }
 
     /**
@@ -47,14 +55,6 @@ public class ObjectFactory {
      */
     public GetInputParametersResponse createGetInputParametersResponse() {
         return new GetInputParametersResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetOwnerResponse }
-     * 
-     */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
     }
 
     /**
@@ -74,11 +74,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinition }
+     * Create an instance of {@link GetOwnerResponse }
      * 
      */
-    public GetDefinition createGetDefinition() {
-        return new GetDefinition();
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
     }
 
     /**
@@ -90,11 +90,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParameters }
+     * Create an instance of {@link BpmInteractionFaultXto }
      * 
      */
-    public SetOutputParameters createSetOutputParameters() {
-        return new SetOutputParameters();
+    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
+        return new BpmInteractionFaultXto();
     }
 
     /**

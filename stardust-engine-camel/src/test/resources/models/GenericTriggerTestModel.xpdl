@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericTriggerTestModel" Name="GenericTriggerTestModel">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericTriggerTestModel" Name="GenericTriggerTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -511,11 +512,12 @@
                            <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://./target/FileDirectory/DocumentGT?fileName=DocumentFileGT.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&amp;amp;noop=false&amp;amp;delete=true&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/DocumentGT?fileName=DocumentFileGT.txt&amp;amp;initialDelay=5000&amp;amp;delay=5000&amp;amp;noop=false&amp;amp;delete=true&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
                            <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="documentFile" Type="String"/>
                            <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
+                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>

@@ -11,9 +11,9 @@ import javax.xml.namespace.QName;
 
 
 /**
- * <p>Java class for ValuesLiteral complex type.
+ * <p>Java-Klasse für ValuesLiteral complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ValuesLiteral">
@@ -37,7 +37,7 @@ import javax.xml.namespace.QName;
 public class ValuesLiteralXto {
 
     protected List<String> value;
-    @XmlAttribute
+    @XmlAttribute(name = "type")
     protected QName type;
 
     /**
@@ -70,7 +70,7 @@ public class ValuesLiteralXto {
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -82,7 +82,7 @@ public class ValuesLiteralXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -21,31 +21,34 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 {
-   public static final String REALMS_DIR = "/realms"; // realm id + /users/ + user id
+   public static final String REALMS_DIR = "/realms";
    public static final String USER_DIR = "/users";
    public static final String DESIGNS_SUBFOLDER = "/designs";
 
+   private Date startingDate;
    private Date executionDate;
-   private DocumentManagementService documentManagementService;
+   private DocumentManagementService dmService;
 
    private String extension;
    private String folderName;
 
-   public ScheduledDocumentFinder(DocumentManagementService dmsService, Date executionDate,
-         String extension, String folderName)
+   public ScheduledDocumentFinder(DocumentManagementService dmService, Date startingDate,
+         Date executionDate, String extension, String folderName)
    {
-      documentManagementService = dmsService;
+      this.dmService = dmService;
+      this.startingDate = startingDate;
       this.executionDate = executionDate;
       this.extension = extension;
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName valueOf, String reportName);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName);
 
    protected String getExtension()
    {
@@ -57,9 +60,24 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       return folderName;
    }
 
+   protected Date getExecutionDate()
+   {
+      return executionDate;
+   }
+
+   protected DocumentManagementService getDocumentManagementService()
+   {
+      return dmService;
+   }
+
    protected Folder getFolder(String folderName)
    {
-      return documentManagementService.getFolder(folderName);
+      return dmService.getFolder(folderName);
+   }
+
+   protected boolean acceptEventType(String eventType)
+   {
+      return true;
    }
 
    public List<T> readAllDefinitions()
@@ -75,36 +93,32 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             String reportName = document.getName();
             reportName = reportName.substring(0, reportName.length() - extension.length());
 
-            String content = new String(
-                  documentManagementService.retrieveDocumentContent(document.getId()));
+            String content = new String(dmService.retrieveDocumentContent(document.getId()));
             JsonObject documentJson = new JsonParser().parse(content).getAsJsonObject();
             JsonArray eventsArray = documentJson.getAsJsonArray("events");
 
             if (eventsArray != null)
             {
-               for (int n = 0; n < eventsArray.size(); ++n)
+               for (JsonElement event : eventsArray)
                {
-                  JsonObject schedulingJson = eventsArray.get(n).getAsJsonObject();
-                  if (schedulingJson != null)
+                  JsonObject eventJson = event.getAsJsonObject();
+                  if (eventJson != null && isActive(eventJson))
                   {
-                     if (schedulingJson.get("active") != null
-                           && schedulingJson.get("active").getAsBoolean())
-                     {
-                        SchedulingRecurrence sc = SchedulingFactory.getScheduler(schedulingJson);
-                        Date processSchedule = sc.processSchedule(schedulingJson, true);
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(eventJson);
+                     Date processSchedule = sc.processSchedule(eventJson, true);
 
-                        if (processSchedule != null && executionTimeMatches(processSchedule))
-                        {
-                           matches = true;
-                           break;
-                        }
+                     if (processSchedule != null && executionTimeMatches(processSchedule))
+                     {
+                        matches = true;
+                        break;
                      }
                   }
                }
 
                if (matches)
                {
-                  scheduledDocuments.add(createScheduledDocument(documentJson, QName.valueOf(owner), reportName));
+                  scheduledDocuments.add(createScheduledDocument(documentJson,
+                        owner == null ? new QName("") : QName.valueOf(owner), reportName));
                }
             }
          }
@@ -112,34 +126,42 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       return scheduledDocuments;
    }
 
+   protected boolean isActive(JsonObject eventJson)
+   {
+      JsonElement active = eventJson.get("active");
+      return (active == null || active.getAsBoolean()) && acceptEventType(getAsString(eventJson, "type"));
+   }
+
+   private String getAsString(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
+            ? null : property.getAsString();
+   }
+
    public List<Document> scanLocations()
    {
       List<Document> documents = new ArrayList<Document>();
 
-      Folder folder = documentManagementService
-            .getFolder(folderName + DESIGNS_SUBFOLDER);
+      Folder folder = dmService.getFolder(folderName + DESIGNS_SUBFOLDER);
       if (folder != null)
       {
          documents.addAll(folder.getDocuments());
       }
 
-      folder = documentManagementService.getFolder(REALMS_DIR);
-      List<Folder> realmsFolders = folder != null ? folder.getFolders() : null;
-      if (realmsFolders != null)
+      folder = dmService.getFolder(REALMS_DIR);
+      if (folder != null)
       {
-         for (Folder realmsFolder : realmsFolders)
+         for (Folder realmsFolder : folder.getFolders())
          {
             String realmPath = realmsFolder.getPath();
-            Folder usersFolder = documentManagementService.getFolder(realmPath + USER_DIR);
-            List<Folder> usersFolders = usersFolder != null
-                  ? usersFolder.getFolders()
-                  : null;
-            if (usersFolders != null)
+            Folder usersFolder = dmService.getFolder(realmPath + USER_DIR);
+            if (usersFolder != null)
             {
-               for (Folder userFolder : usersFolders)
+               for (Folder userFolder : usersFolder.getFolders())
                {
                   String userPath = userFolder.getPath();
-                  Folder subFolder = documentManagementService.getFolder(userPath
+                  Folder subFolder = dmService.getFolder(userPath
                         + "/documents" + folderName + DESIGNS_SUBFOLDER);
                   if (subFolder != null)
                   {
@@ -150,21 +172,19 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
          }
       }
 
-      folder = documentManagementService.getFolder(folderName);
-      //String saveFolderPath = folderName + SchedulingConstants.SAVE_SUBFOLDER;
-      Set<String> excludedPaths = getExcludedPaths();
-      String designsFolderPath = folderName + DESIGNS_SUBFOLDER;
-
-      List<Folder> participantFolders = folder != null ? folder.getFolders() : null;
-      if (participantFolders != null)
+      folder = dmService.getFolder(folderName);
+      if (folder != null)
       {
-         for (Folder participantFolder : participantFolders)
+         Set<String> excludedPaths = getExcludedPaths();
+         String designsFolderPath = folderName + DESIGNS_SUBFOLDER;
+
+         for (Folder participantFolder : folder.getFolders())
          {
             String participantPath = participantFolder.getPath();
             if (!excludedPaths.contains(participantPath)
                   && !designsFolderPath.equals(participantPath))
             {
-               Folder subFolder = documentManagementService.getFolder(participantPath + DESIGNS_SUBFOLDER);
+               Folder subFolder = dmService.getFolder(participantPath + DESIGNS_SUBFOLDER);
                if (subFolder != null)
                {
                   documents.addAll(subFolder.getDocuments());
@@ -181,18 +201,25 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       return Collections.emptySet();
    }
 
-   private boolean executionTimeMatches(Date processSchedule)
+   protected boolean executionTimeMatches(Date processSchedule)
    {
-      Calendar current = Calendar.getInstance();
-      current.setTime(executionDate);
+      Calendar targetCalendar = getCalendar(executionDate);
+      Calendar scheduleCalendar = getCalendar(processSchedule);
+      if (startingDate == null)
+      {
+         return targetCalendar.after(scheduleCalendar);
+      }
 
-      Calendar scheduled = Calendar.getInstance();
-      scheduled.setTime(processSchedule);
+      Calendar startingCalendar = getCalendar(startingDate);
+      return scheduleCalendar.after(startingCalendar) && targetCalendar.after(scheduleCalendar);
+   }
 
-      // minute precision
-      return current.get(Calendar.YEAR)        == scheduled.get(Calendar.YEAR)
-          && current.get(Calendar.DAY_OF_YEAR) == scheduled.get(Calendar.DAY_OF_YEAR)
-          && current.get(Calendar.HOUR_OF_DAY) == scheduled.get(Calendar.HOUR_OF_DAY)
-          && current.get(Calendar.MINUTE)      == scheduled.get(Calendar.MINUTE);
+   protected Calendar getCalendar(Date date)
+   {
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(date);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      return calendar;
    }
 }

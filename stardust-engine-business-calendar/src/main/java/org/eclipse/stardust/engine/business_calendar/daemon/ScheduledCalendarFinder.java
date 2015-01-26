@@ -18,6 +18,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.scheduling.ScheduledDocumentFinder;
@@ -28,7 +29,12 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 {
    public ScheduledCalendarFinder(Date executionDate)
    {
-      super(new DocumentManagementServiceImpl(), executionDate, ".bpmcal", "/business-calendars");
+      super(new DocumentManagementServiceImpl(), null, executionDate, ".bpmcal", "/business-calendars");
+   }
+
+   public ScheduledCalendarFinder(Date executionDate, DocumentManagementService dms)
+   {
+      super(dms, null, executionDate, ".bpmcal", "/business-calendars");
    }
 
    @Override
@@ -44,6 +50,12 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
       List<Document> documents = new ArrayList<Document>();
       collectDocuments(documents, getFolder(getFolderName()));
       return documents;
+   }
+
+   @Override
+   protected boolean acceptEventType(String eventType)
+   {
+      return "processStartEvent".equals(eventType);
    }
 
    protected void collectDocuments(List<Document> documents, Folder folder)

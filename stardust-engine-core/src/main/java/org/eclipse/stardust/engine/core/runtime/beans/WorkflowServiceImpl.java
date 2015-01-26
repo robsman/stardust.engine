@@ -1657,10 +1657,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throws ObjectNotFoundException, AccessForbiddenException
    {
       ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOID);
-      if ( !pi.isTerminated() || pi.getRootProcessInstanceOID() != pi.getOID())
+      if ( !pi.isTerminated())
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.ATDB_PROCESS_INSTANCE_NOT_TERMINATED.raise(processInstanceOID));
+      }
+      else if (pi.getRootProcessInstanceOID() != pi.getOID())
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_PROCESS_INSTANCE_NOT_ROOT.raise(processInstanceOID));
       }
       IProcessDefinition pd = pi.getProcessDefinition();
       IProcessDefinition intf = getProcessInterface(pd);

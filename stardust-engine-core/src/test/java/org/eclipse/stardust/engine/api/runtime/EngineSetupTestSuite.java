@@ -10,17 +10,25 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.runtime;
 
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.DeleteScriptGeneratorTest;
 import org.eclipse.stardust.engine.core.runtime.beans.MultiplePartitionsSynchronizationServiceTest;
 import org.eclipse.stardust.engine.core.runtime.beans.PartitionAwareExtensionsManagerTest;
+import org.eclipse.stardust.engine.core.runtime.beans.PiRtClassesArePiOrAiAwareTest;
 import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationServiceTest;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.LoginServiceFactoryTest;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( {PartitionAwareExtensionsManagerTest.class, LoginServiceFactoryTest.class, SynchronizationServiceTest.class, MultiplePartitionsSynchronizationServiceTest.class} )
+@SuiteClasses( {PartitionAwareExtensionsManagerTest.class,
+                LoginServiceFactoryTest.class,
+                SynchronizationServiceTest.class,
+                MultiplePartitionsSynchronizationServiceTest.class,
+                PiRtClassesArePiOrAiAwareTest.class,
+                DeleteScriptGeneratorTest.class} )
 public class EngineSetupTestSuite
 {
    /* test suite */

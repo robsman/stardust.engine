@@ -114,6 +114,13 @@ public final class ConfigurationVariablesFilter
          return super.getTextLength() + diff;
       }
 
+      @Override
+      public String getLocalName()
+      {
+         /* org.codehaus.woodstox:woodstox-core-asl:4.2.0 expects local names to be interned */
+         return super.getLocalName().intern();
+      }
+
       private void fetchText()
       {
          if (text == null)

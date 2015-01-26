@@ -108,6 +108,11 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
       dataHandler.write(inputValue, false);
    }
 
+   public void setDataHandler(BigDataHandler dataHandler)
+   {
+      this.dataHandler = dataHandler;
+   }
+
    /*
     *
     */

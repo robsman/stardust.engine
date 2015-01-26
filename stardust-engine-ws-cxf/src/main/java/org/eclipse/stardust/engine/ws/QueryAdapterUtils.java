@@ -1300,4 +1300,15 @@ public class QueryAdapterUtils
 					+ "'.", e);
 		}
 	}
+
+   public static BusinessObjectQuery unmarshalBusinessObjectQuery(
+         BusinessObjectQueryXto queryXto)
+   {
+      final Class<BusinessObjectQuery> clazz = BusinessObjectQuery.class;
+      BusinessObjectQuery query = BusinessObjectQuery.findAll();
+
+      query = unmarshalQuery(queryXto, query, clazz);
+
+      return query;
+   }
 }

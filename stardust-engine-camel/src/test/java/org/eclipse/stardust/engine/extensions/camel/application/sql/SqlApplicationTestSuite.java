@@ -30,7 +30,7 @@ public class SqlApplicationTestSuite
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
@@ -42,7 +42,6 @@ public class SqlApplicationTestSuite
             ClassPathResource resource = new ClassPathResource("models/" + deployedModelId + ".xpdl");
             testUtils.setModelFile(resource);
             testUtils.deployModel();
-            Thread.sleep(1000);
          }
       }
       catch (Exception e)
@@ -56,7 +55,7 @@ public class SqlApplicationTestSuite
       ctx = new ClassPathXmlApplicationContext(new String[] {
             "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
             "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml",
-            "classpath:META-INF/spring/default-camel-context.xml"});
+            "classpath:default-camel-context.xml"});
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
       sf.getAdministrationService().cleanupRuntime(true);

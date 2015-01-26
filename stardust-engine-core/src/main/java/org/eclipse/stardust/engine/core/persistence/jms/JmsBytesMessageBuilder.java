@@ -56,7 +56,7 @@ public class JmsBytesMessageBuilder implements BlobBuilder
             this.queueSession = rtEnv.retrieveQueueSession(connection);
             this.queueSender = rtEnv.retrieveUnidentifiedQueueSender(queueSession);
 
-            this.queue = (Queue) params.get(JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
+            this.queue = rtEnv.getJmsResourceProvider().resolveQueue(JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
          }
 
          this.msg = queueSession.createBytesMessage();

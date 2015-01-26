@@ -82,6 +82,9 @@ public class ProcessElementsVisitor
             return 0;
          }
 
+         int count = visitPiParts(piOids, ProcessInstanceBean.class,
+               ProcessInstanceBean.FR__OID, null, session);
+         
          visitPiParts(piOids, TransitionTokenBean.class,
                TransitionTokenBean.FR__PROCESS_INSTANCE, session);
 
@@ -176,8 +179,7 @@ public class ProcessElementsVisitor
 
          visitDataClusterValues(piOids, session);
 
-         return visitPiParts(piOids, ProcessInstanceBean.class,
-               ProcessInstanceBean.FR__OID, null, session);
+         return count;
       }
       finally
       {

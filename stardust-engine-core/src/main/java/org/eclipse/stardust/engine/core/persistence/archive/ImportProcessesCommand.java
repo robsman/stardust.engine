@@ -116,7 +116,6 @@ public class ImportProcessesCommand implements ServiceCommand
          ImportFilter filter;
          if (processInstanceOids != null)
          {
-            // TODO: Investigate TransientProcessInstanceStorage.instance().selectForRootPiOid(rootPiOid);
             filter = new ImportFilter(processInstanceOids);
          }
          else if (fromDate != null && toDate != null)

@@ -57,14 +57,17 @@ public class ExportProcessesCommand implements ServiceCommand
    private final Date fromDate;
 
    private final Date toDate;
+   
+   private final boolean purge;
 
    /**
     * @param processInstanceOids
     *           Oids of process instances to export
     */
-   public ExportProcessesCommand(List<Long> processInstanceOids)
+   public ExportProcessesCommand(List<Long> processInstanceOids, boolean purge)
    {
       super();
+      this.purge = purge;
       this.processInstanceOids = processInstanceOids;
       this.fromDate = null;
       this.toDate = null;
@@ -73,9 +76,10 @@ public class ExportProcessesCommand implements ServiceCommand
    /**
     * Use this constructor to export all processInstances
     */
-   public ExportProcessesCommand()
+   public ExportProcessesCommand(boolean purge)
    {
       super();
+      this.purge = purge;
       this.processInstanceOids = null;
       this.fromDate = null;
       this.toDate = null;
@@ -88,9 +92,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * @param fromDate includes processes with a start time greator or equal to fromDate
     * @param toDate includes processes with a termination time less or equal than toDate
     */
-   public ExportProcessesCommand(Date fromDate, Date toDate)
+   public ExportProcessesCommand(Date fromDate, Date toDate, boolean purge)
    {
       super();
+      this.purge = purge;
       this.processInstanceOids = null;
       if (fromDate != null || toDate != null)
       {
@@ -249,13 +254,27 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             LOGGER.debug("Exporting complete. Starting Purging...");
          }
-         ProcessElementPurger purger = new ProcessElementPurger();
-         processVisitor = new ProcessElementsVisitor(purger);
-         // purge processInstances
-         processVisitor.visitProcessInstances(uniqueOids, session);
-         if (LOGGER.isDebugEnabled())
+         if (purge)
          {
-            LOGGER.debug("Purging Complete.");
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Starting Purging...");
+            }
+            ProcessElementPurger purger = new ProcessElementPurger();
+            processVisitor = new ProcessElementsVisitor(purger);
+            // purge processInstances
+            processVisitor.visitProcessInstances(uniqueOids, session);
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Purging Complete.");
+            }
+         }
+         else
+         {
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Purge not required.");
+            }
          }
          result = exporter.getBlob();
       }

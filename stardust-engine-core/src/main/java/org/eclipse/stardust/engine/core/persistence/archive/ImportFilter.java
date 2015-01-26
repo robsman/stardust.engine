@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
@@ -37,7 +36,7 @@ public class ImportFilter
       this.toDate = null;
    }
 
-   public boolean isInFilter(ProcessInstanceBean process)
+   public boolean isInFilter(ProcessInstanceBean process, Object[] linkBuffer)
    {
       Boolean isInFilter = processMap.get(process.getOID());
 
@@ -45,10 +44,14 @@ public class ImportFilter
       {
          if (processInstanceOids != null)
          {
-            if (process.getOID() == process.getRootProcessInstanceOID()) {
+            TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
+            final int linkIdx = typeDescriptor.getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
+            Number rootProcessInstanceOID =  (Number) linkBuffer[linkIdx];
+            
+            if (process.getOID() == rootProcessInstanceOID.longValue()) {
                isInFilter = processInstanceOids.contains(process.getOID());
             } else {
-               isInFilter = processInstanceOids.contains(process.getRootProcessInstanceOID());
+               isInFilter = processInstanceOids.contains(rootProcessInstanceOID);
             }
          }
          else if (fromDate != null && toDate != null)
@@ -65,11 +68,16 @@ public class ImportFilter
       return isInFilter;
    }
 
-   public boolean isInFilter(Persistent persistent)
+   public boolean isInFilter(Persistent persistent, Object[] linkBuffer)
    {
+      if (persistent instanceof ProcessInstanceBean)
+      {
+         return isInFilter((ProcessInstanceBean) persistent, linkBuffer);
+      }
+      if (linkBuffer == null) {
+         return true;
+      }
       TypeDescriptor typeDescriptor = TypeDescriptor.get(persistent.getClass());
-      DefaultPersistenceController cntrl = (DefaultPersistenceController) persistent
-            .getPersistenceController();
       Boolean isInFilter = true;
       Boolean filtered = false;
       final List links = typeDescriptor.getLinks();
@@ -78,7 +86,7 @@ public class ImportFilter
       {
          LinkDescriptor link = (LinkDescriptor) links.get(j);
          final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
-         Number linkOID = (Number) cntrl.getLinkBuffer()[linkIdx];
+         Number linkOID =  (Number) linkBuffer[linkIdx];
          
          if (link.getField().getType() == ProcessInstanceBean.class)
          {
@@ -95,7 +103,7 @@ public class ImportFilter
          {
             LinkDescriptor link = (LinkDescriptor) typeDescriptor.getParents().get(i);
             final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
-            Number linkOID = (Number) cntrl.getLinkBuffer()[linkIdx];
+            Number linkOID =  (Number) linkBuffer[linkIdx];
    
             if (link.getField().getType() == ProcessInstanceBean.class)
             {

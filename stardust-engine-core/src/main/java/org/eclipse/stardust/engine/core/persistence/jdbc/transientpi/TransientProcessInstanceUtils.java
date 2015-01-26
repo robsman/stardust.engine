@@ -29,7 +29,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
  * <p>
@@ -229,7 +228,7 @@ public class TransientProcessInstanceUtils
     * all {@link Persistent}s encoded in it.
     * </p>
     */
-   private static final class ProcessBlobReader
+   public static final class ProcessBlobReader
    {
       private final Session session;
 
@@ -286,29 +285,6 @@ public class TransientProcessInstanceUtils
             readSection(reader, persistents, filter);
          }
 
-         if (filter != null)
-         {
-            List<Persistent> removeList = new ArrayList<Persistent>();
-            for (Persistent p : persistents)
-            {
-               // process instances was already filtered out, we now also need to 
-               // delete related elements so they do not get persisted in db 
-               // and mark ones that should be created as created
-               if (!(p instanceof ProcessInstanceBean))
-               {
-                  if (filter.isInFilter(p))
-                  {
-                     p.getPersistenceController().markCreated();
-                  }
-                  else 
-                  {
-                     removeList.add(p);
-                  }
-               }
-            }
-            persistents.removeAll(removeList);
-         }
-
          return persistents;
       }
 
@@ -328,32 +304,25 @@ public class TransientProcessInstanceUtils
             final Persistent persistent = recreatePersistent(reader, typeDesc, fieldDescs);
 
             final Object[] linkBuffer = recreateLinkBuffer(reader, linkDescs);
-            final DefaultPersistenceController pc = new DefaultPersistenceController(session, typeDesc, persistent, linkBuffer);
             
 
             if (filter == null) 
             {
+               final DefaultPersistenceController pc = new DefaultPersistenceController(session, typeDesc, persistent, linkBuffer);
                pc.markCreated();
                persistents.add(persistent);
             }
             else
             {
-               // we need to filter out Process Instances before we filter out
-               // their related objects, related objects only will have the processInstanceOid and not all the filter fields
-               // so when filtering we remember which processInstances are filtered out so we can later filter out related
-               // elements
-               if (persistent instanceof ProcessInstanceBean)
+               // this will fail if the processes were not loaded first. we can 
+               // only determine which objects are valid in process tree if 
+               // we first loaded the processes.
+               boolean isInFilter = filter.isInFilter(persistent, linkBuffer);
+               if (isInFilter)
                {
-                  boolean isInFilter = filter.isInFilter((ProcessInstanceBean)persistent);
-                  if (isInFilter)
-                  {
-                     persistents.add(persistent);
-                     pc.markCreated();
-                  }
-               }
-               else
-               {
+                  final DefaultPersistenceController pc = new DefaultPersistenceController(session, typeDesc, persistent, linkBuffer);
                   persistents.add(persistent);
+                  pc.markCreated();
                }
             }
          }

@@ -11,7 +11,24 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <TypeDeclarations/>
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="DataStructure" Name="DataStructure">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="3356df17-3a64-4d7f-8a7c-500f3433d548"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure" targetNamespace="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure">
+               <xsd:complexType name="DataStructure">
+                  <xsd:sequence>
+                     <xsd:element name="MyFieldA" type="xsd:string"/>
+                     <xsd:element name="MyFieldB" type="xsd:int"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="DataStructure" type="dat:DataStructure"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+   </TypeDeclarations>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -22,7 +39,89 @@
          </ExtendedAttributes>
       </Participant>
    </Participants>
-   <Applications/>
+   <Applications>
+      <Application Id="Transformation" Name="Transformation">
+         <FormalParameters>
+            <FormalParameter Id="ValueIn" Index="1" Mode="IN" Name="ValueIn">
+               <DataType>
+                  <BasicType Type="INTEGER"/>
+               </DataType>
+            </FormalParameter>
+            <FormalParameter Id="ValueOut" Index="2" Mode="OUT" Name="ValueOut">
+               <DataType>
+                  <DeclaredType Id="DataStructure"/>
+               </DataType>
+            </FormalParameter>
+         </FormalParameters>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="328" Type="messageTransformationBean">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="375" Id="ValueIn" Name="ValueIn" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="FullXPath" Value="null/"/>
+                           <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="376" Id="ValueOut" Name="ValueOut" Direction="OUT" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="DataStructure"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="FullXPath" Value="null/"/>
+                           <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;&gt;&#13;&#10;  &lt;fieldMappings fieldPath=&quot;ValueOut/MyFieldB&quot; mappingExpression=&quot;ValueIn&quot;/&gt;&#13;&#10;&lt;/mapping:TransformationProperty&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="d3b8b7fa-c280-43e0-8ad7-883c75ff6426"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+      <Application Id="MutilplyByTwo" Name="MutilplyByTwo">
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="426" Type="camelSpringProducerApplication">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="434" Id="NumberIn" Name="NumberIn" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="435" Id="NumberOut" Name="NumberOut" Direction="OUT" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="b006a83d-b799-4764-a0f4-70f238d71d82"/>
+                     <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="scriptingIntegrationOverlay"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="false" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toNativeObject&quot; /&gt;&lt;setHeader headerName=&quot;CamelLanguageScript&quot;&gt;&lt;constant&gt;function setOutHeader(key, output){&#10;exchange.out.headers.put(key,output);}&#10;function isArray(obj) {&#10;&#9;if (Array.isArray) {&#10;&#9;&#9;return Array.isArray(obj);&#10;&#9;} else {&#10;&#9;return Object.prototype.toString.call(obj) === '[object Array]';&#10;&#9;}&#10;}&#10;function visitMembers(obj, callback) {&#10;&#9;var i = 0, length = obj.length;&#10;&#9;if (isArray(obj)) {&#10;&#9;&#9;for(; i &amp;lt; length; i++) {&#10;&#9;&#9;obj[i]= callback(i, obj[i]);&#10;&#9;&#9;}&#10;} else {&#10;&#9;&#9;for (i in obj) {&#10;&#9;&#9;obj[i]=  callback(i, obj[i]);}&#10;&#9;}&#10;&#9;return obj;&#10;}&#10;function recursiveFunction(key, val) {&#10;&#9;if (val instanceof Object || isArray(val)) {&#10;&#9;&#9;return visitMembers(val, recursiveFunction);&#10;&#9;} else {&#10;&#9;&#9;return actualFunction(val, typeof val);&#10;&#9;}&#10;}&#10;function actualFunction(value, type) {&#10;&#9;var dataAsLong;&#10;&#9;if (type === 'string') {&#10;&#9;&#9;dataAsLong =new RegExp(/\/Date\((-?\d*)\)\//).exec(value);&#10;&#9;if (dataAsLong) {&#10;&#9;&#9;return new java.util.Date(+dataAsLong[1]);&#10;&#9;}&#10;}&#10;return value;&#10;}&#10;var NumberIn;&#10;if(request.headers.get('NumberIn')!=null){&#10;NumberIn = new Number( request.headers.get('NumberIn'));&#10;}&#10;var NumberOut = 0;&#10;NumberOut = NumberIn * 2;&#10;setOutHeader('NumberOut',NumberOut);&lt;/constant&gt;&lt;/setHeader&gt;&lt;to uri=&quot;language:rhino-nonjdk&quot; /&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromNativeObject&quot; /&gt;&#10;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="stardust:scriptingOverlay::language" Value="JavaScript"/>
+                     <carnot:Attribute Name="stardust:scriptingOverlay::scriptCode" Value="NumberOut = NumberIn * 2;"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+   </Applications>
    <DataFields>
       <DataField Id="PROCESS_ID" Name="Process OID" IsArray="FALSE">
          <DataType>
@@ -114,7 +213,7 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
-	  <DataField Id="TextData1" Name="TextData" IsArray="FALSE">
+      <DataField Id="TextData1" Name="TextData" IsArray="FALSE">
          <DataType>
             <BasicType Type="STRING"/>
          </DataType>
@@ -122,8 +221,52 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="88" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="carnot:model:uuid" Value="16e3a310-1464-472d-8b28-d1c66f961e90"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="NumberValue" Name="NumberValue" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="152" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="2351df7d-8034-4f9c-a58f-adfcba8cfffe"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="TestStructure" Name="TestStructure" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="292" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="StructuredData" Name="StructuredData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="DataStructure"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="403" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -640,6 +783,366 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="ScriptProcess" Name="ScriptProcess" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="WriteActivity" Name="WriteActivity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="383" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="405" Id="NumberValue" Name="NumberValue" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="a83437b6-a134-4dad-9aca-fc788fe7719b"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="Transformation" Name="Transformation">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="Transformation">
+                        <ActualParameters>
+                           <ActualParameter>StructuredData</ActualParameter>
+                           <ActualParameter>NumberValue</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="385" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="414" Id="StructuredData" Name="StructuredData" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="StructuredData"/>
+                              <carnot:AccessPointRef Id="ValueOut"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="417" Id="NumberValue" Name="NumberValue" Direction="IN" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="ValueIn"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="4ce9fa15-e447-4acf-b87e-dc7e0a8ddd47"/>
+                           <carnot:Attribute Name="taskType" Value="script"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ReadActivity" Name="ReadActivity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="387" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="411" Id="StructuredData" Name="StructuredData" Direction="IN" Context="default">
+                              <carnot:DataRef Id="StructuredData"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="60b0a6f5-9f23-4f79-b044-af654c4848c1"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="event_0e870b95-4b3f-4629-973c-79e0879ef401" Name="End Event">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="390">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="7aad2c63-b68e-49a2-b122-0623f62ab638"/>
+                           <carnot:Attribute Name="stardust:bpmnEndEventHost" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:bpmnEvent:389">
+                              <carnot:Value>
+                                 <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{}</value>
+                              </carnot:Value>
+                           </carnot:Attribute>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="gateway" Name="">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Join Type="XOR"/>
+                  </TransitionRestriction>
+                  <TransitionRestriction>
+                     <Split Type="XOR">
+                        <TransitionRefs>
+                           <TransitionRef Id="57c068d6-7806-4196-848c-349825f4fa53"/>
+                           <TransitionRef Id="ff134723-b324-473c-8c1a-2539a4ae1b5d"/>
+                        </TransitionRefs>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="391">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="6e120629-dd5a-4054-bea5-55ba25389f29"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="StartActivity" Name="StartActivity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="420">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="58a510af-2522-4da9-aaa0-45ca390d5e22"/>
+                           <carnot:Attribute Name="taskType" Value="none"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="MultiplyByTwo" Name="MultiplyByTwo">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="MutilplyByTwo">
+                        <ActualParameters>
+                           <ActualParameter>NumberValue</ActualParameter>
+                           <ActualParameter>NumberValue</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="436" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="444" Id="NumberValue" Name="NumberValue" Direction="IN" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberIn"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="445" Id="NumberValue" Name="NumberValue" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberOut"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="02e752c2-a0bd-470d-812d-566fcefe7b76"/>
+                           <carnot:Attribute Name="taskType" Value="script"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="57c068d6-7806-4196-848c-349825f4fa53" Name="" From="gateway" To="WriteActivity">
+               <Condition Type="CONDITION">NumberValue &lt; 10;</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="396" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="5d20e9c7-2259-4fab-a772-d1166fbc0d8d" Name="" From="WriteActivity" To="gateway">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="398" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="2b7b65e7-bb00-40b1-954b-ae20905dffce" Name="" From="Transformation" To="ReadActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="400" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="319be799-ac07-4822-9412-fb796f1ecf20" Name="" From="ReadActivity" To="event_0e870b95-4b3f-4629-973c-79e0879ef401">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="418" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="28ee513f-a67b-4f8e-8b26-f9d0f42227a4" Name="" From="StartActivity" To="gateway">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="424" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="ff134723-b324-473c-8c1a-2539a4ae1b5d" Name="" From="gateway" To="MultiplyByTwo">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="448" IsForkingOnTraversal="false">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:Transition>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="5a8bd7bf-66ca-476b-b70e-6bf59eba6f47" Name="" From="MultiplyByTwo" To="Transformation">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="450" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="377">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="382" Id="ManualTrigger1" Name="" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="b7367e86-b24f-4654-98a6-7fe332f814aa"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="380" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="379" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="523" Height="671" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="378" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="489" Height="601" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="379">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="381" X="122" Y="44" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="384" X="205" Y="129" Width="180" Height="50" ModelElement="WriteActivity"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="386" X="10" Y="292" Width="180" Height="50" ModelElement="Transformation"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="388" X="182" Y="447" Width="180" Height="50" ModelElement="ReadActivity"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="389" X="314" Y="536" Width="26" Height="26"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="392" X="-42" Y="134" Width="180" Height="50" ModelElement="gateway"/>
+                                       <carnot:Symbol Kind="DATA" Oid="402" X="280" Y="226" Width="100" Height="70" ModelElement="NumberValue"/>
+                                       <carnot:Symbol Kind="DATA" Oid="404" X="53" Y="452" Width="100" Height="70" ModelElement="StructuredData"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="421" X="289" Y="54" Width="180" Height="50" ModelElement="StartActivity"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="437" X="289" Y="332" Width="180" Height="50" ModelElement="MultiplyByTwo"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="393" SourceSymbol="381" TargetSymbol="392" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="397" ModelElement="57c068d6-7806-4196-848c-349825f4fa53" SourceSymbol="392" TargetSymbol="384" SourceAnchor="right" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="399" ModelElement="5d20e9c7-2259-4fab-a772-d1166fbc0d8d" SourceSymbol="384" TargetSymbol="392" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="401" ModelElement="2b7b65e7-bb00-40b1-954b-ae20905dffce" SourceSymbol="386" TargetSymbol="388" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="406" SourceSymbol="402" TargetSymbol="384" SourceAnchor="right" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="410" SourceSymbol="404" TargetSymbol="386" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="412" SourceSymbol="404" TargetSymbol="388" SourceAnchor="right" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="416" SourceSymbol="402" TargetSymbol="386" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="419" ModelElement="319be799-ac07-4822-9412-fb796f1ecf20" SourceSymbol="388" TargetSymbol="389" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="423" SourceSymbol="381" TargetSymbol="421" SourceAnchor="left" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="425" ModelElement="28ee513f-a67b-4f8e-8b26-f9d0f42227a4" SourceSymbol="421" TargetSymbol="392" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="439" SourceSymbol="402" TargetSymbol="437" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="449" ModelElement="ff134723-b324-473c-8c1a-2539a4ae1b5d" SourceSymbol="392" TargetSymbol="437" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="451" ModelElement="5a8bd7bf-66ca-476b-b70e-6bf59eba6f47" SourceSymbol="437" TargetSymbol="386" SourceAnchor="left" TargetAnchor="right"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -738,6 +1241,26 @@
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationValidator"/>
                      </carnot:Attributes>
                   </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="110" Id="rulesEngineBean" Name="Drools Rules Engine" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.drools.runtime.DroolsAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.drools.runtime.DroolsApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.drools.runtime.DroolsValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="137" Id="camelSpringProducerApplication" Name="Camel Producer Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="281" Id="messageTransformationBean" Name="Message Transformation Bean" IsPredefined="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageTransformationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageProcessingValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
                </carnot:ApplicationTypes>
                <carnot:ApplicationContextTypes>
                   <carnot:ApplicationContextType Oid="14" Id="default" Name="Default Context" IsPredefined="true" HasApplicationPath="false" HasMappingId="true"/>
@@ -761,7 +1284,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Wed Jan 21 08:08:17 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Mon Jan 26 09:25:48 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

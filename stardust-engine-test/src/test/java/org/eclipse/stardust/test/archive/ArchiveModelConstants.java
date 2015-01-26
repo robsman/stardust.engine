@@ -37,9 +37,17 @@ package org.eclipse.stardust.test.archive;
 
    static final String PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL = MODEL_ID_PREFIX
          + "CallSubProcessesInModel";
+   
+   static final String PROCESS_DEF_CALL_SCRIPTPROCESS = MODEL_ID_PREFIX
+         + "ScriptProcess";
 
-   public static final String DATA_ID_TEXTDATA = "TextData";
+   static final String DATA_ID_TEXTDATA = "TextData";
 
-   public static final String DATA_ID_TEXTDATA1 = "TextData1";
+   static final String DATA_ID_TEXTDATA1 = "TextData1";
 
+   static final String DATA_ID_NUMBERVALUE = "NumberValue";
+   
+   static final String DATA_ID_STRUCTUREDDATA = "StructuredData";
+
+   static final String DATA_ID_STRUCTUREDDATA_MYFIELDB = "MyFieldB";
 }

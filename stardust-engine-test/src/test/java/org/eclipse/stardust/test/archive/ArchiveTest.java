@@ -17,12 +17,11 @@ import static org.junit.Assert.*;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import javax.sql.DataSource;
@@ -1461,6 +1460,85 @@ public class ArchiveTest
 
    }
 
+   @Test
+   public void testExportImportScriptProcess() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+
+      final ActivityInstance writeActivity = completeScriptProcess(pi,10);
+
+      assertDataExists(pi.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
+            ArchiveModelConstants.DATA_ID_NUMBERVALUE, 20);
+      
+      assertTrue(hasStructuredDateField(pi.getOID(), ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, 20));
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(8, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids));
+      assertNotNull(rawData);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+      assertDataNotExists(pi.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
+            ArchiveModelConstants.DATA_ID_NUMBERVALUE, 20);
+
+      assertFalse(hasStructuredDateField(pi.getOID(), ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, 20));
+
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+      assertDataExists(pi.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
+            ArchiveModelConstants.DATA_ID_NUMBERVALUE, 20);
+
+      assertTrue(hasStructuredDateField(pi.getOID(), ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, 20));
+
+   }
+
+   private ActivityInstance completeScriptProcess(final ProcessInstance pi, int numberValue)
+         throws TimeoutException, InterruptedException
+   {
+      final ActivityInstance writeActivity = completeNextActivity(pi,
+            ArchiveModelConstants.DATA_ID_NUMBERVALUE, numberValue);
+
+      completeNextActivity(pi, null, null);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+      return writeActivity;
+   }
+   
    private ActivityInstance completeSimpleManual(final ProcessInstance pi)
          throws TimeoutException, InterruptedException
    {
@@ -1512,15 +1590,15 @@ public class ArchiveTest
    }
 
    private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
-         String textData)
+         Object data)
    {
       final ActivityInstance ai1 = sf.getQueryService().findFirstActivityInstance(
             ActivityInstanceQuery.findAlive(pi.getProcessID()));
-      Map<String, String> outData;
+      Map<String, Object> outData;
       if (dataId != null)
       {
-         outData = new HashMap<String, String>();
-         outData.put(dataId, textData);
+         outData = new HashMap<String, Object>();
+         outData.put(dataId, data);
       }
       else
       {
@@ -1830,6 +1908,48 @@ public class ArchiveTest
 
    }
 
+
+   
+   private boolean hasStructuredDateField(long processInstanceOid, String dataId, String fieldName, Object value) throws Exception
+   {
+      String sql = "select cd.stringvalue from data d inner join data_value dv on d.oid = dv.data"
+               + " inner join clob_data cd on dv.number_value = cd.oid"
+               + " where d.id = ?"
+               + " and dv.processinstance = ?";
+      
+      final DataSource ds = testClassSetup.dataSource();
+      final boolean result;
+
+      Connection connection = null;
+      PreparedStatement stmt = null;
+      try
+      {
+         connection = ds.getConnection();
+         stmt = connection.prepareStatement(sql);
+         stmt.setString(1, dataId);
+         stmt.setLong(2, processInstanceOid);
+         final ResultSet rs = stmt.executeQuery();
+         if (rs.next()) {
+            result = rs.getString(1).contains(">" + value + "</" + fieldName + ">");
+         } else {
+            result = false;
+         }
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+
+      return result;
+   }
+   
    private boolean hasEntryInDbForObject(final String tableName, String fieldName,
          final long id) throws SQLException
    {
@@ -1862,21 +1982,21 @@ public class ArchiveTest
    }
 
    private void assertDataExists(long processInstanceOid, long activityOid,
-         String processName, String dataId, String expectedValue)
+         String processName, String dataId, Serializable expectedValue)
    {
       checkDataValue(processInstanceOid, activityOid, processName, dataId, expectedValue,
             true);
    }
 
    private void assertDataNotExists(long processInstanceOid, long activityOid,
-         String processName, String dataId, String expectedValue)
+         String processName, String dataId, Serializable expectedValue)
    {
       checkDataValue(processInstanceOid, activityOid, processName, dataId, expectedValue,
             false);
    }
 
    private void checkDataValue(long processInstanceOid, long activityOid,
-         String processName, String dataId, String expectedValue, boolean shouldExists)
+         String processName, String dataId, Serializable expectedValue, boolean shouldExists)
    {
       QueryService queryService = sf.getQueryService();
 

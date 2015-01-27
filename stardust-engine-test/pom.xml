@@ -142,19 +142,34 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <includes>
-                  <include>**/*Suite.java</include>
-               </includes>
-               <excludes>
-                  <exclude>**/*Test.java</exclude>
-               </excludes>
-               <forkCount>1</forkCount>
-               <reuseForks>false</reuseForks>
-               <skip>false</skip>
-               <failIfNoTests>false</failIfNoTests>
-               <testFailureIgnore>true</testFailureIgnore>
-               <redirectTestOutputToFile>true</redirectTestOutputToFile>
+               <!-- do not execute the tests in phase 'test' ... -->
+               <skipTests>true</skipTests>
             </configuration>
+            <executions>
+               <!-- ... but in phase 'integration-test' -->
+               <execution>
+                  <id>run-functional-tests</id>
+                  <phase>integration-test</phase>
+                  <goals>
+                     <goal>test</goal>
+                  </goals>
+                  <configuration>
+                     <includes>
+                        <include>**/*Suite.java</include>
+                     </includes>
+                     <skipTests>false</skipTests>
+                     <excludes>
+                        <exclude>**/*Test.java</exclude>
+                     </excludes>
+                     <forkCount>1</forkCount>
+                     <reuseForks>false</reuseForks>
+                     <skip>false</skip>
+                     <failIfNoTests>false</failIfNoTests>
+                     <testFailureIgnore>true</testFailureIgnore>
+                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>

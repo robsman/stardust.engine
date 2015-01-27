@@ -596,8 +596,8 @@
             <configuration>
                <excludes>
                   <exclude>org/eclipse/stardust/**/ejb2/tools/*.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Carnot2Xpdl.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Xpdl2Carnot.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Carnot2Xpdl.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Xpdl2Carnot.class</exclude>
                </excludes>
             </configuration>
          </plugin>

@@ -51,7 +51,7 @@ public class LocalOIDGenerator implements OIDGenerator
          try
          {
             statement = connection.createStatement();
-            resultSet = ManagedResultSet.createManager(statement,
+            resultSet = StatementClosingResultSet.createManagedResultSet(statement,
                   statement.executeQuery(
                           "SELECT value"
                         + "  FROM " + DDLManager.getQualifiedName(schemaName, DBDescriptor.SEQUENCE_HELPER_TABLE_NAME)

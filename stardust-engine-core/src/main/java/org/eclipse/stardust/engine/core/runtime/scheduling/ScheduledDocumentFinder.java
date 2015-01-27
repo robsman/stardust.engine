@@ -93,7 +93,16 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             String reportName = document.getName();
             reportName = reportName.substring(0, reportName.length() - extension.length());
 
-            String content = new String(dmService.retrieveDocumentContent(document.getId()));
+            String content;
+            try
+            {
+               content = new String(dmService.retrieveDocumentContent(document.getId()), "UTF-8");
+            }
+            catch (Exception e)
+            {
+               content = new String(dmService.retrieveDocumentContent(document.getId()));
+            }
+
             JsonObject documentJson = new JsonParser().parse(content).getAsJsonObject();
             JsonArray eventsArray = documentJson.getAsJsonArray("events");
 

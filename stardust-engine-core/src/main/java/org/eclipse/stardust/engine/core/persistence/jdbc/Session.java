@@ -2460,8 +2460,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
 
             startTime = System.currentTimeMillis();
-            resultSet = ManagedResultSet.createManager(statement, statement
-                  .executeQuery());
+            resultSet = StatementClosingResultSet.createManagedResultSet(statement, statement.executeQuery());
             stopTime = System.currentTimeMillis();
          }
          catch (RuntimeException x)
@@ -2497,8 +2496,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
 
             startTime = System.currentTimeMillis();
-            resultSet = ManagedResultSet.createManager(statement, statement
-                  .executeQuery(statementString));
+            resultSet = StatementClosingResultSet.createManagedResultSet(statement,
+                  statement.executeQuery(statementString));
             stopTime = System.currentTimeMillis();
          }
          catch (RuntimeException x)
@@ -2644,7 +2643,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
 
                startTime = System.currentTimeMillis();
-               resultSet = ManagedResultSet.createManager(stmt, stmt.executeQuery());
+               resultSet = StatementClosingResultSet.createManagedResultSet(stmt, stmt.executeQuery());
                stopTime = System.currentTimeMillis();
             }
             catch (SQLException e)
@@ -2669,8 +2668,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                startTime = System.currentTimeMillis();
 
-               resultSet = ManagedResultSet.createManager(stmt,
-                     stmt.executeQuery(sqlString));
+               resultSet = StatementClosingResultSet.createManagedResultSet(stmt, stmt.executeQuery(sqlString));
                stopTime = System.currentTimeMillis();
             }
             catch (SQLException e)

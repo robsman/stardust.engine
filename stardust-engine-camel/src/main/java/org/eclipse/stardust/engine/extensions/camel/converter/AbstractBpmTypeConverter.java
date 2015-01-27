@@ -222,9 +222,10 @@ public abstract class AbstractBpmTypeConverter
 
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
-      return getTypeDeclaration(model, mapping.getDataId());
-      // IData data = model.findData(mapping.getDataId());
-      // return StructuredTypeRtUtils.getTypeDeclaration(data, model);
+      AccessPoint ap=mapping.getApplicationAccessPoint();
+      String typeDeclarationId = (String) mapping.getApplicationAccessPoint()
+            .getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+     return  model.findTypeDeclaration(typeDeclarationId);
    }
 
    protected Object getTypeDeclaration(Model model, DataMapping mapping)

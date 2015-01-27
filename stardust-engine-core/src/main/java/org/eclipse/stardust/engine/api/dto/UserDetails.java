@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -275,19 +275,24 @@ public class UserDetails implements User
       if (previousLoginTime != null && UserDetailsLevel.Minimal != detailsLevel)
       {
          UserSessionBean latestSessionAccordingToCache = null;
-         Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
          // try to leverage a previous resolution's result
-         for (PersistenceController usPc : session.getCache(UserSessionBean.class))
+         if(session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            UserSessionBean us = (UserSessionBean) usPc.getPersistent();
-            if ((us.getUserOid() == user.getOID()) && (us.getStartTime().before(previousLoginTime)))
+            for (PersistenceController usPc : ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(UserSessionBean.class))
             {
-               if ((null == latestSessionAccordingToCache) || latestSessionAccordingToCache.getStartTime().before(us.getStartTime()))
+               UserSessionBean us = (UserSessionBean) usPc.getPersistent();
+               if ((us.getUserOid() == user.getOID()) && (us.getStartTime().before(previousLoginTime)))
                {
-                  latestSessionAccordingToCache = us;
+                  if ((null == latestSessionAccordingToCache) || latestSessionAccordingToCache.getStartTime().before(us.getStartTime()))
+                  {
+                     latestSessionAccordingToCache = us;
+                  }
                }
             }
          }
+
          if (null != latestSessionAccordingToCache)
          {
             previousLoginTime = latestSessionAccordingToCache.getStartTime();

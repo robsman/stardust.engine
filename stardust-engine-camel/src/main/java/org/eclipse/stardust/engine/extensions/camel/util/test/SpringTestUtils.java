@@ -9,8 +9,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.StringUtils;
@@ -30,7 +32,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -58,10 +59,10 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
     * Filename of model file which is searched for in a directory "models" on the
     * classpath
     */
-   private String modelFilename = "TestModel.xpdl";
+   private String[] modelFilenames = new String[] {"TestModel.xpdl"};
 
    // the model as a Resource
-   private Resource modelFile;
+   private Resource[] modelFiles = null;
 
    /**
     * Specifies whether the test environment is dependent on a deployed model
@@ -80,6 +81,13 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
    private String auditTrailType;
 
    private String auditTrailDriverClass;
+   
+   private String testModelsFolderPath = "models/";
+
+   public void setTestModelsFolderPath(String path)
+   {
+      this.testModelsFolderPath = path.endsWith("/") ? path : path.concat("/");
+   }
 
    private static final transient Logger log = LogManager.getLogger(SpringTestUtils.class);
 
@@ -123,9 +131,11 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
     * 
     * @throws Exception
     */
-   private void prepareModel() throws Exception
+   protected void prepareModel() throws Exception
    {
-      if (deployModelIfNoneExists && (null != modelFile | StringUtils.isNotEmpty(modelFilename)))
+      if (deployModelIfNoneExists && (
+            (null != modelFiles && modelFiles.length > 0) |
+            (null != modelFilenames && modelFilenames.length > 0) ) )
       {
          ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
          try
@@ -150,15 +160,26 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
     * @throws IOException
     * @throws Exception
     */
-   public DeploymentInfo deployModel() throws IOException, Exception
+   public List<DeploymentInfo> deployModel() throws IOException, Exception
    {
-      String modelXml = null;
+      final List<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
       try
       {
-         if (null != modelFile)
-            modelXml = convertStreamToString(modelFile.getInputStream());
-         else
-            modelXml = convertStreamToString(ClassLoader.getSystemResourceAsStream("models/" + modelFilename));
+         if (null != modelFiles)
+         {
+            for( Resource r : modelFiles )
+            {
+               deployments.add( deployModel(r.getInputStream()) );
+            }
+         }
+         else if(null != modelFilenames)
+         {
+            for( String filename : modelFilenames )
+            {
+               deployments.add( deployModel(ClassLoader.getSystemResourceAsStream(
+                     testModelsFolderPath + filename)) );
+            }
+         }
       }
       catch (Exception e)
       {
@@ -166,6 +187,16 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
          throw e;
       }
 
+      return deployments;
+   }
+      
+   protected DeploymentInfo deployModel(InputStream modelIn) throws IOException, Exception
+   {
+      return deployModel2( IOUtils.toString(modelIn) );
+   }
+
+   protected DeploymentInfo deployModel2(String modelXml) throws Exception
+   {
       // if not able to find model for deployment, simply inform via log
       if (null == modelXml)
       {
@@ -221,7 +252,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
     * 
     * @throws Exception
     */
-   private void prepareAuditTrailDatabase() throws Exception
+   protected void prepareAuditTrailDatabase() throws Exception
    {
       Connection conn = null;
       try
@@ -442,50 +473,6 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       }
    }
 
-   /**
-    * Converts an inputSream to String
-    * 
-    * @param is
-    *           an InputStream
-    * @return convert an input stream to string
-    * @throws IOException
-    */
-   public static String convertStreamToString(InputStream is) throws IOException
-   {
-
-      if (null == is)
-         return null;
-
-      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-      StringBuilder sb = new StringBuilder();
-
-      String line = null;
-      try
-      {
-         while ((line = reader.readLine()) != null)
-         {
-            sb.append(line + "\n");
-         }
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      finally
-      {
-         try
-         {
-            is.close();
-         }
-         catch (IOException e)
-         {
-            throw e;
-         }
-      }
-
-      return sb.toString();
-   }
-
    public long getTestProcessModelOID()
    {
       return testProcessModelOID;
@@ -501,14 +488,14 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       this.auditTrailDataSource = auditTrailDataSource;
    }
 
-   public void setModelFilename(String modelFilename)
+   public void setModelFilename(String... filenames)
    {
-      this.modelFilename = modelFilename;
+      this.modelFilenames = filenames;
    }
 
-   public void setModelFile(Resource modelFile)
+   public void setModelFile(Resource... modelFiles)
    {
-      this.modelFile = modelFile;
+      this.modelFiles = modelFiles;
    }
 
    public void setAuditTrailUser(String auditTrailUser)

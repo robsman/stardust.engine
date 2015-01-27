@@ -8,16 +8,15 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.examples;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.examples.MyConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.casepi.CaseProcessInstanceTest.MODEL_NAME;
 
-import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
+import org.eclipse.stardust.test.casepi.CaseProcessInstanceTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -25,19 +24,17 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * This is an example for a functional test suite running in a
- * local Spring environment, using a H2 DB and providing JCR support.
+ * This test suite bundles tests for the <i>Case Process Instance</i> functionality,
+ * which allows for grouping process instances (refer to the Stardust documentation
+ * for details about <i>Case Process Instances</i>).
  * </p>
  *
  * @author Nicolas.Werlein
  */
 @RunWith(Suite.class)
-@SuiteClasses({ MyWorkflowServiceTest.class, MyDmsTest.class, MyAppCtxTest.class })
-@ApplicationContextConfiguration(locations = "classpath:app-ctxs/my-app-ctx-test.app-ctx.xml")
-public class MyTestSuite
+@SuiteClasses({ CaseProcessInstanceTest.class })
+public class CaseProcessInstanceTestSuite
 {
-   /* test suite */
-
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

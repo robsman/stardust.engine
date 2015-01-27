@@ -8,14 +8,15 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.dms;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_CONCURRENT_MODEL_NAME;
+import static org.eclipse.stardust.test.deputy.DeputyModelConstants.MODEL_NAME;
 
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.deputy.ManageDeputiesTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,19 +24,17 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * This test suite bundles tests for the <i>Document Management</i> functionality,
- * which allows for storing data in a JCR compliant repository (refer to the Stardust
- * documentation for details about <i>Document Management</i>).
+ * This test suite bundles tests for the <i>Deputy</i> functionality.
  * </p>
  *
- * @author Nicolas.Werlein, Roland.Stamm
- * @version $Revision: 72634 $
+ * @author Barry.Grotjahn
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsConcurrencyTest.class})
-public class DmsConcurrencyTestSuite
+@SuiteClasses({
+               ManageDeputiesTest.class
+             })
+public class DeputyTestSuite
 {
-   /* test suite */
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_CONCURRENT_MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

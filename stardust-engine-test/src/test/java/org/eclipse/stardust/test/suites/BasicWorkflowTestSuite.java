@@ -8,14 +8,18 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.data;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
 
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.workflow.ActivityInstanceWorkflowTest;
+import org.eclipse.stardust.test.workflow.EmbeddedServiceFactoryTest;
+import org.eclipse.stardust.test.workflow.ProcessInstanceWorkflowTest;
+import org.eclipse.stardust.test.workflow.RollbackOnErrorTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,25 +27,21 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * This test suite bundles tests for functionality regarding
- * process data.
+ * This test suite bundles tests that deal with the basic workflow
+ * functionality exposed by <i>Stardust</i>'s <i>Workflow Service</i>.
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-               DefaultValuePrimitiveDataTest.class,
-               PrimitiveDataInOutDataMappingsTest.class,
-               PrimitiveDataInOutDataPathsTest.class,
-               InitialValuePrimitiveDataTest.class,
-               StructuredDataSanityTest.class
+               ActivityInstanceWorkflowTest.class,
+               ProcessInstanceWorkflowTest.class,
+               EmbeddedServiceFactoryTest.class,
+               RollbackOnErrorTest.class
              })
-public class DataTestSuite
+public class BasicWorkflowTestSuite
 {
-   /* test suite */
-
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

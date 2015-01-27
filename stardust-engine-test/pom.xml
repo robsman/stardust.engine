@@ -154,6 +154,9 @@
                      <goal>test</goal>
                   </goals>
                   <configuration>
+                     <!-- we're executing test suites instead of the actual test classes -->
+                     <!-- to minimize the number of test environment setup tasks, i.e.   -->
+                     <!-- by doing so, we save a lot of time during test execution       -->
                      <includes>
                         <include>**/*Suite.java</include>
                      </includes>

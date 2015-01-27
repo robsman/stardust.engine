@@ -23,7 +23,7 @@ public class StatisticsQueryModelConstants
    /**
     * the ID of the model used for statistics query tests
     */
-   /* package-private */ static final String MODEL_ID = "StatisticsQueryModel";
+   public static final String MODEL_ID = "StatisticsQueryModel";
 
    /**
     * the process definition model ID prefix for model {@link #MODEL_ID}

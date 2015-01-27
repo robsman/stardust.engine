@@ -23,9 +23,8 @@ import java.util.Locale;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class DataModelConstants
+public class DataModelConstants
 {
    static
    {
@@ -49,7 +48,7 @@ import java.util.Locale;
    /**
     * the name of the model used for process data tests
     */
-   /* package-private */ static final String MODEL_NAME = "DataModel";
+   public static final String MODEL_NAME = "DataModel";
 
 
    /**

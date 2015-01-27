@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.query.statistics;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode.NATIVE_THREADING;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
@@ -18,9 +18,11 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.query.statistics.ActivityInstanceStatisticsQueryTest;
+import org.eclipse.stardust.test.query.statistics.QueryProcessingTimeTest;
+import org.eclipse.stardust.test.query.statistics.UserStatisticsQueryTest;
 
 /**
  * <p>
@@ -37,8 +39,6 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
               })
 public class StatisticsQueryTestSuite
 {
-   /* test suite */
-
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), NATIVE_THREADING, MODEL_ID);
 }

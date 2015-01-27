@@ -17,14 +17,13 @@ package org.eclipse.stardust.test.deputy;
  * </p>
  *
  * @author Barry.Grotjahn
- * @version $Revision: 66675 $
  */
-/* package-private */ class DeputyModelConstants
+public class DeputyModelConstants
 {
    /**
     * the name of the model used for <i>Deputy</i> tests
     */
-   /* package-private */ static final String MODEL_NAME = "DeputyModel";
+   public static final String MODEL_NAME = "DeputyModel";
 
 
    /******************************************************************

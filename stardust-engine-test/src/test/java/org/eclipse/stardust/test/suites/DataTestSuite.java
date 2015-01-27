@@ -8,14 +8,19 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.spawn;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.spawn.SpawnProcessTest.MODEL_NAME;
+import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
 
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.data.DefaultValuePrimitiveDataTest;
+import org.eclipse.stardust.test.data.InitialValuePrimitiveDataTest;
+import org.eclipse.stardust.test.data.PrimitiveDataInOutDataMappingsTest;
+import org.eclipse.stardust.test.data.PrimitiveDataInOutDataPathsTest;
+import org.eclipse.stardust.test.data.StructuredDataSanityTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,20 +28,22 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * This test suite bundles tests for the <i>Spawn Process</i> functionality,
- * which allows for ad hoc spawning of process instances (refer to the Stardust documentation 
- * for details about <i>Spawn Process</i>).
+ * This test suite bundles tests for functionality regarding
+ * process data.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SpawnProcessTest.class })
-public class SpawnProcessTestSuite
+@SuiteClasses({
+               DefaultValuePrimitiveDataTest.class,
+               PrimitiveDataInOutDataMappingsTest.class,
+               PrimitiveDataInOutDataPathsTest.class,
+               InitialValuePrimitiveDataTest.class,
+               StructuredDataSanityTest.class
+             })
+public class DataTestSuite
 {
-   /* test suite */
-   
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

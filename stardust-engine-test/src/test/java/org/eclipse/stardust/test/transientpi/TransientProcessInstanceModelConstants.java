@@ -19,20 +19,19 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class TransientProcessInstanceModelConstants
+public class TransientProcessInstanceModelConstants
 {
    /**
     * the ID of the model comprising the transient process definitions
     */
-   /* package-private */ static final String MODEL_ID = "TransientProcessInstanceModel";
+   public static final String MODEL_ID = "TransientProcessInstanceModel";
 
    /**
     * the ID of the model comprising an alternative implementation for a process interface
     * declared in {@link #MODEL_ID}
     */
-   /* package-private */ static final String ALTERNATIVE_IMPL_MODEL_ID = "ProcessInterfaceAlternativeImplementationModel";
+   public static final String ALTERNATIVE_IMPL_MODEL_ID = "ProcessInterfaceAlternativeImplementationModel";
 
 
    /**

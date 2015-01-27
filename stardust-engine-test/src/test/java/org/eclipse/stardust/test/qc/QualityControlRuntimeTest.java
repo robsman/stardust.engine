@@ -48,46 +48,45 @@ import org.junit.rules.TestRule;
 /**
  * <p>
  * This class contains tests for the <i>Quality Control</i> functionality,
- * which allows for implementing the four-eye-principle (refer to the Stardust documentation 
+ * which allows for implementing the four-eye-principle (refer to the Stardust documentation
  * for details about <i>Quality Control</i>).
  * </p>
- * 
+ *
  * @author Holger.Prause
- * @version $Revision$
  */
 public class QualityControlRuntimeTest
 {
-   /* package-private */ static final String MODEL_NAME = "QCModel";
-   
+   public static final String MODEL_NAME = "QCModel";
+
    private static final String QC_MANAGER_ID = "QCManager";
    private static final String MONITORED_USER_ID = "MonitoredUser";
    private static final String ORGANIZATION_ID= "SungardCorp";
    private static final String DUMMY_USER_ID = "Dummy";
-   
+
    private final String ERROR_CODE_FOR_FAIL = "_100";
    private final String ERROR_CODE_FOR_PASS_WITH_CORRECTION = "_101";
    private final String ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION = "_102";
-   
+
    private static final String QA_DATA_VALUE = "do_perform_qa";
-   
+
    private static final String DATA_VALUE_CORRECTED_BY_USER = "somevalue_corrected_by_user";
    private static final String DATA_VALUE_CORRECTED_BY_QC_MANAGER = "somevalue_corrected_by_qc_manager";
-      
+
    private static final String PROCESS_DEFINITION_ID = "ProcessDefinition1";
-   
+
    private static final String QA_ENABLED_ACTIVITY_ID = "QCEnabledActivity";
    private static final String END_ACTIVITY_ID = "EndActivity";
-   
+
    private static final String DATA_ID = "PrimitiveData1";
-   
+
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private QueryService qs;
-   
+
    private ActivityInstance currentActivityInstance;
    private ProcessInstance currentProcessInstance;
    private Set<QualityAssuranceCode> errorCodesDefinedForAI;
-   
+
    private WorkflowService qcManagerWorkflowService;
    private WorkflowService monitoredUserWorkflowService;
    private User monitoredUser;
@@ -97,14 +96,14 @@ public class QualityControlRuntimeTest
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-   
+
    @Before
    public void setUp()
    {
@@ -113,16 +112,16 @@ public class QualityControlRuntimeTest
 
       currentProcessInstance = null;
       currentActivityInstance = null;
-      
+
       monitoredUser = UserHome.create(sf, MONITORED_USER_ID, MONITORED_USER_ID, ORGANIZATION_ID);
       UserHome.create(sf, QC_MANAGER_ID, QC_MANAGER_ID, ORGANIZATION_ID);
       UserHome.create(sf, DUMMY_USER_ID, MONITORED_USER_ID, ORGANIZATION_ID);
-      
-      qcManagerServiceFactory = ServiceFactoryLocator.get(QC_MANAGER_ID, QC_MANAGER_ID);    
+
+      qcManagerServiceFactory = ServiceFactoryLocator.get(QC_MANAGER_ID, QC_MANAGER_ID);
       qcManagerWorkflowService = qcManagerServiceFactory.getWorkflowService();
-      
-      monitoredUserServiceFactory = ServiceFactoryLocator.get(MONITORED_USER_ID, MONITORED_USER_ID); 
-      monitoredUserWorkflowService = monitoredUserServiceFactory.getWorkflowService();      
+
+      monitoredUserServiceFactory = ServiceFactoryLocator.get(MONITORED_USER_ID, MONITORED_USER_ID);
+      monitoredUserWorkflowService = monitoredUserServiceFactory.getWorkflowService();
    }
 
    @Test(expected = IllegalOperationException.class)
@@ -145,19 +144,19 @@ public class QualityControlRuntimeTest
          outData.put(DATA_ID, QA_DATA_VALUE);
          currentActivityInstance = monitoredUserWorkflowService.complete(
                currentActivityInstance.getOID(), null, outData);
-         
+
          if (currentActivityInstance.getQualityAssuranceState() == QualityAssuranceUtils.QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED)
          {
             qcInstanceWasCreated = true;
          }
       }
-      
+
       //completing qa instance without having set attributes before must result in exception
       currentActivityInstance = qcManagerWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
-      Assert.fail();   
+      Assert.fail();
    }
-   
+
    @Test
    public void testSuspendToWorkflowUser()
    {
@@ -178,7 +177,7 @@ public class QualityControlRuntimeTest
          outData.put(DATA_ID, QA_DATA_VALUE);
          currentActivityInstance = monitoredUserWorkflowService.complete(
                currentActivityInstance.getOID(), null, outData);
-         
+
          if (currentActivityInstance.getQualityAssuranceState() == QualityAssuranceUtils.QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED)
          {
             qcInstanceWasCreated = true;
@@ -186,12 +185,12 @@ public class QualityControlRuntimeTest
       }
 
       // data value should be written
-      assertDataExists(QA_DATA_VALUE);      
+      assertDataExists(QA_DATA_VALUE);
       currentActivityInstance = qcManagerWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
-      
+
       //try to suspend the qa activity to the user who worked on the previous instance
       //this must result in an exception
-      
+
       IllegalOperationException exception = null;
       try
       {
@@ -203,10 +202,10 @@ public class QualityControlRuntimeTest
          assertThat(e, instanceOf(IllegalOperationException.class));
          exception = (IllegalOperationException) e;
       }
-      
+
       assertEquals("BPMRT04006", exception.getError().getId());
    }
-   
+
    @Test
    public void testActivationLogOnActivateAndComplete()
    {
@@ -247,7 +246,7 @@ public class QualityControlRuntimeTest
       assertNull("CRNT-23053: next instance cannot be activated and should be null",
             nextUserInstance);
    }
-   
+
    @Test
    public void testActivationLogOnComplete()
    {
@@ -256,7 +255,7 @@ public class QualityControlRuntimeTest
       Map<String, String> outData = new HashMap<String, String>();
 
       ActivityCompletionLog completionLog = null;
-      
+
       while (qcInstanceWasCreated == false)
       {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
@@ -267,7 +266,7 @@ public class QualityControlRuntimeTest
          errorCodesDefinedForAI = currentActivityInstance.getActivity()
                .getAllQualityAssuranceCodes();
 
-         
+
          //the next instance for the user cannot be activated
          //because the user should not be allowed to monitor its own work
          outData.put(DATA_ID, QA_DATA_VALUE);
@@ -283,11 +282,11 @@ public class QualityControlRuntimeTest
 
       // data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       ActivityInstance nextUserInstance = completionLog.getNextForUser();
       assertNull("CRNT-23053: next instance cannot be activated and should be null", nextUserInstance);
    }
-   
+
    @Test
    public void testActivateQAByUser()
    {
@@ -308,7 +307,7 @@ public class QualityControlRuntimeTest
          outData.put(DATA_ID, QA_DATA_VALUE);
          currentActivityInstance = monitoredUserWorkflowService.complete(
                currentActivityInstance.getOID(), null, outData);
-         
+
          if (currentActivityInstance.getQualityAssuranceState() == QualityAssuranceUtils.QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED)
          {
             qcInstanceWasCreated = true;
@@ -317,12 +316,12 @@ public class QualityControlRuntimeTest
 
       // data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       //the user should not be allowed to qa itself
       IllegalOperationException exception = null;
-      try 
+      try
       {
-         currentActivityInstance 
+         currentActivityInstance
          = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance
             .getOID());
          fail();
@@ -334,23 +333,23 @@ public class QualityControlRuntimeTest
       }
       assertEquals("BPMRT04005", exception.getError().getId());
    }
-   
+
    @Test
    public void testParticipantProbability()
    {
       ProcessDefinition pDef = sf.getQueryService().getProcessDefinition(PROCESS_DEFINITION_ID);
       Activity qaEnabledActivity = pDef.getActivity(QA_ENABLED_ACTIVITY_ID);
-      
+
       //set probability to 0 for the monitored user
-      QualityAssuranceAdminServiceFacade command 
+      QualityAssuranceAdminServiceFacade command
          = new QualityAssuranceAdminServiceFacade(sf);
       command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, 0);
-      
+
       Map<String, String> outData = new HashMap<String, String>();
-      
+
       //instance SHOULD NOT go into qa because the probability was set to 0% for all user
       for(int i=0; i<20; i++)
-      {   
+      {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
                PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService
@@ -364,12 +363,12 @@ public class QualityControlRuntimeTest
                currentActivityInstance.getOID(), null, outData);
          assertEquals("Instance should not go into qa", QualityAssuranceState.NO_QUALITY_ASSURANCE, currentActivityInstance.getQualityAssuranceState());
       }
-      
+
       //let the admin set probability to 100 for the monitored user
-      command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, 100);      
+      command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, 100);
       //instance SHOULD go into qa because the probability was set to 100% for all user
       for(int i=0; i<20; i++)
-      {   
+      {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
                PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService
@@ -383,13 +382,13 @@ public class QualityControlRuntimeTest
                currentActivityInstance.getOID(), null, outData);
          assertEquals("Instance should go into qa", QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED, currentActivityInstance.getQualityAssuranceState());
       }
-      
+
       //now set probability to null - the value should be ignored and no exception should occur
-      command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, null);      
-      //instance SHOULD go into qa because the probability is still on 100% 
+      command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, null);
+      //instance SHOULD go into qa because the probability is still on 100%
       //and the null value should not have been saved
       for(int i=0; i<20; i++)
-      {   
+      {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
                PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService
@@ -404,25 +403,25 @@ public class QualityControlRuntimeTest
          assertEquals("Instance should go into qa", QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED, currentActivityInstance.getQualityAssuranceState());
       }
    }
-   
+
    @Test
    public void testQAFormula()
-   {      
+   {
       errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
 
       ProcessDefinition pDef = sf.getQueryService().getProcessDefinition(PROCESS_DEFINITION_ID);
       Activity qaEnabledActivity = pDef.getActivity(QA_ENABLED_ACTIVITY_ID);
-      
+
       //set probability to 100 for the monitored user - for easier test expectations
-      QualityAssuranceAdminServiceFacade command 
+      QualityAssuranceAdminServiceFacade command
          = new QualityAssuranceAdminServiceFacade(sf);
       command.setQualityAssuranceParticipantProbability(qaEnabledActivity, null, 100);
-      
-      
+
+
       //instance SHOULD NOT go into qa because the data entered dont match the qa formula
       for(int i=0; i<10; i++)
-      {   
+      {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
                PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService
@@ -437,10 +436,10 @@ public class QualityControlRuntimeTest
                currentActivityInstance.getOID(), null, outData);
          assertEquals("Instance should not go into qa", QualityAssuranceState.NO_QUALITY_ASSURANCE, currentActivityInstance.getQualityAssuranceState());
       }
-      
+
       //instance SHOULD go into qa because the data entered matches the qa formula
       for(int i=0; i<10; i++)
-      {   
+      {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(
                PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService
@@ -455,13 +454,13 @@ public class QualityControlRuntimeTest
          assertEquals("Instance should go into qa", QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED, currentActivityInstance.getQualityAssuranceState());
       }
    }
-   
+
    @Test
    public void testBackwardReference()
    {
       ActivityInstance monitoredInstance = null;
       ActivityInstance lastQcInstance = null;
-      
+
       boolean qcInstanceWasCreated = false;
       errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
@@ -480,7 +479,7 @@ public class QualityControlRuntimeTest
          currentActivityInstance = monitoredUserWorkflowService.complete(
                currentActivityInstance.getOID(), null, outData);
          monitoredInstance = currentActivityInstance;
-         
+
          if (currentActivityInstance.getQualityAssuranceState() == QualityAssuranceUtils.QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED)
          {
             qcInstanceWasCreated = true;
@@ -495,17 +494,17 @@ public class QualityControlRuntimeTest
             .activateNextActivityInstanceForProcessInstance(currentProcessInstance
                   .getOID());
       lastQcInstance = currentActivityInstance;
-      
+
       assertEquals(currentActivityInstance.getQualityAssuranceState(),
-            QualityAssuranceState.IS_QUALITY_ASSURANCE); 
+            QualityAssuranceState.IS_QUALITY_ASSURANCE);
       QualityAssuranceInfo info = currentActivityInstance.getQualityAssuranceInfo();
       assertEquals("In the qc instance, a backward reference to the monitored isntance shoudl exists",monitoredInstance.getOID(), info.getMonitoredInstance().getOID());
-      
+
       ActivityInstanceAttributes attributes = getAttributesForFail(
             errorCodesDefinedForAI, currentActivityInstance.getOID());
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
-      
+
       //all recreated activity instances should have a backward reference to the qc instance
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance
             .getOID());
@@ -514,30 +513,30 @@ public class QualityControlRuntimeTest
             lastQcInstance.getOID(),
             info.getFailedQualityAssuranceInstance().getOID());
       monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, null);
-      
+
       //again - another qc instance should be created
       currentActivityInstance = qcManagerWorkflowService
       .activateNextActivityInstanceForProcessInstance(currentProcessInstance
-            .getOID());      
+            .getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(),
-            QualityAssuranceState.IS_QUALITY_ASSURANCE); 
+            QualityAssuranceState.IS_QUALITY_ASSURANCE);
       // information about the last failed qc instance should still be available
       info = currentActivityInstance.getQualityAssuranceInfo();
       assertEquals("A backward ref to the last qc instance should exists",
             lastQcInstance.getOID(),
             info.getFailedQualityAssuranceInstance().getOID());
-      
-      ActivityInstanceAttributes successAttributes 
+
+      ActivityInstanceAttributes successAttributes
          = getAttributeForPassWithoutCorrection(errorCodesDefinedForAI, currentActivityInstance.getOID());
       qcManagerWorkflowService.setActivityInstanceAttributes(successAttributes);
       qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
-      
+
       //the next instance should be a regular one anddont contain any backward references
-      currentActivityInstance 
-         = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());  
+      currentActivityInstance
+         = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertNull("no backward references should exists: ", currentActivityInstance.getQualityAssuranceInfo());
    }
-   
+
    @Test
    public void testAddNote()
    {
@@ -546,29 +545,29 @@ public class QualityControlRuntimeTest
       currentActivityInstance = monitoredUserWorkflowService
             .activateNextActivityInstanceForProcessInstance(currentProcessInstance
                   .getOID());
-      
+
       final String failNoteText1 = "Correct Typo";
       final String failNoteText2 = "Pay more attention";
       final String failNoteText3 = "Set correct value";
-            
+
       //add notes to the activity instance
-      ActivityInstanceAttributes noteAttributes 
+      ActivityInstanceAttributes noteAttributes
          = new ActivityInstanceAttributesImpl(currentActivityInstance.getOID());
       noteAttributes.addNote(failNoteText1);
       noteAttributes.addNote(failNoteText2);
       noteAttributes.addNote(failNoteText3);
-      
+
       monitoredUserWorkflowService.setActivityInstanceAttributes(noteAttributes);
       assertNotesExists(failNoteText1, failNoteText2, failNoteText3);
-      
-      //CRNT-22865: now use query service again to fetch activity instance 
+
+      //CRNT-22865: now use query service again to fetch activity instance
       ActivityInstance checkInstance = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       List<Note> notes = checkInstance.getAttributes().getNotes();
       assertNoteExists(notes, failNoteText1);
       assertNoteExists(notes, failNoteText2);
       assertNoteExists(notes, failNoteText3);
    }
-   
+
    @Test
    public void testWorklistQuery()
    {
@@ -598,35 +597,35 @@ public class QualityControlRuntimeTest
 
       // data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       currentActivityInstance = qcManagerWorkflowService
             .activateNextActivityInstanceForProcessInstance(currentProcessInstance
                   .getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(),
             QualityAssuranceState.IS_QUALITY_ASSURANCE);
-      
+
       //the qc instance should be in the worklist of the qc manager
       Worklist wl = qcManagerWorkflowService.getWorklist(WorklistQuery.findPrivateWorklist());
       assertEquals(1, wl.getTotalCount());
-      
+
       ActivityInstance qcInstance = (ActivityInstance) wl.get(0);
-      assertEquals(QualityAssuranceState.IS_QUALITY_ASSURANCE, 
-            qcInstance.getQualityAssuranceState());           
+      assertEquals(QualityAssuranceState.IS_QUALITY_ASSURANCE,
+            qcInstance.getQualityAssuranceState());
    }
-   
+
    @Test
    public void testDelegateToUser()
    {
-      boolean qcInstanceWasCreated = false;      
-      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
+      boolean qcInstanceWasCreated = false;
+      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
-      
+
       while(qcInstanceWasCreated == false)
       {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
          errorCodesDefinedForAI = currentActivityInstance.getActivity().getAllQualityAssuranceCodes();
-         
+
          outData.put(DATA_ID, QA_DATA_VALUE );
          currentActivityInstance = monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
 
@@ -636,9 +635,9 @@ public class QualityControlRuntimeTest
          }
       }
 
-      //data value should be written 
+      //data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       //activate with the qc manager
       //the next instance should be a quality control instance
       currentActivityInstance = qcManagerWorkflowService
@@ -648,51 +647,51 @@ public class QualityControlRuntimeTest
             QualityAssuranceState.IS_QUALITY_ASSURANCE);
 
       //the instance should go back to the user
-      ActivityInstanceAttributes attributes 
+      ActivityInstanceAttributes attributes
          = getAttributesForFail(errorCodesDefinedForAI, currentActivityInstance.getOID());
       attributes.getQualityAssuranceResult().setAssignFailedInstanceToLastPerformer(true);
-      
+
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,
             null);
-     
+
       //the next activitity instance should be assigned back touser who performed on the last regular
       //activity instance
-      ActivityInstances ais 
+      ActivityInstances ais
          = qs.getAllActivityInstances(ActivityInstanceQuery.findInState(PROCESS_DEFINITION_ID, QA_ENABLED_ACTIVITY_ID, ActivityInstanceState.Suspended));
       assertEquals(1, ais.getTotalCount());
-     
+
       ActivityInstance ai = ais.get(0);
       assertEquals(null, ai.getParticipantPerformerID());
       assertEquals(MONITORED_USER_ID, ai.getUserPerformer().getAccount());
-      
+
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       long userPerformer = currentActivityInstance.getUserPerformerOID();
-      
+
       assertEquals("Activity should be delagated", monitoredUser.getOID(), userPerformer);
-   
+
       //the instance should be in the worklist of the user again
       Worklist wl = monitoredUserWorkflowService.getWorklist(WorklistQuery.findPrivateWorklist());
       assertEquals(1, wl.getTotalCount());
-      
+
       ActivityInstance workflowInstance = (ActivityInstance) wl.get(0);
-      assertEquals(QualityAssuranceState.IS_REVISED, 
-            workflowInstance.getQualityAssuranceState()); 
+      assertEquals(QualityAssuranceState.IS_REVISED,
+            workflowInstance.getQualityAssuranceState());
    }
-   
+
    @Test
    public void testDelegateToParticipant()
    {
-      boolean qcInstanceWasCreated = false;      
-      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
+      boolean qcInstanceWasCreated = false;
+      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
-      
+
       while(qcInstanceWasCreated == false)
       {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
          errorCodesDefinedForAI = currentActivityInstance.getActivity().getAllQualityAssuranceCodes();
-         
+
          outData.put(DATA_ID, QA_DATA_VALUE );
          currentActivityInstance = monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
 
@@ -702,9 +701,9 @@ public class QualityControlRuntimeTest
          }
       }
 
-      //data value should be written 
+      //data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       //activate with the qc manager
       //the next instance should be a quality control instance
       currentActivityInstance = qcManagerWorkflowService
@@ -714,20 +713,20 @@ public class QualityControlRuntimeTest
             QualityAssuranceState.IS_QUALITY_ASSURANCE);
 
       //the instance should go back to the work flow participant
-      ActivityInstanceAttributes attributes 
+      ActivityInstanceAttributes attributes
          = getAttributesForFail(errorCodesDefinedForAI, currentActivityInstance.getOID());
       attributes.getQualityAssuranceResult().setAssignFailedInstanceToLastPerformer(false);
-      
+
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,
             null);
-     
+
       //the next activitity instance should be assigned back to the modeled participant
       //of the activity (the default participant)
-      ActivityInstances ais 
+      ActivityInstances ais
          = qs.getAllActivityInstances(ActivityInstanceQuery.findInState(PROCESS_DEFINITION_ID, QA_ENABLED_ACTIVITY_ID, ActivityInstanceState.Suspended));
       assertEquals(1, ais.getTotalCount());
-     
+
       ActivityInstance ai = ais.get(0);
       assertEquals(MONITORED_USER_ID, ai.getParticipantPerformerID());
    }
@@ -735,16 +734,16 @@ public class QualityControlRuntimeTest
    @Test
    public void testFail()
    {
-      boolean qcInstanceWasCreated = false;      
-      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
+      boolean qcInstanceWasCreated = false;
+      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
-      
+
       while(qcInstanceWasCreated == false)
       {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
          errorCodesDefinedForAI = currentActivityInstance.getActivity().getAllQualityAssuranceCodes();
-         
+
          outData.put(DATA_ID, QA_DATA_VALUE );
          currentActivityInstance = monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
 
@@ -754,7 +753,7 @@ public class QualityControlRuntimeTest
          }
       }
 
-      //data value should be written 
+      //data value should be written
       assertDataExists(QA_DATA_VALUE);
 
       //the next instance should be a quality control instance
@@ -762,100 +761,100 @@ public class QualityControlRuntimeTest
       //the qc manager should see the values from the user
       assertDataExists(QA_DATA_VALUE);
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.IS_QUALITY_ASSURANCE);
-      
-      ActivityInstanceAttributes attributes 
+
+      ActivityInstanceAttributes attributes
          = getAttributesForFail(errorCodesDefinedForAI, currentActivityInstance.getOID());
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
-      
+
       //changing data on fail must have no effect
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);
-      
+
       //the result of the qc instance should be marked as failed
       attributes = currentActivityInstance.getAttributes();
       QualityAssuranceResult result = attributes.getQualityAssuranceResult();
       assertEquals(result.getQualityAssuranceState(), ResultState.FAILED);
-      
+
       //the error code set must must have effect
       assertEquals(result.getQualityAssuranceCodes().size(), 1);
       assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_FAIL));
-      
+
       //when qc instance failed - the next non qc instance should be in state revise
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.IS_REVISED);
-      
+
       //activity instance should also contain information about the failed qc instance
-      ActivityInstance lastFailedQcInstance 
+      ActivityInstance lastFailedQcInstance
          = currentActivityInstance.getQualityAssuranceInfo().getFailedQualityAssuranceInstance();
       result = lastFailedQcInstance.getAttributes().getQualityAssuranceResult();
       assertEquals(result.getQualityAssuranceState(), ResultState.FAILED);
-      
+
       //also check the errocodes (again)
       assertEquals(result.getQualityAssuranceCodes().size(), 1);
-      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_FAIL)); 
+      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_FAIL));
    }
 
    @Test
    public void testPassWithCorrection()
    {
       testFail();
-      
+
       //let the user correct his value
       Map<String, String> outData = new HashMap<String, String>();
       outData.put(DATA_ID, DATA_VALUE_CORRECTED_BY_USER);
-      
+
       //completing and setting data value should works as usual
       currentActivityInstance = monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
       assertDataNotExists(QA_DATA_VALUE);
       assertDataExists(DATA_VALUE_CORRECTED_BY_USER);
-      
+
       //next instance must be a qc instance again
       currentActivityInstance = qcManagerWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.IS_QUALITY_ASSURANCE);
-   
-      ActivityInstanceAttributes attributes 
+
+      ActivityInstanceAttributes attributes
          = getAttributeForPassWithCorrection(errorCodesDefinedForAI, currentActivityInstance.getOID());
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       outData.put(DATA_ID, DATA_VALUE_CORRECTED_BY_QC_MANAGER);
-      
+
       //the correction made by the qc manager should have effect
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
       assertDataNotExists(DATA_VALUE_CORRECTED_BY_USER);
       assertDataExists(DATA_VALUE_CORRECTED_BY_QC_MANAGER);
-   
+
       //the result of the qc instance should be marked as pass with correction
       attributes = currentActivityInstance.getAttributes();
       QualityAssuranceResult result = attributes.getQualityAssuranceResult();
       assertEquals(result.getQualityAssuranceState(), ResultState.PASS_WITH_CORRECTION);
-      
-      //the correct error code must be set 
+
+      //the correct error code must be set
       assertEquals(result.getQualityAssuranceCodes().size(), 1);
-      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITH_CORRECTION)); 
-      
+      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITH_CORRECTION));
+
       //the qc process ends here - next activity instance should be a regular one
-      currentActivityInstance 
+      currentActivityInstance
          = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.NO_QUALITY_ASSURANCE);
       assertEquals(currentActivityInstance.getActivity().getId(), END_ACTIVITY_ID );
-   
+
       monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, null);
    }
-   
+
    @Test
    public void testPassWithoutCorrection()
    {
-      boolean qcInstanceWasCreated = false;      
-      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
+      boolean qcInstanceWasCreated = false;
+      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
-      
+
       while(qcInstanceWasCreated == false)
       {
          currentProcessInstance = monitoredUserWorkflowService.startProcess(PROCESS_DEFINITION_ID, null, true);
          currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
          errorCodesDefinedForAI = currentActivityInstance.getActivity().getAllQualityAssuranceCodes();
-         
+
          outData.put(DATA_ID, QA_DATA_VALUE );
          currentActivityInstance = monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
 
@@ -865,40 +864,40 @@ public class QualityControlRuntimeTest
          }
       }
 
-      //data value should be written 
+      //data value should be written
       assertDataExists(QA_DATA_VALUE);
-      
+
       //the next instance should be a quality control instance
       currentActivityInstance = qcManagerWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.IS_QUALITY_ASSURANCE);
-      
-      ActivityInstanceAttributes attributes 
+
+      ActivityInstanceAttributes attributes
          = getAttributeForPassWithoutCorrection(errorCodesDefinedForAI, currentActivityInstance.getOID());
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
-  
+
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
       outData.put(DATA_ID, modifiedData );
-      
-      //the correction made by the qc manager should have no effect      
+
+      //the correction made by the qc manager should have no effect
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);
-      
+
       //the result of the qc instance should be marked as pass without correction
       attributes = currentActivityInstance.getAttributes();
       QualityAssuranceResult result = attributes.getQualityAssuranceResult();
       assertEquals(result.getQualityAssuranceState(), ResultState.PASS_NO_CORRECTION);
-      
-      //the correct error code must be set 
+
+      //the correct error code must be set
       assertEquals(result.getQualityAssuranceCodes().size(), 1);
-      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION)); 
-      
+      assertNotNull(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION));
+
       //the qc process ends here - next activity instance should be a regular one
-      currentActivityInstance 
+      currentActivityInstance
          = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertEquals(currentActivityInstance.getQualityAssuranceState(), QualityAssuranceState.NO_QUALITY_ASSURANCE);
       assertEquals(currentActivityInstance.getActivity().getId(), END_ACTIVITY_ID );
-      
+
       monitoredUserWorkflowService.complete(currentActivityInstance.getOID(), null, null);
    }
 
@@ -906,47 +905,47 @@ public class QualityControlRuntimeTest
    {
       Set<QualityAssuranceCode> errorCodesForFail = new HashSet<QualityAssuranceCode>();
       errorCodesForFail.add(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_FAIL));
-      
+
       QualityAssuranceResultImpl result = new QualityAssuranceResultImpl();
-      result.setQualityAssuranceState(ResultState.FAILED);      
+      result.setQualityAssuranceState(ResultState.FAILED);
       result.setQualityAssuranceCodes(errorCodesForFail);
-      
+
       ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(aiOid);
       attributes.setQualityAssuranceResult(result);
-   
+
       return attributes;
    }
-   
+
    private ActivityInstanceAttributes getAttributeForPassWithCorrection(Set<QualityAssuranceCode> errorCodesDefinedForAI, long aiOid)
    {
       Set<QualityAssuranceCode> errorCodesForPassWithCorrection = new HashSet<QualityAssuranceCode>();
       errorCodesForPassWithCorrection.add(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITH_CORRECTION));
-      
+
       QualityAssuranceResultImpl result = new QualityAssuranceResultImpl();
-      result.setQualityAssuranceState(ResultState.PASS_WITH_CORRECTION);      
+      result.setQualityAssuranceState(ResultState.PASS_WITH_CORRECTION);
       result.setQualityAssuranceCodes(errorCodesForPassWithCorrection);
-      
+
       ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(aiOid);
       attributes.setQualityAssuranceResult(result);
-   
+
       return attributes;
    }
-   
+
    private ActivityInstanceAttributes getAttributeForPassWithoutCorrection(Set<QualityAssuranceCode> errorCodesDefinedForAI, long aiOid)
    {
       Set<QualityAssuranceCode> errorCodesForPassWithoutCorrection = new HashSet<QualityAssuranceCode>();
       errorCodesForPassWithoutCorrection.add(getCode(errorCodesDefinedForAI, ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION));
-      
+
       QualityAssuranceResultImpl result = new QualityAssuranceResultImpl();
-      result.setQualityAssuranceState(ResultState.PASS_NO_CORRECTION);      
+      result.setQualityAssuranceState(ResultState.PASS_NO_CORRECTION);
       result.setQualityAssuranceCodes(errorCodesForPassWithoutCorrection);
-      
+
       ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(aiOid);
       attributes.setQualityAssuranceResult(result);
-   
+
       return attributes;
    }
-   
+
    private QualityAssuranceCode getCode(Set<QualityAssuranceCode> codes, String key)
    {
       QualityAssuranceCode found = null;
@@ -957,17 +956,17 @@ public class QualityControlRuntimeTest
             found = qcc;
          }
       }
-      
+
       assertNotNull(found);
       return found;
    }
-      
+
    private void assertNotesExists(String...expectedNoteValues)
    {
-      ProcessInstance pi 
+      ProcessInstance pi
          = ws.getProcessInstance(currentProcessInstance.getOID());
       ProcessInstanceAttributes piAttributes = pi.getAttributes();
-      
+
       //check if just created notes are available on process instance
       List<Note> notes = piAttributes.getNotes();
       assertEquals(expectedNoteValues.length, notes.size());
@@ -975,12 +974,12 @@ public class QualityControlRuntimeTest
       {
          assertNoteExists(notes, text);
       }
-      
+
       //check if just created notes are available on activity instance
-      ActivityInstance ai = 
+      ActivityInstance ai =
          ws.getActivityInstance(currentActivityInstance.getOID());
       ActivityInstanceAttributes aiAttributes = ai.getAttributes();
-      
+
       notes = aiAttributes.getNotes();
       assertEquals(expectedNoteValues.length, notes.size());
       for(String text: expectedNoteValues)
@@ -988,7 +987,7 @@ public class QualityControlRuntimeTest
          assertNoteExists(notes, text);
       }
    }
-   
+
    private void assertNoteExists(List<Note> notes, String text)
    {
       boolean found = false;
@@ -999,27 +998,27 @@ public class QualityControlRuntimeTest
             found = true;
          }
       }
-      
+
       assertTrue("Note with text: "+text+" must exist", found);
    }
-   
+
    private void assertDataExists(String expectedValue)
    {
       checkDataValue(expectedValue, true);
    }
-   
+
    private void assertDataNotExists(String expectedValue)
    {
       checkDataValue(expectedValue, false);
    }
-   
+
    private void checkDataValue(String expectedValue, boolean shouldExists)
    {
       long processInstanceOid = currentActivityInstance.getProcessInstanceOID();
-      ActivityInstances ais 
+      ActivityInstances ais
          = qs.getAllActivityInstances(ActivityInstanceQuery.findInStateHavingData(
                PROCESS_DEFINITION_ID, DATA_ID, expectedValue, currentActivityInstance.getState()));
-      
+
       boolean found = false;
       for(int i=0; i<  ais.getSize(); i++)
       {
@@ -1038,7 +1037,7 @@ public class QualityControlRuntimeTest
          errorMsg.append("' and value '");
          errorMsg.append(expectedValue);
          errorMsg.append("'");
-         
+
          assertTrue(errorMsg.toString(), found);
       }
       else
@@ -1049,7 +1048,7 @@ public class QualityControlRuntimeTest
          errorMsg.append("' and value '");
          errorMsg.append(expectedValue);
          errorMsg.append("' but should not exist");
-         
+
          assertFalse(errorMsg.toString(), found);
       }
    }

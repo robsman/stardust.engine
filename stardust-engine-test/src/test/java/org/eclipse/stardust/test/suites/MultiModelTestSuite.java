@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.multimodel;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.multimodel.MultiModelConstants.PROVIDER_MODEL_ID;
@@ -17,6 +17,7 @@ import static org.eclipse.stardust.test.multimodel.MultiModelConstants.CONSUMER_
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.multimodel.RetrieveModelDetailsTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -28,7 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
  * </p>
  *
  * @author Robert Sauer
- * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -36,8 +36,6 @@ import org.junit.runners.Suite.SuiteClasses;
              })
 public class MultiModelTestSuite
 {
-   /* test suite */
-
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, PROVIDER_MODEL_ID, CONSUMER_MODEL_ID);
 }

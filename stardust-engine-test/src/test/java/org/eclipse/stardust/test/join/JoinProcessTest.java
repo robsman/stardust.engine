@@ -43,31 +43,30 @@ import org.junit.rules.TestRule;
 /**
  * <p>
  * This class contains tests for the <i>Join Process</i> functionality,
- * which allows for joining of process instances (refer to the Stardust documentation 
+ * which allows for joining of process instances (refer to the Stardust documentation
  * for details about <i>Join Process</i>).
  * </p>
- * 
+ *
  * @author Roland.Stamm
- * @version $Revision$
  */
 public class JoinProcessTest
 {
-   /* package-private */ static final String MODEL_NAME = "JoinProcessModel";
+   public static final String MODEL_NAME = "JoinProcessModel";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-   
+
    /**
     * Data doc1 is copied to target process because outDataPath exists and it is not initialized.
     */
@@ -98,7 +97,7 @@ public class JoinProcessTest
 
       ProcessInstances allProcessInstances = sf.getQueryService().getAllProcessInstances(query);
       Assert.assertEquals(1, allProcessInstances.getSize());
-      
+
       ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
@@ -127,7 +126,7 @@ public class JoinProcessTest
       Assert.assertEquals("", wfs.getInDataValue(ai.getOID(), null, "Primitive1"));
 
       validateExistsInProcessAttachments(doc1, sf, joinedTargetProcess.getOID());
-      
+
       ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
@@ -158,7 +157,7 @@ public class JoinProcessTest
 
       Document inDataValue = (Document) wfs.getInDataValue(ai.getOID(), null, "Doc1");
       Assert.assertEquals(doc2.getId(), inDataValue.getId());
-      
+
       ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
@@ -190,7 +189,7 @@ public class JoinProcessTest
 
       validateExistsInProcessAttachments(doc1, sf, joinedTargetProcess.getOID());
       validateExistsInProcessAttachments(doc2, sf, joinedTargetProcess.getOID());
-      
+
       ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
@@ -215,7 +214,7 @@ public class JoinProcessTest
 
       validateExistsInProcessAttachments(doc2, sf, sourceProcess.getOID());
       validateExistsInProcessAttachments(doc2, sf, joinedTargetProcess.getOID());
-      
+
       ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
 
    }
@@ -299,7 +298,7 @@ public class JoinProcessTest
       result.getOptions().add(ProcessInstanceDetailsOptions.WITH_LINK_INFO);
       return result;
    }
-   
+
    private static Document getCreateDocument(String docName, ServiceFactory sf)
    {
       DocumentInfo docInfo = DmsUtils.createDocumentInfo(docName);

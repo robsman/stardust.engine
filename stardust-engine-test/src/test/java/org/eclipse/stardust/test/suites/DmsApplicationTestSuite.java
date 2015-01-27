@@ -8,19 +8,19 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.dms;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_SYNC_MODEL_NAME;
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_APPLICATION_MODEL_NAME;
 
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.dms.DmsApplicationTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-
 
 /**
  * <p>
@@ -29,24 +29,12 @@ import org.junit.runners.Suite.SuiteClasses;
  * documentation for details about <i>Document Management</i>).
  * </p>
  *
- * <p>
- * This test suite focuses on DMS synchronization between the JCR repository and the
- * Audit Trail database.
- * </p>
- *
  * @author Nicolas.Werlein, Roland.Stamm
- * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({
-      DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class,
-      DmsSyncDocumentMultiRepositoryTest.class,
-      DmsSyncTypedDocumentMultiRepositoryTest.class,
-      DmsSyncTypedDocumentEmptyRepositoryTest.class})
-public class DmsSyncTestSuite
+@SuiteClasses({ DmsApplicationTest.class})
+public class DmsApplicationTestSuite
 {
-   /* test suite */
-
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_APPLICATION_MODEL_NAME);
 }

@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessEle
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementPurger;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementsVisitor;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * This class allows a request to archive processes instances. The processes will be
@@ -54,9 +55,9 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final List<Long> processInstanceOids;
 
-   private final Date fromDate;
+   private Date fromDate;
 
-   private final Date toDate;
+   private Date toDate;
    
    private final boolean purge;
 
@@ -97,18 +98,6 @@ public class ExportProcessesCommand implements ServiceCommand
       super();
       this.purge = purge;
       this.processInstanceOids = null;
-      if (fromDate != null || toDate != null)
-      {
-         // TODO : TimeZone?
-         if (fromDate == null)
-         {
-            fromDate = new Date(0);
-         }
-         if (toDate == null)
-         {
-            toDate = new Date();
-         }
-      }
       this.fromDate = fromDate;
       this.toDate = toDate;
    }
@@ -120,6 +109,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          LOGGER.debug("START Export");
       }
+      validateDates();
       byte[] result;
       List<Long> uniqueOids = new ArrayList<Long>();
       QueryService queryService = sf.getQueryService();
@@ -283,5 +273,24 @@ public class ExportProcessesCommand implements ServiceCommand
          result = null;
       }
       return result;
+   }
+   
+   private void validateDates() 
+   {
+      if (fromDate != null || toDate != null)
+      {
+         if (fromDate == null)
+         {
+            this.fromDate = new Date(0);
+         }
+         if (toDate == null)
+         {
+            this.toDate = TimestampProviderUtils.getTimeStamp();
+         }
+         if (toDate.before(fromDate)) 
+         {
+            throw new IllegalArgumentException("Export from date can not be before export to date");
+         }
+      }
    }
 }

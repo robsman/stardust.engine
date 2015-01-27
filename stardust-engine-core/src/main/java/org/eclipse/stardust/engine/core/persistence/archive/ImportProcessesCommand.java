@@ -10,6 +10,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * This class allows a request to import archived processes instances. The processes are
@@ -37,9 +38,9 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final byte[] rawData;
 
-   private final Date fromDate;
+   private Date fromDate;
 
-   private final Date toDate;
+   private Date toDate;
 
    private final List<Long> processInstanceOids;
    
@@ -86,18 +87,6 @@ public class ImportProcessesCommand implements ServiceCommand
       super();
       this.processInstanceOids = null;
       this.rawData = rawData;
-      if (fromDate != null || toDate != null)
-      {
-         // TODO : TimeZone?
-         if (fromDate == null)
-         {
-            fromDate = new Date(0);
-         }
-         if (toDate == null)
-         {
-            toDate = new Date();
-         }
-      }
       this.fromDate = fromDate;
       this.toDate = toDate;
    }
@@ -111,6 +100,7 @@ public class ImportProcessesCommand implements ServiceCommand
       }
       if (rawData != null)
       {
+         validateDates();
          final Session session = (Session) SessionFactory
                .getSession(SessionFactory.AUDIT_TRAIL);
          ImportFilter filter;
@@ -124,10 +114,18 @@ public class ImportProcessesCommand implements ServiceCommand
          }
          else
          {
-            filter = null;
+            filter = new ImportFilter();
          }
          
-         importCount = ExportImportSupport.loadProcessInstanceGraph(rawData, session, filter);
+         try
+         {
+            importCount = ExportImportSupport.loadProcessInstanceGraph(rawData, session, filter);
+         }
+         catch (Exception e)
+         {
+            importCount = 0;
+            LOGGER.error("Failed to import processes from input provided", e);
+         }
          if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Imported " + importCount + " process instances.");
          }
@@ -145,4 +143,22 @@ public class ImportProcessesCommand implements ServiceCommand
       return importCount;
    }
 
+   private void validateDates() 
+   {
+      if (fromDate != null || toDate != null)
+      {
+         if (fromDate == null)
+         {
+            this.fromDate = new Date(0);
+         }
+         if (toDate == null)
+         {
+            this.toDate = TimestampProviderUtils.getTimeStamp();
+         }
+         if (toDate.before(fromDate)) 
+         {
+            throw new IllegalArgumentException("Import from date can not be before export to date");
+         }
+      }
+   }
 }

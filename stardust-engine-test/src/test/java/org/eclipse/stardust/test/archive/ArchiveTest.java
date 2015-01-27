@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.*;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.*;
@@ -26,21 +26,25 @@ import java.util.concurrent.TimeoutException;
 
 import javax.sql.DataSource;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
+import org.eclipse.stardust.common.config.*;
+import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.TestTimestampProvider;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 public class ArchiveTest
@@ -62,9 +66,25 @@ public class ArchiveTest
          ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING,
          ArchiveModelConstants.MODEL_ID);
 
+   private final TestTimestampProvider testTimestampProvider = new TestTimestampProvider();
+   
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
+   @Before
+   public void setUp() throws Exception
+   {
+     // PropertyLayer propertyLayer = PropertyLayerProviderInterceptor.BPM_RT_ENV_LAYER_FACTORY_NOPREDECESSOR.createPropertyLayer(null);
+     // PropertyLayerProviderInterceptor.setCurrent((BpmRuntimeEnvironment) propertyLayer);
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, testTimestampProvider);
+   }
+   
+   @After
+   public void tearDown()
+   {
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
+   }
+   
    @Test
    public void importNull()
    {
@@ -213,8 +233,9 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA);
-      Thread.sleep(1000);
-      Date fromDate = new Date();
+      testTimestampProvider.nextHour();
+      Date fromDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB);
@@ -224,8 +245,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB);
-      Thread.sleep(1000);
-      Date toDate = new Date();
+      testTimestampProvider.nextHour();
+      Date toDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel);
@@ -287,6 +309,68 @@ public class ArchiveTest
       assertProcessInstancesEquals(oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
+   
+   @Test (expected=ServiceCommandException.class)
+   public void testExportInvalidDateRange() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      Date fromDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
+      Date toDate = testTimestampProvider.getTimestamp();
+    
+      workflowService.execute(new ExportProcessesCommand(
+            toDate, fromDate, true));
+      fail("Invalid date ranges. Code should not get here");
+   }
+   
+   @Test (expected=ServiceCommandException.class)
+   public void testImportInvalidDateRange() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      Date fromDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
+      Date toDate = testTimestampProvider.getTimestamp();
+    
+      workflowService.execute(new ImportProcessesCommand(new byte[]{1},
+            toDate, fromDate));
+      fail("Invalid date ranges. Test should not get here");
+   }
+   
+   @Test
+   public void testImportInvalidBadData() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+    
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(new byte[]{5}));
+      assertEquals(0, count);
+   }
+   
+   @Test
+   public void testImportInvalidDataEOF() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+    
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(new byte[]{BlobBuilder.SECTION_MARKER_EOF}));
+      assertEquals(0, count);
+   }
+
+   @Test
+   public void testImportInvalidDataInstances() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+    
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(new byte[]{BlobBuilder.SECTION_MARKER_INSTANCES}));
+      assertEquals(0, count);
+   }
+
+   @Test
+   public void testImportInvalidDataInstancesBadData() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+    
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(new byte[]{BlobBuilder.SECTION_MARKER_INSTANCES, 5}));
+      assertEquals(0, count);
+   }
 
    @Test
    public void testExportAllFilterImportFromAndToDate() throws Exception
@@ -297,8 +381,9 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA);
-      Thread.sleep(1000);
-      Date fromDate = new Date();
+      testTimestampProvider.nextHour();
+      Date fromDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB);
@@ -308,8 +393,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB);
-      Thread.sleep(1000);
-      Date toDate = new Date();
+      testTimestampProvider.nextHour();
+      Date toDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel);
@@ -484,7 +570,7 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA);
-      Thread.sleep(1000);
+      testTimestampProvider.nextHour();
       Date fromDate = null;
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
@@ -495,8 +581,8 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB);
-      Thread.sleep(1000);
-      Date toDate = new Date();
+      Date toDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel);
@@ -594,8 +680,8 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA);
-      Thread.sleep(1000);
-      Date fromDate = new Date();
+      testTimestampProvider.nextHour();
+      Date fromDate = testTimestampProvider.getTimestamp();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB);
@@ -605,7 +691,7 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB);
-      Thread.sleep(1000);
+      testTimestampProvider.nextHour();
       Date toDate = null;
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
@@ -719,8 +805,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB);
-      Thread.sleep(1000);
-      Date toDate = new Date();
+      testTimestampProvider.nextHour();
+      Date toDate = testTimestampProvider.getTimestamp();
+      testTimestampProvider.nextHour();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel);
@@ -792,8 +879,8 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA);
-      Thread.sleep(1000);
-      Date fromDate = new Date();
+      testTimestampProvider.nextHour();
+      Date fromDate = testTimestampProvider.getTimestamp();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB);
@@ -1520,12 +1607,12 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
 
-      Date startDate = new Date();
+      Date startDate = testTimestampProvider.getTimestamp();
       final ProcessInstance pi = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
 
       completeSimple(pi);
-      Date endDate = new Date();
+      Date endDate = testTimestampProvider.getTimestamp();
 
       ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
       pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
@@ -2136,7 +2223,98 @@ public class ArchiveTest
 
    }
 
+   @Test
+   public void testExportImportSimpleNoProcessDefinition() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
 
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+
+      completeSimple(pi);
+      int modelOID = pi.getModelOID();
+      
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids, true));
+      assertNotNull(rawData);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+
+      adminService.deleteModel(modelOID);
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(0, count);
+      
+      RtEnvHome.deploy(sf.getAdministrationService(), null, ArchiveModelConstants.MODEL_ID);
+   }
+   
+   @Test
+   public void testExportImportSimpleSameModelRedeployed() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
+
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+
+      completeSimple(pi);
+      int modelOID = pi.getModelOID();
+      
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(oids, true));
+      assertNotNull(rawData);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+
+      adminService.deleteModel(modelOID);
+      RtEnvHome.deploy(sf.getAdministrationService(), null, ArchiveModelConstants.MODEL_ID);
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(rawData));
+      assertEquals(0, count);
+   }
    
    private boolean hasStructuredDateField(long processInstanceOid, String dataId, String fieldName, Object value) throws Exception
    {

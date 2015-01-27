@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -19,6 +22,8 @@ public class ImportFilter
    private final List<Long> processInstanceOids;
 
    private final Map<Long, Boolean> processMap = new HashMap<Long, Boolean>();
+   
+   private static final Logger LOGGER = LogManager.getLogger(ImportFilter.class);
 
    public ImportFilter(Date fromDate, Date toDate)
    {
@@ -36,15 +41,23 @@ public class ImportFilter
       this.toDate = null;
    }
 
+   public ImportFilter()
+   {
+      super();
+      this.processInstanceOids = null;
+      this.fromDate = null;
+      this.toDate = null;
+   }
+
    public boolean isInFilter(ProcessInstanceBean process, Object[] linkBuffer)
    {
       Boolean isInFilter = processMap.get(process.getOID());
 
       if (isInFilter == null)
       {
+         TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
          if (processInstanceOids != null)
          {
-            TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
             final int linkIdx = typeDescriptor.getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
             Number rootProcessInstanceOID =  (Number) linkBuffer[linkIdx];
             
@@ -59,9 +72,25 @@ public class ImportFilter
             isInFilter = (fromDate.compareTo(process.getStartTime()) < 1)
                   && (toDate.compareTo(process.getTerminationTime()) > -1);
          }
-         else
+         else 
          {
-            isInFilter = false;
+            isInFilter = true;
+         }
+            
+         // validate that we are importing a process instance with a valid 
+         // process definition
+         if (isInFilter)
+         {
+            try 
+            {
+               process.getProcessDefinition();
+            }
+            catch (ObjectNotFoundException e)
+            {
+               isInFilter = false;
+               LOGGER.error("Failed to import process instance: " + process.getOID()
+                     + ". Model: " + process.getModelOID() + ".", e);
+            }
          }
          processMap.put(process.getOID(), isInFilter);
       }

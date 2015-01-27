@@ -66,4 +66,14 @@ public class TestTimestampProvider implements TimestampProvider
    {
       cal.add(Calendar.YEAR, 1);
    }
+   
+   /**
+    * <p>
+    * Move the timestamp held by this {@link TimestampProvider} instance to the next hour.
+    * </p>
+    */
+   public void nextHour()
+   {
+      cal.add(Calendar.HOUR_OF_DAY, 1);
+   }
 }

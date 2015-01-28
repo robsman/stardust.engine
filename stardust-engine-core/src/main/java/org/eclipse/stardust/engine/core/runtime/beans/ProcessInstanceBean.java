@@ -1927,7 +1927,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
                         {
                            try
                            {
-                              lockDataValue(data);
+                              ((ProcessInstanceBean) parentProcessInstance).lockDataValue(data);
                            }
                            catch (PhantomException e)
                            {

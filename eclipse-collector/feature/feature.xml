@@ -13,7 +13,9 @@
       id="eclipse-collector-feature"
       label="eclipse-collector-feature"
       version="9.9.9.qualifier"
-      provider-name="eclipse-collector-feature">
+      provider-name="eclipse-collector-feature"
+      license-feature="org.eclipse.license"
+      license-feature-version="1.0.1.qualifier">
 
    <requires>
       <import plugin="org.eclipse.xsd"/>

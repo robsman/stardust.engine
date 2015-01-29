@@ -15,7 +15,6 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
@@ -333,6 +332,18 @@ public class BeanBpmTypeConverterTest
 
       resultEndpoint.assertIsSatisfied();
       resultEndpoint.reset();
+   }
+   
+   @Test
+   public void testOutDataPath() throws Exception
+   {
+      ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      ProcessInstance pInstance = sf.getWorkflowService().startProcess("{BPMTypeConverterTestModel}FromJsontooutdatapath", new HashMap<String, Object>(), true);
+      Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "PersonAddresses");
+      assertNotNull(result);
+      assertTrue(result instanceof Map< ? , ? >);
+      assertTrue("France".equals(((Map)((Map) result).get("PAddress")).get("State")));
+      assertTrue("Paris".equals(((Map)((Map) result).get("PAddress")).get("City")));
    }
 
 }

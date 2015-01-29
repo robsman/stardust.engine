@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="BPMTypeConverterTestModel" Name="BPM Type Converter Test Model">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="BPMTypeConverterTestModel" Name="BPM Type Converter Test Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -10,8 +11,8 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1">
-      <xpdl:TypeDeclaration Id="Address" Name="Address">
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="Address" Name="Address">
          <xpdl:ExtendedAttributes>
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
@@ -30,7 +31,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-      <xpdl:TypeDeclaration Id="Person" Name="Person">
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="Person" Name="Person">
          <xpdl:ExtendedAttributes>
             <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
          </xpdl:ExtendedAttributes>
@@ -51,7 +52,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-      <xpdl:TypeDeclaration Id="DataTypes" Name="DataTypes">
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="DataTypes" Name="DataTypes">
          <xpdl:SchemaType>
             <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes">
                <xsd:complexType name="DataTypes">
@@ -72,7 +73,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-      <xpdl:TypeDeclaration Id="NestedDataTypes" Name="NestedDataTypes">
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="NestedDataTypes" Name="NestedDataTypes">
          <xpdl:SchemaType>
             <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes">
                <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
@@ -85,7 +86,7 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-      <xpdl:TypeDeclaration Id="DataTypeList" Name="DataTypeList">
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="DataTypeList" Name="DataTypeList">
          <xpdl:SchemaType>
             <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypeList" xmlns:dat_1="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" xmlns:nes="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/NestedDataTypes" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypeList">
                <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/DataTypes" schemaLocation="urn:internal:DataTypes"/>
@@ -99,7 +100,56 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
-   </xpdl:TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="PersonAddresses" Name="PersonAddresses">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="3324989b-bcd6-4adb-af86-abc1e2f39c44"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:per="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PersonAddresses" xmlns:pri="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PrimaryAddress" xmlns:sec="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/SecondaryAddress" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PersonAddresses">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/SecondaryAddress" schemaLocation="urn:internal:SecondaryAddress"/>
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PrimaryAddress" schemaLocation="urn:internal:PrimaryAddress"/>
+               <xsd:complexType name="PersonAddresses">
+                  <xsd:sequence>
+                     <xsd:element name="PAddress" type="pri:PrimaryAddress"/>
+                     <xsd:element name="SAddress" type="sec:SecondaryAddress"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="PersonAddresses" type="per:PersonAddresses"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="PrimaryAddress" Name="PrimaryAddress">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="fc2f599f-d98c-4d44-9464-a432707d2436"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pri="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PrimaryAddress" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/PrimaryAddress">
+               <xsd:complexType name="PrimaryAddress">
+                  <xsd:sequence>
+                     <xsd:element name="City" type="xsd:string"/>
+                     <xsd:element name="State" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="PrimaryAddress" type="pri:PrimaryAddress"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="SecondaryAddress" Name="SecondaryAddress">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="8b4cb0fa-d321-4341-863b-ff381dbb4de2"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:sec="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/SecondaryAddress" targetNamespace="http://www.infinity.com/bpm/model/BPMTypeConverterTestModel/SecondaryAddress">
+               <xsd:complexType name="SecondaryAddress">
+                  <xsd:sequence>
+                     <xsd:element name="Country" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="SecondaryAddress" type="sec:SecondaryAddress"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+   </TypeDeclarations>
    <carnot:qualityControl xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1"/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -458,6 +508,46 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Application>
+      <Application Id="FromJsontooutdatapath" Name="From Json to out data path">
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="274" Type="camelSpringProducerApplication">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="331" Id="SubAddress" Name="SubAddress" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="332" Id="PrimaryAddress" Name="PrimaryAddress" Direction="OUT" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="PrimaryAddress"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="21e12427-ed24-4b10-8a01-c023aa8cf5fa"/>
+                     <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="SubAddress"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="PrimaryAddress"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;log message=&quot;inside paddress app&quot;/&gt;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromJSON&quot; /&gt; &lt;log message=&quot;inside paddress app after $simple{headers} body $simple{body}&quot;/&gt;"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
    </Applications>
    <DataFields>
       <DataField Id="PROCESS_ID" Name="Process OID" IsArray="FALSE">
@@ -649,6 +739,54 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value="${myConfVar}"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="PersonAddresses1" Name="PersonAddresses" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="PersonAddresses"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="282" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="91322893-f832-4de9-b036-4a3f27442c4e"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="JsonAddress1" Name="JsonAddress1" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>{"State":"France","City":"Paris"}</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="286" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="002afed4-3538-4286-8095-d3ac1495db0e"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="{&quot;State&quot;:&quot;France&quot;,&quot;City&quot;:&quot;Paris&quot;}"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="JsonAddress2" Name="JsonAddress2" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="287" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="4b08eba6-6418-4082-8e72-33e0f46255ed"/>
                      <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
@@ -1336,6 +1474,90 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="FromJsontooutdatapath" Name="From Json to out data path" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FromJsontooutdatapath" Name="From Json to out data path">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="FromJsontooutdatapath">
+                        <ActualParameters>
+                           <ActualParameter>JsonAddress1</ActualParameter>
+                           <ActualParameter>PersonAddresses1-&gt;PAddress</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="280" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="314" Id="JsonAddress1" Name="JsonAddress1" Direction="IN" Context="application">
+                              <carnot:DataRef Id="JsonAddress1"/>
+                              <carnot:AccessPointRef Id="SubAddress"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="334" Id="PersonAddresses1" Name="PersonAddresses" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="PersonAddresses1" Expression="PAddress"/>
+                              <carnot:AccessPointRef Id="PrimaryAddress"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="560a749d-324a-4265-a39b-b74402c5211d"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="276">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="319" Id="PersonAddresses" Name="PersonAddresses" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="PersonAddresses1"/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="3b7593c7-2ce1-4a1c-92e4-9ec0932c5f4a"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="279" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="278" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="415" Height="670" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="277" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="381" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="278">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="281" X="99" Y="145" Width="180" Height="50" ModelElement="FromJsontooutdatapath"/>
+                                       <carnot:Symbol Kind="DATA" Oid="296" X="35" Y="81" Width="100" Height="70" ModelElement="JsonAddress1"/>
+                                       <carnot:Symbol Kind="DATA" Oid="320" X="259" Y="260" Width="100" Height="70" ModelElement="PersonAddresses1"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="298" SourceSymbol="296" TargetSymbol="281" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="322" SourceSymbol="320" TargetSymbol="281" SourceAnchor="bottom" TargetAnchor="left"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -1487,7 +1709,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Sun May 26 23:47:46 CEST 2013"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed Jan 28 16:41:29 WAT 2015"/>
                <carnot:Attribute Name="carnot:simulation:configuration:nextSimulationConfigurationId" Value="1"/>
                <carnot:Attribute Name="project-planning:effortParameter[0]:scope" Value="org.eclipse.stardust.model.xpdl.carnot.ModelType"/>
                <carnot:Attribute Name="project-planning:effortParameter[0]:filter">

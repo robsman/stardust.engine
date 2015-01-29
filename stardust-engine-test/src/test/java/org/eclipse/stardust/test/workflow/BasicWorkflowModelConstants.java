@@ -15,72 +15,71 @@ package org.eclipse.stardust.test.workflow;
  * This class contains constants related to the model
  * used for workflow service tests.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class BasicWorkflowModelConstants
+public class BasicWorkflowModelConstants
 {
    /**
     * the name of the model
     */
-   /* package-private */ static final String MODEL_NAME = "BasicWorkflowModel";
-   
-   
+   public static final String MODEL_NAME = "BasicWorkflowModel";
+
+
    /**
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_1_ID = "ProcessDefinition_1";
-   
+
    /**
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_2_ID = "ProcessDefinition_2";
-   
+
    /**
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_3_ID = "ProcessDefinition_3";
-   
+
    /**
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_4_ID = "ProcessDefinition_4";
 
-   
+
    /**
     * the ID of manual activity #1
     */
    /* package-private */ static final String MANUAL_ACTIVITY_1_ID = "Activity_1";
-   
+
    /**
     * the ID of manual activity #2
     */
    /* package-private */ static final String MANUAL_ACTIVITY_2_ID = "Activity_2";
 
-   
+
    /**
     * the ID of the default role
     */
    /* package-private */ static final String DEFAULT_ROLE_ID = "DefaultRole";
-   
-   
+
+
    /**
     * a string data
     */
    /* package-private */ static final String MY_STRING_DATA_ID = "MyString";
-   
+
    /**
     * an integer data
     */
    /* package-private */ static final String MY_INT_DATA_ID = "MyInt";
-   
-   
+
+
    /**
-    * a string in data path 
+    * a string in data path
     */
    /* package-private */ static final String MY_STRING_IN_DATA_PATH_ID = "MyStringInDataPath";
-   
+
    /**
     * an integer in data path
     */

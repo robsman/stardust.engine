@@ -27,7 +27,7 @@ import org.h2.tools.Server;
 
 /**
  * <p>
- * This class wraps a <a href="http://www.h2database.com">H2 Database Engine</a> instance 
+ * This class wraps a <a href="http://www.h2database.com">H2 Database Engine</a> instance
  * and provides convenient methods to
  * <ul>
  *   <li>start, and</li>
@@ -35,7 +35,7 @@ import org.h2.tools.Server;
  * </ul>
  * the same as well as a means to create the Audit Trail Schema.
  * </p>
- * 
+ *
  * <p>
  * When started the database is not only available within the same JVM,
  * but can also be accessed via TCP in order to inspect the DB's content
@@ -43,12 +43,12 @@ import org.h2.tools.Server;
  * Oracle compatibility mode, which supports the most features of the Oracle
  * dialect, and using Multi-Version Concurrency Control (MVCC).
  * </p>
- * 
+ *
  * <p>
  * The database's <i>url</i>, <i>username</i> and <i>password</i> will be
  * obtained from the file <code>carnot.properties</code>.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -57,21 +57,21 @@ public class H2Server
    private static final Log LOG = LogFactory.getLog(H2Server.class);
 
    private static final String DS_PORT_SUFFIX = ".Port";
-   
+
    private static final String SERVER_TCP_PORT_PARAMETER = "-tcpPort";
-   
+
    private static final String ORACLE_MODE_URL_SUFFIX = ";MODE=ORACLE";
    private static final String MVCC_MODE_URL_SUFFIX = ";MVCC=TRUE";
-   
+
    private static final String DBMS_URL;
    private static final String DB_USER;
    private static final String DB_PASSWORD;
-   
+
    private static final String DBMS_PORT;
-   
-   private final Server server;
+
+   private Server server;
    private Connection initialConnection;
-   
+
    static
    {
       final GlobalParameters parameters = GlobalParameters.globals();
@@ -80,8 +80,8 @@ public class H2Server
       DB_PASSWORD = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX);
       DBMS_PORT = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + DS_PORT_SUFFIX);
    }
-   
-   public H2Server() throws TestRtEnvException
+
+   public void init() throws TestRtEnvException
    {
       try
       {
@@ -93,14 +93,14 @@ public class H2Server
          LOG.error(errorMsg, e);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_SETUP);
       }
-      
+
       server.setOut(new PrintStream(new LogOutputStream(), true));
    }
-   
+
    public void start() throws TestRtEnvException
    {
       final String errorMsg = "Unable to start H2 server.";
-      
+
       try
       {
          server.start();
@@ -113,20 +113,20 @@ public class H2Server
          LOG.error(errorMsg, e);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_SETUP);
       }
-      
+
       final boolean isRunning = server.isRunning(false);
       if ( !isRunning)
       {
          LOG.error(errorMsg);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_SETUP);
       }
-      
+
    }
-   
+
    public void stop() throws TestRtEnvException
    {
       ensureServerIsRunning();
-      
+
       try
       {
          initialConnection.close();
@@ -137,7 +137,7 @@ public class H2Server
          LOG.error(errorMsg);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_TEARDOWN);
       }
-      
+
       try
       {
          server.stop();
@@ -148,7 +148,7 @@ public class H2Server
          LOG.error(errorMsg);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_TEARDOWN);
       }
-      
+
       final boolean isRunning = server.isRunning(false);
       if (isRunning)
       {
@@ -156,8 +156,10 @@ public class H2Server
          LOG.error(errorMsg);
          throw new TestRtEnvException(errorMsg, TestRtEnvAction.DB_TEARDOWN);
       }
+
+      server = null;
    }
-   
+
    public void createSchema() throws TestRtEnvException
    {
       ensureServerIsRunning();
@@ -173,7 +175,7 @@ public class H2Server
          throw new TestRtEnvException(errorMsg, e, TestRtEnvAction.DB_SETUP);
       }
    }
-   
+
    private void ensureServerIsRunning()
    {
       final boolean isRunning = server.isRunning(false);
@@ -184,18 +186,18 @@ public class H2Server
          throw new IllegalStateException(errorMsg);
       }
    }
-   
+
    private static final class LogOutputStream extends OutputStream
    {
       private StringBuilder sb = new StringBuilder();
-      
+
       @Override
       public void write(final int b)
       {
          final char charToWrite = (char) (0x000000FF & b);
          sb.append(charToWrite);
       }
-      
+
       @Override
       public void flush()
       {
@@ -217,7 +219,7 @@ public class H2Server
          {
             stringToLog = stringToLog.replaceAll("\n", "");
          }
-         
+
          LOG.info(stringToLog);
          sb = new StringBuilder();
       }

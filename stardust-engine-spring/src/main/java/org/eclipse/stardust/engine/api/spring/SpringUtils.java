@@ -82,6 +82,12 @@ public class SpringUtils
       return singleton;
    }
 
+   public static synchronized void reset()
+   {
+      Parameters.instance().set(SpringConstants.PRP_CACHED_APPLICATION_CONTEXT, null);
+      singleton = null;
+   }
+
    public static ApplicationContext getWebApplicationContext()
    {
       try

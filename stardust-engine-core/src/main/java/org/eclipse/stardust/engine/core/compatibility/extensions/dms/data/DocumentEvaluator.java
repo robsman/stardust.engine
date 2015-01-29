@@ -148,7 +148,7 @@ public class DocumentEvaluator implements AccessPathEvaluator
             String memento = LargeStringHolder.getLargeString(
                   ((Long) handle).longValue(), DocumentSetTypeDescription.class, false);
 
-            if ( !StringUtils.isEmpty(memento))
+            if ( StringUtils.isEmpty(memento))
             {
                // Consider disk only if not found in cache
                memento = LargeStringHolder.getLargeString(((Long) handle).longValue(),

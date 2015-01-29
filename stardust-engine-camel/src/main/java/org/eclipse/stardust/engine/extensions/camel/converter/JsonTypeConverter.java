@@ -68,7 +68,6 @@ public class JsonTypeConverter
 
                if (json != null)
                {
-                  // TODO: is that the correct OID?
                   long modelOid = new Long(dataMapping.getModelOID());
                   SDTConverter converter = new SDTConverter(dataMapping, modelOid);
                   Map<String, Object> complexType = parseJson(converter, json,

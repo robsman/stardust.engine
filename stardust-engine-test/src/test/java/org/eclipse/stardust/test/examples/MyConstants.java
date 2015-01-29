@@ -15,17 +15,16 @@ package org.eclipse.stardust.test.examples;
  * This class contains constants related to the model
  * used for the example tests.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class MyConstants
+public class MyConstants
 {
    /**
     * the name of the model
     */
-   /* package-private */ static final String MODEL_NAME = "MyExampleModel";
-   
+   public static final String MODEL_NAME = "MyExampleModel";
+
    /**
     * the name of the process definition #1
     */

@@ -21,6 +21,7 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -47,7 +48,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName valueOf, String reportName);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName);
 
    protected String getExtension()
    {
@@ -74,6 +75,11 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       return dmService.getFolder(folderName);
    }
 
+   protected boolean acceptEventType(String eventType)
+   {
+      return true;
+   }
+
    public List<T> readAllDefinitions()
    {
       List<T> scheduledDocuments = CollectionUtils.newList();
@@ -87,40 +93,59 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             String reportName = document.getName();
             reportName = reportName.substring(0, reportName.length() - extension.length());
 
-            String content = new String(dmService.retrieveDocumentContent(document.getId()));
+            String content;
+            try
+            {
+               content = new String(dmService.retrieveDocumentContent(document.getId()), "UTF-8");
+            }
+            catch (Exception e)
+            {
+               content = new String(dmService.retrieveDocumentContent(document.getId()));
+            }
+
             JsonObject documentJson = new JsonParser().parse(content).getAsJsonObject();
             JsonArray eventsArray = documentJson.getAsJsonArray("events");
 
             if (eventsArray != null)
             {
-               for (int n = 0; n < eventsArray.size(); ++n)
+               for (JsonElement event : eventsArray)
                {
-                  JsonObject schedulingJson = eventsArray.get(n).getAsJsonObject();
-                  if (schedulingJson != null)
+                  JsonObject eventJson = event.getAsJsonObject();
+                  if (eventJson != null && isActive(eventJson))
                   {
-                     if (schedulingJson.get("active") != null
-                           && schedulingJson.get("active").getAsBoolean())
-                     {
-                        SchedulingRecurrence sc = SchedulingFactory.getScheduler(schedulingJson);
-                        Date processSchedule = sc.processSchedule(schedulingJson, true);
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(eventJson);
+                     Date processSchedule = sc.processSchedule(eventJson, true);
 
-                        if (processSchedule != null && executionTimeMatches(processSchedule))
-                        {
-                           matches = true;
-                           break;
-                        }
+                     if (processSchedule != null && executionTimeMatches(processSchedule))
+                     {
+                        matches = true;
+                        break;
                      }
                   }
                }
 
                if (matches)
                {
-                  scheduledDocuments.add(createScheduledDocument(documentJson, QName.valueOf(owner), reportName));
+                  scheduledDocuments.add(createScheduledDocument(documentJson,
+                        owner == null ? new QName("") : QName.valueOf(owner), reportName));
                }
             }
          }
       }
       return scheduledDocuments;
+   }
+
+   protected boolean isActive(JsonObject eventJson)
+   {
+      JsonElement active = eventJson.get("active");
+      return (active == null || active.getAsBoolean()) && acceptEventType(getAsString(eventJson, "type"));
+   }
+
+   private String getAsString(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
+            ? null : property.getAsString();
    }
 
    public List<Document> scanLocations()

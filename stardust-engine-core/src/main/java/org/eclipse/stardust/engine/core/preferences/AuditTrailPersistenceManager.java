@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.preferences;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -27,13 +25,7 @@ import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
-import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -120,7 +112,15 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
       if (preferencesBean != null)
       {
          final String stringValue = preferencesBean.getStringValue();
-         byte[] fileContent = stringValue == null ? null : stringValue.getBytes();
+         byte[] fileContent = null;
+         try
+         {
+            fileContent = stringValue == null ? null : stringValue.getBytes("UTF-8");
+         }
+         catch (UnsupportedEncodingException e)
+         {
+            throw new InternalException(e);
+         }
 
          if ((null != fileContent) && (0 < fileContent.length))
          {
@@ -129,9 +129,9 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
             {
                loadedPreferences = loader.readPreferences(isFileContent);
             }
-            catch (IOException ioe)
+            catch (IOException e)
             {
-               // TODO
+               throw new InternalException(e);
             }
             finally
             {
@@ -139,9 +139,9 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
                {
                   isFileContent.close();
                }
-               catch (IOException ioe)
+               catch (IOException e)
                {
-                  // ignore
+                  throw new InternalException(e);
                }
             }
          }
@@ -262,7 +262,15 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
 
       byte[] content = writePreferencesContent(preferences, writer);
 
-      String stringValue = new String(content);
+      String stringValue = null;
+      try
+      {
+         stringValue = new String(content, "UTF-8");
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         throw new InternalException(e);
+      }
 
       PreferencesBean preferencesBean = PreferencesBean.find(oid, scope.name(),
             preferences.getModuleId(), preferences.getPreferencesId());
@@ -284,7 +292,7 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
    {
       ByteArrayOutputStream baosPrefsContent = new ByteArrayOutputStream();
 
-      byte[] content;
+      byte[] content = null;
       try
       {
          writer.writePreferences(baosPrefsContent, preferences.getModuleId(),
@@ -293,9 +301,7 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
       }
       catch (IOException ioe)
       {
-         // TODO
-         content = null;
-         throw new PublicException(ioe);
+         throw new InternalException(ioe);
       }
       finally
       {

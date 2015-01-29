@@ -389,7 +389,7 @@ public class Util
     */
    public static ApplicationContext getActivityInstanceApplicationContext(final ActivityInstance ai)
    {
-      return ai.getActivity().getApplicationContext("application");
+      return ai.getActivity().getApplicationContext(PredefinedConstants.APPLICATION_CONTEXT);
    }
 
    /**
@@ -399,8 +399,27 @@ public class Util
     */
    public static ApplicationContext getActivityInstanceDefaultContext(final ActivityInstance ai)
    {
-      return ai.getActivity().getApplicationContext("default");
+      return ai.getActivity().getApplicationContext(PredefinedConstants.DEFAULT_CONTEXT);
    }
+   
+   /**
+   * Return the first ApplicationContext for the given ActivityInstance which provides out data mappings.
+   * If no context with out data mappings is found, <code>null</code> is returned.
+   * @param ai
+   * @return ApplicationContext, or <code>null</code> if no context with OUT data mappings is found
+   */
+  public static ApplicationContext getFirstApplicationContextWithOutMappings(final ActivityInstance ai)
+  {
+     List<ApplicationContext> applicationContexts = ai.getActivity().getAllApplicationContexts();
+     for (ApplicationContext applicationContext : applicationContexts)
+     {
+        if(applicationContext.getAllOutDataMappings() != null && !applicationContext.getAllOutDataMappings().isEmpty())
+        {
+           return applicationContext;
+        }
+     }
+     return null;
+  }
 
    /**
     *

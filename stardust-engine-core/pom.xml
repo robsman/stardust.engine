@@ -558,25 +558,12 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-library</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.hamcrest</groupId>
-               <artifactId>hamcrest-core</artifactId>
-            </exclusion>
-         </exclusions>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>mockito-module</artifactId>
+         <version>${project.version}</version>
+         <scope>compile</scope>
+         <type>pom</type>
+         <optional>true</optional>
       </dependency>
    </dependencies>
    
@@ -609,8 +596,8 @@
             <configuration>
                <excludes>
                   <exclude>org/eclipse/stardust/**/ejb2/tools/*.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Carnot2Xpdl.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Xpdl2Carnot.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Carnot2Xpdl.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Xpdl2Carnot.class</exclude>
                </excludes>
             </configuration>
          </plugin>

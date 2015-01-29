@@ -79,6 +79,7 @@ public class SpringAppContext
       try
       {
          appCtx().close();
+         SpringUtils.reset();
       }
       catch (final Exception e)
       {

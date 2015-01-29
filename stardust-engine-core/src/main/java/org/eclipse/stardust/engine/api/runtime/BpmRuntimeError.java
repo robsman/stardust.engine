@@ -168,7 +168,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ATDB_PROCESS_INSTANCE_NOT_TERMINATED = newArgs1("ATDB01103", BpmRuntimeErrorMessages.getString("ATDB01103")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_PROCESS_INSTANCE_TERMINATED = newArgs1("ATDB01104", BpmRuntimeErrorMessages.getString("ATDB01104")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_PROCESS_INSTANCE_ABORTING = newArgs1("ATDB01105", BpmRuntimeErrorMessages.getString("ATDB01105")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_SPAWNED = newArgs1("ATDB01106", "Process instance with OID {0} is not spawned.");
+   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_SPAWNED = newArgs1("ATDB01106", BpmRuntimeErrorMessages.getString("ATDB01106")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_ROOT = newArgs1("ATDB01107", BpmRuntimeErrorMessages.getString("ATDB01107")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 ATDB_NO_MATCHING_ACTIVITY_INSTANCE = newArgs0("ATDB01111", BpmRuntimeErrorMessages.getString("ATDB01111")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_ACTIVITY_INSTANCE_OID = newArgs1("ATDB01112", BpmRuntimeErrorMessages.getString("ATDB01112")); //$NON-NLS-1$ //$NON-NLS-2$

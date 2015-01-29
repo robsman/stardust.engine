@@ -25,10 +25,7 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.OUT_DATA_PATH_FAIL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ABORT_PROCESS;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_DEFERRED;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESSES;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_BIG_STRUCTURED_DATA;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_DEFERRED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_ENGINE_DEFAULT;
@@ -36,9 +33,18 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_MULTIPLE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_CHANGE_AUDIT_TRAIL_PERSISTENCE_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DATA_PROCESS_STARTING_ASYNC_SUBPROCESS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_DEFERRED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DEFERRED_PROCESS_ASYNC_SUBPROCESS_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED_FAIL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_DEFERRED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMPLICIT_AND_JOIN;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MANUAL_ACTIVITY;
@@ -58,12 +64,16 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_XOR_JOIN;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SUB_SUB_PROCESS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_DEFERRED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_PROCESS_ASYNC_SUBPROCESS_TRANSIENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_VIA_JMS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WAITING_PROCESS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WHILE_LOOP;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_NAME_TIMER_TRIGGER;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.*;
+import static org.eclipse.stardust.vfs.impl.utils.CollectionUtils.newSet;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -146,27 +156,6 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
    private static final String CASE_PI_NAME = "<Case PI Name>";
 
    private static final String CASE_PI_DESCRIPTION = "<Case PI Description>";
-
-   private static final String ASSERTION_MSG_PI_STATE_CHECK = " - process instance state check";
-
-   private static final String ASSERTION_MSG_HAS_ENTRY_IN_DB = " - process instance entry in database";
-
-   private static final String ASSERTION_MSG_NO_SERIAL_AT_QUEUES = " - no serial activity thread queues";
-
-   private static final String ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY = " - is transient process instance storage empty";
-
-   private static final String ASSERTION_MSG_USER_DETAILS_LEVEL_CHECK = " - user details level check";
-
-   private static final String ASSERTION_MSG_USER_PROPS_ARE_EMPTY = " - starting user properties are empty";
-
-   private static final String ASSERTION_MSG_EXCEPTION_ID_CHECK = " - exception ID check";
-
-   private static final String ASSERTION_MSG_AUDIT_TRAIL_PERSISTENCE_CHECK = " - audit trail persistence check";
-
-   private static final String ASSERTION_MSG_STARTING_USER_CHECK = " - starting user check";
-
-   private static final String ASSERTION_MSG_SHOULD_NOT_BE_REACHED = " - line should not be reached";
-
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
@@ -1480,6 +1469,71 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
 
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(subPiOid), is(true));
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for four asynchronous subprocesses
+    * being {@link AuditTrailPersistence#ENGINE_DEFAULT}, {@link AuditTrailPersistence#IMMEDIATE}, {@link AuditTrailPersistence#TRANSIENT},
+    * and {@link AuditTrailPersistence#DEFERRED} when the starting process instance is {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testAsyncSubprocesses() throws Exception
+   {
+      enableTransientProcessesSupport();
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESSES, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final Set<Long> subPiOids = newSet();
+      subPiOids.add(receiveProcessInstanceCompletedMessage());
+      subPiOids.add(receiveProcessInstanceCompletedMessage());
+      subPiOids.add(receiveProcessInstanceCompletedMessage());
+      subPiOids.add(receiveProcessInstanceCompletedMessage());
+
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
+      int entryInDbCount = 0;
+      for (final Long subPiOid : subPiOids)
+      {
+         if (hasEntryInDbForPi(subPiOid))
+         {
+            entryInDbCount++;
+         }
+      }
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, entryInDbCount, is(2));
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    *
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses wrt.
+    * passing data to the subprocess.
+    * </p>
+    */
+   @Test
+   public void testAsyncSubprocessCopyData() throws Exception
+   {
+      enableTransientProcessesSupport();
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_DATA_PROCESS_STARTING_ASYNC_SUBPROCESS, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final Long subPiOid = receiveProcessInstanceCompletedMessage();
+
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(subPiOid), is(false));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }

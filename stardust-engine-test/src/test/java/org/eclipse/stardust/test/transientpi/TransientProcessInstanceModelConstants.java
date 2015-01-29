@@ -19,20 +19,19 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class TransientProcessInstanceModelConstants
+public class TransientProcessInstanceModelConstants
 {
    /**
     * the ID of the model comprising the transient process definitions
     */
-   /* package-private */ static final String MODEL_ID = "TransientProcessInstanceModel";
+   public static final String MODEL_ID = "TransientProcessInstanceModel";
 
    /**
     * the ID of the model comprising an alternative implementation for a process interface
     * declared in {@link #MODEL_ID}
     */
-   /* package-private */ static final String ALTERNATIVE_IMPL_MODEL_ID = "ProcessInterfaceAlternativeImplementationModel";
+   public static final String ALTERNATIVE_IMPL_MODEL_ID = "ProcessInterfaceAlternativeImplementationModel";
 
 
    /**
@@ -185,6 +184,16 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     * the ID of the {@link AuditTrailPersistence#IMMEDIATE} process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
     */
    /* package-private */ static final String PROCESS_DEF_ID_IMMEDIATE_PROCESS_ASYNC_SUBPROCESS_IMMEDIATE = MODEL_ID_PREFIX + "ImmediateProcessAsyncSubprocessImmediate";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains an asynchronous subprocess for each {@link AuditTrailPersistence}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESSES = MODEL_ID_PREFIX + "AsyncSubprocesses";
+
+   /**
+    * the ID of the {@link AuditTrailPersistence#TRANSIENT} process definition that contains a {@link AuditTrailPersistence#TRANSIENT} asynchronous subprocess receiving data from the originating one
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DATA_PROCESS_STARTING_ASYNC_SUBPROCESS = MODEL_ID_PREFIX + "DataProcessStartingAsyncSubprocess";
 
    /**
     * the ID of the process definition that contains an activity aborting the whole process instance

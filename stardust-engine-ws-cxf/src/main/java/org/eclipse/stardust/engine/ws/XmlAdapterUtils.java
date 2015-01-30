@@ -264,6 +264,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 import org.eclipse.stardust.engine.extensions.dms.data.emfxsd.DmsSchemaProvider;
 import org.eclipse.stardust.engine.ws.processinterface.DomUtils;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
@@ -429,6 +430,7 @@ public class XmlAdapterUtils
       xto.setOid(u.getOID());
 
       xto.setAccountId(u.getAccount());
+      xto.setQualifiedId(u.getQualifiedId());
 
       xto.setFirstName(u.getFirstName());
       xto.setLastName(u.getLastName());
@@ -440,6 +442,9 @@ public class XmlAdapterUtils
       xto.setValidTo(u.getValidTo());
 
       xto.setDescription(u.getDescription());
+      xto.setPermissionStates(marshalPrivatePermissionStatesMap(u));
+
+      xto.setAdministrator(u.isAdministrator());
 
       xto.setDetailsLevel(u.getDetailsLevel().getValue());
 
@@ -453,6 +458,20 @@ public class XmlAdapterUtils
 
       xto.setPasswordExpired(u.isPasswordExpired());
 
+      xto.setQualityAssuranceProbability(u.getQualityAssuranceProbability());
+
+      return xto;
+   }
+
+   private static PermissionStatesXto marshalPrivatePermissionStatesMap(Object object)
+   {
+      PermissionStatesXto xto = null;
+      if (object != null)
+      {
+         @SuppressWarnings("unchecked")
+         Map<String,PermissionState> permissionsMap = (Map<String,PermissionState>) Reflect.getFieldValue(object, "permissions");
+         xto = marshalPermissionStates(permissionsMap);
+      }
       return xto;
    }
 
@@ -500,6 +519,7 @@ public class XmlAdapterUtils
             ret.setValidFrom(user.getValidFrom());
             ret.setValidTo(user.getValidTo());
             ret.setPassword(user.getPassword());
+            ret.setQualityAssuranceProbability(user.getQualityAssuranceProbability());
 
             unmarshalGrants(user.getGrants(), ret);
 
@@ -627,7 +647,7 @@ public class XmlAdapterUtils
 			for (Grant remGrant : removeGrants) {
 				String qualifiedId = remGrant.getQualifiedId();
 				Department department = remGrant.getDepartment();
-				
+
 				if (department != null) {
 					DepartmentInfo departmentInfo = new DepartmentInfoDetails(
 							department.getOID(), department.getId(),
@@ -640,8 +660,8 @@ public class XmlAdapterUtils
 					ret.removeGrant(ParticipantInfoUtil
 							.newModelParticipantInfo(qualifiedId));
 				}
-			
-			}			
+
+			}
 		}
 	}
 
@@ -2262,7 +2282,7 @@ public class XmlAdapterUtils
          res.setProcessDefinitionId(ai.getProcessDefinitionId());
 
          res.setCriticality(ai.getCriticality());
-         
+
          // TODO replace with regular getter
          if (ai instanceof ActivityInstanceDetails)
          {
@@ -2271,9 +2291,7 @@ public class XmlAdapterUtils
          }
          if (ai instanceof ActivityInstanceDetails)
          {
-            @SuppressWarnings("unchecked")
-            Map<String, PermissionState> permissionStates = (Map<String, PermissionState>) Reflect.getFieldValue(ai, "permissions");
-            res.setPermissionStates(marshalPermissionStates(permissionStates));
+            res.setPermissionStates(marshalPrivatePermissionStatesMap(ai));
          }
 
          res.setProcessOid(ai.getProcessInstanceOID());
@@ -2330,11 +2348,11 @@ public class XmlAdapterUtils
          res.setHistoricalEvents(marshalHistoricalEvents(ai.getHistoricalEvents()));
 
          res.setQualityAssuranceInfo(marshalQualityAssuranceInfo(ai.getQualityAssuranceInfo()));
-         
+
          res.setQualityAssuranceState(marshalQualityAssuranceState(ai.getQualityAssuranceState()));
 
          res.setAttributes(marshalActivityInstanceAttributes(ai.getAttributes()));
-         
+
          final ModelParticipant defaultPerformer = ai.getActivity().getDefaultPerformer();
          if (defaultPerformer instanceof ConditionalPerformer)
          {
@@ -2357,7 +2375,7 @@ public class XmlAdapterUtils
       if (attributes != null)
       {
          ret = new ActivityInstanceAttributesXto();
-         
+
          ret.setActivityInstanceOid(attributes.getActivityInstanceOid());
          ret.getNotes().addAll(marshalNotes(attributes.getNotes()));
          ret.setQualityAssuranceResult(marshalQualityAssuranceResult(attributes.getQualityAssuranceResult()));
@@ -2372,7 +2390,7 @@ public class XmlAdapterUtils
       {
          ret = CollectionUtils.newArrayList();
          for (Note note : notes)
-         {                       
+         {
             NoteXto xto = new NoteXto();
             xto.setText(note.getText());
             xto.setTimestamp(note.getTimestamp());
@@ -2386,7 +2404,7 @@ public class XmlAdapterUtils
             {
                xto.setProcessOid(note.getContextOid());
             }
-                        
+
             ret.add(xto);
          }
       }
@@ -2414,14 +2432,14 @@ public class XmlAdapterUtils
       if (qualityAssuranceCodes != null)
       {
          ret = CollectionUtils.newSet();
-         
+
          for (QualityAssuranceCode qaCode : qualityAssuranceCodes)
          {
             QualityAssuranceCodeXto qaCodeXto = new QualityAssuranceCodeXto();
             qaCodeXto.setCode(qaCode.getCode());
             qaCodeXto.setDescription(qaCode.getDescription());
             qaCodeXto.setName(qaCode.getName());
-            
+
             ret.add(qaCodeXto);
          }
       }
@@ -5829,71 +5847,71 @@ public class XmlAdapterUtils
       xto.setVersioningSupported(capabilities.isVersioningSupported());
       xto.setWriteSupported(capabilities.isWriteSupported());
    }
-   
+
    public static BusinessObjectXto toWs(BusinessObject biObject)
    {
       BusinessObjectXto xto = null;
-      
+
       if(biObject != null)
       {
          xto = new BusinessObjectXto();
-               
+
          xto.setModelOid(biObject.getModelOid());
          xto.setId(biObject.getId());
          xto.setModelId(biObject.getModelId());
          xto.setName(biObject.getName());
-         
+
          xto.setItems(marshalBusinessObjectsDefinitions(biObject.getItems()));
-         
+
          xto.setValues(marshalBusinessObjectValuesXto(biObject.getValues(), biObject.getId(), biObject.getModelId()));
-         
+
       }
       return xto;
    }
-   
+
    private static BusinessObjectDefinitionsXto marshalBusinessObjectsDefinitions(
          List<Definition> biDefinitions)
    {
       BusinessObjectDefinitionsXto xto = null;
-      
+
       if (biDefinitions != null)
       {
          xto = new BusinessObjectDefinitionsXto();
-         
+
          for (Definition definition : biDefinitions)
          {
             xto.getItem().add(marshalBusinessObjectsDefinition(definition));
          }
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectValuesXto marshalBusinessObjectValuesXto(List<Value> biValues, String dataId, String modelId)
    {
       BusinessObjectValuesXto xto = null;
-      
+
       if (biValues != null)
       {
          xto = new BusinessObjectValuesXto();
-         
+
          for (Value value : biValues)
          {
             xto.getValue().add(marshalBusinessObjectsValue(value, dataId, modelId));
          }
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectDefinitionXto marshalBusinessObjectsDefinition(Definition definition)
    {
       BusinessObjectDefinitionXto xto = null;
-      
+
       if (definition != null)
       {
          xto = new BusinessObjectDefinitionXto();
-         
+
          xto.setIsList(definition.isList());
          xto.setKey(definition.isKey());
          xto.setName(definition.getName());
@@ -5901,44 +5919,44 @@ public class XmlAdapterUtils
          xto.setType(definition.getType());
          xto.setTypeName(definition.getTypeName());
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectValueXto marshalBusinessObjectsValue(Value value, String dataId, String modelId)
    {
       BusinessObjectValueXto xto = null;
-      
+
       if (value != null)
       {
          xto = new BusinessObjectValueXto();
 
          ModelResolver env = currentWebServiceEnvironment();
-         final ModelManager modelManager = ModelManagerFactory.getCurrent();         
-         
-         IModel model = modelManager.findActiveModel(modelId);      
-         
+         final ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+         IModel model = modelManager.findActiveModel(modelId);
+
          if (model == null)
          {
             throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
          }
-         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);         
-         
+         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);
+
          IData data = model.findData(dataId);
          if (data == null)
          {
             throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
          }
          Data dataDetails = (Data) DetailsFactory.create(data,
-               IData.class, DataDetails.class);         
-         
+               IData.class, DataDetails.class);
+
          xto.setProcessInstanceOid(value.getProcessInstanceOid());
 
          ParameterXto paramXto = DataFlowUtils.marshalStructValue(modelDetails,
                dataDetails, dataDetails.getId(), null, (Serializable) value.getValue(), env);
          xto.setValue(paramXto);
       }
-      
+
       return xto;
    }
 
@@ -5948,15 +5966,15 @@ public class XmlAdapterUtils
       if (bo != null)
       {
          xto = new BusinessObjectsXto();
-         
+
          for (BusinessObject obj : bo)
          {
             xto.getBusinessObject().add(toWs(obj));
          }
-         
+
          xto.getBusinessObject();
       }
       return xto;
    }
-    
+
 }

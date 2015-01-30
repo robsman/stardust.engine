@@ -13,11 +13,11 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 /**
  * 
- *             The User represents a snapshot of the user state.
- *             It contains general user information, as well as information regarding the
- *             permissions the user currently has.
- *  			The User can be modified and used to update the user's information including grants and userGroups.
- * 	        
+ *          The User represents a snapshot of the user state.
+ *          It contains general user information, as well as information regarding the
+ *          permissions the user currently has.
+ *    		The User can be modified and used to update the user's information including grants and userGroups.
+ *          
  * 
  * <p>Java class for User complex type.
  * 
@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="oid" type="{http://www.w3.org/2001/XMLSchema}long" minOccurs="0"/>
+ *         &lt;element name="qualifiedId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="accountId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="firstName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="lastName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -38,12 +39,15 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="validFrom" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
  *         &lt;element name="validTo" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
  *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="administrator" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="permissionStates" type="{http://eclipse.org/stardust/ws/v2012a/api}PermissionStates" minOccurs="0"/>
  *         &lt;element name="detailsLevel" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="userRealm" type="{http://eclipse.org/stardust/ws/v2012a/api}UserRealm" minOccurs="0"/>
  *         &lt;element name="userGroups" type="{http://eclipse.org/stardust/ws/v2012a/api}UserGroups" minOccurs="0"/>
  *         &lt;element name="grants" type="{http://eclipse.org/stardust/ws/v2012a/api}Grants" minOccurs="0"/>
  *         &lt;element name="attributes" type="{http://eclipse.org/stardust/ws/v2012a/api}Attributes" minOccurs="0"/>
  *         &lt;element name="passwordExpired" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="qualityAssuranceProbability" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -55,6 +59,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "User", propOrder = {
     "oid",
+    "qualifiedId",
     "accountId",
     "firstName",
     "lastName",
@@ -64,16 +69,20 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "validFrom",
     "validTo",
     "description",
+    "administrator",
+    "permissionStates",
     "detailsLevel",
     "userRealm",
     "userGroups",
     "grants",
     "attributes",
-    "passwordExpired"
+    "passwordExpired",
+    "qualityAssuranceProbability"
 })
 public class UserXto {
 
     protected Long oid;
+    protected String qualifiedId;
     @XmlElement(required = true)
     protected String accountId;
     protected String firstName;
@@ -93,12 +102,15 @@ public class UserXto {
     @XmlSchemaType(name = "dateTime")
     protected Date validTo;
     protected String description;
+    protected boolean administrator;
+    protected PermissionStatesXto permissionStates;
     protected Integer detailsLevel;
     protected UserRealmXto userRealm;
     protected UserGroupsXto userGroups;
     protected GrantsXto grants;
     protected AttributesXto attributes;
     protected boolean passwordExpired;
+    protected Integer qualityAssuranceProbability;
 
     /**
      * Gets the value of the oid property.
@@ -122,6 +134,30 @@ public class UserXto {
      */
     public void setOid(Long value) {
         this.oid = value;
+    }
+
+    /**
+     * Gets the value of the qualifiedId property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getQualifiedId() {
+        return qualifiedId;
+    }
+
+    /**
+     * Sets the value of the qualifiedId property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setQualifiedId(String value) {
+        this.qualifiedId = value;
     }
 
     /**
@@ -341,6 +377,46 @@ public class UserXto {
     }
 
     /**
+     * Gets the value of the administrator property.
+     * 
+     */
+    public boolean isAdministrator() {
+        return administrator;
+    }
+
+    /**
+     * Sets the value of the administrator property.
+     * 
+     */
+    public void setAdministrator(boolean value) {
+        this.administrator = value;
+    }
+
+    /**
+     * Gets the value of the permissionStates property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link PermissionStatesXto }
+     *     
+     */
+    public PermissionStatesXto getPermissionStates() {
+        return permissionStates;
+    }
+
+    /**
+     * Sets the value of the permissionStates property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link PermissionStatesXto }
+     *     
+     */
+    public void setPermissionStates(PermissionStatesXto value) {
+        this.permissionStates = value;
+    }
+
+    /**
      * Gets the value of the detailsLevel property.
      * 
      * @return
@@ -474,6 +550,30 @@ public class UserXto {
      */
     public void setPasswordExpired(boolean value) {
         this.passwordExpired = value;
+    }
+
+    /**
+     * Gets the value of the qualityAssuranceProbability property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public Integer getQualityAssuranceProbability() {
+        return qualityAssuranceProbability;
+    }
+
+    /**
+     * Sets the value of the qualityAssuranceProbability property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setQualityAssuranceProbability(Integer value) {
+        this.qualityAssuranceProbability = value;
     }
 
 }

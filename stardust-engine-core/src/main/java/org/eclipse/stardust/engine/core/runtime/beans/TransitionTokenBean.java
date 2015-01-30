@@ -19,13 +19,8 @@ import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DeferredInsertable;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -75,7 +70,9 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
    public static final String[] trans_token_idx3_INDEX = new String[] {
          FIELD__PROCESS_INSTANCE, FIELD__TRANSITION, FIELD__MODEL, FIELD__IS_CONSUMED};
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    private long transition;
    private long source;

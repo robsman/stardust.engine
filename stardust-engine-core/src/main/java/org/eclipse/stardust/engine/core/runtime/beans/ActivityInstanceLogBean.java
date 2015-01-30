@@ -13,7 +13,10 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -57,6 +60,7 @@ public class ActivityInstanceLogBean extends IdentifiablePersistentBean
    private ActivityInstanceBean activityInstance;
    // @todo (france, ub): remove that field. it is never used
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    private long participant;
    private long workflowUser;

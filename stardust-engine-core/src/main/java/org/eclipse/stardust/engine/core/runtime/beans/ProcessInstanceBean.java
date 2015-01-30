@@ -71,16 +71,11 @@ import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.compatibility.el.Result;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -196,7 +191,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private long startTime;
    private long terminationTime;
    private int state = ProcessInstanceState.CREATED;
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
    private int priority;
    private long deployment;

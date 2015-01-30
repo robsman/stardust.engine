@@ -22,6 +22,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.model.beans.DataBean;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -83,7 +85,9 @@ public class DataValueBean extends IdentifiablePersistentBean
    // @todo in the end, COLUMN_LENGTH should be the metadata and not COLUMN_TYPE
    private static final int string_value_COLUMN_LENGTH = 128;
 
+   @ForeignKey (modelElement=ModelBean.class)
    public long model;
+   @ForeignKey (modelElement=DataBean.class)
    public long data;
 
    public static final String processInstance_REGISTRAR = "addDataValue";

@@ -14,6 +14,7 @@ import java.util.Date;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -69,7 +70,9 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
    private String subject;
 
    private long stamp;
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
+   @ForeignKey (persistentElement=ActivityInstanceBean.class)
    private long activityInstance;
    private long workflowUser;
    private long partition;

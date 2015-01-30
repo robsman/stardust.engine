@@ -81,14 +81,7 @@ import org.eclipse.stardust.engine.core.model.beans.QualityAssuranceActivityBean
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -257,8 +250,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    /**
     * Contains the OID of the activity.
     */
+   @ForeignKey (modelElement=ModelBean.class)
    protected long model;
 
+   @ForeignKey (modelElement=ActivityBean.class)
    protected long activity;
 
    ProcessInstanceBean processInstance;

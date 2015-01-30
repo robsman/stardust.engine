@@ -14,11 +14,10 @@ import java.util.Iterator;
 
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -52,12 +51,16 @@ public class AuditTrailTransitionBean extends IdentifiablePersistentBean impleme
    public static final String[] trans_idx2_INDEX = new String[] {
          FIELD__ID, FIELD__OID, FIELD__MODEL};
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    
    private static final int id_COLUMN_LENGTH = 50;
    private String id;
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
+   @ForeignKey (modelElement=ActivityBean.class)
    private long sourceActivity;
+   @ForeignKey (modelElement=ActivityBean.class)
    private long targetActivity;
 
    private static final int condition_COLUMN_LENGTH = 200;

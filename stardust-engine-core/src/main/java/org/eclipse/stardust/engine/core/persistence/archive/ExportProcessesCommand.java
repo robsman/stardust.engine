@@ -232,6 +232,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       if (CollectionUtils.isNotEmpty(uniqueOids))
       {
+         byte[] model = ExportImportSupport.exportModel();
          ProcessElementExporter exporter = new ProcessElementExporter();
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          if (LOGGER.isDebugEnabled())
@@ -266,7 +267,10 @@ public class ExportProcessesCommand implements ServiceCommand
                LOGGER.debug("Purge not required.");
             }
          }
-         result = exporter.getBlob();
+         byte[] export = exporter.getBlob();
+         result = new byte[model.length + export.length];
+         System.arraycopy(model, 0, result, 0, model.length);
+         System.arraycopy(export, 0, result, model.length, export.length);
       }
       else
       {

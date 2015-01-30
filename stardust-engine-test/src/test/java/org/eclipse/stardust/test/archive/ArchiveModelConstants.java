@@ -19,13 +19,15 @@ package org.eclipse.stardust.test.archive;
  * @author jsaayman
  * @version $Revision$
  */
-/* package-private */class ArchiveModelConstants
+public class ArchiveModelConstants
 {
    /**
     * the ID of the model comprising the transient process definitions
     */
-   static final String MODEL_ID = "ArchiveModel";
+   public static final String MODEL_ID = "ArchiveModel";
 
+   static final String MODEL_ID_OTHER = "ArchiveModelOther";
+   
    /**
     * the process definition model ID prefix for model {@link #MODEL_ID}
     */
@@ -50,4 +52,5 @@ package org.eclipse.stardust.test.archive;
    static final String DATA_ID_STRUCTUREDDATA = "StructuredData";
 
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDB = "MyFieldB";
+
 }

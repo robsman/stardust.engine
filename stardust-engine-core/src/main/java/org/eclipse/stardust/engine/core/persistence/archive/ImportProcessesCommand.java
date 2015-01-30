@@ -2,7 +2,9 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -119,7 +121,15 @@ public class ImportProcessesCommand implements ServiceCommand
          
          try
          {
-            importCount = ExportImportSupport.loadProcessInstanceGraph(rawData, session, filter);
+            Map<Class, Map<Long, Long>> keyToRuntimeOidMap = new HashMap<Class, Map<Long,Long>>();
+            Map<String, byte[]> data = ExportImportSupport.validateModel(rawData, keyToRuntimeOidMap);
+            ImportOidResolver oidResolver = new ImportOidResolver(keyToRuntimeOidMap);
+            importCount = ExportImportSupport.importProcessInstances(data, session, filter, oidResolver);
+         }
+         catch (IllegalStateException e)
+         {
+            importCount = 0;
+            LOGGER.error(e.getMessage(), e);
          }
          catch (Exception e)
          {

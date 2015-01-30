@@ -1,17 +1,21 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 
 public class ImportFilter
 {
@@ -20,9 +24,10 @@ public class ImportFilter
    private final Date toDate;
 
    private final List<Long> processInstanceOids;
+   private final List<Long> dataValueNumberValuesInFilter = new ArrayList<Long>();
 
    private final Map<Long, Boolean> processMap = new HashMap<Long, Boolean>();
-   
+
    private static final Logger LOGGER = LogManager.getLogger(ImportFilter.class);
 
    public ImportFilter(Date fromDate, Date toDate)
@@ -58,12 +63,16 @@ public class ImportFilter
          TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
          if (processInstanceOids != null)
          {
-            final int linkIdx = typeDescriptor.getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
-            Number rootProcessInstanceOID =  (Number) linkBuffer[linkIdx];
-            
-            if (process.getOID() == rootProcessInstanceOID.longValue()) {
+            final int linkIdx = typeDescriptor
+                  .getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
+            Number rootProcessInstanceOID = (Number) linkBuffer[linkIdx];
+
+            if (process.getOID() == rootProcessInstanceOID.longValue())
+            {
                isInFilter = processInstanceOids.contains(process.getOID());
-            } else {
+            }
+            else
+            {
                isInFilter = processInstanceOids.contains(rootProcessInstanceOID);
             }
          }
@@ -72,18 +81,25 @@ public class ImportFilter
             isInFilter = (fromDate.compareTo(process.getStartTime()) < 1)
                   && (toDate.compareTo(process.getTerminationTime()) > -1);
          }
-         else 
+         else
          {
             isInFilter = true;
          }
-            
-         // validate that we are importing a process instance with a valid 
-         // process definition
+         
+         // validate that we are importing a process instance with a valid
+         // process definition, and that it has not already been imported
          if (isInFilter)
          {
-            try 
+            try
             {
                process.getProcessDefinition();
+               ProcessInstanceBean existing = (ProcessInstanceBean) SessionFactory
+                     .getSession(SessionFactory.AUDIT_TRAIL).findByOID(
+                           ProcessInstanceBean.class, process.getOID());
+               if (existing != null)
+               {
+                  isInFilter = false;
+               }
             }
             catch (ObjectNotFoundException e)
             {
@@ -103,43 +119,47 @@ public class ImportFilter
       {
          return isInFilter((ProcessInstanceBean) persistent, linkBuffer);
       }
-      if (linkBuffer == null) {
+      if (linkBuffer == null)
+      {
          return true;
       }
       TypeDescriptor typeDescriptor = TypeDescriptor.get(persistent.getClass());
       Boolean isInFilter = true;
-      Boolean filtered = false;
-      final List links = typeDescriptor.getLinks();
-      // find downstream links to ProcessInstance
-      for (int j = 0; j < links.size(); ++j)
+      Long id = -1L;
+      if (persistent instanceof ClobDataBean)
       {
-         LinkDescriptor link = (LinkDescriptor) links.get(j);
-         final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
-         Number linkOID =  (Number) linkBuffer[linkIdx];
-         
-         if (link.getField().getType() == ProcessInstanceBean.class)
+         ClobDataBean clob = (ClobDataBean) persistent;
+         if (DataValueBean.TABLE_NAME.equals(clob.getOwnerType()))
          {
-            isInFilter = processMap.get(linkOID);
-            filtered = true;
-            break;
+            isInFilter = dataValueNumberValuesInFilter.contains(clob.getOID());
          }
-         
       }
-      // find upstream links to ProcessInstance - if needed
-      if (!filtered) 
+      else if (persistent instanceof ProcessInstanceProperty)
       {
-         for (int i = 0; i < typeDescriptor.getParents().size(); ++i)
+         id = ((ProcessInstanceProperty)persistent).getObjectOID();
+      }
+      else 
+      {
+         if (id == -1)
          {
-            LinkDescriptor link = (LinkDescriptor) typeDescriptor.getParents().get(i);
-            final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
-            Number linkOID =  (Number) linkBuffer[linkIdx];
-   
-            if (link.getField().getType() == ProcessInstanceBean.class)
-            {
-               isInFilter = processMap.get(linkOID);
-               filtered = true;
-               break;
-            }
+            id = getProcessInstanceIdByAnnotation(typeDescriptor, persistent);
+         }
+         if (id == -1)
+         {
+            id = getProcessInstanceIdByDownLinks(linkBuffer, typeDescriptor);
+         }
+         if (id == -1)
+         {
+            id = getProcessInstanceIdByUpLinks(linkBuffer, typeDescriptor);
+         }
+      }
+      if (id != -1)
+      {
+         isInFilter = processMap.get(id);
+         
+         if (isInFilter && persistent instanceof DataValueBean)
+         {
+            dataValueNumberValuesInFilter.add(((DataValueBean)persistent).getLongValue());
          }
       }
       if (isInFilter == null)
@@ -148,6 +168,65 @@ public class ImportFilter
                "ProcessInstanceBean has not yet been filtered, make sure it is filtered first");
       }
       return isInFilter;
+   }
+
+   private Long getProcessInstanceIdByUpLinks(Object[] linkBuffer,
+         TypeDescriptor typeDescriptor)
+   {
+      Long id = -1L;
+      for (int i = 0; i < typeDescriptor.getParents().size(); ++i)
+      {
+         LinkDescriptor link = (LinkDescriptor) typeDescriptor.getParents().get(i);
+         final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
+         Number linkOID = (Number) linkBuffer[linkIdx];
+
+         if (link.getField().getType() == ProcessInstanceBean.class)
+         {
+            id = linkOID.longValue();
+            break;
+         }
+      }
+      return id;
+   }
+
+   private Long getProcessInstanceIdByDownLinks(Object[] linkBuffer,
+         TypeDescriptor typeDescriptor)
+   {
+      Long id = -1L;
+      final List links = typeDescriptor.getLinks();
+      // find downstream links to ProcessInstance
+      for (int j = 0; j < links.size(); ++j)
+      {
+         LinkDescriptor link = (LinkDescriptor) links.get(j);
+         final int linkIdx = typeDescriptor.getLinkIdx(link.getField().getName());
+         Number linkOID = (Number) linkBuffer[linkIdx];
+
+         if (link.getField().getType() == ProcessInstanceBean.class)
+         {
+            id = linkOID.longValue();
+            break;
+         }
+
+      }
+      return id;
+   }
+
+   private Long getProcessInstanceIdByAnnotation(TypeDescriptor typeDescriptor,
+         Persistent persistent)
+   {
+      Long id = -1L;
+      for (FieldDescriptor fieldDesc : typeDescriptor.getPersistentFields())
+      {
+         ForeignKey annotation = fieldDesc.getField().getAnnotation(ForeignKey.class);
+         if (annotation != null
+               && ProcessInstanceBean.class.equals(annotation.persistentElement()))
+         {
+            id = (Long)Reflect.getFieldValue(persistent,
+                  fieldDesc.getField());
+            break;
+         }
+      }
+      return id;
    }
 
 }

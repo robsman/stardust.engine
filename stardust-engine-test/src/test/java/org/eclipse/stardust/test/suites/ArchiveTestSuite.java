@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.archive;
+package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
@@ -20,6 +20,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.archive.ArchiveModelConstants;
+import org.eclipse.stardust.test.archive.ArchiveTest;
 
 /**
  * <p>

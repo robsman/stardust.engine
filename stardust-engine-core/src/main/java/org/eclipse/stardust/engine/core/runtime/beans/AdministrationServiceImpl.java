@@ -56,7 +56,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.preferences.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
-import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
@@ -68,7 +67,6 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
-import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
@@ -85,7 +83,7 @@ public class AdministrationServiceImpl
 
    private static final String DEPLOY_MODEL_MESSAGE = "Deployed model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
 
-   private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
+   //private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
 
    private static final String DUPLICATE_MODEL_ID = "Duplicate model id ''{0}''.";
 
@@ -1454,7 +1452,7 @@ public class AdministrationServiceImpl
    {
       return CollectionUtils.union(
             Authorization2.getPermissions(AdministrationService.class),
-            Authorization2.getPermissions(GlobalPermissionSpecificService.class));
+            Authorization2.getGlobalPermissions());
    }
 
    public Map<String, ? > getProfile(ProfileScope scope)
@@ -2071,80 +2069,5 @@ public class AdministrationServiceImpl
    private static IPreferenceStorageManager getPreferenceStore()
    {
       return PreferenceStorageFactory.getCurrent();
-   }
-
-   /**
-    * Class is used to list all possible global permissions. With it the permissions
-    * can be evaluated by <code>Authorization2</code> class.
-    * @author sven.rottstock
-    * @see GlobalPermissionConstants
-    */
-   private static interface GlobalPermissionSpecificService extends Service
-   {
-      @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
-      Permission getManageAuthorizationPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-      Permission getManageDeputiesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
-      Permission getControlProcessEnginePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
-      Permission getDeployProcessModelPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
-      Permission getForceSuspendPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
-      Permission getManageDaemonsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
-      Permission getModifyAuditTrailPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
-      Permission getModifyDepartmentsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
-      Permission getModifyUserDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
-      Permission getReadAuditTrailStatisticsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.createCase)
-      Permission getCreateCasePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readDepartments)
-      Permission getReadDepartmentsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readModelData)
-      Permission getReadModelDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readUserData)
-      Permission getReadUserDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.resetUserPassword)
-      Permission getResetUserPasswordPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
-      Permission getRunRecoveryPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnUserScopePreferences)
-      Permission getSaveOwnUserScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnRealmScopePreferences)
-      Permission getSaveOwnRealmScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnPartitionScopePreferences)
-      Permission getSaveOwnPartitionScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.joinProcessInstance)
-      Permission getJoinProcessInstancePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.spawnPeerProcessInstance)
-      Permission getSpawnPeerProcessInstancePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
-      Permission getSpawnSubProcessInstancePermission();
    }
 }

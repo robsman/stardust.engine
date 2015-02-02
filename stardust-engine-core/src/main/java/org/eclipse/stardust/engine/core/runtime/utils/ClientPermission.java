@@ -23,7 +23,7 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2.GlobalPermissionSpecificService;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Default;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
@@ -74,7 +74,8 @@ public final class ClientPermission
       HashMap<ExecutionPermission, ClientPermission> map = new HashMap<ExecutionPermission, ClientPermission>();
 
       // cache permissions for all public methods.
-      Class[] classes = new Class[] {AdministrationService.class, QueryService.class, UserService.class, WorkflowService.class};
+      Class[] classes = new Class[] {AdministrationService.class, DocumentManagementService.class,
+            GlobalPermissionSpecificService.class, QueryService.class, UserService.class, WorkflowService.class};
       for (Class<?> cls : classes)
       {
          for (Method method : cls.getMethods())

@@ -123,12 +123,26 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
                      }
                   }
                }
-
-               if (matches)
+            }
+            else
+            {
+               JsonObject schedulingJson = documentJson.getAsJsonObject("scheduling");
+               if (schedulingJson != null && isActive(schedulingJson))
                {
-                  scheduledDocuments.add(createScheduledDocument(documentJson,
-                        owner == null ? new QName("") : QName.valueOf(owner), reportName));
-               }
+                  SchedulingRecurrence sc = SchedulingFactory.getScheduler(schedulingJson);
+                  Date processSchedule = sc.processSchedule(schedulingJson, true);
+
+                  if (processSchedule != null && executionTimeMatches(processSchedule))
+                  {
+                     matches = true;                     
+                  }
+               }               
+            }            
+            
+            if (matches)
+            {
+               scheduledDocuments.add(createScheduledDocument(documentJson,
+                     owner == null ? new QName("") : QName.valueOf(owner), reportName));
             }
          }
       }

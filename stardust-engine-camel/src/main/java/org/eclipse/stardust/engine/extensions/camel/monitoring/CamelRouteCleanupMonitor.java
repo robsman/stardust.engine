@@ -12,6 +12,7 @@ import static org.eclipse.stardust.engine.extensions.camel.Util.isProducerApplic
 import static org.eclipse.stardust.engine.extensions.camel.Util.isConsumerApplication;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.camel.CamelContext;
@@ -134,6 +135,18 @@ public class CamelRouteCleanupMonitor implements IPartitionMonitor
 
    public void modelDeployed(IModel model, boolean isOverwrite) throws DeploymentException
    {}
+
+   @Override
+   public void beforeModelDeployment(Collection<IModel> models, boolean isOverwrite)
+         throws DeploymentException
+   {
+   }
+
+   @Override
+   public void afterModelDeployment(Collection<IModel> models, boolean isOverwrite)
+         throws DeploymentException
+   {
+   }
 
    public void userCreated(IUser user)
    {}

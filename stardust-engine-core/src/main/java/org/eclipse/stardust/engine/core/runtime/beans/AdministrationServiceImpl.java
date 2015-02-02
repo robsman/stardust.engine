@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,16 +24,14 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Action;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
@@ -163,6 +161,8 @@ public class AdministrationServiceImpl
          int modelOID, DeploymentOptions options) throws DeploymentException
    {
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+
+      DeploymentInfo deploymentInfo;
       try
       {
          ModelManager manager = ModelManagerFactory.getCurrent();
@@ -186,14 +186,19 @@ public class AdministrationServiceImpl
             deploymentError(ex, null);
          }
 
-         MonitoringUtils.partitionMonitors().modelDeployed(element.getModel(), true);
+         final List<IModel> models = Collections.singletonList(element.getModel());
+         MonitoringUtils.partitionMonitors().beforeModelDeployment(models, true);
 
-         return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
+         deploymentInfo = doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
+
+         MonitoringUtils.partitionMonitors().afterModelDeployment(models, true);
       }
       finally
       {
          runtimeEnvironment.setModelOverrides(null);
       }
+
+      return deploymentInfo;
    }
 
    private static byte[] encode(String content)
@@ -461,6 +466,8 @@ public class AdministrationServiceImpl
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("deploymentElements"));
       }
 
+      List<DeploymentInfo> deploymentInfos;
+
       // use default options if no options are specified
       if (options == null)
       {
@@ -502,14 +509,23 @@ public class AdministrationServiceImpl
             overrides.put(modelId, parsedUnit.getModel());
          }
 
-         for (ParsedDeploymentUnit unit : elements)
+         List<IModel> models = CollectionUtils.newArrayList(elements.size());
+         CollectionUtils.transform(models, elements,
+               new Functor<ParsedDeploymentUnit, IModel>()
          {
-            IModel model = unit.getModel();
-            MonitoringUtils.partitionMonitors().modelDeployed(model, false);
+                  @Override
+                  public IModel execute(ParsedDeploymentUnit source)
+                  {
+                     return source.getModel();
          }
+               });
+
+         MonitoringUtils.partitionMonitors().beforeModelDeployment(models, false);
 
          // deploy the models
-         return doDeployModel(elements, options);
+         deploymentInfos = doDeployModel(elements, options);
+
+         MonitoringUtils.partitionMonitors().afterModelDeployment(models, false);
       }
       catch (Exception e)
       {
@@ -519,6 +535,8 @@ public class AdministrationServiceImpl
       {
          runtimeEnvironment.setModelOverrides(null);
       }
+
+      return deploymentInfos;
    }
 
    private List<String> orderModels(Map<String, ModelInfo> infos)

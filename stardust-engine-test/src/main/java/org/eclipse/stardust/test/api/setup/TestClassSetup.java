@@ -18,10 +18,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-import org.springframework.context.ApplicationContext;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -32,6 +28,10 @@ import org.eclipse.stardust.test.api.util.TestModels;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.SpringAppContext;
+import org.junit.rules.ExternalResource;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.springframework.context.ApplicationContext;
 
 /**
  * <p>
@@ -153,7 +153,7 @@ public class TestClassSetup extends ExternalResource
     * @see org.junit.rules.ExternalResource#apply(org.junit.runners.model.Statement, org.junit.runner.Description)
     */
    @Override
-   public Statement apply(Statement base, Description description)
+   public Statement apply(final Statement base, final Description description)
    {
       this.testClass = description.getTestClass();
 

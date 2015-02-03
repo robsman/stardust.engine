@@ -88,6 +88,11 @@ public class RepositoryManager
       return INSTANCE;
    }
 
+   public static void reset()
+   {
+      INSTANCE = null;
+   }
+
    private void registerDefaultInstances()
    {
       for (IRepositoryProvider provider : providers.values())

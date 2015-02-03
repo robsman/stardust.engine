@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
@@ -235,7 +234,6 @@ public class TestClassSetup extends ExternalResource
       /* no need to drop the schema as the database content */
       /* is gone anyway as soon as the DBMS is stopped      */
       dbms.stop();
-      Parameters.instance().flush();
 
       LOG.info("<--- ... teardown of test environment done.");
    }

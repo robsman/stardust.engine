@@ -1191,9 +1191,6 @@
                </FinishMode>
                <TransitionRestrictions>
                   <TransitionRestriction>
-                     <Join Type="AND"/>
-                  </TransitionRestriction>
-                  <TransitionRestriction>
                      <Split Type="AND">
                         <TransitionRefs>
                            <TransitionRef Id="2300c8a8-51ad-4797-af67-aed4db41b3af"/>
@@ -1434,15 +1431,16 @@
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="LANE" Oid="11931" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="549" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="11932">
                                     <carnot:Symbols>
-                                       <carnot:Symbol Kind="STARTEVENT" Oid="11934" X="153" Y="46" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="11937" X="118" Y="119" Width="180" Height="50" ModelElement="Enterdata"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="11940" X="118" Y="244" Width="180" Height="50" ModelElement="gateway_split"/>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="11934" X="198" Y="10" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="11937" X="148" Y="95" Width="180" Height="50" ModelElement="Enterdata"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="11940" X="143" Y="170" Width="180" Height="50" ModelElement="gateway_split"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="11944" X="331" Y="322" Width="180" Height="50" ModelElement="RootActivity"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="11948" X="15" Y="322" Width="180" Height="50" ModelElement="DoSomething"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="11956" X="15" Y="428" Width="180" Height="50" ModelElement="CompleteRootActivity"/>
                                        <carnot:Symbol Kind="ENDEVENT" Oid="11967" X="92" Y="528" Width="26" Height="26"/>
                                        <carnot:Symbol Kind="DATA" Oid="11972" X="221" Y="478" Width="100" Height="70" ModelElement="rootActivityID"/>
                                        <carnot:Symbol Kind="ENDEVENT" Oid="12128" X="408" Y="440" Width="26" Height="26"/>
+                                       <carnot:Symbol Kind="GATEWAY" Oid="12136" X="218" Y="250" Width="40" Height="40" ModelElement="11940" FlowKind="split"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
@@ -1450,12 +1448,13 @@
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="11938" SourceSymbol="11934" TargetSymbol="11937" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="11942" ModelElement="19f92b09-bf64-417c-9605-53125bced138" SourceSymbol="11937" TargetSymbol="11940" SourceAnchor="bottom" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="11946" ModelElement="2300c8a8-51ad-4797-af67-aed4db41b3af" SourceSymbol="11940" TargetSymbol="11944" SourceAnchor="right" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="11950" ModelElement="b4afc29a-4406-48d9-8972-7688a5d6aa14" SourceSymbol="11940" TargetSymbol="11948" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="11946" ModelElement="2300c8a8-51ad-4797-af67-aed4db41b3af" SourceSymbol="12136" TargetSymbol="11944" SourceAnchor="right" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="11950" ModelElement="b4afc29a-4406-48d9-8972-7688a5d6aa14" SourceSymbol="12136" TargetSymbol="11948" SourceAnchor="left" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="11958" ModelElement="545c07f7-617d-4ab4-81b2-ffbbc1149408" SourceSymbol="11948" TargetSymbol="11956" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="11970" ModelElement="43db2395-3831-4809-beb0-be703873343b" SourceSymbol="11956" TargetSymbol="11967" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="11974" SourceSymbol="11972" TargetSymbol="11956" SourceAnchor="bottom" TargetAnchor="right"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="12131" ModelElement="29b2f8a4-fff0-4594-8b51-7c7850004fa0" SourceSymbol="11944" TargetSymbol="12128" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="12137" SourceSymbol="11940" TargetSymbol="12136"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -2032,7 +2031,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="8.1.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="9.9.9" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -2141,6 +2140,22 @@
                   <carnot:ApplicationContextType Oid="16" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="17" Id="application" Name="Noninteractive Application Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="18" Id="processInterface" Name="Process Interface Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="12132" Id="jfc" Name="JFC Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jfc/icon.gif"/>
+                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCContextTypePanel"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCValidator"/>
+                        <carnot:Attribute Name="carnot:exdesk:instance" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCApplicationInstance"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationContextType>
+                  <carnot:ApplicationContextType Oid="12133" Id="jsp" Name="JSP Application" IsPredefined="true" HasApplicationPath="false" HasMappingId="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jsp/icon.gif"/>
+                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPContextTypePanel"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationContextType>
                </carnot:ApplicationContextTypes>
                <carnot:TriggerTypes>
                   <carnot:TriggerType Oid="19" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">

@@ -77,7 +77,7 @@
    <!-- JMS Resource Resolver -->
    <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />
 
-   <!-- Shutdown Listener -->
+   <!-- Application Context Shutdown Listener -->
    <bean class="org.eclipse.stardust.test.impl.ApplicationContextShutdownListener" />
 
    <!-- Property resolver for properties from 'carnot.properties' -->

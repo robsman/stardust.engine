@@ -90,7 +90,10 @@ public class RepositoryManager
 
    public static void reset()
    {
-      INSTANCE = null;
+      synchronized (RepositoryManager.class)
+      {
+         INSTANCE = null;
+      }
    }
 
    private void registerDefaultInstances()

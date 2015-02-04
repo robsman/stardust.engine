@@ -6,6 +6,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
@@ -24,9 +25,14 @@ public class ImportFilter
    private final Date toDate;
 
    private final List<Long> processInstanceOids;
+
+   private final List<Integer> modelOids;
+
    private final List<Long> dataValueNumberValuesInFilter = new ArrayList<Long>();
 
    private final Map<Long, Boolean> processMap = new HashMap<Long, Boolean>();
+   
+   private final ImportOidResolver oidResolver;
 
    private static final Logger LOGGER = LogManager.getLogger(ImportFilter.class);
 
@@ -34,14 +40,19 @@ public class ImportFilter
    {
       super();
       this.processInstanceOids = null;
+      this.oidResolver = null;
+      this.modelOids = null;
       this.fromDate = fromDate;
       this.toDate = toDate;
    }
 
-   public ImportFilter(List<Long> processInstanceOids)
+   public ImportFilter(List<Long> processInstanceOids, List<Integer> modelOids,
+         ImportOidResolver oidResolver)
    {
       super();
       this.processInstanceOids = processInstanceOids;
+      this.oidResolver = oidResolver;
+      this.modelOids = modelOids;
       this.fromDate = null;
       this.toDate = null;
    }
@@ -49,7 +60,9 @@ public class ImportFilter
    public ImportFilter()
    {
       super();
+      this.oidResolver = null;
       this.processInstanceOids = null;
+      this.modelOids = null;
       this.fromDate = null;
       this.toDate = null;
    }
@@ -61,19 +74,30 @@ public class ImportFilter
       if (isInFilter == null)
       {
          TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
-         if (processInstanceOids != null)
+         if (processInstanceOids != null || modelOids != null)
          {
-            final int linkIdx = typeDescriptor
-                  .getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
-            Number rootProcessInstanceOID = (Number) linkBuffer[linkIdx];
 
-            if (process.getOID() == rootProcessInstanceOID.longValue())
+            if (processInstanceOids != null)
             {
-               isInFilter = processInstanceOids.contains(process.getOID());
+               final int linkIdx = typeDescriptor
+                     .getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
+               Number rootProcessInstanceOID = (Number) linkBuffer[linkIdx];
+
+               if (process.getOID() == rootProcessInstanceOID.longValue())
+               {
+                  isInFilter = processInstanceOids.contains(process.getOID());
+               }
+               else
+               {
+                  isInFilter = processInstanceOids.contains(rootProcessInstanceOID);
+               }
             }
-            else
+            if ((isInFilter == null || isInFilter) && modelOids != null)
             {
-               isInFilter = processInstanceOids.contains(rootProcessInstanceOID);
+               // get the export id
+               long eportValue = oidResolver.getExportValue(ModelBean.class, process.getModelOID());
+               // we can down cast to an int since modelOid is actually an integer in RuntimeObject
+               isInFilter = modelOids.contains((int) eportValue);
             }
          }
          else if (fromDate != null && toDate != null)
@@ -85,7 +109,7 @@ public class ImportFilter
          {
             isInFilter = true;
          }
-         
+
          // validate that we are importing a process instance with a valid
          // process definition, and that it has not already been imported
          if (isInFilter)
@@ -136,9 +160,9 @@ public class ImportFilter
       }
       else if (persistent instanceof ProcessInstanceProperty)
       {
-         id = ((ProcessInstanceProperty)persistent).getObjectOID();
+         id = ((ProcessInstanceProperty) persistent).getObjectOID();
       }
-      else 
+      else
       {
          if (id == -1)
          {
@@ -156,10 +180,11 @@ public class ImportFilter
       if (id != -1)
       {
          isInFilter = processMap.get(id);
-         
+
          if (isInFilter && persistent instanceof DataValueBean)
          {
-            dataValueNumberValuesInFilter.add(((DataValueBean)persistent).getLongValue());
+            dataValueNumberValuesInFilter
+                  .add(((DataValueBean) persistent).getLongValue());
          }
       }
       if (isInFilter == null)
@@ -221,8 +246,7 @@ public class ImportFilter
          if (annotation != null
                && ProcessInstanceBean.class.equals(annotation.persistentElement()))
          {
-            id = (Long)Reflect.getFieldValue(persistent,
-                  fieldDesc.getField());
+            id = (Long) Reflect.getFieldValue(persistent, fieldDesc.getField());
             break;
          }
       }

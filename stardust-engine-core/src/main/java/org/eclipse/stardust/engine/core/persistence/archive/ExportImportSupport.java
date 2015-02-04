@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
@@ -30,6 +31,7 @@ import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
  * <p>
@@ -128,14 +130,33 @@ public class ExportImportSupport
       {
          throw new IllegalStateException("No model provided in import.");
       }
+      String exportPartition = reader.readString();
+      if(!SecurityProperties.getPartition().getId().equals(exportPartition))
+      {
+         throw new IllegalStateException(
+               "Invalid environment to import into. Export partition " + 
+         exportPartition + " does not match current partition " +
+         SecurityProperties.getPartition().getId());
+      }
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
 
-      IModel activeModel = modelManager.findActiveModel();
-      if (activeModel == null)
+      List<IModel> activeModels = modelManager.findActiveModels();
+      Map<String, Long> activeModelMap = new HashMap<String, Long>();
+      Map<String, IdentifiableElement> allFqIds = new HashMap<String, IdentifiableElement>();
+      if (CollectionUtils.isEmpty(activeModels))
       {
          throw new IllegalStateException(
                "Invalid environment to import into. Current environment does not have an active model.");
+      }
+      else
+      {
+         for (IModel model : activeModels)
+         {
+            activeModelMap.put(model.getId(), Long.valueOf(model.getModelOID()));
+            allFqIds.putAll(ModelManagerBean.getAllFqIds(
+                  modelManager, model));
+         }
       }
 
       // there are IdentifiableElements that do not have an fqId, we handle them here
@@ -149,17 +170,34 @@ public class ExportImportSupport
       classToRuntimeOidMap.put(TransitionBean.class, idMap);
 
       // model doesnt have an fqId so we explicitly write model id here
-      Long exportModelId = reader.readLong();
       idMap = new HashMap<Long, Long>();
-      idMap.put(exportModelId, Long.valueOf(activeModel.getModelOID()));
+      // we have two start markers: 1 at start of id printing, and another before fqIds
+      while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_START)
+      {
+         if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
+         {
+            throw new IllegalStateException("Unknown model marker '" + modelMarker + "'.");
+         }
+         Long exportModelId = reader.readLong();
+         String modelId = reader.readString();
+         Long importModelId = activeModelMap.get(modelId);
+         if (importModelId != null)
+         {
+            idMap.put(exportModelId, importModelId);
+         }
+         else
+         {
+            throw new IllegalStateException(
+                  "Invalid environment to import into. Current environment does "
+                  + "not have an active model with id:" + modelId);
+         }
+      }
+      
       // transition token table has model 0 when transition is -1
       idMap.put(TransitionTokenBean.START_TRANSITION_MODEL_OID,
             TransitionTokenBean.START_TRANSITION_MODEL_OID);
       classToRuntimeOidMap.put(ModelBean.class, idMap);
-
-      Map<String, IdentifiableElement> allFqIds = ModelManagerBean.getAllFqIds(
-            modelManager, activeModel);
-
+   
       while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_END)
       {
          if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
@@ -231,21 +269,37 @@ public class ExportImportSupport
       blobBuilder.init(null);
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
-      IModel model = modelManager.findActiveModel();
-      Map<String, IdentifiableElement> allFqIds = ModelManagerBean.getAllFqIds(
-            modelManager, model);
+     
       blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_START);
+      blobBuilder.writeString(SecurityProperties.getPartition().getId());
 
-      // model doesn't have an fqId so we explicitly write model id here
-      blobBuilder.writeLong(model.getModelOID());
-
-      for (String key : allFqIds.keySet())
+      // models doesn't have fqIds so we explicitly write model ids here
+      // need to write all modelids, we don't know in which version models processes were started
+      Iterator<IModel> allModels = modelManager.getAllModels();
+      while (allModels.hasNext())
       {
-         blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_ELEMENT);
-         blobBuilder.writeString(key);
-         blobBuilder.writeLong(modelManager.getRuntimeOid(allFqIds.get(key)));
+         IModel model = allModels.next();
+         if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+         {
+            blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_ELEMENT);
+            blobBuilder.writeLong(model.getModelOID());
+            blobBuilder.writeString(model.getId());
+         }
       }
 
+      blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_START);
+      List<IModel> activeModels = modelManager.findActiveModels();
+      for (IModel model : activeModels)
+      {
+         Map<String, IdentifiableElement> allFqIds = ModelManagerBean.getAllFqIds(
+               modelManager, model);
+         for (String key : allFqIds.keySet())
+         {
+            blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_ELEMENT);
+            blobBuilder.writeString(key);
+            blobBuilder.writeLong(modelManager.getRuntimeOid(allFqIds.get(key)));
+         }
+      }
       blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_END);
       blobBuilder.persistAndClose();
       return blobBuilder.getBlob();

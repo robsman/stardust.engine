@@ -19,15 +19,17 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * imported from a byte[]. The class returns the number of processes imported.
  * 
  * Processes can be imported:<br/>
- * <li/>completely li/>by root process instance OID <li/>by business
+ * <li/>completely <li/>by root process instance OIDs  <li/>by Model OIDs <li/>by business
  * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time) <br/>
  * 
- * If processInstanceOids is null everything will be imported. If processInstanceOids is null nothing will be imported
- * 
+ * If processInstanceOids is null everything will be imported. If processInstanceOids is empty nothing will be imported.
+ * <br/>
  * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
  * and toDate is provided then all processes will be imported.
- * 
+ * <br/>
+ * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
+ * processInstanceOIDs and ModelOIDs provided
  * @author Jolene.Saayman
  * @version $Revision: $
  */
@@ -46,6 +48,8 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final List<Long> processInstanceOids;
    
+   private final List<Integer> modelOids;
+   
    /**
     * @param rawData
     *           This contains the data that needs to be imported in byte[] format
@@ -54,6 +58,7 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       super();
       this.processInstanceOids = null;
+      this.modelOids = null;
       this.rawData = rawData;
       this.fromDate = null;
       this.toDate = null;
@@ -61,15 +66,19 @@ public class ImportProcessesCommand implements ServiceCommand
 
    /**
     * If processInstanceOids is null everything will be imported. If processInstanceOids is null nothing will be imported
+    * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
+    * processInstanceOIDs and ModelOIDs provided.
     * @param rawData
     *           This contains the data that needs to be imported in byte[] format
+    * @param modelOids Oids of models to import
     * @param processInstanceOids
     *           Oids of process instances to import. 
     */
-   public ImportProcessesCommand(byte[] rawData, List<Long> processInstanceOids)
+   public ImportProcessesCommand(byte[] rawData, List<Integer> modelOids, List<Long> processInstanceOids)
    {
       super();
       this.processInstanceOids = processInstanceOids;
+      this.modelOids = modelOids;
       this.rawData = rawData;
       this.fromDate = null;
       this.toDate = null;
@@ -88,6 +97,7 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       super();
       this.processInstanceOids = null;
+      this.modelOids = null;
       this.rawData = rawData;
       this.fromDate = fromDate;
       this.toDate = toDate;
@@ -103,12 +113,14 @@ public class ImportProcessesCommand implements ServiceCommand
       if (rawData != null)
       {
          validateDates();
+         Map<Class, Map<Long, Long>> keyToRuntimeOidMap = new HashMap<Class, Map<Long,Long>>();
+         ImportOidResolver oidResolver = new ImportOidResolver(keyToRuntimeOidMap);
          final Session session = (Session) SessionFactory
                .getSession(SessionFactory.AUDIT_TRAIL);
          ImportFilter filter;
-         if (processInstanceOids != null)
+         if (processInstanceOids != null || modelOids != null)
          {
-            filter = new ImportFilter(processInstanceOids);
+            filter = new ImportFilter(processInstanceOids, modelOids, oidResolver);
          }
          else if (fromDate != null && toDate != null)
          { 
@@ -121,9 +133,7 @@ public class ImportProcessesCommand implements ServiceCommand
          
          try
          {
-            Map<Class, Map<Long, Long>> keyToRuntimeOidMap = new HashMap<Class, Map<Long,Long>>();
             Map<String, byte[]> data = ExportImportSupport.validateModel(rawData, keyToRuntimeOidMap);
-            ImportOidResolver oidResolver = new ImportOidResolver(keyToRuntimeOidMap);
             importCount = ExportImportSupport.importProcessInstances(data, session, filter, oidResolver);
          }
          catch (IllegalStateException e)

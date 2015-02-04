@@ -10,9 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.query.FilterAndTerm;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -31,14 +29,18 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * subprocesses the subprocesses will be exported and purged as well.
  * 
  * Processes can be exported:<br/>
- * <li/>completely (per partition) <li/>by root process instance OID <li/>by business
- * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time) <br/>
+ * <li/>completely (per partition) <li/>by root process instance OID <li/>by Model OIDs <li/>
+ * by business identifier (unique primitive key descriptor) <li/>by from/to filter (start
+ * time to termination time) <br/>
  * If no valid processInstanceOids are provided or derived from criteria then null will be
  * returned.
- * 
+ * <br/>
  * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
  * and toDate is provided then all processes will be exported.
+ *  <br/>
+ * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
+ * processInstanceOIDs and ModelOIDs provided
  * 
  * @author jsaayman
  * @version $Revision: $
@@ -55,21 +57,28 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final List<Long> processInstanceOids;
 
+   private final List<Integer> modelOids;
+
    private Date fromDate;
 
    private Date toDate;
-   
+
    private final boolean purge;
 
    /**
+    * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
+    * processInstanceOIDs and ModelOIDs provided
+    * @param modelOids Oids of models to export
     * @param processInstanceOids
     *           Oids of process instances to export
     */
-   public ExportProcessesCommand(List<Long> processInstanceOids, boolean purge)
+   public ExportProcessesCommand(List<Integer> modelOids, List<Long> processInstanceOids,
+         boolean purge)
    {
       super();
       this.purge = purge;
       this.processInstanceOids = processInstanceOids;
+      this.modelOids = modelOids;
       this.fromDate = null;
       this.toDate = null;
    }
@@ -81,6 +90,7 @@ public class ExportProcessesCommand implements ServiceCommand
    {
       super();
       this.purge = purge;
+      this.modelOids = null;
       this.processInstanceOids = null;
       this.fromDate = null;
       this.toDate = null;
@@ -88,15 +98,19 @@ public class ExportProcessesCommand implements ServiceCommand
 
    /**
     * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
-    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
-    * and toDate is provided then all processes will be exported.
-    * @param fromDate includes processes with a start time greator or equal to fromDate
-    * @param toDate includes processes with a termination time less or equal than toDate
+    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null
+    * fromDate and toDate is provided then all processes will be exported.
+    * 
+    * @param fromDate
+    *           includes processes with a start time greator or equal to fromDate
+    * @param toDate
+    *           includes processes with a termination time less or equal than toDate
     */
    public ExportProcessesCommand(Date fromDate, Date toDate, boolean purge)
    {
       super();
       this.purge = purge;
+      this.modelOids = null;
       this.processInstanceOids = null;
       this.fromDate = fromDate;
       this.toDate = toDate;
@@ -113,12 +127,13 @@ public class ExportProcessesCommand implements ServiceCommand
       byte[] result;
       List<Long> uniqueOids = new ArrayList<Long>();
       QueryService queryService = sf.getQueryService();
-   
+
       final Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
-      if (CollectionUtils.isNotEmpty(processInstanceOids))
+      if (CollectionUtils.isNotEmpty(processInstanceOids)
+            || CollectionUtils.isNotEmpty(modelOids))
       {
-         findExportInstancesByOids(uniqueOids, queryService);
+         findExportInstancesByOids(modelOids, uniqueOids, queryService);
       }
       else if (fromDate != null && toDate != null)
       {
@@ -140,8 +155,10 @@ public class ExportProcessesCommand implements ServiceCommand
    {
       ProcessInstanceQuery query = new ProcessInstanceQuery();
       FilterAndTerm andTerm = query.getFilter().addAndTerm();
-      andTerm.and(ProcessInstanceQuery.START_TIME.greaterOrEqual(this.fromDate.getTime()));
-      andTerm.and(ProcessInstanceQuery.TERMINATION_TIME.lessOrEqual(this.toDate.getTime()));
+      andTerm
+            .and(ProcessInstanceQuery.START_TIME.greaterOrEqual(this.fromDate.getTime()));
+      andTerm
+            .and(ProcessInstanceQuery.TERMINATION_TIME.lessOrEqual(this.toDate.getTime()));
       ProcessInstances processes = queryService.getAllProcessInstances(query);
       if (processes != null)
       {
@@ -173,49 +190,58 @@ public class ExportProcessesCommand implements ServiceCommand
       }
    }
 
-   private void findExportInstancesByOids(List<Long> uniqueOids, QueryService queryService)
+   private void findExportInstancesByOids(List<Integer> modelOids, List<Long> uniqueOids,
+         QueryService queryService)
    {
       if (LOGGER.isDebugEnabled())
       {
          LOGGER.debug("Received " + processInstanceOids.size() + " oids to export");
+         LOGGER.debug("Received " + modelOids.size() + " modelIds to export");
+      }
+      ProcessInstanceQuery query = new ProcessInstanceQuery();
+      if (CollectionUtils.isNotEmpty(processInstanceOids))
+      {
+         FilterOrTerm orTerm;
+         orTerm = query.getFilter().addOrTerm();
+         for (Long oid : processInstanceOids)
+         {
+            if (oid != null && !uniqueOids.contains(oid))
+            {
+               // check that the oid is valid. if it is valid add it to export, further if
+               // it has any subprocesses add them to the export as well
+               orTerm.or(ProcessInstanceQuery.ROOT_PROCESS_INSTANCE_OID.isEqual(oid));
+            }
+         }
       }
 
-      for (Long oid : processInstanceOids)
+      ProcessInstances processes = queryService.getAllProcessInstances(query);
+      if (processes != null)
       {
-         if (oid != null && !uniqueOids.contains(oid))
+         for (ProcessInstance process : processes)
          {
-            // check that the oid is valid. if it is valid add it to export, further if
-            // it has any subprocesses add them to the export as well
-            ProcessInstanceQuery query = new ProcessInstanceQuery();
-            query.where(ProcessInstanceQuery.ROOT_PROCESS_INSTANCE_OID.isEqual(oid));
-            ProcessInstances processes = queryService.getAllProcessInstances(query);
-            if (processes != null)
+            if (!uniqueOids.contains(process.getOID()))
             {
-               for (ProcessInstance process : processes)
+               if (EXPORT_STATES.contains(process.getState())
+                     && (modelOids == null || modelOids.isEmpty() || modelOids
+                           .contains(process.getModelOID())))
                {
-                  if (!uniqueOids.contains(process.getOID()))
+                  uniqueOids.add(process.getOID());
+                  if (LOGGER.isDebugEnabled())
                   {
-                     if (EXPORT_STATES.contains(process.getState()))
+                     if (process.getOID() != process.getRootProcessInstanceOID())
                      {
-                        uniqueOids.add(process.getOID());
-                        if (LOGGER.isDebugEnabled())
-                        {
-                           if (process.getOID() != oid)
-                           {
-                              LOGGER.debug("Adding process with oid " + process.getOID()
-                                    + " to export");
-                           }
-                        }
+                        LOGGER.debug("Adding process with oid " + process.getOID()
+                              + " to export");
                      }
-                     else
-                     {
-                        if (LOGGER.isInfoEnabled())
-                        {
-                           LOGGER.info("Process with oid " + process.getOID()
-                                 + " can't be exported as it is not in one in state: "
-                                 + EXPORT_STATES);
-                        }
-                     }
+                  }
+               }
+               else
+               {
+                  if (LOGGER.isInfoEnabled())
+                  {
+                     LOGGER.info("Process with oid " + process.getOID()
+                           + " can't be exported as it is not in one in state: "
+                           + EXPORT_STATES);
                   }
                }
             }
@@ -278,8 +304,8 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       return result;
    }
-   
-   private void validateDates() 
+
+   private void validateDates()
    {
       if (fromDate != null || toDate != null)
       {
@@ -291,9 +317,10 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             this.toDate = TimestampProviderUtils.getTimeStamp();
          }
-         if (toDate.before(fromDate)) 
+         if (toDate.before(fromDate))
          {
-            throw new IllegalArgumentException("Export from date can not be before export to date");
+            throw new IllegalArgumentException(
+                  "Export from date can not be before export to date");
          }
       }
    }

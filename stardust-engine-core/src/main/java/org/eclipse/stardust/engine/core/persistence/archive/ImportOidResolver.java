@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.persistence.ForeignKey;
@@ -45,6 +46,32 @@ public class ImportOidResolver
       }
 
       return resolvedValue;
+   }
+
+   public Long getExportValue(Class elementType, Long resolvedValue)
+   {
+      Map<Long, Long> exportToImportIds = idMap.get(elementType);
+      if (exportToImportIds == null)
+      {
+         throw new IllegalStateException("Failed to get export oid for "
+               + elementType.getName() + ". This type was not mapped");
+      }
+      Long exportValue = null;
+      for (Entry<Long, Long> entry : exportToImportIds.entrySet())
+      {
+         // we know this is a 1:1 Map
+         if (resolvedValue.equals(entry.getValue()))
+         {
+            exportValue = entry.getKey();
+            break;
+         }
+      }
+      if (exportValue == null)
+      {
+         throw new IllegalStateException("Failed to get export oid for "
+               + elementType.getName() + " with resolvedValue: " + resolvedValue);
+      }
+      return exportValue;
    }
 
 }

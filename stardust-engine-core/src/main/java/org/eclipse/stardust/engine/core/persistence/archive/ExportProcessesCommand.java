@@ -10,7 +10,10 @@ import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.FilterAndTerm;
+import org.eclipse.stardust.engine.api.query.FilterOrTerm;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -29,16 +32,15 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * subprocesses the subprocesses will be exported and purged as well.
  * 
  * Processes can be exported:<br/>
- * <li/>completely (per partition) <li/>by root process instance OID <li/>by Model OIDs <li/>
+ * <li/>completely (per partition) <li/>by root process instance OID <li/>by Model OIDs
+ * <li/>
  * by business identifier (unique primitive key descriptor) <li/>by from/to filter (start
- * time to termination time) <br/>
+ * time to termination time) Dates are inclusive <br/>
  * If no valid processInstanceOids are provided or derived from criteria then null will be
- * returned.
- * <br/>
+ * returned. <br/>
  * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
- * and toDate is provided then all processes will be exported.
- *  <br/>
+ * and toDate is provided then all processes will be exported. <br/>
  * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
  * processInstanceOIDs and ModelOIDs provided
  * 
@@ -68,7 +70,9 @@ public class ExportProcessesCommand implements ServiceCommand
    /**
     * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
     * processInstanceOIDs and ModelOIDs provided
-    * @param modelOids Oids of models to export
+    * 
+    * @param modelOids
+    *           Oids of models to export
     * @param processInstanceOids
     *           Oids of process instances to export
     */
@@ -153,6 +157,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void findExportInstancesByDate(List<Long> uniqueOids, QueryService queryService)
    {
+
       ProcessInstanceQuery query = new ProcessInstanceQuery();
       FilterAndTerm andTerm = query.getFilter().addAndTerm();
       andTerm
@@ -322,6 +327,8 @@ public class ExportProcessesCommand implements ServiceCommand
             throw new IllegalArgumentException(
                   "Export from date can not be before export to date");
          }
+         this.fromDate = ExportImportSupport.getStartOfDay(fromDate);
+         this.toDate = ExportImportSupport.getEndOfDay(toDate);
       }
    }
 }

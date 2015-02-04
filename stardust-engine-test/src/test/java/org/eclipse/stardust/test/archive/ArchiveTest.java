@@ -699,9 +699,9 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date fromDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB, queryService, workflowService);
@@ -711,9 +711,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService);
@@ -781,7 +781,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       Date fromDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
 
       workflowService.execute(new ExportProcessesCommand(toDate, fromDate, true));
@@ -793,7 +793,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       Date fromDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
 
       workflowService
@@ -850,9 +850,9 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date fromDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualB, queryService, workflowService);
@@ -862,9 +862,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService);
@@ -1040,7 +1040,7 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date fromDate = null;
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
@@ -1052,7 +1052,7 @@ public class ArchiveTest
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB, queryService, workflowService);
       Date toDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService);
@@ -1150,7 +1150,7 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date fromDate = testTimestampProvider.getTimestamp();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
@@ -1161,7 +1161,7 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = null;
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
@@ -1275,9 +1275,9 @@ public class ArchiveTest
       final ProcessInstance simpleB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
       completeSimple(simpleB, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService);
@@ -1349,7 +1349,7 @@ public class ArchiveTest
       final ProcessInstance simpleManualA = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
-      testTimestampProvider.nextHour();
+      testTimestampProvider.nextDay();
       Date fromDate = testTimestampProvider.getTimestamp();
       final ProcessInstance simpleManualB = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);

@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * 
  * Processes can be imported:<br/>
  * <li/>completely <li/>by root process instance OIDs  <li/>by business
- * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time) <br/>
+ * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time)  Dates are inclusive<br/>
  * 
  * If processInstanceOids is null everything will be imported. If processInstanceOids is empty nothing will be imported.
  * <br/>
@@ -172,6 +172,8 @@ public class ImportProcessesCommand implements ServiceCommand
          {
             throw new IllegalArgumentException("Import from date can not be before import to date");
          }
+         this.fromDate = ExportImportSupport.getStartOfDay(fromDate);
+         this.toDate = ExportImportSupport.getEndOfDay(toDate);
       }
    }
 }

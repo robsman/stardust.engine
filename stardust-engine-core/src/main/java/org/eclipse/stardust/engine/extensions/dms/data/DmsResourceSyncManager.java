@@ -45,9 +45,9 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * Responsible to sync existing AuditTrail document data and folder data.
- * 
+ *
  * @author Roland.Stamm
- * 
+ *
  */
 public class DmsResourceSyncManager
       implements IDmsResourceSyncListener, IDmsResourceSyncListener.Factory
@@ -203,11 +203,19 @@ public class DmsResourceSyncManager
             String dataTypeId = iData.getType().getId();
             if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
             {
-               xPathOids.add(modelManager.getRuntimeOid(iData, AuditTrailUtils.RES_ID));
+               long runtimeOid = modelManager.getRuntimeOid(iData, AuditTrailUtils.RES_ID);
+               if (runtimeOid > 0)
+               {
+                  xPathOids.add(runtimeOid);
+               }
             }
             else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
             {
-               xPathOids.add(modelManager.getRuntimeOid(iData, documentsIdXPath));
+               long runtimeOid = modelManager.getRuntimeOid(iData, documentsIdXPath);
+               if (runtimeOid > 0)
+               {
+                  xPathOids.add(runtimeOid);
+               }
             }
          }
       }

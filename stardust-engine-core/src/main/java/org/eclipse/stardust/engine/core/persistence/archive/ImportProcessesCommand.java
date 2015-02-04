@@ -19,7 +19,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * imported from a byte[]. The class returns the number of processes imported.
  * 
  * Processes can be imported:<br/>
- * <li/>completely <li/>by root process instance OIDs  <li/>by Model OIDs <li/>by business
+ * <li/>completely <li/>by root process instance OIDs  <li/>by business
  * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time) <br/>
  * 
  * If processInstanceOids is null everything will be imported. If processInstanceOids is empty nothing will be imported.
@@ -28,8 +28,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
  * and toDate is provided then all processes will be imported.
  * <br/>
- * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
- * processInstanceOIDs and ModelOIDs provided
+ *
  * @author Jolene.Saayman
  * @version $Revision: $
  */
@@ -48,8 +47,6 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final List<Long> processInstanceOids;
    
-   private final List<Integer> modelOids;
-   
    /**
     * @param rawData
     *           This contains the data that needs to be imported in byte[] format
@@ -58,7 +55,6 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       super();
       this.processInstanceOids = null;
-      this.modelOids = null;
       this.rawData = rawData;
       this.fromDate = null;
       this.toDate = null;
@@ -70,15 +66,13 @@ public class ImportProcessesCommand implements ServiceCommand
     * processInstanceOIDs and ModelOIDs provided.
     * @param rawData
     *           This contains the data that needs to be imported in byte[] format
-    * @param modelOids Oids of models to import
     * @param processInstanceOids
     *           Oids of process instances to import. 
     */
-   public ImportProcessesCommand(byte[] rawData, List<Integer> modelOids, List<Long> processInstanceOids)
+   public ImportProcessesCommand(byte[] rawData, List<Long> processInstanceOids)
    {
       super();
       this.processInstanceOids = processInstanceOids;
-      this.modelOids = modelOids;
       this.rawData = rawData;
       this.fromDate = null;
       this.toDate = null;
@@ -97,7 +91,6 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       super();
       this.processInstanceOids = null;
-      this.modelOids = null;
       this.rawData = rawData;
       this.fromDate = fromDate;
       this.toDate = toDate;
@@ -118,9 +111,9 @@ public class ImportProcessesCommand implements ServiceCommand
          final Session session = (Session) SessionFactory
                .getSession(SessionFactory.AUDIT_TRAIL);
          ImportFilter filter;
-         if (processInstanceOids != null || modelOids != null)
+         if (processInstanceOids != null)
          {
-            filter = new ImportFilter(processInstanceOids, modelOids, oidResolver);
+            filter = new ImportFilter(processInstanceOids);
          }
          else if (fromDate != null && toDate != null)
          { 
@@ -147,7 +140,7 @@ public class ImportProcessesCommand implements ServiceCommand
             LOGGER.error("Failed to import processes from input provided", e);
          }
          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Imported " + importCount + " process instances.");
+            LOGGER.debug("Imported " + importCount + " process instances");
          }
       }
       else
@@ -177,7 +170,7 @@ public class ImportProcessesCommand implements ServiceCommand
          }
          if (toDate.before(fromDate)) 
          {
-            throw new IllegalArgumentException("Import from date can not be before export to date");
+            throw new IllegalArgumentException("Import from date can not be before import to date");
          }
       }
    }

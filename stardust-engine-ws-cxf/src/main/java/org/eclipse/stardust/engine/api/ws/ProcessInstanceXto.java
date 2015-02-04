@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="processDefinitionName" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="rootProcessOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="scopeProcessOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
+ *         &lt;element name="parentProcessOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="priority" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="startTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="terminationTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
@@ -43,6 +44,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="detailsOptions" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceDetailsOptions"/>
  *         &lt;element name="instanceProperties" type="{http://eclipse.org/stardust/ws/v2012a/api}InstanceProperties" minOccurs="0"/>
  *         &lt;element name="historicalEvents" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalEvents" minOccurs="0"/>
+ *         &lt;element name="permissionStates" type="{http://eclipse.org/stardust/ws/v2012a/api}PermissionStates" minOccurs="0"/>
  *         &lt;element name="caseProcessInstance" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="linkedProcessInstances" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceLinks" minOccurs="0"/>
  *         &lt;element name="descriptorDefinitions" type="{http://eclipse.org/stardust/ws/v2012a/api}DataPaths" minOccurs="0"/>
@@ -64,6 +66,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "processDefinitionName",
     "rootProcessOid",
     "scopeProcessOid",
+    "parentProcessOid",
     "priority",
     "startTime",
     "terminationTime",
@@ -73,6 +76,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "detailsOptions",
     "instanceProperties",
     "historicalEvents",
+    "permissionStates",
     "caseProcessInstance",
     "linkedProcessInstances",
     "descriptorDefinitions"
@@ -90,6 +94,7 @@ public class ProcessInstanceXto {
     protected String processDefinitionName;
     protected long rootProcessOid;
     protected long scopeProcessOid;
+    protected long parentProcessOid;
     protected int priority;
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(Adapter1 .class)
@@ -109,6 +114,7 @@ public class ProcessInstanceXto {
     protected ProcessInstanceDetailsOptionsXto detailsOptions;
     protected InstancePropertiesXto instanceProperties;
     protected HistoricalEventsXto historicalEvents;
+    protected PermissionStatesXto permissionStates;
     protected boolean caseProcessInstance;
     protected ProcessInstanceLinksXto linkedProcessInstances;
     protected DataPathsXto descriptorDefinitions;
@@ -263,6 +269,22 @@ public class ProcessInstanceXto {
      */
     public void setScopeProcessOid(long value) {
         this.scopeProcessOid = value;
+    }
+
+    /**
+     * Gets the value of the parentProcessOid property.
+     * 
+     */
+    public long getParentProcessOid() {
+        return parentProcessOid;
+    }
+
+    /**
+     * Sets the value of the parentProcessOid property.
+     * 
+     */
+    public void setParentProcessOid(long value) {
+        this.parentProcessOid = value;
     }
 
     /**
@@ -471,6 +493,30 @@ public class ProcessInstanceXto {
      */
     public void setHistoricalEvents(HistoricalEventsXto value) {
         this.historicalEvents = value;
+    }
+
+    /**
+     * Gets the value of the permissionStates property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link PermissionStatesXto }
+     *     
+     */
+    public PermissionStatesXto getPermissionStates() {
+        return permissionStates;
+    }
+
+    /**
+     * Sets the value of the permissionStates property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link PermissionStatesXto }
+     *     
+     */
+    public void setPermissionStates(PermissionStatesXto value) {
+        this.permissionStates = value;
     }
 
     /**

@@ -1858,6 +1858,7 @@ public class XmlAdapterUtils
       res.setProcessDefinitionName(pi.getProcessName());
       res.setRootProcessOid(pi.getRootProcessInstanceOID());
       res.setScopeProcessOid(pi.getScopeProcessInstanceOID());
+      res.setParentProcessOid(pi.getParentProcessInstanceOid());
       res.setState(pi.getState());
       res.setPriority(pi.getPriority());
 
@@ -1890,6 +1891,8 @@ public class XmlAdapterUtils
       }
 
       res.setHistoricalEvents(marshalHistoricalEvents(pi.getHistoricalEvents()));
+
+      res.setPermissionStates(marshalPrivatePermissionStatesMap(pi));
 
       res.setCaseProcessInstance(pi.isCaseProcessInstance());
 

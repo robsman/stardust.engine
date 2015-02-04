@@ -1290,6 +1290,7 @@
 
 			<element name="rootProcessOid" type="long" />
 			<element name="scopeProcessOid" type="long" />
+         <element name="parentProcessOid" type="long" />
 
 			<element name="priority" type="int" />
 
@@ -1312,6 +1313,9 @@
 
 			<element name="historicalEvents" type="tns:HistoricalEvents"
 				minOccurs="0" />
+
+         <element name="permissionStates" type="tns:PermissionStates"
+            minOccurs="0" />
 
 			<element name="caseProcessInstance" type="boolean" />
 

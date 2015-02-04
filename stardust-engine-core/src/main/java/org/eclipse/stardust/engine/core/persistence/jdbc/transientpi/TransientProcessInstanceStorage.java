@@ -44,7 +44,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class TransientProcessInstanceStorage
 {

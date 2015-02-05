@@ -11,6 +11,7 @@
 package org.eclipse.stardust.test.impl;
 
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -35,5 +36,7 @@ public class ApplicationContextShutdownListener implements ApplicationListener<C
       Parameters.instance().flush();
 
       RepositoryManager.reset();
+
+      TransientProcessInstanceStorage.reset();
    }
 }

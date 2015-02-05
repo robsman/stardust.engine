@@ -31,4 +31,10 @@ public interface HazelcastJcaConnectionFactoryProvider
     * @return the <i>Hazelcast JCA Connection Factory</i>
     */
    ConnectionFactory connectionFactory();
+
+   /**
+    * Resets the {@link HazelcastJcaConnectionFactoryProvider} to the uninitialized state such that a subsequent call other than
+    * {@link #reset()} causes a reinitialization of this {@link HazelcastJcaConnectionFactoryProvider}.
+    */
+   void reset();
 }

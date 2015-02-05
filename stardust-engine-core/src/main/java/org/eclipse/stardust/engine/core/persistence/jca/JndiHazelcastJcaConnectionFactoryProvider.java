@@ -31,7 +31,6 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {
@@ -53,6 +52,15 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
       {
          throw new PublicException(e);
       }
+   }
+
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#reset()
+    */
+   @Override
+   public void reset()
+   {
+      // TODO implement re-initialization from JNDI
    }
 
    /**

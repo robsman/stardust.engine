@@ -2458,7 +2458,6 @@ public class ArchiveTest
    private void completeSubProcessesInModel(final ProcessInstance pi, QueryService qs, WorkflowService ws) throws Exception
    {
 
-      QueryService queryService = sf.getQueryService();
       String dataInput1 = "aaaa";
       String dataInput2 = "bbb";
 
@@ -2469,7 +2468,7 @@ public class ArchiveTest
       querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
       FilterAndTerm term = querySubSimple.getFilter().addAndTerm();
       term.and(ProcessInstanceQuery.ROOT_PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
-      ProcessInstances subProcessInstancesSimple = queryService
+      ProcessInstances subProcessInstancesSimple = qs
             .getAllProcessInstances(querySubSimple);
       assertNotNull(subProcessInstancesSimple);
       assertEquals(1, subProcessInstancesSimple.size());
@@ -2481,7 +2480,7 @@ public class ArchiveTest
       querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
       FilterAndTerm term1 = querySubManual.getFilter().addAndTerm();
       term1.and(ProcessInstanceQuery.ROOT_PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
-      ProcessInstances subProcessInstancesManual = queryService
+      ProcessInstances subProcessInstancesManual = qs
             .getAllProcessInstances(querySubManual);
       assertNotNull(subProcessInstancesManual);
       assertEquals(1, subProcessInstancesManual.size());

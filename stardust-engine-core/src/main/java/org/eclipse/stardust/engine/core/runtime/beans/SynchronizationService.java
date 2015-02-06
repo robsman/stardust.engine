@@ -36,7 +36,6 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -440,8 +439,6 @@ public abstract class SynchronizationService
                BpmRuntimeError.AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER.raise());
       }
 
-      ExtensionService.initializeRealmExtensions();
-
       String realmId = LoginUtils.getUserRealmId(properties);
 
       ExternalUserConfiguration userConf = provider.provideValidUserConfiguration(realmId,
@@ -833,8 +830,6 @@ public abstract class SynchronizationService
       if (!user.isValid())
       {
          // user is revalidated
-         ExtensionService.initializeRealmExtensions();
-
          user.setValidFrom(new Date());
       }
 

@@ -126,7 +126,6 @@ public class BusinessObjectModelExtender implements IPartitionMonitor
 
    private void findDescriptorsForBusinessObject(IData data, IModel model)
    {
-      trace.info("### Data :" + data.getId() + " " + data.getType().getId());
       ITypeDeclaration typeDecl = StructuredTypeRtUtils.getTypeDeclaration(data);
 
       Set<TypedXPath> xpaths = StructuredTypeRtUtils.getAllXPaths(model, typeDecl);
@@ -148,7 +147,6 @@ public class BusinessObjectModelExtender implements IPartitionMonitor
 
             if (descriptorKeyValue != null && Boolean.parseBoolean(descriptorKeyValue))
             {
-               trace.info("### Value : " + descriptorKeyValue);
 
                if (descriptorLabelValue == null)
                {

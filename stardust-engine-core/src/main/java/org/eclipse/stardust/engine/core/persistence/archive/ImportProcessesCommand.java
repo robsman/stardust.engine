@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.CollectionUtils;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -19,15 +21,15 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * imported from a byte[]. The class returns the number of processes imported.
  * 
  * Processes can be imported:<br/>
- * <li/>completely <li/>by root process instance OIDs  <li/>by business
- * identifier (unique primitive key descriptor) <li/>by from/to filter (start time to termination time)  Dates are inclusive<br/>
+ * <li/>completely <li/>by root process instance OIDs <li/>by business identifier (unique
+ * primitive key descriptor) <li/>by from/to filter (start time to termination time) Dates
+ * are inclusive<br/>
  * 
- * If processInstanceOids is null everything will be imported. If processInstanceOids is empty nothing will be imported.
- * <br/>
+ * If processInstanceOids is null everything will be imported. If processInstanceOids is
+ * empty nothing will be imported. <br/>
  * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
- * and toDate is provided then all processes will be imported.
- * <br/>
+ * and toDate is provided then all processes will be imported. <br/>
  *
  * @author Jolene.Saayman
  * @version $Revision: $
@@ -46,117 +48,194 @@ public class ImportProcessesCommand implements ServiceCommand
    private Date toDate;
 
    private final List<Long> processInstanceOids;
-   
-   /**
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format
-    */
-   public ImportProcessesCommand(byte[] rawData)
-   {
-      super();
-      this.processInstanceOids = null;
-      this.rawData = rawData;
-      this.fromDate = null;
-      this.toDate = null;
-   }
 
-   /**
-    * If processInstanceOids is null everything will be imported. If processInstanceOids is null nothing will be imported
-    * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
-    * processInstanceOIDs and ModelOIDs provided.
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format
-    * @param processInstanceOids
-    *           Oids of process instances to import. 
-    */
-   public ImportProcessesCommand(byte[] rawData, List<Long> processInstanceOids)
+   private ImportMetaData importMetaData;
+
+   private final Operation operation;
+
+   private ImportProcessesCommand(Operation operation, byte[] rawData,
+         List<Long> processInstanceOids, Date fromDate, Date toDate,
+         ImportMetaData importMetaData)
    {
       super();
+      this.operation = operation;
       this.processInstanceOids = processInstanceOids;
-      this.rawData = rawData;
-      this.fromDate = null;
-      this.toDate = null;
-   }
-   
-   /**
-    * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
-    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
-    * and toDate is provided then all processes will be imported.
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format 
-    * @param fromDate includes processes with a start time greator or equal to fromDate
-    * @param toDate includes processes with a termination time less or equal than toDate
-    */
-   public ImportProcessesCommand(byte[] rawData, Date fromDate, Date toDate)
-   {
-      super();
-      this.processInstanceOids = null;
       this.rawData = rawData;
       this.fromDate = fromDate;
       this.toDate = toDate;
+      this.importMetaData = importMetaData;
    }
-   
+
+   /**
+    * @param rawData
+    *           This contains the data that needs to be imported in byte[] format
+    * @param importMetaData
+    *           provide importMetaData if you already validated the model, else set it as
+    *           null
+    */
+   public ImportProcessesCommand(Operation operation, byte[] rawData,
+         ImportMetaData importMetaData)
+   {
+      this(operation, rawData, null, null, null, importMetaData);
+   }
+
+   /**
+    * If processInstanceOids is null everything will be imported. If processInstanceOids
+    * is null nothing will be imported If processInstanceOIDs and ModelOIDs are provided
+    * we perform AND logic between the processInstanceOIDs and ModelOIDs provided.
+    * 
+    * @param rawData
+    *           This contains the data that needs to be imported in byte[] format
+    * @param processInstanceOids
+    *           Oids of process instances to import.
+    * @param importMetaData
+    *           provide importMetaData if you already validated the model, else set it as
+    *           null
+    */
+   public ImportProcessesCommand(Operation operation, byte[] rawData,
+         List<Long> processInstanceOids, ImportMetaData importMetaData)
+   {
+      this(operation, rawData, processInstanceOids, null, null, importMetaData);
+   }
+
+   /**
+    * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
+    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null
+    * fromDate and toDate is provided then all processes will be imported.
+    * 
+    * @param rawData
+    *           This contains the data that needs to be imported in byte[] format
+    * @param fromDate
+    *           includes processes with a start time greator or equal to fromDate
+    * @param toDate
+    *           includes processes with a termination time less or equal than toDate
+    * @param importMetaData
+    *           provide importMetaData if you already validated the model, else set it as
+    *           null
+    */
+   public ImportProcessesCommand(Operation operation, byte[] rawData, Date fromDate,
+         Date toDate, ImportMetaData importMetaData)
+   {
+      this(operation, rawData, null, fromDate, toDate, importMetaData);
+   }
+
    @Override
    public Serializable execute(ServiceFactory sf)
    {
-      int importCount;
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("START Import");
+      Serializable result;
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("START Import Operation " + operation.name());
       }
+      
       if (rawData != null)
       {
-         validateDates();
-         Map<Class, Map<Long, Long>> keyToRuntimeOidMap = new HashMap<Class, Map<Long,Long>>();
-         ImportOidResolver oidResolver = new ImportOidResolver(keyToRuntimeOidMap);
-         final Session session = (Session) SessionFactory
-               .getSession(SessionFactory.AUDIT_TRAIL);
-         ImportFilter filter;
-         if (processInstanceOids != null)
+         switch (operation)
          {
-            filter = new ImportFilter(processInstanceOids);
-         }
-         else if (fromDate != null && toDate != null)
-         { 
-            filter = new ImportFilter(fromDate, toDate);
-         }
-         else
-         {
-            filter = new ImportFilter();
-         }
-         
-         try
-         {
-            Map<String, byte[]> data = ExportImportSupport.validateModel(rawData, keyToRuntimeOidMap);
-            importCount = ExportImportSupport.importProcessInstances(data, session, filter, oidResolver);
-         }
-         catch (IllegalStateException e)
-         {
-            importCount = 0;
-            LOGGER.error(e.getMessage(), e);
-         }
-         catch (Exception e)
-         {
-            importCount = 0;
-            LOGGER.error("Failed to import processes from input provided", e);
-         }
-         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Imported " + importCount + " process instances");
-         }
+            case VALIDATE:
+               validate(sf);
+               result = importMetaData;
+               break;
+            case IMPORT:
+               result = importData(sf, null);
+               break;
+            case VALIDATE_AND_IMPORT:
+               result = validateAndImport(sf);
+               break;
+            default:
+               throw new IllegalArgumentException("No valid operation provided");
+         };
       }
       else
       {
-         if (LOGGER.isDebugEnabled()) {
+         if (LOGGER.isDebugEnabled())
+         {
             LOGGER.debug("Received no data to import.");
          }
-         importCount = 0;
+         result = 0;
       }
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("END Import");
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("END Import " + operation.name());
       }
-      return importCount;
+      return result;
    }
 
-   private void validateDates() 
+   private int validateAndImport(ServiceFactory sf)
+   {
+      Map<String, List<byte[]>> dataByTable = validate(sf);
+      return importData(sf, dataByTable);
+   }
+
+   private int importData(ServiceFactory sf, Map<String, List<byte[]>> dataByTable)
+   {
+      int importCount;
+      validateDates();
+      ImportOidResolver oidResolver = new ImportOidResolver(importMetaData);
+      final Session session = (Session) SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL);
+      ImportFilter filter;
+      if (processInstanceOids != null)
+      {
+         filter = new ImportFilter(processInstanceOids);
+      }
+      else if (fromDate != null && toDate != null)
+      {
+         filter = new ImportFilter(fromDate, toDate);
+      }
+      else
+      {
+         filter = new ImportFilter();
+      }
+      try
+      {
+         if (CollectionUtils.isEmpty(dataByTable))
+         {
+            dataByTable = ExportImportSupport.getDataByTable(rawData);
+         }
+         importCount = ExportImportSupport.importProcessInstances(dataByTable, session,
+               filter, oidResolver);
+      }
+      catch (IllegalStateException e)
+      {
+         importCount = 0;
+         LOGGER.error(e.getMessage(), e);
+      }
+      catch (Exception e)
+      {
+         importCount = 0;
+         LOGGER.error("Failed to import processes from input provided", e);
+      }
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("Imported " + importCount + " process instances");
+      }
+      return importCount;
+
+   }
+
+   private Map<String, List<byte[]>> validate(ServiceFactory sf)
+   {
+      importMetaData = new ImportMetaData();
+      Map<String, List<byte[]>> dataByTable;
+      try
+      {
+        dataByTable = ExportImportSupport.validateModel(rawData, importMetaData);
+      }
+      catch (IllegalStateException e)
+      {
+         dataByTable = null;
+         LOGGER.error(e.getMessage(), e);
+      }
+      catch (Exception e)
+      {
+         dataByTable = null;
+         LOGGER.error("Failed to import processes from input provided", e);
+      }
+      return dataByTable;
+   }
+
+   private void validateDates()
    {
       if (fromDate != null || toDate != null)
       {
@@ -168,12 +247,61 @@ public class ImportProcessesCommand implements ServiceCommand
          {
             this.toDate = TimestampProviderUtils.getTimeStamp();
          }
-         if (toDate.before(fromDate)) 
+         if (toDate.before(fromDate))
          {
-            throw new IllegalArgumentException("Import from date can not be before import to date");
+            throw new IllegalArgumentException(
+                  "Import from date can not be before import to date");
          }
          this.fromDate = ExportImportSupport.getStartOfDay(fromDate);
          this.toDate = ExportImportSupport.getEndOfDay(toDate);
+      }
+   }
+
+   /**
+    * @author jsaayman
+    */
+   public static enum Operation
+   {
+      /**
+       * Validate if import environment contains compatible model and partition. Imports
+       * process instances.
+       */
+      VALIDATE_AND_IMPORT,
+      /**
+       * Validate if import environment contains compatible model and partition.
+       */
+      VALIDATE,
+      /**
+       * Imports process instances
+       */
+      IMPORT;
+   };
+
+   public static class ImportMetaData implements Serializable
+   {
+      private static final long serialVersionUID = 1L;
+
+      private final HashMap<Class, Map<Long, Long>> classToRuntimeOidMap;
+
+      public ImportMetaData()
+      {
+         classToRuntimeOidMap = new HashMap<Class, Map<Long, Long>>();
+      }
+
+      public void addMappingForClass(Class type, Long exportId, Long importId)
+      {
+         Map<Long, Long> idMap = classToRuntimeOidMap.get(type);
+         if (idMap == null)
+         {
+            idMap = new HashMap<Long, Long>();            
+            classToRuntimeOidMap.put(type, idMap);
+         }
+         idMap.put(exportId, importId);
+      }
+      
+      public Long getImportId(Class type, Long exportId)
+      {
+         return classToRuntimeOidMap.get(type).get(exportId);
       }
    }
 }

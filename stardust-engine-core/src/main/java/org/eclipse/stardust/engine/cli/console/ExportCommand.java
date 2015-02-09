@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.cli.console;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.apache.commons.io.FileUtils;
 
@@ -26,7 +27,9 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
@@ -128,23 +131,118 @@ public class ExportCommand extends ConsoleCommand
 
    public int run(Map options)
    {
-      boolean purge = options.containsKey(PURGE);
+      final boolean purge = options.containsKey(PURGE);
+      Date fromDate = getFromDate(options);
+      Date toDate = getToDate(options);
+      List<Long> processOids = getProcessOids(options);
+      List<Integer> modelOids = getModelOids(options);
+      List<String> partitionIds = getPartitions(options);
+      for (final String partitionId : partitionIds)
+      {
+         Map<String, String> properties = new HashMap<String, String>();
+         properties.put(SecurityProperties.PARTITION, partitionId);
+         final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
+               properties);
+
+         //ProcessTool.createProcesses(serviceFactory);
+
+         ExportMetaData exportMetaData = getExportOids(purge, fromDate, toDate,
+               processOids, modelOids, serviceFactory);
+
+         List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
+               1000);
+         int count = 1;
+
+         exportModel(partitionId, exportMetaData, serviceFactory);
+
+         ExecutorService executor = Executors.newFixedThreadPool(5);
+         List<Future<String>> results = new ArrayList<Future<String>>();
+
+         for (final ExportMetaData batch : batches)
+         {
+            final int current = count++;
+            Callable<String> exportCallable = new Callable<String>()
+            {
+               @Override
+               public String call() throws Exception
+               {
+                  ExportProcessesCommand command = new ExportProcessesCommand(
+                        ExportProcessesCommand.Operation.EXPORT_BATCH, batch, purge);
+                  byte[] data = (byte[]) serviceFactory.getWorkflowService().execute(
+                        command);
+                  if (data == null)
+                  {
+                     print("No Data to export. Export file not created.");
+                  }
+                  else
+                  {
+                     try
+                     {
+                        File f = new File(System.getProperty("java.io.tmpdir")
+                              + "/export_" + partitionId + "_" + current + ".dat");
+                        FileUtils.writeByteArrayToFile(f, data, false);
+                        print("Partial Export saved to: " + f.getAbsolutePath());
+                     }
+                     catch (IOException e)
+                     {
+                        e.printStackTrace();
+                     }
+                  }
+                  return partitionId + "_" + current;
+               }
+
+            };
+            results.add(executor.submit(exportCallable));
+         }
+
+         print("Export Submitted");
+
+         for (Future<String> result : results)
+         {
+            try
+            {
+               result.get();
+            }
+            catch (Exception e)
+            {
+               print("Unexpected Exception during Export " + e.getMessage());
+               e.printStackTrace();
+            }
+         }
+
+         print("Export Complete");
+      }
+
+      return 0;
+   }
+
+   private Date getFromDate(Map options)
+   {
       Date fromDate = Options.getDateValue(options, FROM_DATE);
-      Date toDate = Options.getDateValue(options, TO_DATE);
       if ((null == fromDate) && options.containsKey(FROM_DATE))
       {
          throw new PublicException(
                BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
                      .raise(options.get(FROM_DATE)));
       }
+      return fromDate;
+   }
+
+   private Date getToDate(Map options)
+   {
+      Date toDate = Options.getDateValue(options, TO_DATE);
       if ((null == toDate) && options.containsKey(TO_DATE))
       {
          throw new PublicException(
                BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
                      .raise(options.get(TO_DATE)));
       }
+      return toDate;
+   }
+
+   private List<Long> getProcessOids(Map options)
+   {
       List<Long> processOids;
-      List<Integer> modelOids;
       if (options.containsKey(PROCESSES_BY_OID))
       {
          String processInstanceIds = (String) options.get(PROCESSES_BY_OID);
@@ -155,6 +253,12 @@ public class ExportCommand extends ConsoleCommand
       {
          processOids = null;
       }
+      return processOids;
+   }
+
+   private List<Integer> getModelOids(Map options)
+   {
+      List<Integer> modelOids;
       if (options.containsKey(MODELS_BY_OID))
       {
          String modelIds = (String) options.get(MODELS_BY_OID);
@@ -165,6 +269,11 @@ public class ExportCommand extends ConsoleCommand
       {
          modelOids = null;
       }
+      return modelOids;
+   }
+
+   private List<String> getPartitions(Map options)
+   {
       // evaluate partition, fall back to default partition, if configured
       String partitionSpec = (String) options.get(PARTITION);
       if (StringUtils.isEmpty(partitionSpec))
@@ -173,58 +282,65 @@ public class ExportCommand extends ConsoleCommand
                SecurityProperties.DEFAULT_PARTITION,
                PredefinedConstants.DEFAULT_PARTITION_ID);
       }
-      List partitionIds = new ArrayList();
+      List<String> partitionIds = new ArrayList<String>();
       splitListString(partitionSpec, partitionIds);
       if (partitionIds.isEmpty())
       {
          throw new PublicException(
                BpmRuntimeError.CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED.raise());
       }
-      for (Iterator partitionItr = partitionIds.iterator(); partitionItr.hasNext();)
+      return partitionIds;
+   }
+
+   private ExportMetaData getExportOids(final boolean purge, final Date fromDate,
+         final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
+         final ServiceFactory serviceFactory)
+   {
+      ExportProcessesCommand command;
+      if (processOids != null || modelOids != null)
       {
-         String partitionId = (String) partitionItr.next();
+         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
+               modelOids, processOids, purge);
+      }
+      else if (fromDate != null || toDate != null)
+      {
+         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
+               fromDate, toDate, purge);
+      }
+      else
+      {
+         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
+               purge);
+      }
+      ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
+            .getWorkflowService().execute(command);
+      return exportMetaData;
+   }
 
-         ExportProcessesCommand command;
-         if (processOids != null)
+   private void exportModel(final String partitionId,
+         final ExportMetaData exportMetaData, final ServiceFactory serviceFactory)
+   {
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, false);
+      byte[] model = (byte[]) serviceFactory.getWorkflowService().execute(command);
+      if (model == null)
+      {
+         print("No Data to export. Export file not created.");
+      }
+      else
+      {
+         try
          {
-            command = new ExportProcessesCommand(modelOids, processOids, purge);
+            File f = new File(System.getProperty("java.io.tmpdir") + "/export_"
+                  + partitionId + "_model.dat");
+            FileUtils.writeByteArrayToFile(f, model, false);
+            print("Partial Export saved to: " + f.getAbsolutePath());
          }
-         else if (fromDate != null || toDate != null)
+         catch (IOException e)
          {
-            command = new ExportProcessesCommand(fromDate, toDate, purge);
-         }
-         else
-         {
-            command = new ExportProcessesCommand(purge);
-         }
-         Map<String, String> properties = new HashMap<String, String>();
-         properties.put(SecurityProperties.PARTITION, partitionId);
-         ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
-               properties);
-         byte[] data = (byte[]) serviceFactory.getWorkflowService().execute(command);
-
-         if (data == null)
-         {
-            print("No Data to export. Export file not created.");
-         }
-         else
-         {
-            try
-            {
-               File f = new File(System.getProperty("java.io.tmpdir") + "/export_"
-                     + partitionId + ".dat");
-               FileUtils.writeByteArrayToFile(f, data, false);
-               print("Export saved to: " + f.getAbsolutePath());
-            }
-            catch (IOException e)
-            {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-            }
+            e.printStackTrace();
          }
       }
-
-      return 0;
    }
 
    private void splitListString(String partitionSpec, List<String> partitionIds)

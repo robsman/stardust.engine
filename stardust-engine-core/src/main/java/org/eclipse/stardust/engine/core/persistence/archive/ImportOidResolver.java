@@ -1,15 +1,15 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.persistence.ForeignKey;
+import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 
 public class ImportOidResolver
 {
 
-   private final Map<Class, Map<Long, Long>> idMap;
+   private final ImportMetaData importMetaData;
 
    /**
     * 
@@ -17,10 +17,10 @@ public class ImportOidResolver
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
     */
-   public ImportOidResolver(Map<Class, Map<Long, Long>> classToRuntimeOidMap)
+   public ImportOidResolver(ImportMetaData importMetaData)
    {
       super();
-      this.idMap = classToRuntimeOidMap;
+      this.importMetaData = importMetaData;
    }
 
    public Object resolve(Field field, Long fieldValue)
@@ -32,7 +32,7 @@ public class ImportOidResolver
       if (annotation != null
             && !IdentifiableElement.class.equals(annotation.modelElement()))
       {
-         resolvedValue = idMap.get(annotation.modelElement()).get(fieldValue);
+         resolvedValue = importMetaData.getImportId(annotation.modelElement(), fieldValue);
          if (resolvedValue == null)
          {
             throw new IllegalStateException("Failed to resolve import oid for "

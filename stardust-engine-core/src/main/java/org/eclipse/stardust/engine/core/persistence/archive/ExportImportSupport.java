@@ -23,6 +23,8 @@ import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
+import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils.ProcessBlobReader;
@@ -45,6 +47,41 @@ public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
 
+   private static <T> List<List<T>> partition(List<T> list, int size)
+   {
+      if (list == null || size < 1)
+      {
+         throw new IllegalArgumentException();
+      }
+      List<List<T>> result = new ArrayList<List<T>>();
+      for (int i = 0; i < list.size(); i += size)
+      {
+         int end = i + size;
+         if (end > list.size())
+         {
+            end = list.size();
+         }
+         result.add(list.subList(i, end));
+      }
+      return result;
+   }
+
+   public static List<ExportMetaData> partition(ExportMetaData exportMetaData, int size)
+   {
+      List<ExportMetaData> result = new ArrayList<ExportMetaData>();
+      
+      List<List<Long>> batches = partition(new ArrayList<Long>(exportMetaData.getRootProcessInstanceOids()), size);
+      for (List<Long> batch : batches)
+      {
+         HashMap<Long, ArrayList<Long>> part = new HashMap<Long, ArrayList<Long>>();
+         for (Long key : batch)
+         {
+            part.put(key, exportMetaData.getMappedProcessInstances().get(key));
+         }
+         result.add(new ExportMetaData(exportMetaData.getModelOids(), part));
+      }
+      return result;
+   }
 
    public static Date getStartOfDay(Date date)
    {
@@ -75,6 +112,7 @@ public class ExportImportSupport
       c.set(Calendar.MILLISECOND, 999);
       return c.getTime();
    }
+
    /**
     * <p>
     * Loads the process instance graph contained in the raw data and attaches all included
@@ -91,7 +129,7 @@ public class ExportImportSupport
     * @param oidResolver
     * 
     */
-   public static int importProcessInstances(Map<String, byte[]> rawData,
+   public static int importProcessInstances(Map<String, List<byte[]>> rawData,
          final Session session, ImportFilter filter, ImportOidResolver oidResolver)
    {
       int count;
@@ -107,19 +145,29 @@ public class ExportImportSupport
 
          // these two tables needs to be read first for filtering and avoiding duplicate
          // imports
-         persistents.addAll(reader.readProcessBlob(rawData
-               .get(ProcessInstanceBean.TABLE_NAME)));
+         List<byte[]> allTableData = rawData.get(ProcessInstanceBean.TABLE_NAME);
+         for (byte[] tableData : allTableData)
+         {
+            persistents.addAll(reader.readProcessBlob(tableData));
+         }
          rawData.remove(ProcessInstanceBean.TABLE_NAME);
          if (rawData.get(DataValueBean.TABLE_NAME) != null)
          {
-            persistents.addAll(reader.readProcessBlob(rawData
-                  .get(DataValueBean.TABLE_NAME)));
+            allTableData = rawData.get(DataValueBean.TABLE_NAME);
+            for (byte[] tableData : allTableData)
+            {
+               persistents.addAll(reader.readProcessBlob(tableData));
+            }
             rawData.remove(DataValueBean.TABLE_NAME);
          }
 
          for (String table : rawData.keySet())
          {
-            persistents.addAll(reader.readProcessBlob(rawData.get(table)));
+            allTableData = rawData.get(table);
+            for (byte[] tableData : allTableData)
+            {
+               persistents.addAll(reader.readProcessBlob(tableData));
+            }
          }
          TransientProcessInstanceUtils.processPersistents(session, null, persistents);
 
@@ -143,117 +191,146 @@ public class ExportImportSupport
     * @param classToRuntimeOidMap
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
+    * @return 
     * @return Map of tableNames to import and their corresponding byte[]
     */
-   public static Map<String, byte[]> validateModel(byte[] rawData,
-         Map<Class, Map<Long, Long>> classToRuntimeOidMap)
+   public static Map<String, List<byte[]>> validateModel(byte[] rawData,
+         ImportMetaData importMetaData)
    {
-      if (classToRuntimeOidMap == null)
+      if (importMetaData == null)
       {
-         throw new IllegalArgumentException("Null classToRuntimeOidMap provided");
+         throw new IllegalArgumentException("Null importMetaData provided");
       }
-      final ByteArrayBlobReader reader = new ByteArrayBlobReader(rawData);
-      reader.nextBlob();
+      ByteArrayBlobReader reader = null;
+      try
+      {
+         reader = new ByteArrayBlobReader(rawData);
+         reader.nextBlob();
 
-      byte modelMarker = reader.readByte();
-      if (modelMarker != BlobBuilder.MODEL_MARKER_START)
-      {
-         throw new IllegalStateException("No model provided in import.");
-      }
-      String exportPartition = reader.readString();
-      if(!SecurityProperties.getPartition().getId().equals(exportPartition))
-      {
-         throw new IllegalStateException(
-               "Invalid environment to import into. Export partition " + 
-         exportPartition + " does not match current partition " +
-         SecurityProperties.getPartition().getId());
-      }
-      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
-            .getCurrent();
-
-      List<IModel> activeModels = modelManager.findActiveModels();
-      Map<String, Long> activeModelMap = new HashMap<String, Long>();
-      Map<String, IdentifiableElement> allFqIds = new HashMap<String, IdentifiableElement>();
-      if (CollectionUtils.isEmpty(activeModels))
-      {
-         throw new IllegalStateException(
-               "Invalid environment to import into. Current environment does not have an active model.");
-      }
-      else
-      {
-         for (IModel model : activeModels)
+         byte modelMarker = reader.readByte();
+         if (modelMarker != BlobBuilder.MODEL_MARKER_START)
          {
-            activeModelMap.put(model.getId(), Long.valueOf(model.getModelOID()));
-            allFqIds.putAll(ModelManagerBean.getAllFqIds(
-                  modelManager, model));
+            throw new IllegalStateException("No model provided in import.");
          }
-      }
-
-      // there are IdentifiableElements that do not have an fqId, we handle them here
-
-      // start transitions do not have a fqId, and always have a runtimeOid of -1
-      // we need to add this special case to support this, so that this is not an
-      // inconsistency when importing such transitions
-      Map<Long, Long> idMap = new HashMap<Long, Long>();
-      idMap.put(TransitionTokenBean.START_TRANSITION_RT_OID,
-            TransitionTokenBean.START_TRANSITION_RT_OID);
-      classToRuntimeOidMap.put(TransitionBean.class, idMap);
-
-      // model doesnt have an fqId so we explicitly write model id here
-      idMap = new HashMap<Long, Long>();
-      // we have two start markers: 1 at start of id printing, and another before fqIds
-      while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_START)
-      {
-         if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
+         String exportPartition = reader.readString();
+         if (!SecurityProperties.getPartition().getId().equals(exportPartition))
          {
-            throw new IllegalStateException("Unknown model marker '" + modelMarker + "'.");
+            throw new IllegalStateException(
+                  "Invalid environment to import into. Export partition "
+                        + exportPartition + " does not match current partition "
+                        + SecurityProperties.getPartition().getId());
          }
-         Long exportModelId = reader.readLong();
-         String modelId = reader.readString();
-         Long importModelId = activeModelMap.get(modelId);
-         if (importModelId != null)
+         ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+               .getCurrent();
+
+         List<IModel> activeModels = modelManager.findActiveModels();
+         Map<String, Long> activeModelMap = new HashMap<String, Long>();
+         Map<String, IdentifiableElement> allFqIds = new HashMap<String, IdentifiableElement>();
+         if (CollectionUtils.isEmpty(activeModels))
          {
-            idMap.put(exportModelId, importModelId);
+            throw new IllegalStateException(
+                  "Invalid environment to import into. Current environment does not have an active model.");
          }
          else
          {
-            throw new IllegalStateException(
-                  "Invalid environment to import into. Current environment does "
-                  + "not have an active model with id:" + modelId);
+            for (IModel model : activeModels)
+            {
+               activeModelMap.put(model.getId(), Long.valueOf(model.getModelOID()));
+               allFqIds.putAll(ModelManagerBean.getAllFqIds(modelManager, model));
+            }
+         }
+
+         // there are IdentifiableElements that do not have an fqId, we handle them here
+
+         // start transitions do not have a fqId, and always have a runtimeOid of -1
+         // we need to add this special case to support this, so that this is not an
+         // inconsistency when importing such transitions
+         importMetaData.addMappingForClass(TransitionBean.class, TransitionTokenBean.START_TRANSITION_RT_OID, TransitionTokenBean.START_TRANSITION_RT_OID);
+
+         // model doesnt have an fqId so we explicitly write model id here
+         // we have two start markers: 1 at start of id printing, and another before fqIds
+         while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_START)
+         {
+            if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
+            {
+               throw new IllegalStateException("Unknown model marker '" + modelMarker
+                     + "'.");
+            }
+            Long exportModelId = reader.readLong();
+            String modelId = reader.readString();
+            Long importModelId = activeModelMap.get(modelId);
+            if (importModelId != null)
+            {
+               importMetaData.addMappingForClass(ModelBean.class, exportModelId, importModelId);
+            }
+            else
+            {
+               throw new IllegalStateException(
+                     "Invalid environment to import into. Current environment does "
+                           + "not have an active model with id:" + modelId);
+            }
+         }
+
+         // transition token table has model 0 when transition is -1
+         importMetaData.addMappingForClass(ModelBean.class, TransitionTokenBean.START_TRANSITION_MODEL_OID, TransitionTokenBean.START_TRANSITION_MODEL_OID);
+         
+         while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_END)
+         {
+            if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
+            {
+               throw new IllegalStateException("Unknown model marker '" + modelMarker
+                     + "'.");
+            }
+            String key = reader.readString();
+            Long oldId = reader.readLong();
+
+            IdentifiableElement identifiableElement = allFqIds.get(key);
+            if (identifiableElement == null)
+            {
+               throw new IllegalStateException(
+                     "Invalid model being imported. IdentifiableElement " + key
+                           + " not found in current model");
+            }
+            importMetaData.addMappingForClass(identifiableElement.getClass(), oldId, modelManager.getRuntimeOid(identifiableElement));
+         }
+         reader.readByte();
+         if (reader.getCurrentIndex() < rawData.length)
+         {
+            return splitArrayByTables(reader);
+         } 
+         else
+         {
+            LOGGER.info("No Process Data in this file");
+            return new HashMap<String,List<byte[]>>();
          }
       }
-      
-      // transition token table has model 0 when transition is -1
-      idMap.put(TransitionTokenBean.START_TRANSITION_MODEL_OID,
-            TransitionTokenBean.START_TRANSITION_MODEL_OID);
-      classToRuntimeOidMap.put(ModelBean.class, idMap);
-   
-      while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_END)
+      finally
       {
-         if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
+         if (reader != null)
          {
-            throw new IllegalStateException("Unknown model marker '" + modelMarker + "'.");
+            reader.close();
          }
-         String key = reader.readString();
-         Long oldId = reader.readLong();
-
-         IdentifiableElement identifiableElement = allFqIds.get(key);
-         if (identifiableElement == null)
-         {
-            throw new IllegalStateException(
-                  "Invalid model being imported. IdentifiableElement " + key
-                        + " not found in current model");
-         }
-         idMap = classToRuntimeOidMap.get(identifiableElement.getClass());
-         if (idMap == null)
-         {
-            idMap = new HashMap<Long, Long>();
-            classToRuntimeOidMap.put(identifiableElement.getClass(), idMap);
-         }
-         idMap.put(oldId, modelManager.getRuntimeOid(identifiableElement));
       }
+   }
 
-      return splitArrayByTables(reader);
+   public static Map<String, List<byte[]>> getDataByTable(byte[] rawData)
+   {
+      ByteArrayBlobReader reader = null;
+      Map<String, List<byte[]>> result;
+      try
+      {
+         reader = new ByteArrayBlobReader(rawData);
+         reader.nextBlob();
+         result = splitArrayByTables(reader);
+         return result;
+      }
+      finally
+      {
+         if (reader != null)
+         {
+            reader.close();
+         }
+      }
    }
 
    private static int prepareObjectsForImport(final Set<Persistent> persistents,
@@ -293,19 +370,41 @@ public class ExportImportSupport
       return count;
    }
 
+
+   public static byte[] exportModel(List<Integer> modelOids)
+   {
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+      List<IModel> allModels = new ArrayList<IModel>();
+      for (Integer modelOid : modelOids)
+      {
+         IModel model = modelManager.findModel(modelOid);
+         allModels.add(model);
+      }
+      return exportModel(modelManager, allModels.iterator(), allModels);
+   }
+   
    public static byte[] exportModel()
+   {
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+
+      Iterator<IModel> allModels = modelManager.getAllModels();
+      List<IModel> activeModels = modelManager.findActiveModels();
+      return exportModel(modelManager, allModels, activeModels);
+   }
+
+   private static byte[] exportModel(ModelManagerPartition modelManager, Iterator<IModel> allModels, List<IModel> activeModels)
    {
       ByteArrayBlobBuilder blobBuilder = new ByteArrayBlobBuilder();
       blobBuilder.init(null);
-      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
-            .getCurrent();
-     
+
       blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_START);
       blobBuilder.writeString(SecurityProperties.getPartition().getId());
 
       // models doesn't have fqIds so we explicitly write model ids here
-      // need to write all modelids, we don't know in which version models processes were started
-      Iterator<IModel> allModels = modelManager.getAllModels();
+      // need to write all modelids, we don't know in which version models processes were
+      // started
       while (allModels.hasNext())
       {
          IModel model = allModels.next();
@@ -318,7 +417,6 @@ public class ExportImportSupport
       }
 
       blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_START);
-      List<IModel> activeModels = modelManager.findActiveModels();
       for (IModel model : activeModels)
       {
          Map<String, IdentifiableElement> allFqIds = ModelManagerBean.getAllFqIds(
@@ -334,13 +432,11 @@ public class ExportImportSupport
       blobBuilder.persistAndClose();
       return blobBuilder.getBlob();
    }
-
-   private static Map<String, byte[]> splitArrayByTables(ByteArrayBlobReader reader)
+   
+   private static Map<String, List<byte[]>> splitArrayByTables(ByteArrayBlobReader reader)
    {
-      final Map<String, byte[]> dataByTables = new HashMap<String, byte[]>();
-
+      final Map<String, List<byte[]>> dataByTables = new HashMap<String, List<byte[]>>();
       byte sectionMarker;
-      reader.readByte();
       while ((sectionMarker = reader.readByte()) != BlobBuilder.SECTION_MARKER_EOF)
       {
          if (sectionMarker != BlobBuilder.SECTION_MARKER_INSTANCES)
@@ -350,13 +446,11 @@ public class ExportImportSupport
          }
          readSection(reader, dataByTables);
       }
-
-      reader.close();
       return dataByTables;
    }
 
    private static void readSection(final ByteArrayBlobReader reader,
-         final Map<String, byte[]> dataByTables)
+         final Map<String, List<byte[]>> dataByTables)
    {
       int startIndex = reader.getCurrentIndex() - 1;
       final String tableName = reader.readString();
@@ -373,11 +467,18 @@ public class ExportImportSupport
          readPersistent(reader, typeDesc, fieldDescs);
          readLinkBuffer(reader, linkDescs);
       }
+      // data in rawdata is batched up by batch size used in ProcessElementsVisitor
+      List<byte[]> allTableData = dataByTables.get(tableName);
+      if (allTableData == null)
+      {
+         allTableData = new ArrayList<byte[]>();
+         dataByTables.put(tableName, allTableData);
+      }
       int endIndex = reader.getCurrentIndex() + 1;
-      byte[] rest = new byte[endIndex - startIndex];
-      System.arraycopy(reader.getBlob(), startIndex, rest, 0, rest.length - 1);
-      rest[rest.length - 1] = BlobBuilder.SECTION_MARKER_EOF;
-      dataByTables.put(tableName, rest);
+      byte[] data = new byte[endIndex - startIndex];
+      System.arraycopy(reader.getBlob(), startIndex, data, 0, data.length - 1);
+      data[data.length - 1] = BlobBuilder.SECTION_MARKER_EOF;
+      allTableData.add(data);
    }
 
    private static void readPersistent(final ByteArrayBlobReader reader,
@@ -402,4 +503,5 @@ public class ExportImportSupport
          reader.readFieldValue(fkFieldType);
       }
    }
+
 }

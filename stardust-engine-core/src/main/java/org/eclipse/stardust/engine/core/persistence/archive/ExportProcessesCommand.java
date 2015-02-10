@@ -18,14 +18,13 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementPurger;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementsVisitor;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * This class allows a request to archive processes instances. The processes will be
- * exported to a byte[] and will be deleted from the database. If a process has
+ * exported to a byte[] and will optionally be deleted from the database. If a process has
  * subprocesses the subprocesses will be exported and purged as well.
  * 
  * Processes can be exported:<br/>
@@ -56,7 +55,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final Collection<Long> processInstanceOids;
 
-   private final List<Integer> modelOids;
+   private List<Integer> modelOids;
 
    private Date fromDate;
 
@@ -68,8 +67,9 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final Operation operation;
 
-   private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData, List<Integer> modelOids,
-         Collection<Long> processInstanceOids, Date fromDate, Date toDate, boolean purge)
+   private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
+         List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
+         Date toDate, boolean purge)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -118,18 +118,20 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean purge)
    {
 
-      this(operation, null,  null, null, fromDate, toDate, purge);
+      this(operation, null, null, null, fromDate, toDate, purge);
    }
 
    /**
-    * Use this constructor to export all processInstances or models for given exportMetaData
+    * Use this constructor to export all processInstances or models for given
+    * exportMetaData
     */
-   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData, boolean purge)
+   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
+         boolean purge)
    {
 
       this(operation, exportMetaData, null, null, null, null, purge);
    }
-   
+
    @Override
    public Serializable execute(ServiceFactory sf)
    {
@@ -175,7 +177,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             LOGGER.debug("Exporting " + allIds.size() + " processInstances");
          }
-         ProcessElementExporter exporter = new ProcessElementExporter();
+         ProcessElementExporter exporter = new ProcessElementExporter(purge);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
@@ -183,28 +185,6 @@ public class ExportProcessesCommand implements ServiceCommand
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Exporting complete.");
-         }
-         if (purge)
-         {
-            if (LOGGER.isDebugEnabled())
-            {
-               LOGGER.debug("Starting Purging...");
-            }
-            ProcessElementPurger purger = new ProcessElementPurger();
-            processVisitor = new ProcessElementsVisitor(purger);
-            // purge processInstances
-            processVisitor.visitProcessInstances(allIds, session);
-            if (LOGGER.isDebugEnabled())
-            {
-               LOGGER.debug("Purging Complete.");
-            }
-         }
-         else
-         {
-            if (LOGGER.isDebugEnabled())
-            {
-               LOGGER.debug("Purge not required.");
-            }
          }
       }
       else
@@ -223,11 +203,11 @@ public class ExportProcessesCommand implements ServiceCommand
       byte[] model;
       if (processInstanceOids != null || modelOids != null)
       {
-         model = ExportImportSupport.exportModel(exportMetaData.getModelOids());
+         model = ExportImportSupport.exportModels(exportMetaData.getModelOids());
       }
       else
       {
-         model = ExportImportSupport.exportModel();
+         model = ExportImportSupport.exportModels();
       }
       return model;
    }
@@ -238,9 +218,17 @@ public class ExportProcessesCommand implements ServiceCommand
 
       QueryService queryService = sf.getQueryService();
       exportMetaData = new ExportMetaData();
-      
-      if (CollectionUtils.isNotEmpty(processInstanceOids)
-            || CollectionUtils.isNotEmpty(modelOids))
+      boolean hasModelOidsParameter = CollectionUtils.isNotEmpty(modelOids);
+      if (!hasModelOidsParameter)
+      {
+         if (modelOids == null)
+         {
+            modelOids = new ArrayList<Integer>();
+         }
+         modelOids.addAll(ExportImportSupport.getActiveModelOids());           
+      }
+
+      if (CollectionUtils.isNotEmpty(processInstanceOids) || hasModelOidsParameter)
       {
          findExportInstancesByOids(queryService);
       }
@@ -295,7 +283,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          for (ProcessInstance process : processes)
          {
-            if (process != null)
+            if (process != null && modelOids.contains(process.getModelOID()))
             {
                exportMetaData.addProcess(process);
             }
@@ -313,7 +301,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          for (ProcessInstance process : processes)
          {
-            if (process != null)
+            if (process != null && modelOids.contains(process.getModelOID()))
             {
                exportMetaData.addProcess(process);
             }
@@ -350,8 +338,7 @@ public class ExportProcessesCommand implements ServiceCommand
          for (ProcessInstance process : processes)
          {
             if (EXPORT_STATES.contains(process.getState())
-                  && (modelOids == null || modelOids.isEmpty() || modelOids
-                        .contains(process.getModelOID())))
+                  && modelOids.contains(process.getModelOID()))
             {
                exportMetaData.addProcess(process);
                if (LOGGER.isDebugEnabled())
@@ -427,24 +414,28 @@ public class ExportProcessesCommand implements ServiceCommand
    public static class ExportMetaData implements Serializable
    {
       private static final long serialVersionUID = 1L;
+
       private final HashMap<Long, ArrayList<Long>> uniqueOids;
+
       private final List<Integer> modelOids;
-      
+
       public ExportMetaData()
       {
          this.modelOids = new ArrayList<Integer>();
          this.uniqueOids = new HashMap<Long, ArrayList<Long>>();
       }
 
-      public ExportMetaData(List<Integer> modelOids, HashMap<Long, ArrayList<Long>> uniqueOids)
+      public ExportMetaData(List<Integer> modelOids,
+            HashMap<Long, ArrayList<Long>> uniqueOids)
       {
          this.modelOids = modelOids;
          this.uniqueOids = uniqueOids;
       }
 
       /**
-       * Returns map of processInstanceOids with keyset being rootProcessInstanceOids
-       * and values are corresponding subprocess's processInstanceOids
+       * Returns map of processInstanceOids with keyset being rootProcessInstanceOids and
+       * values are corresponding subprocess's processInstanceOids
+       * 
        * @return
        */
       public HashMap<Long, ArrayList<Long>> getMappedProcessInstances()
@@ -454,6 +445,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
       /**
        * Guaranteed to be a list of valid modelOids
+       * 
        * @return
        */
       public List<Integer> getModelOids()
@@ -478,7 +470,7 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          return allIds;
       }
-      
+
       /**
        * @return Combined list of processInstanceOids for root processes and subprocesses
        */
@@ -495,7 +487,6 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          return allIds;
       }
-      
 
       public void addProcess(ProcessInstance process)
       {
@@ -508,8 +499,8 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          else
          {
-            ArrayList<Long> siblingList = uniqueOids
-                  .get(process.getRootProcessInstanceOID());
+            ArrayList<Long> siblingList = uniqueOids.get(process
+                  .getRootProcessInstanceOID());
             if (siblingList == null)
             {
                siblingList = new ArrayList<Long>();

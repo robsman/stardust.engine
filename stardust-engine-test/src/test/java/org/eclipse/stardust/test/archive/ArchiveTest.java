@@ -86,17 +86,15 @@ public class ArchiveTest
       GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
             3);
    }
-   
 
    @After
    public void tearDown()
    {
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
-      GlobalParameters.globals().set(
-            KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE, null);
+      GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
+            null);
    }
-
 
    @Test
    public void testMultiPartition() throws Exception
@@ -540,6 +538,59 @@ public class ArchiveTest
 
       byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, true));
+      assertNull(rawData);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+
+      assertProcessInstancesEquals(oldInstances, clearedInstances, false);
+      assertActivityInstancesEquals(oldActivities, clearedActivities, false);
+      assertDataExists(pi.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", queryService);
+
+   }
+
+   @Test
+   public void testExportImportOldCompatibleModel() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
+
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+
+      final ActivityInstance writeActivity = completeSimpleManual(pi, queryService,
+            workflowService);
+
+      assertDataExists(pi.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", queryService);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(3, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+
+      List<Integer> modelOids = Arrays.asList(pi.getModelOID());
+
+      byte[] rawData = (byte[]) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null, true));
       assertNotNull(rawData);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3195,9 +3246,10 @@ public class ArchiveTest
       RtEnvHome.deploy(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       barrier
-            .waitForLogMessage(
-                  "Invalid environment to import into.* Current environment does not have an active model with id.*",
-                  new WaitTimeout(5, TimeUnit.SECONDS));
+      .waitForLogMessage(
+            "Invalid environment to import into.* Current environment does not have an active model with id.*",
+            new WaitTimeout(5, TimeUnit.SECONDS));
+      
       assertEquals(0, count);
    }
 

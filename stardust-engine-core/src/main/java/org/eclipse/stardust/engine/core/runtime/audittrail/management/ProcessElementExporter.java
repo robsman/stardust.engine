@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -22,10 +23,17 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 public class ProcessElementExporter implements ProcessElementOperator
 {
 
+   public static final String EXPORT_BATCH_SIZE = "exportBatchSize";
+
+   private static final int DEFAULT_EXPORT_BATCH_SIZE = 5;
+
    private final ByteArrayBlobBuilder blobBuilder;
 
-   public ProcessElementExporter()
+   private final boolean purge;
+
+   public ProcessElementExporter(boolean purge)
    {
+      this.purge = purge;
       blobBuilder = new ByteArrayBlobBuilder();
       blobBuilder.init(null);
    }
@@ -34,31 +42,54 @@ public class ProcessElementExporter implements ProcessElementOperator
    public int operate(Session session, Class partType, FieldRef fkPiPartField,
          Class piPartType, String piPartPkName, PredicateTerm predicate)
    {
-      if (partType == ProcessInstanceScopeBean.class) {
-         return 0;
-      }
       QueryDescriptor query = QueryDescriptor.from(partType, "part");
 
       query.innerJoin(piPartType).on(fkPiPartField, piPartPkName);
       query.where(predicate);
       List<Persistent> instances = findPersistents(session, query, partType);
       TypeDescriptor td = TypeDescriptor.get(partType);
-      ProcessBlobWriter.writeInstances(blobBuilder, td, instances);
+      if (partType != ProcessInstanceScopeBean.class)
+      {
+         ProcessBlobWriter.writeInstances(blobBuilder, td, instances);
+      }
+      if (purge)
+      {
+         purge(session, partType, instances);
+      }
       return instances.size();
    }
 
    @Override
    public int operate(Session session, Class partType, PredicateTerm predicate)
    {
-      if (partType == ProcessInstanceScopeBean.class) {
+      if (partType == ProcessInstanceScopeBean.class)
+      {
+         if (purge)
+         {
+            DeleteDescriptor delete = DeleteDescriptor.from(partType).where(predicate);
+            return session.executeDelete(delete);
+         }
          return 0;
       }
       QueryDescriptor query = QueryDescriptor.from(partType).where(predicate);
 
       List<Persistent> instances = findPersistents(session, query, partType);
       TypeDescriptor td = TypeDescriptor.get(partType);
+
       ProcessBlobWriter.writeInstances(blobBuilder, td, instances);
+      if (purge)
+      {
+         purge(session, partType, instances);
+      }
       return instances.size();
+   }
+
+   private void purge(Session session, Class partType, List<Persistent> persistents)
+   {
+      for (Persistent peristent : persistents)
+      {
+         session.delete(partType, peristent);
+      }
    }
 
    private List<Persistent> findPersistents(Session session, QueryDescriptor query,
@@ -92,6 +123,7 @@ public class ProcessElementExporter implements ProcessElementOperator
    {
       blobBuilder.persistAndClose();
    }
+
    /**
     * @return
     */
@@ -100,17 +132,19 @@ public class ProcessElementExporter implements ProcessElementOperator
       return blobBuilder.getBlob();
    }
 
-   public void operateOnLockTable(Session session, Class partType, PredicateTerm predicate,
-         TypeDescriptor tdType)
-   {
-   }
-  
-   
+   public void operateOnLockTable(Session session, Class partType,
+         PredicateTerm predicate, TypeDescriptor tdType)
+   {}
+
    @Override
-   public void operateOnLockTable(Session session, Class partType, FieldRef fkPiPartField,
-         Class piPartType, String piPartPkName, PredicateTerm predicate,
-         TypeDescriptor tdType)
+   public void operateOnLockTable(Session session, Class partType,
+         FieldRef fkPiPartField, Class piPartType, String piPartPkName,
+         PredicateTerm predicate, TypeDescriptor tdType)
+   {}
+
+   public int getStatementBatchSize()
    {
+      return Parameters.instance().getInteger(EXPORT_BATCH_SIZE,
+            DEFAULT_EXPORT_BATCH_SIZE);
    }
-   
 }

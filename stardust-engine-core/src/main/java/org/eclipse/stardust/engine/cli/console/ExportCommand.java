@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
@@ -30,6 +31,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
@@ -39,6 +41,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ExportCommand extends ConsoleCommand
 {
    private static final Options argTypes = new Options();
+
+   private static final int DEFAULT_BATCH_SIZE = 1000;
+
+   private static final int DEFAULT_CONCURRENT_BATCHES = 10;
 
    private static final String PARTITION = "partition";
 
@@ -52,8 +58,18 @@ public class ExportCommand extends ConsoleCommand
 
    private static final String TO_DATE = "toDate";
 
+   private static final String BATCH_SIZE = "batchSize";
+
+   private static final String CONCURRENT_BATCHES = "concurrentBatches";
+
    static
    {
+      argTypes.register("-" + BATCH_SIZE, null, BATCH_SIZE,
+            "Defines the number of process instances to be exported per batch", true);
+
+      argTypes.register("-" + CONCURRENT_BATCHES, null, CONCURRENT_BATCHES,
+            "Defines how many batches can export concurrently", true);
+
       argTypes
             .register(
                   "-" + PARTITION,
@@ -122,6 +138,8 @@ public class ExportCommand extends ConsoleCommand
       argTypes.addExclusionRule(new String[] {PARTITION}, false);
       argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {BATCH_SIZE}, false);
+      argTypes.addExclusionRule(new String[] {CONCURRENT_BATCHES}, false);
    }
 
    public Options getOptions()
@@ -132,30 +150,34 @@ public class ExportCommand extends ConsoleCommand
    public int run(Map options)
    {
       final boolean purge = options.containsKey(PURGE);
-      Date fromDate = getFromDate(options);
-      Date toDate = getToDate(options);
-      List<Long> processOids = getProcessOids(options);
-      List<Integer> modelOids = getModelOids(options);
-      List<String> partitionIds = getPartitions(options);
+      final Date fromDate = getFromDate(options);
+      final Date toDate = getToDate(options);
+      final List<Long> processOids = getProcessOids(options);
+      final List<Integer> modelOids = getModelOids(options);
+      final List<String> partitionIds = getPartitions(options);
+      final int batchSize = getBatchSize(options);
+      final int concurrentBatches = getConcurrentBatches(options);
+
       for (final String partitionId : partitionIds)
       {
+         Date start = new Date();
          Map<String, String> properties = new HashMap<String, String>();
          properties.put(SecurityProperties.PARTITION, partitionId);
          final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
                properties);
 
-         //ProcessTool.createProcesses(serviceFactory);
+         // ProcessTool.createProcesses(serviceFactory);
 
          ExportMetaData exportMetaData = getExportOids(purge, fromDate, toDate,
                processOids, modelOids, serviceFactory);
 
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
-               1000);
+               batchSize);
          int count = 1;
 
          exportModel(partitionId, exportMetaData, serviceFactory);
 
-         ExecutorService executor = Executors.newFixedThreadPool(5);
+         ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
          List<Future<String>> results = new ArrayList<Future<String>>();
 
          for (final ExportMetaData batch : batches)
@@ -210,10 +232,38 @@ public class ExportCommand extends ConsoleCommand
             }
          }
 
-         print("Export Complete");
+         Date end = new Date();
+         long millis = end.getTime() - start.getTime();
+         String duration = String.format("%d min, %d sec", TimeUnit.MILLISECONDS
+               .toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis)
+               - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+         print("Export Complete for Partition: " + partitionId + ". Time taken: "
+               + duration);
       }
 
       return 0;
+   }
+
+   private int getConcurrentBatches(Map options)
+   {
+      Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
+      if (concurrent == null || concurrent < 1)
+      {
+         return DEFAULT_CONCURRENT_BATCHES;
+      }
+      return concurrent.intValue();
+   }
+
+   private int getBatchSize(Map options)
+   {
+      Long batchSize = Options.getLongValue(options, BATCH_SIZE);
+      if (batchSize == null || batchSize < 1)
+      {
+         batchSize = Parameters.instance().getLong(
+               KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE, DEFAULT_BATCH_SIZE);
+      }
+
+      return batchSize.intValue();
    }
 
    private Date getFromDate(Map options)

@@ -14,10 +14,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import org.apache.commons.io.FileUtils;
 
@@ -44,6 +41,8 @@ public class ImportCommand extends ConsoleCommand
 {
    private static final Options argTypes = new Options();
 
+   private static final int DEFAULT_CONCURRENT_BATCHES = 10;
+
    private static final String PARTITION = "partition";
 
    private static final String PROCESSES_BY_OID = "processes";
@@ -52,8 +51,13 @@ public class ImportCommand extends ConsoleCommand
 
    private static final String TO_DATE = "toDate";
 
+   private static final String CONCURRENT_BATCHES = "concurrentBatches";
+
    static
    {
+      argTypes.register("-" + CONCURRENT_BATCHES, null, CONCURRENT_BATCHES,
+            "Defines how many batches can be imported concurrently", true);
+
       argTypes
             .register(
                   "-" + PARTITION,
@@ -104,6 +108,7 @@ public class ImportCommand extends ConsoleCommand
       argTypes.addExclusionRule(new String[] {PARTITION}, false);
       argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {CONCURRENT_BATCHES}, false);
    }
 
    public Options getOptions()
@@ -117,8 +122,10 @@ public class ImportCommand extends ConsoleCommand
       final Date toDate = getToDate(options);
       final List<Long> processOids = getProcessOids(options);
       List<String> partitionIds = getPartitions(options);
+      final int concurrentBatches = getConcurrentBatches(options);
       for (final String partitionId : partitionIds)
       {
+         Date start = new Date();
          final File[] files = getFiles(partitionId);
          print("Starting Import for partition " + partitionId + ". Found " + files.length
                + " to import.");
@@ -134,7 +141,7 @@ public class ImportCommand extends ConsoleCommand
          }
          if (importMetaData != null)
          {
-            ExecutorService executor = Executors.newFixedThreadPool(5);
+            ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
             List<Future<Integer>> results = new ArrayList<Future<Integer>>();
             final ImportMetaData metaData = importMetaData;
             for (int i = 1; i < files.length; i++)
@@ -168,14 +175,34 @@ public class ImportCommand extends ConsoleCommand
                   e.printStackTrace();
                }
             }
-            print("Import Complete for partition " + partitionId + ". Imported a total of " + count + " process instances into partition "
-                  + partitionId);
+            Date end = new Date();
+            long millis = end.getTime() - start.getTime();
+            String duration = String.format(
+                  "%d min, %d sec",
+                  TimeUnit.MILLISECONDS.toMinutes(millis),
+                  TimeUnit.MILLISECONDS.toSeconds(millis)
+                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+                              .toMinutes(millis)));
+            print("Import Complete for partition " + partitionId
+                  + ". Imported a total of " + count
+                  + " process instances into partition " + partitionId + ". Time taken: "
+                  + duration);
          }
       }
       print("Import of all partitions complete");
       return 0;
    }
-   
+
+   private int getConcurrentBatches(Map options)
+   {
+      Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
+      if (concurrent == null || concurrent < 1)
+      {
+         return DEFAULT_CONCURRENT_BATCHES;
+      }
+      return concurrent.intValue();
+   }
+
    private Date getFromDate(Map options)
    {
       Date fromDate = Options.getDateValue(options, FROM_DATE);
@@ -236,8 +263,7 @@ public class ImportCommand extends ConsoleCommand
       return partitionIds;
    }
 
-   private ImportMetaData validateImport(File file,
-         WorkflowService workflowService)
+   private ImportMetaData validateImport(File file, WorkflowService workflowService)
    {
       ImportMetaData importMetaData;
       byte[] data;
@@ -251,16 +277,17 @@ public class ImportCommand extends ConsoleCommand
          print("Failed to read export model file: " + file.getName());
       }
 
-      ImportProcessesCommand importCommand = new ImportProcessesCommand(ImportProcessesCommand.Operation.VALIDATE, data, null);
-      importMetaData = (ImportMetaData) workflowService
-            .execute(importCommand);
+      ImportProcessesCommand importCommand = new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE, data, null);
+      importMetaData = (ImportMetaData) workflowService.execute(importCommand);
       if (importMetaData != null)
       {
          print("Model validated");
       }
       else
       {
-         print("Model validation failed. No import can be done. Model file: " + file.getName());
+         print("Model validation failed. No import can be done. Model file: "
+               + file.getName());
       }
       return importMetaData;
    }
@@ -280,27 +307,29 @@ public class ImportCommand extends ConsoleCommand
          data = null;
          print("Failed to read export file: " + file.getName());
       }
-      
+
       if (data != null)
       {
          ImportProcessesCommand command;
          if (processOids != null)
          {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT, data, processOids, importMetaData);
+            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
+                  data, processOids, importMetaData);
          }
          else if (fromDate != null || toDate != null)
          {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT, data, fromDate, toDate, importMetaData);
+            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
+                  data, fromDate, toDate, importMetaData);
          }
          else
          {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT, data, importMetaData);
+            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
+                  data, importMetaData);
          }
-         count = (Integer) serviceFactory.getWorkflowService().execute(
-               command);
+         count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
-         print("Imported " + count + " process instances into partition "
-               + partitionId + " from file: " + file.getName());
+         print("Imported " + count + " process instances into partition " + partitionId
+               + " from file: " + file.getName());
       }
       return count;
    }

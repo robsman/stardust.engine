@@ -3,6 +3,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -14,6 +15,10 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 public class ProcessElementPurger implements ProcessElementOperator
 {
    private static final int PK_OID = 0;
+   
+   public static final String PURGE_BATCH_SIZE = "purgeBatchSize";
+
+   private static final int DEFAULT_PURGE_BATCH_SIZE = 100;
 
    @Override
    public int operate(Session session, Class partType, FieldRef fkPiPartField, Class piPartType,
@@ -65,6 +70,12 @@ public class ProcessElementPurger implements ProcessElementOperator
             lckSubselect.where(predicate)));
 
       session.executeDelete(delete);
+   }
+   
+   public int getStatementBatchSize()
+   {
+      return Parameters.instance().getInteger(PURGE_BATCH_SIZE,
+            DEFAULT_PURGE_BATCH_SIZE);
    }
    
    @Override

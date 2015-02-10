@@ -23,7 +23,6 @@ import java.util.List;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -36,7 +35,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -51,10 +49,6 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 public class ProcessElementsVisitor
 {
    private static final Logger trace = LogManager.getLogger(ProcessElementsVisitor.class);
-
-   private static final String STMT_BATCH_SIZE = KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE;
-
-   private static final int DEFAULT_STATEMENT_BATCH_SIZE = 100;
 
    private final ProcessElementOperator operator;
 
@@ -280,7 +274,7 @@ public class ProcessElementsVisitor
          PredicateTerm restriction, Session session)
    {
       int processedItems = 0;
-      int batchSize = getStatementBatchSize();
+      int batchSize = operator.getStatementBatchSize();
 
       for (Iterator<List<Long>> iterator = getChunkIterator(piOids, batchSize); iterator
             .hasNext();)
@@ -338,7 +332,7 @@ public class ProcessElementsVisitor
          FieldRef piOidField, PredicateTerm restriction, Session session)
    {
       int processedItems = 0;
-      int batchSize = getStatementBatchSize();
+      int batchSize = operator.getStatementBatchSize();
 
       for (Iterator<List<Long>> iterator = getChunkIterator(piOids, batchSize); iterator
             .hasNext();)
@@ -364,15 +358,6 @@ public class ProcessElementsVisitor
       }
 
       return processedItems;
-   }
-
-   /**
-    * @return
-    */
-   private static int getStatementBatchSize()
-   {
-      return Parameters.instance().getInteger(STMT_BATCH_SIZE,
-            DEFAULT_STATEMENT_BATCH_SIZE);
    }
 
    private static <E> Iterator<List<E>> getChunkIterator(List<E> list, int chunkSize)

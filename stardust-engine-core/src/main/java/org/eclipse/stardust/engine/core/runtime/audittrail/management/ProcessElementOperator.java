@@ -28,5 +28,6 @@ public interface ProcessElementOperator
          TypeDescriptor tdType);
    
    public void finishVisit();
-
+   
+   public int getStatementBatchSize();
 }

@@ -371,7 +371,7 @@ public class ExportImportSupport
    }
 
 
-   public static byte[] exportModel(List<Integer> modelOids)
+   public static byte[] exportModels(List<Integer> modelOids)
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
@@ -381,20 +381,37 @@ public class ExportImportSupport
          IModel model = modelManager.findModel(modelOid);
          allModels.add(model);
       }
-      return exportModel(modelManager, allModels.iterator(), allModels);
+      return exportModels(modelManager, allModels);
    }
    
-   public static byte[] exportModel()
+   public static byte[] exportModels()
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
 
-      Iterator<IModel> allModels = modelManager.getAllModels();
       List<IModel> activeModels = modelManager.findActiveModels();
-      return exportModel(modelManager, allModels, activeModels);
+      return exportModels(modelManager, activeModels);
    }
 
-   private static byte[] exportModel(ModelManagerPartition modelManager, Iterator<IModel> allModels, List<IModel> activeModels)
+
+   public static Collection<Integer> getActiveModelOids()
+   {
+      List<Integer> results = new ArrayList<Integer>();
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+
+      List<IModel> activeModels = modelManager.findActiveModels();
+      for (IModel model : activeModels)
+      {
+         if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+         {
+            results.add(model.getModelOID());
+         }
+      }
+      return results;
+   }
+   
+   private static byte[] exportModels(ModelManagerPartition modelManager, List<IModel> models)
    {
       ByteArrayBlobBuilder blobBuilder = new ByteArrayBlobBuilder();
       blobBuilder.init(null);
@@ -405,9 +422,8 @@ public class ExportImportSupport
       // models doesn't have fqIds so we explicitly write model ids here
       // need to write all modelids, we don't know in which version models processes were
       // started
-      while (allModels.hasNext())
+      for (IModel model : models)
       {
-         IModel model = allModels.next();
          if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
          {
             blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_ELEMENT);
@@ -417,7 +433,7 @@ public class ExportImportSupport
       }
 
       blobBuilder.writeByte(ByteArrayBlobBuilder.MODEL_MARKER_START);
-      for (IModel model : activeModels)
+      for (IModel model : models)
       {
          Map<String, IdentifiableElement> allFqIds = ModelManagerBean.getAllFqIds(
                modelManager, model);

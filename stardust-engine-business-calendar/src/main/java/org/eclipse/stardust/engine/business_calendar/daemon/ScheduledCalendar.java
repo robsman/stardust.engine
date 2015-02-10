@@ -17,67 +17,77 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.scheduling.ScheduledDocument;
+import org.eclipse.stardust.engine.core.runtime.scheduling.SchedulingUtils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class ScheduledCalendar extends ScheduledDocument
 {
-   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName)
+   private List<JsonObject> events;
+   private Map<String, Object> data;
+
+   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName, List<JsonObject> events)
    {
       super(documentJson, owner, documentName);
+      this.events = events;
    }
 
    public void execute()
    {
-      JsonElement json = getDocumentJson().get("processData");
-      if (json != null && json.isJsonObject())
+      for (JsonObject event : events)
       {
-         Map<String, Object> data = CollectionUtils.newMap();
-
-         JsonObject processJson = json.getAsJsonObject();
-         String processId = processJson.get("processDefinitionFullId").getAsString();
-
-         JsonArray businessObjectsArray = processJson.getAsJsonArray("businessObjectInstances");
-         if (businessObjectsArray != null)
+         JsonObject details = SchedulingUtils.getAsJsonObject(event, "eventDetails");
+         if (details != null)
          {
-            for (int n = 0; n < businessObjectsArray.size(); ++n)
+            String processId = SchedulingUtils.getAsString(details, "processDefinitionId");
+            if (!StringUtils.isEmpty(processId))
             {
-               JsonObject businessObjectJson = businessObjectsArray.get(n).getAsJsonObject();
+               Map<String, Object> businessObjectData = getBusinessObjectData();
+               getWorkflowService().startProcess(processId, businessObjectData, false);
+            }
+         }
+      }
+   }
 
-               String businessObjectId = businessObjectJson.get("businessObjectId").getAsString();
-               String modelId = businessObjectJson.get("modelId").getAsString();
-               String primaryKey = businessObjectJson.get("primaryKey").getAsString();
+   protected Map<String, Object> getBusinessObjectData()
+   {
+      if (data == null)
+      {
+         data = CollectionUtils.newMap();
+         JsonObject businessObjectJson = SchedulingUtils.getAsJsonObject(getDocumentJson(), "businessObjectInstance");
+         if (businessObjectJson != null)
+         {
+            String businessObjectId = SchedulingUtils.getAsString(businessObjectJson, "businessObjectId");
+            String modelId = SchedulingUtils.getAsString(businessObjectJson, "modelId");
+            String primaryKey = SchedulingUtils.getAsString(businessObjectJson, "primaryKey");
 
-               BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(
-                     new QName(modelId, businessObjectId).toString(), primaryKey);
-               query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
-               BusinessObjects result = getQueryService().getAllBusinessObjects(query);
-               if (!result.isEmpty())
+            BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(
+                  new QName(modelId, businessObjectId).toString(), primaryKey);
+            query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+            BusinessObjects result = getQueryService().getAllBusinessObjects(query);
+            if (!result.isEmpty())
+            {
+               BusinessObject bo = result.get(0);
+               List<BusinessObject.Value> values = bo.getValues();
+               if (values != null && !values.isEmpty())
                {
-                  BusinessObject bo = result.get(0);
-                  List<BusinessObject.Value> values = bo.getValues();
-                  if (values != null && !values.isEmpty())
+                  BusinessObject.Value value = values.get(0);
+                  if (value.getValue() != null)
                   {
-                     BusinessObject.Value value = values.get(0);
-                     if (value.getValue() != null)
-                     {
-                        data.put(businessObjectId, value.getValue());
-                     }
+                     data.put(businessObjectId, value.getValue());
                   }
                }
             }
          }
-
-         getWorkflowService().startProcess(processId, data, false);
       }
+      return data;
    }
 
    protected WorkflowService getWorkflowService()

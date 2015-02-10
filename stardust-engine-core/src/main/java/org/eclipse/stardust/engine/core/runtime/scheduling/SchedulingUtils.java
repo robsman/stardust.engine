@@ -8,6 +8,10 @@ import java.util.Date;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 public class SchedulingUtils
 {
    private static final Logger trace = LogManager.getLogger(SchedulingRecurrence.class);
@@ -82,5 +86,26 @@ public class SchedulingUtils
          trace.error(e);
          return null;
       }
+   }
+
+   public static JsonArray getAsJsonArray(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonArray())
+            ? null : property.getAsJsonArray();
+   }
+
+   public static JsonObject getAsJsonObject(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonObject())
+            ? null : property.getAsJsonObject();
+   }
+
+   public static String getAsString(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
+            ? null : property.getAsString();
    }
 }

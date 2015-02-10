@@ -47,7 +47,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName, List<JsonObject> events);
 
    protected abstract List<JsonObject> getEvents(JsonObject documentJson);
 
@@ -96,12 +96,13 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
             JsonObject documentJson = getDocumentJson(document);
 
+            List<JsonObject> matchingEvents = CollectionUtils.newList();
             List<JsonObject> events = getEvents(documentJson);
-            for (JsonObject json : events)
+            for (JsonObject event : events)
             {
-               if (isActive(json))
+               if (isActive(event))
                {
-                  if (isBlocking(json))
+                  if (isBlocking(event))
                   {
                      matches = false;
                      break;
@@ -109,12 +110,13 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
                   if (!matches)
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(json);
-                     Date processSchedule = sc.processSchedule(json, true);
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(event);
+                     Date processSchedule = sc.processSchedule(event, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))
                      {
                         matches = true;
+                        matchingEvents.add(event);
                      }
                   }
                }
@@ -123,7 +125,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             if (matches)
             {
                scheduledDocuments.add(createScheduledDocument(documentJson,
-                     owner == null ? new QName("") : QName.valueOf(owner), reportName));
+                     owner == null ? new QName("") : QName.valueOf(owner),
+                     reportName, matchingEvents));
             }
          }
       }
@@ -157,14 +160,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
    protected boolean isActive(JsonObject eventJson)
    {
       JsonElement active = eventJson.get("active");
-      return (active == null || active.getAsBoolean()) && acceptEventType(getAsString(eventJson, "type"));
-   }
-
-   protected String getAsString(JsonObject json, String propertyName)
-   {
-      JsonElement property = json.get(propertyName);
-      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
-            ? null : property.getAsString();
+      return (active == null || active.getAsBoolean()) && acceptEventType(SchedulingUtils.getAsString(eventJson, "type"));
    }
 
    public List<Document> scanLocations()

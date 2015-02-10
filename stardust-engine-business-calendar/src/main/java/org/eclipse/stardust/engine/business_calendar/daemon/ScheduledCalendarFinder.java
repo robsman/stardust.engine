@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.scheduling.ScheduledDocumentFinder;
+import org.eclipse.stardust.engine.core.runtime.scheduling.SchedulingUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -49,9 +50,9 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 
    @Override
    protected ScheduledCalendar createScheduledDocument(JsonObject documentJson,
-         QName owner, String documentName)
+         QName owner, String documentName, List<JsonObject> events)
    {
-      return new ScheduledCalendar(documentJson, owner, documentName);
+      return new ScheduledCalendar(documentJson, owner, documentName, events);
    }
 
    @Override
@@ -70,7 +71,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 
    protected boolean isBlocking(JsonObject json)
    {
-      return CompareHelper.areEqual(getAsString(json, "type"), "timeOff");
+      return CompareHelper.areEqual(SchedulingUtils.getAsString(json, "type"), "timeOff");
    }
 
    @Override
@@ -84,7 +85,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 
    private void collectEvents(List<JsonObject> events, JsonObject documentJson)
    {
-      String uuid = getAsString(documentJson, "uuid");
+      String uuid = SchedulingUtils.getAsString(documentJson, "uuid");
       if (uuid == null)
       {
          addEvents(events, documentJson.getAsJsonArray("events"));
@@ -107,7 +108,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
       {
          for (JsonElement importedCalendar : importedCalendars)
          {
-            collectImportedEvents(events, getAsString(importedCalendar.getAsJsonObject(), "uuid"));
+            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), "uuid"));
          }
       }
    }

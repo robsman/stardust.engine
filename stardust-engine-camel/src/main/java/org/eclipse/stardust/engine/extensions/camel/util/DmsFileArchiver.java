@@ -196,11 +196,11 @@ public class DmsFileArchiver
          log.error("WorkflowService not available.");
          throw e;
       }
-      finally
-      {
-         if (null != sf)
-            ClientEnvironment.instance().returnServiceFactory(sf);
-      }
+//      finally
+//      {
+//         if (null != sf)
+//            ClientEnvironment.instance().returnServiceFactory(sf);
+//      }
    }
 
    /**

@@ -60,8 +60,11 @@ public class TestSuiteSetup extends ExternalResource
       testClassSetup = new TestClassSetup(userPwdPair, forkingServiceMode, modelNames);
    }
 
+   /* (non-Javadoc)
+    * @see org.junit.rules.ExternalResource#apply(org.junit.runners.model.Statement, org.junit.runner.Description)
+    */
    @Override
-   public Statement apply(Statement base, Description description)
+   public Statement apply(final Statement base, final Description description)
    {
       testClassSetup.setTestClass(description.getTestClass());
 

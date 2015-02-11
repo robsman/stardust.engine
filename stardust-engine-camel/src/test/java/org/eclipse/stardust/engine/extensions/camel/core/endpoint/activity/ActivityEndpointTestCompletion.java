@@ -100,10 +100,8 @@ public class ActivityEndpointTestCompletion
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       // start process
-      ProcessInstance pInstance = sf.getWorkflowService().startProcess(
-            "{CompleteActivityModel}TestRootActivityCompletion", null, true);
-      ActivityInstances activityInstances = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive(
-            pInstance.getProcessID(), "DoSomething"));
+      ProcessInstance pInstance = sf.getWorkflowService().startProcess("{CompleteActivityModel}TestRootActivityCompletion", null, true);
+      ActivityInstances activityInstances = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive(pInstance.getOID(), "DoSomething"));
       ActivityInstance doSomethingActivityInstance = activityInstances.get(0);
       
       ActivityInstance rootActivity = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive(

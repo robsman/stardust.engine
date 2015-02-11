@@ -4,19 +4,23 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class SchedulingUtils
 {
    private static final Logger trace = LogManager.getLogger(SchedulingRecurrence.class);
 
-   public static String BLANK_SPACE = " ";
-   public static String SERVER_DATE_FORMAT = "yyyy/MM/dd hh:mm:ss:SSS";
-   public static String CLIENT_DATE_FORMAT = "yyyy-MM-dd";
+   public static DateFormat SERVER_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS");
+   public static DateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
+   public static DateFormat CLIENT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+   public static DateFormat YEAR_DATE_FORMAT = new SimpleDateFormat("yyyy");
+   public static DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm aa");
 
    public enum RecurrencePattern
    {
@@ -25,65 +29,39 @@ public class SchedulingUtils
 
    public enum EndMode
    {
-      NOEND("noEnd"), ENDAFTERNOOCCURENCES("endAfterNOcurrences"), ENDBYDATE("endByDate");
-
-      private String endMode;
-
-      private EndMode(String s)
-      {
-         endMode = s;
-      }
-
-      public String getEndMode()
-      {
-         return endMode;
-      }
-
+      noEnd, endAfterNOcurrences, endByDate
    }
+
+   public static final String[] DAY_SHORT_NAMES = {
+      "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"
+   };
+
+
+   public static final String[] WEEK_DAYS = {
+      "sundays", "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays"
+   };
 
    public static String getDayNameFromIndex(int dayIndex)
    {
-      String dayName = null;
-
       /*
        * For UI, java.util.date 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 =
        * Thursday, 5 = Friday, 6 = Saturday
-       */
-
-      /*
+       *
        * For Quartz, 1-7 or SUN-SAT
        */
-
-      if (dayIndex == 1)
-      {
-         dayName = "MON";
-      }
-      else if (dayIndex == 2)
-      {
-         dayName = "TUE";
-      }
-      else if (dayIndex == 3)
-      {
-         dayName = "WED";
-      }
-      else if (dayIndex == 4)
-      {
-         dayName = "THU";
-      }
-      else if (dayIndex == 5)
-      {
-         dayName = "FRI";
-      }
-      else if (dayIndex == 6)
-      {
-         dayName = "SAT";
-      }
-      else if (dayIndex == 0)
-      {
-         dayName = "SUN";
-      }
-      return dayName;
+      return DAY_SHORT_NAMES[dayIndex];
    }
+
+   private static final String[] TIME_SLOTS = {
+      "12:00 AM", "12:30 AM", "01:00 AM", "01:30 AM", "02:00 AM", "02:30 AM",
+      "03:00 AM", "03:30 AM", "04:00 AM", "04:30 AM", "05:00 AM", "05:30 AM",
+      "06:00 AM", "06:30 AM", "07:00 AM", "07:30 AM", "08:00 AM", "08:30 AM",
+      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+      "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+      "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM",
+      "06:00 PM", "06:30 PM", "07:00 PM", "07:30 PM", "08:00 PM", "08:30 PM",
+      "09:00 PM", "09:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"
+   };
 
    /**
     * This function has dummy implementation , more meaningful implementation would be
@@ -92,86 +70,42 @@ public class SchedulingUtils
     * @param selectedExecutionTime
     * @return
     */
-   public static String getExecutionTime(String selectedExecutionTime)
+   public static String getExecutionTime(int slot)
    {
-      Map<String, String> map = new HashMap<String, String>();
-      map.put("01", "12:00 AM");
-      map.put("02", "12:30 AM");
-      map.put("03", "01:00 AM");
-      map.put("04", "01:30 AM");
-      map.put("05", "02:00 AM");
-      map.put("06", "02:30 AM");
-      map.put("07", "03:00 AM");
-      map.put("08", "03:30 AM");
-      map.put("09", "04:00 AM");
-      map.put("10", "04:30 AM");
-      map.put("11", "05:00 AM");
-      map.put("12", "05:30 AM");
-      map.put("13", "06:00 AM");
-      map.put("14", "06:30 AM");
-      map.put("15", "07:00 AM");
-      map.put("16", "07:30 AM");
-      map.put("17", "08:00 AM");
-      map.put("18", "08:30 AM");
-      map.put("19", "09:00 AM");
-      map.put("20", "09:30 AM");
-      map.put("21", "10:00 AM");
-      map.put("22", "10:30 AM");
-      map.put("23", "11:00 AM");
-      map.put("24", "11:30 AM");
-      map.put("25", "12:00 PM");
-      map.put("26", "12:30 PM");
-      map.put("27", "01:00 PM");
-      map.put("28", "01:30 PM");
-      map.put("29", "02:00 PM");
-      map.put("30", "02:30 PM");
-      map.put("31", "03:00 PM");
-      map.put("32", "03:30 PM");
-      map.put("33", "04:00 PM");
-      map.put("34", "04:30 PM");
-      map.put("35", "05:00 PM");
-      map.put("36", "05:30 PM");
-      map.put("37", "06:00 PM");
-      map.put("38", "06:30 PM");
-      map.put("39", "07:00 PM");
-      map.put("40", "07:30 PM");
-      map.put("41", "08:00 PM");
-      map.put("42", "08:30 PM");
-      map.put("43", "09:00 PM");
-      map.put("44", "09:30 PM");
-      map.put("45", "10:00 PM");
-      map.put("46", "10:30 PM");
-      map.put("47", "11:00 PM");
-      map.put("48", "11:30 PM");
-
-      String string = map.get(selectedExecutionTime);
-      return string;
-
+      return TIME_SLOTS[slot - 1];
    }
 
-   public static Date getParsedDate(String startDateStr, String DateFormat)
+   public static Date getParsedDate(String startDateStr, DateFormat format)
    {
-      DateFormat df = new SimpleDateFormat(DateFormat);
-
-      Date date = null;
       try
       {
-         date = df.parse(startDateStr);
+         return format.parse(startDateStr);
       }
       catch (ParseException e)
       {
          trace.error(e);
+         return null;
       }
-
-      return date;
-
    }
 
-   public static String convertDate(Date date, String DateFormat)
+   public static JsonArray getAsJsonArray(JsonObject json, String propertyName)
    {
-      SimpleDateFormat sdf = new SimpleDateFormat(DateFormat);
-      String convertedDate = sdf.format(date);
-      return convertedDate;
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonArray())
+            ? null : property.getAsJsonArray();
    }
 
+   public static JsonObject getAsJsonObject(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonObject())
+            ? null : property.getAsJsonObject();
+   }
+
+   public static String getAsString(JsonObject json, String propertyName)
+   {
+      JsonElement property = json.get(propertyName);
+      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
+            ? null : property.getAsString();
+   }
 }

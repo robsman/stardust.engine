@@ -51,6 +51,7 @@ import org.eclipse.stardust.test.api.util.WaitTimeout;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -63,8 +64,8 @@ import org.junit.rules.TestRule;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
+@Ignore
 public class TransientProcessInstanceProfilingTest extends AbstractTransientProcessInstanceTest
 {
    private static final Log LOG = LogFactory.getLog(TransientProcessInstanceProfilingTest.class);

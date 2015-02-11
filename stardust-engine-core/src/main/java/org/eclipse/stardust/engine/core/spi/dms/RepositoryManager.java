@@ -43,7 +43,7 @@ public class RepositoryManager
 
    private static Logger trace = LogManager.getLogger(RepositoryManager.class);
 
-   private static RepositoryManager INSTANCE;
+   private static volatile RepositoryManager INSTANCE;
 
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
 
@@ -86,6 +86,14 @@ public class RepositoryManager
          }
       }
       return INSTANCE;
+   }
+
+   public static void reset()
+   {
+      synchronized (RepositoryManager.class)
+      {
+         INSTANCE = null;
+      }
    }
 
    private void registerDefaultInstances()

@@ -24,29 +24,29 @@ public class RouteCamelModel {
 	@Expose
 	private String id;
 	@Expose
-	private String selfProcessingTime;
+	private Long selfProcessingTime;
 	@Expose
-	private String exchangesCompleted;
+	private Long exchangesCompleted;
 	@Expose
-	private String exchangesFailed;
+	private Long exchangesFailed;
 	@Expose
-	private String failuresHandled;
+	private Long failuresHandled;
 	@Expose
-	private String redeliveries;
+	private Long redeliveries;
 	@Expose
-	private String externalRedeliveries;
+	private Long externalRedeliveries;
 	@Expose
-	private String minProcessingTime;
+	private Long minProcessingTime;
 	@Expose
-	private String maxProcessingTime;
+	private Long maxProcessingTime;
 	@Expose
-	private String totalProcessingTime;
+	private Long totalProcessingTime;
 	@Expose
-	private String lastProcessingTime;
+	private Long lastProcessingTime;
 	@Expose
-	private String deltaProcessingTime;
+	private Long deltaProcessingTime;
 	@Expose
-	private String meanProcessingTime;
+	private Long meanProcessingTime;
 	@Expose
 	private String resetTimestamp;
 	@Expose
@@ -72,31 +72,31 @@ public class RouteCamelModel {
 
 	void initResponseValues() {
 		this.id = statisticElement.getAttributeValue("id");
-		this.selfProcessingTime = statisticElement
-				.getAttributeValue("selfProcessingTime");
-		this.exchangesCompleted = statisticElement
-				.getAttributeValue("exchangesCompleted");
-		this.exchangesFailed = statisticElement
-				.getAttributeValue("exchangesFailed");
-		this.failuresHandled = statisticElement
-				.getAttributeValue("failuresHandled");
-		this.failuresHandled = statisticElement
-				.getAttributeValue("failuresHandled");
-		this.redeliveries = statisticElement.getAttributeValue("redeliveries");
-		this.externalRedeliveries = statisticElement
-				.getAttributeValue("externalRedeliveries");
-		this.minProcessingTime = statisticElement
-				.getAttributeValue("minProcessingTime");
-		this.maxProcessingTime = statisticElement
-				.getAttributeValue("maxProcessingTime");
-		this.totalProcessingTime = statisticElement
-				.getAttributeValue("totalProcessingTime");
-		this.lastProcessingTime = statisticElement
-				.getAttributeValue("lastProcessingTime");
-		this.deltaProcessingTime = statisticElement
-				.getAttributeValue("deltaProcessingTime");
-		this.meanProcessingTime = statisticElement
-				.getAttributeValue("meanProcessingTime");
+		this.selfProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("selfProcessingTime"));
+		this.exchangesCompleted = Long.parseLong(statisticElement
+				.getAttributeValue("exchangesCompleted"));
+		this.exchangesFailed = Long.parseLong(statisticElement
+				.getAttributeValue("exchangesFailed"));
+		this.failuresHandled = Long.parseLong(statisticElement
+				.getAttributeValue("failuresHandled"));
+		this.failuresHandled = Long.parseLong(statisticElement
+				.getAttributeValue("failuresHandled"));
+		this.redeliveries = Long.parseLong(statisticElement.getAttributeValue("redeliveries"));
+		this.externalRedeliveries = Long.parseLong(statisticElement
+				.getAttributeValue("externalRedeliveries"));
+		this.minProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("minProcessingTime"));
+		this.maxProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("maxProcessingTime"));
+		this.totalProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("totalProcessingTime"));
+		this.lastProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("lastProcessingTime"));
+		this.deltaProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("deltaProcessingTime"));
+		this.meanProcessingTime = Long.parseLong(statisticElement
+				.getAttributeValue("meanProcessingTime"));
 		this.resetTimestamp = statisticElement
 				.getAttributeValue("resetTimestamp");
 		this.firstExchangeCompletedTimestamp = statisticElement
@@ -134,99 +134,99 @@ public class RouteCamelModel {
 		this.id = id;
 	}
 
-	public String getSelfProcessingTime() {
+	public Long getSelfProcessingTime() {
 		return selfProcessingTime;
 	}
 
-	public void setSelfProcessingTime(String selfProcessingTime) {
+	public void setSelfProcessingTime(Long selfProcessingTime) {
 		this.selfProcessingTime = selfProcessingTime;
 	}
 
-	public String getExchangesCompleted() {
+	public Long getExchangesCompleted() {
 		return exchangesCompleted;
 	}
 
-	public void setExchangesCompleted(String exchangesCompleted) {
+	public void setExchangesCompleted(Long exchangesCompleted) {
 		this.exchangesCompleted = exchangesCompleted;
 	}
 
-	public String getExchangesFailed() {
+	public Long getExchangesFailed() {
 		return exchangesFailed;
 	}
 
-	public void setExchangesFailed(String exchangesFailed) {
+	public void setExchangesFailed(Long exchangesFailed) {
 		this.exchangesFailed = exchangesFailed;
 	}
 
-	public String getFailuresHandled() {
+	public Long getFailuresHandled() {
 		return failuresHandled;
 	}
 
-	public void setFailuresHandled(String failuresHandled) {
+	public void setFailuresHandled(Long failuresHandled) {
 		this.failuresHandled = failuresHandled;
 	}
 
-	public String getRedeliveries() {
+	public Long getRedeliveries() {
 		return redeliveries;
 	}
 
-	public void setRedeliveries(String redeliveries) {
+	public void setRedeliveries(Long redeliveries) {
 		this.redeliveries = redeliveries;
 	}
 
-	public String getExternalRedeliveries() {
+	public Long getExternalRedeliveries() {
 		return externalRedeliveries;
 	}
 
-	public void setExternalRedeliveries(String externalRedeliveries) {
+	public void setExternalRedeliveries(Long externalRedeliveries) {
 		this.externalRedeliveries = externalRedeliveries;
 	}
 
-	public String getMinProcessingTime() {
+	public Long getMinProcessingTime() {
 		return minProcessingTime;
 	}
 
-	public void setMinProcessingTime(String minProcessingTime) {
+	public void setMinProcessingTime(Long minProcessingTime) {
 		this.minProcessingTime = minProcessingTime;
 	}
 
-	public String getMaxProcessingTime() {
+	public Long getMaxProcessingTime() {
 		return maxProcessingTime;
 	}
 
-	public void setMaxProcessingTime(String maxProcessingTime) {
+	public void setMaxProcessingTime(Long maxProcessingTime) {
 		this.maxProcessingTime = maxProcessingTime;
 	}
 
-	public String getTotalProcessingTime() {
+	public Long getTotalProcessingTime() {
 		return totalProcessingTime;
 	}
 
-	public void setTotalProcessingTime(String totalProcessingTime) {
+	public void setTotalProcessingTime(Long totalProcessingTime) {
 		this.totalProcessingTime = totalProcessingTime;
 	}
 
-	public String getLastProcessingTime() {
+	public Long getLastProcessingTime() {
 		return lastProcessingTime;
 	}
 
-	public void setLastProcessingTime(String lastProcessingTime) {
+	public void setLastProcessingTime(Long lastProcessingTime) {
 		this.lastProcessingTime = lastProcessingTime;
 	}
 
-	public String getDeltaProcessingTime() {
+	public Long getDeltaProcessingTime() {
 		return deltaProcessingTime;
 	}
 
-	public void setDeltaProcessingTime(String deltaProcessingTime) {
+	public void setDeltaProcessingTime(Long deltaProcessingTime) {
 		this.deltaProcessingTime = deltaProcessingTime;
 	}
 
-	public String getMeanProcessingTime() {
+	public Long getMeanProcessingTime() {
 		return meanProcessingTime;
 	}
 
-	public void setMeanProcessingTime(String meanProcessingTime) {
+	public void setMeanProcessingTime(Long meanProcessingTime) {
 		this.meanProcessingTime = meanProcessingTime;
 	}
 

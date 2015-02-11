@@ -20,7 +20,6 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -48,7 +47,9 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName, List<JsonObject> events);
+
+   protected abstract List<JsonObject> getEvents(JsonObject documentJson);
 
    protected String getExtension()
    {
@@ -93,59 +94,73 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             String reportName = document.getName();
             reportName = reportName.substring(0, reportName.length() - extension.length());
 
-            String content;
-            try
-            {
-               content = new String(dmService.retrieveDocumentContent(document.getId()), "UTF-8");
-            }
-            catch (Exception e)
-            {
-               content = new String(dmService.retrieveDocumentContent(document.getId()));
-            }
+            JsonObject documentJson = getDocumentJson(document);
 
-            JsonObject documentJson = new JsonParser().parse(content).getAsJsonObject();
-            JsonArray eventsArray = documentJson.getAsJsonArray("events");
-
-            if (eventsArray != null)
+            List<JsonObject> matchingEvents = CollectionUtils.newList();
+            List<JsonObject> events = getEvents(documentJson);
+            for (JsonObject event : events)
             {
-               for (JsonElement event : eventsArray)
+               if (isActive(event))
                {
-                  JsonObject eventJson = event.getAsJsonObject();
-                  if (eventJson != null && isActive(eventJson))
+                  if (isBlocking(event))
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(eventJson);
-                     Date processSchedule = sc.processSchedule(eventJson, true);
+                     matches = false;
+                     break;
+                  }
+
+                  if (!matches)
+                  {
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(event);
+                     Date processSchedule = sc.processSchedule(event, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))
                      {
                         matches = true;
-                        break;
+                        matchingEvents.add(event);
                      }
                   }
                }
+            }
 
-               if (matches)
-               {
-                  scheduledDocuments.add(createScheduledDocument(documentJson,
-                        owner == null ? new QName("") : QName.valueOf(owner), reportName));
-               }
+            if (matches)
+            {
+               scheduledDocuments.add(createScheduledDocument(documentJson,
+                     owner == null ? new QName("") : QName.valueOf(owner),
+                     reportName, matchingEvents));
             }
          }
       }
       return scheduledDocuments;
    }
 
+   protected JsonObject getDocumentJson(String id)
+   {
+      return getDocumentJson(getDocumentManagementService().getDocument(id));
+   }
+
+   protected JsonObject getDocumentJson(Document document)
+   {
+      String content;
+      try
+      {
+         content = new String(dmService.retrieveDocumentContent(document.getId()), "UTF-8");
+      }
+      catch (Exception e)
+      {
+         content = new String(dmService.retrieveDocumentContent(document.getId()));
+      }
+      return new JsonParser().parse(content).getAsJsonObject();
+   }
+
+   protected boolean isBlocking(JsonObject json)
+   {
+      return false;
+   }
+
    protected boolean isActive(JsonObject eventJson)
    {
       JsonElement active = eventJson.get("active");
-      return (active == null || active.getAsBoolean()) && acceptEventType(getAsString(eventJson, "type"));
-   }
-
-   private String getAsString(JsonObject json, String propertyName)
-   {
-      JsonElement property = json.get(propertyName);
-      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
-            ? null : property.getAsString();
+      return (active == null || active.getAsBoolean()) && acceptEventType(SchedulingUtils.getAsString(eventJson, "type"));
    }
 
    public List<Document> scanLocations()
@@ -216,16 +231,17 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       Calendar scheduleCalendar = getCalendar(processSchedule);
       if (startingDate == null)
       {
-         return targetCalendar.after(scheduleCalendar);
+         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
       }
-
       Calendar startingCalendar = getCalendar(startingDate);
-      return scheduleCalendar.after(startingCalendar) && targetCalendar.after(scheduleCalendar);
+      return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
+            && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
    }
 
    protected Calendar getCalendar(Date date)
    {
       Calendar calendar = Calendar.getInstance();
+      calendar.setLenient(true);
       calendar.setTime(date);
       calendar.set(Calendar.SECOND, 0);
       calendar.set(Calendar.MILLISECOND, 0);

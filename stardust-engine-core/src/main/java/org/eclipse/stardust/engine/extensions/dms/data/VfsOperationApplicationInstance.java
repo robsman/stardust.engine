@@ -21,15 +21,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.Application;
-import org.eclipse.stardust.engine.api.model.Modules;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.FolderInfo;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
@@ -60,8 +52,6 @@ public class VfsOperationApplicationInstance
 
    public void bootstrap(ActivityInstance activityInstance)
    {
-      ExtensionService.initializeModuleExtensions(Modules.DMS);
-
       Activity activity = (Activity) activityInstance.getActivity();
 
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(activityInstance.getProcessInstanceOID());

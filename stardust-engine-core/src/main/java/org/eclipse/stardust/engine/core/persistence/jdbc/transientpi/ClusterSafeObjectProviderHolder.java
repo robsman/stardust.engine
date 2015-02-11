@@ -16,17 +16,20 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 
 /**
  * <p>
- * This class' only purpose is to ensure both safe publication and lazy initialization
+ * This class provides access to the configured {@link ClusterSafeObjectProvider}.
+ * </p>
+ *
+ * <p>
+ * Moreover, it ensures both safe publication and lazy initialization
  * (see 'lazy initialization class holder' idiom).
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class ClusterSafeObjectProviderHolder
 {
    public static final ClusterSafeObjectProvider OBJ_PROVIDER = initClusterSafeObjProvider();
-   
+
    private static ClusterSafeObjectProvider initClusterSafeObjProvider()
    {
       final ClusterSafeObjectProvider objProvider = ExtensionProviderUtils.getFirstExtensionProvider(ClusterSafeObjectProvider.class, KernelTweakingProperties.CLUSTER_SAFE_OBJ_PROVIDER);
@@ -34,7 +37,7 @@ public class ClusterSafeObjectProviderHolder
       {
          throw new IllegalStateException("No cluster safe object provider could be found.");
       }
-      
+
       return objProvider;
    }
 }

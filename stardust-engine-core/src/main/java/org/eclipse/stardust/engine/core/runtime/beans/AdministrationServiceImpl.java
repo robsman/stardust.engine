@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,16 +24,14 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Action;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
@@ -56,7 +54,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.preferences.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
-import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
@@ -68,7 +65,6 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
-import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
@@ -85,7 +81,7 @@ public class AdministrationServiceImpl
 
    private static final String DEPLOY_MODEL_MESSAGE = "Deployed model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
 
-   private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
+   //private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
 
    private static final String DUPLICATE_MODEL_ID = "Duplicate model id ''{0}''.";
 
@@ -165,6 +161,8 @@ public class AdministrationServiceImpl
          int modelOID, DeploymentOptions options) throws DeploymentException
    {
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+
+      DeploymentInfo deploymentInfo;
       try
       {
          ModelManager manager = ModelManagerFactory.getCurrent();
@@ -188,14 +186,19 @@ public class AdministrationServiceImpl
             deploymentError(ex, null);
          }
 
-         MonitoringUtils.partitionMonitors().modelDeployed(element.getModel(), true);
+         final List<IModel> models = Collections.singletonList(element.getModel());
+         MonitoringUtils.partitionMonitors().beforeModelDeployment(models, true);
 
-         return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
+         deploymentInfo = doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
+
+         MonitoringUtils.partitionMonitors().afterModelDeployment(models, true);
       }
       finally
       {
          runtimeEnvironment.setModelOverrides(null);
       }
+
+      return deploymentInfo;
    }
 
    private static byte[] encode(String content)
@@ -463,6 +466,8 @@ public class AdministrationServiceImpl
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("deploymentElements"));
       }
 
+      List<DeploymentInfo> deploymentInfos;
+
       // use default options if no options are specified
       if (options == null)
       {
@@ -504,14 +509,23 @@ public class AdministrationServiceImpl
             overrides.put(modelId, parsedUnit.getModel());
          }
 
-         for (ParsedDeploymentUnit unit : elements)
+         List<IModel> models = CollectionUtils.newArrayList(elements.size());
+         CollectionUtils.transform(models, elements,
+               new Functor<ParsedDeploymentUnit, IModel>()
          {
-            IModel model = unit.getModel();
-            MonitoringUtils.partitionMonitors().modelDeployed(model, false);
+                  @Override
+                  public IModel execute(ParsedDeploymentUnit source)
+                  {
+                     return source.getModel();
          }
+               });
+
+         MonitoringUtils.partitionMonitors().beforeModelDeployment(models, false);
 
          // deploy the models
-         return doDeployModel(elements, options);
+         deploymentInfos = doDeployModel(elements, options);
+
+         MonitoringUtils.partitionMonitors().afterModelDeployment(models, false);
       }
       catch (Exception e)
       {
@@ -521,6 +535,8 @@ public class AdministrationServiceImpl
       {
          runtimeEnvironment.setModelOverrides(null);
       }
+
+      return deploymentInfos;
    }
 
    private List<String> orderModels(Map<String, ModelInfo> infos)
@@ -1454,7 +1470,7 @@ public class AdministrationServiceImpl
    {
       return CollectionUtils.union(
             Authorization2.getPermissions(AdministrationService.class),
-            Authorization2.getPermissions(GlobalPermissionSpecificService.class));
+            Authorization2.getGlobalPermissions());
    }
 
    public Map<String, ? > getProfile(ProfileScope scope)
@@ -2071,80 +2087,5 @@ public class AdministrationServiceImpl
    private static IPreferenceStorageManager getPreferenceStore()
    {
       return PreferenceStorageFactory.getCurrent();
-   }
-
-   /**
-    * Class is used to list all possible global permissions. With it the permissions
-    * can be evaluated by <code>Authorization2</code> class.
-    * @author sven.rottstock
-    * @see GlobalPermissionConstants
-    */
-   private static interface GlobalPermissionSpecificService extends Service
-   {
-      @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
-      Permission getManageAuthorizationPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-      Permission getManageDeputiesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
-      Permission getControlProcessEnginePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
-      Permission getDeployProcessModelPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
-      Permission getForceSuspendPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
-      Permission getManageDaemonsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
-      Permission getModifyAuditTrailPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
-      Permission getModifyDepartmentsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
-      Permission getModifyUserDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
-      Permission getReadAuditTrailStatisticsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.createCase)
-      Permission getCreateCasePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readDepartments)
-      Permission getReadDepartmentsPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readModelData)
-      Permission getReadModelDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.readUserData)
-      Permission getReadUserDataPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.resetUserPassword)
-      Permission getResetUserPasswordPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
-      Permission getRunRecoveryPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnUserScopePreferences)
-      Permission getSaveOwnUserScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnRealmScopePreferences)
-      Permission getSaveOwnRealmScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnPartitionScopePreferences)
-      Permission getSaveOwnPartitionScopePreferencesPermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.joinProcessInstance)
-      Permission getJoinProcessInstancePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.spawnPeerProcessInstance)
-      Permission getSpawnPeerProcessInstancePermission();
-
-      @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
-      Permission getSpawnSubProcessInstancePermission();
    }
 }

@@ -21,9 +21,8 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
  * An SPI allowing to specify where the <i>Hazelcast JCA Connection Factory</i> should
  * be retrieved from, e.g. from <i>JNDI</i> or a <i>Spring Application Context</i>.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 @SPI(status = Status.Stable, useRestriction = UseRestriction.Internal)
 public interface HazelcastJcaConnectionFactoryProvider
@@ -32,4 +31,10 @@ public interface HazelcastJcaConnectionFactoryProvider
     * @return the <i>Hazelcast JCA Connection Factory</i>
     */
    ConnectionFactory connectionFactory();
+
+   /**
+    * Resets the {@link HazelcastJcaConnectionFactoryProvider} to the uninitialized state such that a subsequent call other than
+    * {@link #reset()} causes a reinitialization of this {@link HazelcastJcaConnectionFactoryProvider}.
+    */
+   void reset();
 }

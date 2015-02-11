@@ -16,17 +16,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2.GlobalPermissionSpecificService;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Default;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
 public final class ClientPermission
 {
+   private static final Logger trace = LogManager.getLogger(ClientPermission.class);
+
    static final ClientPermission NULL = new ClientPermission(null, Scope.model, new Default[] {Default.ADMINISTRATOR},
          new Default[] {}, true, true, false, new Id[] {});
 
@@ -69,7 +74,8 @@ public final class ClientPermission
       HashMap<ExecutionPermission, ClientPermission> map = new HashMap<ExecutionPermission, ClientPermission>();
 
       // cache permissions for all public methods.
-      Class[] classes = new Class[] {AdministrationService.class, QueryService.class, UserService.class, WorkflowService.class};
+      Class[] classes = new Class[] {AdministrationService.class, DocumentManagementService.class,
+            GlobalPermissionSpecificService.class, QueryService.class, UserService.class, WorkflowService.class};
       for (Class<?> cls : classes)
       {
          for (Method method : cls.getMethods())
@@ -269,10 +275,15 @@ public final class ClientPermission
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
-         /*ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
+         /*
+         ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
          cp = permission == null ? NULL : new ClientPermission(permission);
-         permissionCache.put(method, cp);*/
-         System.err.println("Missing permission for: " + method);
+         permissionCache.put(method, cp);
+         */
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Missing permission for: " + method);
+         }
       }
       return cp == NULL ? null : cp;
    }

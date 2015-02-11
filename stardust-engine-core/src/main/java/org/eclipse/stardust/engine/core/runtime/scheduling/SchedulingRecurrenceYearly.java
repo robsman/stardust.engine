@@ -7,42 +7,35 @@ public class SchedulingRecurrenceYearly extends SchedulingRecurrence
    public String generateSchedule(JsonObject json)
    {
       StringBuilder cronExpr = new StringBuilder();
+      cronExpr.append(getStartTime());
 
-      int recurrenceYearIntervalCount = json.get("yearlyRecurrenceOptions")
-            .getAsJsonObject().get("recurEveryYear").getAsInt();
+      JsonObject yearlyRecurrenceOptions = json.get("yearlyRecurrenceOptions").getAsJsonObject();
+      int recurrenceYearIntervalCount = yearlyRecurrenceOptions.get("recurEveryYear").getAsInt();
 
-      String yearlyRecurrence = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-            .get("yearlyRecurrence").getAsString();
+      String yearlyRecurrence = yearlyRecurrenceOptions.get("yearlyRecurrence").getAsString();
 
       if (yearlyRecurrence.equals("weekday"))
       {
-         int dayNumber = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-               .get("onDay").getAsInt();
-         int onMonth = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-               .get("onMonth").getAsInt();
-
-         cronExpr.append(getStartTime() + dayNumber + " " + onMonth + " ? "
-               + SchedulingUtils.convertDate(getStartDate(), "yyyy") + "/"
-               + recurrenceYearIntervalCount);
+         cronExpr.append(yearlyRecurrenceOptions.get("onDay"))
+                 .append(' ')
+                 .append(yearlyRecurrenceOptions.get("onMonth"))
+                 .append(" ? ");
 
       }
       else if (yearlyRecurrence.equals("date"))
       {
-         int onTheXDay = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-               .get("onTheXDay").getAsInt();
-         int onTheXDayName = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-               .get("onTheXDayName").getAsInt();
-         int onTheMonth = json.get("yearlyRecurrenceOptions").getAsJsonObject()
-               .get("onTheMonth").getAsInt();
-
-         String byDay = SchedulingUtils.getDayNameFromIndex(onTheXDayName);
-
-         cronExpr.append(getStartTime() + "?" + SchedulingUtils.BLANK_SPACE + onTheMonth
-               + SchedulingUtils.BLANK_SPACE + byDay + getXDayOfMonthOrYear(onTheXDay)
-               + SchedulingUtils.BLANK_SPACE
-               + SchedulingUtils.convertDate(getStartDate(), "yyyy") + "/"
-               + recurrenceYearIntervalCount);
+         cronExpr.append("? ")
+                 .append(yearlyRecurrenceOptions.get("onTheMonth"))
+                 .append(' ')
+                 .append(SchedulingUtils.getDayNameFromIndex(
+                       yearlyRecurrenceOptions.get("onTheXDayName").getAsInt()))
+                 .append(getXDayOfMonthOrYear(
+                       yearlyRecurrenceOptions.get("onTheXDay").getAsInt()))
+                 .append(' ');
       }
+      cronExpr.append(SchedulingUtils.YEAR_DATE_FORMAT.format(getStartDate()))
+              .append('/')
+              .append(recurrenceYearIntervalCount);
 
       return cronExpr.toString();
    }

@@ -53,6 +53,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -841,5 +842,85 @@ public class Authorization2
          }
       }
       return false;
+   }
+
+   public static List<Permission> getGlobalPermissions()
+   {
+      return getPermissions(GlobalPermissionSpecificService.class);
+   }
+
+   /**
+    * Class is used to list all possible global permissions. With it the permissions
+    * can be evaluated by <code>Authorization2</code> class.
+    * @author sven.rottstock
+    * @see GlobalPermissionConstants
+    */
+   static interface GlobalPermissionSpecificService extends Service
+   {
+      @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
+      Permission getManageAuthorizationPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
+      Permission getManageDeputiesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
+      Permission getControlProcessEnginePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
+      Permission getDeployProcessModelPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
+      Permission getForceSuspendPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
+      Permission getManageDaemonsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+      Permission getModifyAuditTrailPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
+      Permission getModifyDepartmentsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
+      Permission getModifyUserDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
+      Permission getReadAuditTrailStatisticsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.createCase)
+      Permission getCreateCasePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readDepartments)
+      Permission getReadDepartmentsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readModelData)
+      Permission getReadModelDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readUserData)
+      Permission getReadUserDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.resetUserPassword)
+      Permission getResetUserPasswordPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
+      Permission getRunRecoveryPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnUserScopePreferences)
+      Permission getSaveOwnUserScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnRealmScopePreferences)
+      Permission getSaveOwnRealmScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnPartitionScopePreferences)
+      Permission getSaveOwnPartitionScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.joinProcessInstance)
+      Permission getJoinProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.spawnPeerProcessInstance)
+      Permission getSpawnPeerProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
+      Permission getSpawnSubProcessInstancePermission();
    }
 }

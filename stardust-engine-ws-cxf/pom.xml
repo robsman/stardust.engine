@@ -46,7 +46,7 @@
                <artifactId>jaxb-api</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>stax</groupId>
+               <groupId>javax.xml.stream</groupId>
                <artifactId>stax-api</artifactId>
             </exclusion>
             <exclusion>

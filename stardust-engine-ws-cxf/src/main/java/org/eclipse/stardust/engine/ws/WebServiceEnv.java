@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -237,8 +238,27 @@ public class WebServiceEnv implements ModelResolver
 
    private Model fetchModel(RetrieveModelDetailsCommand command)
    {
-      Model model = (Model) serviceFactory.getWorkflowService().execute(command);
-      registerSchemaLocator(model);
+      Model model = null;
+      try
+      {
+
+         model = (Model) serviceFactory.getWorkflowService().execute(command);
+         registerSchemaLocator(model);
+      }
+      catch (ServiceCommandException e)
+      {
+         // unwrap
+         Throwable cause = e.getCause();
+         if (cause != null && cause instanceof RuntimeException)
+         {
+            throw (RuntimeException) cause;
+         }
+         else
+         {
+            throw e;
+         }
+      }
+
       if (model instanceof DeployedModel && useModelCache())
       {
          findModelCache().putModel((DeployedModel) model);

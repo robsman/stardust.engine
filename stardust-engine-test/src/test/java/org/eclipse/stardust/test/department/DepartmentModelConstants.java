@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,6 +88,18 @@ public class DepartmentModelConstants
    /* package-private */ static final String READER_ORG_ID = "Reader";
 
 
+   /**
+    * a scoped organization
+    */
+   /* package-private */ static final String ORG_ENUM_SD_ID = "OrgEnumSD";
+
+
+   /**
+    * a scoped organization
+    */
+   /* package-private */ static final String ORG_ENUM_JAVA_ID = "OrgEnumJava";
+
+
    /******************************************************************
     *                                                                *
     *                            Role IDs                            *
@@ -150,6 +162,16 @@ public class DepartmentModelConstants
     * the ID of 'department data' 'Z'
     */
    /* package-private */ static final String Z_SCOPE = "Z";
+
+   /**
+    * the ID of 'department data' 'ScopeDataEnumSD'
+    */
+   /* package-private */ static final String ENUM_SD_SCOPE = "ScopeDataEnumSD";
+
+   /**
+    * the ID of 'department data' 'ScopeDataEnumJava'
+    */
+   /* package-private */ static final String ENUM_JAVA_SCOPE = "ScopeDataEnumJava";
 
 
    /******************************************************************
@@ -228,6 +250,20 @@ public class DepartmentModelConstants
     */
    /* package-private */ static final String SUB_SUB_DEP_ID_N = "n";
 
+   /**
+    * the ID of department 'ABC'
+    */
+   /* package-private */ static final String DEPT_ID_ABC = "ABC";
+
+   /**
+    * the ID of department 'KLM'
+    */
+   /* package-private */ static final String DEPT_ID_KLM = "KLM";
+
+   /**
+    * the ID of department 'XYZ'
+    */
+   /* package-private */ static final String DEPT_ID_XYZ = "XYZ";
 
    /******************************************************************
     *                                                                *
@@ -274,6 +310,18 @@ public class DepartmentModelConstants
     * identifies process definition #8
     */
    /* package-private */ static final String PROCESS_ID_8 = "P8";
+
+
+   /**
+    * identifies process definition #9
+    */
+   /* package-private */ static final String PROCESS_ID_9 = "P9";
+
+
+   /**
+    * identifies process definition #10
+    */
+   /* package-private */ static final String PROCESS_ID_10 = "P10";
 
 
    /******************************************************************

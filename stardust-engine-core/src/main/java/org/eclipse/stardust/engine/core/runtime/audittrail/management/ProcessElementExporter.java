@@ -100,7 +100,6 @@ public class ProcessElementExporter implements ProcessElementOperator
             Persistent p = (Persistent) iterator.next();
             results.add(p);
             long processInstanceOid = -1;
-            System.out.println(p.getClass());
             if (partType == ProcessInstanceBean.class)
             {
                exportResult.addResult(((ProcessInstanceBean)p));

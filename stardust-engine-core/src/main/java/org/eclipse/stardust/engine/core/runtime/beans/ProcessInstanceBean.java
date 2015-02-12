@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -1406,7 +1407,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       trace.debug("Validating loop condition '" + condition + "'");
       
       final IProcessDefinition processDefinition = getProcessDefinition();
-      return ConditionEvaluator.isEnabled(processDefinition, this, condition);
+      return ConditionEvaluator.isEnabled(processDefinition, this, condition, true);
    }
 
    public void addDataValue(IDataValue value)

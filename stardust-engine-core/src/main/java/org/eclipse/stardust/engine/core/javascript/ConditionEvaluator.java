@@ -20,6 +20,8 @@ import org.mozilla.javascript.ContextFactory;
 
 
 
+
+
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -46,8 +48,30 @@ public class ConditionEvaluator
    public static final String JAVASCRIPT_TYPE = "text/ecmascript";
 
    public static boolean isEnabled(final ModelElement modelElement, final SymbolTable symbolTable,
-         String condition)
+         String condition, boolean defaultCarnotEL)
    {
+      if(defaultCarnotEL)
+      {
+         try
+         {
+            String conditionWithoutPrefix = condition;
+            if (condition.startsWith(PredefinedConstants.CARNOT_EL_PREFIX))
+            {
+               conditionWithoutPrefix = condition.substring(PredefinedConstants.CARNOT_EL_PREFIX.length());
+            }
+            Interpreter.parse(conditionWithoutPrefix);
+            return evaluateCarnotEL(modelElement, symbolTable, condition);
+         }
+         catch(SyntaxError se)
+         {
+            return isEnabled(modelElement, symbolTable, condition, false);
+         }
+         catch (EvaluationError x)
+         {
+            throw new InternalException(x);
+         }
+      }
+      
       final IModel model = (IModel) modelElement.getModel();
       String type = model.getScripting().getType();
       if (ECMASCRIPT_TYPE.equals(type) || JAVASCRIPT_TYPE.equals(type))
@@ -75,18 +99,7 @@ public class ConditionEvaluator
             // immediately return "true" (for conditions containing "true")
             return true;
          }
-         BooleanExpression expression = (BooleanExpression) modelElement.getRuntimeAttribute(PARSED_EL_EXPRESSION);
-         if (null == expression)
-         {
-            // for compatibility, correct the new default "true" to the old default "TRUE"
-            if ("true".equals(condition))
-            {
-               condition = "TRUE";
-            }
-            expression = Interpreter.parse(condition);
-            modelElement.setRuntimeAttribute(PARSED_EL_EXPRESSION, expression);
-         }
-         return Result.TRUE.equals(Interpreter.evaluate(expression, symbolTable));
+         return evaluateCarnotEL(modelElement, symbolTable, condition);
       }
       catch (SyntaxError x)
       {
@@ -96,6 +109,30 @@ public class ConditionEvaluator
       {
          throw new InternalException(x);
       }
+   }
+   
+   public static boolean isEnabled(final ModelElement modelElement, final SymbolTable symbolTable,
+         String condition)
+   {
+      return isEnabled(modelElement, symbolTable, condition, false);
+   }
+
+   private static boolean evaluateCarnotEL(final ModelElement modelElement,
+         final SymbolTable symbolTable, String condition) throws SyntaxError,
+         EvaluationError
+   {
+      BooleanExpression expression = (BooleanExpression) modelElement.getRuntimeAttribute(PARSED_EL_EXPRESSION);
+      if (null == expression)
+      {
+         // for compatibility, correct the new default "true" to the old default "TRUE"
+         if ("true".equals(condition))
+         {
+            condition = "TRUE";
+         }
+         expression = Interpreter.parse(condition);
+         modelElement.setRuntimeAttribute(PARSED_EL_EXPRESSION, expression);
+      }
+      return Result.TRUE.equals(Interpreter.evaluate(expression, symbolTable));
    }
    
    private static boolean isEnabledECMA(final ModelElement modelElement, final SymbolTable symbolTable,

@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
-import org.eclipse.stardust.engine.core.persistence.jdbc.LazilyEvaluated;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
@@ -67,7 +67,7 @@ public class ClobDataBean extends IdentifiablePersistentBean
 
    public static ClobDataBean find(long oid, Class owner)
    {
-      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      final Session session = (Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       return (ClobDataBean) session.findFirst(ClobDataBean.class,
             QueryExtension.where(Predicates.andTerm(
@@ -77,7 +77,7 @@ public class ClobDataBean extends IdentifiablePersistentBean
 
    public static ClobDataBean find(long ownerId, Class<?> owner, String stringValueLike)
    {
-      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      final Session session = (Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       return (ClobDataBean) session.findFirst(ClobDataBean.class,
             QueryExtension.where(Predicates.andTerm(
@@ -208,7 +208,7 @@ public class ClobDataBean extends IdentifiablePersistentBean
       String ownerType = getOwnerType();
       if (DataValueBean.TABLE_NAME.equals(ownerType))
       {
-         return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findByOID(DataValueBean.class, getOwnerID()).getProcessInstance();
+         return getDataValueProcessInstance();
       }
       else if (StructuredDataValueBean.TABLE_NAME.equals(ownerType))
       {
@@ -218,6 +218,44 @@ public class ClobDataBean extends IdentifiablePersistentBean
       // TODO are all owner types covered?
 
       throw new UnsupportedOperationException("Cannot determine the process instance due to an unknown owner type: '" + ownerType + "'");
+   }
+
+   private IProcessInstance getDataValueProcessInstance()
+   {
+      long dvOid;
+      QueryDescriptor clobQuery = QueryDescriptor.from(DataValueBean.class)
+            .select(DataValueBean.FIELD__OID)
+            .where(Predicates.isEqual(DataValueBean.FR__NUMBER_VALUE, getOID()));
+
+      ResultSet rs = ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL))
+            .executeQuery(clobQuery);
+      try
+      {
+         if (rs.next())
+         {
+            dvOid = rs.getBigDecimal(DataValueBean.FIELD__OID).longValue();
+         }
+         else
+         {
+            dvOid = -1;
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new IllegalStateException(
+               "Can't determine related process instance for clob with id: " + getOID(),
+               e);
+      }
+      if (dvOid != -1)
+      {
+         return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
+               .findByOID(DataValueBean.class, dvOid).getProcessInstance();
+      }
+      else
+      {
+         throw new IllegalStateException(
+               "Can't determine related process instance for clob with id: " + getOID());
+      }
    }
 
    public static interface StringValueProvider

@@ -15,23 +15,18 @@ import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.close
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -48,7 +43,6 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
  */
 public class ProcessElementsVisitor
 {
-   private static final Logger trace = LogManager.getLogger(ProcessElementsVisitor.class);
 
    private final ProcessElementOperator operator;
 
@@ -196,32 +190,7 @@ public class ProcessElementsVisitor
       for (int idx = 0; idx < dClusters.length; ++idx)
       {
          final DataCluster dCluster = dClusters[idx];
-
-         Statement stmt = null;
-         try
-         {
-            stmt = session.getConnection().createStatement();
-            StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
-            buffer.append("DELETE FROM ").append(dCluster.getQualifiedTableName())
-                  .append(" WHERE ").append(dCluster.getProcessInstanceColumn())
-                  .append(" IN (").append(StringUtils.join(piOids.iterator(), ", "))
-                  .append(")");
-            if (trace.isDebugEnabled())
-            {
-               trace.debug(buffer);
-            }
-            stmt.executeUpdate(buffer.toString());
-         }
-         catch (SQLException e)
-         {
-            throw new PublicException(
-                  BpmRuntimeError.JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE.raise(dCluster
-                        .getTableName()), e);
-         }
-         finally
-         {
-            QueryUtils.closeStatement(stmt);
-         }
+         operator.visitDataClusterValues(session, dCluster, piOids);
       }
    }
 

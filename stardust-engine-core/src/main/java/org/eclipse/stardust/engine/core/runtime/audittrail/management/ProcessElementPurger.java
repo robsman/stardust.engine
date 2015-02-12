@@ -3,10 +3,21 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 
 /**
  * @author jsaayman
@@ -19,6 +30,8 @@ public class ProcessElementPurger implements ProcessElementOperator
    public static final String PURGE_BATCH_SIZE = "purgeBatchSize";
 
    private static final int DEFAULT_PURGE_BATCH_SIZE = 100;
+   
+   private static final Logger trace = LogManager.getLogger(ProcessElementPurger.class);
 
    @Override
    public int operate(Session session, Class partType, FieldRef fkPiPartField, Class piPartType,
@@ -72,6 +85,38 @@ public class ProcessElementPurger implements ProcessElementOperator
       session.executeDelete(delete);
    }
    
+   
+   
+   @Override
+   public void visitDataClusterValues(Session session, DataCluster dCluster, List piOids)
+   {
+      Statement stmt = null;
+      try
+      {
+         stmt = session.getConnection().createStatement();
+         StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
+         buffer.append("DELETE FROM ").append(dCluster.getQualifiedTableName())
+               .append(" WHERE ").append(dCluster.getProcessInstanceColumn())
+               .append(" IN (").append(StringUtils.join(piOids.iterator(), ", "))
+               .append(")");
+         if (trace.isDebugEnabled())
+         {
+            trace.debug(buffer);
+         }
+         stmt.executeUpdate(buffer.toString());
+      }
+      catch (SQLException e)
+      {
+         throw new PublicException(
+               BpmRuntimeError.JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE.raise(dCluster
+                     .getTableName()), e);
+      }
+      finally
+      {
+         QueryUtils.closeStatement(stmt);
+      }
+   }
+
    public int getStatementBatchSize()
    {
       return Parameters.instance().getInteger(PURGE_BATCH_SIZE,

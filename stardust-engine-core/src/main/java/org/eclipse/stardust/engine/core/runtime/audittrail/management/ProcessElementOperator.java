@@ -3,10 +3,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import java.util.List;
+
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 
 /**
  * @author jsaayman
@@ -30,4 +33,6 @@ public interface ProcessElementOperator
    public void finishVisit();
    
    public int getStatementBatchSize();
+
+   public void visitDataClusterValues(Session session, DataCluster dCluster, List piOids);
 }

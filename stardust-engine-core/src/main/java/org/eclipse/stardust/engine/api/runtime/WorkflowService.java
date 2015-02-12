@@ -1797,6 +1797,7 @@ public interface WorkflowService extends Service
     * @param qualifiedBusinessObjectId the qualified id of the business object.
     * @param initialValue the initial value of the business instance (can be null).
     * @return the newly created business object instance.
+    * @throws ObjectExistsException if BO already exists.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDataValues,

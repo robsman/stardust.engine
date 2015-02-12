@@ -598,6 +598,9 @@ public final class PredefinedConstants
    // web modeler - hash attribute (read only models)
    public static final String READ_ONLY_HASH = "stardust:security:hash";
 
+   public static final String BUSINESS_OBJECT_MANAGEDORGANIZATIONS = ENGINE_SCOPE + "managedOrganizations"; //$NON-NLS-1$
+   public static final String BUSINESS_OBJECT_NAMEEXPRESSION = ENGINE_SCOPE + "nameExpression";
+   
    private PredefinedConstants() {
       //disallow instance creation
    }

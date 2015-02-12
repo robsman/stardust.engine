@@ -17,23 +17,17 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.dto.BusinessObjectDetails;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.BusinessObject;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -44,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -58,7 +53,7 @@ import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 public class BusinessObjectUtils
 {
    private static final String BUSINESS_OBJECT_ATT = PredefinedConstants.MODEL_SCOPE + "BusinessObject";
-
+   
    public static BusinessObjects getBusinessObjects(BusinessObjectQuery query)
    {
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -348,6 +343,20 @@ public class BusinessObjectUtils
       return session.findFirst(ProcessInstanceBean.class, desc.getQueryExtension());
    }
 
+   private static Object getNameValue(IData data, Object value)
+   {
+      String nameExpression = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
+      if (value instanceof Map)
+      {
+         Object nameValue = ((Map<?, ?>) value).get(nameExpression);
+         if (nameValue != null)
+         {
+            return nameValue;
+         }
+      }
+      throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
+   }
+      
    private static Object getPK(IData data, Object value)
    {
       String pkId = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
@@ -363,19 +372,19 @@ public class BusinessObjectUtils
    }
 
    public static BusinessObject createInstance(String businessObjectId, Object initialValue)
-         throws ObjectNotFoundException, InvalidArgumentException
+         throws ObjectNotFoundException, InvalidArgumentException, ObjectExistsException
    {
       if (initialValue == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("initialValue"));
       }
+      
       IData data = findDataForUpdate(businessObjectId);
       lockData(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, initialValue));
       if (pi != null)
       {
-         // TODO throw correct exception like ObjectExistsException
-         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_VALUE.raise("initialValue"));
+         throw new ObjectExistsException(BpmRuntimeError.BPMRT_INVALID_VALUE.raise("initialValue"));
       }
       pi = ProcessInstanceBean.createUnboundInstance((IModel) data.getModel());
       return updateBusinessObjectInstance(pi, data, initialValue);
@@ -398,6 +407,7 @@ public class BusinessObjectUtils
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("value"));
       }
+      
       IData data = findDataForUpdate(businessObjectId);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, value));
       if (pi == null)
@@ -425,12 +435,54 @@ public class BusinessObjectUtils
    }
 
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
-   {
+   {      
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);
       BusinessObjectDetails.Value value = new BusinessObjectDetails.ValueDetails(pi.getOID(), dataValue);
-      return new BusinessObjectDetails(data.getModel().getModelOID(), data.getModel().getId(),
+      BusinessObjectDetails detailsObject = new BusinessObjectDetails(data.getModel().getModelOID(), data.getModel().getId(),
             data.getId(), data.getName(), null, Collections.singletonList(value));
+      
+      // create departments
+      IModel model = (IModel) data.getModel();      
+      String managedOrganizations = (String) data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_MANAGEDORGANIZATIONS);
+      
+      ModelManager current = ModelManagerFactory.getCurrent();
+      QueryService queryService = new QueryServiceImpl();
+      
+      if(!StringUtils.isEmpty(managedOrganizations))
+      {
+         String[] managedOrganizationsArray = managedOrganizations.split(",");
+         for (String organizationFullId : managedOrganizationsArray) 
+         {            
+            IModel activeModel = model;
+            
+            String modelId = null;
+            organizationFullId = organizationFullId.substring(1, organizationFullId.length() - 1);
+            //organizationFullId = organizationFullId.replaceAll("\\[", "");
+            //organizationFullId = organizationFullId.replaceAll("\\]", "");
+            organizationFullId = organizationFullId.replaceAll("\\\"", "");
+                        
+            String organizationId = organizationFullId;
+            if (organizationFullId.split(":").length > 1)
+            {
+               modelId = organizationFullId.split(":")[0];
+               organizationId = organizationFullId.split(":")[1];               
+            }
+            
+            if(!StringUtils.isEmpty(modelId) && !CompareHelper.areEqual(modelId, model.getId()))
+            {
+               activeModel = current.findActiveModel(modelId);            
+            }
+               
+            Organization organization = (Organization) queryService.getParticipant(activeModel.getModelOID(), organizationId);
+            String id = (String) getPK(data, newValue);               
+            String name = (String) getNameValue(data, newValue);
+                           
+            DepartmentUtils.createOrModifyDepartment(id, name, "", null, organization);               
+         }
+      }
+         
+      return detailsObject;
    }
 
    private static IData findDataForUpdate(String qualifiedBusinessObjectId)

@@ -83,6 +83,20 @@ public class ExportImportSupport
       return result;
    }
 
+   public static Date getIndexDateTime(Date date)
+   {
+      if (date == null)
+      {
+         return null;
+      }
+      Calendar c = Calendar.getInstance();
+      c.setTime(date);
+      c.set(Calendar.MINUTE, 0);
+      c.set(Calendar.SECOND, 0);
+      c.set(Calendar.MILLISECOND, 0);
+      return c.getTime();
+   }
+
    public static Date getStartOfDay(Date date)
    {
       if (date == null)

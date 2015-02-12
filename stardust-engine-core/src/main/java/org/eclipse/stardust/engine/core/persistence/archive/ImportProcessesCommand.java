@@ -163,6 +163,10 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private int validateAndImport(ServiceFactory sf)
    {
+      if (importMetaData != null)
+      {
+         throw new IllegalArgumentException("When using VALIDATE_AND_IMPORT, provide the model data and the export data. Do not provide importMetaData");
+      }
       Map<String, List<byte[]>> dataByTable = validate(sf);
       return importData(sf, dataByTable);
    }

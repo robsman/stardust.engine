@@ -9,12 +9,13 @@ import java.util.List;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * @author jsaayman
@@ -27,15 +28,15 @@ public class ProcessElementExporter implements ProcessElementOperator
 
    private static final int DEFAULT_EXPORT_BATCH_SIZE = 5;
 
-   private final ByteArrayBlobBuilder blobBuilder;
-
    private final boolean purge;
+   
+   private final ExportResult exportResult;
 
-   public ProcessElementExporter(boolean purge)
+
+   public ProcessElementExporter(ExportResult exportResult, boolean purge)
    {
       this.purge = purge;
-      blobBuilder = new ByteArrayBlobBuilder();
-      blobBuilder.init(null);
+      this.exportResult = exportResult;
    }
 
    @Override
@@ -46,12 +47,7 @@ public class ProcessElementExporter implements ProcessElementOperator
 
       query.innerJoin(piPartType).on(fkPiPartField, piPartPkName);
       query.where(predicate);
-      List<Persistent> instances = findPersistents(session, query, partType);
-      TypeDescriptor td = TypeDescriptor.get(partType);
-      if (partType != ProcessInstanceScopeBean.class)
-      {
-         ProcessBlobWriter.writeInstances(blobBuilder, td, instances);
-      }
+      List<Persistent> instances = exportPersistents(session, query, partType);
       if (purge)
       {
          purge(session, partType, instances);
@@ -72,11 +68,7 @@ public class ProcessElementExporter implements ProcessElementOperator
          return 0;
       }
       QueryDescriptor query = QueryDescriptor.from(partType).where(predicate);
-
-      List<Persistent> instances = findPersistents(session, query, partType);
-      TypeDescriptor td = TypeDescriptor.get(partType);
-
-      ProcessBlobWriter.writeInstances(blobBuilder, td, instances);
+      List<Persistent> instances = exportPersistents(session, query, partType);
       if (purge)
       {
          purge(session, partType, instances);
@@ -92,7 +84,7 @@ public class ProcessElementExporter implements ProcessElementOperator
       }
    }
 
-   private List<Persistent> findPersistents(Session session, QueryDescriptor query,
+   private List<Persistent> exportPersistents(Session session, QueryDescriptor query,
          Class partType)
    {
       ResultSet resultSet = null;
@@ -107,6 +99,45 @@ public class ProcessElementExporter implements ProcessElementOperator
          {
             Persistent p = (Persistent) iterator.next();
             results.add(p);
+            long processInstanceOid = -1;
+            System.out.println(p.getClass());
+            if (partType == ProcessInstanceBean.class)
+            {
+               exportResult.addResult(((ProcessInstanceBean)p));
+            }
+            else if (!(p instanceof ProcessInstanceScopeBean))
+            {
+               if (p instanceof IProcessInstanceAware)
+               {
+                  processInstanceOid = ((IProcessInstanceAware) p).getProcessInstance()
+                        .getOID();
+               }
+               else if (p instanceof IActivityInstanceAware)
+               {
+                  processInstanceOid = ((IActivityInstanceAware) p).getActivityInstance()
+                        .getProcessInstance().getOID();
+               }
+               else if (p instanceof LargeStringHolder)
+               {
+                  LargeStringHolder str = ((LargeStringHolder) p);
+                  Long structureDataOid =  str.getObjectID();
+                  StructuredDataValueBean dataBean = (StructuredDataValueBean)session.findByOID(StructuredDataValueBean.class, structureDataOid);
+                  processInstanceOid = dataBean.getProcessInstance().getOID();
+               }
+               else
+               {
+                  throw new IllegalStateException(
+                        "Can't determine related process instance. Not a clob, IProcessInstanceAware or IActivityInstanceAware:"
+                              + p.getClass().getName());
+               }
+   
+               if (processInstanceOid == -1)
+               {
+                  throw new IllegalStateException(
+                        "Can't determine related process instance." + p.getClass().getName());
+               }
+               exportResult.addResult(p, processInstanceOid);
+            }
          }
 
       }
@@ -118,29 +149,32 @@ public class ProcessElementExporter implements ProcessElementOperator
       return results;
    }
 
+   
    @Override
    public void finishVisit()
    {
-      blobBuilder.persistAndClose();
-   }
-
-   /**
-    * @return
-    */
-   public byte[] getBlob()
-   {
-      return blobBuilder.getBlob();
+      exportResult.close();
    }
 
    public void operateOnLockTable(Session session, Class partType,
          PredicateTerm predicate, TypeDescriptor tdType)
-   {}
+   {
+      // TODO what about this
+   }
 
    @Override
    public void operateOnLockTable(Session session, Class partType,
          FieldRef fkPiPartField, Class piPartType, String piPartPkName,
          PredicateTerm predicate, TypeDescriptor tdType)
-   {}
+   {
+      // TODO what about this
+   }
+
+   @Override
+   public void visitDataClusterValues(Session session, DataCluster dCluster, List piOids)
+   {
+      // TODO what about this
+   }
 
    public int getStatementBatchSize()
    {

@@ -61,5 +61,6 @@ public class ArchiveModelConstants
    static final String DATA_ID_OTHER_STRUCTUREDDATA = "OtherStructuredData";
 
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDB = "MyFieldB";
+   static final String DATA_ID_STRUCTUREDDATA_MYFIELDA = "MyFieldA";
 
 }

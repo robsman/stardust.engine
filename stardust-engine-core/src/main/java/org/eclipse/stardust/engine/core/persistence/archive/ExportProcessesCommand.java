@@ -65,6 +65,8 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private ExportMetaData exportMetaData;
 
+   private ExportResult exportResult;
+
    private final Operation operation;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
@@ -145,17 +147,20 @@ public class ExportProcessesCommand implements ServiceCommand
       switch (operation)
       {
          case QUERY_AND_EXPORT:
-            result = queryAndExport(session, sf);
+            queryAndExport(session, sf);
+            result = exportResult;
             break;
          case QUERY:
             query(session, sf);
             result = exportMetaData;
             break;
          case EXPORT_MODEL:
-            result = exportModels(session);
+            exportModels(session);
+            result = exportResult;
             break;
          case EXPORT_BATCH:
-            result = exportBatch(session);
+            exportBatch(session);
+            result = exportResult;
             break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
@@ -167,21 +172,23 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
-   private byte[] exportBatch(Session session)
+   private void exportBatch(Session session)
    {
       List<Long> allIds = exportMetaData.getAllProcessInstanceOids();
-      byte[] export;
       if (CollectionUtils.isNotEmpty(allIds))
       {
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Exporting " + allIds.size() + " processInstances");
          }
-         ProcessElementExporter exporter = new ProcessElementExporter(purge);
+         if (exportResult == null)
+         {
+            exportResult = new ExportResult();
+         }
+         ProcessElementExporter exporter = new ProcessElementExporter(exportResult, purge);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
-         export = exporter.getBlob();
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Exporting complete.");
@@ -189,16 +196,15 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       else
       {
-         export = null;
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("No processInstanceOids provided for export");
          }
       }
-      return export;
+
    }
 
-   private byte[] exportModels(Session session)
+   private void exportModels(Session session)
    {
       byte[] model;
       if (processInstanceOids != null || modelOids != null)
@@ -209,7 +215,11 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          model = ExportImportSupport.exportModels();
       }
-      return model;
+      if (exportResult == null)
+      {
+         exportResult = new ExportResult();
+      }
+      exportResult.setModelData(model);
    }
 
    private void query(Session session, ServiceFactory sf)
@@ -225,7 +235,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             modelOids = new ArrayList<Integer>();
          }
-         modelOids.addAll(ExportImportSupport.getActiveModelOids());           
+         modelOids.addAll(ExportImportSupport.getActiveModelOids());
       }
 
       if (CollectionUtils.isNotEmpty(processInstanceOids) || hasModelOidsParameter)
@@ -242,31 +252,21 @@ public class ExportProcessesCommand implements ServiceCommand
       }
    }
 
-   private byte[] queryAndExport(Session session, ServiceFactory sf)
+   private void queryAndExport(Session session, ServiceFactory sf)
    {
       query(session, sf);
-      byte[] model = exportModels(session);
-      byte[] export;
-      if (model != null)
+      if (exportMetaData.hasExportOids())
       {
-         export = exportBatch(session);
+         exportModels(session);
       }
       else
       {
-         export = null;
+         exportResult = new ExportResult();
       }
-      byte[] result;
-      if (export != null)
+      if (exportResult.hasModelData())
       {
-         result = new byte[model.length + export.length];
-         System.arraycopy(model, 0, result, 0, model.length);
-         System.arraycopy(export, 0, result, model.length, export.length);
+         exportBatch(session);
       }
-      else
-      {
-         result = null;
-      }
-      return result;
    }
 
    private void findExportInstancesByDate(QueryService queryService)
@@ -453,6 +453,10 @@ public class ExportProcessesCommand implements ServiceCommand
          return modelOids;
       }
 
+      public boolean hasExportOids()
+      {
+         return uniqueOids != null && CollectionUtils.isNotEmpty(uniqueOids.keySet());
+      }
       /**
        * 
        * @return list of root processInstanceOids
@@ -518,4 +522,5 @@ public class ExportProcessesCommand implements ServiceCommand
       }
 
    }
+   
 }

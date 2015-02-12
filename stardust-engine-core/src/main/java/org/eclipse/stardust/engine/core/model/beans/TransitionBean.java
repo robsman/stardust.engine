@@ -13,26 +13,17 @@ package org.eclipse.stardust.engine.core.model.beans;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
-import org.eclipse.stardust.engine.core.compatibility.el.BooleanExpression;
 import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
 import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
-import org.eclipse.stardust.engine.core.compatibility.el.Result;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
-import org.eclipse.stardust.engine.core.javascript.TransitionConditionEvaluator;
+import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
 
@@ -45,8 +36,6 @@ public class TransitionBean extends ConnectionBean implements ITransition
    public static final String ON_BOUNDARY_EVENT_PREDICATE = "ON_BOUNDARY_EVENT";
 
    /* package-private */ static final Pattern ON_BOUNDARY_EVENT_CONDITION = Pattern.compile(ON_BOUNDARY_EVENT_PREDICATE + "\\(.+\\)");
-
-   private static final String PARSED_EL_EXPRESSION = "ParsedElExpression";
 
    private static final String ID_ATT = "Id";
    private String id;
@@ -152,86 +141,12 @@ public class TransitionBean extends ConnectionBean implements ITransition
     */
    public boolean isEnabled(SymbolTable symbolTable)
    {
-      IModel model = (IModel) getModel();
-      String type = model.getScripting().getType();
-      String condition = getCondition();
-      if ("text/ecmascript".equals(type) || "text/javascript".equals(type))
-      {
-         if (condition.startsWith(PredefinedConstants.CARNOT_EL_PREFIX))
-         {
-            // fallback to carnotEL evaluation.
-            condition = condition.substring(PredefinedConstants.CARNOT_EL_PREFIX.length());
-         }
-         else if (XMLConstants.CONDITION_OTHERWISE_VALUE.equals(condition))
-         {
-            return false;
-         }
-         else
-         {
-            // pure ecmascript
-            return TransitionConditionEvaluator.isEnabled(this, symbolTable);
-         }
-      }
-      // unsupported scripting languages will throw an exception here.
-      try
-      {
-         if ("true".equals(condition))
-         {
-            // immediately return "true" (for transition conditions containing "true")
-            return true;
-         }
-         BooleanExpression expression = (BooleanExpression) getRuntimeAttribute(PARSED_EL_EXPRESSION);
-         if (null == expression)
-         {
-            // for compatibility, correct the new default "true" to the old default "TRUE"
-            if ("true".equals(condition))
-            {
-               condition = "TRUE";
-            }
-            expression = Interpreter.parse(condition);
-            setRuntimeAttribute(PARSED_EL_EXPRESSION, expression);
-         }
-         return Result.TRUE.equals(Interpreter.evaluate(expression, symbolTable));
-      }
-      catch (SyntaxError x)
-      {
-         throw new InternalException(x);
-      }
-      catch (EvaluationError x)
-      {
-         throw new InternalException(x);
-      }
+      return ConditionEvaluator.isEnabled(this, symbolTable, condition);
    }
 
    public boolean isOtherwiseEnabled(SymbolTable symbolTable)
    {
-      String elType = ((IModel) getModel()).getScripting().getType();
-      if ("text/ecmascript".equals(elType) || "text/javascript".equals(elType))
-      {
-         return XMLConstants.CONDITION_OTHERWISE_VALUE.equals(getCondition());
-      }
-      else
-      {
-         try
-         {
-            BooleanExpression expression = (BooleanExpression) getRuntimeAttribute(PARSED_EL_EXPRESSION);
-            if (null == expression)
-            {
-               expression = Interpreter.parse(getCondition());
-               setRuntimeAttribute(PARSED_EL_EXPRESSION, expression);
-            }
-            return Result.OTHERWISE.equals(Interpreter.evaluate(expression, symbolTable));
-         }
-         catch (SyntaxError x)
-         {
-            //throw new InternalException(x);
-            return false;
-         }
-         catch (EvaluationError x)
-         {
-            throw new InternalException(x);
-         }
-      }
+      return ConditionEvaluator.isOtherwiseEnabled(this, symbolTable, getCondition());
    }
 
    /**
@@ -293,7 +208,7 @@ public class TransitionBean extends ConnectionBean implements ITransition
 
    private void validateECMAScript(List inconsistencies)
    {
-      TransitionConditionEvaluator.checkConsistency(this, inconsistencies);
+      ConditionEvaluator.checkConsistency(this, inconsistencies, condition);
    }
 
    private void validateELScript(List inconsistencies)

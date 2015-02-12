@@ -10,35 +10,39 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.javascript;
 
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Undefined;
+
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 
 
 /**
  * @author sauer
  * @version $Revision$
  */
-public final class TransitionEvaluationAction implements ContextAction
+public final class ConditionEvaluationAction implements ContextAction
 {
 
-   private static final String KEY_MODEL_SCOPE = TransitionConditionEvaluator.class.getName()
+   private static final String KEY_MODEL_SCOPE = ConditionEvaluationAction.class.getName()
          + ".ModelScope";
 
-   private static final String KEY_COMPILED_CONDITION = TransitionConditionEvaluator.class.getName()
+   private static final String KEY_COMPILED_CONDITION = ConditionEvaluationAction.class.getName()
          + ".CompiledCondition";
 
-   private final ITransition transition;
+   private final ModelElement modelElement;
 
    private final ThreadLocal<SymbolTable> threadLocalSymbolTable = new ThreadLocal<SymbolTable>();
 
-   public TransitionEvaluationAction(ITransition transition)
+   private String condition;
+
+   public ConditionEvaluationAction(ModelElement modelElement, String condition)
    {
-      this.transition = transition;
+      this.modelElement = modelElement;
+      this.condition = condition;
    }
 
    public SymbolTable getSymbolTableForThread()
@@ -58,13 +62,13 @@ public final class TransitionEvaluationAction implements ContextAction
 
    public Object run(Context cx)
    {
-      GlobalVariablesScope modelScope = getModelScope(transition, cx);
+      GlobalVariablesScope modelScope = getModelScope(modelElement, cx);
 
       try
       {
          modelScope.bindThreadLocalSymbolTable(getSymbolTableForThread());
 
-         Script compiledCondition = getScriptForCondition(transition, cx);
+         Script compiledCondition = getScriptForCondition(modelElement, cx, condition);
          final Object result = compiledCondition.exec(cx, modelScope);
 
          if (Boolean.TRUE.equals(result) || result instanceof Undefined)
@@ -84,9 +88,9 @@ public final class TransitionEvaluationAction implements ContextAction
       }
    }
 
-   public static GlobalVariablesScope getModelScope(ITransition transition, Context cx)
+   public static GlobalVariablesScope getModelScope(ModelElement modelElement, Context cx)
    {
-      IModel model = (IModel) transition.getModel();
+      IModel model = (IModel) modelElement.getModel();
 
       GlobalVariablesScope modelScope = (GlobalVariablesScope) model.getRuntimeAttribute(KEY_MODEL_SCOPE);
       if (null == modelScope)
@@ -102,18 +106,17 @@ public final class TransitionEvaluationAction implements ContextAction
       return modelScope;
    }
 
-   public static Script getScriptForCondition(ITransition transition, Context cx)
+   public static Script getScriptForCondition(ModelElement modelElement, Context cx, String condition)
    {
-      Script compiledCondition = (Script) transition.getRuntimeAttribute(KEY_COMPILED_CONDITION);
+      Script compiledCondition = (Script) modelElement.getRuntimeAttribute(KEY_COMPILED_CONDITION);
 
       if (null == compiledCondition)
       {
          cx.setOptimizationLevel( -1);
 
-         compiledCondition = cx.compileString(transition.getCondition(),
-               transition.toString(), 1, null);
+         compiledCondition = cx.compileString(condition, modelElement.toString(), 1, null);
 
-         transition.setRuntimeAttribute(KEY_COMPILED_CONDITION, compiledCondition);
+         modelElement.setRuntimeAttribute(KEY_COMPILED_CONDITION, compiledCondition);
       }
 
       return compiledCondition;

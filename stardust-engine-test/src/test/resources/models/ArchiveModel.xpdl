@@ -47,7 +47,12 @@
                   <BasicType Type="INTEGER"/>
                </DataType>
             </FormalParameter>
-            <FormalParameter Id="ValueOut" Index="2" Mode="OUT" Name="ValueOut">
+            <FormalParameter Id="TextValueIn" Index="2" Mode="IN" Name="TextValueIn">
+               <DataType>
+                  <BasicType Type="STRING"/>
+               </DataType>
+            </FormalParameter>
+            <FormalParameter Id="ValueOut" Index="3" Mode="OUT" Name="ValueOut">
                <DataType>
                   <DeclaredType Id="DataStructure"/>
                </DataType>
@@ -58,7 +63,7 @@
                <carnot:Application Oid="328" Type="messageTransformationBean">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="375" Id="ValueIn" Name="ValueIn" Direction="IN" Type="primitive">
+                     <carnot:AccessPoint Oid="471" Id="ValueIn" Name="ValueIn" Direction="IN" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="FullXPath" Value="null/"/>
@@ -66,7 +71,7 @@
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="376" Id="ValueOut" Name="ValueOut" Direction="OUT" Type="struct">
+                     <carnot:AccessPoint Oid="472" Id="ValueOut" Name="ValueOut" Direction="OUT" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="DataStructure"/>
                            <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
@@ -76,9 +81,17 @@
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="473" Id="TextValueIn" Name="TextValueIn" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="FullXPath" Value="null/"/>
+                           <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
                   </carnot:AccessPoints>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;&gt;&#13;&#10;  &lt;fieldMappings fieldPath=&quot;ValueOut/MyFieldB&quot; mappingExpression=&quot;ValueIn&quot;/&gt;&#13;&#10;&lt;/mapping:TransformationProperty&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;&gt;&#13;&#10;  &lt;fieldMappings fieldPath=&quot;ValueOut/MyFieldA&quot; mappingExpression=&quot;TextValueIn&quot;/&gt;&#13;&#10;  &lt;fieldMappings fieldPath=&quot;ValueOut/MyFieldB&quot; mappingExpression=&quot;ValueIn&quot;/&gt;&#13;&#10;&lt;/mapping:TransformationProperty&gt;&#13;&#10;"/>
                      <carnot:Attribute Name="carnot:model:uuid" Value="d3b8b7fa-c280-43e0-8ad7-883c75ff6426"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -807,6 +820,10 @@
                               <carnot:DataRef Id="NumberValue"/>
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
+                           <carnot:DataFlow Oid="453" Id="TextData" Name="TextData" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="TextData"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:model:uuid" Value="a83437b6-a134-4dad-9aca-fc788fe7719b"/>
@@ -822,6 +839,7 @@
                         <ActualParameters>
                            <ActualParameter>StructuredData</ActualParameter>
                            <ActualParameter>NumberValue</ActualParameter>
+                           <ActualParameter>TextData</ActualParameter>
                         </ActualParameters>
                      </TaskApplication>
                   </Task>
@@ -845,6 +863,10 @@
                            <carnot:DataFlow Oid="417" Id="NumberValue" Name="NumberValue" Direction="IN" Context="application">
                               <carnot:DataRef Id="NumberValue"/>
                               <carnot:AccessPointRef Id="ValueIn"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="474" Id="TextData" Name="TextData" Direction="IN" Context="application">
+                              <carnot:DataRef Id="TextData"/>
+                              <carnot:AccessPointRef Id="TextValueIn"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -1105,7 +1127,7 @@
                                  <carnot:Symbol Kind="LANE" Oid="378" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="489" Height="601" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="379">
                                     <carnot:Symbols>
                                        <carnot:Symbol Kind="STARTEVENT" Oid="381" X="122" Y="44" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="384" X="205" Y="129" Width="180" Height="50" ModelElement="WriteActivity"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="384" X="237" Y="129" Width="180" Height="50" ModelElement="WriteActivity"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="386" X="10" Y="292" Width="180" Height="50" ModelElement="Transformation"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="388" X="182" Y="447" Width="180" Height="50" ModelElement="ReadActivity"/>
                                        <carnot:Symbol Kind="ENDEVENT" Oid="389" X="314" Y="536" Width="26" Height="26"/>
@@ -1114,6 +1136,7 @@
                                        <carnot:Symbol Kind="DATA" Oid="404" X="53" Y="452" Width="100" Height="70" ModelElement="StructuredData"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="421" X="289" Y="54" Width="180" Height="50" ModelElement="StartActivity"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="437" X="289" Y="332" Width="180" Height="50" ModelElement="MultiplyByTwo"/>
+                                       <carnot:Symbol Kind="DATA" Oid="452" X="123" Y="181" Width="100" Height="70" ModelElement="TextData"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
@@ -1133,6 +1156,8 @@
                                  <carnot:Connection Kind="DATA_FLOW" Oid="439" SourceSymbol="402" TargetSymbol="437" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="449" ModelElement="ff134723-b324-473c-8c1a-2539a4ae1b5d" SourceSymbol="392" TargetSymbol="437" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="451" ModelElement="5a8bd7bf-66ca-476b-b70e-6bf59eba6f47" SourceSymbol="437" TargetSymbol="386" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="454" SourceSymbol="452" TargetSymbol="384" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="456" SourceSymbol="452" TargetSymbol="386" SourceAnchor="bottom" TargetAnchor="top"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -1284,7 +1309,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Mon Jan 26 09:25:48 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Thu Feb 12 11:25:11 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

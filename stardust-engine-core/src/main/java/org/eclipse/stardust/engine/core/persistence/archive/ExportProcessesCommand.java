@@ -71,7 +71,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, boolean purge)
+         Date toDate, boolean purge, ExportResult exportResult)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -80,6 +80,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.modelOids = modelOids;
       this.fromDate = fromDate;
       this.toDate = toDate;
+      this.exportResult = exportResult;
    }
 
    /**
@@ -94,7 +95,7 @@ public class ExportProcessesCommand implements ServiceCommand
    public ExportProcessesCommand(Operation operation, List<Integer> modelOids,
          Collection<Long> processInstanceOids, boolean purge)
    {
-      this(operation, null, modelOids, processInstanceOids, null, null, purge);
+      this(operation, null, modelOids, processInstanceOids, null, null, purge, null);
    }
 
    /**
@@ -103,7 +104,7 @@ public class ExportProcessesCommand implements ServiceCommand
    public ExportProcessesCommand(Operation operation, boolean purge)
    {
 
-      this(operation, null, null, null, null, null, purge);
+      this(operation, null, null, null, null, null, purge, null);
    }
 
    /**
@@ -120,7 +121,7 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean purge)
    {
 
-      this(operation, null, null, null, fromDate, toDate, purge);
+      this(operation, null, null, null, fromDate, toDate, purge, null);
    }
 
    /**
@@ -131,9 +132,14 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean purge)
    {
 
-      this(operation, exportMetaData, null, null, null, null, purge);
+      this(operation, exportMetaData, null, null, null, null, purge, null);
    }
 
+   public ExportProcessesCommand(ExportResult result)
+   {
+
+      this(Operation.ARCHIVE, null, null, null, null, null, false, result);
+   }
    @Override
    public Serializable execute(ServiceFactory sf)
    {
@@ -408,7 +414,11 @@ public class ExportProcessesCommand implements ServiceCommand
        * subprocess processInstanceOids. Use query operations to find these
        * processInstanceOids.
        */
-      EXPORT_BATCH;
+      EXPORT_BATCH,
+      /**
+       * 
+       */
+      ARCHIVE;
    };
 
    public static class ExportMetaData implements Serializable

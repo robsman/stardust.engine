@@ -120,8 +120,22 @@ public class ProcessElementExporter implements ProcessElementOperator
                {
                   LargeStringHolder str = ((LargeStringHolder) p);
                   Long structureDataOid =  str.getObjectID();
-                  StructuredDataValueBean dataBean = (StructuredDataValueBean)session.findByOID(StructuredDataValueBean.class, structureDataOid);
-                  processInstanceOid = dataBean.getProcessInstance().getOID();
+                  if (StructuredDataValueBean.TABLE_NAME.equals(str.getDataType()))
+                  {
+                     StructuredDataValueBean dataBean = (StructuredDataValueBean)session.findByOID(StructuredDataValueBean.class, structureDataOid);
+                     processInstanceOid = dataBean.getProcessInstance().getOID();
+                  }
+                  else if (DataValueBean.TABLE_NAME.equals(str.getDataType()))
+                  {
+                     DataValueBean dataBean = (DataValueBean)session.findByOID(DataValueBean.class, structureDataOid);
+                     processInstanceOid = dataBean.getProcessInstance().getOID();
+                  }
+                  else
+                  {
+                     throw new IllegalStateException(
+                           "Can't determine related process instance. LargeStringHolder type is :"
+                                 + str.getDataType());
+                  }
                }
                else
                {

@@ -451,7 +451,7 @@ public class ArchiveTest
    }
 
    @Test
-   public void testMultiModelExportFilterByModel() throws Exception
+   public void testMultiModelExportFilterByModelWithDep() throws Exception
    {
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -512,6 +512,80 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(1, instances.size());
       assertEquals(3, activitiesCleared.size());
+
+      int count = (Integer) workflowService
+            .execute(new ImportProcessesCommand(
+                  ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT,
+                  getBytes(rawData), null));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+
+   @Test
+   public void testMultiModelExportFilterByModelWithNoDep() throws Exception
+   {
+
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      final ProcessInstance piOtherModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_OTHER, null, true);
+
+      final ActivityInstance otherActivity = completeOther(piOtherModel, 5, queryService,
+            workflowService);
+
+      ProcessInstanceStateBarrier.instance().await(piOtherModel.getOID(),
+            ProcessInstanceState.Completed);
+
+      final ProcessInstance piModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      final ActivityInstance writeActivity = completeSimpleManual(piModel, queryService,
+            workflowService);
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+
+      assertDataExists(piModel.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", queryService);
+
+      assertDataExists(piOtherModel.getOID(), otherActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_OTHER,
+            ArchiveModelConstants.DATA_ID_OTHER_NUMBER, 5, queryService);
+
+      assertTrue(hasStructuredDateField(piOtherModel.getOID(),
+            ArchiveModelConstants.DATA_ID_OTHER_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, 5));
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piModel.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(2, oldInstances.size());
+      assertEquals(7, oldActivities.size());
+
+      List<Integer> modelOids = Arrays.asList(piModel.getModelOID());
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null,
+                  true));
+      assertNotNullRawData(rawData);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(1, instances.size());
+      assertEquals(4, activitiesCleared.size());
 
       int count = (Integer) workflowService
             .execute(new ImportProcessesCommand(
@@ -1080,7 +1154,7 @@ public class ArchiveTest
    }
 
    @Test
-   public void testExportImportPhases() throws Exception
+   public void testExportImportOperations() throws Exception
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
@@ -3042,7 +3116,7 @@ public class ArchiveTest
          InterruptedException
    {
       final ActivityInstance writeActivity = completeNextActivity(pi,
-            ArchiveModelConstants.DATA_ID_OTHER_NUMBER, numberValue, qs, ws);
+            ArchiveModelConstants.DATA_ID_OTHER_NUMBER, numberValue, ArchiveModelConstants.DATA_ID_TEXTDATA, "aaa", qs, ws);
 
       completeNextActivity(pi, null, null, qs, ws);
 

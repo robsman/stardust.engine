@@ -393,6 +393,12 @@ public class ExportImportSupport
       for (Integer modelOid : modelOids)
       {
          IModel model = modelManager.findModel(modelOid);
+         
+         List<IModel> usedModels = ModelRefBean.getUsedModels(model);
+         if (CollectionUtils.isNotEmpty(usedModels)){
+            allModels.addAll(usedModels);
+         }
+         
          allModels.add(model);
       }
       return exportModels(modelManager, allModels);

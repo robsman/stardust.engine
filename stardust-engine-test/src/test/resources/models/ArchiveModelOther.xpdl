@@ -137,6 +137,11 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="TextData">
+         <DataType>
+            <ExternalReference location="ArchiveModel" xref="TextData?uuid=222b0146-3f61-4465-b7da-4e37d15cbd9f" namespace="data"/>
+         </DataType>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="Other" Name="Other" AccessLevel="PUBLIC">
@@ -193,6 +198,10 @@
                               <carnot:DataRef Id="OtherNumber"/>
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
+                           <carnot:DataFlow Oid="80" Id="TextData" Name="TextData" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="TextData"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:model:uuid" Value="a0efc983-7787-4f54-a13c-0dd0b0227030"/>
@@ -237,6 +246,7 @@
                         <ActualParameters>
                            <ActualParameter>OtherNumber</ActualParameter>
                            <ActualParameter>OtherStructuredData</ActualParameter>
+                           <ActualParameter>TextData</ActualParameter>
                         </ActualParameters>
                      </TaskApplication>
                   </Task>
@@ -260,6 +270,10 @@
                            <carnot:DataFlow Oid="77" Id="OtherStructuredData" Name="OtherStructuredData" Direction="OUT" Context="application">
                               <carnot:DataRef Id="OtherStructuredData"/>
                               <carnot:AccessPointRef Id="ValueOut"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="84" Id="TextData" Name="TextData" Direction="IN" Context="application">
+                              <carnot:DataRef Id="TextData"/>
+                              <carnot:AccessPointRef Id="TextValueIn"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -330,6 +344,7 @@
                                        <carnot:Symbol Kind="DATA" Oid="39" X="48" Y="152" Width="100" Height="70" ModelElement="OtherNumber"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="41" X="143" Y="396" Width="180" Height="50" ModelElement="OtherReadActivity"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="48" X="160" Y="265" Width="180" Height="50" ModelElement="OtherTransformation"/>
+                                       <carnot:Symbol Kind="DATA" Oid="79" X="51" Y="88" Width="100" Height="70" ModelElement="TextData"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
@@ -343,6 +358,8 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="71" ModelElement="c7c928aa-6dd9-4b13-9d15-6259922f5bbe" SourceSymbol="41" TargetSymbol="32" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="73" SourceSymbol="39" TargetSymbol="48" SourceAnchor="bottom" TargetAnchor="left"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="75" SourceSymbol="35" TargetSymbol="48" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="81" SourceSymbol="79" TargetSymbol="37" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="83" SourceSymbol="79" TargetSymbol="48" SourceAnchor="bottom" TargetAnchor="left"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -480,7 +497,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Tue Feb 03 07:27:42 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Fri Feb 13 08:21:44 CAT 2015"/>
                <carnot:Attribute Name="carnot:connection:1:id" Value="file"/>
                <carnot:Attribute Name="carnot:connection:1:name" Value="file"/>
                <carnot:Attribute Name="carnot:connection:1:type" Value="file"/>

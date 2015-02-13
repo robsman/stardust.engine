@@ -17,9 +17,9 @@ public class ExportResult implements Serializable
 
    private final HashMap<Date, byte[]> resultsByDate;
 
-   private final HashMap<Date, Map<Class, List<Persistent>>> dateToPersistents = new HashMap<Date, Map<Class, List<Persistent>>>();
+   private transient final HashMap<Date, Map<Class, List<Persistent>>> dateToPersistents = new HashMap<Date, Map<Class, List<Persistent>>>();
 
-   private final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
+   private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
 
    private boolean open = true;
 

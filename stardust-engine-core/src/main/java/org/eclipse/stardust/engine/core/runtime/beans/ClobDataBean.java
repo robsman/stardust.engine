@@ -246,6 +246,10 @@ public class ClobDataBean extends IdentifiablePersistentBean
                "Can't determine related process instance for clob with id: " + getOID(),
                e);
       }
+      finally
+      {
+         QueryUtils.closeResultSet(rs);
+      }
       if (dvOid != -1)
       {
          return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)

@@ -23,9 +23,9 @@ import java.util.*;
  *
  * @author Roland.Stamm
  */
-public class GlobalPermissonsDefaultsProvider implements IStaticConfigurationProvider, IStaticConfigurationProvider.Factory {
+public class GlobalPermissionsDefaultsProvider implements IStaticConfigurationProvider, IStaticConfigurationProvider.Factory {
 
-    private static final IStaticConfigurationProvider INSTANCE = new GlobalPermissonsDefaultsProvider();
+    private static final IStaticConfigurationProvider INSTANCE = new GlobalPermissionsDefaultsProvider();
 
     public static final String MODULE_ID = PermissionUtils.PERMISSIONS;
 

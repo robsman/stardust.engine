@@ -16,6 +16,8 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 
 
 /**
+ * Decorate a list valued XPath to enable element access.
+ *
  * @author sauer
  * @version $Revision$
  */
@@ -27,20 +29,25 @@ public class ListValuedXPathAdapter extends TypedXPath
 
    public ListValuedXPathAdapter(TypedXPath delegate)
    {
-      super(delegate.getParentXPath(), delegate.getOrderKey(), delegate.getXPath(),
-            delegate.getXsdTypeName(), delegate.getXsdTypeNs(), delegate.getType(),
-            false, delegate.getAnnotations());
+      super(delegate);
       
       this.delegate = delegate;
+   }
+   @Override
+   public boolean isList()
+   {
+      return false;
    }
 
    public TypedXPath getChildXPath(String name)
    {
+      // delegate to ensure we keep up with latest child list
       return delegate.getChildXPath(name);
    }
 
    public List getChildXPaths()
    {
+      // delegate to ensure we keep up with latest child list
       return delegate.getChildXPaths();
    }
    

@@ -13,30 +13,16 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.TransactionFreezedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -45,35 +31,11 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.dto.LazilyLoadingActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationType;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
-import org.eclipse.stardust.engine.api.runtime.ActivityExecutionUtils;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
+import org.eclipse.stardust.engine.api.query.BusinessObjects;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
@@ -81,40 +43,20 @@ import org.eclipse.stardust.engine.core.model.beans.QualityAssuranceActivityBean
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ApplicationInstance;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
@@ -453,7 +395,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    /**
-    * @return The stringified representation of this activity.
+    * @return The text representation of this activity.
     */
    public String toString()
    {
@@ -840,10 +782,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       IUser user = (IUser) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
             .findByOID(UserBean.class, performedBy);
-
-      // TODO: (fh) assertion message should not be computed
-      Assert.condition(user != null, "User with ID " + performedBy
-            + " exists in the database.");
+      if (user == null)
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.ATDB_UNKNOWN_USER_OID.raise(performedBy), getOID());
+      }
 
       return user;
    }
@@ -978,8 +921,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void putToUserGroupWorklist(IUserGroup userGroup)
    {
-      // TODO (sb): refine this method i.e. exception handling
-
       fetch();
 
       recordHistoricState();
@@ -1006,18 +947,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private void putToParticipantWorklist(IModelParticipant participant, long departmentOid)
    {
       fetch();
-
-      /*
-       * if (!isDefaultCaseActivityInstance()) { // TODO: (rsauer) perform onAssignment
-       * event handling? // TODO: (fh) 1. assert message should not be computed // TODO:
-       * (fh) 2. this.toString() is a costly call that will be performed for *every* non
-       * case activity // Assert.condition(model == participant.getModel().getModelOID(),
-       * // "Cannot assign " + this + " to participant from different model.");
-       *
-       * IModel theModel = ModelManagerFactory.getCurrent().findModel(model);
-       * Assert.condition(theModel.findParticipant(participant.getId()) == participant,
-       * "Cannot assign " + this + " to participant from different model."); }
-       */
 
       recordHistoricState();
       recordInitialPerformer();
@@ -1494,14 +1423,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       IActivity activity = getActivity();
 
-      // TODO: (fh) 1. assert message should not be computed
-      // TODO: (fh) 2. this.toString() is a costly call that will be performed for *every*
-      // invocation
-      Assert.isNotNull(activity, "Activity for activity instance " + this + " not found");
-
       IModelParticipant performer = activity.getPerformer();
-
-      if (null == performer)
+      if (performer == null)
       {
          throw new PublicException(
                BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED.raise(getOID()));
@@ -1735,23 +1658,25 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       ILoopCharacteristics loop = activity.getLoopCharacteristics();
       if (loop instanceof IMultiInstanceLoopCharacteristics)
       {
-         inputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
          counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
          if (counterParameterId != null)
          {
-            if (inputParameterId.substring(0, inputParameterId.indexOf(':'))
-                  .equals(PredefinedConstants.APPLICATION_CONTEXT))
+            int indexOf = counterParameterId.indexOf(':');
+            String counterParameterContext = counterParameterId.substring(0, indexOf);
+            if (counterParameterContext.equals(PredefinedConstants.APPLICATION_CONTEXT))
             {
-               counterParameterId = counterParameterId.substring(counterParameterId.indexOf(':') + 1);
+               counterParameterId = counterParameterId.substring(indexOf + 1);
                applicationInstance.setInAccessPointValue(counterParameterId, index);
             }
          }
+         inputParameterId = ((IMultiInstanceLoopCharacteristics) loop).getInputParameterId();
          if (inputParameterId != null)
          {
-            if (inputParameterId.substring(0, inputParameterId.indexOf(':'))
-               .equals(PredefinedConstants.APPLICATION_CONTEXT))
+            int indexOf = inputParameterId.indexOf(':');
+            String inputParameterContext = inputParameterId.substring(0, indexOf);
+            if (inputParameterContext.equals(PredefinedConstants.APPLICATION_CONTEXT))
             {
-               inputParameterId = inputParameterId.substring(inputParameterId.indexOf(':') + 1);
+               inputParameterId = inputParameterId.substring(indexOf + 1);
             }
             else
             {
@@ -1761,7 +1686,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       // processing all in data mappings
-
       ModelElementList inDataMappings = activity.getInDataMappings();
       for (int i = 0; i < inDataMappings.size(); ++i)
       {
@@ -1772,16 +1696,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (bridgeObject != null && inputParameterId != null && inputParameterId.equals(mapping.getActivityAccessPointId()))
          {
-            if (bridgeObject instanceof List)
-            {
-               bridgeObject = index >= 0 && index < ((List) bridgeObject).size()
-                     ? ((List) bridgeObject).get(index) : null;
-            }
-            else if (bridgeObject.getClass().isArray())
-            {
-               bridgeObject = index >= 0 && index < Array.getLength(bridgeObject)
-                     ? Array.get(bridgeObject, index) : null;
-            }
+            bridgeObject = getMIBridgeObject(mapping, bridgeObject);
          }
 
          // @todo (france, ub): plethora: same style as out mappings?
@@ -1804,8 +1719,50 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
    }
 
+   protected Object getMIBridgeObject(IDataMapping mapping, Object bridgeObject)
+   {
+      boolean isItem = false;
+      if (bridgeObject instanceof List)
+      {
+         isItem = true;
+         bridgeObject = index >= 0 && index < ((List) bridgeObject).size()
+               ? ((List) bridgeObject).get(index) : null;
+      }
+      else if (bridgeObject.getClass().isArray())
+      {
+         isItem = true;
+         bridgeObject = index >= 0 && index < Array.getLength(bridgeObject)
+               ? Array.get(bridgeObject, index) : null;
+      }
+      if (isItem)
+      {
+         IData data = mapping.getData();
+         if (BusinessObjectUtils.hasBusinessObject(data))
+         {
+            Map<String, BusinessObjectRelationship> relationships = BusinessObjectUtils.getBusinessObjectRelationships(data);
+            BusinessObjectRelationship relationship = relationships.get(mapping.getDataPath());
+            if (relationship != null && relationship.otherBusinessObject != null)
+            {
+               BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(data.getModel().getModelOID(),
+                     relationship.otherBusinessObject.id, bridgeObject);
+               query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+               BusinessObjects objects = BusinessObjectUtils.getBusinessObjects(query);
+               for (BusinessObject bo : objects)
+               {
+                  List<Value> values = bo.getValues();
+                  bridgeObject = values == null || values.isEmpty() ? null : values.get(0).getValue();
+                  break;
+               }
+            }
+         }
+      }
+      return bridgeObject;
+   }
+
    private Map processRouteInDataMappings(IActivity activity)
    {
+      // TODO: (fh) handle multi instance activity
+
       Map apValues = null;
 
       // processing all in data mappings
@@ -1839,17 +1796,17 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       IProcessDefinition processDefinition = subProcessInstance.getProcessDefinition();
       String inputParameterId = null;
       String counterParameterId = null;
-      String parameterContext = null;
       ILoopCharacteristics loop = activity.getLoopCharacteristics();
+      String parameterContext = null;
       if (loop instanceof IMultiInstanceLoopCharacteristics)
       {
          counterParameterId = ((IMultiInstanceLoopCharacteristics) loop).getCounterParameterId();
          if (counterParameterId != null)
          {
-            parameterContext = counterParameterId.substring(0, counterParameterId.indexOf(':'));
-            if (PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(parameterContext))
+            String counterParameterContext = counterParameterId.substring(0, counterParameterId.indexOf(':'));
+            if (PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(counterParameterContext))
             {
-               counterParameterId = counterParameterId.substring(parameterContext.length() + 1);
+               counterParameterId = counterParameterId.substring(counterParameterContext.length() + 1);
                IData subProcessData = ModelUtils.getMappedData(processDefinition, counterParameterId);
                subProcessInstance.setOutDataValue(subProcessData, null, index);
             }
@@ -1872,31 +1829,21 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                || PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context))
          {
             // copy data value
-            Object parentProcessDataValue = getProcessInstance().getInDataValue(
+            Object bridgeObject = getProcessInstance().getInDataValue(
                   mapping.getData(), mapping.getDataPath());
 
             String accessPointId = mapping.getActivityAccessPointId();
-            if (parentProcessDataValue != null && inputParameterId != null
+            if (bridgeObject != null && inputParameterId != null
                   && inputParameterId.equals(accessPointId) && parameterContext.equals(context))
             {
-               if (parentProcessDataValue instanceof List)
-               {
-                  parentProcessDataValue = index >= 0 && index < ((List) parentProcessDataValue).size()
-                        ? ((List) parentProcessDataValue).get(index) : null;
-               }
-               else if (parentProcessDataValue.getClass().isArray())
-               {
-                  parentProcessDataValue = index >= 0 && index < Array.getLength(parentProcessDataValue)
-                        ? Array.get(parentProcessDataValue, index) : null;
-               }
+               bridgeObject = getMIBridgeObject(mapping, bridgeObject);
             }
             IData subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context)
                   ? ModelUtils.getMappedData(processDefinition, accessPointId)
                   : ModelUtils.getData(processDefinition, accessPointId);
 
             String subProcessDataPath = mapping.getActivityPath();
-            subProcessInstance.setOutDataValue(subProcessData, subProcessDataPath,
-                  parentProcessDataValue);
+            subProcessInstance.setOutDataValue(subProcessData, subProcessDataPath, bridgeObject);
          }
       }
    }
@@ -1997,7 +1944,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       if (!(list instanceof List))
       {
-         // TODO create empty list ?
          list = new ArrayList();
       }
       // ensure size

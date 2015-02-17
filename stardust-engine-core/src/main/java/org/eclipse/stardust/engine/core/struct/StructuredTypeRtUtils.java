@@ -56,7 +56,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
@@ -64,22 +63,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.ExternalReference;
-import org.eclipse.stardust.engine.api.model.IAccessPoint;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IExternalReference;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.ISchemaType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.model.SchemaType;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.model.XpdlType;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.SchemaTypeBean;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
@@ -722,24 +706,24 @@ public class StructuredTypeRtUtils
     */
    public static XSDSchema getSchema(String location, String namespaceURI, Map customMap) throws IOException
    {
-	  Parameters parameters = Parameters.instance();
-	  Map loadedSchemas = null;
-	  synchronized (StructuredTypeRtUtils.class)
-	  {
-		  loadedSchemas = (Map) parameters.get(EXTERNAL_SCHEMA_MAP);
-		  if (loadedSchemas == null)
-		  {
-			 // (fh) using Hashtable to avoid concurrency problems.
-			 loadedSchemas = new Hashtable();
-			 parameters.set(EXTERNAL_SCHEMA_MAP, loadedSchemas);
-		  }
-	  }
-	  String key = '{' + namespaceURI + '}' + location;
-	  Object o = loadedSchemas.get(key);
-	  if (o != null)
-	  {
-		  return o instanceof XSDSchema ? (XSDSchema) o : null;
-	  }
+   Parameters parameters = Parameters.instance();
+   Map loadedSchemas = null;
+   synchronized (StructuredTypeRtUtils.class)
+   {
+      loadedSchemas = (Map) parameters.get(EXTERNAL_SCHEMA_MAP);
+      if (loadedSchemas == null)
+      {
+         // (fh) using Hashtable to avoid concurrency problems.
+         loadedSchemas = new Hashtable();
+         parameters.set(EXTERNAL_SCHEMA_MAP, loadedSchemas);
+      }
+   }
+   String key = '{' + namespaceURI + '}' + location;
+   Object o = loadedSchemas.get(key);
+   if (o != null)
+   {
+      return o instanceof XSDSchema ? (XSDSchema) o : null;
+   }
 
       ResourceSetImpl resourceSet = new ResourceSetImpl();
       //prepare the uri converter
@@ -937,6 +921,12 @@ public class StructuredTypeRtUtils
               "Cannot parse QName from \"" + qNameAsString + "\", missing closing \"}\"");
       }
       return qNameAsString.substring(1, endOfNamespaceURI);
+   }
+
+   public static boolean isStructuredType(IData data)
+   {
+      PluggableType type = data.getType();
+      return type instanceof IDataType && StructuredTypeRtUtils.isStructuredType(type.getId());
    }
 
    public static boolean isStructuredType(String dataTypeId)

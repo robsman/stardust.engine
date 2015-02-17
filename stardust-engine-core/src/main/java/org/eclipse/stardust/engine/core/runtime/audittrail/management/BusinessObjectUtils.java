@@ -53,7 +53,8 @@ import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 public class BusinessObjectUtils
 {
    private static final String BUSINESS_OBJECT_ATT = PredefinedConstants.MODEL_SCOPE + "BusinessObject";
-   
+   private static final String BUSINESS_OBJECT_RELATIONSHIPS_ATT = BUSINESS_OBJECT_ATT + ":Relationships";
+
    public static BusinessObjects getBusinessObjects(BusinessObjectQuery query)
    {
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -356,7 +357,7 @@ public class BusinessObjectUtils
       }
       throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
    }
-      
+
    private static Object getPK(IData data, Object value)
    {
       String pkId = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
@@ -378,7 +379,7 @@ public class BusinessObjectUtils
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("initialValue"));
       }
-      
+
       IData data = findDataForUpdate(businessObjectId);
       lockData(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, initialValue));
@@ -407,7 +408,7 @@ public class BusinessObjectUtils
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("value"));
       }
-      
+
       IData data = findDataForUpdate(businessObjectId);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, value));
       if (pi == null)
@@ -435,53 +436,53 @@ public class BusinessObjectUtils
    }
 
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
-   {      
+   {
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);
       BusinessObjectDetails.Value value = new BusinessObjectDetails.ValueDetails(pi.getOID(), dataValue);
       BusinessObjectDetails detailsObject = new BusinessObjectDetails(data.getModel().getModelOID(), data.getModel().getId(),
             data.getId(), data.getName(), null, Collections.singletonList(value));
-      
+
       // create departments
-      IModel model = (IModel) data.getModel();      
+      IModel model = (IModel) data.getModel();
       String managedOrganizations = (String) data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_MANAGEDORGANIZATIONS);
-      
+
       ModelManager current = ModelManagerFactory.getCurrent();
       QueryService queryService = new QueryServiceImpl();
-      
+
       if(!StringUtils.isEmpty(managedOrganizations))
       {
          String[] managedOrganizationsArray = managedOrganizations.split(",");
-         for (String organizationFullId : managedOrganizationsArray) 
-         {            
+         for (String organizationFullId : managedOrganizationsArray)
+         {
             IModel activeModel = model;
-            
+
             String modelId = null;
             organizationFullId = organizationFullId.substring(1, organizationFullId.length() - 1);
             //organizationFullId = organizationFullId.replaceAll("\\[", "");
             //organizationFullId = organizationFullId.replaceAll("\\]", "");
             organizationFullId = organizationFullId.replaceAll("\\\"", "");
-                        
+
             String organizationId = organizationFullId;
             if (organizationFullId.split(":").length > 1)
             {
                modelId = organizationFullId.split(":")[0];
-               organizationId = organizationFullId.split(":")[1];               
+               organizationId = organizationFullId.split(":")[1];
             }
-            
+
             if(!StringUtils.isEmpty(modelId) && !CompareHelper.areEqual(modelId, model.getId()))
             {
-               activeModel = current.findActiveModel(modelId);            
+               activeModel = current.findActiveModel(modelId);
             }
-               
+
             Organization organization = (Organization) queryService.getParticipant(activeModel.getModelOID(), organizationId);
-            String id = (String) getPK(data, newValue);               
+            String id = (String) getPK(data, newValue);
             String name = (String) getNameValue(data, newValue);
-                           
-            DepartmentUtils.createOrModifyDepartment(id, name, "", null, organization);               
+
+            DepartmentUtils.createOrModifyDepartment(id, name, "", null, organization);
          }
       }
-         
+
       return detailsObject;
    }
 
@@ -640,9 +641,7 @@ public class BusinessObjectUtils
       {
          return false;
       }
-      PluggableType type = data.getType();
-      return type != null
-            && PredefinedConstants.STRUCTURED_DATA.equals(type.getId())
+      return StructuredTypeRtUtils.isStructuredType(data)
             && data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT) != null;
    }
 
@@ -704,5 +703,25 @@ public class BusinessObjectUtils
                parsedQuery.getOrderCriteria(), parsedQuery.getOrderByJoins(), parsedQuery.getFetchPredicate(),
                parsedQuery.useDistinct(), parsedQuery.getSelectAlias());
       }
+   }
+
+   public static Map<String, BusinessObjectRelationship> getBusinessObjectRelationships(IData data)
+   {
+      Map<String, BusinessObjectRelationship> map = data.getRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT);
+      if (map == null)
+      {
+         map = CollectionUtils.newMap();
+         BusinessObjectRelationship[] relationships = BusinessObjectRelationship.fromJsonString(
+               data.getStringAttribute("carnot:engine:businessObjectRelationships"));
+         for (BusinessObjectRelationship relationship : relationships)
+         {
+            if (!StringUtils.isEmpty(relationship.otherForeignKeyField))
+            {
+               map.put(relationship.otherForeignKeyField, relationship);
+            }
+         }
+         data.setRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT, map);
+      }
+      return map;
    }
 }

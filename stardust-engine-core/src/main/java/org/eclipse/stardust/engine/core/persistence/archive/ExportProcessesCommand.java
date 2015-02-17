@@ -188,7 +188,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private Boolean archive()
    {
-      IArchiveManager archiveManager = ZipArchiveManager.getInstance();
+      IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       boolean success = true;
       if (CollectionUtils.isNotEmpty(exportResults))
       {

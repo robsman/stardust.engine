@@ -30,18 +30,20 @@ public class ZipArchiveManager implements IArchiveManager
    private static volatile ZipArchiveManager manager;
 
    private final String rootFolder;
+   
+   private final String folderFormat;
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
    public static final int BUFFER_SIZE = 1024;
 
-   private ZipArchiveManager()
+   private ZipArchiveManager(String rootFolder, String folderFormat)
    {
-      // this will be bound to auditTrail
-      this.rootFolder = "c:/temp/";
+      this.rootFolder = rootFolder;
+      this.folderFormat = folderFormat;
    }
 
-   public static ZipArchiveManager getInstance()
+   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat)
    {
       if (manager == null)
       {
@@ -49,7 +51,7 @@ public class ZipArchiveManager implements IArchiveManager
          {
             if (manager == null)
             {
-               manager = new ZipArchiveManager();
+               manager = new ZipArchiveManager(rootFolder, folderFormat);
             }
          }
       }
@@ -245,10 +247,9 @@ public class ZipArchiveManager implements IArchiveManager
 
    private File getFolder(String name, Date date)
    {
-      final DateFormat dateFormat = new SimpleDateFormat("\\yyyy\\mm\\dd\\HH");
-      File file;
+      final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
       String dateString = dateFormat.format(date);
-      file = new File(rootFolder + name + dateString);
+      File file = new File(rootFolder + name + dateString);
       return file;
    }
 

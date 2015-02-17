@@ -24,7 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
 
 import javax.sql.DataSource;
@@ -978,7 +978,7 @@ public class ArchiveTest
       assertProcessInstancesEquals(oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
-
+     
    @Test
    public void testDatesAndHours() throws Exception
    {
@@ -1102,12 +1102,13 @@ public class ArchiveTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, true));
       assertNotNullRawData(result);
-      assertEquals(6, result.getDates().size());
+      assertEquals(5, result.getDates().size());
       assertNotNull(result.getResults(scriptProcessDate));
       assertNotNull(result.getResults(simpleManualADate));
       assertNotNull(result.getResults(simpleManualBDate));
       assertNotNull(result.getResults(simpleDate));
-      assertNotNull(result.getResults(subProcessesDate));
+      //assert that sub processes are archived with their root process
+      assertNull(result.getResults(subProcessesDate));
       assertNotNull(result.getResults(subProcessesInModelDate));
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1137,12 +1138,13 @@ public class ArchiveTest
             ImportProcessesCommand.Operation.IMPORT, result.getResults(simpleDate), null,
             meta));
       assertEquals(5, count);
+      //assert that sub processes are archived with their root process
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, result
-                  .getResults(subProcessesInModelDate), null, meta));
-      assertEquals(6, count);
+                  .getResults(subProcessesDate), null, meta));
+      assertEquals(5, count);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, result.getResults(subProcessesDate),
+            ImportProcessesCommand.Operation.IMPORT, result.getResults(subProcessesInModelDate),
             null, meta));
       assertEquals(8, count);
 
@@ -4067,6 +4069,13 @@ public class ArchiveTest
       assertNotNull(result);
       assertTrue(result.hasModelData());
       assertTrue(result.hasExportData());
+      if (result.hasExportData())
+      {
+         for (Date date : result.getDates())
+         {
+            assertNotNull(date);
+         }
+      }
    }
 
    private void assertNullRawData(ExportResult result)

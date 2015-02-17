@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementsVisitor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -67,11 +68,14 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private ExportResult exportResult;
 
+   // when archiving we may want to archive more than one exportResult at a time
+   private List<ExportResult> exportResults;
+
    private final Operation operation;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, boolean purge, ExportResult exportResult)
+         Date toDate, boolean purge, List<ExportResult> exportResults)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -80,7 +84,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.modelOids = modelOids;
       this.fromDate = fromDate;
       this.toDate = toDate;
-      this.exportResult = exportResult;
+      this.exportResults = exportResults;
    }
 
    /**
@@ -135,11 +139,12 @@ public class ExportProcessesCommand implements ServiceCommand
       this(operation, exportMetaData, null, null, null, null, purge, null);
    }
 
-   public ExportProcessesCommand(ExportResult result)
+   public ExportProcessesCommand(List<ExportResult> exportResults)
    {
 
-      this(Operation.ARCHIVE, null, null, null, null, null, false, result);
+      this(Operation.ARCHIVE, null, null, null, null, null, false, exportResults);
    }
+
    @Override
    public Serializable execute(ServiceFactory sf)
    {
@@ -168,6 +173,9 @@ public class ExportProcessesCommand implements ServiceCommand
             exportBatch(session);
             result = exportResult;
             break;
+         case ARCHIVE:
+            result = archive();
+            break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
       }
@@ -176,6 +184,71 @@ public class ExportProcessesCommand implements ServiceCommand
          LOGGER.debug("END Export Operation: " + this.operation.name());
       }
       return result;
+   }
+
+   private Boolean archive()
+   {
+      IArchiveManager archiveManager = ZipArchiveManager.getInstance();
+      boolean success = true;
+      if (CollectionUtils.isNotEmpty(exportResults))
+      {
+         String partition = SecurityProperties.getPartition().getId();
+         Set<Date> uniqueDates = new HashSet<Date>();
+         for (ExportResult result : exportResults)
+         {
+            if (result == null)
+            {
+               LOGGER.warn("Received a null exportResult, continueing to the next");
+               continue;
+            }
+            uniqueDates.addAll(result.getDates());
+         }
+         dateloop: for (Date date : uniqueDates)
+         {
+            Serializable key = archiveManager.open(partition, date);
+            if (key == null)
+            {
+               success = false;
+               break;
+            }
+            else
+            {
+               boolean isModelSaved = false;
+               for (ExportResult result : exportResults)
+               {
+                  if (result == null)
+                  {
+                     continue;
+                  }
+                  byte[] data = result.getResults(date);
+                  // does this specific exportResult have data for this date
+                  if (data != null)
+                  {
+                     success = archiveManager.add(key, data);
+                     if (!success)
+                     {
+                        break dateloop;
+                     }
+                     if (!isModelSaved)
+                     {
+                        success = archiveManager.addModel(key, result.getModelData());
+                        if (!success)
+                        {
+                           break dateloop;
+                        }
+                        isModelSaved = true;
+                     }
+                  }
+               }
+            }
+            success = archiveManager.close(key);
+            if (!success)
+            {
+               break;
+            }
+         }
+      }
+      return success;
    }
 
    private void exportBatch(Session session)
@@ -467,6 +540,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          return uniqueOids != null && CollectionUtils.isNotEmpty(uniqueOids.keySet());
       }
+
       /**
        * 
        * @return list of root processInstanceOids
@@ -532,5 +606,5 @@ public class ExportProcessesCommand implements ServiceCommand
       }
 
    }
-   
+
 }

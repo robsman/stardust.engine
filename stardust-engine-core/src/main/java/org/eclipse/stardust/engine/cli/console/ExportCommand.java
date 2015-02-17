@@ -10,12 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.console;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
-
-import org.apache.commons.io.FileUtils;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -31,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
@@ -166,51 +163,38 @@ public class ExportCommand extends ConsoleCommand
          final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
                properties);
 
-         // ProcessTool.createProcesses(serviceFactory);
+         //ProcessTool.createProcesses(serviceFactory);
 
          ExportMetaData exportMetaData = getExportOids(purge, fromDate, toDate,
                processOids, modelOids, serviceFactory);
 
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
                batchSize);
-         int count = 1;
 
-         exportModel(partitionId, exportMetaData, serviceFactory);
+         final byte[] modelData = exportModel(partitionId, exportMetaData, serviceFactory);
 
          ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
-         List<Future<String>> results = new ArrayList<Future<String>>();
-
+         List<Future<ExportResult>> results = new ArrayList<Future<ExportResult>>();
          for (final ExportMetaData batch : batches)
          {
-            final int current = count++;
-            Callable<String> exportCallable = new Callable<String>()
+            Callable<ExportResult> exportCallable = new Callable<ExportResult>()
             {
                @Override
-               public String call() throws Exception
+               public ExportResult call() throws Exception
                {
                   ExportProcessesCommand command = new ExportProcessesCommand(
                         ExportProcessesCommand.Operation.EXPORT_BATCH, batch, purge);
-                  byte[] data = (byte[]) serviceFactory.getWorkflowService().execute(
-                        command);
-                  if (data == null)
+                  ExportResult result = (ExportResult) serviceFactory
+                        .getWorkflowService().execute(command);
+                  if (result == null)
                   {
                      print("No Data to export. Export file not created.");
                   }
                   else
                   {
-                     try
-                     {
-                        File f = new File(System.getProperty("java.io.tmpdir")
-                              + "/export_" + partitionId + "_" + current + ".dat");
-                        FileUtils.writeByteArrayToFile(f, data, false);
-                        print("Partial Export saved to: " + f.getAbsolutePath());
-                     }
-                     catch (IOException e)
-                     {
-                        e.printStackTrace();
-                     }
+                     result.setModelData(modelData);
                   }
-                  return partitionId + "_" + current;
+                  return result;
                }
 
             };
@@ -218,18 +202,31 @@ public class ExportCommand extends ConsoleCommand
          }
 
          print("Export Submitted");
+         List<ExportResult> exportResults = new ArrayList<ExportResult>();
 
-         for (Future<String> result : results)
+         for (Future<ExportResult> result : results)
          {
             try
             {
-               result.get();
+               ExportResult exportResult = result.get();
+               exportResults.add(exportResult);
             }
             catch (Exception e)
             {
                print("Unexpected Exception during Export " + e.getMessage());
                e.printStackTrace();
             }
+         }
+
+         ExportProcessesCommand command = new ExportProcessesCommand(exportResults);
+         Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
+         if (success)
+         {
+            print("Archive Done for Partition: " + partitionId);
+         }
+         else
+         {
+            print("Archive Failed for Partition: " + partitionId);
          }
 
          Date end = new Date();
@@ -367,29 +364,21 @@ public class ExportCommand extends ConsoleCommand
       return exportMetaData;
    }
 
-   private void exportModel(final String partitionId,
+   private byte[] exportModel(final String partitionId,
          final ExportMetaData exportMetaData, final ServiceFactory serviceFactory)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, false);
-      byte[] model = (byte[]) serviceFactory.getWorkflowService().execute(command);
-      if (model == null)
+      ExportResult exportResult = (ExportResult) serviceFactory.getWorkflowService()
+            .execute(command);
+      if (exportResult == null)
       {
          print("No Data to export. Export file not created.");
+         return null;
       }
       else
       {
-         try
-         {
-            File f = new File(System.getProperty("java.io.tmpdir") + "/export_"
-                  + partitionId + "_model.dat");
-            FileUtils.writeByteArrayToFile(f, model, false);
-            print("Partial Export saved to: " + f.getAbsolutePath());
-         }
-         catch (IOException e)
-         {
-            e.printStackTrace();
-         }
+         return exportResult.getModelData();
       }
    }
 

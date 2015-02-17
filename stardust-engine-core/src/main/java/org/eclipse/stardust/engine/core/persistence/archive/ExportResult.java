@@ -25,6 +25,13 @@ public class ExportResult implements Serializable
 
    private byte[] modelData;
 
+   public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate)
+   {
+      this.modelData = modelData;
+      this.resultsByDate = resultsByDate;
+      this.open = false;
+   }
+
    public ExportResult()
    {
       this.resultsByDate = new HashMap<Date, byte[]>();
@@ -32,27 +39,70 @@ public class ExportResult implements Serializable
 
    public void addResult(ProcessInstanceBean process)
    {
-      Date indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
-      piOidsToDate.put(process.getOID(), indexDate);
-      addResult(process, process.getOID());
+      if (open)
+      {
+         Date indexDate;
+         if (process.getOID() == process.getRootProcessInstanceOID())
+         {
+            indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
+         }
+         else
+         {
+            indexDate = ExportImportSupport.getIndexDateTime(process
+                  .getRootProcessInstance().getStartTime());
+         }
+         if (indexDate == null)
+         {
+            throw new IllegalStateException("ProcessInstanceOid " + process.getOID() 
+                  + " - no start date for that process determined.");
+         }
+         piOidsToDate.put(process.getOID(), indexDate);
+         addResult(process, process.getOID());
+      }
+      else
+      {
+         throw new IllegalStateException("ExportResult is closed.");
+      }
    }
 
    public void addResult(Persistent persistent, long processInstanceOid)
    {
-      Date indexDate = piOidsToDate.get(processInstanceOid);
-      Map<Class, List<Persistent>> persistentByTypeMap = dateToPersistents.get(indexDate);
-      if (persistentByTypeMap == null)
+      if (open)
       {
-         persistentByTypeMap = new HashMap<Class, List<Persistent>>();
-         dateToPersistents.put(indexDate, persistentByTypeMap);
+         Date indexDate;
+         if (piOidsToDate.containsKey(processInstanceOid))
+         {
+            indexDate = piOidsToDate.get(processInstanceOid);
+         }
+         else
+         {
+            throw new IllegalStateException("Persistent is linked to processInstanceOid " + processInstanceOid
+                  + " but that process is not in this batch. Possible incorrect processInstanceOid. Persistent Type: " + persistent.getClass());
+         }
+         if (indexDate == null)
+         {
+            throw new IllegalStateException("Persistent is linked to processInstanceOid " + processInstanceOid
+                  + " but no start date for that process determined.");
+         }
+         Map<Class, List<Persistent>> persistentByTypeMap = dateToPersistents
+               .get(indexDate);
+         if (persistentByTypeMap == null)
+         {
+            persistentByTypeMap = new HashMap<Class, List<Persistent>>();
+            dateToPersistents.put(indexDate, persistentByTypeMap);
+         }
+         List<Persistent> persistents = persistentByTypeMap.get(persistent.getClass());
+         if (persistents == null)
+         {
+            persistents = new ArrayList<Persistent>();
+            persistentByTypeMap.put(persistent.getClass(), persistents);
+         }
+         persistents.add(persistent);
       }
-      List<Persistent> persistents = persistentByTypeMap.get(persistent.getClass());
-      if (persistents == null)
+      else
       {
-         persistents = new ArrayList<Persistent>();
-         persistentByTypeMap.put(persistent.getClass(), persistents);
+         throw new IllegalStateException("ExportResult is closed.");
       }
-      persistents.add(persistent);
    }
 
    public void close()
@@ -63,11 +113,13 @@ public class ExportResult implements Serializable
          {
             ByteArrayBlobBuilder blobBuilder = new ByteArrayBlobBuilder();
             blobBuilder.init(null);
-            Map<Class, List<Persistent>> persistentsByClass = dateToPersistents.get(indexDate);
+            Map<Class, List<Persistent>> persistentsByClass = dateToPersistents
+                  .get(indexDate);
             for (Class type : persistentsByClass.keySet())
             {
                TypeDescriptor td = TypeDescriptor.get(type);
-               ProcessBlobWriter.writeInstances(blobBuilder, td, persistentsByClass.get(type));
+               ProcessBlobWriter.writeInstances(blobBuilder, td,
+                     persistentsByClass.get(type));
             }
             blobBuilder.persistAndClose();
             resultsByDate.put(indexDate, blobBuilder.getBlob());

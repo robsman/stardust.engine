@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -16,11 +17,11 @@ public class SchedulingUtils
 {
    private static final Logger trace = LogManager.getLogger(SchedulingRecurrence.class);
 
-   public static DateFormat SERVER_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS");
-   public static DateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa");
-   public static DateFormat CLIENT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-   public static DateFormat YEAR_DATE_FORMAT = new SimpleDateFormat("yyyy");
-   public static DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm aa");
+   public static DateFormat SERVER_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS", Locale.ENGLISH);
+   public static DateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa", Locale.ENGLISH);
+   public static DateFormat CLIENT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+   public static DateFormat YEAR_DATE_FORMAT = new SimpleDateFormat("yyyy", Locale.ENGLISH);
+   public static DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
 
    public enum RecurrencePattern
    {

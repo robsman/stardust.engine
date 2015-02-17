@@ -240,7 +240,7 @@ public class ClobDataBean extends IdentifiablePersistentBean
             {
                throw new IllegalStateException(
                      "Can't determine related process instance for clob with id: " 
-                           + getOID() + " too many results returned");
+                           + getOID() + ", too many results returned");
             }
          }
          else

@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.console;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -29,6 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -126,34 +124,35 @@ public class ImportCommand extends ConsoleCommand
       for (final String partitionId : partitionIds)
       {
          Date start = new Date();
-         final File[] files = getFiles(partitionId);
-         print("Starting Import for partition " + partitionId + ". Found " + files.length
-               + " to import.");
          Map<String, String> properties = new HashMap<String, String>();
          properties.put(SecurityProperties.PARTITION, partitionId);
          final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
                properties);
-         WorkflowService workflowService = serviceFactory.getWorkflowService();
-         ImportMetaData importMetaData = null;
-         if (files != null && files.length > 0)
-         {
-            importMetaData = validateImport(files[0], workflowService);
-         }
-         if (importMetaData != null)
+         final WorkflowService workflowService = serviceFactory.getWorkflowService();
+
+         final List<IArchive> archives = findArchives(serviceFactory, fromDate, toDate, processOids);
+         print("Starting Import for partition " + partitionId + ". Found " + archives.size()
+               + " to import.");
+         
+         if (CollectionUtils.isNotEmpty(archives))
          {
             ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
             List<Future<Integer>> results = new ArrayList<Future<Integer>>();
-            final ImportMetaData metaData = importMetaData;
-            for (int i = 1; i < files.length; i++)
+            for (IArchive archive : archives)
             {
-               final int current = i;
+               final IArchive currentArchive = archive;
                Callable<Integer> exportCallable = new Callable<Integer>()
                {
                   @Override
                   public Integer call() throws Exception
                   {
+                     ImportMetaData importMetaData = null;
+                     if (CollectionUtils.isNotEmpty(archives))
+                     {
+                        importMetaData = validateImport(currentArchive, workflowService);
+                     }
                      int count = importFile(fromDate, toDate, processOids, partitionId,
-                           metaData, serviceFactory, files[current]);
+                           importMetaData, serviceFactory, currentArchive);
                      return count;
                   }
 
@@ -262,23 +261,13 @@ public class ImportCommand extends ConsoleCommand
       }
       return partitionIds;
    }
-
-   private ImportMetaData validateImport(File file, WorkflowService workflowService)
+   
+   private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService)
    {
       ImportMetaData importMetaData;
-      byte[] data;
-      try
-      {
-         data = FileUtils.readFileToByteArray(file);
-      }
-      catch (IOException e)
-      {
-         data = null;
-         print("Failed to read export model file: " + file.getName());
-      }
 
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE, data, null);
+            ImportProcessesCommand.Operation.VALIDATE, archive, null);
       importMetaData = (ImportMetaData) workflowService.execute(importCommand);
       if (importMetaData != null)
       {
@@ -287,128 +276,60 @@ public class ImportCommand extends ConsoleCommand
       else
       {
          print("Model validation failed. No import can be done. Model file: "
-               + file.getName());
+               + archive.getName());
       }
       return importMetaData;
    }
 
    private int importFile(Date fromDate, Date toDate, List<Long> processOids,
          String partitionId, ImportMetaData importMetaData,
-         ServiceFactory serviceFactory, File file)
+         ServiceFactory serviceFactory, IArchive archive)
    {
       int count = 0;
-      byte[] data;
-      try
-      {
-         data = FileUtils.readFileToByteArray(file);
-      }
-      catch (IOException e)
-      {
-         data = null;
-         print("Failed to read export file: " + file.getName());
-      }
 
-      if (data != null)
+      if (archive != null)
       {
          ImportProcessesCommand command;
          if (processOids != null)
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  data, processOids, importMetaData);
+                  archive, processOids, importMetaData);
          }
          else if (fromDate != null || toDate != null)
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  data, fromDate, toDate, importMetaData);
+                  archive, fromDate, toDate, importMetaData);
          }
          else
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  data, importMetaData);
+                  archive, importMetaData);
          }
          count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
          print("Imported " + count + " process instances into partition " + partitionId
-               + " from file: " + file.getName());
+               + " from file: " + archive.getName());
       }
       return count;
    }
 
-   private File[] getFiles(final String partitionId)
+   private List<IArchive> findArchives(final ServiceFactory serviceFactory, final Date fromDate, final Date toDate, final List<Long> processOids)
    {
-      File[] files;
-
-      File directory = new File(System.getProperty("java.io.tmpdir"));
-
-      FilenameFilter filter = new FilenameFilter()
+      ImportProcessesCommand command;
+      if (processOids != null)
       {
-
-         @Override
-         public boolean accept(File dir, String name)
-         {
-            if (name.lastIndexOf('.') > 0)
-            {
-               // get last index for '.' char
-               int lastIndex = name.lastIndexOf('.');
-
-               // get extension
-               String ext = name.substring(lastIndex);
-               String fileName = name.substring(0, lastIndex - 1);
-
-               // match path name extension
-               if (ext.equals(".dat") && fileName.startsWith("export_" + partitionId))
-               {
-                  return true;
-               }
-            }
-            return false;
-         }
-      };
-
-      if (directory.isDirectory())
+         command = new ImportProcessesCommand(processOids);
+      }
+      else if (fromDate != null || toDate != null)
       {
-         File[] allfiles = directory.listFiles(filter);
-         files = new File[allfiles.length];
-         for (int i = 0; i < allfiles.length; i++)
-         {
-            String name = allfiles[i].getName();
-            int lastIndex = name.lastIndexOf('.');
-            String fileName = name.substring(0, lastIndex);
-            String[] parts = fileName.split("_");
-            int exportIndex;
-            if ("model".equals(parts[2]))
-            {
-               exportIndex = 0;
-            }
-            else
-            {
-               exportIndex = Integer.valueOf(parts[2]);
-            }
-            if (exportIndex >= files.length)
-            {
-               throw new IllegalStateException("Not All Files From export are present");
-            }
-            else
-            {
-               files[exportIndex] = allfiles[i];
-            }
-         }
-         for (int i = 0; i < files.length; i++)
-         {
-            if (files[i] == null)
-            {
-               throw new IllegalStateException(
-                     "Not All Files From export are present, in expected sequence");
-            }
-            print("Export file " + files[i].getName() + " found to import");
-         }
+         command = new ImportProcessesCommand(fromDate, toDate);
       }
       else
       {
-         files = new File[] {};
-         ;
+         command = new ImportProcessesCommand();
       }
-      return files;
+      List<IArchive> archives = (List<IArchive>) serviceFactory.getWorkflowService().execute(command);
+      return archives;
    }
 
    private void splitListString(String partitionSpec, List<String> partitionIds)

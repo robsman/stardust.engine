@@ -41,7 +41,7 @@ public class ImportProcessesCommand implements ServiceCommand
    private static final Logger LOGGER = LogManager
          .getLogger(ImportProcessesCommand.class);
 
-   private final byte[] rawData;
+   private final IArchive archive;
 
    private Date fromDate;
 
@@ -53,14 +53,14 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final Operation operation;
 
-   private ImportProcessesCommand(Operation operation, byte[] rawData,
+   private ImportProcessesCommand(Operation operation, IArchive archive,
          List<Long> processInstanceOids, Date fromDate, Date toDate,
          ImportMetaData importMetaData)
    {
       super();
       this.operation = operation;
       this.processInstanceOids = processInstanceOids;
-      this.rawData = rawData;
+      this.archive = archive;
       this.fromDate = fromDate;
       this.toDate = toDate;
       this.importMetaData = importMetaData;
@@ -73,10 +73,10 @@ public class ImportProcessesCommand implements ServiceCommand
     *           provide importMetaData if you already validated the model, else set it as
     *           null
     */
-   public ImportProcessesCommand(Operation operation, byte[] rawData,
+   public ImportProcessesCommand(Operation operation, IArchive archive,
          ImportMetaData importMetaData)
    {
-      this(operation, rawData, null, null, null, importMetaData);
+      this(operation, archive, null, null, null, importMetaData);
    }
 
    /**
@@ -92,10 +92,10 @@ public class ImportProcessesCommand implements ServiceCommand
     *           provide importMetaData if you already validated the model, else set it as
     *           null
     */
-   public ImportProcessesCommand(Operation operation, byte[] rawData,
+   public ImportProcessesCommand(Operation operation, IArchive archive,
          List<Long> processInstanceOids, ImportMetaData importMetaData)
    {
-      this(operation, rawData, processInstanceOids, null, null, importMetaData);
+      this(operation, archive, processInstanceOids, null, null, importMetaData);
    }
 
    /**
@@ -113,10 +113,40 @@ public class ImportProcessesCommand implements ServiceCommand
     *           provide importMetaData if you already validated the model, else set it as
     *           null
     */
-   public ImportProcessesCommand(Operation operation, byte[] rawData, Date fromDate,
+   public ImportProcessesCommand(Operation operation, IArchive archive, Date fromDate,
          Date toDate, ImportMetaData importMetaData)
    {
-      this(operation, rawData, null, fromDate, toDate, importMetaData);
+      this(operation, archive, null, fromDate, toDate, importMetaData);
+   }
+
+   /**
+    * Use this constructor to determine which archives to load
+    * 
+    * @param processOids
+    */
+   public ImportProcessesCommand(List<Long> processInstanceOids)
+   {
+      this(Operation.QUERY, null, processInstanceOids, null, null, null);
+   }
+
+   /**
+    * Use this constructor to determine which archives to load
+    * 
+    * @param operation
+    * @param fromDate2
+    * @param toDate2
+    */
+   public ImportProcessesCommand(Date fromDate, Date toDate)
+   {
+      this(Operation.QUERY, null, null, fromDate, toDate, null);
+   }
+
+   /**
+    * Use this constructor to determine which archives to load
+    */
+   public ImportProcessesCommand()
+   {
+      this(Operation.QUERY, null, null, null, null, null);
    }
 
    @Override
@@ -127,8 +157,8 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          LOGGER.debug("START Import Operation " + operation.name());
       }
-      
-      if (rawData != null)
+
+      if (archive != null)
       {
          switch (operation)
          {
@@ -144,7 +174,8 @@ public class ImportProcessesCommand implements ServiceCommand
                break;
             default:
                throw new IllegalArgumentException("No valid operation provided");
-         };
+         }
+         ;
       }
       else
       {
@@ -165,7 +196,8 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       if (importMetaData != null)
       {
-         throw new IllegalArgumentException("When using VALIDATE_AND_IMPORT, provide the model data and the export data. Do not provide importMetaData");
+         throw new IllegalArgumentException(
+               "When using VALIDATE_AND_IMPORT, provide the model data and the export data. Do not provide importMetaData");
       }
       Map<String, List<byte[]>> dataByTable = validate(sf);
       return importData(sf, dataByTable);
@@ -195,7 +227,7 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          if (CollectionUtils.isEmpty(dataByTable))
          {
-            dataByTable = ExportImportSupport.getDataByTable(rawData);
+            dataByTable = ExportImportSupport.getDataByTable(archive.getData());
          }
          importCount = ExportImportSupport.importProcessInstances(dataByTable, session,
                filter, oidResolver);
@@ -224,7 +256,17 @@ public class ImportProcessesCommand implements ServiceCommand
       Map<String, List<byte[]>> dataByTable;
       try
       {
-        dataByTable = ExportImportSupport.validateModel(rawData, importMetaData);
+         byte[] data;
+         if (archive.getModelData() == null)
+         {
+            data = archive.getData();
+         }
+         else
+         {
+            data = archive.getModelData();
+         }
+         dataByTable = ExportImportSupport.validateModel(data,
+               importMetaData);
       }
       catch (IllegalStateException e)
       {
@@ -278,7 +320,11 @@ public class ImportProcessesCommand implements ServiceCommand
       /**
        * Imports process instances
        */
-      IMPORT;
+      IMPORT,
+      /**
+       * Find archives to load
+       */
+      QUERY;
    };
 
    public static class ImportMetaData implements Serializable
@@ -297,12 +343,12 @@ public class ImportProcessesCommand implements ServiceCommand
          Map<Long, Long> idMap = classToRuntimeOidMap.get(type);
          if (idMap == null)
          {
-            idMap = new HashMap<Long, Long>();            
+            idMap = new HashMap<Long, Long>();
             classToRuntimeOidMap.put(type, idMap);
          }
          idMap.put(exportId, importId);
       }
-      
+
       public Long getImportId(Class type, Long exportId)
       {
          return classToRuntimeOidMap.get(type).get(exportId);

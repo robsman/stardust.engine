@@ -225,7 +225,9 @@ public class ClobDataBean extends IdentifiablePersistentBean
       long dvOid;
       QueryDescriptor clobQuery = QueryDescriptor.from(DataValueBean.class)
             .select(DataValueBean.FIELD__OID)
-            .where(Predicates.isEqual(DataValueBean.FR__NUMBER_VALUE, getOID()));
+            .where(Predicates.andTerm(Predicates.isEqual(DataValueBean.FR__NUMBER_VALUE, getOID()), 
+                  Predicates.isEqual(DataValueBean.FR__TYPE_KEY, BigData.LONG)));
+            ;
 
       ResultSet rs = ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL))
             .executeQuery(clobQuery);
@@ -234,6 +236,12 @@ public class ClobDataBean extends IdentifiablePersistentBean
          if (rs.next())
          {
             dvOid = rs.getBigDecimal(DataValueBean.FIELD__OID).longValue();
+            if (rs.next())
+            {
+               throw new IllegalStateException(
+                     "Can't determine related process instance for clob with id: " 
+                           + getOID() + " too many results returned");
+            }
          }
          else
          {

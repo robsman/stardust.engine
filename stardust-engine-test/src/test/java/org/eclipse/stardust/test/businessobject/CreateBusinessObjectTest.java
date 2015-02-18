@@ -43,11 +43,10 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * This class tests query functionality
- * regarding <i>Departments</i>.
+ * This class tests BO functionality.
  * <p>
  * 
- * @author Nicolas.Werlein
+ * @author Barry.Grotjahn
  * @version $Revision$
  */
 public class CreateBusinessObjectTest
@@ -58,7 +57,7 @@ public class CreateBusinessObjectTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME1);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)

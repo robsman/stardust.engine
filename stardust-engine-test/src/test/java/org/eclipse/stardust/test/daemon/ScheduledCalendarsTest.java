@@ -500,7 +500,6 @@ public class ScheduledCalendarsTest
 
       public Property(String name, Object value)
       {
-         super();
          this.name = name;
          this.value = value;
       }

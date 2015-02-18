@@ -33,7 +33,6 @@ import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -1405,7 +1404,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public boolean validateLoopCondition(String condition)
    {
       trace.debug("Validating loop condition '" + condition + "'");
-      
+
       final IProcessDefinition processDefinition = getProcessDefinition();
       return ConditionEvaluator.isEnabled(processDefinition, this, condition, true);
    }
@@ -1867,7 +1866,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
                            && outputParameterId.equals(accessPointId)
                            && parameterContext.equals(context))
                      {
-                        int index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        int index = ((ActivityInstanceBean) startingActivityInstance).getIndex();
+                        if (index < 0)
+                        {
+                           index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        }
                         if (index >= 0)
                         {
                            try

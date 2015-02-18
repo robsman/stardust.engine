@@ -188,7 +188,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private transient Long lastModifyingUser;
 
-   private transient int index;
+   private transient int index = -1;
 
    private int state;
 
@@ -412,6 +412,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    void setIndex(int index)
    {
       this.index = index;
+   }
+
+   int getIndex()
+   {
+      return index;
    }
 
    public ActivityInstanceState getOriginalState()

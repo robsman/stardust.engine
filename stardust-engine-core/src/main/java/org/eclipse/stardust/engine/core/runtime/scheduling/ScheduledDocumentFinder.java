@@ -110,8 +110,13 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
                   if (!matches)
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(event);
-                     Date processSchedule = sc.processSchedule(event, true);
+                     JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(event, "recur");
+                     if (scheduleJson == null)
+                     {
+                        scheduleJson = event;
+                     }
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+                     Date processSchedule = sc.processSchedule(scheduleJson, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))
                      {

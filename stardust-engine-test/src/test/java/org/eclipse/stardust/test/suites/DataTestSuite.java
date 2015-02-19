@@ -16,11 +16,8 @@ import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.data.DefaultValuePrimitiveDataTest;
-import org.eclipse.stardust.test.data.InitialValuePrimitiveDataTest;
-import org.eclipse.stardust.test.data.PrimitiveDataInOutDataMappingsTest;
-import org.eclipse.stardust.test.data.PrimitiveDataInOutDataPathsTest;
-import org.eclipse.stardust.test.data.StructuredDataSanityTest;
+import org.eclipse.stardust.test.data.*;
+
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -40,7 +37,8 @@ import org.junit.runners.Suite.SuiteClasses;
                PrimitiveDataInOutDataMappingsTest.class,
                PrimitiveDataInOutDataPathsTest.class,
                InitialValuePrimitiveDataTest.class,
-               StructuredDataSanityTest.class
+               StructuredDataSanityTest.class,
+               StructuredTypeDefinitionTest.class
              })
 public class DataTestSuite
 {

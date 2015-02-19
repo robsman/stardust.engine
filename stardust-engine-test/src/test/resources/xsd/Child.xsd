@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns:chi="http://www.infinity.com/bpm/model/PepperSimpleModel/Child" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.infinity.com/bpm/model/PepperSimpleModel/Child">
+  <xsd:complexType name="Child">
+    <xsd:sequence>
+      <xsd:element name="c1" type="xsd:string"/>
+      <xsd:element name="c2" type="xsd:string"/>
+      <xsd:element name="c3" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="Child" type="chi:Child"/>
+</xsd:schema>

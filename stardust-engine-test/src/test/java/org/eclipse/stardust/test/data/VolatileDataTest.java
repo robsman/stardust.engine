@@ -58,7 +58,7 @@ public class VolatileDataTest
    public void testShortPrimitiveVolatileDataDeleted()
    {
       ProcessInstance pi = sf.getWorkflowService().startProcess(
-            "VolatileDataProcessForPrimitives", null, true);
+            "{VolatileDataModel}VolatileDataProcessForPrimitives", null, true);
 
       try
       {
@@ -83,7 +83,7 @@ public class VolatileDataTest
       processData.put("BaseData", randomString);
 
       ProcessInstance pi = sf.getWorkflowService().startProcess(
-            "VolatileDataProcessForPrimitives", processData, true);
+            "{VolatileDataModel}VolatileDataProcessForPrimitives", processData, true);
 
       try
       {
@@ -109,7 +109,7 @@ public class VolatileDataTest
       processData.put("BaseSerializable", object);
 
       ProcessInstance pi = sf.getWorkflowService().startProcess(
-            "VolatileDataProcessForSerializables", processData, true);
+            "{VolatileDataModel}VolatileDataProcessForSerializables", processData, true);
 
       try
       {
@@ -130,7 +130,7 @@ public class VolatileDataTest
    public void testVolatileDataExistsInWaitingProcess()
    {
       ProcessInstance pi = sf.getWorkflowService().startProcess(
-            "WaitingVolatileDataProcess", null, true);
+            "{VolatileDataModel}WaitingVolatileDataProcess", null, true);
 
       try
       {
@@ -181,7 +181,7 @@ public class VolatileDataTest
       processData.put("BaseStructured", createStructuredData());
 
       ProcessInstance pi = sf.getWorkflowService().startProcess(
-            "VolatileDataProcessForStructured", processData, true);
+            "{VolatileDataModel}VolatileDataProcessForStructured", processData, true);
 
       try
       {

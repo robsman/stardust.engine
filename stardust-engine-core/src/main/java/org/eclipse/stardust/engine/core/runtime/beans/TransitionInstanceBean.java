@@ -106,4 +106,11 @@ public class TransitionInstanceBean extends IdentifiablePersistentBean
 
       return target;
    }
+
+   public void prepareForImportFromArchive()
+   {
+      getStartActivity();
+      getEndActivity();
+      getProcessInstance();
+   }
 }

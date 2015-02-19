@@ -956,7 +956,11 @@ public class StructuredTypeRtUtils
             {
                importItem.reset();
                importItem.importSchema();
-               if (trace.isDebugEnabled())
+               if (importItem.getResolvedSchema() == null)
+               {
+                  trace.error("XSDImport could not be resolved: namespace='" + importItem.getNamespace() + "' schemaLocation='" + importItem.getSchemaLocation()+ "'");
+               }
+               else if (trace.isDebugEnabled())
                {
                   trace.debug("Resolved " + importItem.getNamespace() + " @ " + importItem.getSchemaLocation() + " : " + importItem.getResolvedSchema());
                }
@@ -1058,5 +1062,22 @@ public class StructuredTypeRtUtils
          return ((SchemaTypeBean) type).getSchema();
       }
       return null;
+   }
+
+   /**
+    * Flushes all cached schemas.
+    */
+   public static void flushExternalSchemaCache()
+   {
+      Parameters parameters = Parameters.instance();
+      Map loadedSchemas = null;
+      synchronized (StructuredTypeRtUtils.class)
+      {
+         loadedSchemas = (Map) parameters.get(StructuredTypeRtUtils.EXTERNAL_SCHEMA_MAP);
+         if (loadedSchemas != null)
+         {
+           loadedSchemas.clear();
+         }
+      }
    }
 }

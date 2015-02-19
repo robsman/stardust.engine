@@ -17,25 +17,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.resource.URIConverter;
+
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.api.model.IExternalReference;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.IXpdlType;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-import org.eclipse.xsd.XSDComplexTypeContent;
-import org.eclipse.xsd.XSDComplexTypeDefinition;
-import org.eclipse.xsd.XSDElementDeclaration;
-import org.eclipse.xsd.XSDImport;
-import org.eclipse.xsd.XSDModelGroup;
-import org.eclipse.xsd.XSDModelGroupDefinition;
-import org.eclipse.xsd.XSDNamedComponent;
-import org.eclipse.xsd.XSDParticle;
-import org.eclipse.xsd.XSDParticleContent;
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.XSDSchemaContent;
-import org.eclipse.xsd.XSDSimpleTypeDefinition;
-import org.eclipse.xsd.XSDTerm;
-import org.eclipse.xsd.XSDTypeDefinition;
+
+import org.eclipse.xsd.*;
 import org.eclipse.xsd.impl.XSDImportImpl;
 
 public class TypeDeclarationUtils
@@ -165,6 +154,26 @@ public class TypeDeclarationUtils
       if (!xsdImports.isEmpty())
       {
          return xsdImports;
+      }
+      return null;
+   }
+
+   public static List<XSDInclude> getIncludes(XSDSchema schema)
+   {
+      List<XSDInclude> xsdIncludes = new ArrayList<XSDInclude>();
+      List<XSDSchemaContent> contents = schema.getContents();
+      Iterator<XSDSchemaContent> it = contents.iterator();
+      while (it.hasNext())
+      {
+         XSDSchemaContent content = (XSDSchemaContent) it.next();
+         if (content instanceof XSDInclude)
+         {
+            xsdIncludes.add((XSDInclude) content);
+         }
+      }
+      if (!xsdIncludes.isEmpty())
+      {
+         return xsdIncludes;
       }
       return null;
    }

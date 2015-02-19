@@ -20,6 +20,8 @@ public class ExportResult implements Serializable
    private transient final HashMap<Date, Map<Class, List<Persistent>>> dateToPersistents = new HashMap<Date, Map<Class, List<Persistent>>>();
 
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
+   
+   private List<Long> processInstanceOids;
 
    private boolean open = true;
 
@@ -123,6 +125,8 @@ public class ExportResult implements Serializable
             }
             blobBuilder.persistAndClose();
             resultsByDate.put(indexDate, blobBuilder.getBlob());
+            processInstanceOids = new ArrayList<Long>();
+            processInstanceOids.addAll(piOidsToDate.keySet());
          }
          open = false;
       }
@@ -162,6 +166,15 @@ public class ExportResult implements Serializable
    public byte[] getModelData()
    {
       return modelData;
+   }
+
+   public List<Long> getAllProcessIds()
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      return processInstanceOids;
    }
 
 }

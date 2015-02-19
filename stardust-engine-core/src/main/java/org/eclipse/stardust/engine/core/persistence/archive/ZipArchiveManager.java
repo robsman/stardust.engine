@@ -3,7 +3,10 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -12,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class ZipArchiveManager implements IArchiveManager
 {
@@ -57,11 +61,40 @@ public class ZipArchiveManager implements IArchiveManager
       }
       return manager;
    }
+   
 
    @Override
-   public Serializable open(String partition, Date indexDate)
+   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids)
    {
-      File dataFolder = getFolder(partition, indexDate);
+      // TODO Auto-generated method stub
+      return findArchives();
+   }
+
+   @Override
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate)
+   {
+      // TODO Auto-generated method stub
+      return findArchives();
+   }
+
+   @Override
+   public ArrayList<IArchive> findArchives()
+   {
+      String partition = SecurityProperties.getPartition().getId();
+      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      File directory = new File(rootFolder + partition);
+      Collection<File> allZipFiles = FileUtils.listFiles(directory, new String[]{"zip"}, true);
+      for (File f: allZipFiles)
+      {
+         archives.add(new ZipArchive(f.getAbsolutePath()));
+      }
+      return archives;
+   }
+
+   @Override
+   public Serializable open(Date indexDate)
+   {
+      File dataFolder = getFolder(indexDate);
       File file;
       // allow one thread at a time to lock the folder for this server
       synchronized (dataFolder.getPath())
@@ -69,7 +102,7 @@ public class ZipArchiveManager implements IArchiveManager
          // make sure the folder exists
          if (!dataFolder.exists())
          {
-            dataFolder = getFolder(partition, indexDate);
+            dataFolder = getFolder(indexDate);
             if (!dataFolder.exists())
             {
                dataFolder.mkdirs();
@@ -245,11 +278,12 @@ public class ZipArchiveManager implements IArchiveManager
       return exportIndex;
    }
 
-   private File getFolder(String name, Date date)
+   private File getFolder(Date date)
    {
+      String partition = SecurityProperties.getPartition().getId();
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
       String dateString = dateFormat.format(date);
-      File file = new File(rootFolder + name + dateString);
+      File file = new File(rootFolder + partition + dateString);
       return file;
    }
 
@@ -270,6 +304,14 @@ public class ZipArchiveManager implements IArchiveManager
          }
       }
       return FILENAME_PREFIX + (++maxIndex) + EXT;
+   }
+   
+   private String getBaseFileName(String fileName)
+   {
+      int lastIndex = fileName.lastIndexOf('.');
+      String[] parts = fileName.split("_");
+      String ext = fileName.substring(lastIndex);
+      return parts[0] + ext;
    }
 
    private boolean zip(File filesToZip[], File parentFoder,
@@ -303,7 +345,7 @@ public class ZipArchiveManager implements IArchiveManager
                   {
                      throw new Exception("Empty Input");
                   }
-                  out.putNextEntry(new ZipEntry(fileToZip.getName()));
+                  out.putNextEntry(new ZipEntry(getBaseFileName(fileToZip.getName())));
                   while (len > 0)
                   {
                      out.write(buffer, 0, len);
@@ -420,5 +462,6 @@ public class ZipArchiveManager implements IArchiveManager
          }
          return false;
       }
-   };
+   }
+
 }

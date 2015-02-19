@@ -1,10 +1,7 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.util.CollectionUtils;
 
@@ -157,39 +154,48 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          LOGGER.debug("START Import Operation " + operation.name());
       }
-
-      if (archive != null)
+      switch (operation)
       {
-         switch (operation)
-         {
-            case VALIDATE:
-               validate(sf);
-               result = importMetaData;
-               break;
-            case IMPORT:
-               result = importData(sf, null);
-               break;
-            case VALIDATE_AND_IMPORT:
-               result = validateAndImport(sf);
-               break;
-            default:
-               throw new IllegalArgumentException("No valid operation provided");
-         }
-         ;
-      }
-      else
-      {
-         if (LOGGER.isDebugEnabled())
-         {
-            LOGGER.debug("Received no data to import.");
-         }
-         result = 0;
-      }
+         case QUERY:
+            result = query(sf);
+            break;
+         case VALIDATE:
+            validate(sf);
+            result = importMetaData;
+            break;
+         case IMPORT:
+            result = importData(sf, null);
+            break;
+         case VALIDATE_AND_IMPORT:
+            result = validateAndImport(sf);
+            break;
+         default:
+            throw new IllegalArgumentException("No valid operation provided");
+      };
       if (LOGGER.isDebugEnabled())
       {
          LOGGER.debug("END Import " + operation.name());
       }
       return result;
+   }
+
+   private ArrayList<IArchive> query(ServiceFactory sf)
+   {
+      IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
+      ArrayList<IArchive> archives;
+      if (processInstanceOids != null)
+      {
+         archives = archiveManager.findArchives(processInstanceOids);
+      }
+      else if (fromDate != null && toDate != null)
+      {
+         archives = archiveManager.findArchives(fromDate, toDate);
+      }
+      else
+      {
+         archives = archiveManager.findArchives();
+      }
+      return archives;
    }
 
    private int validateAndImport(ServiceFactory sf)
@@ -257,13 +263,14 @@ public class ImportProcessesCommand implements ServiceCommand
       try
       {
          byte[] data;
-         if (archive.getModelData() == null)
+         byte[] modelData = archive.getModelData();
+         if (modelData == null)
          {
             data = archive.getData();
          }
          else
          {
-            data = archive.getModelData();
+            data = modelData;
          }
          dataByTable = ExportImportSupport.validateModel(data,
                importMetaData);

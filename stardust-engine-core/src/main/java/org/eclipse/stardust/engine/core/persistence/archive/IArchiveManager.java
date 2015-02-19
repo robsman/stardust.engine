@@ -1,7 +1,9 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public interface IArchiveManager
 {
@@ -12,7 +14,7 @@ public interface IArchiveManager
     * @param indexDate
     * @return Returns a handle to the place in the repository where the data must be written to
     */
-   public Serializable open(String partition, Date indexDate);
+   public Serializable open(Date indexDate);
 
    /**
     * Adds results to the repository location identified by key
@@ -38,5 +40,11 @@ public interface IArchiveManager
     * @return success indicator
     */
    public boolean close(Serializable key);
+
+   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids);
+
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate);
+
+   public ArrayList<IArchive> findArchives();
 
 }

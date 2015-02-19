@@ -310,7 +310,7 @@ public class ExportImportSupport
          reader.readByte();
          if (reader.getCurrentIndex() < rawData.length)
          {
-            return splitArrayByTables(reader);
+            return splitArrayByTables(reader, null);
          } 
          else
          {
@@ -335,7 +335,7 @@ public class ExportImportSupport
       {
          reader = new ByteArrayBlobReader(rawData);
          reader.nextBlob();
-         result = splitArrayByTables(reader);
+         result = splitArrayByTables(reader, null);
          return result;
       }
       finally
@@ -374,6 +374,12 @@ public class ExportImportSupport
             // initialized the initial performer attribute which is necessary upon
             // session flushing
             activity.prepareForImportFromArchive();
+         }
+         else if (p instanceof TransitionInstanceBean)
+         {
+            TransitionInstanceBean transitionInstance = (TransitionInstanceBean) p;
+            transitionInstance.prepareForImportFromArchive();
+
          }
       }
 
@@ -469,9 +475,12 @@ public class ExportImportSupport
       return blobBuilder.getBlob();
    }
    
-   private static Map<String, List<byte[]>> splitArrayByTables(ByteArrayBlobReader reader)
+   private static Map<String, List<byte[]>> splitArrayByTables(ByteArrayBlobReader reader,
+         Map<String, List<byte[]>> dataByTables)
    {
-      final Map<String, List<byte[]>> dataByTables = new HashMap<String, List<byte[]>>();
+      if (dataByTables == null){
+         dataByTables = new HashMap<String, List<byte[]>>();
+      }
       byte sectionMarker;
       while ((sectionMarker = reader.readByte()) != BlobBuilder.SECTION_MARKER_EOF)
       {
@@ -482,6 +491,10 @@ public class ExportImportSupport
          }
          readSection(reader, dataByTables);
       }
+      if (reader.getCurrentIndex() < reader.getBlob().length)
+      {
+         return splitArrayByTables(reader, dataByTables);
+      } 
       return dataByTables;
    }
 

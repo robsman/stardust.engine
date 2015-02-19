@@ -132,7 +132,7 @@ public class ImportCommand extends ConsoleCommand
 
          final List<IArchive> archives = findArchives(serviceFactory, fromDate, toDate, processOids);
          print("Starting Import for partition " + partitionId + ". Found " + archives.size()
-               + " to import.");
+               + " archives to import.");
          
          if (CollectionUtils.isNotEmpty(archives))
          {

@@ -18,8 +18,8 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementPurger;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementsVisitor;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -62,8 +62,6 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private Date toDate;
 
-   private final boolean purge;
-
    private ExportMetaData exportMetaData;
 
    private ExportResult exportResult;
@@ -75,11 +73,10 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, boolean purge, List<ExportResult> exportResults)
+         Date toDate, List<ExportResult> exportResults)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
-      this.purge = purge;
       this.processInstanceOids = processInstanceOids;
       this.modelOids = modelOids;
       this.fromDate = fromDate;
@@ -97,18 +94,18 @@ public class ExportProcessesCommand implements ServiceCommand
     *           Oids of process instances to export
     */
    public ExportProcessesCommand(Operation operation, List<Integer> modelOids,
-         Collection<Long> processInstanceOids, boolean purge)
+         Collection<Long> processInstanceOids)
    {
-      this(operation, null, modelOids, processInstanceOids, null, null, purge, null);
+      this(operation, null, modelOids, processInstanceOids, null, null, null);
    }
 
    /**
     * Use this constructor to export all processInstances
     */
-   public ExportProcessesCommand(Operation operation, boolean purge)
+   public ExportProcessesCommand(Operation operation)
    {
 
-      this(operation, null, null, null, null, null, purge, null);
+      this(operation, null, null, null, null, null, null);
    }
 
    /**
@@ -121,28 +118,30 @@ public class ExportProcessesCommand implements ServiceCommand
     * @param toDate
     *           includes processes with a termination time less or equal than toDate
     */
-   public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate,
-         boolean purge)
+   public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate)
    {
 
-      this(operation, null, null, null, fromDate, toDate, purge, null);
+      this(operation, null, null, null, fromDate, toDate, null);
    }
 
    /**
     * Use this constructor to export all processInstances or models for given
     * exportMetaData
     */
-   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
-         boolean purge)
+   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData)
    {
 
-      this(operation, exportMetaData, null, null, null, null, purge, null);
+      this(operation, exportMetaData, null, null, null, null, null);
    }
 
-   public ExportProcessesCommand(List<ExportResult> exportResults)
+   /**
+    * Use this constructor to archive or purge all processInstances for given
+    * exportResults
+    */
+   public ExportProcessesCommand(Operation operation, List<ExportResult> exportResults)
    {
 
-      this(Operation.ARCHIVE, null, null, null, null, null, false, exportResults);
+      this(operation, null, null, null, null, null, exportResults);
    }
 
    @Override
@@ -173,6 +172,9 @@ public class ExportProcessesCommand implements ServiceCommand
             exportBatch(session);
             result = exportResult;
             break;
+         case PURGE:
+            result = purge(session);
+            break;
          case ARCHIVE:
             result = archive();
             break;
@@ -186,13 +188,61 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
+   private int purge(Session session)
+   {
+      int result;
+      if (CollectionUtils.isNotEmpty(exportResults))
+      {
+         List<Long> allIds = new ArrayList<Long>();
+         for (ExportResult exportResult : exportResults)
+         {
+            allIds.addAll(exportResult.getAllProcessIds());
+         }
+         if (CollectionUtils.isNotEmpty(allIds))
+         {
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Purging " + allIds.size() + " processInstances");
+            }
+            if (exportResult == null)
+            {
+               exportResult = new ExportResult();
+            }
+            ProcessElementPurger purger = new ProcessElementPurger();;
+            ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(purger);
+            // purge processInstances
+            result = processVisitor.visitProcessInstances(allIds, session);
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("Exporting complete.");
+            }
+         }
+         else
+         {
+            result = 0;
+            if (LOGGER.isDebugEnabled())
+            {
+               LOGGER.debug("No processInstanceOids provided for purge");
+            }
+         }
+      }
+      else
+      {
+         result = 0;
+         if (LOGGER.isDebugEnabled())
+         {
+            LOGGER.debug("No ExportResults provided for purge");
+         }
+      }
+      return result;
+   }
+
    private Boolean archive()
    {
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       boolean success = true;
       if (CollectionUtils.isNotEmpty(exportResults))
       {
-         String partition = SecurityProperties.getPartition().getId();
          Set<Date> uniqueDates = new HashSet<Date>();
          for (ExportResult result : exportResults)
          {
@@ -205,7 +255,7 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          dateloop: for (Date date : uniqueDates)
          {
-            Serializable key = archiveManager.open(partition, date);
+            Serializable key = archiveManager.open(date);
             if (key == null)
             {
                success = false;
@@ -264,7 +314,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             exportResult = new ExportResult();
          }
-         ProcessElementExporter exporter = new ProcessElementExporter(exportResult, purge);
+         ProcessElementExporter exporter = new ProcessElementExporter(exportResult, false);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
@@ -488,6 +538,10 @@ public class ExportProcessesCommand implements ServiceCommand
        * processInstanceOids.
        */
       EXPORT_BATCH,
+      /**
+       * 
+       */
+      PURGE,
       /**
        * 
        */

@@ -91,6 +91,7 @@ import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
+import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
@@ -1574,6 +1575,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                trace.debug(this + ", committed.");
             }
+
          }
          finally
          {
@@ -1642,7 +1644,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          trace.debug(this + ", flushing!");
       }
-
+      SessionLifecycleUtils.getSessionLifecycleExtension().beforeSave(this);
 
       try
       {
@@ -2067,6 +2069,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
       }
+      SessionLifecycleUtils.getSessionLifecycleExtension().afterSave(this);
    }
 
    private void remove(AbstractCache externalCache, Persistent persistent)

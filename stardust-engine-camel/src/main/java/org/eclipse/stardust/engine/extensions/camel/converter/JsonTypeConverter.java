@@ -12,19 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
-
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.extensions.camel.converter.AbstractBpmTypeConverter.SDTConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
-
-import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.IdScriptableObject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -123,7 +118,7 @@ public class JsonTypeConverter
                Gson gson = gsonBuilder.create();
                String json = null;
 
-               if (dataMap instanceof NativeObject)
+               if (dataMap instanceof IdScriptableObject )
                {
                   json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap));
                }

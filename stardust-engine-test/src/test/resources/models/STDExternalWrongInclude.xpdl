@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="STDExternalWrongSchema" Name="STDExternalWrongSchema">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="STDExternalWrongImport" Name="STDExternalWrongImport">
 <PackageHeader>
 <XPDLVersion>2.1</XPDLVersion>
 <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -12,7 +12,7 @@
 <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
 <TypeDeclarations>
 <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="Parent" Name="Parent">
-<xpdl:ExternalReference location="/xsd/NotExistingSchema.xsd" xref="{http://www.infinity.com/bpm/model/PepperSimpleModel/Parent}Parent"/>
+<xpdl:ExternalReference location="/xsd/ParentWrongInclude.xsd" xref="{http://www.infinity.com/bpm/model/PepperSimpleModel/Parent}Parent"/>
 </xpdl:TypeDeclaration>
 </TypeDeclarations>
 <Participants>

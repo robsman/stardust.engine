@@ -32,9 +32,9 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 /**
  * /**
  * <p>
- * Tests if structured type definitions work as designed. Schema loading, internal,
- * external, xsd imports and xsd includes. They are all validated via model validation at
- * deployment time.
+ * Tests if structured type definitions work as designed focusing on,<br>
+ * external schema loading, xsd imports and xsd includes.<br>
+ * They are all validated via model validation at deployment time.
  * </p>
  *
  * @author Roland.Stamm
@@ -58,37 +58,58 @@ public class StructuredTypeDefinitionTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
-
    @Test
    public void testExternalSchemaValid()
    {
-         deploy("STDExternalValid");
+      deploy("STDExternalValid");
    }
 
    @Test
    public void testExternalSchemaNotFound()
    {
+      boolean errorOccured = false;
       try
       {
          deploy("STDExternalWrongSchema");
       }
       catch (DeploymentException e)
       {
-         assertDeploymentError("SDT01003", e);
+         assertDeploymentError("SDT01003", "NotExistingSchema.xsd", e);
+         errorOccured = true;
       }
+      Assert.assertTrue(errorOccured);
    }
 
    @Test
    public void testExternalSchemaViaImportNotFound()
    {
+      boolean errorOccured = false;
       try
       {
          deploy("STDExternalWrongImport");
       }
       catch (DeploymentException e)
       {
-         assertDeploymentError("SDT01003", e);
+         assertDeploymentError("SDT01003", "NotExistingImport.xsd", e);
+         errorOccured = true;
       }
+      Assert.assertTrue(errorOccured);
+   }
+
+   @Test
+   public void testExternalSchemaViaIncludeNotFound()
+   {
+      boolean errorOccured = false;
+      try
+      {
+         deploy("STDExternalWrongInclude");
+      }
+      catch (DeploymentException e)
+      {
+         assertDeploymentError("SDT01003", "NotExistingInclude.xsd", e);
+         errorOccured = true;
+      }
+      Assert.assertTrue(errorOccured);
    }
 
    private void deploy(String modelId)
@@ -97,7 +118,8 @@ public class StructuredTypeDefinitionTest
             new String[] {modelId});
    }
 
-   private void assertDeploymentError(String errorId, DeploymentException e)
+   private void assertDeploymentError(String errorId, String messageContains,
+         DeploymentException e)
    {
       boolean found = false;
       List<DeploymentInfo> infos = e.getInfos();
@@ -107,7 +129,8 @@ public class StructuredTypeDefinitionTest
          List<Inconsistency> errors = deploymentInfo.getErrors();
          for (Inconsistency inconsistency : errors)
          {
-            found |= errorId.equals(inconsistency.getErrorID());
+            found |= errorId.equals(inconsistency.getErrorID())
+                  && inconsistency.getMessage().contains(messageContains);
          }
       }
       if (!found)

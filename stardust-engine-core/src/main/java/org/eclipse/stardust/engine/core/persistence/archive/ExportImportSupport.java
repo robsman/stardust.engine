@@ -65,12 +65,21 @@ public class ExportImportSupport
       }
       return result;
    }
-
+   
+   public static byte[] addAll(final byte[] array1, final byte[] array2)
+   {
+      final byte[] joinedArray = new byte[array1.length + array2.length];
+      System.arraycopy(array1, 0, joinedArray, 0, array1.length);
+      System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
+      return joinedArray;
+   }
+   
    public static List<ExportMetaData> partition(ExportMetaData exportMetaData, int size)
    {
       List<ExportMetaData> result = new ArrayList<ExportMetaData>();
-      
-      List<List<Long>> batches = partition(new ArrayList<Long>(exportMetaData.getRootProcessInstanceOids()), size);
+
+      List<List<Long>> batches = partition(
+            new ArrayList<Long>(exportMetaData.getRootProcessInstanceOids()), size);
       for (List<Long> batch : batches)
       {
          HashMap<Long, ArrayList<Long>> part = new HashMap<Long, ArrayList<Long>>();
@@ -81,6 +90,69 @@ public class ExportImportSupport
          result.add(new ExportMetaData(exportMetaData.getModelOids(), part));
       }
       return result;
+   }
+
+   public static ExportResult merge(List<ExportResult> exportResults)
+   {
+      ExportResult exportResult;
+      if (CollectionUtils.isNotEmpty(exportResults))
+      {
+         Set<Date> uniqueDates = new HashSet<Date>();
+         for (ExportResult result : exportResults)
+         {
+            if (result == null)
+            {
+               LOGGER.warn("Received a null exportResult, continueing to the next");
+               continue;
+            }
+            uniqueDates.addAll(result.getDates());
+         }
+         byte[] modelData = null;
+         HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
+         HashMap<Date, List<Long>> processIds = new HashMap<Date, List<Long>>();
+         HashMap<Date, List<Integer>> processLengths = new HashMap<Date, List<Integer>>();
+         for (Date date : uniqueDates)
+         {
+            byte[] allData = resultsByDate.get(date);
+            List<Long> allProcessIds = processIds.get(date);
+            List<Integer> allProcessLengths = processLengths.get(date);
+            if (allData == null)
+            {
+               allData = new byte[]{};
+               allProcessIds = new ArrayList<Long>();
+               allProcessLengths = new ArrayList<Integer>();
+               processIds.put(date, allProcessIds);
+               processLengths.put(date, allProcessLengths);
+            }
+            for (ExportResult result : exportResults)
+            {
+               if (result == null)
+               {
+                  continue;
+               }
+               byte[] data = result.getResults(date);
+               // does this specific exportResult have data for this date
+               if (data != null)
+               {
+                  allData = addAll(allData, data);
+                  // new reference every time, reput everytime
+                  resultsByDate.put(date, allData);
+                  allProcessIds.addAll(result.getProcessIds(date));
+                  allProcessLengths.addAll(result.getProcessLengths(date));
+                  if (modelData == null)
+                  {
+                     modelData = result.getModelData();
+                  }
+               }
+            }
+         }
+         exportResult = new ExportResult(modelData, resultsByDate, processIds, processLengths);
+      }
+      else
+      {
+         exportResult = null;
+      }
+      return exportResult;
    }
 
    public static Date getIndexDateTime(Date date)
@@ -205,7 +277,7 @@ public class ExportImportSupport
     * @param classToRuntimeOidMap
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
-    * @return 
+    * @return
     * @return Map of tableNames to import and their corresponding byte[]
     */
    public static Map<String, List<byte[]>> validateModel(byte[] rawData,
@@ -259,7 +331,9 @@ public class ExportImportSupport
          // start transitions do not have a fqId, and always have a runtimeOid of -1
          // we need to add this special case to support this, so that this is not an
          // inconsistency when importing such transitions
-         importMetaData.addMappingForClass(TransitionBean.class, TransitionTokenBean.START_TRANSITION_RT_OID, TransitionTokenBean.START_TRANSITION_RT_OID);
+         importMetaData.addMappingForClass(TransitionBean.class,
+               TransitionTokenBean.START_TRANSITION_RT_OID,
+               TransitionTokenBean.START_TRANSITION_RT_OID);
 
          // model doesnt have an fqId so we explicitly write model id here
          // we have two start markers: 1 at start of id printing, and another before fqIds
@@ -275,7 +349,8 @@ public class ExportImportSupport
             Long importModelId = activeModelMap.get(modelId);
             if (importModelId != null)
             {
-               importMetaData.addMappingForClass(ModelBean.class, exportModelId, importModelId);
+               importMetaData.addMappingForClass(ModelBean.class, exportModelId,
+                     importModelId);
             }
             else
             {
@@ -286,8 +361,10 @@ public class ExportImportSupport
          }
 
          // transition token table has model 0 when transition is -1
-         importMetaData.addMappingForClass(ModelBean.class, TransitionTokenBean.START_TRANSITION_MODEL_OID, TransitionTokenBean.START_TRANSITION_MODEL_OID);
-         
+         importMetaData.addMappingForClass(ModelBean.class,
+               TransitionTokenBean.START_TRANSITION_MODEL_OID,
+               TransitionTokenBean.START_TRANSITION_MODEL_OID);
+
          while ((modelMarker = reader.readByte()) != BlobBuilder.MODEL_MARKER_END)
          {
             if (modelMarker != BlobBuilder.MODEL_MARKER_ELEMENT)
@@ -305,17 +382,18 @@ public class ExportImportSupport
                      "Invalid model being imported. IdentifiableElement " + key
                            + " not found in current model");
             }
-            importMetaData.addMappingForClass(identifiableElement.getClass(), oldId, modelManager.getRuntimeOid(identifiableElement));
+            importMetaData.addMappingForClass(identifiableElement.getClass(), oldId,
+                  modelManager.getRuntimeOid(identifiableElement));
          }
          reader.readByte();
          if (reader.getCurrentIndex() < rawData.length)
          {
             return splitArrayByTables(reader, null);
-         } 
+         }
          else
          {
             LOGGER.info("No Process Data in this file");
-            return new HashMap<String,List<byte[]>>();
+            return new HashMap<String, List<byte[]>>();
          }
       }
       finally
@@ -390,7 +468,6 @@ public class ExportImportSupport
       return count;
    }
 
-
    public static byte[] exportModels(List<Integer> modelOids)
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
@@ -399,17 +476,18 @@ public class ExportImportSupport
       for (Integer modelOid : modelOids)
       {
          IModel model = modelManager.findModel(modelOid);
-         
+
          List<IModel> usedModels = ModelRefBean.getUsedModels(model);
-         if (CollectionUtils.isNotEmpty(usedModels)){
+         if (CollectionUtils.isNotEmpty(usedModels))
+         {
             allModels.addAll(usedModels);
          }
-         
+
          allModels.add(model);
       }
       return exportModels(modelManager, allModels);
    }
-   
+
    public static byte[] exportModels()
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
@@ -418,7 +496,6 @@ public class ExportImportSupport
       List<IModel> activeModels = modelManager.findActiveModels();
       return exportModels(modelManager, activeModels);
    }
-
 
    public static Collection<Integer> getActiveModelOids()
    {
@@ -436,8 +513,9 @@ public class ExportImportSupport
       }
       return results;
    }
-   
-   private static byte[] exportModels(ModelManagerPartition modelManager, List<IModel> models)
+
+   private static byte[] exportModels(ModelManagerPartition modelManager,
+         List<IModel> models)
    {
       ByteArrayBlobBuilder blobBuilder = new ByteArrayBlobBuilder();
       blobBuilder.init(null);
@@ -474,11 +552,12 @@ public class ExportImportSupport
       blobBuilder.persistAndClose();
       return blobBuilder.getBlob();
    }
-   
-   private static Map<String, List<byte[]>> splitArrayByTables(ByteArrayBlobReader reader,
-         Map<String, List<byte[]>> dataByTables)
+
+   private static Map<String, List<byte[]>> splitArrayByTables(
+         ByteArrayBlobReader reader, Map<String, List<byte[]>> dataByTables)
    {
-      if (dataByTables == null){
+      if (dataByTables == null)
+      {
          dataByTables = new HashMap<String, List<byte[]>>();
       }
       byte sectionMarker;
@@ -494,7 +573,7 @@ public class ExportImportSupport
       if (reader.getCurrentIndex() < reader.getBlob().length)
       {
          return splitArrayByTables(reader, dataByTables);
-      } 
+      }
       return dataByTables;
    }
 

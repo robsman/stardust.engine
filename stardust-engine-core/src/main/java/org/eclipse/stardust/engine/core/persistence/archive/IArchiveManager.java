@@ -39,12 +39,14 @@ public interface IArchiveManager
     * @param results
     * @return success indicator
     */
-   public boolean close(Serializable key);
+   public boolean close(Serializable key, List<Long> processIds, List<Integer> processLengths);
 
    public ArrayList<IArchive> findArchives(List<Long> processInstanceOids);
 
    public ArrayList<IArchive> findArchives(Date fromDate, Date toDate);
 
    public ArrayList<IArchive> findArchives();
+
+   public boolean addIndex(Serializable key, String indexData);
 
 }

@@ -1,11 +1,16 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.io.IOUtils;
 
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 
@@ -19,9 +24,11 @@ public class ZipArchive implements IArchive, Serializable
 
    public static final int SIXTEEN_K = 16 * 1024;
 
-   private static final String FILENAME_MODEL = "model.dat";
-
-   private static final String FILENAME_DATA = "exportdata.dat";
+   public static final String FILENAME_MODEL = "model.dat";
+   
+   public static final String FILENAME_INDEX = "index.json";
+   
+   private List<Long> processInstanceOids = null;
 
    public ZipArchive(String absolutePath)
    {
@@ -35,11 +42,32 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public byte[] getData()
+   public List<Long> getProcessInstanceOids()
    {
-      return uncompressZipEntry(FILENAME_DATA);
+      if (processInstanceOids == null)
+      {
+         processInstanceOids = new ArrayList<Long>();
+      
+      }
+      return processInstanceOids;
+   }
+   
+   @Override
+   public byte[] getData(Long processInstanceOid)
+   {
+      if (processInstanceOids.contains(processInstanceOid))
+      {
+         return uncompressZipEntry(processInstanceOid + ZipArchiveManager.EXT_DAT);
+      }
+      return null;
    }
 
+   @Override
+   public byte[] getData()
+   {
+      return uncompressZipEntry(null);
+   }
+   
    @Override
    public byte[] getModelData()
    {
@@ -61,15 +89,40 @@ public class ZipArchive implements IArchive, Serializable
       try
       {
          zipFile = new ZipFile(absolutePath);
-         zipEntry = zipFile.getEntry(zipEntryName);
-         inputStream = zipFile.getInputStream(zipEntry);
-
-         bufferedInputStream = new BufferedInputStream(inputStream, SIXTEEN_K);
+         
+         List< ? extends ZipEntry> entries;
+         if(StringUtils.isNotEmpty(zipEntryName))
+         {
+            zipEntry = zipFile.getEntry(zipEntryName);
+         }
+         else
+         {
+            zipEntry = null;
+         }
+         if (zipEntry == null)
+         {
+            entries = EnumerationUtils.toList(zipFile.entries());
+         }
+         else
+         {
+            entries = Arrays.asList(zipEntry);
+         }
 
          bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream, SIXTEEN_K);
-
-         byte[] buffer = new byte[SIXTEEN_K];
-         IOUtils.copyLarge(bufferedInputStream, bufferedOutputStream, buffer);
+         for (ZipEntry entry : entries)
+         {
+            //if no zipEntryName is provided only unzip processes
+            if (StringUtils.isEmpty(zipEntryName) && (FILENAME_INDEX.equals(entry.getName()) || FILENAME_MODEL.equals(entry.getName())))
+            {
+               continue;
+            }
+            inputStream = zipFile.getInputStream(entry);
+   
+            bufferedInputStream = new BufferedInputStream(inputStream, SIXTEEN_K);
+   
+            byte[] buffer = new byte[SIXTEEN_K];
+            IOUtils.copyLarge(bufferedInputStream, bufferedOutputStream, buffer);
+         }
          bufferedOutputStream.close();
          result = byteArrayOutputStream.toByteArray();
       }

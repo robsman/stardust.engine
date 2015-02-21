@@ -14,6 +14,7 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
+import org.junit.Test;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -24,13 +25,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.sql.DataSource;
 
 import org.apache.log4j.Level;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
@@ -177,11 +181,11 @@ public class ArchiveTest
       assertNotNullRawData(rawDataB);
 
       int deleteCountA = (Integer) wsA
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawDataA)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawDataA));
       assertEquals(1, deleteCountA);
 
       int deleteCountB = (Integer) wsB
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawDataB)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawDataB));
       assertEquals(1, deleteCountB);
       
       ProcessInstances instancesA = qsA.getAllProcessInstances(pQuery);
@@ -276,7 +280,7 @@ public class ArchiveTest
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) wsA
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instancesA = qsA.getAllProcessInstances(pQuery);
@@ -372,7 +376,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(2, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -446,7 +450,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(2, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -521,7 +525,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -596,7 +600,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -709,7 +713,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -885,7 +889,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -978,7 +982,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, fromDate, toDate));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1124,7 +1128,7 @@ public class ArchiveTest
       assertNotNullRawData(result);
 
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(result)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, result));
       assertEquals(8, deleteCount);
       assertEquals(5, result.getDates().size());
       assertNotNull(result.getResults(scriptProcessDate));
@@ -1267,7 +1271,7 @@ public class ArchiveTest
       assertEquals(2, batches.size());
       assertEquals(2, datas.size());
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, datas));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, ExportImportSupport.merge(datas)));
       assertEquals(8, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1531,7 +1535,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1631,7 +1635,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1750,7 +1754,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1880,7 +1884,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1975,7 +1979,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, fromDate, toDate));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(4, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2064,7 +2068,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, fromDate, toDate));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(6, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2157,7 +2161,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(8, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2272,7 +2276,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(8, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2362,7 +2366,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(8, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2493,7 +2497,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2581,7 +2585,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2665,7 +2669,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(7, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2750,7 +2754,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(2, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2803,7 +2807,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -2997,7 +3001,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3062,7 +3066,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3151,7 +3155,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3449,7 +3453,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
@@ -3647,7 +3651,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
@@ -3746,7 +3750,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -3814,7 +3818,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -3888,7 +3892,7 @@ public class ArchiveTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids));
       assertNotNullRawData(rawData);
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, Arrays.asList(rawData)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, rawData));
       assertEquals(1, deleteCount);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -4432,6 +4436,20 @@ public class ArchiveTest
       public void setModelData(byte[] modelData)
       {
          this.modelData = modelData;
+      }
+
+      @Override
+      public byte[] getData(Long processInstanceOid)
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+
+      @Override
+      public List<Long> getProcessInstanceOids()
+      {
+         // TODO Auto-generated method stub
+         return null;
       }
    }
 }

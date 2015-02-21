@@ -66,14 +66,11 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private ExportResult exportResult;
 
-   // when archiving we may want to archive more than one exportResult at a time
-   private List<ExportResult> exportResults;
-
    private final Operation operation;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, List<ExportResult> exportResults)
+         Date toDate, ExportResult exportResult)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -81,7 +78,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.modelOids = modelOids;
       this.fromDate = fromDate;
       this.toDate = toDate;
-      this.exportResults = exportResults;
+      this.exportResult = exportResult;
    }
 
    /**
@@ -138,10 +135,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * Use this constructor to archive or purge all processInstances for given
     * exportResults
     */
-   public ExportProcessesCommand(Operation operation, List<ExportResult> exportResults)
+   public ExportProcessesCommand(Operation operation, ExportResult exportResult)
    {
 
-      this(operation, null, null, null, null, null, exportResults);
+      this(operation, null, null, null, null, null, exportResult);
    }
 
    @Override
@@ -191,18 +188,13 @@ public class ExportProcessesCommand implements ServiceCommand
    private int purge(Session session)
    {
       int result;
-      if (CollectionUtils.isNotEmpty(exportResults))
+      if (exportResult != null)
       {
-         List<Long> allIds = new ArrayList<Long>();
-         for (ExportResult exportResult : exportResults)
-         {
-            allIds.addAll(exportResult.getAllProcessIds());
-         }
-         if (CollectionUtils.isNotEmpty(allIds))
+         if (CollectionUtils.isNotEmpty(exportResult.getAllProcessIds()))
          {
             if (LOGGER.isDebugEnabled())
             {
-               LOGGER.debug("Purging " + allIds.size() + " processInstances");
+               LOGGER.debug("Purging " + exportResult.getAllProcessIds().size() + " processInstances");
             }
             if (exportResult == null)
             {
@@ -211,7 +203,7 @@ public class ExportProcessesCommand implements ServiceCommand
             ProcessElementPurger purger = new ProcessElementPurger();;
             ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(purger);
             // purge processInstances
-            result = processVisitor.visitProcessInstances(allIds, session);
+            result = processVisitor.visitProcessInstances(exportResult.getAllProcessIds(), session);
             if (LOGGER.isDebugEnabled())
             {
                LOGGER.debug("Exporting complete.");
@@ -241,19 +233,9 @@ public class ExportProcessesCommand implements ServiceCommand
    {
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       boolean success = true;
-      if (CollectionUtils.isNotEmpty(exportResults))
+      if (exportResult != null)
       {
-         Set<Date> uniqueDates = new HashSet<Date>();
-         for (ExportResult result : exportResults)
-         {
-            if (result == null)
-            {
-               LOGGER.warn("Received a null exportResult, continueing to the next");
-               continue;
-            }
-            uniqueDates.addAll(result.getDates());
-         }
-         dateloop: for (Date date : uniqueDates)
+         dateloop: for (Date date : exportResult.getDates())
          {
             Serializable key = archiveManager.open(date);
             if (key == null)
@@ -263,35 +245,33 @@ public class ExportProcessesCommand implements ServiceCommand
             }
             else
             {
-               boolean isModelSaved = false;
-               for (ExportResult result : exportResults)
+               byte[] data = exportResult.getResults(date);
+               success = archiveManager.add(key, data);
+               if (!success)
                {
-                  if (result == null)
+                  break dateloop;
+               }
+               if (success)
+               {
+                  success = archiveManager.addModel(key, exportResult.getModelData());
+                  if (!success)
                   {
-                     continue;
-                  }
-                  byte[] data = result.getResults(date);
-                  // does this specific exportResult have data for this date
-                  if (data != null)
-                  {
-                     success = archiveManager.add(key, data);
-                     if (!success)
-                     {
-                        break dateloop;
-                     }
-                     if (!isModelSaved)
-                     {
-                        success = archiveManager.addModel(key, result.getModelData());
-                        if (!success)
-                        {
-                           break dateloop;
-                        }
-                        isModelSaved = true;
-                     }
+                     break dateloop;
                   }
                }
+               if (success)
+               {
+                  success = archiveManager.addIndex(key, exportResult.getIndex(date));
+                  if (!success)
+                  {
+                     break dateloop;
+                  }
+               }
+               if (success)
+               {
+                  success = archiveManager.close(key, exportResult.getProcessIds(date), exportResult.getProcessLengths(date));
+               }
             }
-            success = archiveManager.close(key);
             if (!success)
             {
                break;

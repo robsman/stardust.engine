@@ -4409,8 +4409,11 @@ public class ArchiveTest
    {
 
       private byte[] data;
+      private Map<Long, byte[]> dataByProcess;
 
       private byte[] modelData;
+      
+      private ExportIndex exportIndex;
 
       @Override
       public String getName()
@@ -4441,15 +4444,28 @@ public class ArchiveTest
       @Override
       public byte[] getData(Long processInstanceOid)
       {
-         // TODO Auto-generated method stub
+         if (dataByProcess != null && dataByProcess.containsKey(processInstanceOid))
+         {
+            return dataByProcess.get(processInstanceOid);
+         }
          return null;
       }
 
       @Override
-      public List<Long> getProcessInstanceOids()
+      public ExportIndex getExportIndex()
       {
-         // TODO Auto-generated method stub
-         return null;
+         return exportIndex;
       }
+
+      public void setExportIndex(ExportIndex exportIndex)
+      {
+         this.exportIndex = exportIndex;
+      }
+
+      public void setDataByProcess(Map<Long, byte[]> dataByProcess)
+      {
+         this.dataByProcess = dataByProcess;
+      }
+      
    }
 }

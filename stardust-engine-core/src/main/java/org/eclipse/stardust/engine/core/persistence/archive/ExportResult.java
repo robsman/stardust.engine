@@ -20,26 +20,25 @@ public class ExportResult implements Serializable
    private transient final HashMap<Date, Map<Long, Map<Class, List<Persistent>>>> dateToPersistents = new HashMap<Date, Map<Long, Map<Class, List<Persistent>>>>();
 
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
-   
+
+   private final Map<Date, ExportIndex> exportIndexByDate;
+
    private List<Long> processInstanceOids;
 
    private boolean open = true;
 
    private byte[] modelData;
 
-   private HashMap<Date, List<Long>> processIds = new HashMap<Date, List<Long>>();
-   private HashMap<Date, List<Integer>> processLengths = new HashMap<Date, List<Integer>>();
-
-   public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate, HashMap<Date, List<Long>> processIds, HashMap<Date, List<Integer>> processLengths)
+   public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate,
+         HashMap<Date, ExportIndex> exportIndexByDate)
    {
       this.modelData = modelData;
       this.resultsByDate = resultsByDate;
-      this.processIds = processIds;
-      this.processLengths = processLengths;
+      this.exportIndexByDate = exportIndexByDate;
       processInstanceOids = new ArrayList<Long>();
-      for (Date date : processIds.keySet())
+      for (Date date : exportIndexByDate.keySet())
       {
-         processInstanceOids.addAll(processIds.get(date));
+         processInstanceOids.addAll(exportIndexByDate.get(date).getProcessInstanceOids());
       }
       this.open = false;
    }
@@ -47,6 +46,7 @@ public class ExportResult implements Serializable
    public ExportResult()
    {
       this.resultsByDate = new HashMap<Date, byte[]>();
+      this.exportIndexByDate = new HashMap<Date, ExportIndex>();
    }
 
    public void addResult(ProcessInstanceBean process)
@@ -65,7 +65,7 @@ public class ExportResult implements Serializable
          }
          if (indexDate == null)
          {
-            throw new IllegalStateException("ProcessInstanceOid " + process.getOID() 
+            throw new IllegalStateException("ProcessInstanceOid " + process.getOID()
                   + " - no start date for that process determined.");
          }
          piOidsToDate.put(process.getOID(), indexDate);
@@ -88,12 +88,16 @@ public class ExportResult implements Serializable
          }
          else
          {
-            throw new IllegalStateException("Persistent is linked to processInstanceOid " + processInstanceOid
-                  + " but that process is not in this batch. Possible incorrect processInstanceOid. Persistent Type: " + persistent.getClass());
+            throw new IllegalStateException(
+                  "Persistent is linked to processInstanceOid "
+                        + processInstanceOid
+                        + " but that process is not in this batch. Possible incorrect processInstanceOid. Persistent Type: "
+                        + persistent.getClass());
          }
          if (indexDate == null)
          {
-            throw new IllegalStateException("Persistent is linked to processInstanceOid " + processInstanceOid
+            throw new IllegalStateException("Persistent is linked to processInstanceOid "
+                  + processInstanceOid
                   + " but no start date for that process determined.");
          }
          Map<Long, Map<Class, List<Persistent>>> processPersistentByTypeMap = dateToPersistents
@@ -103,7 +107,8 @@ public class ExportResult implements Serializable
             processPersistentByTypeMap = new HashMap<Long, Map<Class, List<Persistent>>>();
             dateToPersistents.put(indexDate, processPersistentByTypeMap);
          }
-         Map<Class, List<Persistent>> persistentByTypeMap = processPersistentByTypeMap.get(processInstanceOid);
+         Map<Class, List<Persistent>> persistentByTypeMap = processPersistentByTypeMap
+               .get(processInstanceOid);
          if (persistentByTypeMap == null)
          {
             persistentByTypeMap = new HashMap<Class, List<Persistent>>();
@@ -129,15 +134,16 @@ public class ExportResult implements Serializable
       {
          for (Date indexDate : dateToPersistents.keySet())
          {
-            
+
             Map<Long, Map<Class, List<Persistent>>> processPersistentByTypeMap = dateToPersistents
                   .get(indexDate);
-            byte[] result = new byte[]{};
+            byte[] result = new byte[] {};
             for (Long processInstanceOid : processPersistentByTypeMap.keySet())
             {
                ByteArrayBlobBuilder blobBuilder = new ByteArrayBlobBuilder();
                blobBuilder.init(null);
-               Map<Class, List<Persistent>> persistentsByClass = processPersistentByTypeMap.get(processInstanceOid);
+               Map<Class, List<Persistent>> persistentsByClass = processPersistentByTypeMap
+                     .get(processInstanceOid);
                for (Class type : persistentsByClass.keySet())
                {
                   TypeDescriptor td = TypeDescriptor.get(type);
@@ -146,17 +152,14 @@ public class ExportResult implements Serializable
                }
                blobBuilder.persistAndClose();
                byte[] processData = blobBuilder.getBlob();
-               List<Long> processIdsForDate = processIds.get(indexDate);
-               List<Integer> processLengthsForDate = processLengths.get(indexDate);
-               if (processIdsForDate == null)
+               ExportIndex exportIndex = exportIndexByDate.get(indexDate);
+               if (exportIndex == null)
                {
-                  processIdsForDate = new ArrayList<Long>();
-                  processLengthsForDate = new ArrayList<Integer>();
-                  processIds.put(indexDate, processIdsForDate);
-                  processLengths.put(indexDate, processLengthsForDate);
+                  exportIndex = new ExportIndex();
+                  exportIndexByDate.put(indexDate, exportIndex);
                }
-               processIdsForDate.add(processInstanceOid);
-               processLengthsForDate.add(processData.length);
+               exportIndex.getProcessInstanceOids().add(processInstanceOid);
+               exportIndex.getProcessLengths().add(processData.length);
                result = ExportImportSupport.addAll(result, processData);
             }
             resultsByDate.put(indexDate, result);
@@ -182,27 +185,17 @@ public class ExportResult implements Serializable
       byte[] results = resultsByDate.get(indexDate);
       return results;
    }
-   
-   public List<Integer> getProcessLengths(Date startDate)
+
+   public ExportIndex getExportIndex(Date startDate)
    {
       if (open)
       {
          throw new IllegalStateException("ExportResult is open. Close it first.");
       }
       Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
-      return processLengths.get(indexDate);
+      return exportIndexByDate.get(indexDate);
    }
 
-   public List<Long> getProcessIds(Date startDate)
-   {
-      if (open)
-      {
-         throw new IllegalStateException("ExportResult is open. Close it first.");
-      }
-      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
-      return processIds.get(indexDate);
-   }
-   
    public boolean hasModelData()
    {
       return modelData != null;
@@ -230,11 +223,6 @@ public class ExportResult implements Serializable
          throw new IllegalStateException("ExportResult is open. Close it first.");
       }
       return processInstanceOids;
-   }
-
-   public String getIndex(Date date)
-   {
-      return getProcessIds(date).toString();
    }
 
 }

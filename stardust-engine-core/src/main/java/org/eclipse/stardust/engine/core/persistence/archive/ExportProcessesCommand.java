@@ -5,6 +5,9 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.FilterAndTerm;
@@ -259,9 +262,13 @@ public class ExportProcessesCommand implements ServiceCommand
                      break dateloop;
                   }
                }
+               ExportIndex exportIndex = exportResult.getExportIndex(date);
                if (success)
                {
-                  success = archiveManager.addIndex(key, exportResult.getIndex(date));
+                  GsonBuilder gsonBuilder = new GsonBuilder();
+                  gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+                  Gson gson = gsonBuilder.create();
+                  success = archiveManager.addIndex(key, gson.toJson(exportIndex));
                   if (!success)
                   {
                      break dateloop;
@@ -269,7 +276,7 @@ public class ExportProcessesCommand implements ServiceCommand
                }
                if (success)
                {
-                  success = archiveManager.close(key, exportResult.getProcessIds(date), exportResult.getProcessLengths(date));
+                  success = archiveManager.close(key, exportIndex);
                }
             }
             if (!success)

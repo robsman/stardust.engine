@@ -1,7 +1,6 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -9,6 +8,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.io.IOUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -28,8 +30,8 @@ public class ZipArchive implements IArchive, Serializable
    
    public static final String FILENAME_INDEX = "index.json";
    
-   private List<Long> processInstanceOids = null;
-
+   private ExportIndex exportIndex = null;
+   
    public ZipArchive(String absolutePath)
    {
       this.absolutePath = absolutePath;
@@ -42,20 +44,24 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public List<Long> getProcessInstanceOids()
+   public ExportIndex getExportIndex()
    {
-      if (processInstanceOids == null)
+      if (exportIndex == null)
       {
-         processInstanceOids = new ArrayList<Long>();
-      
+         GsonBuilder gsonBuilder = new GsonBuilder();
+         gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+         Gson gson = gsonBuilder.create();
+         byte[] jsonEntry = uncompressZipEntry(FILENAME_INDEX);
+         
+         exportIndex = gson.fromJson(new String(jsonEntry), ExportIndex.class);
       }
-      return processInstanceOids;
+      return exportIndex;
    }
    
    @Override
    public byte[] getData(Long processInstanceOid)
    {
-      if (processInstanceOids.contains(processInstanceOid))
+      if (getExportIndex().getProcessInstanceOids().contains(processInstanceOid))
       {
          return uncompressZipEntry(processInstanceOid + ZipArchiveManager.EXT_DAT);
       }

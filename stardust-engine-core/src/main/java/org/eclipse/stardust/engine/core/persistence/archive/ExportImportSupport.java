@@ -109,20 +109,16 @@ public class ExportImportSupport
          }
          byte[] modelData = null;
          HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
-         HashMap<Date, List<Long>> processIds = new HashMap<Date, List<Long>>();
-         HashMap<Date, List<Integer>> processLengths = new HashMap<Date, List<Integer>>();
+         HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          for (Date date : uniqueDates)
          {
             byte[] allData = resultsByDate.get(date);
-            List<Long> allProcessIds = processIds.get(date);
-            List<Integer> allProcessLengths = processLengths.get(date);
+            ExportIndex index = indexByDate.get(date);
             if (allData == null)
             {
                allData = new byte[]{};
-               allProcessIds = new ArrayList<Long>();
-               allProcessLengths = new ArrayList<Integer>();
-               processIds.put(date, allProcessIds);
-               processLengths.put(date, allProcessLengths);
+               index = new ExportIndex();
+               indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
             {
@@ -135,10 +131,11 @@ public class ExportImportSupport
                if (data != null)
                {
                   allData = addAll(allData, data);
-                  // new reference every time, reput everytime
+                  // new reference every time, re-put everytime
                   resultsByDate.put(date, allData);
-                  allProcessIds.addAll(result.getProcessIds(date));
-                  allProcessLengths.addAll(result.getProcessLengths(date));
+                  
+                  index.getProcessInstanceOids().addAll(result.getExportIndex(date).getProcessInstanceOids());
+                  index.getProcessLengths().addAll(result.getExportIndex(date).getProcessLengths());
                   if (modelData == null)
                   {
                      modelData = result.getModelData();
@@ -146,7 +143,7 @@ public class ExportImportSupport
                }
             }
          }
-         exportResult = new ExportResult(modelData, resultsByDate, processIds, processLengths);
+         exportResult = new ExportResult(modelData, resultsByDate, indexByDate);
       }
       else
       {

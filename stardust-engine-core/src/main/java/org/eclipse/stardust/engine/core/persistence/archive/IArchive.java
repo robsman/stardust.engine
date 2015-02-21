@@ -1,6 +1,5 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
-import java.util.List;
 
 public interface IArchive
 {
@@ -27,9 +26,9 @@ public interface IArchive
    public byte[] getModelData();
 
    /**
-    * Returns all processInstanceOids that is in this archive
+    * Returns ExportIndex for this archive
     * @return
     */
-   public List<Long> getProcessInstanceOids();
+   public ExportIndex getExportIndex();
 
 }

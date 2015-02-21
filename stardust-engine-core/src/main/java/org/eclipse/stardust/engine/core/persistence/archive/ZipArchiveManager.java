@@ -274,29 +274,28 @@ public class ZipArchiveManager implements IArchiveManager
    }
 
    @Override
-   public boolean close(Serializable key, List<Long> processIds,
-         List<Integer> processLengths)
+   public boolean close(Serializable key, ExportIndex exportIndex)
    {
       File dataFile = (File) key;
       File dataFolder = dataFile.getParentFile();
-      int exportIndex = getIndex(key);
+      int index = getIndex(key);
       boolean success;
-      ExportFilenameFilter filter = new ExportFilenameFilter(exportIndex);
+      ExportFilenameFilter filter = new ExportFilenameFilter(index);
 
       String[] filesToZip = dataFolder.list(filter);
       success = zip(filesToZip, dataFolder.getAbsolutePath(), FILENAME_ZIP_PREFIX
-            + exportIndex, processIds, processLengths);
+            + index, exportIndex.getProcessInstanceOids(), exportIndex.getProcessLengths());
       if (!success)
       {
          LOGGER.error("Error creating Zipped archive for export: " + dataFolder.getPath()
-               + " export index: " + exportIndex);
+               + " export index: " + index);
       }
       else
       {
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Zip file created for export: " + dataFolder.getPath()
-                  + " export index: " + exportIndex);
+                  + " export index: " + index);
          }
       }
       return success;

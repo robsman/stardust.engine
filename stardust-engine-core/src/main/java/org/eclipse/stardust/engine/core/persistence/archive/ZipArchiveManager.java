@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.*;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.Deflater;
@@ -9,7 +10,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.activemq.util.ByteArrayInputStream;
-import org.apache.commons.io.FileUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -41,6 +41,8 @@ public class ZipArchiveManager implements IArchiveManager
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
+   private final ZipFileFilter zipFileFilter = new ZipFileFilter();
+
    public static final int BUFFER_SIZE = 1024 * 16;
 
    private ZipArchiveManager(String rootFolder, String folderFormat)
@@ -67,28 +69,76 @@ public class ZipArchiveManager implements IArchiveManager
    @Override
    public ArrayList<IArchive> findArchives(List<Long> processInstanceOids)
    {
-      // TODO Auto-generated method stub
-      return findArchives();
+      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      ArrayList<IArchive> unfilteredArchives = findArchives();
+      Set<Long> searchItems = new HashSet<Long>();
+      searchItems.addAll(processInstanceOids);
+      Set<Long> found = new HashSet<Long>();
+      for (IArchive archive : unfilteredArchives)
+      {
+         List<Long> archivePIs = archive.getExportIndex().getProcessInstanceOids();
+         for (Long processInstanceOid : searchItems)
+         {
+            if (archivePIs.contains(processInstanceOid))
+            {
+               if (!archives.contains(archive))
+               {
+                  archives.add(archive);
+               }
+               found.add(processInstanceOid);
+            }
+         }
+         searchItems.removeAll(found);
+         found.clear();
+         if (searchItems.isEmpty())
+         {
+            break;
+         }
+      }
+      return archives;
    }
 
    @Override
    public ArrayList<IArchive> findArchives(Date fromDate, Date toDate)
    {
-      // TODO Auto-generated method stub
-      return findArchives();
+      Date fromIndex = ExportImportSupport.getIndexDateTime(fromDate);
+      Date toIndex = ExportImportSupport.getIndexDateTime(toDate);
+      final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
+      
+      String partitionFolderName = getPartitionFolderName();
+      List<String> allZipFiles = findZipFiles();
+      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      try
+      {
+         for (String filePath : allZipFiles)
+         {
+            String name = filePath.substring(partitionFolderName.length(),
+                  filePath.length());
+            name = name.substring(0, name.lastIndexOf(File.separatorChar));
+
+            Date folderDate = dateFormat.parse(name);
+            if (fromIndex.compareTo(folderDate) < 1 && toIndex.compareTo(folderDate) > -1)
+            {
+               archives.add(new ZipArchive(filePath));
+            }
+         }
+      }
+      catch (ParseException e)
+      {
+         LOGGER.error("Failed finding archives.", e);
+      }
+      return archives;
+
    }
 
    @Override
    public ArrayList<IArchive> findArchives()
    {
-      String partition = SecurityProperties.getPartition().getId();
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      File directory = new File(rootFolder + partition);
-      Collection<File> allZipFiles = FileUtils.listFiles(directory, new String[] {"zip"},
-            true);
-      for (File f : allZipFiles)
+      List<String> allZipFiles = findZipFiles();
+      for (String filePath : allZipFiles)
       {
-         archives.add(new ZipArchive(f.getAbsolutePath()));
+         archives.add(new ZipArchive(filePath));
       }
       return archives;
    }
@@ -283,8 +333,9 @@ public class ZipArchiveManager implements IArchiveManager
       ExportFilenameFilter filter = new ExportFilenameFilter(index);
 
       String[] filesToZip = dataFolder.list(filter);
-      success = zip(filesToZip, dataFolder.getAbsolutePath(), FILENAME_ZIP_PREFIX
-            + index, exportIndex.getProcessInstanceOids(), exportIndex.getProcessLengths());
+      success = zip(filesToZip, dataFolder.getAbsolutePath(),
+            FILENAME_ZIP_PREFIX + index, exportIndex.getProcessInstanceOids(),
+            exportIndex.getProcessLengths());
       if (!success)
       {
          LOGGER.error("Error creating Zipped archive for export: " + dataFolder.getPath()
@@ -313,11 +364,16 @@ public class ZipArchiveManager implements IArchiveManager
 
    private File getFolder(Date date)
    {
-      String partition = SecurityProperties.getPartition().getId();
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
       String dateString = dateFormat.format(date);
-      File file = new File(rootFolder + partition + dateString);
+      File file = new File(getPartitionFolderName() + dateString);
       return file;
+   }
+
+   private String getPartitionFolderName()
+   {
+      String partition = SecurityProperties.getPartition().getId();
+      return rootFolder + partition;
    }
 
    private String getUniqueFileName(File dataFolder)
@@ -466,6 +522,84 @@ public class ZipArchiveManager implements IArchiveManager
       return success;
    }
 
+   
+   private List<String> findZipFiles()
+   {
+      File directory = new File(getPartitionFolderName());
+      ArrayList<String> allZipFiles = new ArrayList<String>();
+      findZipFiles(allZipFiles, directory);
+      return allZipFiles;
+   }
+   
+   private void findZipFiles(List<String> files, File directory)
+   {
+      File[] found = directory.listFiles(zipFileFilter);
+
+      if (found != null)
+      {
+         for (File file : found)
+         {
+            if (file.isDirectory())
+            {
+               findZipFiles(files, file);
+            }
+            else
+            {
+               files.add(file.getAbsolutePath());
+            }
+         }
+      }
+   }
+
+   private void writeByteArrayToFile(File file, byte[] data) throws IOException
+   {
+
+      byte[] buf = new byte[BUFFER_SIZE];
+      int bytesRead = 0;
+      BufferedOutputStream bos = null;
+      BufferedInputStream bis = null;
+      try
+      {
+
+         bis = new BufferedInputStream(new ByteArrayInputStream(data), BUFFER_SIZE);
+         bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
+
+         while ((bytesRead = bis.read(buf, 0, BUFFER_SIZE)) != -1)
+         {
+            bos.write(buf, 0, bytesRead);
+         }
+
+      }
+      catch (IOException e)
+      {
+         throw e;
+      }
+      finally
+      {
+         if (bos != null)
+         {
+            bos.close();
+         }
+         if (bis != null)
+         {
+            bis.close();
+         }
+      }
+   }
+
+   private class ZipFileFilter implements FileFilter
+   {
+
+      public ZipFileFilter()
+      {}
+
+      @Override
+      public boolean accept(File file)
+      {
+         return file.isDirectory() || file.getName().endsWith(ZIP);
+      }
+   }
+
    private class ExportFilenameFilter implements FilenameFilter
    {
       private final int index;
@@ -522,39 +656,4 @@ public class ZipArchiveManager implements IArchiveManager
       }
    }
 
-   private void writeByteArrayToFile(File file, byte[] data) throws IOException
-   {
-
-      byte[] buf = new byte[BUFFER_SIZE];
-      int bytesRead = 0;
-      BufferedOutputStream bos = null;
-      BufferedInputStream bis = null;
-      try
-      {
-
-         bis = new BufferedInputStream(new ByteArrayInputStream(data), BUFFER_SIZE);
-         bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
-
-         while ((bytesRead = bis.read(buf, 0, BUFFER_SIZE)) != -1)
-         {
-            bos.write(buf, 0, bytesRead);
-         }
-
-      }
-      catch (IOException e)
-      {
-         throw e;
-      }
-      finally
-      {
-         if (bos != null)
-         {
-            bos.close();
-         }
-         if (bis != null)
-         {
-            bis.close();
-         }
-      }
-   }
 }

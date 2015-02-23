@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *            A participant is a workflow element which performs manual or interactive activities.
  * 	       
  * 
- * <p>Java class for ModelParticipant complex type.
+ * <p>Java-Klasse für ModelParticipant complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelParticipant">
@@ -58,7 +58,7 @@ public class ModelParticipantXto
     protected OrganizationsXto allSuperOrganizations;
 
     /**
-     * Gets the value of the departmentScoped property.
+     * Ruft den Wert der departmentScoped-Eigenschaft ab.
      * 
      */
     public boolean isDepartmentScoped() {
@@ -66,7 +66,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Sets the value of the departmentScoped property.
+     * Legt den Wert der departmentScoped-Eigenschaft fest.
      * 
      */
     public void setDepartmentScoped(boolean value) {
@@ -74,7 +74,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Gets the value of the definesDepartmentScope property.
+     * Ruft den Wert der definesDepartmentScope-Eigenschaft ab.
      * 
      */
     public boolean isDefinesDepartmentScope() {
@@ -82,7 +82,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Sets the value of the definesDepartmentScope property.
+     * Legt den Wert der definesDepartmentScope-Eigenschaft fest.
      * 
      */
     public void setDefinesDepartmentScope(boolean value) {
@@ -90,7 +90,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Gets the value of the department property.
+     * Ruft den Wert der department-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -102,7 +102,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Sets the value of the department property.
+     * Legt den Wert der department-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -114,7 +114,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Gets the value of the runtimeElementOid property.
+     * Ruft den Wert der runtimeElementOid-Eigenschaft ab.
      * 
      */
     public long getRuntimeElementOid() {
@@ -122,7 +122,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Sets the value of the runtimeElementOid property.
+     * Legt den Wert der runtimeElementOid-Eigenschaft fest.
      * 
      */
     public void setRuntimeElementOid(long value) {
@@ -130,7 +130,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Gets the value of the allSuperOrganizations property.
+     * Ruft den Wert der allSuperOrganizations-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -142,7 +142,7 @@ public class ModelParticipantXto
     }
 
     /**
-     * Sets the value of the allSuperOrganizations property.
+     * Legt den Wert der allSuperOrganizations-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Represents the state of a folder.
  * 			
  * 
- * <p>Java class for Folder complex type.
+ * <p>Java-Klasse für Folder complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Folder">
@@ -62,7 +62,7 @@ public class FolderXto
     protected FoldersXto folders;
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -74,7 +74,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -86,7 +86,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the path property.
+     * Ruft den Wert der path-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -98,7 +98,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the path property.
+     * Legt den Wert der path-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -110,7 +110,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the levelOfDetail property.
+     * Ruft den Wert der levelOfDetail-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -122,7 +122,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the levelOfDetail property.
+     * Legt den Wert der levelOfDetail-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -134,7 +134,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the documentCount property.
+     * Ruft den Wert der documentCount-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -146,7 +146,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the documentCount property.
+     * Legt den Wert der documentCount-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -158,7 +158,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the documents property.
+     * Ruft den Wert der documents-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -170,7 +170,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the documents property.
+     * Legt den Wert der documents-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -182,7 +182,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the folderCount property.
+     * Ruft den Wert der folderCount-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -194,7 +194,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the folderCount property.
+     * Legt den Wert der folderCount-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -206,7 +206,7 @@ public class FolderXto
     }
 
     /**
-     * Gets the value of the folders property.
+     * Ruft den Wert der folders-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -218,7 +218,7 @@ public class FolderXto
     }
 
     /**
-     * Sets the value of the folders property.
+     * Legt den Wert der folders-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

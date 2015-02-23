@@ -15,9 +15,9 @@ import org.eclipse.stardust.common.Direction;
  * 			The DataFlow defines the mapping between an activity and a data.
  * 			
  * 
- * <p>Java class for DataFlow complex type.
+ * <p>Java-Klasse für DataFlow complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DataFlow">
@@ -62,7 +62,7 @@ public class DataFlowXto
     @XmlElement(required = true)
     protected QName type;
     @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlJavaTypeAdapter(Adapter2 .class)
     protected Direction direction;
     @XmlElement(required = true)
     protected String activityId;
@@ -80,7 +80,7 @@ public class DataFlowXto
     protected String mappedJavaType;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -92,7 +92,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -104,7 +104,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the direction property.
+     * Ruft den Wert der direction-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -116,7 +116,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the direction property.
+     * Legt den Wert der direction-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -128,7 +128,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the activityId property.
+     * Ruft den Wert der activityId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -140,7 +140,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the activityId property.
+     * Legt den Wert der activityId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -152,7 +152,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the processDefinitionId property.
+     * Ruft den Wert der processDefinitionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -164,7 +164,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the processDefinitionId property.
+     * Legt den Wert der processDefinitionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -176,7 +176,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the context property.
+     * Ruft den Wert der context-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -188,7 +188,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the context property.
+     * Legt den Wert der context-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -200,7 +200,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the dataId property.
+     * Ruft den Wert der dataId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -212,7 +212,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the dataId property.
+     * Legt den Wert der dataId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -224,7 +224,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the dataPath property.
+     * Ruft den Wert der dataPath-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -236,7 +236,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the dataPath property.
+     * Legt den Wert der dataPath-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -248,7 +248,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the applicationAccessPointId property.
+     * Ruft den Wert der applicationAccessPointId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -260,7 +260,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the applicationAccessPointId property.
+     * Legt den Wert der applicationAccessPointId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -272,7 +272,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the applicationPath property.
+     * Ruft den Wert der applicationPath-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -284,7 +284,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the applicationPath property.
+     * Legt den Wert der applicationPath-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -296,7 +296,7 @@ public class DataFlowXto
     }
 
     /**
-     * Gets the value of the mappedJavaType property.
+     * Ruft den Wert der mappedJavaType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -308,7 +308,7 @@ public class DataFlowXto
     }
 
     /**
-     * Sets the value of the mappedJavaType property.
+     * Legt den Wert der mappedJavaType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

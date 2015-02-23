@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				model elements in the process model RuntimePermissions can be set via the public API.
  * 			
  * 
- * <p>Java class for RuntimePermissions complex type.
+ * <p>Java-Klasse für RuntimePermissions complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RuntimePermissions">
@@ -41,7 +41,7 @@ public class RuntimePermissionsXto {
     protected RuntimePermissionsMapXto runtimePermissionsMap;
 
     /**
-     * Gets the value of the runtimePermissionsMap property.
+     * Ruft den Wert der runtimePermissionsMap-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -53,7 +53,7 @@ public class RuntimePermissionsXto {
     }
 
     /**
-     * Sets the value of the runtimePermissionsMap property.
+     * Legt den Wert der runtimePermissionsMap-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

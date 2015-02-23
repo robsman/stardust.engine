@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Holds basic information of a document.
  * 			
  * 
- * <p>Java class for DocumentInfo complex type.
+ * <p>Java-Klasse für DocumentInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DocumentInfo">
@@ -49,7 +49,7 @@ public class DocumentInfoXto
     protected DocumentTypeXto documentType;
 
     /**
-     * Gets the value of the contentType property.
+     * Ruft den Wert der contentType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -61,7 +61,7 @@ public class DocumentInfoXto
     }
 
     /**
-     * Sets the value of the contentType property.
+     * Legt den Wert der contentType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -73,7 +73,7 @@ public class DocumentInfoXto
     }
 
     /**
-     * Gets the value of the documentType property.
+     * Ruft den Wert der documentType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -85,7 +85,7 @@ public class DocumentInfoXto
     }
 
     /**
-     * Sets the value of the documentType property.
+     * Legt den Wert der documentType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

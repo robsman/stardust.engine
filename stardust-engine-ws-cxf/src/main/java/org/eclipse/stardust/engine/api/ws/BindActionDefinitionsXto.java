@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	        Contains all the bind actions registered on the event handler.
  * 	        
  * 
- * <p>Java class for BindActionDefinitions complex type.
+ * <p>Java-Klasse für BindActionDefinitions complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="BindActionDefinitions">

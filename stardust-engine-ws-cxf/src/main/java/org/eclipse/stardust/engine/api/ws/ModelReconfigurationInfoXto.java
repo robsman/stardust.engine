@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				e.g. model deployment, configuration variable modification.
  * 			
  * 
- * <p>Java class for ModelReconfigurationInfo complex type.
+ * <p>Java-Klasse für ModelReconfigurationInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelReconfigurationInfo">
@@ -53,7 +53,7 @@ public class ModelReconfigurationInfoXto {
     protected List<InconsistencyXto> warnings;
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public int getModelOid() {
@@ -61,7 +61,7 @@ public class ModelReconfigurationInfoXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(int value) {
@@ -69,7 +69,7 @@ public class ModelReconfigurationInfoXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -81,7 +81,7 @@ public class ModelReconfigurationInfoXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			This does not include document content.
  * 			
  * 
- * <p>Java class for Document complex type.
+ * <p>Java-Klasse für Document complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Document">
@@ -77,7 +77,7 @@ public class DocumentXto
     protected String encoding;
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -89,7 +89,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -101,7 +101,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the path property.
+     * Ruft den Wert der path-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -113,7 +113,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the path property.
+     * Legt den Wert der path-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -125,7 +125,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the size property.
+     * Ruft den Wert der size-Eigenschaft ab.
      * 
      */
     public long getSize() {
@@ -133,7 +133,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the size property.
+     * Legt den Wert der size-Eigenschaft fest.
      * 
      */
     public void setSize(long value) {
@@ -141,7 +141,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the revisionId property.
+     * Ruft den Wert der revisionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -153,7 +153,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the revisionId property.
+     * Legt den Wert der revisionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -165,7 +165,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the revisionName property.
+     * Ruft den Wert der revisionName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -177,7 +177,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the revisionName property.
+     * Legt den Wert der revisionName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -189,7 +189,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the revisionComment property.
+     * Ruft den Wert der revisionComment-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -201,7 +201,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the revisionComment property.
+     * Legt den Wert der revisionComment-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -213,7 +213,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the versionLabels property.
+     * Ruft den Wert der versionLabels-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -225,7 +225,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the versionLabels property.
+     * Legt den Wert der versionLabels-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -237,7 +237,7 @@ public class DocumentXto
     }
 
     /**
-     * Gets the value of the encoding property.
+     * Ruft den Wert der encoding-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -249,7 +249,7 @@ public class DocumentXto
     }
 
     /**
-     * Sets the value of the encoding property.
+     * Legt den Wert der encoding-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -262,9 +262,9 @@ public class DocumentXto
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>

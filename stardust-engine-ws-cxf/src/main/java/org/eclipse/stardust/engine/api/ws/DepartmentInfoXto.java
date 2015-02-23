@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information used to identify a department.
  * 	        
  * 
- * <p>Java class for DepartmentInfo complex type.
+ * <p>Java-Klasse für DepartmentInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DepartmentInfo">
@@ -54,7 +54,7 @@ public class DepartmentInfoXto {
     protected long runtimeOrganizationOid;
 
     /**
-     * Gets the value of the oid property.
+     * Ruft den Wert der oid-Eigenschaft ab.
      * 
      */
     public long getOid() {
@@ -62,7 +62,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Sets the value of the oid property.
+     * Legt den Wert der oid-Eigenschaft fest.
      * 
      */
     public void setOid(long value) {
@@ -70,7 +70,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -82,7 +82,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -94,7 +94,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -106,7 +106,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -118,7 +118,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Gets the value of the runtimeOrganizationOid property.
+     * Ruft den Wert der runtimeOrganizationOid-Eigenschaft ab.
      * 
      */
     public long getRuntimeOrganizationOid() {
@@ -126,7 +126,7 @@ public class DepartmentInfoXto {
     }
 
     /**
-     * Sets the value of the runtimeOrganizationOid property.
+     * Legt den Wert der runtimeOrganizationOid-Eigenschaft fest.
      * 
      */
     public void setRuntimeOrganizationOid(long value) {

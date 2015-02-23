@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				information like name, defaultValue, description
  * 			
  * 
- * <p>Java class for ConfigurationVariable complex type.
+ * <p>Java-Klasse für ConfigurationVariable complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ConfigurationVariable">
@@ -60,7 +60,7 @@ public class ConfigurationVariableXto {
     protected String type;
 
     /**
-     * Gets the value of the value property.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -72,7 +72,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the value property.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -84,7 +84,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -96,7 +96,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -108,7 +108,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Gets the value of the defaultValue property.
+     * Ruft den Wert der defaultValue-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -120,7 +120,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the defaultValue property.
+     * Legt den Wert der defaultValue-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -132,7 +132,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Gets the value of the description property.
+     * Ruft den Wert der description-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -144,7 +144,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the description property.
+     * Legt den Wert der description-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -156,7 +156,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public int getModelOid() {
@@ -164,7 +164,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(int value) {
@@ -172,7 +172,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -184,7 +184,7 @@ public class ConfigurationVariableXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	        Descriptors can be included or excluded using the descriptor policy.
  * 	        
  * 
- * <p>Java class for InstanceProperties complex type.
+ * <p>Java-Klasse für InstanceProperties complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="InstanceProperties">

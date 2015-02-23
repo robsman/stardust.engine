@@ -1,20 +1,20 @@
 
 package org.eclipse.stardust.engine.api.ws;
 
+import java.util.Date;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import org.eclipse.stardust.common.Direction;
 
 public class Adapter1
-    extends XmlAdapter<String, Direction>
+    extends XmlAdapter<String, Date>
 {
 
 
-    public Direction unmarshal(String value) {
-        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseDirection(value));
+    public Date unmarshal(String value) {
+        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseDateTime(value));
     }
 
-    public String marshal(Direction value) {
-        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.printDirection(value));
+    public String marshal(Date value) {
+        return (org.eclipse.stardust.engine.ws.XmlAdapterUtils.printDateTime(value));
     }
 
 }

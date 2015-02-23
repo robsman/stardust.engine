@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an DeployedModelQuery execution.
  * 			
  * 
- * <p>Java class for ModelsQueryResult complex type.
+ * <p>Java-Klasse für ModelsQueryResult complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelsQueryResult">
@@ -40,7 +40,7 @@ public class ModelsQueryResultXto
     protected ModelsXto deployedModels;
 
     /**
-     * Gets the value of the deployedModels property.
+     * Ruft den Wert der deployedModels-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class ModelsQueryResultXto
     }
 
     /**
-     * Sets the value of the deployedModels property.
+     * Legt den Wert der deployedModels-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

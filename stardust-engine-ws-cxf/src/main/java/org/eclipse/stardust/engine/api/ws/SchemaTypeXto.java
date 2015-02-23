@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Type declaration containing embedded schema.
  * 	        
  * 
- * <p>Java class for SchemaType complex type.
+ * <p>Java-Klasse für SchemaType complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="SchemaType">
@@ -40,7 +40,7 @@ public class SchemaTypeXto {
     protected XmlValueXto xml;
 
     /**
-     * Gets the value of the xml property.
+     * Ruft den Wert der xml-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class SchemaTypeXto {
     }
 
     /**
-     * Sets the value of the xml property.
+     * Legt den Wert der xml-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

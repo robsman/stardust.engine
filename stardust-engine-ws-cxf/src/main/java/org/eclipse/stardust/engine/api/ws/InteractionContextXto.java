@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			An activity may have multiple execution contexts, depending on the implementation type.
  * 			
  * 
- * <p>Java class for InteractionContext complex type.
+ * <p>Java-Klasse für InteractionContext complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="InteractionContext">
@@ -47,7 +47,7 @@ public class InteractionContextXto
     protected DataFlowsXto outDataFlows;
 
     /**
-     * Gets the value of the inDataFlows property.
+     * Ruft den Wert der inDataFlows-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class InteractionContextXto
     }
 
     /**
-     * Sets the value of the inDataFlows property.
+     * Legt den Wert der inDataFlows-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class InteractionContextXto
     }
 
     /**
-     * Gets the value of the outDataFlows property.
+     * Ruft den Wert der outDataFlows-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class InteractionContextXto
     }
 
     /**
-     * Sets the value of the outDataFlows property.
+     * Legt den Wert der outDataFlows-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

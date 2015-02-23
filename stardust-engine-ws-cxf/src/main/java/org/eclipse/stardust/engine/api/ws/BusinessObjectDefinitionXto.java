@@ -11,9 +11,9 @@ import javax.xml.namespace.QName;
 
 
 /**
- * <p>Java class for BusinessObjectDefinition complex type.
+ * <p>Java-Klasse für BusinessObjectDefinition complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="BusinessObjectDefinition">
@@ -58,7 +58,7 @@ public class BusinessObjectDefinitionXto {
     protected boolean isList;
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -70,7 +70,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -82,7 +82,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      */
     public int getType() {
@@ -90,7 +90,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      */
     public void setType(int value) {
@@ -98,7 +98,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Gets the value of the typeName property.
+     * Ruft den Wert der typeName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -110,7 +110,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the typeName property.
+     * Legt den Wert der typeName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -122,7 +122,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Gets the value of the key property.
+     * Ruft den Wert der key-Eigenschaft ab.
      * 
      */
     public boolean isKey() {
@@ -130,7 +130,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the key property.
+     * Legt den Wert der key-Eigenschaft fest.
      * 
      */
     public void setKey(boolean value) {
@@ -138,7 +138,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Gets the value of the primaryKey property.
+     * Ruft den Wert der primaryKey-Eigenschaft ab.
      * 
      */
     public boolean isPrimaryKey() {
@@ -146,7 +146,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the primaryKey property.
+     * Legt den Wert der primaryKey-Eigenschaft fest.
      * 
      */
     public void setPrimaryKey(boolean value) {
@@ -183,7 +183,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Gets the value of the isList property.
+     * Ruft den Wert der isList-Eigenschaft ab.
      * 
      */
     public boolean isIsList() {
@@ -191,7 +191,7 @@ public class BusinessObjectDefinitionXto {
     }
 
     /**
-     * Sets the value of the isList property.
+     * Legt den Wert der isList-Eigenschaft fest.
      * 
      */
     public void setIsList(boolean value) {

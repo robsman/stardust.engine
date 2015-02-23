@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				Class representing an quality assurance error code
  * 			
  * 
- * <p>Java class for QualityAssuranceCode complex type.
+ * <p>Java-Klasse für QualityAssuranceCode complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="QualityAssuranceCode">
@@ -48,7 +48,7 @@ public class QualityAssuranceCodeXto {
     protected String name;
 
     /**
-     * Gets the value of the code property.
+     * Ruft den Wert der code-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -60,7 +60,7 @@ public class QualityAssuranceCodeXto {
     }
 
     /**
-     * Sets the value of the code property.
+     * Legt den Wert der code-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -72,7 +72,7 @@ public class QualityAssuranceCodeXto {
     }
 
     /**
-     * Gets the value of the description property.
+     * Ruft den Wert der description-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -84,7 +84,7 @@ public class QualityAssuranceCodeXto {
     }
 
     /**
-     * Sets the value of the description property.
+     * Legt den Wert der description-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -96,7 +96,7 @@ public class QualityAssuranceCodeXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -108,7 +108,7 @@ public class QualityAssuranceCodeXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

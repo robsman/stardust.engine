@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			An access control entry consists of a principal that is associated with privileges.
  * 			
  * 
- * <p>Java class for AccessControlEntry complex type.
+ * <p>Java-Klasse für AccessControlEntry complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="AccessControlEntry">
@@ -41,7 +41,7 @@ public class AccessControlEntryXto {
     protected PrivilegesXto privileges;
 
     /**
-     * Gets the value of the principal property.
+     * Ruft den Wert der principal-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -53,7 +53,7 @@ public class AccessControlEntryXto {
     }
 
     /**
-     * Sets the value of the principal property.
+     * Legt den Wert der principal-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -65,7 +65,7 @@ public class AccessControlEntryXto {
     }
 
     /**
-     * Gets the value of the privileges property.
+     * Ruft den Wert der privileges-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -77,7 +77,7 @@ public class AccessControlEntryXto {
     }
 
     /**
-     * Sets the value of the privileges property.
+     * Legt den Wert der privileges-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

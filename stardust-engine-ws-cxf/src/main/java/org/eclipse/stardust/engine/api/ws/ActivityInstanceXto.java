@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -17,9 +16,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *  			The ActivityInstance represents a snapshot of the execution state of an activity instance.
  * 			
  * 
- * <p>Java class for ActivityInstance complex type.
+ * <p>Java-Klasse für ActivityInstance complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ActivityInstance">
@@ -135,7 +134,7 @@ public class ActivityInstanceXto {
     protected boolean assignedToUserGroup;
     protected boolean scopeProcessInstanceNoteAvailable;
     @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(Adapter3 .class)
+    @XmlJavaTypeAdapter(Adapter4 .class)
     protected ActivityInstanceState state;
     protected PermissionStatesXto permissionStates;
     protected InstancePropertiesXto instanceProperties;
@@ -148,7 +147,7 @@ public class ActivityInstanceXto {
     protected ActivityInstanceAttributesXto attributes;
 
     /**
-     * Gets the value of the oid property.
+     * Ruft den Wert der oid-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -160,7 +159,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the oid property.
+     * Legt den Wert der oid-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -172,7 +171,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the modelElementId property.
+     * Ruft den Wert der modelElementId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -184,7 +183,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the modelElementId property.
+     * Legt den Wert der modelElementId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -196,7 +195,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the modelElementOid property.
+     * Ruft den Wert der modelElementOid-Eigenschaft ab.
      * 
      */
     public int getModelElementOid() {
@@ -204,7 +203,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the modelElementOid property.
+     * Legt den Wert der modelElementOid-Eigenschaft fest.
      * 
      */
     public void setModelElementOid(int value) {
@@ -212,7 +211,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public int getModelOid() {
@@ -220,7 +219,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(int value) {
@@ -228,7 +227,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the activityId property.
+     * Ruft den Wert der activityId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -240,7 +239,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the activityId property.
+     * Legt den Wert der activityId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -252,7 +251,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the activityName property.
+     * Ruft den Wert der activityName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -264,7 +263,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the activityName property.
+     * Legt den Wert der activityName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -276,7 +275,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the processOid property.
+     * Ruft den Wert der processOid-Eigenschaft ab.
      * 
      */
     public long getProcessOid() {
@@ -284,7 +283,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the processOid property.
+     * Legt den Wert der processOid-Eigenschaft fest.
      * 
      */
     public void setProcessOid(long value) {
@@ -292,7 +291,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the processDefinitionId property.
+     * Ruft den Wert der processDefinitionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -304,7 +303,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the processDefinitionId property.
+     * Legt den Wert der processDefinitionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -316,7 +315,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the processDefinitionName property.
+     * Ruft den Wert der processDefinitionName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -328,7 +327,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the processDefinitionName property.
+     * Legt den Wert der processDefinitionName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -340,7 +339,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the conditionalPerformerId property.
+     * Ruft den Wert der conditionalPerformerId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -352,7 +351,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the conditionalPerformerId property.
+     * Legt den Wert der conditionalPerformerId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -364,7 +363,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the conditionalPerformerName property.
+     * Ruft den Wert der conditionalPerformerName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -376,7 +375,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the conditionalPerformerName property.
+     * Legt den Wert der conditionalPerformerName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -388,7 +387,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the startTime property.
+     * Ruft den Wert der startTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -400,7 +399,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the startTime property.
+     * Legt den Wert der startTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -412,7 +411,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the lastModificationTime property.
+     * Ruft den Wert der lastModificationTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -424,7 +423,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the lastModificationTime property.
+     * Legt den Wert der lastModificationTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -436,7 +435,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the currentPerformer property.
+     * Ruft den Wert der currentPerformer-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -448,7 +447,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the currentPerformer property.
+     * Legt den Wert der currentPerformer-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -460,7 +459,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the performedBy property.
+     * Ruft den Wert der performedBy-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -472,7 +471,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the performedBy property.
+     * Legt den Wert der performedBy-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -484,7 +483,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the performedOnBehalfOf property.
+     * Ruft den Wert der performedOnBehalfOf-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -496,7 +495,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the performedOnBehalfOf property.
+     * Legt den Wert der performedOnBehalfOf-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -508,7 +507,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the userPerformer property.
+     * Ruft den Wert der userPerformer-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -520,7 +519,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the userPerformer property.
+     * Legt den Wert der userPerformer-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -532,7 +531,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the assignedToModelParticipant property.
+     * Ruft den Wert der assignedToModelParticipant-Eigenschaft ab.
      * 
      */
     public boolean isAssignedToModelParticipant() {
@@ -540,7 +539,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the assignedToModelParticipant property.
+     * Legt den Wert der assignedToModelParticipant-Eigenschaft fest.
      * 
      */
     public void setAssignedToModelParticipant(boolean value) {
@@ -548,7 +547,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the assignedToUser property.
+     * Ruft den Wert der assignedToUser-Eigenschaft ab.
      * 
      */
     public boolean isAssignedToUser() {
@@ -556,7 +555,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the assignedToUser property.
+     * Legt den Wert der assignedToUser-Eigenschaft fest.
      * 
      */
     public void setAssignedToUser(boolean value) {
@@ -564,7 +563,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the assignedToUserGroup property.
+     * Ruft den Wert der assignedToUserGroup-Eigenschaft ab.
      * 
      */
     public boolean isAssignedToUserGroup() {
@@ -572,7 +571,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the assignedToUserGroup property.
+     * Legt den Wert der assignedToUserGroup-Eigenschaft fest.
      * 
      */
     public void setAssignedToUserGroup(boolean value) {
@@ -580,7 +579,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the scopeProcessInstanceNoteAvailable property.
+     * Ruft den Wert der scopeProcessInstanceNoteAvailable-Eigenschaft ab.
      * 
      */
     public boolean isScopeProcessInstanceNoteAvailable() {
@@ -588,7 +587,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the scopeProcessInstanceNoteAvailable property.
+     * Legt den Wert der scopeProcessInstanceNoteAvailable-Eigenschaft fest.
      * 
      */
     public void setScopeProcessInstanceNoteAvailable(boolean value) {
@@ -596,7 +595,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the state property.
+     * Ruft den Wert der state-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -608,7 +607,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the state property.
+     * Legt den Wert der state-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -620,7 +619,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the permissionStates property.
+     * Ruft den Wert der permissionStates-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -632,7 +631,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the permissionStates property.
+     * Legt den Wert der permissionStates-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -644,7 +643,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the instanceProperties property.
+     * Ruft den Wert der instanceProperties-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -656,7 +655,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the instanceProperties property.
+     * Legt den Wert der instanceProperties-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -668,7 +667,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the descriptorDefinitions property.
+     * Ruft den Wert der descriptorDefinitions-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -680,7 +679,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the descriptorDefinitions property.
+     * Legt den Wert der descriptorDefinitions-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -692,7 +691,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the historicalStates property.
+     * Ruft den Wert der historicalStates-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -704,7 +703,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the historicalStates property.
+     * Legt den Wert der historicalStates-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -716,7 +715,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the historicalEvents property.
+     * Ruft den Wert der historicalEvents-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -728,7 +727,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the historicalEvents property.
+     * Legt den Wert der historicalEvents-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -740,7 +739,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the criticality property.
+     * Ruft den Wert der criticality-Eigenschaft ab.
      * 
      */
     public double getCriticality() {
@@ -748,7 +747,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the criticality property.
+     * Legt den Wert der criticality-Eigenschaft fest.
      * 
      */
     public void setCriticality(double value) {
@@ -756,7 +755,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the qualityAssuranceInfo property.
+     * Ruft den Wert der qualityAssuranceInfo-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -768,7 +767,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the qualityAssuranceInfo property.
+     * Legt den Wert der qualityAssuranceInfo-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -780,7 +779,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the qualityAssuranceState property.
+     * Ruft den Wert der qualityAssuranceState-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -792,7 +791,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the qualityAssuranceState property.
+     * Legt den Wert der qualityAssuranceState-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -804,7 +803,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Gets the value of the attributes property.
+     * Ruft den Wert der attributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -816,7 +815,7 @@ public class ActivityInstanceXto {
     }
 
     /**
-     * Sets the value of the attributes property.
+     * Legt den Wert der attributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

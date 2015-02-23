@@ -11,12 +11,12 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 				This class contains attributes for an activity instance. 
+ * 				This class contains attributes for an activity instance.
  * 			
  * 
- * <p>Java class for ActivityInstanceAttributes complex type.
+ * <p>Java-Klasse für ActivityInstanceAttributes complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ActivityInstanceAttributes">
@@ -48,7 +48,7 @@ public class ActivityInstanceAttributesXto {
     protected List<NoteXto> notes;
 
     /**
-     * Gets the value of the activityInstanceOid property.
+     * Ruft den Wert der activityInstanceOid-Eigenschaft ab.
      * 
      */
     public long getActivityInstanceOid() {
@@ -56,7 +56,7 @@ public class ActivityInstanceAttributesXto {
     }
 
     /**
-     * Sets the value of the activityInstanceOid property.
+     * Legt den Wert der activityInstanceOid-Eigenschaft fest.
      * 
      */
     public void setActivityInstanceOid(long value) {
@@ -64,7 +64,7 @@ public class ActivityInstanceAttributesXto {
     }
 
     /**
-     * Gets the value of the qualityAssuranceResult property.
+     * Ruft den Wert der qualityAssuranceResult-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -76,7 +76,7 @@ public class ActivityInstanceAttributesXto {
     }
 
     /**
-     * Sets the value of the qualityAssuranceResult property.
+     * Legt den Wert der qualityAssuranceResult-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

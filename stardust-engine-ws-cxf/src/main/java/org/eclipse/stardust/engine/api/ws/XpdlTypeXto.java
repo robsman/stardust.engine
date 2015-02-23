@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	        XPDL specific type declaration definition object.
  * 	        
  * 
- * <p>Java class for XpdlType complex type.
+ * <p>Java-Klasse für XpdlType complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="XpdlType">
@@ -41,7 +41,7 @@ public class XpdlTypeXto {
     protected SchemaTypeXto schemaType;
 
     /**
-     * Gets the value of the externalReference property.
+     * Ruft den Wert der externalReference-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -53,7 +53,7 @@ public class XpdlTypeXto {
     }
 
     /**
-     * Sets the value of the externalReference property.
+     * Legt den Wert der externalReference-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -65,7 +65,7 @@ public class XpdlTypeXto {
     }
 
     /**
-     * Gets the value of the schemaType property.
+     * Ruft den Wert der schemaType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -77,7 +77,7 @@ public class XpdlTypeXto {
     }
 
     /**
-     * Sets the value of the schemaType property.
+     * Legt den Wert der schemaType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

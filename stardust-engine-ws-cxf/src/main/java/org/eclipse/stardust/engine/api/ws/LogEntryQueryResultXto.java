@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an LogEntryQuery execution.
  * 			
  * 
- * <p>Java class for LogEntryQueryResult complex type.
+ * <p>Java-Klasse für LogEntryQueryResult complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="LogEntryQueryResult">
@@ -40,7 +40,7 @@ public class LogEntryQueryResultXto
     protected LogEntriesXto logEntries;
 
     /**
-     * Gets the value of the logEntries property.
+     * Ruft den Wert der logEntries-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class LogEntryQueryResultXto
     }
 
     /**
-     * Sets the value of the logEntries property.
+     * Legt den Wert der logEntries-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

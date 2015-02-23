@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information of a dynamic participant that is needed to identify a DynamicParticipant.
  * 	        
  * 
- * <p>Java class for DynamicParticipantInfo complex type.
+ * <p>Java-Klasse für DynamicParticipantInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DynamicParticipantInfo">
@@ -45,7 +45,7 @@ public class DynamicParticipantInfoXto
     protected long oid;
 
     /**
-     * Gets the value of the oid property.
+     * Ruft den Wert der oid-Eigenschaft ab.
      * 
      */
     public long getOid() {
@@ -53,7 +53,7 @@ public class DynamicParticipantInfoXto
     }
 
     /**
-     * Sets the value of the oid property.
+     * Legt den Wert der oid-Eigenschaft fest.
      * 
      */
     public void setOid(long value) {

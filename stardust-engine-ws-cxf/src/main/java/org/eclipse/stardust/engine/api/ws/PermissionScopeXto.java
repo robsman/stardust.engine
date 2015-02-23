@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			The scope of a permission can be either model, process or activity.
  * 			
  * 
- * <p>Java class for PermissionScope complex type.
+ * <p>Java-Klasse für PermissionScope complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="PermissionScope">
@@ -49,7 +49,7 @@ public class PermissionScopeXto {
     protected PermissionScopeXto parentScope;
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -61,7 +61,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -73,7 +73,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -85,7 +85,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -97,7 +97,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Gets the value of the scopeType property.
+     * Ruft den Wert der scopeType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -109,7 +109,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Sets the value of the scopeType property.
+     * Legt den Wert der scopeType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -121,7 +121,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Gets the value of the parentScope property.
+     * Ruft den Wert der parentScope-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -133,7 +133,7 @@ public class PermissionScopeXto {
     }
 
     /**
-     * Sets the value of the parentScope property.
+     * Legt den Wert der parentScope-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

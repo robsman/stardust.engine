@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  *             Each specific repository configuration may require additional keys for e.g. connection URL, jndiName, etc.
  * 			
  * 
- * <p>Java class for RepositoryConfiguration complex type.
+ * <p>Java-Klasse für RepositoryConfiguration complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RepositoryConfiguration">
@@ -42,7 +42,7 @@ public class RepositoryConfigurationXto {
     protected MapXto attributes;
 
     /**
-     * Gets the value of the attributes property.
+     * Ruft den Wert der attributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class RepositoryConfigurationXto {
     }
 
     /**
-     * Sets the value of the attributes property.
+     * Legt den Wert der attributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

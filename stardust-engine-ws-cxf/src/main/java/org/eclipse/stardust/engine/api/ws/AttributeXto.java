@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Type information for primitive types is an abbreviated name. e.g. string, long, float, int, boolean, ect.
  * 			
  * 
- * <p>Java class for Attribute complex type.
+ * <p>Java-Klasse für Attribute complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Attribute">
@@ -49,7 +49,7 @@ public class AttributeXto {
     protected String value;
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -61,7 +61,7 @@ public class AttributeXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -73,7 +73,7 @@ public class AttributeXto {
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -85,7 +85,7 @@ public class AttributeXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -97,7 +97,7 @@ public class AttributeXto {
     }
 
     /**
-     * Gets the value of the value property.
+     * Ruft den Wert der value-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -109,7 +109,7 @@ public class AttributeXto {
     }
 
     /**
-     * Sets the value of the value property.
+     * Legt den Wert der value-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

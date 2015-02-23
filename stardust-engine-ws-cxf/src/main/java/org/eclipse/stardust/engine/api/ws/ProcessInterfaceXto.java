@@ -13,9 +13,9 @@ import javax.xml.namespace.QName;
  * 			Interface used to separate a process definition from its interface.
  * 			
  * 
- * <p>Java class for ProcessInterface complex type.
+ * <p>Java-Klasse für ProcessInterface complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ProcessInterface">
@@ -44,7 +44,7 @@ public class ProcessInterfaceXto {
     protected FormalParametersXto formalParameters;
 
     /**
-     * Gets the value of the declaringProcessDefintionId property.
+     * Ruft den Wert der declaringProcessDefintionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public class ProcessInterfaceXto {
     }
 
     /**
-     * Sets the value of the declaringProcessDefintionId property.
+     * Legt den Wert der declaringProcessDefintionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public class ProcessInterfaceXto {
     }
 
     /**
-     * Gets the value of the formalParameters property.
+     * Ruft den Wert der formalParameters-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public class ProcessInterfaceXto {
     }
 
     /**
-     * Sets the value of the formalParameters property.
+     * Legt den Wert der formalParameters-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

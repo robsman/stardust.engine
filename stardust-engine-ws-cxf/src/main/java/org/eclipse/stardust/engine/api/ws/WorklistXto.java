@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Containing 'userWorklist' and 'sharedWorklists' according to the user and participants contribution specified in the query.
  * 			
  * 
- * <p>Java class for Worklist complex type.
+ * <p>Java-Klasse für Worklist complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Worklist">
@@ -79,7 +79,7 @@ public class WorklistXto {
     protected WorklistXto.SharedWorklistsXto sharedWorklists;
 
     /**
-     * Gets the value of the userWorklist property.
+     * Ruft den Wert der userWorklist-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -91,7 +91,7 @@ public class WorklistXto {
     }
 
     /**
-     * Sets the value of the userWorklist property.
+     * Legt den Wert der userWorklist-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -103,7 +103,7 @@ public class WorklistXto {
     }
 
     /**
-     * Gets the value of the sharedWorklists property.
+     * Ruft den Wert der sharedWorklists-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -115,7 +115,7 @@ public class WorklistXto {
     }
 
     /**
-     * Sets the value of the sharedWorklists property.
+     * Legt den Wert der sharedWorklists-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -128,9 +128,9 @@ public class WorklistXto {
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -196,9 +196,9 @@ public class WorklistXto {
 
 
         /**
-         * <p>Java class for anonymous complex type.
+         * <p>Java-Klasse für anonymous complex type.
          * 
-         * <p>The following schema fragment specifies the expected content contained within this class.
+         * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
          * 
          * <pre>
          * &lt;complexType>
@@ -230,7 +230,7 @@ public class WorklistXto {
             protected ActivityInstancesXto workItems;
 
             /**
-             * Gets the value of the owner property.
+             * Ruft den Wert der owner-Eigenschaft ab.
              * 
              * @return
              *     possible object is
@@ -242,7 +242,7 @@ public class WorklistXto {
             }
 
             /**
-             * Sets the value of the owner property.
+             * Legt den Wert der owner-Eigenschaft fest.
              * 
              * @param value
              *     allowed object is
@@ -254,7 +254,7 @@ public class WorklistXto {
             }
 
             /**
-             * Gets the value of the workItems property.
+             * Ruft den Wert der workItems-Eigenschaft ab.
              * 
              * @return
              *     possible object is
@@ -266,7 +266,7 @@ public class WorklistXto {
             }
 
             /**
-             * Sets the value of the workItems property.
+             * Legt den Wert der workItems-Eigenschaft fest.
              * 
              * @param value
              *     allowed object is
@@ -283,9 +283,9 @@ public class WorklistXto {
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -317,7 +317,7 @@ public class WorklistXto {
         protected ActivityInstancesXto workItems;
 
         /**
-         * Gets the value of the owner property.
+         * Ruft den Wert der owner-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -329,7 +329,7 @@ public class WorklistXto {
         }
 
         /**
-         * Sets the value of the owner property.
+         * Legt den Wert der owner-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is
@@ -341,7 +341,7 @@ public class WorklistXto {
         }
 
         /**
-         * Gets the value of the workItems property.
+         * Ruft den Wert der workItems-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -353,7 +353,7 @@ public class WorklistXto {
         }
 
         /**
-         * Sets the value of the workItems property.
+         * Legt den Wert der workItems-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is

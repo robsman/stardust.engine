@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *           specific set of attributes, depending on the type of the event action.
  * 	      
  * 
- * <p>Java class for EventActionDefinition complex type.
+ * <p>Java-Klasse für EventActionDefinition complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="EventActionDefinition">
@@ -44,7 +44,7 @@ public class EventActionDefinitionXto
     protected EventActionTypeDefinitionXto type;
 
     /**
-     * Gets the value of the rtOid property.
+     * Ruft den Wert der rtOid-Eigenschaft ab.
      * 
      */
     public long getRtOid() {
@@ -52,7 +52,7 @@ public class EventActionDefinitionXto
     }
 
     /**
-     * Sets the value of the rtOid property.
+     * Legt den Wert der rtOid-Eigenschaft fest.
      * 
      */
     public void setRtOid(long value) {
@@ -60,7 +60,7 @@ public class EventActionDefinitionXto
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -72,7 +72,7 @@ public class EventActionDefinitionXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

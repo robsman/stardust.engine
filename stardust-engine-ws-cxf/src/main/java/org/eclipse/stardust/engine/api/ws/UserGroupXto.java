@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -18,9 +17,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *  			The UserGroup can be modified and used to update the UserGroup's information.
  * 	       
  * 
- * <p>Java class for UserGroup complex type.
+ * <p>Java-Klasse für UserGroup complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="UserGroup">
@@ -73,7 +72,7 @@ public class UserGroupXto {
     protected AttributesXto attributes;
 
     /**
-     * Gets the value of the oid property.
+     * Ruft den Wert der oid-Eigenschaft ab.
      * 
      */
     public long getOid() {
@@ -81,7 +80,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the oid property.
+     * Legt den Wert der oid-Eigenschaft fest.
      * 
      */
     public void setOid(long value) {
@@ -89,7 +88,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -101,7 +100,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -113,7 +112,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -125,7 +124,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -137,7 +136,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the validFrom property.
+     * Ruft den Wert der validFrom-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -149,7 +148,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the validFrom property.
+     * Legt den Wert der validFrom-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -161,7 +160,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the validTo property.
+     * Ruft den Wert der validTo-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -173,7 +172,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the validTo property.
+     * Legt den Wert der validTo-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -185,7 +184,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the description property.
+     * Ruft den Wert der description-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -197,7 +196,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the description property.
+     * Legt den Wert der description-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -209,7 +208,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the detailsLevel property.
+     * Ruft den Wert der detailsLevel-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -221,7 +220,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the detailsLevel property.
+     * Legt den Wert der detailsLevel-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -233,7 +232,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Gets the value of the attributes property.
+     * Ruft den Wert der attributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -245,7 +244,7 @@ public class UserGroupXto {
     }
 
     /**
-     * Sets the value of the attributes property.
+     * Legt den Wert der attributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

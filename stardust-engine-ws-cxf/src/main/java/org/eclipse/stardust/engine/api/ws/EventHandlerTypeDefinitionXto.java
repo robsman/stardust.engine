@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for EventHandlerTypeDefinition complex type.
+ * <p>Java-Klasse für EventHandlerTypeDefinition complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="EventHandlerTypeDefinition">
@@ -49,7 +49,7 @@ public class EventHandlerTypeDefinitionXto {
     protected AttributesXto attributes;
 
     /**
-     * Gets the value of the rtOid property.
+     * Ruft den Wert der rtOid-Eigenschaft ab.
      * 
      */
     public long getRtOid() {
@@ -57,7 +57,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Sets the value of the rtOid property.
+     * Legt den Wert der rtOid-Eigenschaft fest.
      * 
      */
     public void setRtOid(long value) {
@@ -65,7 +65,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public long getModelOid() {
@@ -73,7 +73,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(long value) {
@@ -81,7 +81,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -93,7 +93,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -105,7 +105,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -117,7 +117,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -129,7 +129,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Gets the value of the attributes property.
+     * Ruft den Wert der attributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -141,7 +141,7 @@ public class EventHandlerTypeDefinitionXto {
     }
 
     /**
-     * Sets the value of the attributes property.
+     * Legt den Wert der attributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

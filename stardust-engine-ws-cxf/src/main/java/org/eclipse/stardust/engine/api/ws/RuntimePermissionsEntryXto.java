@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for RuntimePermissionsEntry complex type.
+ * <p>Java-Klasse für RuntimePermissionsEntry complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RuntimePermissionsEntry">
@@ -40,7 +40,7 @@ public class RuntimePermissionsEntryXto {
     protected StringListXto valueList;
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class RuntimePermissionsEntryXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -64,7 +64,7 @@ public class RuntimePermissionsEntryXto {
     }
 
     /**
-     * Gets the value of the valueList property.
+     * Ruft den Wert der valueList-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -76,7 +76,7 @@ public class RuntimePermissionsEntryXto {
     }
 
     /**
-     * Sets the value of the valueList property.
+     * Legt den Wert der valueList-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

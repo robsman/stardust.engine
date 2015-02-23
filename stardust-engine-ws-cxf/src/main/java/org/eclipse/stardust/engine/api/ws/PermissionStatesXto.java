@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for PermissionStates complex type.
+ * <p>Java-Klasse für PermissionStates complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="PermissionStates">
@@ -82,9 +82,9 @@ public class PermissionStatesXto {
      * 						A representation of the state of a permission.
      * 						
      * 
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -113,7 +113,7 @@ public class PermissionStatesXto {
         protected org.eclipse.stardust.engine.api.ws.PermissionStateXto state;
 
         /**
-         * Gets the value of the permissionId property.
+         * Ruft den Wert der permissionId-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -125,7 +125,7 @@ public class PermissionStatesXto {
         }
 
         /**
-         * Sets the value of the permissionId property.
+         * Legt den Wert der permissionId-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is
@@ -137,7 +137,7 @@ public class PermissionStatesXto {
         }
 
         /**
-         * Gets the value of the state property.
+         * Ruft den Wert der state-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -149,7 +149,7 @@ public class PermissionStatesXto {
         }
 
         /**
-         * Sets the value of the state property.
+         * Legt den Wert der state-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is

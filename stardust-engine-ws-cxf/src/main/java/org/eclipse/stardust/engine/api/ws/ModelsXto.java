@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an DeployedModelQuery execution. Retrieved items are instances of DeployedModelDescription.
  * 			
  * 
- * <p>Java class for Models complex type.
+ * <p>Java-Klasse für Models complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Models">

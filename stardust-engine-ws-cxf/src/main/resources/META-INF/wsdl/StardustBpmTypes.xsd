@@ -665,6 +665,7 @@
 			<!-- from ModelElement -->
 			<element name="modelOid" type="long" />
 			<element name="id" type="string" minOccurs="0" />
+			<element name="qualifiedId" type="string" minOccurs="0" />
 			<element name="name" type="string" minOccurs="0" />
 			<element name="description" type="string" minOccurs="0" />
 			<element name="partitionId" type="string" minOccurs="0" />

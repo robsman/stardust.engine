@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information used to identify a participant.
  * 	        
  * 
- * <p>Java class for ParticipantInfo complex type.
+ * <p>Java-Klasse für ParticipantInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ParticipantInfo">
@@ -51,7 +51,7 @@ public class ParticipantInfoXto
     protected String name;
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -63,7 +63,7 @@ public class ParticipantInfoXto
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -75,7 +75,7 @@ public class ParticipantInfoXto
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -87,7 +87,7 @@ public class ParticipantInfoXto
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

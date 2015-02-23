@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -16,9 +15,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *             The DeployedModelDescription class provides deployment information for a workflow model.
  * 			
  * 
- * <p>Java class for DeployedModelDescription complex type.
+ * <p>Java-Klasse für DeployedModelDescription complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DeployedModelDescription">
@@ -80,7 +79,7 @@ public class DeployedModelDescriptionXto
     protected boolean active;
 
     /**
-     * Gets the value of the consumerModels property.
+     * Ruft den Wert der consumerModels-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -92,7 +91,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the consumerModels property.
+     * Legt den Wert der consumerModels-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -104,7 +103,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the deploymentComment property.
+     * Ruft den Wert der deploymentComment-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -116,7 +115,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the deploymentComment property.
+     * Legt den Wert der deploymentComment-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -128,7 +127,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the deploymentTime property.
+     * Ruft den Wert der deploymentTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -140,7 +139,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the deploymentTime property.
+     * Legt den Wert der deploymentTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -152,7 +151,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the implementationProcesses property.
+     * Ruft den Wert der implementationProcesses-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -164,7 +163,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the implementationProcesses property.
+     * Legt den Wert der implementationProcesses-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -176,7 +175,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the providersModel property.
+     * Ruft den Wert der providersModel-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -188,7 +187,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the providersModel property.
+     * Legt den Wert der providersModel-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -200,7 +199,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the revision property.
+     * Ruft den Wert der revision-Eigenschaft ab.
      * 
      */
     public int getRevision() {
@@ -208,7 +207,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the revision property.
+     * Legt den Wert der revision-Eigenschaft fest.
      * 
      */
     public void setRevision(int value) {
@@ -216,7 +215,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the validFrom property.
+     * Ruft den Wert der validFrom-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -228,7 +227,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the validFrom property.
+     * Legt den Wert der validFrom-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -240,7 +239,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the version property.
+     * Ruft den Wert der version-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -252,7 +251,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the version property.
+     * Legt den Wert der version-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -264,7 +263,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Gets the value of the active property.
+     * Ruft den Wert der active-Eigenschaft ab.
      * 
      */
     public boolean isActive() {
@@ -272,7 +271,7 @@ public class DeployedModelDescriptionXto
     }
 
     /**
-     * Sets the value of the active property.
+     * Legt den Wert der active-Eigenschaft fest.
      * 
      */
     public void setActive(boolean value) {

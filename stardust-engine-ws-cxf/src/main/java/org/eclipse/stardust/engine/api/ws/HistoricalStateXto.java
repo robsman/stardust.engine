@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -18,9 +17,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *             activity instance.
  *             
  * 
- * <p>Java class for HistoricalState complex type.
+ * <p>Java-Klasse für HistoricalState complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="HistoricalState">
@@ -69,7 +68,7 @@ public class HistoricalStateXto {
     @XmlElement(required = true)
     protected String processDefinitionId;
     @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(Adapter3 .class)
+    @XmlJavaTypeAdapter(Adapter4 .class)
     protected ActivityInstanceState activityState;
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(Adapter1 .class)
@@ -89,7 +88,7 @@ public class HistoricalStateXto {
     protected UserXto user;
 
     /**
-     * Gets the value of the activityOid property.
+     * Ruft den Wert der activityOid-Eigenschaft ab.
      * 
      */
     public long getActivityOid() {
@@ -97,7 +96,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the activityOid property.
+     * Legt den Wert der activityOid-Eigenschaft fest.
      * 
      */
     public void setActivityOid(long value) {
@@ -105,7 +104,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the activityDefinitionId property.
+     * Ruft den Wert der activityDefinitionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -117,7 +116,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the activityDefinitionId property.
+     * Legt den Wert der activityDefinitionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -129,7 +128,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the processInstanceOid property.
+     * Ruft den Wert der processInstanceOid-Eigenschaft ab.
      * 
      */
     public long getProcessInstanceOid() {
@@ -137,7 +136,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the processInstanceOid property.
+     * Legt den Wert der processInstanceOid-Eigenschaft fest.
      * 
      */
     public void setProcessInstanceOid(long value) {
@@ -145,7 +144,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the processDefinitionId property.
+     * Ruft den Wert der processDefinitionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -157,7 +156,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the processDefinitionId property.
+     * Legt den Wert der processDefinitionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -169,7 +168,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the activityState property.
+     * Ruft den Wert der activityState-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -181,7 +180,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the activityState property.
+     * Legt den Wert der activityState-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -193,7 +192,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the from property.
+     * Ruft den Wert der from-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -205,7 +204,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the from property.
+     * Legt den Wert der from-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -217,7 +216,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the until property.
+     * Ruft den Wert der until-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -229,7 +228,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the until property.
+     * Legt den Wert der until-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -241,7 +240,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the participant property.
+     * Ruft den Wert der participant-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -253,7 +252,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the participant property.
+     * Legt den Wert der participant-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -265,7 +264,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the onBehalfOfParticipant property.
+     * Ruft den Wert der onBehalfOfParticipant-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -277,7 +276,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the onBehalfOfParticipant property.
+     * Legt den Wert der onBehalfOfParticipant-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -289,7 +288,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the onBehalfOfUser property.
+     * Ruft den Wert der onBehalfOfUser-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -301,7 +300,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the onBehalfOfUser property.
+     * Legt den Wert der onBehalfOfUser-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -313,7 +312,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Gets the value of the user property.
+     * Ruft den Wert der user-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -325,7 +324,7 @@ public class HistoricalStateXto {
     }
 
     /**
-     * Sets the value of the user property.
+     * Legt den Wert der user-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

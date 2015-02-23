@@ -15,9 +15,9 @@ import org.w3c.dom.Element;
  * 			Contains a XML representation of a value.
  * 			
  * 
- * <p>Java class for XmlValue complex type.
+ * <p>Java-Klasse für XmlValue complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="XmlValue">

@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for RepositoryCapabilities complex type.
+ * <p>Java-Klasse für RepositoryCapabilities complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RepositoryCapabilities">
@@ -57,7 +57,7 @@ public class RepositoryCapabilitiesXto {
     protected boolean writeSupported;
 
     /**
-     * Gets the value of the fullTextSearchSupported property.
+     * Ruft den Wert der fullTextSearchSupported-Eigenschaft ab.
      * 
      */
     public boolean isFullTextSearchSupported() {
@@ -65,7 +65,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the fullTextSearchSupported property.
+     * Legt den Wert der fullTextSearchSupported-Eigenschaft fest.
      * 
      */
     public void setFullTextSearchSupported(boolean value) {
@@ -73,7 +73,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the metaDataSearchSupported property.
+     * Ruft den Wert der metaDataSearchSupported-Eigenschaft ab.
      * 
      */
     public boolean isMetaDataSearchSupported() {
@@ -81,7 +81,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the metaDataSearchSupported property.
+     * Legt den Wert der metaDataSearchSupported-Eigenschaft fest.
      * 
      */
     public void setMetaDataSearchSupported(boolean value) {
@@ -89,7 +89,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the metaDataWriteSupported property.
+     * Ruft den Wert der metaDataWriteSupported-Eigenschaft ab.
      * 
      */
     public boolean isMetaDataWriteSupported() {
@@ -97,7 +97,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the metaDataWriteSupported property.
+     * Legt den Wert der metaDataWriteSupported-Eigenschaft fest.
      * 
      */
     public void setMetaDataWriteSupported(boolean value) {
@@ -105,7 +105,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the versioningSupported property.
+     * Ruft den Wert der versioningSupported-Eigenschaft ab.
      * 
      */
     public boolean isVersioningSupported() {
@@ -113,7 +113,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the versioningSupported property.
+     * Legt den Wert der versioningSupported-Eigenschaft fest.
      * 
      */
     public void setVersioningSupported(boolean value) {
@@ -121,7 +121,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the transactionSupported property.
+     * Ruft den Wert der transactionSupported-Eigenschaft ab.
      * 
      */
     public boolean isTransactionSupported() {
@@ -129,7 +129,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the transactionSupported property.
+     * Legt den Wert der transactionSupported-Eigenschaft fest.
      * 
      */
     public void setTransactionSupported(boolean value) {
@@ -137,7 +137,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the accessControlPolicySupported property.
+     * Ruft den Wert der accessControlPolicySupported-Eigenschaft ab.
      * 
      */
     public boolean isAccessControlPolicySupported() {
@@ -145,7 +145,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the accessControlPolicySupported property.
+     * Legt den Wert der accessControlPolicySupported-Eigenschaft fest.
      * 
      */
     public void setAccessControlPolicySupported(boolean value) {
@@ -153,7 +153,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Gets the value of the writeSupported property.
+     * Ruft den Wert der writeSupported-Eigenschaft ab.
      * 
      */
     public boolean isWriteSupported() {
@@ -161,7 +161,7 @@ public class RepositoryCapabilitiesXto {
     }
 
     /**
-     * Sets the value of the writeSupported property.
+     * Legt den Wert der writeSupported-Eigenschaft fest.
      * 
      */
     public void setWriteSupported(boolean value) {

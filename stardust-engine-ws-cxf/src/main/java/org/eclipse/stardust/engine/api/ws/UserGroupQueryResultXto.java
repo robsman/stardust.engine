@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an UserGroupQuery execution.
  * 			
  * 
- * <p>Java class for UserGroupQueryResult complex type.
+ * <p>Java-Klasse für UserGroupQueryResult complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="UserGroupQueryResult">
@@ -40,7 +40,7 @@ public class UserGroupQueryResultXto
     protected UserGroupsXto userGroups;
 
     /**
-     * Gets the value of the userGroups property.
+     * Ruft den Wert der userGroups-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class UserGroupQueryResultXto
     }
 
     /**
-     * Sets the value of the userGroups property.
+     * Legt den Wert der userGroups-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

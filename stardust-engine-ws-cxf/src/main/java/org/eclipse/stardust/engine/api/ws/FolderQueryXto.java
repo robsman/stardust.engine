@@ -15,9 +15,9 @@ import javax.xml.namespace.QName;
  * 			The default level of detail for folders is including direct members.
  * 			
  * 
- * <p>Java class for FolderQuery complex type.
+ * <p>Java-Klasse für FolderQuery complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="FolderQuery">
@@ -57,7 +57,7 @@ public class FolderQueryXto {
     protected QName folderMetaDataType;
 
     /**
-     * Gets the value of the namePattern property.
+     * Ruft den Wert der namePattern-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -69,7 +69,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Sets the value of the namePattern property.
+     * Legt den Wert der namePattern-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -81,7 +81,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Gets the value of the xpathQuery property.
+     * Ruft den Wert der xpathQuery-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -93,7 +93,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Sets the value of the xpathQuery property.
+     * Legt den Wert der xpathQuery-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -105,7 +105,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Gets the value of the folderLevelOfDetail property.
+     * Ruft den Wert der folderLevelOfDetail-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -117,7 +117,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Sets the value of the folderLevelOfDetail property.
+     * Legt den Wert der folderLevelOfDetail-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -129,7 +129,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Gets the value of the documentMetaDataType property.
+     * Ruft den Wert der documentMetaDataType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -141,7 +141,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Sets the value of the documentMetaDataType property.
+     * Legt den Wert der documentMetaDataType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -153,7 +153,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Gets the value of the folderMetaDataType property.
+     * Ruft den Wert der folderMetaDataType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -165,7 +165,7 @@ public class FolderQueryXto {
     }
 
     /**
-     * Sets the value of the folderMetaDataType property.
+     * Legt den Wert der folderMetaDataType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

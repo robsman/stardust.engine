@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *            An organization is a logical grouping of workflow participants.
  * 	       
  * 
- * <p>Java class for Organization complex type.
+ * <p>Java-Klasse für Organization complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Organization">
@@ -47,7 +47,7 @@ public class OrganizationXto
     protected OrganizationsXto allSubOrganizations;
 
     /**
-     * Gets the value of the teamLeadRole property.
+     * Ruft den Wert der teamLeadRole-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class OrganizationXto
     }
 
     /**
-     * Sets the value of the teamLeadRole property.
+     * Legt den Wert der teamLeadRole-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class OrganizationXto
     }
 
     /**
-     * Gets the value of the allSubRoles property.
+     * Ruft den Wert der allSubRoles-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class OrganizationXto
     }
 
     /**
-     * Sets the value of the allSubRoles property.
+     * Legt den Wert der allSubRoles-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -95,7 +95,7 @@ public class OrganizationXto
     }
 
     /**
-     * Gets the value of the allSubOrganizations property.
+     * Ruft den Wert der allSubOrganizations-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -107,7 +107,7 @@ public class OrganizationXto
     }
 
     /**
-     * Sets the value of the allSubOrganizations property.
+     * Legt den Wert der allSubOrganizations-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

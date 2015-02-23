@@ -13,9 +13,9 @@ import javax.xml.namespace.QName;
  * 	    	A client side view of a data definition.
  * 	    	
  * 
- * <p>Java class for VariableDefinition complex type.
+ * <p>Java-Klasse für VariableDefinition complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="VariableDefinition">
@@ -47,7 +47,7 @@ public class VariableDefinitionXto
     protected String typeId;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class VariableDefinitionXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class VariableDefinitionXto
     }
 
     /**
-     * Gets the value of the typeId property.
+     * Ruft den Wert der typeId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class VariableDefinitionXto
     }
 
     /**
-     * Sets the value of the typeId property.
+     * Legt den Wert der typeId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

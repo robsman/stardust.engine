@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -20,9 +19,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *  			or their attributes, i.e. deploy, owerwrite, modify or delete.
  * 			
  * 
- * <p>Java class for DeploymentInfo complex type.
+ * <p>Java-Klasse für DeploymentInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DeploymentInfo">
@@ -110,7 +109,7 @@ public class DeploymentInfoXto {
     protected boolean disabled;
 
     /**
-     * Gets the value of the errors property.
+     * Ruft den Wert der errors-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -122,7 +121,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the errors property.
+     * Legt den Wert der errors-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -134,7 +133,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the warnings property.
+     * Ruft den Wert der warnings-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -146,7 +145,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the warnings property.
+     * Legt den Wert der warnings-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -158,7 +157,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public int getModelOid() {
@@ -166,7 +165,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(int value) {
@@ -174,7 +173,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the predecessorOID property.
+     * Ruft den Wert der predecessorOID-Eigenschaft ab.
      * 
      */
     public int getPredecessorOID() {
@@ -182,7 +181,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the predecessorOID property.
+     * Legt den Wert der predecessorOID-Eigenschaft fest.
      * 
      */
     public void setPredecessorOID(int value) {
@@ -190,7 +189,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the validFrom property.
+     * Ruft den Wert der validFrom-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -202,7 +201,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the validFrom property.
+     * Legt den Wert der validFrom-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -214,7 +213,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the validTo property.
+     * Ruft den Wert der validTo-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -226,7 +225,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the validTo property.
+     * Legt den Wert der validTo-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -238,7 +237,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the deploymentTime property.
+     * Ruft den Wert der deploymentTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -250,7 +249,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the deploymentTime property.
+     * Legt den Wert der deploymentTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -262,7 +261,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the success property.
+     * Ruft den Wert der success-Eigenschaft ab.
      * 
      */
     public boolean isSuccess() {
@@ -270,7 +269,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the success property.
+     * Legt den Wert der success-Eigenschaft fest.
      * 
      */
     public void setSuccess(boolean value) {
@@ -278,7 +277,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -290,7 +289,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -302,7 +301,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the comment property.
+     * Ruft den Wert der comment-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -314,7 +313,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the comment property.
+     * Legt den Wert der comment-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -326,7 +325,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the revision property.
+     * Ruft den Wert der revision-Eigenschaft ab.
      * 
      */
     public int getRevision() {
@@ -334,7 +333,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the revision property.
+     * Legt den Wert der revision-Eigenschaft fest.
      * 
      */
     public void setRevision(int value) {
@@ -342,7 +341,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Gets the value of the disabled property.
+     * Ruft den Wert der disabled-Eigenschaft ab.
      * 
      */
     public boolean isDisabled() {
@@ -350,7 +349,7 @@ public class DeploymentInfoXto {
     }
 
     /**
-     * Sets the value of the disabled property.
+     * Legt den Wert der disabled-Eigenschaft fest.
      * 
      */
     public void setDisabled(boolean value) {
@@ -359,9 +358,9 @@ public class DeploymentInfoXto {
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -418,9 +417,9 @@ public class DeploymentInfoXto {
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>

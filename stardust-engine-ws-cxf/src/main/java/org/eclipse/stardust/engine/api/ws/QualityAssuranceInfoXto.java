@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				Class containing information considering the qa workflow
  * 			
  * 
- * <p>Java class for QualityAssuranceInfo complex type.
+ * <p>Java-Klasse für QualityAssuranceInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="QualityAssuranceInfo">
@@ -44,7 +44,7 @@ public class QualityAssuranceInfoXto {
     protected ActivityInstanceXto monitoredInstance;
 
     /**
-     * Gets the value of the failedQualityAssuranceInstance property.
+     * Ruft den Wert der failedQualityAssuranceInstance-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public class QualityAssuranceInfoXto {
     }
 
     /**
-     * Sets the value of the failedQualityAssuranceInstance property.
+     * Legt den Wert der failedQualityAssuranceInstance-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public class QualityAssuranceInfoXto {
     }
 
     /**
-     * Gets the value of the monitoredInstance property.
+     * Ruft den Wert der monitoredInstance-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public class QualityAssuranceInfoXto {
     }
 
     /**
-     * Sets the value of the monitoredInstance property.
+     * Legt den Wert der monitoredInstance-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

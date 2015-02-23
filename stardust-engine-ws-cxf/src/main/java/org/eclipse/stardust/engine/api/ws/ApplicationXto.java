@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			application may be executed within an activity.
  * 	        
  * 
- * <p>Java class for Application complex type.
+ * <p>Java-Klasse für Application complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Application">
@@ -47,7 +47,7 @@ public class ApplicationXto
     protected AttributesXto typeAttributes;
 
     /**
-     * Gets the value of the accessPoints property.
+     * Ruft den Wert der accessPoints-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class ApplicationXto
     }
 
     /**
-     * Sets the value of the accessPoints property.
+     * Legt den Wert der accessPoints-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class ApplicationXto
     }
 
     /**
-     * Gets the value of the typeAttributes property.
+     * Ruft den Wert der typeAttributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class ApplicationXto
     }
 
     /**
-     * Sets the value of the typeAttributes property.
+     * Legt den Wert der typeAttributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

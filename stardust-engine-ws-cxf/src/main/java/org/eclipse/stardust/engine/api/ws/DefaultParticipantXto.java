@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Used as a place holder when needing to specify the default participant.
  * 	        
  * 
- * <p>Java class for DefaultParticipant complex type.
+ * <p>Java-Klasse für DefaultParticipant complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DefaultParticipant">

@@ -15,9 +15,9 @@ import org.eclipse.stardust.common.Direction;
  * 			The DataPath provides read or write access to the workflow data.
  * 			
  * 
- * <p>Java class for DataPath complex type.
+ * <p>Java-Klasse für DataPath complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DataPath">
@@ -56,7 +56,7 @@ public class DataPathXto
     @XmlElement(required = true)
     protected QName type;
     @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlJavaTypeAdapter(Adapter2 .class)
     protected Direction direction;
     protected boolean descriptor;
     protected String accessPath;
@@ -66,7 +66,7 @@ public class DataPathXto
     protected boolean keyDescriptor;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -78,7 +78,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -90,7 +90,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the direction property.
+     * Ruft den Wert der direction-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -102,7 +102,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the direction property.
+     * Legt den Wert der direction-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -114,7 +114,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the descriptor property.
+     * Ruft den Wert der descriptor-Eigenschaft ab.
      * 
      */
     public boolean isDescriptor() {
@@ -122,7 +122,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the descriptor property.
+     * Legt den Wert der descriptor-Eigenschaft fest.
      * 
      */
     public void setDescriptor(boolean value) {
@@ -130,7 +130,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the accessPath property.
+     * Ruft den Wert der accessPath-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -142,7 +142,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the accessPath property.
+     * Legt den Wert der accessPath-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -154,7 +154,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the dataId property.
+     * Ruft den Wert der dataId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -166,7 +166,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the dataId property.
+     * Legt den Wert der dataId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -178,7 +178,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the mappedJavaType property.
+     * Ruft den Wert der mappedJavaType-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -190,7 +190,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the mappedJavaType property.
+     * Legt den Wert der mappedJavaType-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -202,7 +202,7 @@ public class DataPathXto
     }
 
     /**
-     * Gets the value of the keyDescriptor property.
+     * Ruft den Wert der keyDescriptor-Eigenschaft ab.
      * 
      */
     public boolean isKeyDescriptor() {
@@ -210,7 +210,7 @@ public class DataPathXto
     }
 
     /**
-     * Sets the value of the keyDescriptor property.
+     * Legt den Wert der keyDescriptor-Eigenschaft fest.
      * 
      */
     public void setKeyDescriptor(boolean value) {

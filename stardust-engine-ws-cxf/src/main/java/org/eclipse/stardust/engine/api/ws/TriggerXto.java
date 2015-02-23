@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			process definition containing the trigger.
  * 		    
  * 
- * <p>Java class for Trigger complex type.
+ * <p>Java-Klasse für Trigger complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Trigger">
@@ -54,7 +54,7 @@ public class TriggerXto
     protected ParameterMappingsXto parameterMappings;
 
     /**
-     * Gets the value of the runtimeElementOid property.
+     * Ruft den Wert der runtimeElementOid-Eigenschaft ab.
      * 
      */
     public long getRuntimeElementOid() {
@@ -62,7 +62,7 @@ public class TriggerXto
     }
 
     /**
-     * Sets the value of the runtimeElementOid property.
+     * Legt den Wert der runtimeElementOid-Eigenschaft fest.
      * 
      */
     public void setRuntimeElementOid(long value) {
@@ -70,7 +70,7 @@ public class TriggerXto
     }
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -82,7 +82,7 @@ public class TriggerXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -94,7 +94,7 @@ public class TriggerXto
     }
 
     /**
-     * Gets the value of the synchronous property.
+     * Ruft den Wert der synchronous-Eigenschaft ab.
      * 
      */
     public boolean isSynchronous() {
@@ -102,7 +102,7 @@ public class TriggerXto
     }
 
     /**
-     * Sets the value of the synchronous property.
+     * Legt den Wert der synchronous-Eigenschaft fest.
      * 
      */
     public void setSynchronous(boolean value) {
@@ -110,7 +110,7 @@ public class TriggerXto
     }
 
     /**
-     * Gets the value of the accessPoints property.
+     * Ruft den Wert der accessPoints-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -122,7 +122,7 @@ public class TriggerXto
     }
 
     /**
-     * Sets the value of the accessPoints property.
+     * Legt den Wert der accessPoints-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -134,7 +134,7 @@ public class TriggerXto
     }
 
     /**
-     * Gets the value of the parameterMappings property.
+     * Ruft den Wert der parameterMappings-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -146,7 +146,7 @@ public class TriggerXto
     }
 
     /**
-     * Sets the value of the parameterMappings property.
+     * Legt den Wert der parameterMappings-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

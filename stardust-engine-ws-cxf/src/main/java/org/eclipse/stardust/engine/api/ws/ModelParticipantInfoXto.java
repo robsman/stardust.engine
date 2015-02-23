@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information of a model participant that is needed to identify a ModelParticipant.
  * 	        
  * 
- * <p>Java class for ModelParticipantInfo complex type.
+ * <p>Java-Klasse für ModelParticipantInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelParticipantInfo">
@@ -55,7 +55,7 @@ public class ModelParticipantInfoXto
     protected DepartmentInfoXto department;
 
     /**
-     * Gets the value of the runtimeElementOid property.
+     * Ruft den Wert der runtimeElementOid-Eigenschaft ab.
      * 
      */
     public long getRuntimeElementOid() {
@@ -63,7 +63,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Sets the value of the runtimeElementOid property.
+     * Legt den Wert der runtimeElementOid-Eigenschaft fest.
      * 
      */
     public void setRuntimeElementOid(long value) {
@@ -71,7 +71,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Gets the value of the departmentScoped property.
+     * Ruft den Wert der departmentScoped-Eigenschaft ab.
      * 
      */
     public boolean isDepartmentScoped() {
@@ -79,7 +79,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Sets the value of the departmentScoped property.
+     * Legt den Wert der departmentScoped-Eigenschaft fest.
      * 
      */
     public void setDepartmentScoped(boolean value) {
@@ -87,7 +87,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Gets the value of the definesDepartmentScope property.
+     * Ruft den Wert der definesDepartmentScope-Eigenschaft ab.
      * 
      */
     public boolean isDefinesDepartmentScope() {
@@ -95,7 +95,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Sets the value of the definesDepartmentScope property.
+     * Legt den Wert der definesDepartmentScope-Eigenschaft fest.
      * 
      */
     public void setDefinesDepartmentScope(boolean value) {
@@ -103,7 +103,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Gets the value of the department property.
+     * Ruft den Wert der department-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -115,7 +115,7 @@ public class ModelParticipantInfoXto
     }
 
     /**
-     * Sets the value of the department property.
+     * Legt den Wert der department-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

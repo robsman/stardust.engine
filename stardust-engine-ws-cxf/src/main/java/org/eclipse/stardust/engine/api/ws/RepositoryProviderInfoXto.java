@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				to bind a new repository instance.
  * 			
  * 
- * <p>Java class for RepositoryProviderInfo complex type.
+ * <p>Java-Klasse für RepositoryProviderInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RepositoryProviderInfo">
@@ -51,7 +51,7 @@ public class RepositoryProviderInfoXto
     protected RepositoryConfigurationXto configurationTemplate;
 
     /**
-     * Gets the value of the providerId property.
+     * Ruft den Wert der providerId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -63,7 +63,7 @@ public class RepositoryProviderInfoXto
     }
 
     /**
-     * Sets the value of the providerId property.
+     * Legt den Wert der providerId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -75,7 +75,7 @@ public class RepositoryProviderInfoXto
     }
 
     /**
-     * Gets the value of the providerName property.
+     * Ruft den Wert der providerName-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -87,7 +87,7 @@ public class RepositoryProviderInfoXto
     }
 
     /**
-     * Sets the value of the providerName property.
+     * Legt den Wert der providerName-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -99,7 +99,7 @@ public class RepositoryProviderInfoXto
     }
 
     /**
-     * Gets the value of the configurationTemplate property.
+     * Ruft den Wert der configurationTemplate-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -111,7 +111,7 @@ public class RepositoryProviderInfoXto
     }
 
     /**
-     * Sets the value of the configurationTemplate property.
+     * Legt den Wert der configurationTemplate-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

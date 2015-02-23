@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Represents rules that apply to passwords.
  * 			
  * 
- * <p>Java class for PasswordRules complex type.
+ * <p>Java-Klasse für PasswordRules complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="PasswordRules">
@@ -65,7 +65,7 @@ public class PasswordRulesXto {
     protected int punctuation;
 
     /**
-     * Gets the value of the passwordTracking property.
+     * Ruft den Wert der passwordTracking-Eigenschaft ab.
      * 
      */
     public int getPasswordTracking() {
@@ -73,7 +73,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the passwordTracking property.
+     * Legt den Wert der passwordTracking-Eigenschaft fest.
      * 
      */
     public void setPasswordTracking(int value) {
@@ -81,7 +81,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the notificationMails property.
+     * Ruft den Wert der notificationMails-Eigenschaft ab.
      * 
      */
     public int getNotificationMails() {
@@ -89,7 +89,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the notificationMails property.
+     * Legt den Wert der notificationMails-Eigenschaft fest.
      * 
      */
     public void setNotificationMails(int value) {
@@ -97,7 +97,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the expirationTime property.
+     * Ruft den Wert der expirationTime-Eigenschaft ab.
      * 
      */
     public int getExpirationTime() {
@@ -105,7 +105,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the expirationTime property.
+     * Legt den Wert der expirationTime-Eigenschaft fest.
      * 
      */
     public void setExpirationTime(int value) {
@@ -113,7 +113,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the disableUserTime property.
+     * Ruft den Wert der disableUserTime-Eigenschaft ab.
      * 
      */
     public int getDisableUserTime() {
@@ -121,7 +121,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the disableUserTime property.
+     * Legt den Wert der disableUserTime-Eigenschaft fest.
      * 
      */
     public void setDisableUserTime(int value) {
@@ -129,7 +129,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the differentCharacters property.
+     * Ruft den Wert der differentCharacters-Eigenschaft ab.
      * 
      */
     public int getDifferentCharacters() {
@@ -137,7 +137,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the differentCharacters property.
+     * Legt den Wert der differentCharacters-Eigenschaft fest.
      * 
      */
     public void setDifferentCharacters(int value) {
@@ -145,7 +145,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the minimalPasswordLength property.
+     * Ruft den Wert der minimalPasswordLength-Eigenschaft ab.
      * 
      */
     public int getMinimalPasswordLength() {
@@ -153,7 +153,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the minimalPasswordLength property.
+     * Legt den Wert der minimalPasswordLength-Eigenschaft fest.
      * 
      */
     public void setMinimalPasswordLength(int value) {
@@ -161,7 +161,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the letters property.
+     * Ruft den Wert der letters-Eigenschaft ab.
      * 
      */
     public int getLetters() {
@@ -169,7 +169,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the letters property.
+     * Legt den Wert der letters-Eigenschaft fest.
      * 
      */
     public void setLetters(int value) {
@@ -177,7 +177,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the digits property.
+     * Ruft den Wert der digits-Eigenschaft ab.
      * 
      */
     public int getDigits() {
@@ -185,7 +185,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the digits property.
+     * Legt den Wert der digits-Eigenschaft fest.
      * 
      */
     public void setDigits(int value) {
@@ -193,7 +193,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the mixedCase property.
+     * Ruft den Wert der mixedCase-Eigenschaft ab.
      * 
      */
     public int getMixedCase() {
@@ -201,7 +201,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the mixedCase property.
+     * Legt den Wert der mixedCase-Eigenschaft fest.
      * 
      */
     public void setMixedCase(int value) {
@@ -209,7 +209,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Gets the value of the punctuation property.
+     * Ruft den Wert der punctuation-Eigenschaft ab.
      * 
      */
     public int getPunctuation() {
@@ -217,7 +217,7 @@ public class PasswordRulesXto {
     }
 
     /**
-     * Sets the value of the punctuation property.
+     * Legt den Wert der punctuation-Eigenschaft fest.
      * 
      */
     public void setPunctuation(int value) {

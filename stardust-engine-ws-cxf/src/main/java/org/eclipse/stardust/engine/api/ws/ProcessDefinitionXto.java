@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			of the process through the various activity steps.
  * 		    
  * 
- * <p>Java class for ProcessDefinition complex type.
+ * <p>Java-Klasse für ProcessDefinition complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ProcessDefinition">
@@ -80,7 +80,7 @@ public class ProcessDefinitionXto
     protected ProcessInterfaceXto declaredProcessInterface;
 
     /**
-     * Gets the value of the rtOid property.
+     * Ruft den Wert der rtOid-Eigenschaft ab.
      * 
      */
     public long getRtOid() {
@@ -88,7 +88,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the rtOid property.
+     * Legt den Wert der rtOid-Eigenschaft fest.
      * 
      */
     public void setRtOid(long value) {
@@ -96,7 +96,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the detailsLevel property.
+     * Ruft den Wert der detailsLevel-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -108,7 +108,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the detailsLevel property.
+     * Legt den Wert der detailsLevel-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -120,7 +120,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the dataPaths property.
+     * Ruft den Wert der dataPaths-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -132,7 +132,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the dataPaths property.
+     * Legt den Wert der dataPaths-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -144,7 +144,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the triggers property.
+     * Ruft den Wert der triggers-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -156,7 +156,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the triggers property.
+     * Legt den Wert der triggers-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -168,7 +168,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the activities property.
+     * Ruft den Wert der activities-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -180,7 +180,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the activities property.
+     * Legt den Wert der activities-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -192,7 +192,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the eventHandlers property.
+     * Ruft den Wert der eventHandlers-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -204,7 +204,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the eventHandlers property.
+     * Legt den Wert der eventHandlers-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -216,7 +216,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the implementedProcessInterface property.
+     * Ruft den Wert der implementedProcessInterface-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -228,7 +228,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the implementedProcessInterface property.
+     * Legt den Wert der implementedProcessInterface-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -240,7 +240,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Gets the value of the declaredProcessInterface property.
+     * Ruft den Wert der declaredProcessInterface-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -252,7 +252,7 @@ public class ProcessDefinitionXto
     }
 
     /**
-     * Sets the value of the declaredProcessInterface property.
+     * Legt den Wert der declaredProcessInterface-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -265,9 +265,9 @@ public class ProcessDefinitionXto
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>

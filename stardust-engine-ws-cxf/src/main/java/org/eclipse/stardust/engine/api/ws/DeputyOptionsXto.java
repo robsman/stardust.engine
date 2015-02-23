@@ -8,13 +8,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
- * <p>Java class for DeputyOptions complex type.
+ * <p>Java-Klasse für DeputyOptions complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="DeputyOptions">
@@ -52,7 +51,7 @@ public class DeputyOptionsXto {
     protected ModelParticipantInfosXto modelParticipantInfos;
 
     /**
-     * Gets the value of the fromDate property.
+     * Ruft den Wert der fromDate-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -64,7 +63,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Sets the value of the fromDate property.
+     * Legt den Wert der fromDate-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -76,7 +75,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Gets the value of the toDate property.
+     * Ruft den Wert der toDate-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -88,7 +87,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Sets the value of the toDate property.
+     * Legt den Wert der toDate-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -100,7 +99,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Gets the value of the modelParticipantInfos property.
+     * Ruft den Wert der modelParticipantInfos-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -112,7 +111,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Sets the value of the modelParticipantInfos property.
+     * Legt den Wert der modelParticipantInfos-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

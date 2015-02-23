@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Reports information about the last migration batch and the migration jobs in general.
  * 			
  * 
- * <p>Java class for RepositoryMigrationReport complex type.
+ * <p>Java-Klasse für RepositoryMigrationReport complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="RepositoryMigrationReport">
@@ -52,7 +52,7 @@ public class RepositoryMigrationReportXto {
     protected RepositoryMigrationJobInfoXto currentMigrationJob;
 
     /**
-     * Gets the value of the totalCount property.
+     * Ruft den Wert der totalCount-Eigenschaft ab.
      * 
      */
     public long getTotalCount() {
@@ -60,7 +60,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Sets the value of the totalCount property.
+     * Legt den Wert der totalCount-Eigenschaft fest.
      * 
      */
     public void setTotalCount(long value) {
@@ -68,7 +68,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Gets the value of the resourcesDone property.
+     * Ruft den Wert der resourcesDone-Eigenschaft ab.
      * 
      */
     public long getResourcesDone() {
@@ -76,7 +76,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Sets the value of the resourcesDone property.
+     * Legt den Wert der resourcesDone-Eigenschaft fest.
      * 
      */
     public void setResourcesDone(long value) {
@@ -84,7 +84,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Gets the value of the targetRepositoryVersion property.
+     * Ruft den Wert der targetRepositoryVersion-Eigenschaft ab.
      * 
      */
     public int getTargetRepositoryVersion() {
@@ -92,7 +92,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Sets the value of the targetRepositoryVersion property.
+     * Legt den Wert der targetRepositoryVersion-Eigenschaft fest.
      * 
      */
     public void setTargetRepositoryVersion(int value) {
@@ -100,7 +100,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Gets the value of the currentRepositoryVersion property.
+     * Ruft den Wert der currentRepositoryVersion-Eigenschaft ab.
      * 
      */
     public int getCurrentRepositoryVersion() {
@@ -108,7 +108,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Sets the value of the currentRepositoryVersion property.
+     * Legt den Wert der currentRepositoryVersion-Eigenschaft fest.
      * 
      */
     public void setCurrentRepositoryVersion(int value) {
@@ -116,7 +116,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Gets the value of the currentMigrationJob property.
+     * Ruft den Wert der currentMigrationJob-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -128,7 +128,7 @@ public class RepositoryMigrationReportXto {
     }
 
     /**
-     * Sets the value of the currentMigrationJob property.
+     * Legt den Wert der currentMigrationJob-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

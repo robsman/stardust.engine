@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -18,9 +17,9 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *  			Daemons can be started and stopped using the AdministrationService.
  * 			
  * 
- * <p>Java class for Daemon complex type.
+ * <p>Java-Klasse für Daemon complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Daemon">
@@ -67,7 +66,7 @@ public class DaemonXto {
     protected DaemonExecutionStateXto daemonExecutionState;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -79,7 +78,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -91,7 +90,7 @@ public class DaemonXto {
     }
 
     /**
-     * Gets the value of the startTime property.
+     * Ruft den Wert der startTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -103,7 +102,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the startTime property.
+     * Legt den Wert der startTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -115,7 +114,7 @@ public class DaemonXto {
     }
 
     /**
-     * Gets the value of the lastExecutionTime property.
+     * Ruft den Wert der lastExecutionTime-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -127,7 +126,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the lastExecutionTime property.
+     * Legt den Wert der lastExecutionTime-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -139,7 +138,7 @@ public class DaemonXto {
     }
 
     /**
-     * Gets the value of the running property.
+     * Ruft den Wert der running-Eigenschaft ab.
      * 
      */
     public boolean isRunning() {
@@ -147,7 +146,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the running property.
+     * Legt den Wert der running-Eigenschaft fest.
      * 
      */
     public void setRunning(boolean value) {
@@ -155,7 +154,7 @@ public class DaemonXto {
     }
 
     /**
-     * Gets the value of the acknowledgementState property.
+     * Ruft den Wert der acknowledgementState-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -167,7 +166,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the acknowledgementState property.
+     * Legt den Wert der acknowledgementState-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -179,7 +178,7 @@ public class DaemonXto {
     }
 
     /**
-     * Gets the value of the daemonExecutionState property.
+     * Ruft den Wert der daemonExecutionState-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -191,7 +190,7 @@ public class DaemonXto {
     }
 
     /**
-     * Sets the value of the daemonExecutionState property.
+     * Legt den Wert der daemonExecutionState-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

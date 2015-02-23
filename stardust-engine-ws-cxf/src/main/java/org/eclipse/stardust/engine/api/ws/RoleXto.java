@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		   A role represents the context in which the user participates in the execution of a process or activity.
  * 	       
  * 
- * <p>Java class for Role complex type.
+ * <p>Java-Klasse für Role complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Role">
@@ -44,7 +44,7 @@ public class RoleXto
     protected OrganizationsXto clientOrganizations;
 
     /**
-     * Gets the value of the teams property.
+     * Ruft den Wert der teams-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public class RoleXto
     }
 
     /**
-     * Sets the value of the teams property.
+     * Legt den Wert der teams-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public class RoleXto
     }
 
     /**
-     * Gets the value of the clientOrganizations property.
+     * Ruft den Wert der clientOrganizations-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public class RoleXto
     }
 
     /**
-     * Sets the value of the clientOrganizations property.
+     * Legt den Wert der clientOrganizations-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

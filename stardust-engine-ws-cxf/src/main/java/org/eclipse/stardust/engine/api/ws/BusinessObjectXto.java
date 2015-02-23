@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for BusinessObject complex type.
+ * <p>Java-Klasse für BusinessObject complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="BusinessObject">
@@ -55,7 +55,7 @@ public class BusinessObjectXto {
     protected BusinessObjectDefinitionsXto items;
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public long getModelOid() {
@@ -63,7 +63,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(long value) {
@@ -71,7 +71,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -95,7 +95,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Gets the value of the modelId property.
+     * Ruft den Wert der modelId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -107,7 +107,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the modelId property.
+     * Legt den Wert der modelId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -119,7 +119,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -131,7 +131,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -143,7 +143,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Gets the value of the values property.
+     * Ruft den Wert der values-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -155,7 +155,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the values property.
+     * Legt den Wert der values-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -167,7 +167,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Gets the value of the items property.
+     * Ruft den Wert der items-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -179,7 +179,7 @@ public class BusinessObjectXto {
     }
 
     /**
-     * Sets the value of the items property.
+     * Legt den Wert der items-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

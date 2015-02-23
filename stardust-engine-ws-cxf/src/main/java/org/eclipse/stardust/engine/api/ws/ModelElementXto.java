@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *             Abstract element containing base data for all model elements
  * 			
  * 
- * <p>Java class for ModelElement complex type.
+ * <p>Java-Klasse für ModelElement complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ModelElement">
@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="modelOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="qualifiedId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="partitionId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -40,6 +41,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ModelElement", propOrder = {
     "modelOid",
     "id",
+    "qualifiedId",
     "name",
     "description",
     "partitionId",
@@ -47,8 +49,8 @@ import javax.xml.bind.annotation.XmlType;
     "attributes"
 })
 @XmlSeeAlso({
-    ProcessDefinitionXto.class,
     ModelDescriptionXto.class,
+    ProcessDefinitionXto.class,
     InteractionContextXto.class,
     TypeDeclarationXto.class,
     ActivityDefinitionXto.class,
@@ -67,6 +69,7 @@ public class ModelElementXto {
 
     protected long modelOid;
     protected String id;
+    protected String qualifiedId;
     protected String name;
     protected String description;
     protected String partitionId;
@@ -74,7 +77,7 @@ public class ModelElementXto {
     protected AttributesXto attributes;
 
     /**
-     * Gets the value of the modelOid property.
+     * Ruft den Wert der modelOid-Eigenschaft ab.
      * 
      */
     public long getModelOid() {
@@ -82,7 +85,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the modelOid property.
+     * Legt den Wert der modelOid-Eigenschaft fest.
      * 
      */
     public void setModelOid(long value) {
@@ -90,7 +93,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the id property.
+     * Ruft den Wert der id-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -102,7 +105,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the id property.
+     * Legt den Wert der id-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -114,7 +117,31 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the name property.
+     * Ruft den Wert der qualifiedId-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getQualifiedId() {
+        return qualifiedId;
+    }
+
+    /**
+     * Legt den Wert der qualifiedId-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setQualifiedId(String value) {
+        this.qualifiedId = value;
+    }
+
+    /**
+     * Ruft den Wert der name-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -126,7 +153,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the name property.
+     * Legt den Wert der name-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -138,7 +165,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the description property.
+     * Ruft den Wert der description-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -150,7 +177,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the description property.
+     * Legt den Wert der description-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -162,7 +189,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the partitionId property.
+     * Ruft den Wert der partitionId-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -174,7 +201,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the partitionId property.
+     * Legt den Wert der partitionId-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -186,7 +213,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the partitionOid property.
+     * Ruft den Wert der partitionOid-Eigenschaft ab.
      * 
      */
     public short getPartitionOid() {
@@ -194,7 +221,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the partitionOid property.
+     * Legt den Wert der partitionOid-Eigenschaft fest.
      * 
      */
     public void setPartitionOid(short value) {
@@ -202,7 +229,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Gets the value of the attributes property.
+     * Ruft den Wert der attributes-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -214,7 +241,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Sets the value of the attributes property.
+     * Legt den Wert der attributes-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

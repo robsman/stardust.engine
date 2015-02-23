@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information needed to identify a conditional performer.
  * 	        
  * 
- * <p>Java class for ConditionalPerformerInfo complex type.
+ * <p>Java-Klasse für ConditionalPerformerInfo complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ConditionalPerformerInfo">

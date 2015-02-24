@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,7 +64,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
 import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
 import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
@@ -576,7 +575,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                         }
 
                         final Serializable descriptionDetails = new HistoricalEventDescriptionStateChangeDetails(
-                              prevHistState.getState(), state, performedByDetails);
+                              prevHistState.getState(), prevHistState.getParticipant(), //
+                              state, performedByDetails, //
+                              histState.getOnBehalfOfParticipant());
                         historicalEvents.add(new HistoricalEventDetails(
                               HistoricalEventType.StateChange, activityInstance
                                     .getLastModificationTime(), HistoricalEventDetails
@@ -613,8 +614,10 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                   HistoricalEventType.StateChange, //
                   activityInstance.getLastModificationTime(), //
                   performedByDetails, //
-                  new HistoricalEventDescriptionStateChangeDetails(prevHistState
-                        .getState(), state, performedByDetails)));
+                  new HistoricalEventDescriptionStateChangeDetails( //
+                        prevHistState.getState(), prevHistState.getPerfomer(), //
+                        state, performedByDetails, //
+                        null)));
          }
       }
 

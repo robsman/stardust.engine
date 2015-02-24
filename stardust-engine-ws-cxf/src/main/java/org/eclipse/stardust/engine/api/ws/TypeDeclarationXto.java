@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	        A client side view of a type declaration.
  * 	        
  * 
- * <p>Java-Klasse für TypeDeclaration complex type.
+ * <p>Java class for TypeDeclaration complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="TypeDeclaration">
@@ -42,7 +42,7 @@ public class TypeDeclarationXto
     protected XpdlTypeXto xpdlType;
 
     /**
-     * Ruft den Wert der xpdlType-Eigenschaft ab.
+     * Gets the value of the xpdlType property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class TypeDeclarationXto
     }
 
     /**
-     * Legt den Wert der xpdlType-Eigenschaft fest.
+     * Sets the value of the xpdlType property.
      * 
      * @param value
      *     allowed object is

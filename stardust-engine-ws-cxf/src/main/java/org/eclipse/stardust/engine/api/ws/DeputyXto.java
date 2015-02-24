@@ -8,12 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
- * <p>Java-Klasse für Deputy complex type.
+ * <p>Java class for Deputy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Deputy">
@@ -59,7 +60,7 @@ public class DeputyXto {
     protected ModelParticipantInfosXto participants;
 
     /**
-     * Ruft den Wert der user-Eigenschaft ab.
+     * Gets the value of the user property.
      * 
      * @return
      *     possible object is
@@ -71,7 +72,7 @@ public class DeputyXto {
     }
 
     /**
-     * Legt den Wert der user-Eigenschaft fest.
+     * Sets the value of the user property.
      * 
      * @param value
      *     allowed object is
@@ -83,7 +84,7 @@ public class DeputyXto {
     }
 
     /**
-     * Ruft den Wert der deputyUser-Eigenschaft ab.
+     * Gets the value of the deputyUser property.
      * 
      * @return
      *     possible object is
@@ -95,7 +96,7 @@ public class DeputyXto {
     }
 
     /**
-     * Legt den Wert der deputyUser-Eigenschaft fest.
+     * Sets the value of the deputyUser property.
      * 
      * @param value
      *     allowed object is
@@ -107,7 +108,7 @@ public class DeputyXto {
     }
 
     /**
-     * Ruft den Wert der fromDate-Eigenschaft ab.
+     * Gets the value of the fromDate property.
      * 
      * @return
      *     possible object is
@@ -119,7 +120,7 @@ public class DeputyXto {
     }
 
     /**
-     * Legt den Wert der fromDate-Eigenschaft fest.
+     * Sets the value of the fromDate property.
      * 
      * @param value
      *     allowed object is
@@ -131,7 +132,7 @@ public class DeputyXto {
     }
 
     /**
-     * Ruft den Wert der untilDate-Eigenschaft ab.
+     * Gets the value of the untilDate property.
      * 
      * @return
      *     possible object is
@@ -143,7 +144,7 @@ public class DeputyXto {
     }
 
     /**
-     * Legt den Wert der untilDate-Eigenschaft fest.
+     * Sets the value of the untilDate property.
      * 
      * @param value
      *     allowed object is
@@ -155,7 +156,7 @@ public class DeputyXto {
     }
 
     /**
-     * Ruft den Wert der participants-Eigenschaft ab.
+     * Gets the value of the participants property.
      * 
      * @return
      *     possible object is
@@ -167,7 +168,7 @@ public class DeputyXto {
     }
 
     /**
-     * Legt den Wert der participants-Eigenschaft fest.
+     * Sets the value of the participants property.
      * 
      * @param value
      *     allowed object is

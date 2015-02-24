@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			application assignment), forming one logical step in the realization of the process.
  * 		    
  * 
- * <p>Java-Klasse für ActivityDefinition complex type.
+ * <p>Java class for ActivityDefinition complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ActivityDefinition">
@@ -81,7 +81,7 @@ public class ActivityDefinitionXto
     protected EventHandlerDefinitionsXto eventHandlers;
 
     /**
-     * Ruft den Wert der rtOid-Eigenschaft ab.
+     * Gets the value of the rtOid property.
      * 
      */
     public long getRtOid() {
@@ -89,7 +89,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der rtOid-Eigenschaft fest.
+     * Sets the value of the rtOid property.
      * 
      */
     public void setRtOid(long value) {
@@ -97,7 +97,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der abortable-Eigenschaft ab.
+     * Gets the value of the abortable property.
      * 
      */
     public boolean isAbortable() {
@@ -105,7 +105,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der abortable-Eigenschaft fest.
+     * Sets the value of the abortable property.
      * 
      */
     public void setAbortable(boolean value) {
@@ -113,7 +113,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der interactive-Eigenschaft ab.
+     * Gets the value of the interactive property.
      * 
      */
     public boolean isInteractive() {
@@ -121,7 +121,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der interactive-Eigenschaft fest.
+     * Sets the value of the interactive property.
      * 
      */
     public void setInteractive(boolean value) {
@@ -129,7 +129,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der implementationType-Eigenschaft ab.
+     * Gets the value of the implementationType property.
      * 
      * @return
      *     possible object is
@@ -141,7 +141,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der implementationType-Eigenschaft fest.
+     * Sets the value of the implementationType property.
      * 
      * @param value
      *     allowed object is
@@ -153,7 +153,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der defaultPerformer-Eigenschaft ab.
+     * Gets the value of the defaultPerformer property.
      * 
      * @return
      *     possible object is
@@ -165,7 +165,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der defaultPerformer-Eigenschaft fest.
+     * Sets the value of the defaultPerformer property.
      * 
      * @param value
      *     allowed object is
@@ -177,7 +177,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der application-Eigenschaft ab.
+     * Gets the value of the application property.
      * 
      * @return
      *     possible object is
@@ -189,7 +189,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der application-Eigenschaft fest.
+     * Sets the value of the application property.
      * 
      * @param value
      *     allowed object is
@@ -201,7 +201,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der interactionContexts-Eigenschaft ab.
+     * Gets the value of the interactionContexts property.
      * 
      * @return
      *     possible object is
@@ -213,7 +213,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der interactionContexts-Eigenschaft fest.
+     * Sets the value of the interactionContexts property.
      * 
      * @param value
      *     allowed object is
@@ -225,7 +225,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Ruft den Wert der eventHandlers-Eigenschaft ab.
+     * Gets the value of the eventHandlers property.
      * 
      * @return
      *     possible object is
@@ -237,7 +237,7 @@ public class ActivityDefinitionXto
     }
 
     /**
-     * Legt den Wert der eventHandlers-Eigenschaft fest.
+     * Sets the value of the eventHandlers property.
      * 
      * @param value
      *     allowed object is
@@ -250,9 +250,9 @@ public class ActivityDefinitionXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>

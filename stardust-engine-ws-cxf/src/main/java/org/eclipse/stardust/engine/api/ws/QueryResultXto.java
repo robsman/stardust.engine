@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			 Holds retrieved items and a flag if more items would be available beyond that subset.
  * 			
  * 
- * <p>Java-Klasse für QueryResult complex type.
+ * <p>Java class for QueryResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="QueryResult">
@@ -40,17 +40,17 @@ import javax.xml.bind.annotation.XmlType;
     "totalCountThreshold"
 })
 @XmlSeeAlso({
+    UserQueryResultXto.class,
+    ActivityQueryResultXto.class,
+    ProcessInstanceQueryResultXto.class,
     UserGroupQueryResultXto.class,
-    ProcessDefinitionQueryResultXto.class,
-    VariableDefinitionQueryResultXto.class,
     org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto.class,
     org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto.class,
-    ActivityQueryResultXto.class,
-    ModelsQueryResultXto.class,
-    UserQueryResultXto.class,
-    ProcessInstanceQueryResultXto.class,
+    DocumentQueryResultXto.class,
+    VariableDefinitionQueryResultXto.class,
+    ProcessDefinitionQueryResultXto.class,
     LogEntryQueryResultXto.class,
-    DocumentQueryResultXto.class
+    ModelsQueryResultXto.class
 })
 public class QueryResultXto {
 
@@ -59,7 +59,7 @@ public class QueryResultXto {
     protected long totalCountThreshold;
 
     /**
-     * Ruft den Wert der totalCount-Eigenschaft ab.
+     * Gets the value of the totalCount property.
      * 
      * @return
      *     possible object is
@@ -71,7 +71,7 @@ public class QueryResultXto {
     }
 
     /**
-     * Legt den Wert der totalCount-Eigenschaft fest.
+     * Sets the value of the totalCount property.
      * 
      * @param value
      *     allowed object is
@@ -83,7 +83,7 @@ public class QueryResultXto {
     }
 
     /**
-     * Ruft den Wert der hasMore-Eigenschaft ab.
+     * Gets the value of the hasMore property.
      * 
      */
     public boolean isHasMore() {
@@ -91,7 +91,7 @@ public class QueryResultXto {
     }
 
     /**
-     * Legt den Wert der hasMore-Eigenschaft fest.
+     * Sets the value of the hasMore property.
      * 
      */
     public void setHasMore(boolean value) {
@@ -99,7 +99,7 @@ public class QueryResultXto {
     }
 
     /**
-     * Ruft den Wert der totalCountThreshold-Eigenschaft ab.
+     * Gets the value of the totalCountThreshold property.
      * 
      */
     public long getTotalCountThreshold() {
@@ -107,7 +107,7 @@ public class QueryResultXto {
     }
 
     /**
-     * Legt den Wert der totalCountThreshold-Eigenschaft fest.
+     * Sets the value of the totalCountThreshold property.
      * 
      */
     public void setTotalCountThreshold(long value) {

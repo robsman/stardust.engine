@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Provides a client view on a user realm.
  * 			
  * 
- * <p>Java-Klasse für UserRealm complex type.
+ * <p>Java class for UserRealm complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserRealm">
@@ -57,7 +57,7 @@ public class UserRealmXto {
     protected String partitionId;
 
     /**
-     * Ruft den Wert der oid-Eigenschaft ab.
+     * Gets the value of the oid property.
      * 
      */
     public long getOid() {
@@ -65,7 +65,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der oid-Eigenschaft fest.
+     * Sets the value of the oid property.
      * 
      */
     public void setOid(long value) {
@@ -73,7 +73,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -85,7 +85,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -97,7 +97,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -109,7 +109,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -121,7 +121,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -133,7 +133,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -145,7 +145,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Ruft den Wert der partitionOid-Eigenschaft ab.
+     * Gets the value of the partitionOid property.
      * 
      */
     public long getPartitionOid() {
@@ -153,7 +153,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der partitionOid-Eigenschaft fest.
+     * Sets the value of the partitionOid property.
      * 
      */
     public void setPartitionOid(long value) {
@@ -161,7 +161,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Ruft den Wert der partitionId-Eigenschaft ab.
+     * Gets the value of the partitionId property.
      * 
      * @return
      *     possible object is
@@ -173,7 +173,7 @@ public class UserRealmXto {
     }
 
     /**
-     * Legt den Wert der partitionId-Eigenschaft fest.
+     * Sets the value of the partitionId property.
      * 
      * @param value
      *     allowed object is

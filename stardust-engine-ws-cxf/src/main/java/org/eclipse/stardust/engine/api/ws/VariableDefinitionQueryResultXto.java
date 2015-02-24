@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an VariableDefinitionQuery execution.
  * 			
  * 
- * <p>Java-Klasse für VariableDefinitionQueryResult complex type.
+ * <p>Java class for VariableDefinitionQueryResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="VariableDefinitionQueryResult">
@@ -40,7 +40,7 @@ public class VariableDefinitionQueryResultXto
     protected VariableDefinitionsXto variableDefinitions;
 
     /**
-     * Ruft den Wert der variableDefinitions-Eigenschaft ab.
+     * Gets the value of the variableDefinitions property.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class VariableDefinitionQueryResultXto
     }
 
     /**
-     * Legt den Wert der variableDefinitions-Eigenschaft fest.
+     * Sets the value of the variableDefinitions property.
      * 
      * @param value
      *     allowed object is

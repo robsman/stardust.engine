@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für Grants complex type.
+ * <p>Java class for Grants complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Grants">
@@ -88,9 +88,9 @@ public class GrantsXto {
      * 			       The 'grant' represents a permission granted to a user to perform as a specific participant (role or organization) of a model.
      * 			       
      * 
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -137,7 +137,7 @@ public class GrantsXto {
         protected GrantsXto superGrants;
 
         /**
-         * Ruft den Wert der id-Eigenschaft ab.
+         * Gets the value of the id property.
          * 
          * @return
          *     possible object is
@@ -149,7 +149,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der id-Eigenschaft fest.
+         * Sets the value of the id property.
          * 
          * @param value
          *     allowed object is
@@ -161,7 +161,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der qualifiedId-Eigenschaft ab.
+         * Gets the value of the qualifiedId property.
          * 
          * @return
          *     possible object is
@@ -173,7 +173,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der qualifiedId-Eigenschaft fest.
+         * Sets the value of the qualifiedId property.
          * 
          * @param value
          *     allowed object is
@@ -185,7 +185,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der name-Eigenschaft ab.
+         * Gets the value of the name property.
          * 
          * @return
          *     possible object is
@@ -197,7 +197,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der name-Eigenschaft fest.
+         * Sets the value of the name property.
          * 
          * @param value
          *     allowed object is
@@ -209,7 +209,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der modelOid-Eigenschaft ab.
+         * Gets the value of the modelOid property.
          * 
          * @return
          *     possible object is
@@ -221,7 +221,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der modelOid-Eigenschaft fest.
+         * Sets the value of the modelOid property.
          * 
          * @param value
          *     allowed object is
@@ -233,7 +233,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der elementOid-Eigenschaft ab.
+         * Gets the value of the elementOid property.
          * 
          * @return
          *     possible object is
@@ -245,7 +245,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der elementOid-Eigenschaft fest.
+         * Sets the value of the elementOid property.
          * 
          * @param value
          *     allowed object is
@@ -257,7 +257,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der department-Eigenschaft ab.
+         * Gets the value of the department property.
          * 
          * @return
          *     possible object is
@@ -269,7 +269,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der department-Eigenschaft fest.
+         * Sets the value of the department property.
          * 
          * @param value
          *     allowed object is
@@ -281,7 +281,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der organization-Eigenschaft ab.
+         * Gets the value of the organization property.
          * 
          * @return
          *     possible object is
@@ -293,7 +293,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der organization-Eigenschaft fest.
+         * Sets the value of the organization property.
          * 
          * @param value
          *     allowed object is
@@ -305,7 +305,7 @@ public class GrantsXto {
         }
 
         /**
-         * Ruft den Wert der superGrants-Eigenschaft ab.
+         * Gets the value of the superGrants property.
          * 
          * @return
          *     possible object is
@@ -317,7 +317,7 @@ public class GrantsXto {
         }
 
         /**
-         * Legt den Wert der superGrants-Eigenschaft fest.
+         * Sets the value of the superGrants property.
          * 
          * @param value
          *     allowed object is

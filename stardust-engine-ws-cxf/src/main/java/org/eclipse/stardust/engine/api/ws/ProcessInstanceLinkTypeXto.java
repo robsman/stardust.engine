@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für ProcessInstanceLinkType complex type.
+ * <p>Java class for ProcessInstanceLinkType complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceLinkType">
@@ -43,7 +43,7 @@ public class ProcessInstanceLinkTypeXto {
     protected String description;
 
     /**
-     * Ruft den Wert der oid-Eigenschaft ab.
+     * Gets the value of the oid property.
      * 
      */
     public long getOid() {
@@ -51,7 +51,7 @@ public class ProcessInstanceLinkTypeXto {
     }
 
     /**
-     * Legt den Wert der oid-Eigenschaft fest.
+     * Sets the value of the oid property.
      * 
      */
     public void setOid(long value) {
@@ -59,7 +59,7 @@ public class ProcessInstanceLinkTypeXto {
     }
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -71,7 +71,7 @@ public class ProcessInstanceLinkTypeXto {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -83,7 +83,7 @@ public class ProcessInstanceLinkTypeXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -95,7 +95,7 @@ public class ProcessInstanceLinkTypeXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is

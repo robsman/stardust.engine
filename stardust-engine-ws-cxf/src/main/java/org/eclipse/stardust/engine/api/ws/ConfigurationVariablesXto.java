@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				Holds a List of ConfigurationVariables belonging to a specific modelId
  * 			
  * 
- * <p>Java-Klasse für ConfigurationVariables complex type.
+ * <p>Java class for ConfigurationVariables complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ConfigurationVariables">
@@ -45,7 +45,7 @@ public class ConfigurationVariablesXto {
     protected List<ConfigurationVariableXto> configurationVariable;
 
     /**
-     * Ruft den Wert der modelId-Eigenschaft ab.
+     * Gets the value of the modelId property.
      * 
      * @return
      *     possible object is
@@ -57,7 +57,7 @@ public class ConfigurationVariablesXto {
     }
 
     /**
-     * Legt den Wert der modelId-Eigenschaft fest.
+     * Sets the value of the modelId property.
      * 
      * @param value
      *     allowed object is

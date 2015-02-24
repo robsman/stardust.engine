@@ -8,12 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
- * <p>Java-Klasse für ProcessInstanceLink complex type.
+ * <p>Java class for ProcessInstanceLink complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceLink">
@@ -59,7 +60,7 @@ public class ProcessInstanceLinkXto {
     protected ProcessInstanceLinkTypeXto linkType;
 
     /**
-     * Ruft den Wert der sourceOid-Eigenschaft ab.
+     * Gets the value of the sourceOid property.
      * 
      */
     public long getSourceOid() {
@@ -67,7 +68,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der sourceOid-Eigenschaft fest.
+     * Sets the value of the sourceOid property.
      * 
      */
     public void setSourceOid(long value) {
@@ -75,7 +76,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Ruft den Wert der targetOid-Eigenschaft ab.
+     * Gets the value of the targetOid property.
      * 
      */
     public long getTargetOid() {
@@ -83,7 +84,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der targetOid-Eigenschaft fest.
+     * Sets the value of the targetOid property.
      * 
      */
     public void setTargetOid(long value) {
@@ -91,7 +92,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Ruft den Wert der createTime-Eigenschaft ab.
+     * Gets the value of the createTime property.
      * 
      * @return
      *     possible object is
@@ -103,7 +104,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der createTime-Eigenschaft fest.
+     * Sets the value of the createTime property.
      * 
      * @param value
      *     allowed object is
@@ -115,7 +116,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Ruft den Wert der creatingUser-Eigenschaft ab.
+     * Gets the value of the creatingUser property.
      * 
      * @return
      *     possible object is
@@ -127,7 +128,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der creatingUser-Eigenschaft fest.
+     * Sets the value of the creatingUser property.
      * 
      * @param value
      *     allowed object is
@@ -139,7 +140,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Ruft den Wert der comment-Eigenschaft ab.
+     * Gets the value of the comment property.
      * 
      * @return
      *     possible object is
@@ -151,7 +152,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der comment-Eigenschaft fest.
+     * Sets the value of the comment property.
      * 
      * @param value
      *     allowed object is
@@ -163,7 +164,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Ruft den Wert der linkType-Eigenschaft ab.
+     * Gets the value of the linkType property.
      * 
      * @return
      *     possible object is
@@ -175,7 +176,7 @@ public class ProcessInstanceLinkXto {
     }
 
     /**
-     * Legt den Wert der linkType-Eigenschaft fest.
+     * Sets the value of the linkType property.
      * 
      * @param value
      *     allowed object is

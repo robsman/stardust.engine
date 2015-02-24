@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				none yet
  * 			
  * 
- * <p>Java-Klasse für Preferences complex type.
+ * <p>Java class for Preferences complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Preferences">
@@ -61,7 +61,7 @@ public class PreferencesXto {
     protected PreferencesMapXto preferencesMap;
 
     /**
-     * Ruft den Wert der moduleId-Eigenschaft ab.
+     * Gets the value of the moduleId property.
      * 
      * @return
      *     possible object is
@@ -73,7 +73,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der moduleId-Eigenschaft fest.
+     * Sets the value of the moduleId property.
      * 
      * @param value
      *     allowed object is
@@ -85,7 +85,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der preferencesId-Eigenschaft ab.
+     * Gets the value of the preferencesId property.
      * 
      * @return
      *     possible object is
@@ -97,7 +97,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der preferencesId-Eigenschaft fest.
+     * Sets the value of the preferencesId property.
      * 
      * @param value
      *     allowed object is
@@ -109,7 +109,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der partitionId-Eigenschaft ab.
+     * Gets the value of the partitionId property.
      * 
      * @return
      *     possible object is
@@ -121,7 +121,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der partitionId-Eigenschaft fest.
+     * Sets the value of the partitionId property.
      * 
      * @param value
      *     allowed object is
@@ -133,7 +133,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der realmId-Eigenschaft ab.
+     * Gets the value of the realmId property.
      * 
      * @return
      *     possible object is
@@ -145,7 +145,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der realmId-Eigenschaft fest.
+     * Sets the value of the realmId property.
      * 
      * @param value
      *     allowed object is
@@ -157,7 +157,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der userId-Eigenschaft ab.
+     * Gets the value of the userId property.
      * 
      * @return
      *     possible object is
@@ -169,7 +169,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der userId-Eigenschaft fest.
+     * Sets the value of the userId property.
      * 
      * @param value
      *     allowed object is
@@ -181,7 +181,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der preferenceScope-Eigenschaft ab.
+     * Gets the value of the preferenceScope property.
      * 
      * @return
      *     possible object is
@@ -193,7 +193,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der preferenceScope-Eigenschaft fest.
+     * Sets the value of the preferenceScope property.
      * 
      * @param value
      *     allowed object is
@@ -205,7 +205,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Ruft den Wert der preferencesMap-Eigenschaft ab.
+     * Gets the value of the preferencesMap property.
      * 
      * @return
      *     possible object is
@@ -217,7 +217,7 @@ public class PreferencesXto {
     }
 
     /**
-     * Legt den Wert der preferencesMap-Eigenschaft fest.
+     * Sets the value of the preferencesMap property.
      * 
      * @param value
      *     allowed object is

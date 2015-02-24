@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				Represents the result of a quality assurance instance resolution
  * 			
  * 
- * <p>Java-Klasse für QualityAssuranceResult complex type.
+ * <p>Java class for QualityAssuranceResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="QualityAssuranceResult">
@@ -77,7 +77,7 @@ public class QualityAssuranceResultXto {
     }
 
     /**
-     * Ruft den Wert der qualityAssuranceState-Eigenschaft ab.
+     * Gets the value of the qualityAssuranceState property.
      * 
      * @return
      *     possible object is
@@ -89,7 +89,7 @@ public class QualityAssuranceResultXto {
     }
 
     /**
-     * Legt den Wert der qualityAssuranceState-Eigenschaft fest.
+     * Sets the value of the qualityAssuranceState property.
      * 
      * @param value
      *     allowed object is
@@ -101,7 +101,7 @@ public class QualityAssuranceResultXto {
     }
 
     /**
-     * Ruft den Wert der assignFailedInstanceToLastPerformer-Eigenschaft ab.
+     * Gets the value of the assignFailedInstanceToLastPerformer property.
      * 
      */
     public boolean isAssignFailedInstanceToLastPerformer() {
@@ -109,7 +109,7 @@ public class QualityAssuranceResultXto {
     }
 
     /**
-     * Legt den Wert der assignFailedInstanceToLastPerformer-Eigenschaft fest.
+     * Sets the value of the assignFailedInstanceToLastPerformer property.
      * 
      */
     public void setAssignFailedInstanceToLastPerformer(boolean value) {

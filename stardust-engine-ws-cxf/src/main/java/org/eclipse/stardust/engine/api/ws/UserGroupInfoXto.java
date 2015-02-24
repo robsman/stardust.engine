@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information needed to identify a user group.
  * 	        
  * 
- * <p>Java-Klasse für UserGroupInfo complex type.
+ * <p>Java class for UserGroupInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserGroupInfo">

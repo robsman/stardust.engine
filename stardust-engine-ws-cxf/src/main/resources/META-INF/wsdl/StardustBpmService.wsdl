@@ -28,6 +28,9 @@
       <wsdl:part element="impl:bpmFault" name="parameters" />
    </wsdl:message> 
 
+   <wsdl:message name="bpmFault2">
+      <wsdl:part element="impl:bpmFault" name="parameters" />
+   </wsdl:message> 
    <!-- WorkflowService -->
 
    <wsdl:message name="startProcessRequest">

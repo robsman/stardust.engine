@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Holds basic information of a document version.
  * 			
  * 
- * <p>Java-Klasse für DocumentVersionInfo complex type.
+ * <p>Java class for DocumentVersionInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DocumentVersionInfo">
@@ -41,7 +41,7 @@ public class DocumentVersionInfoXto {
     protected String comment;
 
     /**
-     * Ruft den Wert der label-Eigenschaft ab.
+     * Gets the value of the label property.
      * 
      * @return
      *     possible object is
@@ -53,7 +53,7 @@ public class DocumentVersionInfoXto {
     }
 
     /**
-     * Legt den Wert der label-Eigenschaft fest.
+     * Sets the value of the label property.
      * 
      * @param value
      *     allowed object is
@@ -65,7 +65,7 @@ public class DocumentVersionInfoXto {
     }
 
     /**
-     * Ruft den Wert der comment-Eigenschaft ab.
+     * Gets the value of the comment property.
      * 
      * @return
      *     possible object is
@@ -77,7 +77,7 @@ public class DocumentVersionInfoXto {
     }
 
     /**
-     * Legt den Wert der comment-Eigenschaft fest.
+     * Sets the value of the comment property.
      * 
      * @param value
      *     allowed object is

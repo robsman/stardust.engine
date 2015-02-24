@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Type declaration containing embedded schema.
  * 	        
  * 
- * <p>Java-Klasse für ExternalReference complex type.
+ * <p>Java class for ExternalReference complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ExternalReference">
@@ -52,7 +52,7 @@ public class ExternalReferenceXto {
     protected XmlValueXto xml;
 
     /**
-     * Ruft den Wert der namespace-Eigenschaft ab.
+     * Gets the value of the namespace property.
      * 
      * @return
      *     possible object is
@@ -64,7 +64,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Legt den Wert der namespace-Eigenschaft fest.
+     * Sets the value of the namespace property.
      * 
      * @param value
      *     allowed object is
@@ -76,7 +76,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Ruft den Wert der location-Eigenschaft ab.
+     * Gets the value of the location property.
      * 
      * @return
      *     possible object is
@@ -88,7 +88,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Legt den Wert der location-Eigenschaft fest.
+     * Sets the value of the location property.
      * 
      * @param value
      *     allowed object is
@@ -100,7 +100,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Ruft den Wert der xref-Eigenschaft ab.
+     * Gets the value of the xref property.
      * 
      * @return
      *     possible object is
@@ -112,7 +112,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Legt den Wert der xref-Eigenschaft fest.
+     * Sets the value of the xref property.
      * 
      * @param value
      *     allowed object is
@@ -124,7 +124,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Ruft den Wert der xml-Eigenschaft ab.
+     * Gets the value of the xml property.
      * 
      * @return
      *     possible object is
@@ -136,7 +136,7 @@ public class ExternalReferenceXto {
     }
 
     /**
-     * Legt den Wert der xml-Eigenschaft fest.
+     * Sets the value of the xml property.
      * 
      * @param value
      *     allowed object is

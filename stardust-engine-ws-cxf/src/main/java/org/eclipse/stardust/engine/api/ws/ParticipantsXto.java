@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für Participants complex type.
+ * <p>Java class for Participants complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Participants">
@@ -37,7 +37,7 @@ public class ParticipantsXto {
     protected OrganizationsXto organizations;
 
     /**
-     * Ruft den Wert der roles-Eigenschaft ab.
+     * Gets the value of the roles property.
      * 
      * @return
      *     possible object is
@@ -49,7 +49,7 @@ public class ParticipantsXto {
     }
 
     /**
-     * Legt den Wert der roles-Eigenschaft fest.
+     * Sets the value of the roles property.
      * 
      * @param value
      *     allowed object is
@@ -61,7 +61,7 @@ public class ParticipantsXto {
     }
 
     /**
-     * Ruft den Wert der organizations-Eigenschaft ab.
+     * Gets the value of the organizations property.
      * 
      * @return
      *     possible object is
@@ -73,7 +73,7 @@ public class ParticipantsXto {
     }
 
     /**
-     * Legt den Wert der organizations-Eigenschaft fest.
+     * Sets the value of the organizations property.
      * 
      * @param value
      *     allowed object is

@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Contains only important core information needed to identify a role.
  * 	        
  * 
- * <p>Java-Klasse für RoleInfo complex type.
+ * <p>Java class for RoleInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="RoleInfo">

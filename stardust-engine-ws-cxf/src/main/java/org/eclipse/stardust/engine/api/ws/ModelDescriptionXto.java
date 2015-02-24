@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -16,9 +17,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *             Provides deployment information for a workflow model.
  * 			
  * 
- * <p>Java-Klasse für ModelDescription complex type.
+ * <p>Java class for ModelDescription complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ModelDescription">
@@ -83,7 +84,7 @@ public class ModelDescriptionXto
     protected boolean disabled;
 
     /**
-     * Ruft den Wert der active-Eigenschaft ab.
+     * Gets the value of the active property.
      * 
      */
     public boolean isActive() {
@@ -91,7 +92,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der active-Eigenschaft fest.
+     * Sets the value of the active property.
      * 
      */
     public void setActive(boolean value) {
@@ -99,7 +100,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der validFrom-Eigenschaft ab.
+     * Gets the value of the validFrom property.
      * 
      * @return
      *     possible object is
@@ -111,7 +112,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der validFrom-Eigenschaft fest.
+     * Sets the value of the validFrom property.
      * 
      * @param value
      *     allowed object is
@@ -123,7 +124,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der validTo-Eigenschaft ab.
+     * Gets the value of the validTo property.
      * 
      * @return
      *     possible object is
@@ -135,7 +136,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der validTo-Eigenschaft fest.
+     * Sets the value of the validTo property.
      * 
      * @param value
      *     allowed object is
@@ -147,7 +148,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der deploymentComment-Eigenschaft ab.
+     * Gets the value of the deploymentComment property.
      * 
      * @return
      *     possible object is
@@ -159,7 +160,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der deploymentComment-Eigenschaft fest.
+     * Sets the value of the deploymentComment property.
      * 
      * @param value
      *     allowed object is
@@ -171,7 +172,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der version-Eigenschaft ab.
+     * Gets the value of the version property.
      * 
      * @return
      *     possible object is
@@ -183,7 +184,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der version-Eigenschaft fest.
+     * Sets the value of the version property.
      * 
      * @param value
      *     allowed object is
@@ -195,7 +196,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der revision-Eigenschaft ab.
+     * Gets the value of the revision property.
      * 
      */
     public int getRevision() {
@@ -203,7 +204,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der revision-Eigenschaft fest.
+     * Sets the value of the revision property.
      * 
      */
     public void setRevision(int value) {
@@ -211,7 +212,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der deploymentTime-Eigenschaft ab.
+     * Gets the value of the deploymentTime property.
      * 
      * @return
      *     possible object is
@@ -223,7 +224,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der deploymentTime-Eigenschaft fest.
+     * Sets the value of the deploymentTime property.
      * 
      * @param value
      *     allowed object is
@@ -235,7 +236,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der predecessor-Eigenschaft ab.
+     * Gets the value of the predecessor property.
      * 
      */
     public int getPredecessor() {
@@ -243,7 +244,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der predecessor-Eigenschaft fest.
+     * Sets the value of the predecessor property.
      * 
      */
     public void setPredecessor(int value) {
@@ -251,7 +252,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Ruft den Wert der disabled-Eigenschaft ab.
+     * Gets the value of the disabled property.
      * 
      */
     public boolean isDisabled() {
@@ -259,7 +260,7 @@ public class ModelDescriptionXto
     }
 
     /**
-     * Legt den Wert der disabled-Eigenschaft fest.
+     * Sets the value of the disabled property.
      * 
      */
     public void setDisabled(boolean value) {

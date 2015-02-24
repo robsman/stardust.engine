@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			A client side view of a workflow event handler.
  * 			
  * 
- * <p>Java-Klasse für EventHandlerDefinition complex type.
+ * <p>Java class for EventHandlerDefinition complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="EventHandlerDefinition">
@@ -52,7 +52,7 @@ public class EventHandlerDefinitionXto
     protected UnbindActionDefinitionsXto unbindActions;
 
     /**
-     * Ruft den Wert der rtOid-Eigenschaft ab.
+     * Gets the value of the rtOid property.
      * 
      */
     public long getRtOid() {
@@ -60,7 +60,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Legt den Wert der rtOid-Eigenschaft fest.
+     * Sets the value of the rtOid property.
      * 
      */
     public void setRtOid(long value) {
@@ -68,7 +68,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -92,7 +92,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Ruft den Wert der eventActions-Eigenschaft ab.
+     * Gets the value of the eventActions property.
      * 
      * @return
      *     possible object is
@@ -104,7 +104,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Legt den Wert der eventActions-Eigenschaft fest.
+     * Sets the value of the eventActions property.
      * 
      * @param value
      *     allowed object is
@@ -116,7 +116,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Ruft den Wert der bindActions-Eigenschaft ab.
+     * Gets the value of the bindActions property.
      * 
      * @return
      *     possible object is
@@ -128,7 +128,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Legt den Wert der bindActions-Eigenschaft fest.
+     * Sets the value of the bindActions property.
      * 
      * @param value
      *     allowed object is
@@ -140,7 +140,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Ruft den Wert der unbindActions-Eigenschaft ab.
+     * Gets the value of the unbindActions property.
      * 
      * @return
      *     possible object is
@@ -152,7 +152,7 @@ public class EventHandlerDefinitionXto
     }
 
     /**
-     * Legt den Wert der unbindActions-Eigenschaft fest.
+     * Sets the value of the unbindActions property.
      * 
      * @param value
      *     allowed object is

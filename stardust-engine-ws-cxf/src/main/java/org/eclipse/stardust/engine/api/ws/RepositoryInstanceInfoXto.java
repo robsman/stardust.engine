@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				client.
  * 			
  * 
- * <p>Java-Klasse für RepositoryInstanceInfo complex type.
+ * <p>Java class for RepositoryInstanceInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="RepositoryInstanceInfo">
@@ -56,7 +56,7 @@ public class RepositoryInstanceInfoXto
     protected String repositoryType;
 
     /**
-     * Ruft den Wert der providerId-Eigenschaft ab.
+     * Gets the value of the providerId property.
      * 
      * @return
      *     possible object is
@@ -68,7 +68,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Legt den Wert der providerId-Eigenschaft fest.
+     * Sets the value of the providerId property.
      * 
      * @param value
      *     allowed object is
@@ -80,7 +80,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Ruft den Wert der repositoryId-Eigenschaft ab.
+     * Gets the value of the repositoryId property.
      * 
      * @return
      *     possible object is
@@ -92,7 +92,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Legt den Wert der repositoryId-Eigenschaft fest.
+     * Sets the value of the repositoryId property.
      * 
      * @param value
      *     allowed object is
@@ -104,7 +104,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Ruft den Wert der repositoryName-Eigenschaft ab.
+     * Gets the value of the repositoryName property.
      * 
      * @return
      *     possible object is
@@ -116,7 +116,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Legt den Wert der repositoryName-Eigenschaft fest.
+     * Sets the value of the repositoryName property.
      * 
      * @param value
      *     allowed object is
@@ -128,7 +128,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Ruft den Wert der repositoryVersion-Eigenschaft ab.
+     * Gets the value of the repositoryVersion property.
      * 
      * @return
      *     possible object is
@@ -140,7 +140,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Legt den Wert der repositoryVersion-Eigenschaft fest.
+     * Sets the value of the repositoryVersion property.
      * 
      * @param value
      *     allowed object is
@@ -152,7 +152,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Ruft den Wert der repositoryType-Eigenschaft ab.
+     * Gets the value of the repositoryType property.
      * 
      * @return
      *     possible object is
@@ -164,7 +164,7 @@ public class RepositoryInstanceInfoXto
     }
 
     /**
-     * Legt den Wert der repositoryType-Eigenschaft fest.
+     * Sets the value of the repositoryType property.
      * 
      * @param value
      *     allowed object is

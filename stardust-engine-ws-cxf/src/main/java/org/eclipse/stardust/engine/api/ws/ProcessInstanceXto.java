@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -16,9 +17,9 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
  * 	        The ProcessInstance represents a snapshot of the execution state of an process instance.
  * 	        
  * 
- * <p>Java-Klasse für ProcessInstance complex type.
+ * <p>Java class for ProcessInstance complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstance">
@@ -105,7 +106,7 @@ public class ProcessInstanceXto {
     protected Date terminationTime;
     protected UserXto startingUser;
     @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(Adapter3 .class)
+    @XmlJavaTypeAdapter(Adapter2 .class)
     protected ProcessInstanceState state;
     @XmlElement(required = true)
     protected ProcessInstanceDetailsLevelXto detailsLevel;
@@ -119,7 +120,7 @@ public class ProcessInstanceXto {
     protected DataPathsXto descriptorDefinitions;
 
     /**
-     * Ruft den Wert der oid-Eigenschaft ab.
+     * Gets the value of the oid property.
      * 
      */
     public long getOid() {
@@ -127,7 +128,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der oid-Eigenschaft fest.
+     * Sets the value of the oid property.
      * 
      */
     public void setOid(long value) {
@@ -135,7 +136,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der modelElementId-Eigenschaft ab.
+     * Gets the value of the modelElementId property.
      * 
      * @return
      *     possible object is
@@ -147,7 +148,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der modelElementId-Eigenschaft fest.
+     * Sets the value of the modelElementId property.
      * 
      * @param value
      *     allowed object is
@@ -159,7 +160,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der modelElementOid-Eigenschaft ab.
+     * Gets the value of the modelElementOid property.
      * 
      */
     public int getModelElementOid() {
@@ -167,7 +168,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der modelElementOid-Eigenschaft fest.
+     * Sets the value of the modelElementOid property.
      * 
      */
     public void setModelElementOid(int value) {
@@ -175,7 +176,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der modelOid-Eigenschaft ab.
+     * Gets the value of the modelOid property.
      * 
      */
     public int getModelOid() {
@@ -183,7 +184,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der modelOid-Eigenschaft fest.
+     * Sets the value of the modelOid property.
      * 
      */
     public void setModelOid(int value) {
@@ -191,7 +192,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der processDefinitionId-Eigenschaft ab.
+     * Gets the value of the processDefinitionId property.
      * 
      * @return
      *     possible object is
@@ -203,7 +204,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der processDefinitionId-Eigenschaft fest.
+     * Sets the value of the processDefinitionId property.
      * 
      * @param value
      *     allowed object is
@@ -215,7 +216,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der processDefinitionName-Eigenschaft ab.
+     * Gets the value of the processDefinitionName property.
      * 
      * @return
      *     possible object is
@@ -227,7 +228,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der processDefinitionName-Eigenschaft fest.
+     * Sets the value of the processDefinitionName property.
      * 
      * @param value
      *     allowed object is
@@ -239,7 +240,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der rootProcessOid-Eigenschaft ab.
+     * Gets the value of the rootProcessOid property.
      * 
      */
     public long getRootProcessOid() {
@@ -247,7 +248,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der rootProcessOid-Eigenschaft fest.
+     * Sets the value of the rootProcessOid property.
      * 
      */
     public void setRootProcessOid(long value) {
@@ -255,7 +256,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der scopeProcessOid-Eigenschaft ab.
+     * Gets the value of the scopeProcessOid property.
      * 
      */
     public long getScopeProcessOid() {
@@ -263,7 +264,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der scopeProcessOid-Eigenschaft fest.
+     * Sets the value of the scopeProcessOid property.
      * 
      */
     public void setScopeProcessOid(long value) {
@@ -271,7 +272,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der parentProcessOid-Eigenschaft ab.
+     * Gets the value of the parentProcessOid property.
      * 
      */
     public long getParentProcessOid() {
@@ -279,7 +280,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der parentProcessOid-Eigenschaft fest.
+     * Sets the value of the parentProcessOid property.
      * 
      */
     public void setParentProcessOid(long value) {
@@ -287,7 +288,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der priority-Eigenschaft ab.
+     * Gets the value of the priority property.
      * 
      */
     public int getPriority() {
@@ -295,7 +296,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der priority-Eigenschaft fest.
+     * Sets the value of the priority property.
      * 
      */
     public void setPriority(int value) {
@@ -303,7 +304,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der startTime-Eigenschaft ab.
+     * Gets the value of the startTime property.
      * 
      * @return
      *     possible object is
@@ -315,7 +316,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der startTime-Eigenschaft fest.
+     * Sets the value of the startTime property.
      * 
      * @param value
      *     allowed object is
@@ -327,7 +328,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der terminationTime-Eigenschaft ab.
+     * Gets the value of the terminationTime property.
      * 
      * @return
      *     possible object is
@@ -339,7 +340,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der terminationTime-Eigenschaft fest.
+     * Sets the value of the terminationTime property.
      * 
      * @param value
      *     allowed object is
@@ -351,7 +352,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der startingUser-Eigenschaft ab.
+     * Gets the value of the startingUser property.
      * 
      * @return
      *     possible object is
@@ -363,7 +364,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der startingUser-Eigenschaft fest.
+     * Sets the value of the startingUser property.
      * 
      * @param value
      *     allowed object is
@@ -375,7 +376,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der state-Eigenschaft ab.
+     * Gets the value of the state property.
      * 
      * @return
      *     possible object is
@@ -387,7 +388,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der state-Eigenschaft fest.
+     * Sets the value of the state property.
      * 
      * @param value
      *     allowed object is
@@ -399,7 +400,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der detailsLevel-Eigenschaft ab.
+     * Gets the value of the detailsLevel property.
      * 
      * @return
      *     possible object is
@@ -411,7 +412,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der detailsLevel-Eigenschaft fest.
+     * Sets the value of the detailsLevel property.
      * 
      * @param value
      *     allowed object is
@@ -423,7 +424,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der detailsOptions-Eigenschaft ab.
+     * Gets the value of the detailsOptions property.
      * 
      * @return
      *     possible object is
@@ -435,7 +436,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der detailsOptions-Eigenschaft fest.
+     * Sets the value of the detailsOptions property.
      * 
      * @param value
      *     allowed object is
@@ -447,7 +448,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der instanceProperties-Eigenschaft ab.
+     * Gets the value of the instanceProperties property.
      * 
      * @return
      *     possible object is
@@ -459,7 +460,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der instanceProperties-Eigenschaft fest.
+     * Sets the value of the instanceProperties property.
      * 
      * @param value
      *     allowed object is
@@ -471,7 +472,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der historicalEvents-Eigenschaft ab.
+     * Gets the value of the historicalEvents property.
      * 
      * @return
      *     possible object is
@@ -483,7 +484,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der historicalEvents-Eigenschaft fest.
+     * Sets the value of the historicalEvents property.
      * 
      * @param value
      *     allowed object is
@@ -495,7 +496,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der permissionStates-Eigenschaft ab.
+     * Gets the value of the permissionStates property.
      * 
      * @return
      *     possible object is
@@ -507,7 +508,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der permissionStates-Eigenschaft fest.
+     * Sets the value of the permissionStates property.
      * 
      * @param value
      *     allowed object is
@@ -519,7 +520,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der caseProcessInstance-Eigenschaft ab.
+     * Gets the value of the caseProcessInstance property.
      * 
      */
     public boolean isCaseProcessInstance() {
@@ -527,7 +528,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der caseProcessInstance-Eigenschaft fest.
+     * Sets the value of the caseProcessInstance property.
      * 
      */
     public void setCaseProcessInstance(boolean value) {
@@ -535,7 +536,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der linkedProcessInstances-Eigenschaft ab.
+     * Gets the value of the linkedProcessInstances property.
      * 
      * @return
      *     possible object is
@@ -547,7 +548,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der linkedProcessInstances-Eigenschaft fest.
+     * Sets the value of the linkedProcessInstances property.
      * 
      * @param value
      *     allowed object is
@@ -559,7 +560,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Ruft den Wert der descriptorDefinitions-Eigenschaft ab.
+     * Gets the value of the descriptorDefinitions property.
      * 
      * @return
      *     possible object is
@@ -571,7 +572,7 @@ public class ProcessInstanceXto {
     }
 
     /**
-     * Legt den Wert der descriptorDefinitions-Eigenschaft fest.
+     * Sets the value of the descriptorDefinitions property.
      * 
      * @param value
      *     allowed object is

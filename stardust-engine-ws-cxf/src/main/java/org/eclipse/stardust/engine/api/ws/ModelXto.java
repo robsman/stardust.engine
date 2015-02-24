@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		   Contains information about the model as well as sub elements such as processes, roles, organisations etc.
  * 	       
  * 
- * <p>Java-Klasse für Model complex type.
+ * <p>Java class for Model complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Model">
@@ -81,7 +81,7 @@ public class ModelXto
     protected TypeDeclarationsXto typeDeclarations;
 
     /**
-     * Ruft den Wert der alive-Eigenschaft ab.
+     * Gets the value of the alive property.
      * 
      * @return
      *     possible object is
@@ -93,7 +93,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der alive-Eigenschaft fest.
+     * Sets the value of the alive property.
      * 
      * @param value
      *     allowed object is
@@ -105,7 +105,7 @@ public class ModelXto
     }
 
     /**
-     * Ruft den Wert der roles-Eigenschaft ab.
+     * Gets the value of the roles property.
      * 
      * @return
      *     possible object is
@@ -117,7 +117,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der roles-Eigenschaft fest.
+     * Sets the value of the roles property.
      * 
      * @param value
      *     allowed object is
@@ -129,7 +129,7 @@ public class ModelXto
     }
 
     /**
-     * Ruft den Wert der organizations-Eigenschaft ab.
+     * Gets the value of the organizations property.
      * 
      * @return
      *     possible object is
@@ -141,7 +141,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der organizations-Eigenschaft fest.
+     * Sets the value of the organizations property.
      * 
      * @param value
      *     allowed object is
@@ -153,7 +153,7 @@ public class ModelXto
     }
 
     /**
-     * Ruft den Wert der globalVariables-Eigenschaft ab.
+     * Gets the value of the globalVariables property.
      * 
      * @return
      *     possible object is
@@ -165,7 +165,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der globalVariables-Eigenschaft fest.
+     * Sets the value of the globalVariables property.
      * 
      * @param value
      *     allowed object is
@@ -177,7 +177,7 @@ public class ModelXto
     }
 
     /**
-     * Ruft den Wert der processes-Eigenschaft ab.
+     * Gets the value of the processes property.
      * 
      * @return
      *     possible object is
@@ -189,7 +189,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der processes-Eigenschaft fest.
+     * Sets the value of the processes property.
      * 
      * @param value
      *     allowed object is
@@ -201,7 +201,7 @@ public class ModelXto
     }
 
     /**
-     * Ruft den Wert der typeDeclarations-Eigenschaft ab.
+     * Gets the value of the typeDeclarations property.
      * 
      * @return
      *     possible object is
@@ -213,7 +213,7 @@ public class ModelXto
     }
 
     /**
-     * Legt den Wert der typeDeclarations-Eigenschaft fest.
+     * Sets the value of the typeDeclarations property.
      * 
      * @param value
      *     allowed object is
@@ -226,9 +226,9 @@ public class ModelXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -285,9 +285,9 @@ public class ModelXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>

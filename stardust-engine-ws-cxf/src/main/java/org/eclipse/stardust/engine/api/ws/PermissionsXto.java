@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für Permissions complex type.
+ * <p>Java class for Permissions complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Permissions">
@@ -82,9 +82,9 @@ public class PermissionsXto {
      * 						Represents a permission that is granted by using the declarative security aspect of the workflow engine.
      * 						
      * 
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -113,7 +113,7 @@ public class PermissionsXto {
         protected List<PermissionScopeXto> scopes;
 
         /**
-         * Ruft den Wert der permissionId-Eigenschaft ab.
+         * Gets the value of the permissionId property.
          * 
          * @return
          *     possible object is
@@ -125,7 +125,7 @@ public class PermissionsXto {
         }
 
         /**
-         * Legt den Wert der permissionId-Eigenschaft fest.
+         * Sets the value of the permissionId property.
          * 
          * @param value
          *     allowed object is

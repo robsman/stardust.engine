@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -16,9 +17,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *  			logging into AuditTrail.
  * 			
  * 
- * <p>Java-Klasse für LogEntry complex type.
+ * <p>Java class for LogEntry complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="LogEntry">
@@ -78,7 +79,7 @@ public class LogEntryXto {
     protected String context;
 
     /**
-     * Ruft den Wert der oid-Eigenschaft ab.
+     * Gets the value of the oid property.
      * 
      */
     public long getOid() {
@@ -86,7 +87,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der oid-Eigenschaft fest.
+     * Sets the value of the oid property.
      * 
      */
     public void setOid(long value) {
@@ -94,7 +95,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der timeStamp-Eigenschaft ab.
+     * Gets the value of the timeStamp property.
      * 
      * @return
      *     possible object is
@@ -106,7 +107,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der timeStamp-Eigenschaft fest.
+     * Sets the value of the timeStamp property.
      * 
      * @param value
      *     allowed object is
@@ -118,7 +119,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der subject-Eigenschaft ab.
+     * Gets the value of the subject property.
      * 
      * @return
      *     possible object is
@@ -130,7 +131,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der subject-Eigenschaft fest.
+     * Sets the value of the subject property.
      * 
      * @param value
      *     allowed object is
@@ -142,7 +143,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der activityOid-Eigenschaft ab.
+     * Gets the value of the activityOid property.
      * 
      */
     public long getActivityOid() {
@@ -150,7 +151,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der activityOid-Eigenschaft fest.
+     * Sets the value of the activityOid property.
      * 
      */
     public void setActivityOid(long value) {
@@ -158,7 +159,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der processOid-Eigenschaft ab.
+     * Gets the value of the processOid property.
      * 
      */
     public long getProcessOid() {
@@ -166,7 +167,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der processOid-Eigenschaft fest.
+     * Sets the value of the processOid property.
      * 
      */
     public void setProcessOid(long value) {
@@ -174,7 +175,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -186,7 +187,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -198,7 +199,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der code-Eigenschaft ab.
+     * Gets the value of the code property.
      * 
      * @return
      *     possible object is
@@ -210,7 +211,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der code-Eigenschaft fest.
+     * Sets the value of the code property.
      * 
      * @param value
      *     allowed object is
@@ -222,7 +223,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der userOid-Eigenschaft ab.
+     * Gets the value of the userOid property.
      * 
      */
     public long getUserOid() {
@@ -230,7 +231,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der userOid-Eigenschaft fest.
+     * Sets the value of the userOid property.
      * 
      */
     public void setUserOid(long value) {
@@ -238,7 +239,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der user-Eigenschaft ab.
+     * Gets the value of the user property.
      * 
      * @return
      *     possible object is
@@ -250,7 +251,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der user-Eigenschaft fest.
+     * Sets the value of the user property.
      * 
      * @param value
      *     allowed object is
@@ -262,7 +263,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Ruft den Wert der context-Eigenschaft ab.
+     * Gets the value of the context property.
      * 
      * @return
      *     possible object is
@@ -274,7 +275,7 @@ public class LogEntryXto {
     }
 
     /**
-     * Legt den Wert der context-Eigenschaft fest.
+     * Sets the value of the context property.
      * 
      * @param value
      *     allowed object is

@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			It contains information about the parent Department and the linked organization.
  * 	        
  * 
- * <p>Java-Klasse für Department complex type.
+ * <p>Java class for Department complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Department">
@@ -50,7 +50,7 @@ public class DepartmentXto
     protected OrganizationXto organization;
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -62,7 +62,7 @@ public class DepartmentXto
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -74,7 +74,7 @@ public class DepartmentXto
     }
 
     /**
-     * Ruft den Wert der parentDepartment-Eigenschaft ab.
+     * Gets the value of the parentDepartment property.
      * 
      * @return
      *     possible object is
@@ -86,7 +86,7 @@ public class DepartmentXto
     }
 
     /**
-     * Legt den Wert der parentDepartment-Eigenschaft fest.
+     * Sets the value of the parentDepartment property.
      * 
      * @param value
      *     allowed object is
@@ -98,7 +98,7 @@ public class DepartmentXto
     }
 
     /**
-     * Ruft den Wert der organization-Eigenschaft ab.
+     * Gets the value of the organization property.
      * 
      * @return
      *     possible object is
@@ -110,7 +110,7 @@ public class DepartmentXto
     }
 
     /**
-     * Legt den Wert der organization-Eigenschaft fest.
+     * Sets the value of the organization property.
      * 
      * @param value
      *     allowed object is

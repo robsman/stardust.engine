@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an DocumentQuery execution.
  * 			
  * 
- * <p>Java-Klasse für DocumentQueryResult complex type.
+ * <p>Java class for DocumentQueryResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DocumentQueryResult">
@@ -40,7 +40,7 @@ public class DocumentQueryResultXto
     protected DocumentsXto documents;
 
     /**
-     * Ruft den Wert der documents-Eigenschaft ab.
+     * Gets the value of the documents property.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class DocumentQueryResultXto
     }
 
     /**
-     * Legt den Wert der documents-Eigenschaft fest.
+     * Sets the value of the documents property.
      * 
      * @param value
      *     allowed object is

@@ -17,9 +17,9 @@ import org.eclipse.stardust.common.Direction;
  *             keeps a map of all access points identified by the ID attribute.
  * 		    
  * 
- * <p>Java-Klasse für AccessPoint complex type.
+ * <p>Java class for AccessPoint complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="AccessPoint">
@@ -52,13 +52,13 @@ public class AccessPointXto {
     protected String id;
     protected String name;
     @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(Adapter2 .class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
     protected Direction direction;
     protected String accessPathEvaluatorClass;
     protected AttributesXto attributes;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -70,7 +70,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -82,7 +82,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -94,7 +94,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -106,7 +106,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Ruft den Wert der direction-Eigenschaft ab.
+     * Gets the value of the direction property.
      * 
      * @return
      *     possible object is
@@ -118,7 +118,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Legt den Wert der direction-Eigenschaft fest.
+     * Sets the value of the direction property.
      * 
      * @param value
      *     allowed object is
@@ -130,7 +130,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Ruft den Wert der accessPathEvaluatorClass-Eigenschaft ab.
+     * Gets the value of the accessPathEvaluatorClass property.
      * 
      * @return
      *     possible object is
@@ -142,7 +142,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Legt den Wert der accessPathEvaluatorClass-Eigenschaft fest.
+     * Sets the value of the accessPathEvaluatorClass property.
      * 
      * @param value
      *     allowed object is
@@ -154,7 +154,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Ruft den Wert der attributes-Eigenschaft ab.
+     * Gets the value of the attributes property.
      * 
      * @return
      *     possible object is
@@ -166,7 +166,7 @@ public class AccessPointXto {
     }
 
     /**
-     * Legt den Wert der attributes-Eigenschaft fest.
+     * Sets the value of the attributes property.
      * 
      * @param value
      *     allowed object is

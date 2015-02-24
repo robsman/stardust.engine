@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für BusinessObjectValue complex type.
+ * <p>Java class for BusinessObjectValue complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="BusinessObjectValue">
@@ -39,7 +39,7 @@ public class BusinessObjectValueXto {
     protected ParameterXto value;
 
     /**
-     * Ruft den Wert der processInstanceOid-Eigenschaft ab.
+     * Gets the value of the processInstanceOid property.
      * 
      */
     public long getProcessInstanceOid() {
@@ -47,7 +47,7 @@ public class BusinessObjectValueXto {
     }
 
     /**
-     * Legt den Wert der processInstanceOid-Eigenschaft fest.
+     * Sets the value of the processInstanceOid property.
      * 
      */
     public void setProcessInstanceOid(long value) {
@@ -55,7 +55,7 @@ public class BusinessObjectValueXto {
     }
 
     /**
-     * Ruft den Wert der value-Eigenschaft ab.
+     * Gets the value of the value property.
      * 
      * @return
      *     possible object is
@@ -67,7 +67,7 @@ public class BusinessObjectValueXto {
     }
 
     /**
-     * Legt den Wert der value-Eigenschaft fest.
+     * Sets the value of the value property.
      * 
      * @param value
      *     allowed object is

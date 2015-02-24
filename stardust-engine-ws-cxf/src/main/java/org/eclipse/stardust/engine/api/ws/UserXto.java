@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -18,9 +19,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *    		The User can be modified and used to update the user's information including grants and userGroups.
  *          
  * 
- * <p>Java-Klasse für User complex type.
+ * <p>Java class for User complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="User">
@@ -112,7 +113,7 @@ public class UserXto {
     protected Integer qualityAssuranceProbability;
 
     /**
-     * Ruft den Wert der oid-Eigenschaft ab.
+     * Gets the value of the oid property.
      * 
      * @return
      *     possible object is
@@ -124,7 +125,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der oid-Eigenschaft fest.
+     * Sets the value of the oid property.
      * 
      * @param value
      *     allowed object is
@@ -136,7 +137,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der qualifiedId-Eigenschaft ab.
+     * Gets the value of the qualifiedId property.
      * 
      * @return
      *     possible object is
@@ -148,7 +149,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der qualifiedId-Eigenschaft fest.
+     * Sets the value of the qualifiedId property.
      * 
      * @param value
      *     allowed object is
@@ -160,7 +161,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der accountId-Eigenschaft ab.
+     * Gets the value of the accountId property.
      * 
      * @return
      *     possible object is
@@ -172,7 +173,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der accountId-Eigenschaft fest.
+     * Sets the value of the accountId property.
      * 
      * @param value
      *     allowed object is
@@ -184,7 +185,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der firstName-Eigenschaft ab.
+     * Gets the value of the firstName property.
      * 
      * @return
      *     possible object is
@@ -196,7 +197,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der firstName-Eigenschaft fest.
+     * Sets the value of the firstName property.
      * 
      * @param value
      *     allowed object is
@@ -208,7 +209,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der lastName-Eigenschaft ab.
+     * Gets the value of the lastName property.
      * 
      * @return
      *     possible object is
@@ -220,7 +221,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der lastName-Eigenschaft fest.
+     * Sets the value of the lastName property.
      * 
      * @param value
      *     allowed object is
@@ -232,7 +233,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der password-Eigenschaft ab.
+     * Gets the value of the password property.
      * 
      * @return
      *     possible object is
@@ -244,7 +245,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der password-Eigenschaft fest.
+     * Sets the value of the password property.
      * 
      * @param value
      *     allowed object is
@@ -256,7 +257,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der previousLoginTime-Eigenschaft ab.
+     * Gets the value of the previousLoginTime property.
      * 
      * @return
      *     possible object is
@@ -268,7 +269,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der previousLoginTime-Eigenschaft fest.
+     * Sets the value of the previousLoginTime property.
      * 
      * @param value
      *     allowed object is
@@ -280,7 +281,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der eMail-Eigenschaft ab.
+     * Gets the value of the eMail property.
      * 
      * @return
      *     possible object is
@@ -292,7 +293,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der eMail-Eigenschaft fest.
+     * Sets the value of the eMail property.
      * 
      * @param value
      *     allowed object is
@@ -304,7 +305,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der validFrom-Eigenschaft ab.
+     * Gets the value of the validFrom property.
      * 
      * @return
      *     possible object is
@@ -316,7 +317,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der validFrom-Eigenschaft fest.
+     * Sets the value of the validFrom property.
      * 
      * @param value
      *     allowed object is
@@ -328,7 +329,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der validTo-Eigenschaft ab.
+     * Gets the value of the validTo property.
      * 
      * @return
      *     possible object is
@@ -340,7 +341,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der validTo-Eigenschaft fest.
+     * Sets the value of the validTo property.
      * 
      * @param value
      *     allowed object is
@@ -352,7 +353,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -364,7 +365,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -376,7 +377,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der administrator-Eigenschaft ab.
+     * Gets the value of the administrator property.
      * 
      */
     public boolean isAdministrator() {
@@ -384,7 +385,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der administrator-Eigenschaft fest.
+     * Sets the value of the administrator property.
      * 
      */
     public void setAdministrator(boolean value) {
@@ -392,7 +393,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der permissionStates-Eigenschaft ab.
+     * Gets the value of the permissionStates property.
      * 
      * @return
      *     possible object is
@@ -404,7 +405,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der permissionStates-Eigenschaft fest.
+     * Sets the value of the permissionStates property.
      * 
      * @param value
      *     allowed object is
@@ -416,7 +417,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der detailsLevel-Eigenschaft ab.
+     * Gets the value of the detailsLevel property.
      * 
      * @return
      *     possible object is
@@ -428,7 +429,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der detailsLevel-Eigenschaft fest.
+     * Sets the value of the detailsLevel property.
      * 
      * @param value
      *     allowed object is
@@ -440,7 +441,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der userRealm-Eigenschaft ab.
+     * Gets the value of the userRealm property.
      * 
      * @return
      *     possible object is
@@ -452,7 +453,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der userRealm-Eigenschaft fest.
+     * Sets the value of the userRealm property.
      * 
      * @param value
      *     allowed object is
@@ -464,7 +465,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der userGroups-Eigenschaft ab.
+     * Gets the value of the userGroups property.
      * 
      * @return
      *     possible object is
@@ -476,7 +477,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der userGroups-Eigenschaft fest.
+     * Sets the value of the userGroups property.
      * 
      * @param value
      *     allowed object is
@@ -488,7 +489,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der grants-Eigenschaft ab.
+     * Gets the value of the grants property.
      * 
      * @return
      *     possible object is
@@ -500,7 +501,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der grants-Eigenschaft fest.
+     * Sets the value of the grants property.
      * 
      * @param value
      *     allowed object is
@@ -512,7 +513,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der attributes-Eigenschaft ab.
+     * Gets the value of the attributes property.
      * 
      * @return
      *     possible object is
@@ -524,7 +525,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der attributes-Eigenschaft fest.
+     * Sets the value of the attributes property.
      * 
      * @param value
      *     allowed object is
@@ -536,7 +537,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der passwordExpired-Eigenschaft ab.
+     * Gets the value of the passwordExpired property.
      * 
      */
     public boolean isPasswordExpired() {
@@ -544,7 +545,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der passwordExpired-Eigenschaft fest.
+     * Sets the value of the passwordExpired property.
      * 
      */
     public void setPasswordExpired(boolean value) {
@@ -552,7 +553,7 @@ public class UserXto {
     }
 
     /**
-     * Ruft den Wert der qualityAssuranceProbability-Eigenschaft ab.
+     * Gets the value of the qualityAssuranceProbability property.
      * 
      * @return
      *     possible object is
@@ -564,7 +565,7 @@ public class UserXto {
     }
 
     /**
-     * Legt den Wert der qualityAssuranceProbability-Eigenschaft fest.
+     * Sets the value of the qualityAssuranceProbability property.
      * 
      * @param value
      *     allowed object is

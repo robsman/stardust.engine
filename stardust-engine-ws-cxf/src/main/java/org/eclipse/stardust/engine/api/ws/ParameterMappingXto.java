@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		    The ParameterMapping represents a mapping between a trigger access point and a workflow data.
  * 		    
  * 
- * <p>Java-Klasse für ParameterMapping complex type.
+ * <p>Java class for ParameterMapping complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ParameterMapping">
@@ -46,7 +46,7 @@ public class ParameterMappingXto
     protected AccessPointXto parameter;
 
     /**
-     * Ruft den Wert der dataId-Eigenschaft ab.
+     * Gets the value of the dataId property.
      * 
      * @return
      *     possible object is
@@ -58,7 +58,7 @@ public class ParameterMappingXto
     }
 
     /**
-     * Legt den Wert der dataId-Eigenschaft fest.
+     * Sets the value of the dataId property.
      * 
      * @param value
      *     allowed object is
@@ -70,7 +70,7 @@ public class ParameterMappingXto
     }
 
     /**
-     * Ruft den Wert der parameterPath-Eigenschaft ab.
+     * Gets the value of the parameterPath property.
      * 
      * @return
      *     possible object is
@@ -82,7 +82,7 @@ public class ParameterMappingXto
     }
 
     /**
-     * Legt den Wert der parameterPath-Eigenschaft fest.
+     * Sets the value of the parameterPath property.
      * 
      * @param value
      *     allowed object is
@@ -94,7 +94,7 @@ public class ParameterMappingXto
     }
 
     /**
-     * Ruft den Wert der parameter-Eigenschaft ab.
+     * Gets the value of the parameter property.
      * 
      * @return
      *     possible object is
@@ -106,7 +106,7 @@ public class ParameterMappingXto
     }
 
     /**
-     * Legt den Wert der parameter-Eigenschaft fest.
+     * Sets the value of the parameter property.
      * 
      * @param value
      *     allowed object is

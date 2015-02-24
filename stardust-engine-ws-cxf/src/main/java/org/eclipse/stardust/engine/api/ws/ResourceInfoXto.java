@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -18,9 +19,9 @@ import javax.xml.namespace.QName;
  * 			The resource can either be a document or folder.
  * 			
  * 
- * <p>Java-Klasse für ResourceInfo complex type.
+ * <p>Java class for ResourceInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ResourceInfo">
@@ -53,8 +54,8 @@ import javax.xml.namespace.QName;
     "metaData"
 })
 @XmlSeeAlso({
-    DocumentInfoXto.class,
-    FolderInfoXto.class
+    FolderInfoXto.class,
+    DocumentInfoXto.class
 })
 public class ResourceInfoXto {
 
@@ -74,7 +75,7 @@ public class ResourceInfoXto {
     protected XmlValueXto metaData;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -86,7 +87,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -98,7 +99,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -110,7 +111,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -122,7 +123,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der owner-Eigenschaft ab.
+     * Gets the value of the owner property.
      * 
      * @return
      *     possible object is
@@ -134,7 +135,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der owner-Eigenschaft fest.
+     * Sets the value of the owner property.
      * 
      * @param value
      *     allowed object is
@@ -146,7 +147,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der dateCreated-Eigenschaft ab.
+     * Gets the value of the dateCreated property.
      * 
      * @return
      *     possible object is
@@ -158,7 +159,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der dateCreated-Eigenschaft fest.
+     * Sets the value of the dateCreated property.
      * 
      * @param value
      *     allowed object is
@@ -170,7 +171,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der dateLastModified-Eigenschaft ab.
+     * Gets the value of the dateLastModified property.
      * 
      * @return
      *     possible object is
@@ -182,7 +183,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der dateLastModified-Eigenschaft fest.
+     * Sets the value of the dateLastModified property.
      * 
      * @param value
      *     allowed object is
@@ -194,7 +195,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der metaDataType-Eigenschaft ab.
+     * Gets the value of the metaDataType property.
      * 
      * @return
      *     possible object is
@@ -206,7 +207,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der metaDataType-Eigenschaft fest.
+     * Sets the value of the metaDataType property.
      * 
      * @param value
      *     allowed object is
@@ -218,7 +219,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Ruft den Wert der metaData-Eigenschaft ab.
+     * Gets the value of the metaData property.
      * 
      * @return
      *     possible object is
@@ -230,7 +231,7 @@ public class ResourceInfoXto {
     }
 
     /**
-     * Legt den Wert der metaData-Eigenschaft fest.
+     * Sets the value of the metaData property.
      * 
      * @param value
      *     allowed object is

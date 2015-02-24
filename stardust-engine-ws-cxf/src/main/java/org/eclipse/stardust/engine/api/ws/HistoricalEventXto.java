@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -16,9 +17,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 		    Mainly those events consist of state change, delegation, note or exception events.
  *             
  * 
- * <p>Java-Klasse für HistoricalEvent complex type.
+ * <p>Java class for HistoricalEvent complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="HistoricalEvent">
@@ -58,7 +59,7 @@ public class HistoricalEventXto {
     protected HistoricalEventDetailsXto eventDetails;
 
     /**
-     * Ruft den Wert der eventType-Eigenschaft ab.
+     * Gets the value of the eventType property.
      * 
      * @return
      *     possible object is
@@ -70,7 +71,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Legt den Wert der eventType-Eigenschaft fest.
+     * Sets the value of the eventType property.
      * 
      * @param value
      *     allowed object is
@@ -82,7 +83,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Ruft den Wert der eventTime-Eigenschaft ab.
+     * Gets the value of the eventTime property.
      * 
      * @return
      *     possible object is
@@ -94,7 +95,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Legt den Wert der eventTime-Eigenschaft fest.
+     * Sets the value of the eventTime property.
      * 
      * @param value
      *     allowed object is
@@ -106,7 +107,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Ruft den Wert der user-Eigenschaft ab.
+     * Gets the value of the user property.
      * 
      * @return
      *     possible object is
@@ -118,7 +119,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Legt den Wert der user-Eigenschaft fest.
+     * Sets the value of the user property.
      * 
      * @param value
      *     allowed object is
@@ -130,7 +131,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Ruft den Wert der eventDetails-Eigenschaft ab.
+     * Gets the value of the eventDetails property.
      * 
      * @return
      *     possible object is
@@ -142,7 +143,7 @@ public class HistoricalEventXto {
     }
 
     /**
-     * Legt den Wert der eventDetails-Eigenschaft fest.
+     * Sets the value of the eventDetails property.
      * 
      * @param value
      *     allowed object is

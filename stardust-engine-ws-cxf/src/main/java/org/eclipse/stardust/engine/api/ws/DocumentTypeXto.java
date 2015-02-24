@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		   The document type describes the structure of the documents meta data. It consists of a documentTypeId and a schemaLocation used to retrieve the schema from the repository.
  * 		   
  * 
- * <p>Java-Klasse für DocumentType complex type.
+ * <p>Java class for DocumentType complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DocumentType">
@@ -43,7 +43,7 @@ public class DocumentTypeXto {
     protected String schemaLocation;
 
     /**
-     * Ruft den Wert der documentTypeId-Eigenschaft ab.
+     * Gets the value of the documentTypeId property.
      * 
      * @return
      *     possible object is
@@ -55,7 +55,7 @@ public class DocumentTypeXto {
     }
 
     /**
-     * Legt den Wert der documentTypeId-Eigenschaft fest.
+     * Sets the value of the documentTypeId property.
      * 
      * @param value
      *     allowed object is
@@ -67,7 +67,7 @@ public class DocumentTypeXto {
     }
 
     /**
-     * Ruft den Wert der schemaLocation-Eigenschaft ab.
+     * Gets the value of the schemaLocation property.
      * 
      * @return
      *     possible object is
@@ -79,7 +79,7 @@ public class DocumentTypeXto {
     }
 
     /**
-     * Legt den Wert der schemaLocation-Eigenschaft fest.
+     * Sets the value of the schemaLocation property.
      * 
      * @param value
      *     allowed object is

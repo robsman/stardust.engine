@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für ProcessSpawnInfo complex type.
+ * <p>Java class for ProcessSpawnInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessSpawnInfo">
@@ -43,7 +43,7 @@ public class ProcessSpawnInfoXto {
     protected ParametersXto parameters;
 
     /**
-     * Ruft den Wert der processId-Eigenschaft ab.
+     * Gets the value of the processId property.
      * 
      * @return
      *     possible object is
@@ -55,7 +55,7 @@ public class ProcessSpawnInfoXto {
     }
 
     /**
-     * Legt den Wert der processId-Eigenschaft fest.
+     * Sets the value of the processId property.
      * 
      * @param value
      *     allowed object is
@@ -67,7 +67,7 @@ public class ProcessSpawnInfoXto {
     }
 
     /**
-     * Ruft den Wert der copyData-Eigenschaft ab.
+     * Gets the value of the copyData property.
      * 
      */
     public boolean isCopyData() {
@@ -75,7 +75,7 @@ public class ProcessSpawnInfoXto {
     }
 
     /**
-     * Legt den Wert der copyData-Eigenschaft fest.
+     * Sets the value of the copyData property.
      * 
      */
     public void setCopyData(boolean value) {
@@ -83,7 +83,7 @@ public class ProcessSpawnInfoXto {
     }
 
     /**
-     * Ruft den Wert der parameters-Eigenschaft ab.
+     * Gets the value of the parameters property.
      * 
      * @return
      *     possible object is
@@ -95,7 +95,7 @@ public class ProcessSpawnInfoXto {
     }
 
     /**
-     * Legt den Wert der parameters-Eigenschaft fest.
+     * Sets the value of the parameters property.
      * 
      * @param value
      *     allowed object is

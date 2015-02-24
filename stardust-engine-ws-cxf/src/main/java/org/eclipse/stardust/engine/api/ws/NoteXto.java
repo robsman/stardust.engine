@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
@@ -17,9 +18,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 		    is in ProcessContext or ActivityContext
  * 			
  * 
- * <p>Java-Klasse für Note complex type.
+ * <p>Java class for Note complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Note">
@@ -60,7 +61,7 @@ public class NoteXto {
     protected Long processOid;
 
     /**
-     * Ruft den Wert der text-Eigenschaft ab.
+     * Gets the value of the text property.
      * 
      * @return
      *     possible object is
@@ -72,7 +73,7 @@ public class NoteXto {
     }
 
     /**
-     * Legt den Wert der text-Eigenschaft fest.
+     * Sets the value of the text property.
      * 
      * @param value
      *     allowed object is
@@ -84,7 +85,7 @@ public class NoteXto {
     }
 
     /**
-     * Ruft den Wert der timestamp-Eigenschaft ab.
+     * Gets the value of the timestamp property.
      * 
      * @return
      *     possible object is
@@ -96,7 +97,7 @@ public class NoteXto {
     }
 
     /**
-     * Legt den Wert der timestamp-Eigenschaft fest.
+     * Sets the value of the timestamp property.
      * 
      * @param value
      *     allowed object is
@@ -108,7 +109,7 @@ public class NoteXto {
     }
 
     /**
-     * Ruft den Wert der user-Eigenschaft ab.
+     * Gets the value of the user property.
      * 
      * @return
      *     possible object is
@@ -120,7 +121,7 @@ public class NoteXto {
     }
 
     /**
-     * Legt den Wert der user-Eigenschaft fest.
+     * Sets the value of the user property.
      * 
      * @param value
      *     allowed object is
@@ -132,7 +133,7 @@ public class NoteXto {
     }
 
     /**
-     * Ruft den Wert der activityOid-Eigenschaft ab.
+     * Gets the value of the activityOid property.
      * 
      * @return
      *     possible object is
@@ -144,7 +145,7 @@ public class NoteXto {
     }
 
     /**
-     * Legt den Wert der activityOid-Eigenschaft fest.
+     * Sets the value of the activityOid property.
      * 
      * @param value
      *     allowed object is
@@ -156,7 +157,7 @@ public class NoteXto {
     }
 
     /**
-     * Ruft den Wert der processOid-Eigenschaft ab.
+     * Gets the value of the processOid property.
      * 
      * @return
      *     possible object is
@@ -168,7 +169,7 @@ public class NoteXto {
     }
 
     /**
-     * Legt den Wert der processOid-Eigenschaft fest.
+     * Sets the value of the processOid property.
      * 
      * @param value
      *     allowed object is

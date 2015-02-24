@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			The ImplementationDescription provides information concerning a specific implementation of a Process Interface.
  * 			
  * 
- * <p>Java-Klasse für ImplementationDescription complex type.
+ * <p>Java class for ImplementationDescription complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ImplementationDescription">
@@ -56,7 +56,7 @@ public class ImplementationDescriptionXto {
     protected boolean primaryImplementation;
 
     /**
-     * Ruft den Wert der implementationModelOid-Eigenschaft ab.
+     * Gets the value of the implementationModelOid property.
      * 
      */
     public long getImplementationModelOid() {
@@ -64,7 +64,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der implementationModelOid-Eigenschaft fest.
+     * Sets the value of the implementationModelOid property.
      * 
      */
     public void setImplementationModelOid(long value) {
@@ -72,7 +72,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Ruft den Wert der implementationProcessId-Eigenschaft ab.
+     * Gets the value of the implementationProcessId property.
      * 
      * @return
      *     possible object is
@@ -84,7 +84,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der implementationProcessId-Eigenschaft fest.
+     * Sets the value of the implementationProcessId property.
      * 
      * @param value
      *     allowed object is
@@ -96,7 +96,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Ruft den Wert der interfaceModelOid-Eigenschaft ab.
+     * Gets the value of the interfaceModelOid property.
      * 
      */
     public long getInterfaceModelOid() {
@@ -104,7 +104,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der interfaceModelOid-Eigenschaft fest.
+     * Sets the value of the interfaceModelOid property.
      * 
      */
     public void setInterfaceModelOid(long value) {
@@ -112,7 +112,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Ruft den Wert der processInterfaceId-Eigenschaft ab.
+     * Gets the value of the processInterfaceId property.
      * 
      * @return
      *     possible object is
@@ -124,7 +124,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der processInterfaceId-Eigenschaft fest.
+     * Sets the value of the processInterfaceId property.
      * 
      * @param value
      *     allowed object is
@@ -136,7 +136,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Ruft den Wert der active-Eigenschaft ab.
+     * Gets the value of the active property.
      * 
      */
     public boolean isActive() {
@@ -144,7 +144,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der active-Eigenschaft fest.
+     * Sets the value of the active property.
      * 
      */
     public void setActive(boolean value) {
@@ -152,7 +152,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Ruft den Wert der primaryImplementation-Eigenschaft ab.
+     * Gets the value of the primaryImplementation property.
      * 
      */
     public boolean isPrimaryImplementation() {
@@ -160,7 +160,7 @@ public class ImplementationDescriptionXto {
     }
 
     /**
-     * Legt den Wert der primaryImplementation-Eigenschaft fest.
+     * Sets the value of the primaryImplementation property.
      * 
      */
     public void setPrimaryImplementation(boolean value) {

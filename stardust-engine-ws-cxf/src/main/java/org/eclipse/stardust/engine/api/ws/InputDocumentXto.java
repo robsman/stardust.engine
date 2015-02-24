@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			The InputDocument is used to specify a non existing document including content and targetFolder.
  * 			
  * 
- * <p>Java-Klasse für InputDocument complex type.
+ * <p>Java class for InputDocument complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="InputDocument">
@@ -55,7 +55,7 @@ public class InputDocumentXto {
     protected String globalVariableId;
 
     /**
-     * Ruft den Wert der documentInfo-Eigenschaft ab.
+     * Gets the value of the documentInfo property.
      * 
      * @return
      *     possible object is
@@ -67,7 +67,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Legt den Wert der documentInfo-Eigenschaft fest.
+     * Sets the value of the documentInfo property.
      * 
      * @param value
      *     allowed object is
@@ -79,7 +79,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Ruft den Wert der content-Eigenschaft ab.
+     * Gets the value of the content property.
      * 
      * @return
      *     possible object is
@@ -91,7 +91,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Legt den Wert der content-Eigenschaft fest.
+     * Sets the value of the content property.
      * 
      * @param value
      *     allowed object is
@@ -103,7 +103,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Ruft den Wert der versionInfo-Eigenschaft ab.
+     * Gets the value of the versionInfo property.
      * 
      * @return
      *     possible object is
@@ -115,7 +115,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Legt den Wert der versionInfo-Eigenschaft fest.
+     * Sets the value of the versionInfo property.
      * 
      * @param value
      *     allowed object is
@@ -127,7 +127,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Ruft den Wert der targetFolder-Eigenschaft ab.
+     * Gets the value of the targetFolder property.
      * 
      * @return
      *     possible object is
@@ -139,7 +139,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Legt den Wert der targetFolder-Eigenschaft fest.
+     * Sets the value of the targetFolder property.
      * 
      * @param value
      *     allowed object is
@@ -151,7 +151,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Ruft den Wert der globalVariableId-Eigenschaft ab.
+     * Gets the value of the globalVariableId property.
      * 
      * @return
      *     possible object is
@@ -163,7 +163,7 @@ public class InputDocumentXto {
     }
 
     /**
-     * Legt den Wert der globalVariableId-Eigenschaft fest.
+     * Sets the value of the globalVariableId property.
      * 
      * @param value
      *     allowed object is

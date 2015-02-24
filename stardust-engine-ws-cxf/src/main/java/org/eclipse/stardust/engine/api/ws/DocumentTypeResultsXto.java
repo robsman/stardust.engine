@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für DocumentTypeResults complex type.
+ * <p>Java class for DocumentTypeResults complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DocumentTypeResults">
@@ -79,9 +79,9 @@ public class DocumentTypeResultsXto {
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -114,7 +114,7 @@ public class DocumentTypeResultsXto {
         protected DocumentTypesXto documentTypes;
 
         /**
-         * Ruft den Wert der modelId-Eigenschaft ab.
+         * Gets the value of the modelId property.
          * 
          * @return
          *     possible object is
@@ -126,7 +126,7 @@ public class DocumentTypeResultsXto {
         }
 
         /**
-         * Legt den Wert der modelId-Eigenschaft fest.
+         * Sets the value of the modelId property.
          * 
          * @param value
          *     allowed object is
@@ -138,7 +138,7 @@ public class DocumentTypeResultsXto {
         }
 
         /**
-         * Ruft den Wert der modelOid-Eigenschaft ab.
+         * Gets the value of the modelOid property.
          * 
          */
         public long getModelOid() {
@@ -146,7 +146,7 @@ public class DocumentTypeResultsXto {
         }
 
         /**
-         * Legt den Wert der modelOid-Eigenschaft fest.
+         * Sets the value of the modelOid property.
          * 
          */
         public void setModelOid(long value) {
@@ -154,7 +154,7 @@ public class DocumentTypeResultsXto {
         }
 
         /**
-         * Ruft den Wert der documentTypes-Eigenschaft ab.
+         * Gets the value of the documentTypes property.
          * 
          * @return
          *     possible object is
@@ -166,7 +166,7 @@ public class DocumentTypeResultsXto {
         }
 
         /**
-         * Legt den Wert der documentTypes-Eigenschaft fest.
+         * Sets the value of the documentTypes property.
          * 
          * @param value
          *     allowed object is

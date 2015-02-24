@@ -15,9 +15,9 @@ import org.eclipse.stardust.common.Direction;
  * 			ToDo
  * 			
  * 
- * <p>Java-Klasse für FormalParameter complex type.
+ * <p>Java class for FormalParameter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="FormalParameter">
@@ -56,7 +56,7 @@ public class FormalParameterXto {
     @XmlElement(required = true)
     protected String name;
     @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(Adapter2 .class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
     protected Direction direction;
     protected QName type;
     @XmlElement(required = true)
@@ -66,7 +66,7 @@ public class FormalParameterXto {
     protected AttributesXto attributes;
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -78,7 +78,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -90,7 +90,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -102,7 +102,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -114,7 +114,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der direction-Eigenschaft ab.
+     * Gets the value of the direction property.
      * 
      * @return
      *     possible object is
@@ -126,7 +126,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der direction-Eigenschaft fest.
+     * Sets the value of the direction property.
      * 
      * @param value
      *     allowed object is
@@ -138,7 +138,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -150,7 +150,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -162,7 +162,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der typeId-Eigenschaft ab.
+     * Gets the value of the typeId property.
      * 
      * @return
      *     possible object is
@@ -174,7 +174,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der typeId-Eigenschaft fest.
+     * Sets the value of the typeId property.
      * 
      * @param value
      *     allowed object is
@@ -186,7 +186,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der dataId-Eigenschaft ab.
+     * Gets the value of the dataId property.
      * 
      * @return
      *     possible object is
@@ -198,7 +198,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der dataId-Eigenschaft fest.
+     * Sets the value of the dataId property.
      * 
      * @param value
      *     allowed object is
@@ -210,7 +210,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Ruft den Wert der attributes-Eigenschaft ab.
+     * Gets the value of the attributes property.
      * 
      * @return
      *     possible object is
@@ -222,7 +222,7 @@ public class FormalParameterXto {
     }
 
     /**
-     * Legt den Wert der attributes-Eigenschaft fest.
+     * Sets the value of the attributes property.
      * 
      * @param value
      *     allowed object is

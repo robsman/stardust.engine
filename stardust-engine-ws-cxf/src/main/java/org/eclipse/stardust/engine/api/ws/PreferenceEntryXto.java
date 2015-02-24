@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  * 				n.a.
  * 			
  * 
- * <p>Java-Klasse für PreferenceEntry complex type.
+ * <p>Java class for PreferenceEntry complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="PreferenceEntry">
@@ -60,7 +60,7 @@ public class PreferenceEntryXto {
     protected List<PreferenceEntryXto.ValueListXto> valueList;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -72,7 +72,7 @@ public class PreferenceEntryXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -84,7 +84,7 @@ public class PreferenceEntryXto {
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -96,7 +96,7 @@ public class PreferenceEntryXto {
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -138,9 +138,9 @@ public class PreferenceEntryXto {
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -170,7 +170,7 @@ public class PreferenceEntryXto {
         protected String type;
 
         /**
-         * Ruft den Wert der value-Eigenschaft ab.
+         * Gets the value of the value property.
          * 
          * @return
          *     possible object is
@@ -182,7 +182,7 @@ public class PreferenceEntryXto {
         }
 
         /**
-         * Legt den Wert der value-Eigenschaft fest.
+         * Sets the value of the value property.
          * 
          * @param value
          *     allowed object is
@@ -194,7 +194,7 @@ public class PreferenceEntryXto {
         }
 
         /**
-         * Ruft den Wert der type-Eigenschaft ab.
+         * Gets the value of the type property.
          * 
          * @return
          *     possible object is
@@ -206,7 +206,7 @@ public class PreferenceEntryXto {
         }
 
         /**
-         * Legt den Wert der type-Eigenschaft fest.
+         * Sets the value of the type property.
          * 
          * @param value
          *     allowed object is

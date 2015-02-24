@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *             Abstract element containing base data for all model elements
  * 			
  * 
- * <p>Java-Klasse für ModelElement complex type.
+ * <p>Java class for ModelElement complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ModelElement">
@@ -49,8 +49,8 @@ import javax.xml.bind.annotation.XmlType;
     "attributes"
 })
 @XmlSeeAlso({
-    ModelDescriptionXto.class,
     ProcessDefinitionXto.class,
+    ModelDescriptionXto.class,
     InteractionContextXto.class,
     TypeDeclarationXto.class,
     ActivityDefinitionXto.class,
@@ -77,7 +77,7 @@ public class ModelElementXto {
     protected AttributesXto attributes;
 
     /**
-     * Ruft den Wert der modelOid-Eigenschaft ab.
+     * Gets the value of the modelOid property.
      * 
      */
     public long getModelOid() {
@@ -85,7 +85,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der modelOid-Eigenschaft fest.
+     * Sets the value of the modelOid property.
      * 
      */
     public void setModelOid(long value) {
@@ -93,7 +93,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der id-Eigenschaft ab.
+     * Gets the value of the id property.
      * 
      * @return
      *     possible object is
@@ -105,7 +105,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der id-Eigenschaft fest.
+     * Sets the value of the id property.
      * 
      * @param value
      *     allowed object is
@@ -117,7 +117,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der qualifiedId-Eigenschaft ab.
+     * Gets the value of the qualifiedId property.
      * 
      * @return
      *     possible object is
@@ -129,7 +129,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der qualifiedId-Eigenschaft fest.
+     * Sets the value of the qualifiedId property.
      * 
      * @param value
      *     allowed object is
@@ -141,7 +141,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -153,7 +153,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -165,7 +165,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -177,7 +177,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -189,7 +189,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der partitionId-Eigenschaft ab.
+     * Gets the value of the partitionId property.
      * 
      * @return
      *     possible object is
@@ -201,7 +201,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der partitionId-Eigenschaft fest.
+     * Sets the value of the partitionId property.
      * 
      * @param value
      *     allowed object is
@@ -213,7 +213,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der partitionOid-Eigenschaft ab.
+     * Gets the value of the partitionOid property.
      * 
      */
     public short getPartitionOid() {
@@ -221,7 +221,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der partitionOid-Eigenschaft fest.
+     * Sets the value of the partitionOid property.
      * 
      */
     public void setPartitionOid(short value) {
@@ -229,7 +229,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Ruft den Wert der attributes-Eigenschaft ab.
+     * Gets the value of the attributes property.
      * 
      * @return
      *     possible object is
@@ -241,7 +241,7 @@ public class ModelElementXto {
     }
 
     /**
-     * Legt den Wert der attributes-Eigenschaft fest.
+     * Sets the value of the attributes property.
      * 
      * @param value
      *     allowed object is

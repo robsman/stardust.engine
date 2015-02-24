@@ -14,9 +14,9 @@ import javax.xml.namespace.QName;
  * 			Specifying a metaDataType tries to retrieve and include metaData of that type for the queries results.
  * 			
  * 
- * <p>Java-Klasse für DocumentQuery complex type.
+ * <p>Java class for DocumentQuery complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DocumentQuery">
@@ -48,7 +48,7 @@ public class DocumentQueryXto {
     protected QName metaDataType;
 
     /**
-     * Ruft den Wert der namePattern-Eigenschaft ab.
+     * Gets the value of the namePattern property.
      * 
      * @return
      *     possible object is
@@ -60,7 +60,7 @@ public class DocumentQueryXto {
     }
 
     /**
-     * Legt den Wert der namePattern-Eigenschaft fest.
+     * Sets the value of the namePattern property.
      * 
      * @param value
      *     allowed object is
@@ -72,7 +72,7 @@ public class DocumentQueryXto {
     }
 
     /**
-     * Ruft den Wert der xpathQuery-Eigenschaft ab.
+     * Gets the value of the xpathQuery property.
      * 
      * @return
      *     possible object is
@@ -84,7 +84,7 @@ public class DocumentQueryXto {
     }
 
     /**
-     * Legt den Wert der xpathQuery-Eigenschaft fest.
+     * Sets the value of the xpathQuery property.
      * 
      * @param value
      *     allowed object is
@@ -96,7 +96,7 @@ public class DocumentQueryXto {
     }
 
     /**
-     * Ruft den Wert der metaDataType-Eigenschaft ab.
+     * Gets the value of the metaDataType property.
      * 
      * @return
      *     possible object is
@@ -108,7 +108,7 @@ public class DocumentQueryXto {
     }
 
     /**
-     * Legt den Wert der metaDataType-Eigenschaft fest.
+     * Sets the value of the metaDataType property.
      * 
      * @param value
      *     allowed object is

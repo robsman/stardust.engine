@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  *  			inconsistency implies that the specific workflow operation may fail.
  * 			
  * 
- * <p>Java-Klasse für Inconsistency complex type.
+ * <p>Java class for Inconsistency complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Inconsistency">
@@ -44,7 +44,7 @@ public class InconsistencyXto {
     protected int sourceElementOid;
 
     /**
-     * Ruft den Wert der message-Eigenschaft ab.
+     * Gets the value of the message property.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public class InconsistencyXto {
     }
 
     /**
-     * Legt den Wert der message-Eigenschaft fest.
+     * Sets the value of the message property.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public class InconsistencyXto {
     }
 
     /**
-     * Ruft den Wert der sourceElementOid-Eigenschaft ab.
+     * Gets the value of the sourceElementOid property.
      * 
      */
     public int getSourceElementOid() {
@@ -76,7 +76,7 @@ public class InconsistencyXto {
     }
 
     /**
-     * Legt den Wert der sourceElementOid-Eigenschaft fest.
+     * Sets the value of the sourceElementOid property.
      * 
      */
     public void setSourceElementOid(int value) {

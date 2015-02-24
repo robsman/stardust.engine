@@ -9,12 +9,13 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
- * <p>Java-Klasse für EventBindingBase complex type.
+ * <p>Java class for EventBindingBase complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="EventBindingBase">
@@ -56,7 +57,7 @@ public class EventBindingBaseXto {
     protected AttributesXto bindingAttributes;
 
     /**
-     * Ruft den Wert der handlerId-Eigenschaft ab.
+     * Gets the value of the handlerId property.
      * 
      * @return
      *     possible object is
@@ -68,7 +69,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Legt den Wert der handlerId-Eigenschaft fest.
+     * Sets the value of the handlerId property.
      * 
      * @param value
      *     allowed object is
@@ -80,7 +81,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Ruft den Wert der bound-Eigenschaft ab.
+     * Gets the value of the bound property.
      * 
      */
     public boolean isBound() {
@@ -88,7 +89,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Legt den Wert der bound-Eigenschaft fest.
+     * Sets the value of the bound property.
      * 
      */
     public void setBound(boolean value) {
@@ -96,7 +97,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Ruft den Wert der timeout-Eigenschaft ab.
+     * Gets the value of the timeout property.
      * 
      * @return
      *     possible object is
@@ -108,7 +109,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Legt den Wert der timeout-Eigenschaft fest.
+     * Sets the value of the timeout property.
      * 
      * @param value
      *     allowed object is
@@ -120,7 +121,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Ruft den Wert der bindingAttributes-Eigenschaft ab.
+     * Gets the value of the bindingAttributes property.
      * 
      * @return
      *     possible object is
@@ -132,7 +133,7 @@ public class EventBindingBaseXto {
     }
 
     /**
-     * Legt den Wert der bindingAttributes-Eigenschaft fest.
+     * Sets the value of the bindingAttributes property.
      * 
      * @param value
      *     allowed object is

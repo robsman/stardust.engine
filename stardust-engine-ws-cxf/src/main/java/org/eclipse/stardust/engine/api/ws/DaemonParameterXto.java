@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für DaemonParameter complex type.
+ * <p>Java class for DaemonParameter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DaemonParameter">
@@ -39,7 +39,7 @@ public class DaemonParameterXto {
     protected boolean acknowledge;
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -51,7 +51,7 @@ public class DaemonParameterXto {
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -63,7 +63,7 @@ public class DaemonParameterXto {
     }
 
     /**
-     * Ruft den Wert der acknowledge-Eigenschaft ab.
+     * Gets the value of the acknowledge property.
      * 
      */
     public boolean isAcknowledge() {
@@ -71,7 +71,7 @@ public class DaemonParameterXto {
     }
 
     /**
-     * Legt den Wert der acknowledge-Eigenschaft fest.
+     * Sets the value of the acknowledge property.
      * 
      */
     public void setAcknowledge(boolean value) {

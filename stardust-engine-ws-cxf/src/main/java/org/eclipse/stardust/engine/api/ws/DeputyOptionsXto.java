@@ -8,12 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
 
 
 /**
- * <p>Java-Klasse für DeputyOptions complex type.
+ * <p>Java class for DeputyOptions complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DeputyOptions">
@@ -51,7 +52,7 @@ public class DeputyOptionsXto {
     protected ModelParticipantInfosXto modelParticipantInfos;
 
     /**
-     * Ruft den Wert der fromDate-Eigenschaft ab.
+     * Gets the value of the fromDate property.
      * 
      * @return
      *     possible object is
@@ -63,7 +64,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Legt den Wert der fromDate-Eigenschaft fest.
+     * Sets the value of the fromDate property.
      * 
      * @param value
      *     allowed object is
@@ -75,7 +76,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Ruft den Wert der toDate-Eigenschaft ab.
+     * Gets the value of the toDate property.
      * 
      * @return
      *     possible object is
@@ -87,7 +88,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Legt den Wert der toDate-Eigenschaft fest.
+     * Sets the value of the toDate property.
      * 
      * @param value
      *     allowed object is
@@ -99,7 +100,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Ruft den Wert der modelParticipantInfos-Eigenschaft ab.
+     * Gets the value of the modelParticipantInfos property.
      * 
      * @return
      *     possible object is
@@ -111,7 +112,7 @@ public class DeputyOptionsXto {
     }
 
     /**
-     * Legt den Wert der modelParticipantInfos-Eigenschaft fest.
+     * Sets the value of the modelParticipantInfos property.
      * 
      * @param value
      *     allowed object is

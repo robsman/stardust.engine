@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an UserQuery execution.
  * 			
  * 
- * <p>Java-Klasse für UserQueryResult complex type.
+ * <p>Java class for UserQueryResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserQueryResult">
@@ -52,7 +52,7 @@ public class UserQueryResultXto
     protected UserQueryResultXto.UsersXto users;
 
     /**
-     * Ruft den Wert der users-Eigenschaft ab.
+     * Gets the value of the users property.
      * 
      * @return
      *     possible object is
@@ -64,7 +64,7 @@ public class UserQueryResultXto
     }
 
     /**
-     * Legt den Wert der users-Eigenschaft fest.
+     * Sets the value of the users property.
      * 
      * @param value
      *     allowed object is
@@ -77,9 +77,9 @@ public class UserQueryResultXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>

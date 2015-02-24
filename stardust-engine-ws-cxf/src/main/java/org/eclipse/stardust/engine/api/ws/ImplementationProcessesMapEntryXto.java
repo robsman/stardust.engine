@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für ImplementationProcessesMapEntry complex type.
+ * <p>Java class for ImplementationProcessesMapEntry complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ImplementationProcessesMapEntry">
@@ -41,7 +41,7 @@ public class ImplementationProcessesMapEntryXto {
     protected List<ImplementationDescriptionXto> implementationDescriptionList;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -53,7 +53,7 @@ public class ImplementationProcessesMapEntryXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is

@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für RepositoryMigrationJobInfo complex type.
+ * <p>Java class for RepositoryMigrationJobInfo complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="RepositoryMigrationJobInfo">
@@ -45,7 +45,7 @@ public class RepositoryMigrationJobInfoXto {
     protected int toVersion;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -57,7 +57,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -69,7 +69,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Ruft den Wert der description-Eigenschaft ab.
+     * Gets the value of the description property.
      * 
      * @return
      *     possible object is
@@ -81,7 +81,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Legt den Wert der description-Eigenschaft fest.
+     * Sets the value of the description property.
      * 
      * @param value
      *     allowed object is
@@ -93,7 +93,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Ruft den Wert der fromVersion-Eigenschaft ab.
+     * Gets the value of the fromVersion property.
      * 
      */
     public int getFromVersion() {
@@ -101,7 +101,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Legt den Wert der fromVersion-Eigenschaft fest.
+     * Sets the value of the fromVersion property.
      * 
      */
     public void setFromVersion(int value) {
@@ -109,7 +109,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Ruft den Wert der toVersion-Eigenschaft ab.
+     * Gets the value of the toVersion property.
      * 
      */
     public int getToVersion() {
@@ -117,7 +117,7 @@ public class RepositoryMigrationJobInfoXto {
     }
 
     /**
-     * Legt den Wert der toVersion-Eigenschaft fest.
+     * Sets the value of the toVersion property.
      * 
      */
     public void setToVersion(int value) {

@@ -15,9 +15,9 @@ import javax.xml.namespace.QName;
  * 			For more complex data the xml element is used.
  * 			
  * 
- * <p>Java-Klasse für Parameter complex type.
+ * <p>Java class for Parameter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Parameter">
@@ -55,7 +55,7 @@ public class ParameterXto {
     protected XmlValueXto xml;
 
     /**
-     * Ruft den Wert der name-Eigenschaft ab.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -67,7 +67,7 @@ public class ParameterXto {
     }
 
     /**
-     * Legt den Wert der name-Eigenschaft fest.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
@@ -79,7 +79,7 @@ public class ParameterXto {
     }
 
     /**
-     * Ruft den Wert der namespace-Eigenschaft ab.
+     * Gets the value of the namespace property.
      * 
      * @return
      *     possible object is
@@ -91,7 +91,7 @@ public class ParameterXto {
     }
 
     /**
-     * Legt den Wert der namespace-Eigenschaft fest.
+     * Sets the value of the namespace property.
      * 
      * @param value
      *     allowed object is
@@ -103,7 +103,7 @@ public class ParameterXto {
     }
 
     /**
-     * Ruft den Wert der type-Eigenschaft ab.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
@@ -115,7 +115,7 @@ public class ParameterXto {
     }
 
     /**
-     * Legt den Wert der type-Eigenschaft fest.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
@@ -127,7 +127,7 @@ public class ParameterXto {
     }
 
     /**
-     * Ruft den Wert der primitive-Eigenschaft ab.
+     * Gets the value of the primitive property.
      * 
      * @return
      *     possible object is
@@ -139,7 +139,7 @@ public class ParameterXto {
     }
 
     /**
-     * Legt den Wert der primitive-Eigenschaft fest.
+     * Sets the value of the primitive property.
      * 
      * @param value
      *     allowed object is
@@ -151,7 +151,7 @@ public class ParameterXto {
     }
 
     /**
-     * Ruft den Wert der xml-Eigenschaft ab.
+     * Gets the value of the xml property.
      * 
      * @return
      *     possible object is
@@ -163,7 +163,7 @@ public class ParameterXto {
     }
 
     /**
-     * Legt den Wert der xml-Eigenschaft fest.
+     * Sets the value of the xml property.
      * 
      * @param value
      *     allowed object is

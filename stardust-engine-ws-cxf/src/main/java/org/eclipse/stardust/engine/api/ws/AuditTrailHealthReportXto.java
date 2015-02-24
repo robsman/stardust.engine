@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Provides key indicators of audit trail health.
  * 			
  * 
- * <p>Java-Klasse für AuditTrailHealthReport complex type.
+ * <p>Java class for AuditTrailHealthReport complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="AuditTrailHealthReport">
@@ -53,7 +53,7 @@ public class AuditTrailHealthReportXto {
     protected long numberOfProcessInstancesHavingCrashedEventBindings;
 
     /**
-     * Ruft den Wert der numberOfProcessInstancesLackingCompletion-Eigenschaft ab.
+     * Gets the value of the numberOfProcessInstancesLackingCompletion property.
      * 
      */
     public long getNumberOfProcessInstancesLackingCompletion() {
@@ -61,7 +61,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfProcessInstancesLackingCompletion-Eigenschaft fest.
+     * Sets the value of the numberOfProcessInstancesLackingCompletion property.
      * 
      */
     public void setNumberOfProcessInstancesLackingCompletion(long value) {
@@ -69,7 +69,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Ruft den Wert der numberOfProcessInstancesLackingAbortion-Eigenschaft ab.
+     * Gets the value of the numberOfProcessInstancesLackingAbortion property.
      * 
      */
     public long getNumberOfProcessInstancesLackingAbortion() {
@@ -77,7 +77,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfProcessInstancesLackingAbortion-Eigenschaft fest.
+     * Sets the value of the numberOfProcessInstancesLackingAbortion property.
      * 
      */
     public void setNumberOfProcessInstancesLackingAbortion(long value) {
@@ -85,7 +85,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Ruft den Wert der numberOfActivityInstancesLackingAbortion-Eigenschaft ab.
+     * Gets the value of the numberOfActivityInstancesLackingAbortion property.
      * 
      */
     public long getNumberOfActivityInstancesLackingAbortion() {
@@ -93,7 +93,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfActivityInstancesLackingAbortion-Eigenschaft fest.
+     * Sets the value of the numberOfActivityInstancesLackingAbortion property.
      * 
      */
     public void setNumberOfActivityInstancesLackingAbortion(long value) {
@@ -101,7 +101,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Ruft den Wert der numberOfProcessInstancesHavingCrashedActivities-Eigenschaft ab.
+     * Gets the value of the numberOfProcessInstancesHavingCrashedActivities property.
      * 
      */
     public long getNumberOfProcessInstancesHavingCrashedActivities() {
@@ -109,7 +109,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfProcessInstancesHavingCrashedActivities-Eigenschaft fest.
+     * Sets the value of the numberOfProcessInstancesHavingCrashedActivities property.
      * 
      */
     public void setNumberOfProcessInstancesHavingCrashedActivities(long value) {
@@ -117,7 +117,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Ruft den Wert der numberOfProcessInstancesHavingCrashedThreads-Eigenschaft ab.
+     * Gets the value of the numberOfProcessInstancesHavingCrashedThreads property.
      * 
      */
     public long getNumberOfProcessInstancesHavingCrashedThreads() {
@@ -125,7 +125,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfProcessInstancesHavingCrashedThreads-Eigenschaft fest.
+     * Sets the value of the numberOfProcessInstancesHavingCrashedThreads property.
      * 
      */
     public void setNumberOfProcessInstancesHavingCrashedThreads(long value) {
@@ -133,7 +133,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Ruft den Wert der numberOfProcessInstancesHavingCrashedEventBindings-Eigenschaft ab.
+     * Gets the value of the numberOfProcessInstancesHavingCrashedEventBindings property.
      * 
      */
     public long getNumberOfProcessInstancesHavingCrashedEventBindings() {
@@ -141,7 +141,7 @@ public class AuditTrailHealthReportXto {
     }
 
     /**
-     * Legt den Wert der numberOfProcessInstancesHavingCrashedEventBindings-Eigenschaft fest.
+     * Sets the value of the numberOfProcessInstancesHavingCrashedEventBindings property.
      * 
      */
     public void setNumberOfProcessInstancesHavingCrashedEventBindings(long value) {

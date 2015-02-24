@@ -18,9 +18,9 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
  * 			Other event types only use text.
  * 			
  * 
- * <p>Java-Klasse für HistoricalEventDetails complex type.
+ * <p>Java class for HistoricalEventDetails complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="HistoricalEventDetails">
@@ -54,14 +54,14 @@ public class HistoricalEventDetailsXto {
     protected ParticipantXto fromPerformer;
     protected ParticipantXto toPerformer;
     @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(Adapter4 .class)
+    @XmlJavaTypeAdapter(Adapter3 .class)
     protected ActivityInstanceState fromState;
     @XmlElement(type = String.class)
-    @XmlJavaTypeAdapter(Adapter4 .class)
+    @XmlJavaTypeAdapter(Adapter3 .class)
     protected ActivityInstanceState toState;
 
     /**
-     * Ruft den Wert der text-Eigenschaft ab.
+     * Gets the value of the text property.
      * 
      * @return
      *     possible object is
@@ -73,7 +73,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Legt den Wert der text-Eigenschaft fest.
+     * Sets the value of the text property.
      * 
      * @param value
      *     allowed object is
@@ -85,7 +85,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Ruft den Wert der fromPerformer-Eigenschaft ab.
+     * Gets the value of the fromPerformer property.
      * 
      * @return
      *     possible object is
@@ -97,7 +97,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Legt den Wert der fromPerformer-Eigenschaft fest.
+     * Sets the value of the fromPerformer property.
      * 
      * @param value
      *     allowed object is
@@ -109,7 +109,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Ruft den Wert der toPerformer-Eigenschaft ab.
+     * Gets the value of the toPerformer property.
      * 
      * @return
      *     possible object is
@@ -121,7 +121,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Legt den Wert der toPerformer-Eigenschaft fest.
+     * Sets the value of the toPerformer property.
      * 
      * @param value
      *     allowed object is
@@ -133,7 +133,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Ruft den Wert der fromState-Eigenschaft ab.
+     * Gets the value of the fromState property.
      * 
      * @return
      *     possible object is
@@ -145,7 +145,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Legt den Wert der fromState-Eigenschaft fest.
+     * Sets the value of the fromState property.
      * 
      * @param value
      *     allowed object is
@@ -157,7 +157,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Ruft den Wert der toState-Eigenschaft ab.
+     * Gets the value of the toState property.
      * 
      * @return
      *     possible object is
@@ -169,7 +169,7 @@ public class HistoricalEventDetailsXto {
     }
 
     /**
-     * Legt den Wert der toState-Eigenschaft fest.
+     * Sets the value of the toState property.
      * 
      * @param value
      *     allowed object is

@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			Result of an ProcessDefinitionQuery execution.
  * 			
  * 
- * <p>Java-Klasse für ProcessDefinitionQueryResult complex type.
+ * <p>Java class for ProcessDefinitionQueryResult complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessDefinitionQueryResult">
@@ -40,7 +40,7 @@ public class ProcessDefinitionQueryResultXto
     protected ProcessDefinitionsXto processDefinitions;
 
     /**
-     * Ruft den Wert der processDefinitions-Eigenschaft ab.
+     * Gets the value of the processDefinitions property.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class ProcessDefinitionQueryResultXto
     }
 
     /**
-     * Legt den Wert der processDefinitions-Eigenschaft fest.
+     * Sets the value of the processDefinitions property.
      * 
      * @param value
      *     allowed object is

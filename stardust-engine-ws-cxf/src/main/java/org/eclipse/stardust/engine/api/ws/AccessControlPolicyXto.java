@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 			An access control policy consists of access control entries.
  * 			
  * 
- * <p>Java-Klasse für AccessControlPolicy complex type.
+ * <p>Java class for AccessControlPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="AccessControlPolicy">
@@ -38,7 +38,7 @@ public class AccessControlPolicyXto {
     protected AccessControlEntriesXto accessControlEntries;
 
     /**
-     * Ruft den Wert der accessControlEntries-Eigenschaft ab.
+     * Gets the value of the accessControlEntries property.
      * 
      * @return
      *     possible object is
@@ -50,7 +50,7 @@ public class AccessControlPolicyXto {
     }
 
     /**
-     * Legt den Wert der accessControlEntries-Eigenschaft fest.
+     * Sets the value of the accessControlEntries property.
      * 
      * @param value
      *     allowed object is

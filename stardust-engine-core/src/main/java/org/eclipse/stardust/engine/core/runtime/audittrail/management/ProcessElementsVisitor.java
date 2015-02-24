@@ -79,14 +79,14 @@ public class ProcessElementsVisitor
          visitPiParts(piOids, TransitionInstanceBean.class,
                TransitionInstanceBean.FR__PROCESS_INSTANCE, session);
 
-         visitAiParts(piOids, LogEntryBean.class, LogEntryBean.FR__ACTIVITY_INSTANCE,
+         visitPiParts(piOids, LogEntryBean.class, LogEntryBean.FR__PROCESS_INSTANCE,
                session);
 
          visitAiParts(piOids, ActivityInstanceLogBean.class,
                ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE, session);
 
-         visitAiParts(piOids, ActivityInstanceHistoryBean.class,
-               ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, session);
+         visitPiParts(piOids, ActivityInstanceHistoryBean.class,
+               ActivityInstanceHistoryBean.FR__PROCESS_INSTANCE, session);
 
          visitAiParts(piOids, EventBindingBean.class, EventBindingBean.FR__OBJECT_OID,
                Predicates.isEqual(EventBindingBean.FR__TYPE, Event.ACTIVITY_INSTANCE),

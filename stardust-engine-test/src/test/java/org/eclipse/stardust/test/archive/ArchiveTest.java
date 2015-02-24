@@ -1271,7 +1271,7 @@ public class ArchiveTest
       assertEquals(2, batches.size());
       assertEquals(2, datas.size());
       int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, ExportImportSupport.merge(datas)));
+            .execute(new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, ExportImportSupport.merge(datas, modelData.getModelData())));
       assertEquals(8, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);

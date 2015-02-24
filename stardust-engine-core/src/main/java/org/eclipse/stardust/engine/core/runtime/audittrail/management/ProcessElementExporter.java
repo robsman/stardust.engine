@@ -28,14 +28,12 @@ public class ProcessElementExporter implements ProcessElementOperator
 
    private static final int DEFAULT_EXPORT_BATCH_SIZE = 5;
 
-   private final boolean purge;
    
    private final ExportResult exportResult;
 
 
-   public ProcessElementExporter(ExportResult exportResult, boolean purge)
+   public ProcessElementExporter(ExportResult exportResult)
    {
-      this.purge = purge;
       this.exportResult = exportResult;
    }
 
@@ -48,10 +46,6 @@ public class ProcessElementExporter implements ProcessElementOperator
       query.innerJoin(piPartType).on(fkPiPartField, piPartPkName);
       query.where(predicate);
       List<Persistent> instances = exportPersistents(session, query, partType);
-      if (purge)
-      {
-         purge(session, partType, instances);
-      }
       return instances.size();
    }
 
@@ -60,28 +54,11 @@ public class ProcessElementExporter implements ProcessElementOperator
    {
       if (partType == ProcessInstanceScopeBean.class)
       {
-         if (purge)
-         {
-            DeleteDescriptor delete = DeleteDescriptor.from(partType).where(predicate);
-            return session.executeDelete(delete);
-         }
          return 0;
       }
       QueryDescriptor query = QueryDescriptor.from(partType).where(predicate);
       List<Persistent> instances = exportPersistents(session, query, partType);
-      if (purge)
-      {
-         purge(session, partType, instances);
-      }
       return instances.size();
-   }
-
-   private void purge(Session session, Class partType, List<Persistent> persistents)
-   {
-      for (Persistent peristent : persistents)
-      {
-         session.delete(partType, peristent);
-      }
    }
 
    private List<Persistent> exportPersistents(Session session, QueryDescriptor query,

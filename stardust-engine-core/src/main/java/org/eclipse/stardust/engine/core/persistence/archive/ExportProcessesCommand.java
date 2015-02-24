@@ -301,7 +301,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             exportResult = new ExportResult();
          }
-         ProcessElementExporter exporter = new ProcessElementExporter(exportResult, false);
+         ProcessElementExporter exporter = new ProcessElementExporter(exportResult);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
@@ -540,20 +540,24 @@ public class ExportProcessesCommand implements ServiceCommand
       private static final long serialVersionUID = 1L;
 
       private final HashMap<Long, ArrayList<Long>> uniqueOids;
+      
+      private final Map<Date,  List<Long>> dateToRootPIOids;
 
-      private final List<Integer> modelOids;
+      private final Map<Date,  List<Integer>> dateToModelOids;
 
       public ExportMetaData()
       {
-         this.modelOids = new ArrayList<Integer>();
+         this.dateToModelOids = new HashMap<Date, List<Integer>>();
          this.uniqueOids = new HashMap<Long, ArrayList<Long>>();
+         this.dateToRootPIOids = new HashMap<Date, List<Long>>();
       }
 
-      public ExportMetaData(List<Integer> modelOids,
-            HashMap<Long, ArrayList<Long>> uniqueOids)
+      public ExportMetaData(Map<Date,  List<Integer>> dateToModelOids,
+            HashMap<Long, ArrayList<Long>> uniqueOids,  Map<Date, List<Long>> dateToRootProcessInstanceOids)
       {
-         this.modelOids = modelOids;
+         this.dateToModelOids = dateToModelOids;
          this.uniqueOids = uniqueOids;
+         this.dateToRootPIOids = dateToRootProcessInstanceOids;
       }
 
       /**
@@ -572,9 +576,23 @@ public class ExportProcessesCommand implements ServiceCommand
        * 
        * @return
        */
-      public List<Integer> getModelOids()
+      public List<Integer> getModelOids(Date date)
       {
-         return modelOids;
+         if(date == null)
+         {
+            throw new IllegalArgumentException("Invalid date provided");
+         }
+         return dateToModelOids.get(date);
+      }
+      
+      public Set<Integer> getModelOids()
+      {
+         HashSet<Integer> result = new HashSet<Integer>();
+         for (Date date : dateToModelOids.keySet())
+         {
+            result.addAll(dateToModelOids.get(date));
+         }
+         return result;
       }
 
       public boolean hasExportOids()
@@ -616,15 +634,38 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          return allIds;
       }
+      
+      public Set<Date> getIndexDates()
+      {
+         return dateToRootPIOids.keySet();
+      }
+      
+      public List<Long> getRootProcessesForDate(Date date)
+      {
+         if(date == null)
+         {
+            throw new IllegalArgumentException("Invalid date provided");
+         }
+         Date indexDateTime = ExportImportSupport.getIndexDateTime(date);
+         return dateToRootPIOids.get(indexDateTime);
+      }
 
       public void addProcess(ProcessInstance process)
       {
+         Date indexDateTime = ExportImportSupport.getIndexDateTime(process.getStartTime());
          if (process.getRootProcessInstanceOID() == process.getOID())
          {
             if (!uniqueOids.keySet().contains(process.getOID()))
             {
                uniqueOids.put(process.getOID(), new ArrayList<Long>());
             }
+            List<Long> piOids = dateToRootPIOids.get(indexDateTime);
+            if (piOids == null)
+            {
+               piOids = new ArrayList<Long>();
+               dateToRootPIOids.put(indexDateTime, piOids);
+            }
+            piOids.add(process.getOID());
          }
          else
          {
@@ -640,10 +681,13 @@ public class ExportProcessesCommand implements ServiceCommand
                siblingList.add(process.getOID());
             }
          }
-         if (!modelOids.contains(process.getModelOID()))
+         List<Integer> modelOids = dateToModelOids.get(indexDateTime);
+         if (modelOids == null)
          {
-            modelOids.add(process.getModelOID());
+            modelOids = new ArrayList<Integer>();
+            dateToModelOids.put(indexDateTime, modelOids);
          }
+         modelOids.add(process.getModelOID());
       }
 
    }

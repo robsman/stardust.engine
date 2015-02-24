@@ -61,11 +61,14 @@ public class ExportImportSupport
          {
             end = list.size();
          }
-         result.add(list.subList(i, end));
+         List<T> batchList = new ArrayList<T>();
+         // sublisst is not serializable, so create an arraylist
+         batchList.addAll(list.subList(i, end));
+         result.add(batchList);
       }
       return result;
    }
-   
+
    public static byte[] addAll(final byte[] array1, final byte[] array2)
    {
       final byte[] joinedArray = new byte[array1.length + array2.length];
@@ -73,26 +76,65 @@ public class ExportImportSupport
       System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
       return joinedArray;
    }
-   
+
+   /**
+    * Partitions the exportMetaData. Firstly partitions it by date. So that each
+    * ExportMetaData returned is at most for 1 index Date. If there are more than size
+    * processes for a specific date, there will be more than one ExportMetaData returned
+    * for the date, with each containing at most size processes
+    * 
+    * @param exportMetaData
+    * @param size
+    * @return
+    */
    public static List<ExportMetaData> partition(ExportMetaData exportMetaData, int size)
    {
       List<ExportMetaData> result = new ArrayList<ExportMetaData>();
 
-      List<List<Long>> batches = partition(
-            new ArrayList<Long>(exportMetaData.getRootProcessInstanceOids()), size);
-      for (List<Long> batch : batches)
+      Set<Date> indexDates = exportMetaData.getIndexDates();
+      for (Date date : indexDates)
       {
-         HashMap<Long, ArrayList<Long>> part = new HashMap<Long, ArrayList<Long>>();
-         for (Long key : batch)
+         List<Long> processesForDate = exportMetaData.getRootProcessesForDate(date);
+         if (processesForDate.size() > size)
          {
-            part.put(key, exportMetaData.getMappedProcessInstances().get(key));
+            List<List<Long>> batches = partition(processesForDate, size);
+            for (List<Long> batch : batches)
+            {
+               HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
+               for (Long key : batch)
+               {
+                  processesToSubprocesses.put(key, exportMetaData
+                        .getMappedProcessInstances().get(key));
+               }
+               Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
+               Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
+               dateToRootPiOids.put(date, batch);
+               dateToModelOids.put(date, exportMetaData.getModelOids(date));
+               result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
+                     dateToRootPiOids));
+            }
          }
-         result.add(new ExportMetaData(exportMetaData.getModelOids(), part));
+         else
+         {
+            HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
+            for (Long key : processesForDate)
+            {
+               processesToSubprocesses.put(key, exportMetaData
+                     .getMappedProcessInstances().get(key));
+            }
+            Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
+            Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
+            dateToRootPiOids.put(date, processesForDate);
+            dateToModelOids.put(date, exportMetaData.getModelOids(date));
+            result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
+                  dateToRootPiOids));
+         }
       }
+
       return result;
    }
 
-   public static ExportResult merge(List<ExportResult> exportResults)
+   public static ExportResult merge(List<ExportResult> exportResults, byte[] modelData)
    {
       ExportResult exportResult;
       if (CollectionUtils.isNotEmpty(exportResults))
@@ -107,7 +149,6 @@ public class ExportImportSupport
             }
             uniqueDates.addAll(result.getDates());
          }
-         byte[] modelData = null;
          HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          for (Date date : uniqueDates)
@@ -116,7 +157,7 @@ public class ExportImportSupport
             ExportIndex index = indexByDate.get(date);
             if (allData == null)
             {
-               allData = new byte[]{};
+               allData = new byte[] {};
                index = new ExportIndex();
                indexByDate.put(date, index);
             }
@@ -133,9 +174,11 @@ public class ExportImportSupport
                   allData = addAll(allData, data);
                   // new reference every time, re-put everytime
                   resultsByDate.put(date, allData);
-                  
-                  index.getProcessInstanceOids().addAll(result.getExportIndex(date).getProcessInstanceOids());
-                  index.getProcessLengths().addAll(result.getExportIndex(date).getProcessLengths());
+
+                  index.getProcessInstanceOids().addAll(
+                        result.getExportIndex(date).getProcessInstanceOids());
+                  index.getProcessLengths().addAll(
+                        result.getExportIndex(date).getProcessLengths());
                   if (modelData == null)
                   {
                      modelData = result.getModelData();
@@ -465,7 +508,7 @@ public class ExportImportSupport
       return count;
    }
 
-   public static byte[] exportModels(List<Integer> modelOids)
+   public static byte[] exportModels(Set<Integer> modelOids)
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();

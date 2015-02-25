@@ -22,11 +22,7 @@ import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalInitialDataV
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalProcessInstanceProperties;
 import static org.eclipse.stardust.engine.ws.QueryAdapterUtils.unmarshalWorklistQuery;
 import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.fromWs;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.marshalPermissionList;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.marshalProcessDefinitionList;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.toWs;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.unmarshalAttributes;
+import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.*;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -34,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.Direction;
@@ -75,8 +72,16 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          Map<String, ? extends Serializable> initialDataValues = unmarshalInitialDataValues(
                processId, parameters, wsEnv);
-         WsApiStartProcessCommand command = new WsApiStartProcessCommand(processId,
-               initialDataValues, startSynchronously, attachments);
+
+         Model model = wsEnv.getActiveModel();
+         QName qName = QName.valueOf(processId);
+         if (!XMLConstants.NULL_NS_URI.equals(qName.getNamespaceURI()))
+         {
+            model = wsEnv.getActiveModel(qName.getNamespaceURI());
+         }
+
+         WsApiStartProcessCommand command = new WsApiStartProcessCommand(processId, model.getModelOID(),
+               initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model));
 
          ProcessInstance pi = null;
          try
@@ -87,9 +92,21 @@ public class WorkflowServiceFacade implements IWorkflowService
          {
             // unwrap
             Throwable cause = e.getCause();
-            if (cause != null && cause instanceof RuntimeException)
+            if (cause != null)
             {
-               throw (RuntimeException) cause;
+               if (cause instanceof InputDocumentStoreException)
+               {
+                  WsApiStartProcessUtils
+                        .unwrapStartProcessBpmFault((InputDocumentStoreException) cause);
+               }
+               else if (cause instanceof RuntimeException)
+               {
+                  throw (RuntimeException) cause;
+               }
+               else
+               {
+                  throw e;
+               }
             }
             else
             {
@@ -97,8 +114,6 @@ public class WorkflowServiceFacade implements IWorkflowService
             }
          }
 
-
-         Model model = null;
          try
          {
             model = wsEnv.getModel(pi.getModelOID());
@@ -1021,12 +1036,12 @@ public class WorkflowServiceFacade implements IWorkflowService
       try
       {
          WebServiceEnv wsEnv = currentWebServiceEnvironment();
-         
+
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
          QName qname = QName.valueOf(qualifiedBusinessObjectId);
-         String modelId = qname.getNamespaceURI();         
-         
+         String modelId = qname.getNamespaceURI();
+
          Model model = null;
          try
          {
@@ -1036,13 +1051,13 @@ public class WorkflowServiceFacade implements IWorkflowService
          {
             trace.warn("Could not access model information for unmarshaling. "
                   + e.getMessage());
-         }         
-         
+         }
+
          BusinessObject biObject = wfs.updateBusinessObjectInstance(
                qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
                      qualifiedBusinessObjectId, newValue));
-        
-        return toWs(biObject);               
+
+        return toWs(biObject);
       }
       catch (ApplicationException e)
       {
@@ -1058,12 +1073,12 @@ public class WorkflowServiceFacade implements IWorkflowService
       try
       {
          WebServiceEnv wsEnv = currentWebServiceEnvironment();
-         
+
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
-               
+
          QName qname = QName.valueOf(qualifiedBusinessObjectId);
-         String modelId = qname.getNamespaceURI();         
-         
+         String modelId = qname.getNamespaceURI();
+
          Model model = null;
          try
          {
@@ -1073,17 +1088,17 @@ public class WorkflowServiceFacade implements IWorkflowService
          {
             trace.warn("Could not access model information for unmarshaling. "
                   + e.getMessage());
-         }           
-         
+         }
+
          BusinessObject biObject = wfs.updateBusinessObjectInstance(
                qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
                      qualifiedBusinessObjectId, primaryKey));
-                 
+
       }
       catch (ApplicationException e)
       {
          XmlAdapterUtils.handleBPMException(e);
-      }      
+      }
    }
 
    @Override
@@ -1093,12 +1108,12 @@ public class WorkflowServiceFacade implements IWorkflowService
       try
       {
          WebServiceEnv wsEnv = currentWebServiceEnvironment();
-         
+
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
-         
+
          QName qname = QName.valueOf(qualifiedBusinessObjectId);
-         String modelId = qname.getNamespaceURI();         
-         
+         String modelId = qname.getNamespaceURI();
+
          Model model = null;
          try
          {
@@ -1108,13 +1123,13 @@ public class WorkflowServiceFacade implements IWorkflowService
          {
             trace.warn("Could not access model information for unmarshaling. "
                   + e.getMessage());
-         }           
-         
+         }
+
          BusinessObject biObject = wfs.createBusinessObjectInstance(
                qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
                      qualifiedBusinessObjectId, initialValue));
-        
-        return toWs(biObject);               
+
+        return toWs(biObject);
       }
       catch (ApplicationException e)
       {

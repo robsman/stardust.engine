@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -60,7 +61,7 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
                DataValueBean data = dataIter.next();
 
                if (Boolean.parseBoolean((String) data.getData().getAttribute(
-                     "carnot:engine:volatile")))
+                     PredefinedConstants.VOLATILE_DATA)))
                {
                   if (trace.isDebugEnabled())
                   {

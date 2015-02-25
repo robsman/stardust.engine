@@ -179,6 +179,7 @@ public class ExportImportSupport
                         result.getExportIndex(date).getProcessInstanceOids());
                   index.getProcessLengths().addAll(
                         result.getExportIndex(date).getProcessLengths());
+                  index.getRootProcessToSubProcesses().putAll(result.getExportIndex(date).getRootProcessToSubProcesses());
                   if (modelData == null)
                   {
                      modelData = result.getModelData();

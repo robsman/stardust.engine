@@ -1374,15 +1374,10 @@ public class ArchiveTest
       assertNotNull(importMetaData.getImportId(ModelBean.class,
             new Long(simpleA.getModelOID())));
 
-      int countAll = 0;
-      for (IArchive archive : archives)
-      {
-         importCommand = new ImportProcessesCommand(
-               ImportProcessesCommand.Operation.IMPORT, archive, importMetaData);
-         int count = (Integer) workflowService.execute(importCommand);
-         countAll += count;
-      }
-      assertEquals(8, countAll);
+      importCommand = new ImportProcessesCommand(
+      ImportProcessesCommand.Operation.IMPORT, archives.get(0), importMetaData);
+      int count = (Integer) workflowService.execute(importCommand);
+      assertEquals(8, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
@@ -1426,7 +1421,9 @@ public class ArchiveTest
       assertNotNullModel(rawData);
       HashMap<Long, byte[]> data = new HashMap<Long, byte[]>();
       data.put(1L, new byte[]{1});
-      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1)));
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
+      oids.put(1L, new ArrayList<Long>());
+      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1), oids));
       
       MemoryArchive archive = new MemoryArchive(data, rawData.getModelData(), json);
       
@@ -1503,7 +1500,9 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {5});
-      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1)));
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
+      oids.put(1L, new ArrayList<Long>());
+      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1), oids));
       MemoryArchive archive = new MemoryArchive(dataByProcess , new byte[] {}, json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null));
@@ -1516,7 +1515,9 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_EOF});
-      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1)));
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
+      oids.put(1L, new ArrayList<Long>());
+      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1), oids));
       MemoryArchive archive = new MemoryArchive(dataByProcess , new byte[] {}, json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null));
@@ -1529,7 +1530,9 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES});
-      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1)));
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
+      oids.put(1L, new ArrayList<Long>());
+      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1), oids));
       MemoryArchive archive = new MemoryArchive(dataByProcess , new byte[] {}, json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null));
@@ -1542,7 +1545,9 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES,5});
-      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1)));
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
+      oids.put(1L, new ArrayList<Long>());
+      String json = getJSON(new ExportIndex(Arrays.asList(1L), Arrays.asList(1), oids));
       MemoryArchive archive = new MemoryArchive(dataByProcess , new byte[] {}, json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null));

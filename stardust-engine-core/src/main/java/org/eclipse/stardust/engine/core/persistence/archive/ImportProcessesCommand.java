@@ -233,10 +233,22 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          if (CollectionUtils.isEmpty(dataByTable))
          {
-            dataByTable = ExportImportSupport.getDataByTable(archive.getData());
+            importCount = 0;
+            for (long rootProcessOid : archive.getExportIndex().getRootProcessToSubProcesses().keySet())
+            {
+               List<Long> processes = new ArrayList<Long>();
+               processes.add(rootProcessOid);
+               processes.addAll(archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcessOid));
+               dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
+               importCount += ExportImportSupport.importProcessInstances(dataByTable, session,
+                  filter, oidResolver);
+            }
          }
-         importCount = ExportImportSupport.importProcessInstances(dataByTable, session,
+         else
+         {
+            importCount = ExportImportSupport.importProcessInstances(dataByTable, session,
                filter, oidResolver);
+         }
       }
       catch (IllegalStateException e)
       {
@@ -262,17 +274,8 @@ public class ImportProcessesCommand implements ServiceCommand
       Map<String, List<byte[]>> dataByTable;
       try
       {
-         byte[] data;
          byte[] modelData = archive.getModelData();
-         if (modelData == null)
-         {
-            data = archive.getData();
-         }
-         else
-         {
-            data = modelData;
-         }
-         dataByTable = ExportImportSupport.validateModel(data,
+         dataByTable = ExportImportSupport.validateModel(modelData,
                importMetaData);
       }
       catch (IllegalStateException e)

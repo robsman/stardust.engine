@@ -1,6 +1,7 @@
 package org.eclipse.stardust.test.archive;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,13 +55,27 @@ public class MemoryArchive implements IArchive
    }
 
    @Override
-   public byte[] getData(Long processInstanceOid)
+   public byte[] getData(List<Long> processInstanceOids)
    {
-      if (dataByProcess != null && dataByProcess.containsKey(processInstanceOid))
+      byte[] result = new byte[]{};
+            
+      if (dataByProcess != null)
       {
-         return dataByProcess.get(processInstanceOid);
+         for (Long processInstanceOid : processInstanceOids)
+         {
+            if (getExportIndex().getProcessInstanceOids().contains(processInstanceOid))
+            {
+               byte[] data = dataByProcess.get(processInstanceOid);
+               result = ExportImportSupport.addAll(result, data);
+            }
+         }
+         if (result.length == 0)
+         {
+            result = null;
+         }
+         
       }
-      return null;
+      return result;
    }
 
    @Override

@@ -18,6 +18,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ZipArchiveManager implements IArchiveManager
 {
    private static final String ZIP = ".zip";
+   
+   private static final String ZIP_PART0 = ".part0" + ZIP;
+   private static final String ZIP_PART = ".part";
 
    private static final Logger LOGGER = LogManager.getLogger(ZipArchiveManager.class);
 
@@ -38,7 +41,7 @@ public class ZipArchiveManager implements IArchiveManager
    private final String rootFolder;
 
    private final int zipFileSize;
-   
+
    private final String folderFormat;
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
@@ -54,7 +57,8 @@ public class ZipArchiveManager implements IArchiveManager
       this.zipFileSize = zipFileSize;
    }
 
-   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat, int zipFileSize)
+   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat,
+         int zipFileSize)
    {
       if (manager == null)
       {
@@ -107,13 +111,13 @@ public class ZipArchiveManager implements IArchiveManager
       Date fromIndex = ExportImportSupport.getIndexDateTime(fromDate);
       Date toIndex = ExportImportSupport.getIndexDateTime(toDate);
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
-      
+
       String partitionFolderName = getPartitionFolderName();
-      List<String> allZipFiles = findZipFiles();
+      Map<String, List<String>> allZipFiles = findZipFiles();
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
       try
       {
-         for (String filePath : allZipFiles)
+         for (String filePath : allZipFiles.keySet())
          {
             String name = filePath.substring(partitionFolderName.length(),
                   filePath.length());
@@ -122,7 +126,7 @@ public class ZipArchiveManager implements IArchiveManager
             Date folderDate = dateFormat.parse(name);
             if (fromIndex.compareTo(folderDate) < 1 && toIndex.compareTo(folderDate) > -1)
             {
-               archives.add(new ZipArchive(filePath));
+               archives.add(new ZipArchive(filePath, allZipFiles.get(filePath)));
             }
          }
       }
@@ -138,10 +142,10 @@ public class ZipArchiveManager implements IArchiveManager
    public ArrayList<IArchive> findArchives()
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      List<String> allZipFiles = findZipFiles();
-      for (String filePath : allZipFiles)
+      Map<String, List<String>> allZipFiles = findZipFiles();
+      for (String filePath : allZipFiles.keySet())
       {
-         archives.add(new ZipArchive(filePath));
+         archives.add(new ZipArchive(filePath, allZipFiles.get(filePath)));
       }
       return archives;
    }
@@ -389,6 +393,11 @@ public class ZipArchiveManager implements IArchiveManager
          int lastIndex = name.lastIndexOf('.');
          String fileName = name.substring(0, lastIndex);
          String[] parts = fileName.split("_");
+         lastIndex = parts[1].indexOf('.');
+         if (lastIndex > -1)
+         {
+            parts[1] = parts[1].substring(0, lastIndex);
+         }
          int exportIndex = Integer.valueOf(parts[1]);
          if (maxIndex < exportIndex)
          {
@@ -412,8 +421,9 @@ public class ZipArchiveManager implements IArchiveManager
       boolean success = true;
       if (filesToZip != null && filesToZip.length > 0)
       {
-         String zippedFileName = parentFoder + File.separatorChar
-               + zipFileNameWithoutExtension + ZIP;
+         int part = 0;
+         String zippedFileName = getZipFileName(parentFoder, 0,
+               zipFileNameWithoutExtension);
 
          if (LOGGER.isDebugEnabled())
          {
@@ -421,80 +431,75 @@ public class ZipArchiveManager implements IArchiveManager
          }
          ZipOutputStream out = null;
          BufferedInputStream in = null;
+         String dataFile = null;
          byte[] buffer = new byte[BUFFER_SIZE];
          try
          {
             out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(
                   zippedFileName)));
             out.setLevel(Deflater.DEFAULT_COMPRESSION);
-
+            long size = 0;
+            // first add index and model to zip, they must always be in first zip created
             for (String fileToZip : filesToZip)
             {
+               String baseFileName = getBaseFileName(fileToZip);
                String fileAbsolutePath = parentFoder + File.separatorChar + fileToZip;
-               try
+               if (ZipArchive.FILENAME_MODEL.equals(baseFileName)
+                     || ZipArchive.FILENAME_INDEX.equals(baseFileName))
                {
-                  in = new BufferedInputStream(new FileInputStream(fileAbsolutePath));
-                  String baseFileName = getBaseFileName(fileToZip);
-                  if (ZipArchive.FILENAME_MODEL.equals(baseFileName)
-                        || ZipArchive.FILENAME_INDEX.equals(baseFileName))
+                  long entrySize = writeComplete(out, fileAbsolutePath, buffer,
+                        baseFileName);
+                  if (entrySize > -1)
                   {
-                     int len = in.read(buffer);
-                     if (len < 1)
-                     {
-                        throw new Exception("Empty Input");
-                     }
-                     out.putNextEntry(new ZipEntry(baseFileName));
-                     while (len > 0)
-                     {
-                        out.write(buffer, 0, len);
-                        len = in.read(buffer);
-                     }
-                     out.closeEntry();
+                     size += entrySize;
                   }
                   else
                   {
-                     for (Long processId : processIds)
-                     {
-                        out.putNextEntry(new ZipEntry(processId + EXT_DAT));
-                        byte[] process = new byte[lengths.get(processIds
-                              .indexOf(processId))];
-                        in.read(process);
-                        out.write(process);
-                        out.closeEntry();
-                     }
+                     success = false;
+                     break;
                   }
-                  in.close();
+               }
+               else
+               {
+                  dataFile = fileAbsolutePath;
+               }
+            }
 
-                  if (LOGGER.isDebugEnabled())
-                  {
-                     LOGGER.debug("Successfully added file to zip: " + fileToZip);
-                  }
-               }
-               catch (Exception e)
+            // add process entries to zip, create more zip files if size grows beyond limit
+            if (dataFile != null && success)
+            {
+               in = new BufferedInputStream(new FileInputStream(
+                     dataFile));
+               for (Long processId : processIds)
                {
-                  success = false;
-                  LOGGER.error("Error adding file to Zipped content. File: " + fileToZip,
-                        e);
-                  break;
-               }
-               finally
-               {
-                  if (in != null)
+
+                  if (size > zipFileSize)
                   {
-                     try
+                     out.close();
+                     ++part;
+                     zippedFileName = getZipFileName(parentFoder, part,
+                           zipFileNameWithoutExtension);
+                     out = new ZipOutputStream(new BufferedOutputStream(
+                           new FileOutputStream(zippedFileName)));
+                     size = 0;
+                     if (LOGGER.isDebugEnabled())
                      {
-                        in.close();
-                        if (success)
-                        {
-                           new File(fileAbsolutePath).delete();
-                        }
-                     }
-                     catch (IOException ioe)
-                     {
-                        LOGGER.error("Unable to close and delete file " + fileToZip);
+                        LOGGER.debug("Zip file being created: " + zippedFileName);
                      }
                   }
+                  long entrySize = writeChunck(
+                        lengths.get(processIds.indexOf(processId)), out, in, processId);
+                  if (entrySize > -1)
+                  {
+                     size += entrySize;
+                  }
+                  else
+                  {
+                     success = false;
+                     break;
+                  }
                }
+
             }
          }
          catch (Exception e)
@@ -504,6 +509,21 @@ public class ZipArchiveManager implements IArchiveManager
          }
          finally
          {
+            try
+            {
+               if (in != null)
+               {
+                  in.close();
+                  if (success)
+                  {
+                     new File(dataFile).delete();
+                  }
+               }
+            }
+            catch (IOException ioe)
+            {
+               LOGGER.error("Unable to close and delete file " + dataFile);
+            }
             try
             {
                if (out != null)
@@ -525,16 +545,94 @@ public class ZipArchiveManager implements IArchiveManager
       return success;
    }
 
-   
-   private List<String> findZipFiles()
+   private long writeChunck(int chunkSize, ZipOutputStream out, BufferedInputStream in,
+         Long processId)
+   {
+      long size = -1L;
+      try
+      {
+         ZipEntry entry = new ZipEntry(processId + EXT_DAT);
+         out.putNextEntry(entry);
+         byte[] process = new byte[chunkSize];
+         in.read(process);
+         out.write(process);
+         out.closeEntry();
+         size = entry.getCompressedSize();
+      }
+      catch (Exception e)
+      {
+         size = -1;
+         LOGGER.error("Error adding process to Zipped content. Process: " + processId, e);
+      }
+      return size;
+   }
+
+   private long writeComplete(ZipOutputStream out, String fileAbsolutePath,
+         byte[] buffer, String entryName)
+   {
+      BufferedInputStream in = null;
+      long size = -1L;
+      try
+      {
+         in = new BufferedInputStream(new FileInputStream(fileAbsolutePath));
+         int len = in.read(buffer);
+         if (len < 1)
+         {
+            throw new Exception("Empty Input");
+         }
+         ZipEntry entry = new ZipEntry(entryName);
+         out.putNextEntry(entry);
+         while (len > 0)
+         {
+            out.write(buffer, 0, len);
+            len = in.read(buffer);
+         }
+         out.closeEntry();
+         size = entry.getCompressedSize();
+      }
+      catch (Exception e)
+      {
+         size = -1;
+         LOGGER.error("Error adding file to Zipped content. File: " + fileAbsolutePath, e);
+      }
+      finally
+      {
+         if (in != null)
+         {
+            try
+            {
+               in.close();
+               if (size > -1L)
+               {
+                  new File(fileAbsolutePath).delete();
+               }
+            }
+            catch (IOException ioe)
+            {
+               LOGGER.error("Unable to close and delete file " + fileAbsolutePath);
+            }
+         }
+      }
+      return size;
+   }
+
+   private String getZipFileName(String parentFoder, int part,
+         String zipFileNameWithoutExtension)
+   {
+      String zippedFileName = parentFoder + File.separatorChar
+            + zipFileNameWithoutExtension + ZIP_PART + part + ZIP;
+      return zippedFileName;
+   }
+
+   private Map<String,List<String>> findZipFiles()
    {
       File directory = new File(getPartitionFolderName());
-      ArrayList<String> allZipFiles = new ArrayList<String>();
+      Map<String,List<String>> allZipFiles = new HashMap<String,List<String>>();
       findZipFiles(allZipFiles, directory);
       return allZipFiles;
    }
-   
-   private void findZipFiles(List<String> files, File directory)
+
+   private void findZipFiles(Map<String,List<String>> files, File directory)
    {
       File[] found = directory.listFiles(zipFileFilter);
 
@@ -548,7 +646,31 @@ public class ZipArchiveManager implements IArchiveManager
             }
             else
             {
-               files.add(file.getAbsolutePath());
+               if (file.getName().endsWith(ZIP_PART0))
+               {
+                  List<String> allFiles = files.get(file.getAbsolutePath());
+                  // another part could have added it.
+                  if (allFiles == null)
+                  {
+                     allFiles = new ArrayList<String>();
+                     files.put(file.getAbsolutePath(), allFiles);
+                  }
+               }
+               else
+               {
+                  String path = file.getAbsolutePath();
+                  int indexOfPart = path.indexOf(ZIP_PART);
+                  String part0 = path.substring(0,indexOfPart) + ZIP_PART0;
+                  List<String> allFiles = files.get(part0);
+                  // another part could have added it.
+                  if (allFiles == null)
+                  {
+                     allFiles = new ArrayList<String>();
+                     files.put(part0, allFiles);
+                  }
+                  allFiles.add(file.getAbsolutePath());
+
+               }
             }
          }
       }
@@ -593,13 +715,35 @@ public class ZipArchiveManager implements IArchiveManager
    private class ZipFileFilter implements FileFilter
    {
 
+      private String pattern;
+      
       public ZipFileFilter()
-      {}
+      {
+         this(null);
+      }
+      
+      public ZipFileFilter(String startPattern)
+      {
+         pattern = startPattern;
+      }
 
       @Override
       public boolean accept(File file)
       {
-         return file.isDirectory() || file.getName().endsWith(ZIP);
+         boolean inFilter;
+         if (file.isDirectory())
+         {
+            inFilter = true;
+         }
+         else if (pattern == null)
+         {
+            inFilter = file.getName().endsWith(ZIP);
+         }
+         else
+         {
+            inFilter = file.getName().startsWith(pattern) && file.getName().endsWith(ZIP);
+         }
+         return inFilter;
       }
    }
 

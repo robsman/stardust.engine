@@ -16,6 +16,7 @@ import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.close
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class ProcessElementsVisitor
       this.operator = operator;
    }
 
-   public int visitProcessInstances(List<Long> piOids, Session session)
+   public int visitProcessInstances(Collection<Long> piOids, Session session)
    {
       try
       {
@@ -175,7 +176,7 @@ public class ProcessElementsVisitor
       }
    }
 
-   private void visitDataClusterValues(List piOids, Session session)
+   private void visitDataClusterValues(Collection piOids, Session session)
    {
       if (piOids.isEmpty())
       {
@@ -194,7 +195,7 @@ public class ProcessElementsVisitor
       }
    }
 
-   private void visitDvParts(List<Long> piOids, Class partType, FieldRef fkDvField,
+   private void visitDvParts(Collection<Long> piOids, Class partType, FieldRef fkDvField,
          PredicateTerm restriction, Session session)
    {
       visit2ndLevelPiParts(piOids, partType, fkDvField, DataValueBean.class,
@@ -233,13 +234,13 @@ public class ProcessElementsVisitor
       return dataOids;
    }
 
-   private int visitPiParts(List<Long> piOids, Class partType, FieldRef fkPiField,
+   private int visitPiParts(Collection<Long> piOids, Class partType, FieldRef fkPiField,
          Session session)
    {
       return visitPiParts(piOids, partType, fkPiField, null, session);
    }
 
-   private int visitPiParts(List<Long> piOids, Class partType, FieldRef fkPiField,
+   private int visitPiParts(Collection<Long> piOids, Class partType, FieldRef fkPiField,
          PredicateTerm restriction, Session session)
    {
       int processedItems = 0;
@@ -274,20 +275,20 @@ public class ProcessElementsVisitor
       return processedItems;
    }
 
-   private void visitAiParts(List<Long> piOids, Class partType, FieldRef fkAiField,
+   private void visitAiParts(Collection<Long> piOids, Class partType, FieldRef fkAiField,
          Session session)
    {
       visitAiParts(piOids, partType, fkAiField, null, session);
    }
 
-   private void visitAiParts(List<Long> piOids, Class partType, FieldRef fkAiField,
+   private void visitAiParts(Collection<Long> piOids, Class partType, FieldRef fkAiField,
          PredicateTerm restriction, Session session)
    {
       visit2ndLevelPiParts(piOids, partType, fkAiField, ActivityInstanceBean.class,
             ActivityInstanceBean.FR__PROCESS_INSTANCE, restriction, session);
    }
 
-   private int visit2ndLevelPiParts(List<Long> piOids, Class partType,
+   private int visit2ndLevelPiParts(Collection<Long> piOids, Class partType,
          FieldRef fkPiPartField, Class piPartType, FieldRef piOidField,
          PredicateTerm restriction, Session session)
    {
@@ -296,7 +297,7 @@ public class ProcessElementsVisitor
             tdPiPart.getPkFields()[0].getName(), piOidField, restriction, session);
    }
 
-   private int visit2ndLevelPiParts(List<Long> piOids, Class partType,
+   private int visit2ndLevelPiParts(Collection<Long> piOids, Class partType,
          FieldRef fkPiPartField, Class piPartType, String piPartPkName,
          FieldRef piOidField, PredicateTerm restriction, Session session)
    {
@@ -329,7 +330,7 @@ public class ProcessElementsVisitor
       return processedItems;
    }
 
-   private static <E> Iterator<List<E>> getChunkIterator(List<E> list, int chunkSize)
+   private static <E> Iterator<List<E>> getChunkIterator(Collection<E> list, int chunkSize)
    {
       return new ListChunkIterator<E>(list, chunkSize);
    }
@@ -342,7 +343,7 @@ public class ProcessElementsVisitor
 
       private int offset = 0;
 
-      public ListChunkIterator(List<E> list, int chunkSize)
+      public ListChunkIterator(Collection<E> list, int chunkSize)
       {
          super();
 

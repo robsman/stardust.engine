@@ -5,7 +5,7 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -88,7 +88,7 @@ public class ProcessElementPurger implements ProcessElementOperator
    
    
    @Override
-   public void visitDataClusterValues(Session session, DataCluster dCluster, List piOids)
+   public void visitDataClusterValues(Session session, DataCluster dCluster, Collection piOids)
    {
       Statement stmt = null;
       try

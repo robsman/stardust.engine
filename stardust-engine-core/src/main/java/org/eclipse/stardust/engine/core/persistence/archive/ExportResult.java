@@ -9,6 +9,7 @@ import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 public class ExportResult implements Serializable
@@ -20,10 +21,13 @@ public class ExportResult implements Serializable
    private transient final HashMap<Date, Map<Long, Map<Class, List<Persistent>>>> dateToPersistents = new HashMap<Date, Map<Long, Map<Class, List<Persistent>>>>();
 
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
+   
+   private transient final Map<Long, List<Long>> rootProcessToSubProcesses = new HashMap<Long, List<Long>>();
 
    private final Map<Date, ExportIndex> exportIndexByDate;
+   
 
-   private List<Long> processInstanceOids;
+   private Set<Long> processInstanceOids;
 
    private boolean open = true;
 
@@ -35,7 +39,7 @@ public class ExportResult implements Serializable
       this.modelData = modelData;
       this.resultsByDate = resultsByDate;
       this.exportIndexByDate = exportIndexByDate;
-      processInstanceOids = new ArrayList<Long>();
+      processInstanceOids = new HashSet<Long>();
       for (Date date : exportIndexByDate.keySet())
       {
          processInstanceOids.addAll(exportIndexByDate.get(date).getProcessInstanceOids());
@@ -54,14 +58,27 @@ public class ExportResult implements Serializable
       if (open)
       {
          Date indexDate;
+         IProcessInstance rootProcess;
+         Long subId = null;
          if (process.getOID() == process.getRootProcessInstanceOID())
          {
-            indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
+            rootProcess = process.getProcessInstance();
          }
          else
          {
-            indexDate = ExportImportSupport.getIndexDateTime(process
-                  .getRootProcessInstance().getStartTime());
+            rootProcess = process.getRootProcessInstance();
+            subId = process.getOID();
+         }
+         indexDate = ExportImportSupport.getIndexDateTime(rootProcess.getStartTime());
+         List<Long> subProcesses = rootProcessToSubProcesses.get(rootProcess.getOID());
+         if (subProcesses == null)
+         {
+            subProcesses = new ArrayList<Long>();
+            rootProcessToSubProcesses.put(rootProcess.getOID(), subProcesses);
+         }
+         if (subId != null)
+         {
+            subProcesses.add(subId);
          }
          if (indexDate == null)
          {
@@ -158,12 +175,17 @@ public class ExportResult implements Serializable
                   exportIndex = new ExportIndex();
                   exportIndexByDate.put(indexDate, exportIndex);
                }
+               List<Long> subprocesses = rootProcessToSubProcesses.get(processInstanceOid);
+               if (subprocesses != null)
+               {
+                  exportIndex.getRootProcessToSubProcesses().put(processInstanceOid, subprocesses);
+               }
                exportIndex.getProcessInstanceOids().add(processInstanceOid);
                exportIndex.getProcessLengths().add(processData.length);
                result = ExportImportSupport.addAll(result, processData);
             }
             resultsByDate.put(indexDate, result);
-            processInstanceOids = new ArrayList<Long>();
+            processInstanceOids = new HashSet<Long>();
             processInstanceOids.addAll(piOidsToDate.keySet());
          }
          open = false;
@@ -216,7 +238,16 @@ public class ExportResult implements Serializable
       return modelData;
    }
 
-   public List<Long> getAllProcessIds()
+   public Map<Long, List<Long>> getRootProcessToSubProcesses()
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      return rootProcessToSubProcesses;
+   }
+
+   public Set<Long> getAllProcessIds()
    {
       if (open)
       {

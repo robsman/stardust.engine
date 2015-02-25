@@ -37,6 +37,8 @@ public class ZipArchiveManager implements IArchiveManager
 
    private final String rootFolder;
 
+   private final int zipFileSize;
+   
    private final String folderFormat;
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
@@ -45,13 +47,14 @@ public class ZipArchiveManager implements IArchiveManager
 
    public static final int BUFFER_SIZE = 1024 * 16;
 
-   private ZipArchiveManager(String rootFolder, String folderFormat)
+   private ZipArchiveManager(String rootFolder, String folderFormat, int zipFileSize)
    {
       this.rootFolder = rootFolder;
       this.folderFormat = folderFormat;
+      this.zipFileSize = zipFileSize;
    }
 
-   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat)
+   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat, int zipFileSize)
    {
       if (manager == null)
       {
@@ -59,7 +62,7 @@ public class ZipArchiveManager implements IArchiveManager
          {
             if (manager == null)
             {
-               manager = new ZipArchiveManager(rootFolder, folderFormat);
+               manager = new ZipArchiveManager(rootFolder, folderFormat, zipFileSize);
             }
          }
       }

@@ -7,13 +7,20 @@ public class ArchiveManagerFactory
 {
    private static final String DEFAULT_ARCHIVE_MANAGER = "ZIP";
 
+   // 100 MB
+   private static final int DEFAULT_ARCHIVE_ZIP_FILE_SIZE = 1024 * 1024 * 100;
+
    private static final String DEFAULT_ARCHIVE_FOLDER_FORMAT = "\\yyyy\\MM\\dd\\HH";
 
-   private static final String CARNOT_ARCHIVE_MANAGER = "Archive.Manager.Type";
+   public static final String CARNOT_ARCHIVE_MANAGER = "Archive.Manager.Type";
 
    private static final String CARNOT_ARCHIVE_ROOTFOLDER = "Archive.Manager.RootFolder";
 
    private static final String CARNOT_ARCHIVE_FOLDER_FORMAT = "Archive.Manager.FolderFormat";
+   
+   private static final String ARCHIVE_ZIP_FILE_SIZE = "Archive.Manager.ZipFile.Size";
+
+   public static final String CARNOT_ARCHIVE_MANAGER_CUSTOM = "Archive.Manager.Type.Class";
 
    public static IArchiveManager getCurrent()
    {
@@ -27,10 +34,42 @@ public class ArchiveManagerFactory
       {
          case ZIP: archiveManager = getZipArchiveManager();
             break;
+         case CUSTOM: archiveManager = getCustomArchiveManager();
+            break;
          default:
-            throw new IllegalArgumentException("Unknow ArchiveManager");
+            throw new IllegalArgumentException("Unknown ArchiveManager");
       }
       return archiveManager;
+   }
+
+   private static IArchiveManager getCustomArchiveManager()
+   {
+      String custom = Parameters.instance().getString(CARNOT_ARCHIVE_MANAGER_CUSTOM,"");
+      if (StringUtils.isEmpty(custom.trim()))
+      {
+         throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_CUSTOM + " must be provided for Custom archive type");
+      }
+      try
+      {
+         Class type = Class.forName(custom);
+         Object instance = type.newInstance();
+         if (instance instanceof IArchiveManager)
+         {
+            return (IArchiveManager) instance;
+         }
+         else
+         {
+            throw new IllegalArgumentException(custom + " is not an IArchiveManager");
+         }
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new IllegalArgumentException(custom + " class not found");
+      }
+      catch (Exception e)
+      {
+         throw new IllegalArgumentException(custom + " class could not be instantiated " + e.getMessage());
+      }
    }
 
    private static IArchiveManager getZipArchiveManager()
@@ -43,13 +82,15 @@ public class ArchiveManagerFactory
       
       String folderFormat = Parameters.instance().getString(CARNOT_ARCHIVE_FOLDER_FORMAT,
             DEFAULT_ARCHIVE_FOLDER_FORMAT);
+      int zipFileSize = Parameters.instance().getInteger(ARCHIVE_ZIP_FILE_SIZE, DEFAULT_ARCHIVE_ZIP_FILE_SIZE);
       IArchiveManager archiveManager = ZipArchiveManager.getInstance(rootFolder,
-            folderFormat);
+            folderFormat, zipFileSize);
       return archiveManager;
    }
 
    public enum ArchiveManagerType
    {
-      ZIP;
+      ZIP,
+      CUSTOM;
    }
 }

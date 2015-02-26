@@ -7,8 +7,7 @@ public class ArchiveManagerFactory
 {
    private static final String DEFAULT_ARCHIVE_MANAGER = "ZIP";
 
-   // 100 MB
-   private static final int DEFAULT_ARCHIVE_ZIP_FILE_SIZE = 1024 * 1024 * 100;
+   public static final int DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = 100;
 
    private static final String DEFAULT_ARCHIVE_FOLDER_FORMAT = "\\yyyy\\MM\\dd\\HH";
 
@@ -18,7 +17,7 @@ public class ArchiveManagerFactory
 
    private static final String CARNOT_ARCHIVE_FOLDER_FORMAT = "Archive.Manager.FolderFormat";
    
-   private static final String ARCHIVE_ZIP_FILE_SIZE = "Archive.Manager.ZipFile.Size";
+   private static final String ARCHIVE_ZIP_FILE_SIZE_MB = "Archive.Manager.ZipFile.SizeInMB";
 
    public static final String CARNOT_ARCHIVE_MANAGER_CUSTOM = "Archive.Manager.Type.Class";
 
@@ -82,7 +81,7 @@ public class ArchiveManagerFactory
       
       String folderFormat = Parameters.instance().getString(CARNOT_ARCHIVE_FOLDER_FORMAT,
             DEFAULT_ARCHIVE_FOLDER_FORMAT);
-      int zipFileSize = Parameters.instance().getInteger(ARCHIVE_ZIP_FILE_SIZE, DEFAULT_ARCHIVE_ZIP_FILE_SIZE);
+      int zipFileSize = Parameters.instance().getInteger(ARCHIVE_ZIP_FILE_SIZE_MB, DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
       IArchiveManager archiveManager = ZipArchiveManager.getInstance(rootFolder,
             folderFormat, zipFileSize);
       return archiveManager;

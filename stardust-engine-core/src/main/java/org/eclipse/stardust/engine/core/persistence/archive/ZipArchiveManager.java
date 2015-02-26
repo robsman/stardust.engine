@@ -18,8 +18,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ZipArchiveManager implements IArchiveManager
 {
    private static final String ZIP = ".zip";
-   
+
    private static final String ZIP_PART0 = ".part0" + ZIP;
+
    private static final String ZIP_PART = ".part";
 
    private static final Logger LOGGER = LogManager.getLogger(ZipArchiveManager.class);
@@ -40,7 +41,7 @@ public class ZipArchiveManager implements IArchiveManager
 
    private final String rootFolder;
 
-   private final int zipFileSize;
+   private final long zipFileSize;
 
    private final String folderFormat;
 
@@ -50,7 +51,7 @@ public class ZipArchiveManager implements IArchiveManager
 
    public static final int BUFFER_SIZE = 1024 * 16;
 
-   private ZipArchiveManager(String rootFolder, String folderFormat, int zipFileSize)
+   private ZipArchiveManager(String rootFolder, String folderFormat, long zipFileSize)
    {
       this.rootFolder = rootFolder;
       this.folderFormat = folderFormat;
@@ -58,7 +59,7 @@ public class ZipArchiveManager implements IArchiveManager
    }
 
    public static ZipArchiveManager getInstance(String rootFolder, String folderFormat,
-         int zipFileSize)
+         long zipFileSize)
    {
       if (manager == null)
       {
@@ -66,6 +67,12 @@ public class ZipArchiveManager implements IArchiveManager
          {
             if (manager == null)
             {
+
+               if (zipFileSize <= 0)
+               {
+                  zipFileSize = ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB;
+               }
+               zipFileSize *= 1024 * 1024;
                manager = new ZipArchiveManager(rootFolder, folderFormat, zipFileSize);
             }
          }
@@ -465,15 +472,15 @@ public class ZipArchiveManager implements IArchiveManager
                }
             }
 
-            // add process entries to zip, create more zip files if size grows beyond limit
+            // add process entries to zip, create more zip files if size grows beyond
+            // limit
             if (dataFile != null && success)
             {
-               in = new BufferedInputStream(new FileInputStream(
-                     dataFile));
+               in = new BufferedInputStream(new FileInputStream(dataFile));
                for (Long processId : processIds)
                {
-
-                  if (size > zipFileSize)
+                  Integer length = lengths.get(processIds.indexOf(processId));
+                  if ((size + length) >= zipFileSize)
                   {
                      out.close();
                      ++part;
@@ -487,8 +494,7 @@ public class ZipArchiveManager implements IArchiveManager
                         LOGGER.debug("Zip file being created: " + zippedFileName);
                      }
                   }
-                  long entrySize = writeChunck(
-                        lengths.get(processIds.indexOf(processId)), out, in, processId);
+                  long entrySize = writeChunck(length, out, in, processId);
                   if (entrySize > -1)
                   {
                      size += entrySize;
@@ -624,15 +630,15 @@ public class ZipArchiveManager implements IArchiveManager
       return zippedFileName;
    }
 
-   private Map<String,List<String>> findZipFiles()
+   private Map<String, List<String>> findZipFiles()
    {
       File directory = new File(getPartitionFolderName());
-      Map<String,List<String>> allZipFiles = new HashMap<String,List<String>>();
+      Map<String, List<String>> allZipFiles = new HashMap<String, List<String>>();
       findZipFiles(allZipFiles, directory);
       return allZipFiles;
    }
 
-   private void findZipFiles(Map<String,List<String>> files, File directory)
+   private void findZipFiles(Map<String, List<String>> files, File directory)
    {
       File[] found = directory.listFiles(zipFileFilter);
 
@@ -660,7 +666,7 @@ public class ZipArchiveManager implements IArchiveManager
                {
                   String path = file.getAbsolutePath();
                   int indexOfPart = path.indexOf(ZIP_PART);
-                  String part0 = path.substring(0,indexOfPart) + ZIP_PART0;
+                  String part0 = path.substring(0, indexOfPart) + ZIP_PART0;
                   List<String> allFiles = files.get(part0);
                   // another part could have added it.
                   if (allFiles == null)
@@ -716,12 +722,12 @@ public class ZipArchiveManager implements IArchiveManager
    {
 
       private String pattern;
-      
+
       public ZipFileFilter()
       {
          this(null);
       }
-      
+
       public ZipFileFilter(String startPattern)
       {
          pattern = startPattern;

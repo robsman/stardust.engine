@@ -110,6 +110,10 @@ public class ZipArchive implements IArchive, Serializable
                }
             }
          }
+         else
+         {
+            result = part0AbsolutePath;
+         }
       }
       catch (Exception exception)
       {

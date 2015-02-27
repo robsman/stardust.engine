@@ -40,6 +40,7 @@ import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.CMTSessionInter
 import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.ContainerConfigurationInterceptor;
 import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.SessionBeanExceptionHandler;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -223,7 +224,7 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
       // prevent firing of batch events if the system time is changed on a running engine.
       String type = carrier.getType();
       Long lastRun = lastRuns.get(type);
-      long now = System.currentTimeMillis();
+      long now = TimestampProviderUtils.getTimeStampValue();
       if (lastRun == null || now - lastRun > 100 || now < lastRun)
       {
          ForkingServiceFactory factory = Parameters.instance().getObject(EngineProperties.FORKING_SERVICE_HOME);

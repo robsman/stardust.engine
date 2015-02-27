@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Container class for the deputy description options.
@@ -41,7 +42,7 @@ public class DeputyOptions implements Serializable
     */
    public DeputyOptions()
    {
-      this(new Date(), null);
+      this(TimestampProviderUtils.getTimeStamp(), null);
    }
 
    /**

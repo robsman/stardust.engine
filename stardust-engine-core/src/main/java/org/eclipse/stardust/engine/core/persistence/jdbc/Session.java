@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,42 +12,20 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.Date;
 
 import javax.sql.DataSource;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
-import org.eclipse.stardust.common.error.ApplicationException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -65,73 +43,26 @@ import org.eclipse.stardust.engine.core.cache.AbstractCache;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ClosableIteratorUtils;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.DefaultPersistentVector;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
-import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.PersistentVector;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AbstractTransientProcessInstanceSupport;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.NoOpTransientProcessInstanceSupport;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TestAsyncWriteTransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
@@ -562,7 +493,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             stmt = getConnection().createStatement();
             String stmtString = dmlManager.getInsertRowStatementString(persistent);
 
-            long startTime = System.currentTimeMillis();
+            final TimeMeasure timer = new TimeMeasure().start();
             if (useJdbc14GeneratedKeys)
             {
                stmt.executeUpdate(stmtString, Statement.RETURN_GENERATED_KEYS);
@@ -602,8 +533,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                throw sqle;
             }
             }
-
-            monitorSqlExecution(stmtString, startTime, System.currentTimeMillis());
+            monitorSqlExecution(stmtString, timer.stop());
          }
          finally
          {
@@ -1019,8 +949,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       if (isUsingLockTables() && typeDescriptor.isDistinctLockTableName())
       {
-         long startTime;
-         long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
          String sqlString;
 
          if (isUsingPreparedStatements(persistent.getClass()))
@@ -1075,9 +1004,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         1 + typeDescriptor.getFieldColumnIndex(pkFields[i]),
                         pkFields[i].getType(), pkValue, dbDescriptor);
                }
-               startTime = System.currentTimeMillis();
+               timer.start();
                insLckStmt.executeUpdate();
-               stopTime = System.currentTimeMillis();
+               timer.stop();
             }
             finally
             {
@@ -1129,9 +1058,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             try
             {
                sqlString = insLckBuffer.toString();
-               startTime = System.currentTimeMillis();
+               timer.start();
                insLckStmt.executeUpdate(sqlString);
-               stopTime = System.currentTimeMillis();
+               timer.stop();
             }
             finally
             {
@@ -1139,7 +1068,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
 
-         monitorSqlExecution(sqlString, startTime, stopTime);
+         monitorSqlExecution(sqlString, timer);
       }
    }
 
@@ -1155,8 +1084,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       insertStmt.append(cluster.getTableName()).append(" (")
             .append(cluster.getProcessInstanceColumn()).append(") VALUES (");
 
-      long startTime;
-      long stopTime;
+      final TimeMeasure timer = new TimeMeasure();
       String sqlString;
 
       if (isUsingPreparedStatements(null))
@@ -1170,9 +1098,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             stmt = getConnection().prepareStatement(sqlString);
             stmt.setLong(1, cluster.getProcessInstanceOid());
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             stmt.executeUpdate();
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          catch(SQLException x)
          {
@@ -1194,9 +1122,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             stmt = getConnection().createStatement();
             sqlString = insertStmt.toString();
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             stmt.executeUpdate(sqlString);
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          catch(SQLException x)
          {
@@ -1209,7 +1137,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
 
-      monitorSqlExecution(sqlString, startTime, stopTime);
+      monitorSqlExecution(sqlString, timer);
    }
 
    public DmlManager getDMLManager(Class type)
@@ -1943,8 +1871,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      throw new InternalException("Failed extracting PK value.", x);
                   }
 
-                  long startTime;
-                  long stopTime;
+                  final TimeMeasure timer = new TimeMeasure();
                   String statementString;
 
                   DataCluster[] clusterSetup = getClusterSetup();
@@ -1968,16 +1895,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            trace.debug("SQL: "+statementString);
                         }
                         statement.setLong(1, piOid);
-                        startTime = System.currentTimeMillis();
+                        timer.start();
                         statement.executeUpdate();
-                        stopTime = System.currentTimeMillis();
+                        timer.stop();
                      }
                      finally
                      {
                         QueryUtils.closeStatement(statement);
                      }
 
-                     monitorSqlExecution(statementString, startTime, stopTime);
+                     monitorSqlExecution(statementString, timer);
                   }
                }
 
@@ -2389,8 +2316,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       try
       {
-         long startTime;
-         long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
 
          if (isUsingPreparedStatements(type))
          {
@@ -2399,20 +2325,20 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             statement = createAndBindPreparedStatement(deleteStatement, bindValueList);
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             processedRows = ((PreparedStatement) statement).executeUpdate();
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          else
          {
             statement = getConnection().createStatement();
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             processedRows = statement.executeUpdate(deleteStatement);
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
 
-         monitorSqlExecution(deleteStatement, startTime, stopTime);
+         monitorSqlExecution(deleteStatement, timer);
       }
       catch (SQLException x)
       {
@@ -2439,8 +2365,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                                                 : getDBDescriptor().useQueryTimeout();
       ResultSet resultSet = null;
 
-      long startTime;
-      long stopTime;
+      final TimeMeasure timer = new TimeMeasure();
       if (isUsingPreparedStatements(type))
       {
          PreparedStatement statement = null;
@@ -2462,9 +2387,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             resultSet = StatementClosingResultSet.createManagedResultSet(statement, statement.executeQuery());
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          catch (RuntimeException x)
          {
@@ -2498,10 +2423,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             resultSet = StatementClosingResultSet.createManagedResultSet(statement,
                   statement.executeQuery(statementString));
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          catch (RuntimeException x)
          {
@@ -2515,7 +2440,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
 
-      monitorSqlExecution(statementString, startTime, stopTime);
+      monitorSqlExecution(statementString, timer);
 
       return resultSet;
    }
@@ -2535,8 +2460,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       try
       {
-         long startTime;
-         long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
          if (isUsingPreparedStatements(type))
          {
             try
@@ -2554,9 +2478,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             processedRows = ((PreparedStatement) statement).executeUpdate();
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
          else
          {
@@ -2575,12 +2499,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                statement.setQueryTimeout(timeout != null ? timeout.intValue() : getLockQueryTimeout());
             }
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             processedRows = statement.executeUpdate(statementString);
-            stopTime = System.currentTimeMillis();
+            timer.stop();
          }
 
-         monitorSqlExecution(statementString, startTime, stopTime);
+         monitorSqlExecution(statementString, timer);
 
          return processedRows;
       }
@@ -2630,8 +2554,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          String sqlString = dmlManager.prepareSelectStatement(queryDescr, true,
                bindValueList, isUsingMixedPreparedStatements());
 
-         final long startTime;
-         final long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
 
          if (isUsingPreparedStatements(queryDescr.getType()))
          {
@@ -2645,9 +2568,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   stmt.setQueryTimeout(timeout);
                }
 
-               startTime = System.currentTimeMillis();
+               timer.start();
                resultSet = StatementClosingResultSet.createManagedResultSet(stmt, stmt.executeQuery());
-               stopTime = System.currentTimeMillis();
+               timer.stop();
             }
             catch (SQLException e)
             {
@@ -2669,10 +2592,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   stmt.setQueryTimeout(timeout);
                }
 
-               startTime = System.currentTimeMillis();
+               timer.start();
 
                resultSet = StatementClosingResultSet.createManagedResultSet(stmt, stmt.executeQuery(sqlString));
-               stopTime = System.currentTimeMillis();
+               timer.stop();
             }
             catch (SQLException e)
             {
@@ -2684,7 +2607,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
 
-         monitorSqlExecution(sqlString, startTime, stopTime);
+         monitorSqlExecution(sqlString, timer);
       }
       catch (SQLException e)
       {
@@ -2945,9 +2868,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      stmt.setQueryTimeout(timeout);
                   }
 
-                  startTime = System.currentTimeMillis();
+                  startTime = TimestampProviderUtils.getTimeStampValue();
                   nRows = 0;//((PreparedStatement) stmt).executeUpdate();
-                  stopTime = System.currentTimeMillis();
+                  stopTime = TimestampProviderUtils.getTimeStampValue();
                }
                catch (SQLException e)
                {
@@ -2968,9 +2891,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      stmt.setQueryTimeout(timeout);
                   }
 
-                  startTime = System.currentTimeMillis();
+                  startTime = TimestampProviderUtils.getTimeStampValue();
                   nRows = 0;//stmt.executeUpdate(sqlString);
-                  stopTime = System.currentTimeMillis();
+                  stopTime = TimestampProviderUtils.getTimeStampValue();
                }
                catch (SQLException e)
                {
@@ -3032,8 +2955,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          String sqlString = dmlManager.prepareInsertStatement(insertDescriptor,
                bindValueList, false);
 
-         final long startTime;
-         final long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
 
          Statement stmt = null;
          try
@@ -3049,9 +2971,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      stmt.setQueryTimeout(timeout);
                   }
 
-                  startTime = System.currentTimeMillis();
+                  timer.start();
                   nRows = ((PreparedStatement) stmt).executeUpdate();
-                  stopTime = System.currentTimeMillis();
+                  timer.stop();
                }
                catch (SQLException e)
                {
@@ -3072,9 +2994,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      stmt.setQueryTimeout(timeout);
                   }
 
-                  startTime = System.currentTimeMillis();
+                  timer.start();
                   nRows = stmt.executeUpdate(sqlString);
-                  stopTime = System.currentTimeMillis();
+                  timer.stop();
                }
                catch (SQLException e)
                {
@@ -3090,7 +3012,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             QueryUtils.closeStatement(stmt);
          }
 
-         monitorSqlExecution(sqlString, startTime, stopTime);
+         monitorSqlExecution(sqlString, timer);
       }
       catch (SQLException e)
       {
@@ -3238,9 +3160,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                statement = getConnection().prepareStatement(sqlString);
 
-               long startTime = System.currentTimeMillis();
+               final TimeMeasure timer = new TimeMeasure().start();
                statement.executeUpdate();
-               monitorSqlExecution(sqlString, startTime, System.currentTimeMillis());
+               
+               monitorSqlExecution(sqlString, timer.stop());
             }
             catch(SQLException x)
             {
@@ -4036,10 +3959,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     * @param startTime the start time of execution in milliseconds.
     * @param stopTime the stop time of execution in milliseconds.
     */
-   public void monitorSqlExecution(String sqlString, final long startTime,
-         final long stopTime)
+   public void monitorSqlExecution(String sqlString, final TimeMeasure timer)
    {
-      final long diffTime = stopTime - startTime;
+      final long diffTime = timer.getDurationInMillis();
       RuntimeLogUtils.getSqlTimeRecorder(params).record(sqlString, diffTime);
       if (diffTime >= params.getLong(
             KernelTweakingProperties.SLOW_STATEMENT_TRACING_THRESHOLD, Long.MAX_VALUE))

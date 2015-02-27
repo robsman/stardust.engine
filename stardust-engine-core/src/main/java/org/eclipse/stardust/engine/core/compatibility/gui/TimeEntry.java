@@ -16,6 +16,7 @@ import javax.swing.*;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import java.awt.*;
 import java.awt.event.FocusEvent;
@@ -171,8 +172,7 @@ public class TimeEntry extends AbstractDateEntry
    {
       if (date != null)
       {
-         Calendar value = Calendar.getInstance();
-         value.setTime(date);
+         Calendar value = TimestampProviderUtils.getCalendar(date);
          setValue(value);
       }
       else

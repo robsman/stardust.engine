@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author rsauer
@@ -108,9 +109,8 @@ public class SessionManager implements IDisposable
 
    public long getExpirationTime(long lastModificationTime)
    {
-      final Calendar expirationTimeCalculator = Calendar.getInstance();
+      final Calendar expirationTimeCalculator = TimestampProviderUtils.getCalendar(lastModificationTime);
 
-      expirationTimeCalculator.setTimeInMillis(lastModificationTime);
       expirationTimeCalculator.add(Calendar.MINUTE, automaticSessionTimeout);
       return expirationTimeCalculator.getTimeInMillis();
    }
@@ -126,10 +126,10 @@ public class SessionManager implements IDisposable
       Date lastSeen = (Date) lastModificationTimes.get(new Long(user.getOID()));
       if (null == lastSeen)
       {
-         lastSeen = new Date();
+         lastSeen = TimestampProviderUtils.getTimeStamp();
          lastModificationTimes.put(new Long(user.getOID()), lastSeen);
       }
-      lastSeen.setTime(System.currentTimeMillis());
+      lastSeen.setTime(TimestampProviderUtils.getTimeStampValue());
 
       synchToDiskIfNeeded();
    }
@@ -152,7 +152,7 @@ public class SessionManager implements IDisposable
          this.nextSynchToDiskTime = new Long(scheduleNextSyncToDisk(syncToDiskInterval));
       }
 
-      if (System.currentTimeMillis() >= nextSynchToDiskTime.longValue())
+      if (TimestampProviderUtils.getTimeStampValue() >= nextSynchToDiskTime.longValue())
       {
          try
          {
@@ -207,7 +207,7 @@ public class SessionManager implements IDisposable
    private static long scheduleNextSyncToDisk(int syncToDiskInterval)
    {
       // schedule next write
-      Calendar nextSyncTimeCalculator = Calendar.getInstance();
+      Calendar nextSyncTimeCalculator = TimestampProviderUtils.getCalendar();
       nextSyncTimeCalculator.add(Calendar.SECOND, syncToDiskInterval);
 
       return nextSyncTimeCalculator.getTimeInMillis();

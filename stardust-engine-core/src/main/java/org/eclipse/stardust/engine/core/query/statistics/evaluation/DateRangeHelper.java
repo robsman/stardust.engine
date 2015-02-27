@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.stardust.engine.core.query.statistics.api.DateRange;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 final public class DateRangeHelper
 {
@@ -27,10 +28,9 @@ final public class DateRangeHelper
 
    public DateRangeHelper()
    {
-      this.now = new Date();
-      final Calendar cal = Calendar.getInstance();
+      this.now = TimestampProviderUtils.getTimeStamp();
+      final Calendar cal = TimestampProviderUtils.getCalendar(now);
 
-      cal.setTime(now);
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
       cal.set(Calendar.SECOND, 0);

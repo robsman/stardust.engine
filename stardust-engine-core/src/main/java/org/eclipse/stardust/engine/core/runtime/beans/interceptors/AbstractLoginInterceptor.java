@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,6 +60,7 @@ import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalValidator;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 // @todo (france, ub): should be three interceptors (?!)
 // - login interceptor for internal login
@@ -482,7 +483,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                   LoginFailedException.SYSTEM_ERROR);
          }
          user.setPasswordExpired(true);
-         user.setValidTo(new Date());
+         user.setValidTo(TimestampProviderUtils.getTimeStamp());
 
          return null;
       }

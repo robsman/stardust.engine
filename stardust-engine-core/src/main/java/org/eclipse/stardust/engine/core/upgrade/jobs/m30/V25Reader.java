@@ -26,6 +26,8 @@ import org.eclipse.stardust.engine.api.model.PeriodicityTypeKey;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.extensions.mail.trigger.MailProtocol;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -1136,8 +1138,7 @@ public class V25Reader
       }
       else
       {
-         Calendar res = Calendar.getInstance();
-         res.setTime(new Date(time));
+         Calendar res = TimestampProviderUtils.getCalendar(new Date(time));
          v = (res.get(Calendar.DAY_OF_MONTH) -1) + ":" + (res.get(Calendar.HOUR) -1)
               + ":" + res.get(Calendar.MINUTE) + ":" + res.get(Calendar.SECOND);
       }

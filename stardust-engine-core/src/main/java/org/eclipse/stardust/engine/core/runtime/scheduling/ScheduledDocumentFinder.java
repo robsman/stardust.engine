@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -241,9 +242,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
    protected Calendar getCalendar(Date date)
    {
-      Calendar calendar = Calendar.getInstance();
+      Calendar calendar = TimestampProviderUtils.getCalendar(date);
       calendar.setLenient(true);
-      calendar.setTime(date);
       calendar.set(Calendar.SECOND, 0);
       calendar.set(Calendar.MILLISECOND, 0);
       return calendar;

@@ -28,6 +28,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -54,7 +55,7 @@ public class DaemonUtils
          daemonLogger.info("Starting daemon '" + daemonId + "'.");
          
          DaemonCarrier carrier = new DaemonCarrier(daemonId);
-         carrier.setStartTimeStamp(System.currentTimeMillis());
+         carrier.setStartTimeStamp(TimestampProviderUtils.getTimeStampValue());
 
          SetDaemonLogAction setStartLogAction = SetDaemonLogAction.setStartLog(
                carrier, AcknowledgementState.Requested);

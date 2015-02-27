@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -2316,8 +2317,7 @@ public class DmlManager
 
       try
       {
-         long startTime;
-         long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
          String statementString;
 
          Connection connection = session.getConnection();
@@ -2327,9 +2327,9 @@ public class DmlManager
             PreparedStatement stmt = stmtWrapper.getStatement();
 
             statementString = stmtWrapper.getStatementString();
-            startTime = System.currentTimeMillis();
+            timer.start();
             final ResultSet rs = stmt.executeQuery();
-            stopTime = System.currentTimeMillis();
+            timer.stop();
 
             resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
@@ -2338,13 +2338,13 @@ public class DmlManager
             Statement stmt = connection.createStatement();
 
             statementString = getReloadStatementString(persistent);
-            startTime = System.currentTimeMillis();
+            timer.start();
             final ResultSet rs = stmt.executeQuery(statementString);
-            stopTime = System.currentTimeMillis();
+            timer.stop();
 
             resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
-         session.monitorSqlExecution(statementString, startTime, stopTime);
+         session.monitorSqlExecution(statementString, timer);
 
          if (resultSet.next())
          {
@@ -2384,8 +2384,7 @@ public class DmlManager
 
       try
       {
-         long startTime;
-         long stopTime;
+         final TimeMeasure timer = new TimeMeasure();
          String statementString;
 
          Connection connection = session.getConnection();
@@ -2395,9 +2394,9 @@ public class DmlManager
             PreparedStatement stmt = stmtWrapper.getStatement();
 
             statementString = stmtWrapper.getStatementString();
-            startTime = System.currentTimeMillis();
+            timer.start();
             final ResultSet rs = stmt.executeQuery();
-            stopTime = System.currentTimeMillis();
+            timer.stop();
 
             resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
@@ -2406,13 +2405,13 @@ public class DmlManager
             Statement stmt = connection.createStatement();
             statementString = getReloadStatementString(persistent);
 
-            startTime = System.currentTimeMillis();
+            timer.start();
             final ResultSet rs = stmt.executeQuery(statementString);
-            stopTime = System.currentTimeMillis();
+            timer.stop();
 
             resultSet = StatementClosingResultSet.createManagedResultSet(stmt, rs);
          }
-         session.monitorSqlExecution(statementString, startTime, stopTime);
+         session.monitorSqlExecution(statementString, timer);
 
          if (resultSet.next())
          {

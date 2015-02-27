@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -24,6 +25,7 @@ import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.logging.ISqlTimeRecorder;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -70,7 +72,7 @@ public class ResultSetIterator implements ResultIterator
          boolean countAll)
    {
       int index = 0;
-      long startTime = System.currentTimeMillis();
+      final TimeMeasure timer = new TimeMeasure().start();
       try
       {
          Assert.condition(startIndex >= 0, "Index has to be >= 0.");
@@ -242,7 +244,7 @@ public class ResultSetIterator implements ResultIterator
          {
             trace.debug("<--ResultSetIterator size: " + index);
          }
-         long diffTime = System.currentTimeMillis() - startTime;
+         long diffTime = timer.stop().getDurationInMillis();
          ISqlTimeRecorder recorder = RuntimeLogUtils.getSqlTimeRecorder(Parameters.instance());
          recorder.record(diffTime);
       }

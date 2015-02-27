@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2014 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Florin Herinean (SunGard CSA LLC) - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.scheduling;
 
 import java.text.ParseException;
@@ -10,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 public abstract class SchedulingRecurrence
 {
@@ -145,7 +156,7 @@ public abstract class SchedulingRecurrence
    @SuppressWarnings("deprecation")
    protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression)
    {
-      Date currentDate = Calendar.getInstance().getTime();
+      Date currentDate = TimestampProviderUtils.getTimeStamp();
 
       String endDateStr = recurrenceRange.get("endDate").getAsString();
       Date endDate = SchedulingUtils.getParsedDate(endDateStr, SchedulingUtils.CLIENT_DATE_FORMAT);
@@ -182,7 +193,7 @@ public abstract class SchedulingRecurrence
    @SuppressWarnings("deprecation")
    protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression)
    {
-      Date currentDate = Calendar.getInstance().getTime();
+      Date currentDate = TimestampProviderUtils.getTimeStamp();
 
       // stop after n occurrences
       int occurences = recurrenceRange.get("occurences").getAsInt();
@@ -225,7 +236,7 @@ public abstract class SchedulingRecurrence
 
    protected Date getNoEndNextExecutionDate(CronExpression cronExpression)
    {
-      Date currentDate = Calendar.getInstance().getTime();
+      Date currentDate = TimestampProviderUtils.getTimeStamp();
 
       trace.info("No End Date is selected");
       return getNextExecutionDate(cronExpression, startDate.after(currentDate) ? startDate : currentDate, null);

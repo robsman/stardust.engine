@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -46,7 +47,7 @@ public class DebugInterceptor implements MethodInterceptor
 
       trace.info("--> " + methodName);
 
-      final long startTime = System.currentTimeMillis();
+      final TimeMeasure timer = new TimeMeasure().start();
       final Parameters parameters = Parameters.instance();
       parameters.set(ISqlTimeRecorder.PRP_SQL_TIME_RECORDER, sqlTimeRecorder);
       
@@ -56,8 +57,7 @@ public class DebugInterceptor implements MethodInterceptor
       }
       finally
       {
-         final long stopTime = System.currentTimeMillis();
-         final long diffTime = stopTime - startTime;
+         final long diffTime = timer.stop().getDurationInMillis();
 
          final Parameters params = parameters;
          if (diffTime >= params.getLong(

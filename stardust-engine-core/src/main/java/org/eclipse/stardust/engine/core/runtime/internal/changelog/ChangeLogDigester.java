@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.spi.IChangeLogDigestionStrategy;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.spi.IChangeLogDigestionStrategyFactory;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author rsauer
@@ -84,9 +85,8 @@ public class ChangeLogDigester
       // TODO retrieve from parameters
       final int automaticSessionTimeout = 2 * 60 * 60;
 
-      final Calendar expirationTimeCalculator = Calendar.getInstance();
+      final Calendar expirationTimeCalculator = TimestampProviderUtils.getCalendar(lastModificationTime);
 
-      expirationTimeCalculator.setTimeInMillis(lastModificationTime);
       expirationTimeCalculator.add(Calendar.SECOND, automaticSessionTimeout);
       return expirationTimeCalculator.getTimeInMillis();
    }

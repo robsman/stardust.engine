@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -124,7 +125,7 @@ public class ModelDeploymentBean extends IdentifiablePersistentBean implements S
    {
       this.validFrom = validFrom == null ? Long.MIN_VALUE + 1 : validFrom.getTime();
       this.deployer = SecurityProperties.getUserOID();
-      this.deploymentTime = System.currentTimeMillis();
+      this.deploymentTime = TimestampProviderUtils.getTimeStampValue();
       this.deploymentComment = comment;
       if (trace.isDebugEnabled())
       {
@@ -175,7 +176,7 @@ public class ModelDeploymentBean extends IdentifiablePersistentBean implements S
       {
          buffer.append(PredefinedConstants.SYSTEM);
          buffer.append("@");
-         buffer.append(new Date());
+         buffer.append(TimestampProviderUtils.getTimeStamp());
       }
       
       return buffer.toString();

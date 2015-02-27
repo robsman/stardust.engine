@@ -48,6 +48,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.security.utils.PasswordGenerator;
 import org.eclipse.stardust.engine.core.security.utils.PasswordValidation;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -121,7 +122,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          IUserSession session = UserSessionBean.findByOid(sessionOid);
 
-         final Date now = new Date();
+         final Date now = TimestampProviderUtils.getTimeStamp();
          session.setLastModificationTime(now);
          session.setExpirationTime(now);
       }
@@ -658,7 +659,7 @@ public class UserServiceImpl implements UserService, Serializable
       IUser user = UserBean.findByAccount(account, realmBean);
       user.lock();
 
-      user.setValidTo(new Date());
+      user.setValidTo(TimestampProviderUtils.getTimeStamp());
       user.clearAllParticipants();
 
       MonitoringUtils.partitionMonitors().userDisabled(user);
@@ -770,7 +771,7 @@ public class UserServiceImpl implements UserService, Serializable
             .getPartitionOid());
       userGroup.lock();
 
-      userGroup.setValidTo(new Date());
+      userGroup.setValidTo(TimestampProviderUtils.getTimeStamp());
 
       return (UserGroup) DetailsFactory.create(userGroup, IUserGroup.class,
             UserGroupDetails.class);
@@ -784,7 +785,7 @@ public class UserServiceImpl implements UserService, Serializable
       IUserGroup userGroup = UserGroupBean.findByOid(userGroupOid);
       userGroup.lock();
 
-      userGroup.setValidTo(new Date());
+      userGroup.setValidTo(TimestampProviderUtils.getTimeStamp());
 
       return (UserGroup) DetailsFactory.create(userGroup, IUserGroup.class,
             UserGroupDetails.class);

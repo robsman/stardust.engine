@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLWriter;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -73,7 +74,7 @@ public class ModelNodeBean implements ModelNode
    public ModelNode createPublicVersion(IModel model, String name, Date validFrom,
          Date validTo)
    {
-      release(new Date());
+      release(TimestampProviderUtils.getTimeStamp());
 
       StringBuffer newVersionName = new StringBuffer(version);
       for (int i = 0; i < versionCount; i++)

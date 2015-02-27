@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -60,7 +61,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
 
       final ProcessStatisticsQuery psq = (ProcessStatisticsQuery) query;
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       ProcessCumulationPolicy cumulationPolicy = StatisticsQueryUtils.getProcessCumulationPolicy(psq);
       FieldRef frCumulationPi;
@@ -128,7 +129,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
       {
          private final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(psq);
 
-         private final Date tsPiStart = new Date();
+         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {

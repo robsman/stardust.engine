@@ -860,7 +860,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.CURRENT_DATE))
       {
-         dataValue.setValue(Calendar.getInstance(), false);
+         dataValue.setValue(TimestampProviderUtils.getCalendar(), false);
       }
       else if (dataID.equals(PredefinedConstants.PROCESS_ID))
       {
@@ -1358,7 +1358,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    void lockDataValue(IData data) throws PhantomException
    {
       // TODO (fh) hardcoded 1 min, should be configurable
-      long timeout = System.currentTimeMillis() + 60000;
+      long timeout = TimestampProviderUtils.getTimeStampValue() + 60000;
       IDataValue dataValue = getDataValue(data);
       if (dataValue instanceof DataValueBean)
       {
@@ -1376,7 +1376,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             }
             catch (ConcurrencyException ex)
             {
-               if (System.currentTimeMillis() > timeout)
+               if (TimestampProviderUtils.getTimeStampValue() > timeout)
                {
                   throw ex;
                }

@@ -33,6 +33,7 @@ import javax.swing.text.PlainDocument;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Money;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -667,7 +668,7 @@ public class MoneyEntry extends JPanel
 
          runCalculatorDialog(new MouseEvent(this,
                0, // id
-               System.currentTimeMillis(), // when
+               TimestampProviderUtils.getTimeStampValue(), // when
                0, // modifiers
                size.width, // x
                size.height, // y

@@ -19,6 +19,7 @@ import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ExpectedFailureException;
 import org.eclipse.stardust.common.error.InternalException;
@@ -50,6 +51,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * A (logical) thread for the execution of a workflow process.
@@ -308,7 +310,7 @@ public class ActivityThread implements Runnable
          else
          {
             int count = 0;
-            long start = System.currentTimeMillis();
+            final TimeMeasure timer = new TimeMeasure().start();
 
             while (!enableVertex())
             {
@@ -320,7 +322,7 @@ public class ActivityThread implements Runnable
                      trace.warn("No free tokens found for Process Instance <"
                            + processInstance.getOID()
                            + "> in "
-                           + (System.currentTimeMillis() - start)
+                           + timer.stop().getDurationInMillis()
                            + " ms, giving up.");
                   }
                   if (trace.isDebugEnabled())

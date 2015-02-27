@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -353,7 +354,7 @@ public class DataClusterHelper
          try
          {
             stmt = sessionImpl.getConnection().createStatement();
-            long startTime = System.currentTimeMillis();
+            final TimeMeasure timer = new TimeMeasure().start(); 
             
             ResultSet rs = stmt.executeQuery(sqlString);
             rs.next();
@@ -363,8 +364,7 @@ public class DataClusterHelper
                return true;
             }
             
-            long stopTime = System.currentTimeMillis();
-            sessionImpl.monitorSqlExecution(sqlString, startTime, stopTime);
+            sessionImpl.monitorSqlExecution(sqlString, timer.stop());
          }
          catch (SQLException x)
          {
@@ -401,10 +401,9 @@ public class DataClusterHelper
          try
          {
             stmt = sessionImpl.getConnection().createStatement();
-            long startTime = System.currentTimeMillis();
+            final TimeMeasure timer = new TimeMeasure().start();
             stmt.executeUpdate(sqlString);
-            long stopTime = System.currentTimeMillis();
-            sessionImpl.monitorSqlExecution(sqlString, startTime, stopTime);
+            sessionImpl.monitorSqlExecution(sqlString, timer.stop());
          }
          catch (SQLException x)
          {
@@ -586,10 +585,9 @@ public class DataClusterHelper
                
                stmt.setLong(pos, piOid);
                
-               long startTime = System.currentTimeMillis();
+               final TimeMeasure timer = new TimeMeasure().start();
                stmt.executeUpdate();
-               jdbcSession.monitorSqlExecution(stmtString, startTime, System
-                     .currentTimeMillis());
+               jdbcSession.monitorSqlExecution(stmtString, timer.stop());
             }
             catch(SQLException x)
             {

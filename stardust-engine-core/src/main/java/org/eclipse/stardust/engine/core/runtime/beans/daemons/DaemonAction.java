@@ -28,6 +28,7 @@ import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Will execute the 'daemon'. Also responsible for handling acknowledge requests.
@@ -93,7 +94,7 @@ public class DaemonAction extends SecurityContextAwareAction
                if (IDaemon.WORK_DONE.equals(innerAction.getExecutionStatus()))
                {
                   // (fh) mark successful execution
-                  carrier.setStartTimeStamp(System.currentTimeMillis());
+                  carrier.setStartTimeStamp(TimestampProviderUtils.getTimeStampValue());
                   SetDaemonLogAction setLastExecutionLogAction =
                      SetDaemonLogAction.setLastExecutionLog(carrier, DaemonExecutionState.OK);
                   service.isolate(setLastExecutionLogAction);

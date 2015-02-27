@@ -16,6 +16,8 @@ import java.util.Date;
 
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
@@ -68,7 +70,7 @@ public class ActivityInstanceMethodCallable implements Callable
       {
          if (this.name.equalsIgnoreCase("getAge"))
          {
-            Long ms = new Date().getTime() - activityInstance.getStartTime().getTime();
+            Long ms = TimestampProviderUtils.getTimeStampValue() - activityInstance.getStartTime().getTime();
             return ms;            
          }
       }

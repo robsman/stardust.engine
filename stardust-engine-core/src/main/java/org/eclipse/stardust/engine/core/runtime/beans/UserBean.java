@@ -66,6 +66,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -173,7 +174,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             UserBean.class,
             QueryExtension.where(
                   Predicates.orTerm(
-                        Predicates.greaterThan(FR__VALID_TO, System.currentTimeMillis()),
+                        Predicates.greaterThan(FR__VALID_TO, TimestampProviderUtils.getTimeStampValue()),
                         Predicates.isEqual(FR__VALID_TO, 0))));
    }
 
@@ -432,7 +433,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public boolean isValid()
    {
       fetch();
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
 
       return ((validFrom == null) || (validFrom.getTime() <= now.getTime()))
             && ((validTo == null) || (validTo.getTime() > now.getTime()));

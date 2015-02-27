@@ -64,7 +64,7 @@ public class SendmailAction implements EventActionInstance
 
    public Event execute(Event event)
    {
-      final long timestamp = TimestampProviderUtils.getTimeStamp().getTime();
+      final long timestamp = TimestampProviderUtils.getTimeStampValue();
 
       if (Event.ACTIVITY_INSTANCE == event.getType())
       {

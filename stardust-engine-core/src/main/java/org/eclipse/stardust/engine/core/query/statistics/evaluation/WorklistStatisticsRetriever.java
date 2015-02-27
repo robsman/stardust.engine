@@ -44,6 +44,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author rsauer
@@ -162,7 +163,7 @@ public class WorklistStatisticsRetriever implements IUserQueryEvaluator
          
          if(UserUtils.isDeputyOfAny(UserBean.findByOid(user.getOID())))
          {
-            Date now = new Date();
+            Date now = TimestampProviderUtils.getTimeStamp();
             for (DeputyBean deputy : UserUtils.getDeputies(UserBean.findByOid(user.getOID())))
             {
                if (deputy.isActive(now))
@@ -289,7 +290,7 @@ public class WorklistStatisticsRetriever implements IUserQueryEvaluator
    
    private void retrieveLoginStatus(final Map<Long, UserStatistics> userStatistics)
    {
-      long currentTime = Calendar.getInstance().getTimeInMillis();
+      long currentTime = TimestampProviderUtils.getTimeStampValue();
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(UserSessionBean.class)
             .selectDistinct(UserSessionBean.FIELD__USER)

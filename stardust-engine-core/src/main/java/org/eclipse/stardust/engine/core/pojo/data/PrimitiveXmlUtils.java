@@ -48,6 +48,7 @@ import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -241,8 +242,7 @@ public class PrimitiveXmlUtils
       }
       else if (value instanceof Date)
       {
-         Calendar cal = Calendar.getInstance();
-         cal.setTime((Date) value);
+         Calendar cal = TimestampProviderUtils.getCalendar((Date) value);
          ret = printDateTime(cal);
       }
       return ret;

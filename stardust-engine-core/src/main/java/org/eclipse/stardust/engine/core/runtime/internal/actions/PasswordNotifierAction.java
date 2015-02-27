@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.runtime.ISystemAction;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -54,7 +55,7 @@ public class PasswordNotifierAction implements ISystemAction
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
       int periodicityDays = Parameters.instance().getInteger(AdministrationService.SYSTEM_DAEMON + "." + ACTION_ID + DaemonProperties.DAEMON_PERIODICITY_SUFFIX, DEFAULT_PERIODICITY_DAYS);
       int distance = periodicityDays * 24 * 60 * 60 * 1000;
       if(lastPass != null && lastPass.getTime() + distance > now.getTime())
@@ -83,10 +84,12 @@ public class PasswordNotifierAction implements ISystemAction
         	  }).where(
         			  Predicates.andTerm(
         					  Predicates.orTerm(
-        							  Predicates.greaterOrEqual(UserBean.FR__VALID_FROM, System.currentTimeMillis()),
+        							  Predicates.greaterOrEqual(UserBean.FR__VALID_FROM, 
+        							        TimestampProviderUtils.getTimeStampValue()),
         							  Predicates.isEqual(UserBean.FR__VALID_FROM, 0)),
         					  Predicates.orTerm(
-        							  Predicates.greaterOrEqual(UserBean.FR__VALID_FROM, System.currentTimeMillis()),
+        							  Predicates.greaterOrEqual(UserBean.FR__VALID_FROM, 
+        							        TimestampProviderUtils.getTimeStampValue()),
         							  Predicates.isEqual(UserBean.FR__VALID_FROM, 0)),
   							  Predicates.isEqual(UserProperty.FR__NAME, SecurityUtils.LAST_PASSWORDS),
    							  Predicates.isEqual(UserRealmBean.FR__PARTITION, oid)));
@@ -106,16 +109,13 @@ public class PasswordNotifierAction implements ISystemAction
         			  String email = rsCheckPreconditions.getString(3);
         			  long lastModified = rsCheckPreconditions.getLong(4);
 
-        			  Calendar expires = Calendar.getInstance();
-        			  expires.setTimeInMillis(lastModified);
+        			  Calendar expires = TimestampProviderUtils.getCalendar(lastModified);
         			  expires.add(Calendar.DAY_OF_YEAR, rules.getExpirationTime());
 
-        			  Calendar disabled = Calendar.getInstance();
-        			  disabled.setTimeInMillis(expires.getTimeInMillis());
+        			  Calendar disabled = TimestampProviderUtils.getCalendar(expires.getTimeInMillis());
         			  disabled.add(Calendar.DAY_OF_YEAR, rules.getDisableUserTime());
 
-        			  Calendar notification = Calendar.getInstance();
-        			  notification.setTimeInMillis(lastModified);
+        			  Calendar notification = TimestampProviderUtils.getCalendar(lastModified);
         			  notification.add(Calendar.DAY_OF_YEAR, rules.getExpirationTime());
         			  notification.add(Calendar.DAY_OF_YEAR, - rules.getNotificationMails());
 
@@ -173,7 +173,7 @@ public class PasswordNotifierAction implements ISystemAction
         	  }
         	  finally
         	  {
-        		  lastPass = new Date();
+        		  lastPass = TimestampProviderUtils.getTimeStamp();
         		  QueryUtils.closeResultSet(rsCheckPreconditions);
         	  }
           }

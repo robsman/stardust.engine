@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.core.integration.calendar.IWorktimeCalendar;
 import org.eclipse.stardust.engine.core.integration.calendar.WorktimeCalendarUtils;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.query.statistics.evaluation.StatisticsDateUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -28,7 +29,7 @@ import org.eclipse.stardust.engine.core.query.statistics.evaluation.StatisticsDa
 public abstract class AbstractCriticalDurationPolicy extends AbstractCriticalityPolicy
 {
 
-   private final Calendar comparisionCalendar = Calendar.getInstance();
+   private final Calendar comparisionCalendar = TimestampProviderUtils.getCalendar(0L);
 
    protected abstract Period getTargetDuration(ModelElement modelElement);
 

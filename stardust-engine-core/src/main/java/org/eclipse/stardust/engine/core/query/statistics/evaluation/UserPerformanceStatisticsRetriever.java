@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -177,7 +178,7 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
          private final Map<PerformanceInInterval, Set<Long>> visitedAis = CollectionUtils.newMap();
          private final Map<PerformanceInInterval, Set<Long>> visitedPis = CollectionUtils.newMap();
 
-         private final Date tsCompleted = new Date();
+         private final Date tsCompleted = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {

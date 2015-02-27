@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensi
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.vfs.impl.utils.StringUtils;
 
 /**
@@ -1083,7 +1084,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          userOidList.add(context.getEvaluationContext().getUser().getOID());
 
          // if current user is deputy for other user add them as well
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          IUser user = context.getEvaluationContext().getUser();
          List<DeputyBean> deputies = UserUtils.getDeputies(user);
          for (DeputyBean deputy : deputies)

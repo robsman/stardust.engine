@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  *@author mgille
@@ -166,7 +167,7 @@ public class MailHelper
 
          _message.setRecipients(Message.RecipientType.TO, _internetAddresses);
          _message.setSubject(subject);
-         _message.setSentDate(new Date());
+         _message.setSentDate(TimestampProviderUtils.getTimeStamp());
 
          // Create and fill the first message part
          MimeBodyPart mbp1 = new MimeBodyPart();

@@ -20,6 +20,8 @@ public class ArchiveManagerFactory
    private static final String ARCHIVE_ZIP_FILE_SIZE_MB = "Archive.Manager.ZipFile.SizeInMB";
 
    public static final String CARNOT_ARCHIVE_MANAGER_CUSTOM = "Archive.Manager.Type.Class";
+   
+   public static final String CARNOT_ARCHIVE_MANAGER_ID = "Archive.Manager.ID";
 
    public static IArchiveManager getCurrent()
    {
@@ -39,6 +41,16 @@ public class ArchiveManagerFactory
             throw new IllegalArgumentException("Unknown ArchiveManager");
       }
       return archiveManager;
+   }
+   
+   public static String getCurrentId() 
+   {
+      String id = Parameters.instance().getString(CARNOT_ARCHIVE_MANAGER_ID,"");
+      if (StringUtils.isEmpty(id.trim()))
+      {
+         throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_ID + " must be provided for an Archive");
+      }
+      return id;
    }
 
    private static IArchiveManager getCustomArchiveManager()
@@ -78,11 +90,11 @@ public class ArchiveManagerFactory
       {
          throw new IllegalArgumentException(CARNOT_ARCHIVE_ROOTFOLDER + " must be provided for ZIP archive type");
       }
-      
+      String id = getCurrentId();
       String folderFormat = Parameters.instance().getString(CARNOT_ARCHIVE_FOLDER_FORMAT,
             DEFAULT_ARCHIVE_FOLDER_FORMAT);
       int zipFileSize = Parameters.instance().getInteger(ARCHIVE_ZIP_FILE_SIZE_MB, DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
-      IArchiveManager archiveManager = ZipArchiveManager.getInstance(rootFolder,
+      IArchiveManager archiveManager = ZipArchiveManager.getInstance(id, rootFolder,
             folderFormat, zipFileSize);
       return archiveManager;
    }

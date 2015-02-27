@@ -234,11 +234,15 @@ public class ImportProcessesCommand implements ServiceCommand
          if (CollectionUtils.isEmpty(dataByTable))
          {
             importCount = 0;
-            for (long rootProcessOid : archive.getExportIndex().getRootProcessToSubProcesses().keySet())
+            for (ExportProcess rootProcess : archive.getExportIndex().getRootProcessToSubProcesses().keySet())
             {
                List<Long> processes = new ArrayList<Long>();
-               processes.add(rootProcessOid);
-               processes.addAll(archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcessOid));
+               processes.add(rootProcess.getOid());
+               List<ExportProcess> subProcesses = archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcess);
+               for (ExportProcess subProcess : subProcesses)
+               {
+                  processes.add(subProcess.getOid());
+               }
                dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
                importCount += ExportImportSupport.importProcessInstances(dataByTable, session,
                   filter, oidResolver);

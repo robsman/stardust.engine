@@ -1,10 +1,7 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.gson.annotations.Expose;
 
@@ -15,40 +12,71 @@ public class ExportIndex implements Serializable
     * 
     */
    private static final long serialVersionUID = 1L;
-   
+
    @Expose
-   private final List<Long> processInstanceOids;
+   private Map<ExportProcess, List<ExportProcess>> processes;
+
    @Expose
-   private final Map<Long, List<Long>> rootProcessToSubProcesses;
-   private final List<Integer> processLengths;
-   
+   private String archiveManagerId;
+
    public ExportIndex()
    {
-      this.processInstanceOids = new ArrayList<Long>();
-      this.processLengths = new ArrayList<Integer>();
-      this.rootProcessToSubProcesses = new HashMap<Long, List<Long>>();
-   }
-   
-   public ExportIndex(List<Long> processInstanceOids, List<Integer> processLengths,
-         Map<Long, List<Long>> rootProcessToSubProcesses)
-   {
-      this.processInstanceOids = processInstanceOids;
-      this.rootProcessToSubProcesses = rootProcessToSubProcesses;
-      this.processLengths = processLengths;
-   }
-   
-   public List<Long> getProcessInstanceOids()
-   {
-      return processInstanceOids;
-   }
-   public List<Integer> getProcessLengths()
-   {
-      return processLengths;
+      this.processes = new HashMap<ExportProcess, List<ExportProcess>>();
    }
 
-   public Map<Long, List<Long>> getRootProcessToSubProcesses()
+   public ExportIndex(String archiveManagerId)
    {
-      return rootProcessToSubProcesses;
+      this.archiveManagerId = archiveManagerId;
+      this.processes = new HashMap<ExportProcess, List<ExportProcess>>();
+   }
+
+   public ExportIndex(String archiveManagerId, 
+         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses)
+   {
+      this.archiveManagerId = archiveManagerId;
+      this.processes = rootProcessToSubProcesses;
+   }
+
+   public boolean contains(Long processInstanceOid)
+   {
+      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
+      {
+         if (rootProcess.getOid() == processInstanceOid)
+         {
+            return true;
+         }
+         List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
+               rootProcess);
+         for (ExportProcess subProcess : subProcesses)
+         {
+            if (subProcess.getOid() == processInstanceOid)
+            {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   public Map<ExportProcess, List<ExportProcess>> getRootProcessToSubProcesses()
+   {
+      return processes;
+   }
+
+   public String getArchiveManagerId()
+   {
+      return archiveManagerId;
+   }
+
+   public void setRootProcessToSubProcesses(
+         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses)
+   {
+      this.processes = rootProcessToSubProcesses;
+   }
+
+   public void setArchiveManagerId(String archiveManagerId)
+   {
+      this.archiveManagerId = archiveManagerId;
    }
 
 }

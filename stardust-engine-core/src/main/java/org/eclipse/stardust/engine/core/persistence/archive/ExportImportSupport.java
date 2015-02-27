@@ -15,6 +15,9 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -46,6 +49,15 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
+
+   public static Gson getGson()
+   {
+      GsonBuilder gsonBuilder = new GsonBuilder();
+      gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+      gsonBuilder.registerTypeAdapter(ExportProcess.class, new ExportProcessSerializer());
+      Gson gson = gsonBuilder.create();
+      return gson;
+   }
 
    private static <T> List<List<T>> partition(List<T> list, int size)
    {
@@ -151,6 +163,8 @@ public class ExportImportSupport
          }
          HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
+         HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
+         HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
          for (Date date : uniqueDates)
          {
             byte[] allData = resultsByDate.get(date);
@@ -158,7 +172,8 @@ public class ExportImportSupport
             if (allData == null)
             {
                allData = new byte[] {};
-               index = new ExportIndex();
+               index = new ExportIndex(exportResults.get(0).getExportIndex(date)
+                     .getArchiveManagerId());
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
@@ -175,11 +190,20 @@ public class ExportImportSupport
                   // new reference every time, re-put everytime
                   resultsByDate.put(date, allData);
 
-                  index.getProcessInstanceOids().addAll(
-                        result.getExportIndex(date).getProcessInstanceOids());
-                  index.getProcessLengths().addAll(
-                        result.getExportIndex(date).getProcessLengths());
-                  index.getRootProcessToSubProcesses().putAll(result.getExportIndex(date).getRootProcessToSubProcesses());
+                  List<Long> processInstanceOids = processInstanceOidsByDate.get(date);
+                  List<Integer> processLengths= processLengthsByDate.get(date);
+                  if (processInstanceOids == null)
+                  {
+                     processInstanceOids = new ArrayList<Long>();
+                     processLengths = new ArrayList<Integer>();
+                     processInstanceOidsByDate.put(date, processInstanceOids);
+                     processLengthsByDate.put(date, processLengths);
+                  }
+                  
+                  processInstanceOids.addAll(result.getProcessInstanceOids(date));
+                  processLengths.addAll(result.getProcessLengths(date));
+                  index.getRootProcessToSubProcesses().putAll(
+                        result.getExportIndex(date).getRootProcessToSubProcesses());
                   if (modelData == null)
                   {
                      modelData = result.getModelData();
@@ -187,7 +211,8 @@ public class ExportImportSupport
                }
             }
          }
-         exportResult = new ExportResult(modelData, resultsByDate, indexByDate);
+         exportResult = new ExportResult(modelData, resultsByDate, indexByDate,
+               processInstanceOidsByDate, processLengthsByDate);
       }
       else
       {

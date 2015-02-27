@@ -8,9 +8,7 @@ import java.util.*;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 
-import org.eclipse.stardust.engine.core.persistence.archive.ExportIndex;
-import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
-import org.eclipse.stardust.engine.core.persistence.archive.IArchiveManager;
+import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class MemoryArchiveManager implements IArchiveManager
@@ -23,6 +21,8 @@ public class MemoryArchiveManager implements IArchiveManager
    private static HashMap<String, HashMap<Date, byte[]>> dateModel;
 
    private static HashMap<String, HashMap<Date, String>> dateIndex;
+   
+   private String archiveManagerId;
 
    public MemoryArchiveManager()
    {
@@ -36,6 +36,7 @@ public class MemoryArchiveManager implements IArchiveManager
                repoData = new HashMap<String, HashMap<Date, byte[]>>();
                dateModel = new HashMap<String, HashMap<Date, byte[]>>();
                dateIndex = new HashMap<String, HashMap<Date, String>>();
+               archiveManagerId = ArchiveManagerFactory.getCurrentId();
             }
          }
       }
@@ -66,6 +67,12 @@ public class MemoryArchiveManager implements IArchiveManager
       }
       return indexDate;
    }
+   
+   @Override
+   public String getArchiveManagerId()
+   {
+      return archiveManagerId;
+   }
 
    @Override
    public boolean add(Serializable key, byte[] results)
@@ -90,12 +97,11 @@ public class MemoryArchiveManager implements IArchiveManager
    }
 
    @Override
-   public boolean close(Serializable key, ExportIndex exportIndex)
+   public boolean close(Serializable key, Date indexDate, ExportResult exportResult)
    {
       synchronized (key)
       {
-         List<Long> processInstanceOids = exportIndex.getProcessInstanceOids();
-
+         List<Long> processInstanceOids = exportResult.getProcessInstanceOids(indexDate);
          HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
                .getPartition().getId());
          HashMap<Date, byte[]> partitionRepoData = repoData.get(SecurityProperties
@@ -109,7 +115,7 @@ public class MemoryArchiveManager implements IArchiveManager
          {
             for (int i = 0; i < processInstanceOids.size(); i++)
             {
-               byte[] process = new byte[exportIndex.getProcessLengths().get(i)];
+               byte[] process = new byte[exportResult.getProcessLengths(indexDate).get(i)];
                in.read(process);
 
                hashMap.put(processInstanceOids.get(i), process);
@@ -137,10 +143,9 @@ public class MemoryArchiveManager implements IArchiveManager
       Set<Long> found = new HashSet<Long>();
       for (IArchive archive : unfilteredArchives)
       {
-         List<Long> archivePIs = archive.getExportIndex().getProcessInstanceOids();
          for (Long processInstanceOid : searchItems)
          {
-            if (archivePIs.contains(processInstanceOid))
+            if (archive.getExportIndex().contains(processInstanceOid))
             {
                if (!archives.contains(archive))
                {
@@ -175,7 +180,7 @@ public class MemoryArchiveManager implements IArchiveManager
          {
             if ((fromDate.compareTo(date) < 1) && (toDate.compareTo(date) > -1))
             {
-               archives.add(new MemoryArchive(partitionRepo.get(date), partitionDateModel
+               archives.add(new MemoryArchive(date, partitionRepo.get(date), partitionDateModel
                      .get(date), partitionDateIndex.get(date)));
             }
          }
@@ -197,7 +202,7 @@ public class MemoryArchiveManager implements IArchiveManager
                .getPartition().getId());
          for (Date date : partitionRepo.keySet())
          {
-            archives.add(new MemoryArchive(partitionRepo.get(date), partitionDateModel
+            archives.add(new MemoryArchive(date, partitionRepo.get(date), partitionDateModel
                   .get(date), partitionDateIndex.get(date)));
          }
       }

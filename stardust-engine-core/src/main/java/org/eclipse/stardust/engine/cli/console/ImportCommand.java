@@ -276,7 +276,7 @@ public class ImportCommand extends ConsoleCommand
       else
       {
          print("Model validation failed. No import can be done. Model file: "
-               + archive.getName());
+               + archive.getArchiveKey());
       }
       return importMetaData;
    }
@@ -308,7 +308,7 @@ public class ImportCommand extends ConsoleCommand
          count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
          print("Imported " + count + " process instances into partition " + partitionId
-               + " from file: " + archive.getName());
+               + " from archive: " + archive.getArchiveKey());
       }
       return count;
    }

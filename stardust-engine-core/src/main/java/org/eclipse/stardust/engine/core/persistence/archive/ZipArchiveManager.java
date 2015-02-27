@@ -24,7 +24,7 @@ public class ZipArchiveManager implements IArchiveManager
    private static final String ZIP_PART = ".part";
 
    private static final Logger LOGGER = LogManager.getLogger(ZipArchiveManager.class);
-
+   
    public static final String EXT_DAT = ".dat";
 
    private static final String EXT_JSON = ".json";
@@ -38,6 +38,8 @@ public class ZipArchiveManager implements IArchiveManager
    private static final String FILENAME_ZIP_PREFIX = "export_";
 
    private static volatile ZipArchiveManager manager;
+   
+   private final String archiveManagerId;
 
    private final String rootFolder;
 
@@ -51,15 +53,16 @@ public class ZipArchiveManager implements IArchiveManager
 
    public static final int BUFFER_SIZE = 1024 * 16;
 
-   private ZipArchiveManager(String rootFolder, String folderFormat, long zipFileSize)
+   private ZipArchiveManager(String archiveManagerId, String rootFolder, String folderFormat, long zipFileSize)
    {
+      this.archiveManagerId = archiveManagerId;
       this.rootFolder = rootFolder;
       this.folderFormat = folderFormat;
       this.zipFileSize = zipFileSize;
    }
 
-   public static ZipArchiveManager getInstance(String rootFolder, String folderFormat,
-         long zipFileSize)
+   public static ZipArchiveManager getInstance(String id, String rootFolder,
+         String folderFormat, long zipFileSize)
    {
       if (manager == null)
       {
@@ -73,13 +76,19 @@ public class ZipArchiveManager implements IArchiveManager
                   zipFileSize = ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB;
                }
                zipFileSize *= 1024 * 1024;
-               manager = new ZipArchiveManager(rootFolder, folderFormat, zipFileSize);
+               manager = new ZipArchiveManager(id, rootFolder, folderFormat, zipFileSize);
             }
          }
       }
       return manager;
    }
 
+   @Override
+   public String getArchiveManagerId()
+   {
+      return archiveManagerId;
+   }
+   
    @Override
    public ArrayList<IArchive> findArchives(List<Long> processInstanceOids)
    {
@@ -90,10 +99,9 @@ public class ZipArchiveManager implements IArchiveManager
       Set<Long> found = new HashSet<Long>();
       for (IArchive archive : unfilteredArchives)
       {
-         List<Long> archivePIs = archive.getExportIndex().getProcessInstanceOids();
          for (Long processInstanceOid : searchItems)
          {
-            if (archivePIs.contains(processInstanceOid))
+            if (archive.getExportIndex().contains(processInstanceOid))
             {
                if (!archives.contains(archive))
                {
@@ -338,7 +346,7 @@ public class ZipArchiveManager implements IArchiveManager
    }
 
    @Override
-   public boolean close(Serializable key, ExportIndex exportIndex)
+   public boolean close(Serializable key, Date indexDate, ExportResult exportResult)
    {
       File dataFile = (File) key;
       File dataFolder = dataFile.getParentFile();
@@ -347,9 +355,10 @@ public class ZipArchiveManager implements IArchiveManager
       ExportFilenameFilter filter = new ExportFilenameFilter(index);
 
       String[] filesToZip = dataFolder.list(filter);
+      String zipFileNameWithoutExtension = FILENAME_ZIP_PREFIX + index;
       success = zip(filesToZip, dataFolder.getAbsolutePath(),
-            FILENAME_ZIP_PREFIX + index, exportIndex.getProcessInstanceOids(),
-            exportIndex.getProcessLengths());
+            zipFileNameWithoutExtension, exportResult.getProcessInstanceOids(indexDate),
+            exportResult.getProcessLengths(indexDate));
       if (!success)
       {
          LOGGER.error("Error creating Zipped archive for export: " + dataFolder.getPath()
@@ -426,12 +435,13 @@ public class ZipArchiveManager implements IArchiveManager
          String zipFileNameWithoutExtension, List<Long> processIds, List<Integer> lengths)
    {
       boolean success = true;
+      String part0Name;
       if (filesToZip != null && filesToZip.length > 0)
       {
          int part = 0;
          String zippedFileName = getZipFileName(parentFoder, 0,
                zipFileNameWithoutExtension);
-
+         part0Name = zippedFileName;
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Zip file being created: " + zippedFileName);
@@ -471,7 +481,15 @@ public class ZipArchiveManager implements IArchiveManager
                   dataFile = fileAbsolutePath;
                }
             }
-
+            long entrySize = writeKey(out, part0Name);
+            if (entrySize > -1)
+            {
+               size += entrySize;
+            }
+            else
+            {
+               success = false;
+            }
             // add process entries to zip, create more zip files if size grows beyond
             // limit
             if (dataFile != null && success)
@@ -488,13 +506,22 @@ public class ZipArchiveManager implements IArchiveManager
                            zipFileNameWithoutExtension);
                      out = new ZipOutputStream(new BufferedOutputStream(
                            new FileOutputStream(zippedFileName)));
-                     size = 0;
+                     entrySize = writeKey(out, part0Name);
+                     if (entrySize > -1)
+                     {
+                        size = entrySize;
+                     }
+                     else
+                     {
+                        success = false;
+                        break;
+                     }
                      if (LOGGER.isDebugEnabled())
                      {
                         LOGGER.debug("Zip file being created: " + zippedFileName);
                      }
                   }
-                  long entrySize = writeChunck(length, out, in, processId);
+                  entrySize = writeChunck(length, out, in, processId);
                   if (entrySize > -1)
                   {
                      size += entrySize;
@@ -573,6 +600,26 @@ public class ZipArchiveManager implements IArchiveManager
       return size;
    }
 
+   private long writeKey(ZipOutputStream out, String part0Name)
+   {
+      long size = -1L;
+      try
+      {
+         ZipEntry entry = new ZipEntry(ZipArchive.FILENAME_KEY);
+         out.putNextEntry(entry);
+         out.write(archiveManagerId.getBytes());
+         out.write(",".getBytes());
+         out.write(part0Name.getBytes());
+         out.closeEntry();
+         size = entry.getCompressedSize();
+      }
+      catch (Exception e)
+      {
+         size = -1;
+         LOGGER.error("Error adding key to Zipped content. Key: " + part0Name, e);
+      }
+      return size;
+   }
    private long writeComplete(ZipOutputStream out, String fileAbsolutePath,
          byte[] buffer, String entryName)
    {

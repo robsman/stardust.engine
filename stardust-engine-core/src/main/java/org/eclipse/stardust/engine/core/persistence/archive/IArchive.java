@@ -1,12 +1,18 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
+import java.io.Serializable;
 import java.util.List;
 
 
 public interface IArchive
 {
 
-   public String getName();
+   /**
+    * Returns the key for this archive. Using the key we can identify where the 
+    * Model And Index data for this archive is located
+    * @return
+    */
+   public Serializable getArchiveKey();
    
    /**
     * This must return null if the archive only has model data
@@ -26,5 +32,11 @@ public interface IArchive
     * @return
     */
    public ExportIndex getExportIndex();
+   
+   /**
+    * 
+    * @return
+    */
+   public String getArchiveManagerId();
 
 }

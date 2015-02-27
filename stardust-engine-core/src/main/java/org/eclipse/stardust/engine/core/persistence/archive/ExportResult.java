@@ -22,28 +22,26 @@ public class ExportResult implements Serializable
 
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
    
-   private transient final Map<Long, List<Long>> rootProcessToSubProcesses = new HashMap<Long, List<Long>>();
-
    private final Map<Date, ExportIndex> exportIndexByDate;
+
+   private final Map<Date, List<Long>> processInstanceOidsByDate;
+
+   private final Map<Date, List<Integer>> processLengthsByDate;
    
-
-   private Set<Long> processInstanceOids;
-
    private boolean open = true;
-
+   
    private byte[] modelData;
+   
+   private Set<Long> allIds;
 
    public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate,
-         HashMap<Date, ExportIndex> exportIndexByDate)
+         HashMap<Date, ExportIndex> exportIndexByDate, Map<Date, List<Long>> processInstanceOidsByDate, Map<Date, List<Integer>> processLengthsByDate)
    {
       this.modelData = modelData;
       this.resultsByDate = resultsByDate;
       this.exportIndexByDate = exportIndexByDate;
-      processInstanceOids = new HashSet<Long>();
-      for (Date date : exportIndexByDate.keySet())
-      {
-         processInstanceOids.addAll(exportIndexByDate.get(date).getProcessInstanceOids());
-      }
+      this.processInstanceOidsByDate = processInstanceOidsByDate;
+      this.processLengthsByDate = processLengthsByDate;
       this.open = false;
    }
 
@@ -51,34 +49,52 @@ public class ExportResult implements Serializable
    {
       this.resultsByDate = new HashMap<Date, byte[]>();
       this.exportIndexByDate = new HashMap<Date, ExportIndex>();
+      this.processInstanceOidsByDate = new HashMap<Date, List<Long>>();
+      this.processLengthsByDate = new HashMap<Date, List<Integer>>();
    }
 
+
+   private static ExportProcess createExportProcess(IProcessInstance processInstance)
+   {
+      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + processInstance.getOID() + "_" + processInstance.getStartTime().getTime();
+      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid);
+      return result;
+   }
+   
    public void addResult(ProcessInstanceBean process)
    {
       if (open)
       {
          Date indexDate;
-         IProcessInstance rootProcess;
-         Long subId = null;
+         ExportProcess rootProcess;
+         ExportProcess subProcess = null;
          if (process.getOID() == process.getRootProcessInstanceOID())
          {
-            rootProcess = process.getProcessInstance();
+            rootProcess = createExportProcess(process.getProcessInstance());
+            indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
          }
          else
          {
-            rootProcess = process.getRootProcessInstance();
-            subId = process.getOID();
+            indexDate = ExportImportSupport.getIndexDateTime(process.getRootProcessInstance().getStartTime());
+            rootProcess = createExportProcess(process.getRootProcessInstance());
+            subProcess = createExportProcess(process.getProcessInstance());
          }
-         indexDate = ExportImportSupport.getIndexDateTime(rootProcess.getStartTime());
-         List<Long> subProcesses = rootProcessToSubProcesses.get(rootProcess.getOID());
+
+         ExportIndex exportIndex = exportIndexByDate.get(indexDate);
+         if (exportIndex == null)
+         {
+            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId());
+            exportIndexByDate.put(indexDate, exportIndex);
+         }
+         List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess);
          if (subProcesses == null)
          {
-            subProcesses = new ArrayList<Long>();
-            rootProcessToSubProcesses.put(rootProcess.getOID(), subProcesses);
+            subProcesses = new ArrayList<ExportProcess>();
+            exportIndex.getRootProcessToSubProcesses().put(rootProcess, subProcesses);
          }
-         if (subId != null)
+         if (subProcess != null)
          {
-            subProcesses.add(subId);
+            subProcesses.add(subProcess);
          }
          if (indexDate == null)
          {
@@ -169,24 +185,23 @@ public class ExportResult implements Serializable
                }
                blobBuilder.persistAndClose();
                byte[] processData = blobBuilder.getBlob();
-               ExportIndex exportIndex = exportIndexByDate.get(indexDate);
-               if (exportIndex == null)
+               
+               //they are created already when adding, now just add oids and lengths
+               List<Long> processInstanceOids = processInstanceOidsByDate.get(indexDate);
+               List<Integer> processLengths= processLengthsByDate.get(indexDate);
+               if (processInstanceOids == null)
                {
-                  exportIndex = new ExportIndex();
-                  exportIndexByDate.put(indexDate, exportIndex);
+                  processInstanceOids = new ArrayList<Long>();
+                  processLengths = new ArrayList<Integer>();
+                  processInstanceOidsByDate.put(indexDate, processInstanceOids);
+                  processLengthsByDate.put(indexDate, processLengths);
                }
-               List<Long> subprocesses = rootProcessToSubProcesses.get(processInstanceOid);
-               if (subprocesses != null)
-               {
-                  exportIndex.getRootProcessToSubProcesses().put(processInstanceOid, subprocesses);
-               }
-               exportIndex.getProcessInstanceOids().add(processInstanceOid);
-               exportIndex.getProcessLengths().add(processData.length);
+               
+               processInstanceOids.add(processInstanceOid);
+               processLengths.add(processData.length);
                result = ExportImportSupport.addAll(result, processData);
             }
             resultsByDate.put(indexDate, result);
-            processInstanceOids = new HashSet<Long>();
-            processInstanceOids.addAll(piOidsToDate.keySet());
          }
          open = false;
       }
@@ -238,22 +253,49 @@ public class ExportResult implements Serializable
       return modelData;
    }
 
-   public Map<Long, List<Long>> getRootProcessToSubProcesses()
-   {
-      if (open)
-      {
-         throw new IllegalStateException("ExportResult is open. Close it first.");
-      }
-      return rootProcessToSubProcesses;
-   }
-
    public Set<Long> getAllProcessIds()
    {
       if (open)
       {
          throw new IllegalStateException("ExportResult is open. Close it first.");
       }
-      return processInstanceOids;
+      if (allIds == null)
+      {
+         allIds = new HashSet<Long>();
+         for (Date date : getDates())
+         {
+            ExportIndex index = exportIndexByDate.get(date);
+            Map<ExportProcess, List<ExportProcess>> processes = index.getRootProcessToSubProcesses();
+            for (ExportProcess process : processes.keySet())
+            {
+               allIds.add(process.getOid());
+               for (ExportProcess sub : processes.get(process))
+               {
+                  allIds.add(sub.getOid());
+               }
+            }
+         }
+      }
+      return allIds;
    }
 
+   public List<Long> getProcessInstanceOids(Date startDate)
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      return processInstanceOidsByDate.get(indexDate);
+   }
+
+   public List<Integer> getProcessLengths(Date startDate)
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      return processLengthsByDate.get(indexDate);
+   }
 }

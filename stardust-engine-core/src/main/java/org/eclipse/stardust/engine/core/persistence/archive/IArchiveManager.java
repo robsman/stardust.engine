@@ -36,10 +36,11 @@ public interface IArchiveManager
     * Closes repository location identified by key, and performs any final operations needed
     * on it
     * @param key
-    * @param results
+    * @param indexDate
+    * @param exportResult
     * @return success indicator
     */
-   public boolean close(Serializable key, ExportIndex exportIndex);
+   public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
    public ArrayList<IArchive> findArchives(List<Long> processInstanceOids);
 
@@ -49,5 +50,5 @@ public interface IArchiveManager
 
    public boolean addIndex(Serializable key, String indexData);
 
-
+   public String getArchiveManagerId();
 }

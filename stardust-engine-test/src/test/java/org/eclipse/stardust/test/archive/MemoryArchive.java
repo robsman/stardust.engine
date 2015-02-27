@@ -1,10 +1,11 @@
 package org.eclipse.stardust.test.archive;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportIndex;
@@ -17,33 +18,24 @@ public class MemoryArchive implements IArchive
    private ExportIndex exportIndex;
    
    private HashMap<Long, byte[]> dataByProcess;
+   
+   private Date key;
 
-   public MemoryArchive(HashMap<Long, byte[]> dataByProcess, byte[] modelData, String indexString)
+   public MemoryArchive(Date key, HashMap<Long, byte[]> dataByProcess, byte[] modelData, String indexString)
    {
       this.dataByProcess = dataByProcess;
       this.modelData = modelData;
-      GsonBuilder gsonBuilder = new GsonBuilder();
-      gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-      Gson gson = gsonBuilder.create();
+      Gson gson = ExportImportSupport.getGson();
       exportIndex = gson.fromJson(new String(indexString), ExportIndex.class);
+      this.key = key;
    }
 
    @Override
-   public String getName()
+   public Serializable getArchiveKey()
    {
-      return "MemoryArchive";
+      return key;
    }
 
-   public byte[] getData()
-   {
-      byte[] results = new byte[]{};
-      for (Long oid : exportIndex.getProcessInstanceOids())
-      {
-         results = ExportImportSupport.addAll(results, dataByProcess.get(oid));
-      }
-      return results;
-   }
-  
    public byte[] getModelData()
    {
       return modelData;
@@ -63,7 +55,7 @@ public class MemoryArchive implements IArchive
       {
          for (Long processInstanceOid : processInstanceOids)
          {
-            if (getExportIndex().getProcessInstanceOids().contains(processInstanceOid))
+            if (getExportIndex().contains(processInstanceOid))
             {
                byte[] data = dataByProcess.get(processInstanceOid);
                result = ExportImportSupport.addAll(result, data);
@@ -83,5 +75,10 @@ public class MemoryArchive implements IArchive
    {
       return exportIndex;
    }
-   
+
+   @Override
+   public String getArchiveManagerId()
+   {
+      return getExportIndex().getArchiveManagerId();
+   }
 }

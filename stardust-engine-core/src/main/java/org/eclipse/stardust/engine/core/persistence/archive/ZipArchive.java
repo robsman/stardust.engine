@@ -9,9 +9,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.io.IOUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -31,6 +28,8 @@ public class ZipArchive implements IArchive, Serializable
    public static final String FILENAME_MODEL = "model.dat";
 
    public static final String FILENAME_INDEX = "index.json";
+   
+   public static final String FILENAME_KEY = "key.txt";
 
    private ExportIndex exportIndex = null;
 
@@ -41,7 +40,7 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public String getName()
+   public Serializable getArchiveKey()
    {
       return part0AbsolutePath;
    }
@@ -51,12 +50,8 @@ public class ZipArchive implements IArchive, Serializable
    {
       if (exportIndex == null)
       {
-         GsonBuilder gsonBuilder = new GsonBuilder();
-         gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-         Gson gson = gsonBuilder.create();
          byte[] jsonEntry = uncompressZipEntry(part0AbsolutePath, FILENAME_INDEX);
-
-         exportIndex = gson.fromJson(new String(jsonEntry), ExportIndex.class);
+         exportIndex = ExportImportSupport.getGson().fromJson(new String(jsonEntry), ExportIndex.class);
       }
       return exportIndex;
    }
@@ -68,7 +63,7 @@ public class ZipArchive implements IArchive, Serializable
 
       for (Long processInstanceOid : processInstanceOids)
       {
-         if (getExportIndex().getProcessInstanceOids().contains(processInstanceOid))
+         if (getExportIndex().contains(processInstanceOid))
          {
             String path = getPartWithEntry(processInstanceOid + ZipArchiveManager.EXT_DAT);
             byte[] data = uncompressZipEntry(path, processInstanceOid
@@ -240,6 +235,12 @@ public class ZipArchive implements IArchive, Serializable
       }
 
       return result;
+   }
+
+   @Override
+   public String getArchiveManagerId()
+   {
+      return getExportIndex().getArchiveManagerId();
    }
 
 }

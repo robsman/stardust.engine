@@ -1307,6 +1307,7 @@ public class ArchiveTest
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
             false);
+      testTimestampProvider.nextDay();
       final ProcessInstance scriptProcess = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
       completeScriptProcess(scriptProcess, 10, "aaa", queryService, workflowService);
@@ -1393,18 +1394,29 @@ public class ArchiveTest
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand());
-      assertEquals(1, archives.size());
+      assertEquals(2, archives.size());
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE, archives.get(0), null);
-      ImportMetaData importMetaData = (ImportMetaData) workflowService
+      ImportMetaData importMetaData1 = (ImportMetaData) workflowService
             .execute(importCommand);
-      assertNotNull(importMetaData);
-      assertNotNull(importMetaData.getImportId(ModelBean.class,
+      assertNotNull(importMetaData1);
+      assertNotNull(importMetaData1.getImportId(ModelBean.class,
+            new Long(simpleA.getModelOID())));
+      importCommand = new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE, archives.get(1), null);
+      ImportMetaData importMetaData2 = (ImportMetaData) workflowService
+            .execute(importCommand);
+      assertNotNull(importMetaData2);
+      assertNotNull(importMetaData2.getImportId(ModelBean.class,
             new Long(simpleA.getModelOID())));
 
       importCommand = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-            archives.get(0), importMetaData);
+            archives.get(0), importMetaData1);
       int count = (Integer) workflowService.execute(importCommand);
+      assertTrue(count > 0);
+      importCommand = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
+            archives.get(1), importMetaData2);
+      count += (Integer) workflowService.execute(importCommand);
       assertEquals(8, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);

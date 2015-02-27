@@ -165,6 +165,23 @@ public class ExportImportSupport
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
+         String archiveManagerId = null;
+         dateloop: for (Date date : uniqueDates)
+         {
+            for (ExportResult export : exportResults)
+            {
+               ExportIndex exportIndex = export.getExportIndex(date);
+               if (exportIndex != null)
+               {
+                  archiveManagerId = exportIndex.getArchiveManagerId();
+                  break dateloop;
+               }
+            }
+         }
+         if (archiveManagerId == null)
+         {
+            throw new IllegalArgumentException("No valid Archive Manager Id in export results");
+         }
          for (Date date : uniqueDates)
          {
             byte[] allData = resultsByDate.get(date);
@@ -172,8 +189,7 @@ public class ExportImportSupport
             if (allData == null)
             {
                allData = new byte[] {};
-               index = new ExportIndex(exportResults.get(0).getExportIndex(date)
-                     .getArchiveManagerId());
+               index = new ExportIndex(archiveManagerId);
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)

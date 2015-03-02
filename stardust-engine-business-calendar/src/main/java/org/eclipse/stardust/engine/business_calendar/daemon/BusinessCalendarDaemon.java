@@ -62,6 +62,6 @@ public class BusinessCalendarDaemon implements IDaemon
    @Override
    public long getDefaultPeriodicity()
    {
-      return 60000;
+      return 60;
    }
 }

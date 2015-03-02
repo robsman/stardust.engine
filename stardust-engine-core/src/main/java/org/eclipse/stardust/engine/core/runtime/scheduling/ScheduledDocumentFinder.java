@@ -101,7 +101,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             for (JsonObject event : events)
             {
                JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(event, "scheduling");
-               if (isActive(scheduleJson) && acceptEventType(SchedulingUtils.getAsString(event, "type")))
+               if (scheduleJson != null && isActive(scheduleJson) && acceptEventType(SchedulingUtils.getAsString(event, "type")))
                {
                   if (isBlocking(event))
                   {

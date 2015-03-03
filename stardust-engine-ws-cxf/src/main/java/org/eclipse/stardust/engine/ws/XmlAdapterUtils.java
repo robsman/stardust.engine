@@ -542,6 +542,7 @@ public class XmlAdapterUtils
          ret.setModelOid(me.getModelOID());
          ret.setName(me.getName());
          ret.setId(me.getId());
+         ret.setQualifiedId(me.getQualifiedId());
          ret.setDescription(me.getDescription());
          ret.setPartitionId(me.getPartitionId());
          ret.setPartitionOid(me.getPartitionOID());

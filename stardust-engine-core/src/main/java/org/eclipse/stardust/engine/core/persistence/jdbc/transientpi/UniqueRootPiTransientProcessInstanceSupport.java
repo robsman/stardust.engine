@@ -223,11 +223,6 @@ public class UniqueRootPiTransientProcessInstanceSupport extends AbstractTransie
    {
       for (final PersistenceController pc : pis.values())
       {
-         if ( !pc.isCreated())
-         {
-            return false;
-         }
-
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
          if ( !ProcessInstanceUtils.isTransientExecutionScenario(pi))
          {

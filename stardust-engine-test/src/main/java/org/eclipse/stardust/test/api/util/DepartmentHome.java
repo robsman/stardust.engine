@@ -37,6 +37,54 @@ public class DepartmentHome
     * @param parent the parent department, if any
     * @return the created department
     */
+   public static Department create(final ServiceFactory sf, final String deptId, final String deptName, final String orgId, final DepartmentInfo parent)
+   {
+      if (deptId == null)
+      {
+         throw new NullPointerException("Department ID must not be null.");
+      }
+      if (deptName == null)
+      {
+         throw new NullPointerException("Department Name must not be null.");
+      }      
+      if (deptId.isEmpty())
+      {
+         throw new IllegalArgumentException("Department ID must not be empty.");
+      }
+      if (orgId == null)
+      {
+         throw new NullPointerException("Organization ID must not be null.");
+      }
+      if (orgId.isEmpty())
+      {
+         throw new IllegalArgumentException("Organization ID must not be empty.");
+      }
+      /* parent may be null */
+      if (sf == null)
+      {
+         throw new NullPointerException("Service Factory must not be null.");
+      }
+      
+      final Participant participant = sf.getQueryService().getParticipant(orgId);
+      if ( !(participant instanceof Organization))
+      {
+         throw new IllegalArgumentException("'" + orgId + "' is not an organization.");
+      }
+      final Organization org = (Organization) participant;
+      return sf.getAdministrationService().createDepartment(deptId, deptId, deptName, parent, org);
+   }
+      
+   /**
+    * <p>
+    * Creates a new department for the specified organization with the given department ID and parent.
+    * </p>
+    * 
+    * @param sf a service factory needed for creating the user
+    * @param deptId the ID the department's <i>id</i>, <i>name</i>, and <i>description</i> will be initialized with
+    * @param orgId the ID of the organization the department should be created for
+    * @param parent the parent department, if any
+    * @return the created department
+    */
    public static Department create(final ServiceFactory sf, final String deptId, final String orgId, final DepartmentInfo parent)
    {
       if (deptId == null)

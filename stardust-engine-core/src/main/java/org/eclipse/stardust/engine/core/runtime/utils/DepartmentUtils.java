@@ -18,24 +18,15 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.dto.DepartmentInfoDetails;
-import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
-import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
-import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
-import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.QueryUtils;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
-
 
 /**
  * @author stephan.born
@@ -43,6 +34,89 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  */
 public final class DepartmentUtils
 {
+   private static final Logger trace = LogManager.getLogger(DepartmentUtils.class);
+
+   public static void createOrModifyDepartment(String id, String name, String description,
+         DepartmentInfo parent, OrganizationInfo organization)
+         throws DepartmentExistsException, ObjectNotFoundException 
+   {
+      if(!SecurityProperties.isInternalAuthorization())
+      {
+         return;
+      }
+      
+      try
+      {
+         createDepartment(id, name, description, parent, organization);
+      }
+      catch (DepartmentExistsException e)
+      {
+         DepartmentBean parentDepartment = parent == null ? null : DepartmentBean.findByOID(parent.getOID());
+         IOrganization org = (IOrganization) ModelManagerFactory.getCurrent().findModelParticipant(organization);         
+         DepartmentBean department = DepartmentBean.findById(id, parentDepartment, org);
+         
+         modifyDepartment(department.getOID(), name, description);         
+      }
+   }
+   
+   /**
+    * Change the description of a department.
+    *
+    * @param oid the unique identifier of the department.
+    * @param name the new name of the department.
+    * @param description the new description.
+    * @return the modified department.
+    * @throws ObjectNotFoundException
+    *       if there is no department with the specified oid.
+    */
+   public static Department modifyDepartment(long oid, String name, String description)
+         throws ObjectNotFoundException
+   {      
+      DepartmentBean department = DepartmentBean.findByOID(oid);
+      department.lock();
+      department.setName(name);
+      department.setDescription(description);
+      return DetailsFactory.create(department, IDepartment.class, DepartmentDetails.class);
+   }   
+   
+   /**
+    * Creates a new department.
+    *
+    * @param id the id of the department. Must not be null or empty and it must be unique in the parent scope.
+    * @param name the name of the department. Must not be null or empty.
+    * @param description the description of the department.
+    * @param parent the parent scope. Can be null if the department will be a top level department.
+    * @param organization the organization to which this department is assigned. Must not be null.
+    * @return the created department.
+    * @throws DepartmentExistsException
+    *       if a department with the same id already exists in the parent scope.
+    * @throws ObjectNotFoundException
+    *       if either the parent or the organization could not be resolved.
+    */   
+   public static Department createDepartment(String id, String name, String description,
+         DepartmentInfo parent, OrganizationInfo organization)
+         throws DepartmentExistsException, ObjectNotFoundException 
+   {
+      AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
+      DepartmentBean parentDepartment = parent == null ? null : DepartmentBean.findByOID(parent.getOID());
+      IOrganization org = (IOrganization) ModelManagerFactory.getCurrent().findModelParticipant(organization);
+
+      try
+      {
+         DepartmentBean.findById(id, parentDepartment, org);
+         throw new DepartmentExistsException(id);
+      }
+      catch (ObjectNotFoundException x)
+      {
+      }
+
+      DepartmentBean department = new DepartmentBean(id, name, partition, parentDepartment, description, organization);
+
+      trace.info("Created department '" + id + "', oid = " + department.getOID());
+
+      return DetailsFactory.create(department, IDepartment.class, DepartmentDetails.class);
+   }   
+   
    /**
     * Returns the department oid for the specified participant. The oid will be evaluated
     * by data values from the given process instance for the data the participant is bound to.

@@ -50,7 +50,37 @@ public class ScheduledCalendar extends ScheduledDocument
             if (!StringUtils.isEmpty(processId))
             {
                Map<String, Object> businessObjectData = getBusinessObjectData();
-               getWorkflowService().startProcess(processId, businessObjectData, false);
+               JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
+               if (relationship != null && !businessObjectData.isEmpty())
+               {
+                  String other = SchedulingUtils.getAsString(relationship, "otherBusinessObject");
+                  if (!StringUtils.isEmpty(other))
+                  {
+                     String fkField = SchedulingUtils.getAsString(relationship, "otherForeignKeyField");
+                     if (!StringUtils.isEmpty(fkField))
+                     {
+                        String dataName = QName.valueOf(other).getLocalPart();
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> businessObjectValue = (Map<String, Object>) businessObjectData.values().iterator().next();
+                        @SuppressWarnings("unchecked")
+                        List<Object> fks = (List<Object>) businessObjectValue.get(fkField);
+                        for (Object fk : fks)
+                        {
+                           Map<String, Object> data = CollectionUtils.newMap();
+                           Object value = getBusinessObjectValue(other, fk);
+                           if (value != null)
+                           {
+                              data.put(dataName, value);
+                              getWorkflowService().startProcess(processId, data, false);
+                           }
+                        }
+                     }
+                  }
+               }
+               else
+               {
+                  getWorkflowService().startProcess(processId, businessObjectData, false);
+               }
             }
          }
       }
@@ -68,26 +98,36 @@ public class ScheduledCalendar extends ScheduledDocument
             String modelId = SchedulingUtils.getAsString(businessObjectJson, "modelId");
             String primaryKey = SchedulingUtils.getAsString(businessObjectJson, "primaryKey");
 
-            BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(
-                  new QName(modelId, businessObjectId).toString(), primaryKey);
-            query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
-            BusinessObjects result = getQueryService().getAllBusinessObjects(query);
-            if (!result.isEmpty())
+            String boFullId = new QName(modelId, businessObjectId).toString();
+            Object value = getBusinessObjectValue(boFullId, primaryKey);
+            if (value != null)
             {
-               BusinessObject bo = result.get(0);
-               List<BusinessObject.Value> values = bo.getValues();
-               if (values != null && !values.isEmpty())
-               {
-                  BusinessObject.Value value = values.get(0);
-                  if (value.getValue() != null)
-                  {
-                     data.put(businessObjectId, value.getValue());
-                  }
-               }
+               data.put(businessObjectId, value);
             }
          }
       }
       return data;
+   }
+
+   protected Object getBusinessObjectValue(String businessObject, Object primaryKey)
+   {
+      BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(businessObject, primaryKey);
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjects result = getQueryService().getAllBusinessObjects(query);
+      if (!result.isEmpty())
+      {
+         BusinessObject bo = result.get(0);
+         List<BusinessObject.Value> values = bo.getValues();
+         if (values != null && !values.isEmpty())
+         {
+            BusinessObject.Value value = values.get(0);
+            if (value.getValue() != null)
+            {
+               return value.getValue();
+            }
+         }
+      }
+      return null;
    }
 
    protected WorkflowService getWorkflowService()

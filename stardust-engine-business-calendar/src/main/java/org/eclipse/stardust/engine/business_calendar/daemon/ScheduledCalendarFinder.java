@@ -33,6 +33,10 @@ import com.google.gson.JsonObject;
 
 public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCalendar>
 {
+   private static final String PATH_ATT = "path";
+   private static final String EXTENSION = ".json";
+   private static final String ROOT_PATH = "/business-calendars/processingCalendar";
+
    private Map<String, List<JsonObject>> eventsMap;
    private Map<String, Document> documentsMap;
 
@@ -43,7 +47,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 
    public ScheduledCalendarFinder(Date executionDate, DocumentManagementService dms)
    {
-      super(dms, null, executionDate, ".bpmcal", "/business-calendars");
+      super(dms, null, executionDate, EXTENSION, ROOT_PATH);
       eventsMap = CollectionUtils.newMap();
       documentsMap = CollectionUtils.newMap();
    }
@@ -75,55 +79,46 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
    }
 
    @Override
-   protected List<JsonObject> getEvents(JsonObject documentJson)
+   protected List<JsonObject> getEvents(String path, JsonObject documentJson)
    {
       eventsMap.clear();
       List<JsonObject> events = CollectionUtils.newList();
-      collectEvents(events, documentJson);
+      collectEvents(events, path, documentJson);
       return events;
    }
 
-   private void collectEvents(List<JsonObject> events, JsonObject documentJson)
+   private void collectEvents(List<JsonObject> events, String path, JsonObject documentJson)
    {
-      String uuid = SchedulingUtils.getAsString(documentJson, "uuid");
-      if (uuid == null)
+      List<JsonObject> vts = eventsMap.get(path);
+      if (vts == null)
       {
-         addEvents(events, documentJson.getAsJsonArray("events"));
-         addEvents(events, documentJson.getAsJsonArray("recurringEvents"));
+         vts = CollectionUtils.newList();
+         addEvents(vts, documentJson.getAsJsonArray("events"));
+         addEvents(vts, documentJson.getAsJsonArray("recurringEvents"));
+         eventsMap.put(path, vts);
       }
-      else
-      {
-         List<JsonObject> vts = eventsMap.get(uuid);
-         if (vts == null)
-         {
-            vts = CollectionUtils.newList();
-            addEvents(vts, documentJson.getAsJsonArray("events"));
-            addEvents(vts, documentJson.getAsJsonArray("recurringEvents"));
-            eventsMap.put(uuid, vts);
-         }
-         events.addAll(vts);
-      }
+      events.addAll(vts);
+
       JsonArray importedCalendars = documentJson.getAsJsonArray("importedCalendars");
       if (importedCalendars != null)
       {
          for (JsonElement importedCalendar : importedCalendars)
          {
-            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), "uuid"));
+            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), PATH_ATT));
          }
       }
    }
 
-   private void collectImportedEvents(List<JsonObject> events, String uuid)
+   private void collectImportedEvents(List<JsonObject> events, String path)
    {
-      List<JsonObject> vts = eventsMap.get(uuid);
-      if (vts == null)
+      if (path != null)
       {
-         JsonObject documentJson = getDocumentJson(uuid);
-         collectEvents(events, documentJson);
-      }
-      else
-      {
-         //events.addAll(vts);
+         List<JsonObject> vts = eventsMap.get(path);
+         if (vts == null)
+         {
+            JsonObject documentJson = getDocumentJson(path);
+            collectEvents(events, path, documentJson);
+         }
       }
    }
 
@@ -139,10 +134,10 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
    }
 
    @Override
-   protected JsonObject getDocumentJson(String id)
+   protected JsonObject getDocumentJson(String path)
    {
-      Document document = documentsMap.get(id);
-      return document == null ? super.getDocumentJson(id) : getDocumentJson(document);
+      Document document = documentsMap.get(path);
+      return document == null ? super.getDocumentJson(path) : getDocumentJson(document);
    }
 
    protected void collectDocuments(List<Document> documents, Folder folder)
@@ -151,7 +146,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
       {
          for (Document document : folder.getDocuments())
          {
-            if (document.getName().endsWith(".bpmcal"))
+            if (document.getName().endsWith(EXTENSION))
             {
                documents.add(document);
                documentsMap.put(document.getId(), document);

@@ -265,7 +265,7 @@ public class ModelManagerBean implements ModelManager
 
    public long getLastDeployment()
    {
-	   return getModelManagerPartition().getLastDeployment();
+      return getModelManagerPartition().getLastDeployment();
    }
 
    public boolean isAlive(IModel model)
@@ -1730,27 +1730,28 @@ public class ModelManagerBean implements ModelManager
       public IProcessDefinition findProcessDefinition(long modelOid, long runtimeOid)
       {
          IProcessDefinition process = null;
-
-         ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
-               ? elementsByRtOid[(int) modelOid]
-               : null;
-         if ((null != byRtOid) && (null != byRtOid.processes)
-               && (runtimeOid < byRtOid.processes.length))
+         if (runtimeOid != -1)
          {
-            process = byRtOid.processes[(int) runtimeOid];
-         }
-
-         if (null == process)
-         {
-            IModel model = findModel(modelOid);
-            if (null != model)
+            ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
+                  ? elementsByRtOid[(int) modelOid]
+                  : null;
+            if ((null != byRtOid) && (null != byRtOid.processes)
+                  && (runtimeOid < byRtOid.processes.length))
             {
-               String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
-                     runtimeOid);
-               process = model.findProcessDefinition(fqId[fqId.length - 1]);
+               process = byRtOid.processes[(int) runtimeOid];
+            }
+
+            if (null == process)
+            {
+               IModel model = findModel(modelOid);
+               if (null != model)
+               {
+                  String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
+                        runtimeOid);
+                  process = model.findProcessDefinition(fqId[fqId.length - 1]);
+               }
             }
          }
-
          return process;
       }
 
@@ -2338,8 +2339,8 @@ public class ModelManagerBean implements ModelManager
          // (fh) this is called whenever a new deployment is made.
          // we just reset here the lastDeployment flag because we do not want to fetch the
          // last deployment in the same transaction when a ModelDeploymentBean was created.
-    	  lastDeployment = ModelDeploymentBean.getLastDeployment();
-    	  lastDeploymentSet = true;
+         lastDeployment = ModelDeploymentBean.getLastDeployment();
+         lastDeploymentSet = true;
       }
 
       public long getLastDeployment()
@@ -2356,7 +2357,7 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
-    	 return lastDeployment;
+      return lastDeployment;
       }
    }
 

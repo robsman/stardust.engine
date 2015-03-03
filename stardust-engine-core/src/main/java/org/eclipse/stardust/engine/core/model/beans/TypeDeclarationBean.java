@@ -18,24 +18,21 @@ import java.util.regex.Matcher;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.eclipse.xsd.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-import org.eclipse.xsd.XSDComplexTypeDefinition;
-import org.eclipse.xsd.XSDImport;
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.XSDTypeDefinition;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 
 
 
@@ -97,6 +94,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
 
       validateElements(inconsistencies, td);
       validateParentReferences((IModel) getModel(), inconsistencies, td);
+      validateImports((IModel) getModel(), inconsistencies, td);
 
       // check for usage of variables
       if (xpdlType instanceof SchemaTypeBean)
@@ -106,6 +104,104 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
          Element element = xsdSchema.getElement();
          checkForVariables(inconsistencies, element);
       }
+   }
+
+   private void validateImports(IModel model, List inconsistencies, ITypeDeclaration td)
+   {
+      boolean schemaResolveError = false;
+      XSDSchema schema = null;
+      try
+      {
+         schema = StructuredTypeRtUtils.getSchema(model, td);
+      }
+      catch (PublicException e)
+      {
+         ErrorCase er = e.getError();
+         if (BpmRuntimeError.SDT_COULD_NOT_FIND_XSD_IN_CLASSPATH.getErrorCode().equals(
+               er.getId())
+               && er instanceof BpmRuntimeError)
+         {
+            // Schema was not found or had non resolvable import/include to other schema.
+            // The location of failed schema loading via classpath is contained in
+            // exception thrown by ClasspathUriConverter and is reused for the validation error.
+            String location = (String) ((BpmRuntimeError) er)
+                  .getMessageArgs()[0];
+
+            BpmValidationError error = BpmValidationError.SDT_XSD_SCHEMA_NOT_FOUND.raise(
+                  td.getId(), location);
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+         }
+         schemaResolveError = true;
+      }
+      catch (RuntimeException re)
+      {
+         schema = null;
+      }
+
+      if (schema == null && !schemaResolveError)
+      {
+         // Schema was not found
+         BpmValidationError error = BpmValidationError.SDT_XSD_SCHEMA_NOT_FOUND
+               .raise(td.getId(), getSchemaLocation(td));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+         schemaResolveError = true;
+      }
+
+      if (schema != null)
+      {
+         List<XSDImport> imports = TypeDeclarationUtils.getImports(schema);
+         if (imports != null)
+         {
+            for (XSDImport xsdImport : imports)
+            {
+               XSDSchema resolvedSchema = xsdImport.getResolvedSchema();
+               if (resolvedSchema == null)
+               {
+                  BpmValidationError error = BpmValidationError.SDT_XSD_IMPORT_NOT_RESOLVABLE
+                        .raise(td.getId(), xsdImport.getSchemaLocation(),
+                              xsdImport.getNamespace());
+                  inconsistencies
+                        .add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  schemaResolveError = true;
+               }
+            }
+         }
+
+         List<XSDInclude> includes = TypeDeclarationUtils.getIncludes(schema);
+         if (includes != null)
+         {
+            for (XSDInclude xsdInclude : includes)
+            {
+               XSDSchema resolvedSchema = xsdInclude.getResolvedSchema();
+               if (resolvedSchema == null)
+               {
+                  BpmValidationError error = BpmValidationError.SDT_XSD_INCLUDE_NOT_RESOLVABLE
+                        .raise(td.getId(), xsdInclude.getSchemaLocation());
+                  inconsistencies
+                        .add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  schemaResolveError = true;
+               }
+            }
+         }
+      }
+
+      // Flush external schema cache if errors occurred to allow reload of changed schemas
+      // at runtime.
+      if (schemaResolveError)
+      {
+         StructuredTypeRtUtils.flushExternalSchemaCache();
+      }
+   }
+
+   private String getSchemaLocation(ITypeDeclaration td)
+   {
+      String location = StructuredDataConstants.URN_INTERNAL_PREFIX;
+      IXpdlType type = td.getXpdlType();
+      if (type instanceof IExternalReference)
+      {
+         location = ((IExternalReference) type).getLocation();
+      }
+      return location;
    }
 
    private void checkForVariables(List inconsistencies, Node node)

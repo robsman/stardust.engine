@@ -16,8 +16,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.eclipse.stardust.engine.core.javascript.ConditionEvaluatorTest;
+
 @RunWith(Suite.class)
-@SuiteClasses({InterpreterTest.class})
+@SuiteClasses({
+   InterpreterTest.class,
+   ConditionEvaluatorTest.class})
 public class ElTestSuite extends TestCase
 {
 

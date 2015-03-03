@@ -536,11 +536,11 @@ public class AdministrationServiceFacade implements IAdministrationService
 
          ServiceFactory sf = wsEnv.getServiceFactory();
 
-         Model activeModel = wsEnv.getActiveModel();
+         DeployedModel model = sf.getQueryService().getModel(modelOid);
 
          if (null != attachments)
          {
-            checkProcessAttachmentSupport(processId, activeModel);
+            checkProcessAttachmentSupport(processId, model);
          }
 
          ProcessInstance pi = sf.getAdministrationService().startProcess(modelOid,
@@ -548,7 +548,7 @@ public class AdministrationServiceFacade implements IAdministrationService
                Boolean.TRUE.equals(startSynchronously));
 
          List<Document> theAttachments = unmarshalInputDocuments(attachments, sf,
-               activeModel, pi);
+               model, pi);
 
          if (!theAttachments.isEmpty() && theAttachments != null)
          {

@@ -39,6 +39,11 @@
          <artifactId>carnot-spring</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>stardust-engine-business-calendar</artifactId>
+         <version>${project.version}</version>
+      </dependency>
 
       <!-- Stardust Engine Modules -->
       <dependency>
@@ -218,35 +223,25 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <!-- do not execute the tests in phase 'test' ... -->
-               <skipTests>true</skipTests>
+               <includes>
+                  <include>**/*Suite.java</include>
+               </includes>
+               <excludes>
+                  <exclude>**/*Test.java</exclude>
+               </excludes>
+               <forkCount>1</forkCount>
+               <reuseForks>false</reuseForks>
+               <failIfNoTests>false</failIfNoTests>
+               <testFailureIgnore>true</testFailureIgnore>
+               <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
             <executions>
-               <!-- ... but in phase 'integration-test' -->
                <execution>
-                  <id>run-functional-tests</id>
-                  <phase>integration-test</phase>
+                  <id>default-test</id>
+                  <phase combine.self="override">integration-test</phase>
                   <goals>
                      <goal>test</goal>
                   </goals>
-                  <configuration>
-                     <!-- we're executing test suites instead of the actual test classes -->
-                     <!-- to minimize the number of test environment setup tasks, i.e.   -->
-                     <!-- by doing so, we save a lot of time during test execution       -->
-                     <includes>
-                        <include>**/*Suite.java</include>
-                     </includes>
-                     <excludes>
-                        <exclude>**/*Test.java</exclude>
-                     </excludes>
-                     <forkCount>1</forkCount>
-                     <reuseForks>false</reuseForks>
-                     <skip>false</skip>
-                     <skipTests>false</skipTests>
-                     <failIfNoTests>false</failIfNoTests>
-                     <testFailureIgnore>true</testFailureIgnore>
-                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                  </configuration>
                </execution>
             </executions>
          </plugin>

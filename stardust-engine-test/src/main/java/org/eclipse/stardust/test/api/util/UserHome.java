@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,11 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.util;
 
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -60,18 +62,18 @@ public class UserHome
          throw new IllegalArgumentException("User ID must not be empty.");
       }
 
-      final Set<ModelParticipantInfo> grantSet;
+      final List<ModelParticipantInfo> grantList;
       if (grants == null || grants.length == 0)
       {
-         grantSet = Collections.emptySet();
+         grantList = Collections.emptyList();
       }
       else
       {
-         grantSet = newHashSet();
-         Collections.addAll(grantSet, grants);
+         grantList = newArrayList();
+         Collections.addAll(grantList, grants);
       }
 
-      final CreateUserWithGrantsCommand createUserCmd = new CreateUserWithGrantsCommand(userId, grantSet);
+      final CreateUserWithGrantsCommand createUserCmd = new CreateUserWithGrantsCommand(userId, grantList);
       final User user = (User) sf.getWorkflowService().execute(createUserCmd);
       return user;
    }
@@ -220,9 +222,9 @@ public class UserHome
       private static final long serialVersionUID = 2504537023808759739L;
 
       private final String userId;
-      private final Set<ModelParticipantInfo> grants;
+      private final List<ModelParticipantInfo> grants;
 
-      public CreateUserWithGrantsCommand(final String userId, final Set<ModelParticipantInfo> grants)
+      public CreateUserWithGrantsCommand(final String userId, final List<ModelParticipantInfo> grants)
       {
          this.userId = userId;
          this.grants = grants;

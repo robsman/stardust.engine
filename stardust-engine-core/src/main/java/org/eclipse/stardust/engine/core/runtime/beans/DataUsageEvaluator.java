@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,9 +23,10 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 
-
-public class DataUsageEvaluator
+public class DataUsageEvaluator implements Serializable
 {
+
+   private static final long serialVersionUID = -5376443808529675969L;
 
    private Map<Pair<String, String>, Set<String>> usedDataIdsCache;
 
@@ -43,7 +45,7 @@ public class DataUsageEvaluator
          // process do not belong to this model
          return false;
       }
-      
+
       String unqualifiedProcessId = DataUtils.getUnqualifiedProcessId(processId);
       Pair key = new Pair(modelId, unqualifiedProcessId);
       Set<String> usedDataIds = usedDataIdsCache.get(key);
@@ -56,7 +58,5 @@ public class DataUsageEvaluator
 
       return usedDataIds.contains(data.getId());
    }
-
-
 
 }

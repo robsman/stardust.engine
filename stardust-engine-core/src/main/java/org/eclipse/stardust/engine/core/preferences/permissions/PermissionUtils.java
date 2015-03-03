@@ -50,6 +50,10 @@ public class PermissionUtils
     */
    public static final String GLOBAL_SCOPE = "global";
 
+   /**
+    * The static defaults for the permissions.
+    * Please Note: Changing a default here does not automatically update saved preferences.
+    */
    private final static Map<String, String> defaultPermissions;
 
    static
@@ -167,9 +171,7 @@ public class PermissionUtils
    {
       Map<String, Serializable> preferencesMap = getPreferences(preferenceStore);
 
-      Map<String, List<String>> filteredPermissions = removeDefaultPermissions(permissions);
-
-      mergePermissions(preferencesMap, filteredPermissions);
+      mergePermissions(preferencesMap, permissions);
 
       savePreferences(preferenceStore, preferencesMap);
    }
@@ -181,13 +183,8 @@ public class PermissionUtils
       String internalPermissionId = stripPrefix(permissionId);
       Map<String, Serializable> preferencesMap = getPreferences(preferenceStore);
 
-      String permission = getModelDefaultPermissions().get(internalPermissionId);
-      if (permission == null || values == null || values.size() != 1
-            || !values.get(0).equals(permission))
-      {
-         preferencesMap.put(internalPermissionId, (Serializable) values);
-         savePreferences(preferenceStore, preferencesMap);
-      }
+      preferencesMap.put(internalPermissionId, (Serializable) values);
+      savePreferences(preferenceStore, preferencesMap);
    }
 
    private static String stripPrefix(String permissionId)
@@ -217,25 +214,6 @@ public class PermissionUtils
       }
    }
 
-   private static Map<String, List<String>> removeDefaultPermissions(
-         Map<String, List<String>> permissions)
-   {
-      Map<String, List<String>> filteredPermissions = new HashMap<String, List<String>>(
-            permissions);
-
-      for (Entry<String, String> entry : getModelDefaultPermissions().entrySet())
-      {
-         List<String> values = filteredPermissions.get(entry.getKey());
-         // only remove if equals exactly one default permission
-         if (values != null && values.size() == 1
-               && values.get(0).equals(entry.getValue()))
-         {
-            filteredPermissions.remove(entry.getKey());
-         }
-      }
-      return filteredPermissions;
-   }
-
    private static Map<String, String> getModelDefaultPermissions()
    {
       return defaultPermissions;
@@ -244,12 +222,31 @@ public class PermissionUtils
    private static Map<String, Serializable> getPreferences(
          IPreferenceStorageManager preferenceStore)
    {
-      String preferenceId = GLOBAL_SCOPE;
+      Preferences defaultPreferences = preferenceStore.getPreferences(PreferenceScope.DEFAULT,
+            PERMISSIONS, GLOBAL_SCOPE);
 
-      Preferences preferences = preferenceStore.getPreferences(PreferenceScope.PARTITION,
-            PERMISSIONS, preferenceId);
+      Preferences partitionPreferences = preferenceStore.getPreferences(PreferenceScope.PARTITION,
+            PERMISSIONS, GLOBAL_SCOPE);
 
-      return preferences != null ? preferences.getPreferences() : null;
+      return mergePreferencesMap(defaultPreferences, partitionPreferences);
+   }
+
+   private static Map<String, Serializable> mergePreferencesMap(
+         Preferences defaultPreferences, Preferences partitionPreferences)
+   {
+      Map<String, Serializable> mergedPreferencesMap = CollectionUtils.newHashMap();
+
+      if (defaultPreferences != null)
+      {
+         mergedPreferencesMap.putAll(defaultPreferences.getPreferences());
+      }
+
+      if (partitionPreferences != null)
+      {
+         mergedPreferencesMap.putAll(partitionPreferences.getPreferences());
+      }
+
+      return mergedPreferencesMap;
    }
 
    private static void savePreferences(IPreferenceStorageManager preferenceStore,

@@ -49,7 +49,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
    protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName, List<JsonObject> events);
 
-   protected abstract List<JsonObject> getEvents(JsonObject documentJson);
+   protected abstract List<JsonObject> getEvents(String path, JsonObject documentJson);
 
    protected String getExtension()
    {
@@ -97,10 +97,11 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             JsonObject documentJson = getDocumentJson(document);
 
             List<JsonObject> matchingEvents = CollectionUtils.newList();
-            List<JsonObject> events = getEvents(documentJson);
+            List<JsonObject> events = getEvents(document.getPath(), documentJson);
             for (JsonObject event : events)
             {
-               if (isActive(event))
+               JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(event, "scheduling");
+               if (scheduleJson != null && isActive(scheduleJson) && acceptEventType(SchedulingUtils.getAsString(event, "type")))
                {
                   if (isBlocking(event))
                   {
@@ -110,8 +111,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
                   if (!matches)
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(event);
-                     Date processSchedule = sc.processSchedule(event, true);
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+                     Date processSchedule = sc.processSchedule(scheduleJson, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))
                      {
@@ -160,7 +161,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
    protected boolean isActive(JsonObject eventJson)
    {
       JsonElement active = eventJson.get("active");
-      return (active == null || active.getAsBoolean()) && acceptEventType(SchedulingUtils.getAsString(eventJson, "type"));
+      return active == null || active.getAsBoolean();
    }
 
    public List<Document> scanLocations()

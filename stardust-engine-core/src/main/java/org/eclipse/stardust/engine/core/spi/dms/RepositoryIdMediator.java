@@ -291,8 +291,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       final IRepositoryService sourceService = sourceInstance.getService(getUserContext());
       final String strippedSourceDocumentId = stripRepositoryId(documentId);
       String strippedTargetPath = stripRepositoryId(targetPath);
-      if (sourceRepositoryId != null && sourceRepositoryId.equals(targetRepositoryId)
-            || sourceRepositoryId == null && targetRepositoryId == null)
+      if (RepositoryIdUtils.repositoryIdEquals(sourceRepositoryId, targetRepositoryId))
       {
          // Same repository move.
          Document movedDocument = sourceService.moveDocument(strippedSourceDocumentId,

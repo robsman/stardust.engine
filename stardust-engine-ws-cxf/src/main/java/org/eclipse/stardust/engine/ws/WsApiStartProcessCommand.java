@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.ws;
 
+import static java.util.Collections.emptyList;
+import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
+import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
 import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.checkProcessAttachmentSupport;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.unmarshalInputDocument;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.unmarshalInputDocuments;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -31,9 +33,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.api.ws.DocumentInfoXto;
-import org.eclipse.stardust.engine.api.ws.InputDocumentXto;
-import org.eclipse.stardust.engine.api.ws.InputDocumentsXto;
+import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
@@ -53,15 +53,19 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
    private final Boolean startSynchronously;
 
-   private final InputDocumentsXto attachments;
+   private final List<InputDocument> attachments;
 
    private final DataUsageEvaluator dataUsageEvaluator;
 
+   private int modelOid;
+
    @SuppressWarnings("unchecked")
-   public WsApiStartProcessCommand(String processId, Map<String, ? extends Serializable> parameters,
-         Boolean startSynchronously, InputDocumentsXto attachments)
+   public WsApiStartProcessCommand(String processId, int modelOid,
+         Map<String, ? extends Serializable> parameters, Boolean startSynchronously,
+         List<InputDocument> attachments)
    {
       this.processId = processId;
+      this.modelOid = modelOid;
       initialDataValues = (Map<String, Serializable>) parameters;
       this.startSynchronously = startSynchronously;
       this.attachments = attachments;
@@ -87,10 +91,18 @@ public class WsApiStartProcessCommand implements ServiceCommand
             }
             else
             {
-               model = qs.getActiveModel();
+               if (modelOid > 0)
+               {
+                  model = qs.getModel(modelOid);
+               }
+               else
+               {
+                  model = qs.getActiveModel();
+               }
                processDefinition = model.getProcessDefinition(processId);
                unqualifiedProcessId = processId;
             }
+
          }
          finally
          {
@@ -103,7 +115,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
          {
             // performance optimization: if all attachments use a predefined path, store
             // them directly into the DMS and pass the docs directly with startProcess
-            for (InputDocumentXto inputDoc : attachments.getInputDocument())
+            for (InputDocument inputDoc : attachments)
             {
                eagerlyStoreAttachments &= !isEmpty(inputDoc.getTargetFolder());
                allToAttachments &= isEmpty(inputDoc.getGlobalVariableId());
@@ -112,7 +124,8 @@ public class WsApiStartProcessCommand implements ServiceCommand
             if (allToAttachments && eagerlyStoreAttachments)
             {
                checkProcessAttachmentSupport(unqualifiedProcessId, model);
-               List<Document> theAttachments = unmarshalInputDocuments(attachments, sf, model, null);
+               List<Document> theAttachments = unmarshalAndStoreInputDocuments(
+                     attachments, sf, model, null);
 
                if (null == initialDataValues)
                {
@@ -131,30 +144,26 @@ public class WsApiStartProcessCommand implements ServiceCommand
             if (allToAttachments && !eagerlyStoreAttachments)
             {
                checkProcessAttachmentSupport(unqualifiedProcessId, model);
-               List<Document> theAttachments = unmarshalInputDocuments(attachments, sf,
-                     model, pi);
+               List<Document> theAttachments = unmarshalAndStoreInputDocuments(
+                     attachments, sf, model, pi);
 
                sf.getWorkflowService().setOutDataPath(pi.getOID(), PROCESS_ATTACHMENTS,
                      theAttachments);
             }
-            else if ( !allToAttachments)
+            else if (!allToAttachments)
             {
                // handle each document separately.
 
                List<Document> processAttachments = CollectionUtils.newArrayList();
-               for (InputDocumentXto attachment : attachments.getInputDocument())
+               for (InputDocument attachment : attachments)
                {
-                  Document document = unmarshalInputDocument(attachment, sf, model, pi);
+                  Document document = unmarshalAndStoreInputDocument(attachment, sf,
+                        model, pi);
 
                   String dataId = attachment.getGlobalVariableId();
-                  if ( !isEmpty(dataId))
+                  if (!isEmpty(dataId))
                   {
-                     DocumentInfoXto documentInfoXto = attachment.getDocumentInfo();
-                     QName metaDataType = null;
-                     if (documentInfoXto != null)
-                     {
-                        metaDataType = documentInfoXto.getMetaDataType();
-                     }
+                     QName metaDataType = attachment.getMetaDataType();
 
                      checkSpecificDocumentSupport(document, metaDataType, dataId, model,
                            processDefinition);
@@ -163,9 +172,11 @@ public class WsApiStartProcessCommand implements ServiceCommand
                      // Inferring and storing DocumentType and directly saving data value.
                      ModelManager modelManager = ModelManagerFactory.getCurrent();
                      IModel imodel = modelManager.findModel(model.getModelOID());
-                     IData idata = imodel.findData(DataUtils.getUnqualifiedProcessId(dataId));
+                     IData idata = imodel.findData(DataUtils
+                           .getUnqualifiedProcessId(dataId));
 
-                     DocumentTypeUtils.inferDocumentTypeAndStoreDocument(idata, document, sf.getDocumentManagementService());
+                     DocumentTypeUtils.inferDocumentTypeAndStoreDocument(idata, document,
+                           sf.getDocumentManagementService());
 
                      ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pi.getOID());
                      iPi.setOutDataValue(idata, "", document);
@@ -177,7 +188,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
                }
 
-               if ( !processAttachments.isEmpty())
+               if (!processAttachments.isEmpty())
                {
                   checkProcessAttachmentSupport(unqualifiedProcessId, model);
                   sf.getWorkflowService().setOutDataPath(pi.getOID(),
@@ -192,10 +203,12 @@ public class WsApiStartProcessCommand implements ServiceCommand
       {
          if (f instanceof UndeclaredThrowableException)
          {
-            Throwable undeclaredThrowable = ((UndeclaredThrowableException) f).getUndeclaredThrowable();
+            Throwable undeclaredThrowable = ((UndeclaredThrowableException) f)
+                  .getUndeclaredThrowable();
             if (undeclaredThrowable instanceof InvocationTargetException)
             {
-               Throwable targetException = ((InvocationTargetException) undeclaredThrowable).getTargetException();
+               Throwable targetException = ((InvocationTargetException) undeclaredThrowable)
+                     .getTargetException();
                throw new ServiceCommandException((String) null, targetException);
             }
             else
@@ -206,6 +219,125 @@ public class WsApiStartProcessCommand implements ServiceCommand
          else
          {
             throw new ServiceCommandException((String) null, f);
+         }
+      }
+   }
+
+   private List<Document> unmarshalAndStoreInputDocuments(
+         List<InputDocument> attachments, ServiceFactory sf, Model model,
+         ProcessInstance pi) throws InputDocumentStoreException
+   {
+      List<Document> theAttachments = emptyList();
+
+      if ((null != attachments) && !isEmpty(attachments))
+      {
+         theAttachments = newArrayList();
+
+         for (InputDocument attachment : attachments)
+         {
+            Document doc = unmarshalAndStoreInputDocument(attachment, sf, model, pi);
+
+            theAttachments.add(doc);
+         }
+      }
+
+      return theAttachments;
+   }
+
+   private Document unmarshalAndStoreInputDocument(InputDocument attachment,
+         ServiceFactory sf, Model model, ProcessInstance pi)
+         throws InputDocumentStoreException
+   {
+      if (isEmpty(attachment.getTargetFolder()))
+      {
+         assert (null != pi);
+
+         // use PI-OID based folder
+         StringBuilder defaultPath = new StringBuilder(DmsUtils.composeDefaultPath(
+               pi.getScopeProcessInstanceOID(), pi.getStartTime())).append("/");
+
+         String dataId = attachment.getGlobalVariableId();
+         if (isEmpty(dataId))
+         {
+            defaultPath
+                  .append(DocumentRepositoryFolderNames.PROCESS_ATTACHMENTS_SUBFOLDER);
+         }
+         else
+         {
+            defaultPath
+                  .append(DocumentRepositoryFolderNames.SPECIFIC_DOCUMENTS_SUBFOLDER);
+         }
+
+         attachment.setTargetFolder(defaultPath.toString());
+      }
+
+      ensureFolderExists(sf.getDocumentManagementService(), attachment.getTargetFolder());
+
+      Document doc = storeDocumentIntoDms(sf.getDocumentManagementService(), model,
+            attachment);
+      return doc;
+   }
+
+   private Document storeDocumentIntoDms(DocumentManagementService dms, Model model,
+         InputDocument inputDoc) throws InputDocumentStoreException
+   {
+      DocumentInfo docInfo = inputDoc.getDocumentInfo();
+      String folderId = inputDoc.getTargetFolder();
+      byte[] content = inputDoc.getContent();
+
+      String documentPath = folderId;
+      if (!folderId.endsWith("/"))
+      {
+         documentPath += "/";
+      }
+      documentPath += docInfo.getName();
+
+      try
+      {
+         Document doc = (null != content) ? dms.createDocument(folderId, docInfo,
+               content, /* TODO encoding? */null) : dms.createDocument(folderId, docInfo);
+         if (inputDoc.isVersion())
+         {
+            doc = dms.versionDocument(doc.getId(), inputDoc.getComment(),
+                  inputDoc.getLabel());
+         }
+
+         return doc;
+      }
+      catch (DocumentManagementServiceException dmse)
+      {
+         if (BpmRuntimeError.DMS_ITEM_EXISTS.raise().getId()
+               .equals(dmse.getError().getId()))
+         {
+            throw new InputDocumentStoreException("There already exists a file at "
+                  + documentPath, "ItemAlreadyExists");
+         }
+         else if (BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(null).getId()
+               .equals(dmse.getError().getId()))
+         {
+            throw new InputDocumentStoreException(dmse.getMessage(), "InvalidName");
+         }
+         else if (BpmRuntimeError.DMS_UNKNOWN_FOLDER_ID.raise(null).getId()
+               .equals(dmse.getError().getId()))
+         {
+
+            throw new InputDocumentStoreException(dmse.getMessage(), "ItemDoesNotExist");
+         }
+         else if (BpmRuntimeError.DMS_DOCUMENT_TYPE_INVALID.raise(null).getId()
+               .equals(dmse.getError().getId()))
+         {
+            throw new InputDocumentStoreException(dmse.getMessage(),
+                  "DocumentManagementServiceException");
+         }
+         else if (!isEmpty(dmse.getError().getId()) && !isEmpty(dmse.getMessage()))
+         {
+            // marshal as DocumentManagementServiceException if error ID exists.
+            throw new InputDocumentStoreException(dmse.getMessage(), "DocumentManagementServiceException");
+         }
+         else
+         {
+            throw new InputDocumentStoreException("Failed storing file at "
+                  + documentPath, "UnknownError");
          }
       }
    }
@@ -226,17 +358,19 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
       boolean usedInProcess = dataUsageEvaluator.isUsedInProcess(data, imodel,
             processDefinition.getId());
-      if ( !usedInProcess)
+      if (!usedInProcess)
       {
          // data is not used by this process definition
          throw new ObjectNotFoundException(
-               BpmRuntimeError.BPMRT_DATA_NOT_USED_BY_PROCESS.raise(dataId, processDefinition.getId()));
+               BpmRuntimeError.BPMRT_DATA_NOT_USED_BY_PROCESS.raise(dataId,
+                     processDefinition.getId()));
       }
 
       // check metaDataType
       if (metaDataType != null)
       {
-         String typeDeclarationId = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+         String typeDeclarationId = (String) data
+               .getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
          if (null != typeDeclaration)
          {
@@ -248,7 +382,8 @@ public class WsApiStartProcessCommand implements ServiceCommand
             {
                // has different schemas
                throw new InvalidValueException(
-                     BpmRuntimeError.IPPWS_META_DATA_TYPE_INVALID.raise(metaDataType, dataId));
+                     BpmRuntimeError.IPPWS_META_DATA_TYPE_INVALID.raise(metaDataType,
+                           dataId));
             }
          }
       }

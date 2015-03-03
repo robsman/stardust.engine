@@ -36,6 +36,8 @@ import org.eclipse.stardust.engine.core.persistence.Operator;
  */
 public class FilterableAttributeImpl implements FilterableAttribute
 {
+   private static final long serialVersionUID = 3L;
+
    private final Class scope;
    private final String attributeName;
 
@@ -89,6 +91,21 @@ public class FilterableAttributeImpl implements FilterableAttribute
     * @see #isEqual(double)
     */
    public final BinaryOperatorFilter isEqual(long value)
+   {
+      return new BinaryOperatorFilterImpl(scope, Operator.IS_EQUAL, attributeName, value);
+   }
+
+   /**
+    * Creates a filter matching an attribute being equal with the given
+    * <code>value</code>.
+    *
+    * @param value The value to match with.
+    * @return The readily configured filter.
+    *
+    * @see #isEqual(String)
+    * @see #isEqual(double)
+    */
+   public final BinaryOperatorFilter isEqual(Object value)
    {
       return new BinaryOperatorFilterImpl(scope, Operator.IS_EQUAL, attributeName, value);
    }

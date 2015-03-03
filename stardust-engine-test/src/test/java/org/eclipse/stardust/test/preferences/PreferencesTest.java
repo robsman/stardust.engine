@@ -70,7 +70,6 @@ public class PreferencesTest
       Preferences preferences2 = sf.getAdministrationService().getPreferences(PreferenceScope.PARTITION, "stardust-test", "stardust-test");
 
       Assert.assertEquals(preferences.getPreferences(), preferences2.getPreferences());
-      System.out.println(preferences.getPreferences() + "<->" +preferences2.getPreferences());
 
    }
 }

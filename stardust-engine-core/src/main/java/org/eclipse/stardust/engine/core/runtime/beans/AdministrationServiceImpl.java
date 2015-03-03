@@ -31,7 +31,6 @@ import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
@@ -65,6 +64,7 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
@@ -1852,24 +1852,8 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("organization"));
       }
-      AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
-      DepartmentBean parentDepartment = parent == null ? null : DepartmentBean.findByOID(parent.getOID());
-      IOrganization org = (IOrganization) ModelManagerFactory.getCurrent().findModelParticipant(organization);
-
-      try
-      {
-         DepartmentBean.findById(id, parentDepartment, org);
-         throw new DepartmentExistsException(id);
-      }
-      catch (ObjectNotFoundException x)
-      {
-      }
-
-      DepartmentBean department = new DepartmentBean(id, name, partition, parentDepartment, description, organization);
-
-      trace.info("Created department '" + id + "', oid = " + department.getOID());
-
-      return DetailsFactory.create(department, IDepartment.class, DepartmentDetails.class);
+      
+      return DepartmentUtils.createDepartment(id, name, description, parent, organization);
    }
 
    public Department modifyDepartment(long oid, String name, String description)
@@ -1881,11 +1865,8 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("name"));
       }
-      DepartmentBean department = DepartmentBean.findByOID(oid);
-      department.lock();
-      department.setName(name);
-      department.setDescription(description);
-      return DetailsFactory.create(department, IDepartment.class, DepartmentDetails.class);
+      
+      return DepartmentUtils.modifyDepartment(oid, name, description);
    }
 
    public void removeDepartment(long oid) throws ObjectNotFoundException, InvalidArgumentException, IllegalOperationException

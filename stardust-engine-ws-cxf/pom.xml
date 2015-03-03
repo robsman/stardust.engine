@@ -335,10 +335,39 @@
          <id>codegen</id>
          <properties>
             <wsdl.dir>${basedir}/src/main/resources/META-INF/wsdl</wsdl.dir>
+            <wsdl.codegen.dir>${project.build.directory}/codegen/wsdl</wsdl.codegen.dir>
          </properties>
          <build>
             <plugins>
-               <plugin>
+              <plugin>
+                  <artifactId>maven-resources-plugin</artifactId>
+                  <version>2.6</version>
+                  <executions>
+                      <execution>
+                          <id>copy-wsdl-xsd-artifacts</id>
+                          <phase>process-sources</phase>
+                          <goals>
+                              <goal>copy-resources</goal>
+                          </goals>
+                          <configuration>
+                              <outputDirectory>${wsdl.codegen.dir}</outputDirectory>
+                              <encoding>UTF-8</encoding>
+                              <overwrite>true</overwrite>
+                              <resources>
+                                  <resource>
+                                      <directory>${wsdl.dir}</directory>
+                                      <includes>
+                                          <include>*.xsd</include>
+                                          <include>*.wsdl</include>
+                                          <include>*-binding.xml</include>
+                                      </includes>
+                                  </resource>
+                              </resources>
+                          </configuration>
+                      </execution>
+                  </executions>
+              </plugin>
+              <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>jaxb2-maven-plugin</artifactId>
                   <version>1.6</version>
@@ -355,12 +384,12 @@
                            <goal>xjc</goal>
                         </goals>
                         <configuration>
-                           <schemaDirectory>${wsdl.dir}</schemaDirectory>
+                           <schemaDirectory>${wsdl.codegen.dir}</schemaDirectory>
                            <schemaFiles>StardustBpmTypes.xsd</schemaFiles>
                            <extension>true</extension>
-                           <bindingDirectory>${wsdl.dir}</bindingDirectory>
+                           <bindingDirectory>${wsdl.codegen.dir}</bindingDirectory>
                            <bindingFiles>StardustBpmTypes-binding.xml</bindingFiles>
-                           <arguments>-no-header -episode ${wsdl.dir}/StardustBpmTypes-episode.xml</arguments>
+                           <arguments>-no-header -episode ${wsdl.codegen.dir}/StardustBpmTypes-episode.xml</arguments>
                            <packageName>org.eclipse.stardust.engine.api.ws</packageName>
                            <clearOutputDir>false</clearOutputDir>
                         </configuration>
@@ -372,12 +401,12 @@
                            <goal>xjc</goal>
                         </goals>
                         <configuration>
-                           <schemaDirectory>${wsdl.dir}</schemaDirectory>
+                           <schemaDirectory>${wsdl.codegen.dir}</schemaDirectory>
                            <schemaFiles>StardustBpmQueryTypes.xsd</schemaFiles>
                            <extension>true</extension>
-                           <bindingDirectory>${wsdl.dir}</bindingDirectory>
+                           <bindingDirectory>${wsdl.codegen.dir}</bindingDirectory>
                            <bindingFiles>StardustBpmTypes-episode.xml,StardustBpmQueryTypes-binding.xml</bindingFiles>
-                           <arguments>-no-header -episode ${wsdl.dir}/StardustBpmQueryTypes-episode.xml</arguments>
+                           <arguments>-no-header -episode ${wsdl.codegen.dir}/StardustBpmQueryTypes-episode.xml</arguments>
                            <packageName>org.eclipse.stardust.engine.api.ws.query</packageName>
                            <clearOutputDir>false</clearOutputDir>
                         </configuration>
@@ -399,11 +428,11 @@
                            <sourceRoot>${basedir}/src/main/java</sourceRoot>
                            <wsdlOptions>
                               <wsdlOption>
-                                 <wsdl>${wsdl.dir}/StardustBpmService.wsdl</wsdl>
+                                 <wsdl>${wsdl.codegen.dir}/StardustBpmService.wsdl</wsdl>
                                  <bindingFiles>
-                                    <bindingFile>${wsdl.dir}/StardustBpmService-binding.xml</bindingFile>
-                                    <bindingFile>${wsdl.dir}/StardustBpmTypes-binding.xml</bindingFile>
-                                    <bindingFile>${wsdl.dir}/StardustBpmQueryTypes-episode.xml</bindingFile>
+                                    <bindingFile>${wsdl.codegen.dir}/StardustBpmService-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.codegen.dir}/StardustBpmTypes-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.codegen.dir}/StardustBpmQueryTypes-episode.xml</bindingFile>
                                  </bindingFiles>
                                  <extraargs>
                                     <extraarg>-verbose</extraarg>
@@ -424,10 +453,10 @@
                            <sourceRoot>${basedir}/src/main/java</sourceRoot>
                            <wsdlOptions>
                               <wsdlOption>
-                                 <wsdl>${wsdl.dir}/StardustBpmInteractionsService.wsdl</wsdl>
+                                 <wsdl>${wsdl.codegen.dir}/StardustBpmInteractionsService.wsdl</wsdl>
                                  <bindingFiles>
-                                    <bindingFile>${wsdl.dir}/StardustBpmInteractionsService-binding.xml</bindingFile>
-                                    <bindingFile>${wsdl.dir}/StardustBpmTypes-episode.xml</bindingFile>
+                                    <bindingFile>${wsdl.codegen.dir}/StardustBpmInteractionsService-binding.xml</bindingFile>
+                                    <bindingFile>${wsdl.codegen.dir}/StardustBpmTypes-episode.xml</bindingFile>
                                  </bindingFiles>
                                  <extraargs>
                                     <extraarg>-verbose</extraarg>

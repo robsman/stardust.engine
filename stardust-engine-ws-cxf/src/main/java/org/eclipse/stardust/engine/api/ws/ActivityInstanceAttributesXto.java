@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- * 				This class contains attributes for an activity instance. 
+ * 				This class contains attributes for an activity instance.
  * 			
  * 
  * <p>Java class for ActivityInstanceAttributes complex type.

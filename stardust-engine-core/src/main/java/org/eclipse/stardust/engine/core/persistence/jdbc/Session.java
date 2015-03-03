@@ -1231,7 +1231,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       Map cache = (Map) objCacheRegistry.get(type);
       if (null == cache)
       {
-         cache = new TreeMap(SESSION_CACHE_COMPARATOR);
+         cache = Collections.synchronizedMap(new TreeMap(SESSION_CACHE_COMPARATOR));
 
          // check if a saved session is being reused (archiver)
          // then, the empty maps set in fastCloseAndClearPersistenceControllers
@@ -1268,7 +1268,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       Map cache = (Map) deadObjCacheRegistry.get(type);
       if (null == cache)
       {
-         cache = new TreeMap();
+         cache = Collections.synchronizedMap(new TreeMap());
 
          // check if a saved session is being reused (archiver)
          // then, the empty maps set in fastCloseAndClearPersistenceControllers

@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,15 +62,7 @@ public abstract class AbstractTransientProcessInstanceSupport
          return new NoOpTransientProcessInstanceSupport();
       }
 
-      final Set<Long> rootPis = determineRootProcessInstances(pis.values());
-      if (rootPis.size() == 1)
-      {
-         return new UniqueRootPiTransientProcessInstanceSupport(rootPis.iterator().next(), pis, ais);
-      }
-      else
-      {
-         return new MultipleRootPisTransientProcessInstanceSupport(rootPis, pis, ais);
-      }
+      return newInstanceBasedOnRootProcessInstances(pis, ais);
    }
 
    /**
@@ -212,21 +203,34 @@ public abstract class AbstractTransientProcessInstanceSupport
       blobReader.close();
    }
 
-   private static Set<Long> determineRootProcessInstances(final Collection<PersistenceController> pis)
+   private static AbstractTransientProcessInstanceSupport newInstanceBasedOnRootProcessInstances(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
-      final Set<Long> result = newHashSet();
+      final Set<Long> rootPis = newHashSet();
 
-      for (final PersistenceController pc : pis)
+      for (final PersistenceController pc : pis.values())
       {
+         if ( !pc.isCreated())
+         {
+            return new NoOpTransientProcessInstanceSupport();
+         }
+         /* for PIs in state 'CREATED' the corresponding root PI is already in the session cache, that means */
+         /* a) this operation isn't costly b) this operation does NOT modify the session cache               */
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
-         result.add(Long.valueOf(rootPi.getOID()));
+         rootPis.add(Long.valueOf(rootPi.getOID()));
       }
 
-      if (result.isEmpty())
+      if (rootPis.isEmpty())
       {
          throw new IllegalStateException("Root process instance could not be determined.");
       }
 
-      return result;
+      if (rootPis.size() == 1)
+      {
+         return new UniqueRootPiTransientProcessInstanceSupport(rootPis.iterator().next(), pis, ais);
+      }
+      else
+      {
+         return new MultipleRootPisTransientProcessInstanceSupport(rootPis, pis, ais);
+      }
    }
 }

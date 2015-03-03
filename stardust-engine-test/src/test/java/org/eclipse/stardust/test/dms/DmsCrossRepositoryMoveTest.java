@@ -216,4 +216,70 @@ public class DmsCrossRepositoryMoveTest
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), null)));
    }
 
+   @Test
+   public void testSameRepositoryMoveFromLegacyToSystem() throws InterruptedException
+   {
+        Document doc = getDms().createDocument("/", DmsUtils.createDocumentInfo("test.txt"));
+         getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", SYSTEM_REPO_ID), DmsUtils.createFolderInfo("test"));
+
+         Assert.assertNotNull(getDms().getDocument(doc.getId()));
+         Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), TEST_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+
+         // move from "/" using legacyId to "/test" via prefixedId.
+         Folder targetFolder = getDms().getFolder(RepositoryIdUtils.addRepositoryId("/test", SYSTEM_REPO_ID));
+         Document movedDoc = getDms().moveDocument(RepositoryIdUtils.stripRepositoryId(doc.getId()), targetFolder.getId());
+
+         Assert.assertNotNull(getDms().getDocument(doc.getId()));
+         Assert.assertEquals(SYSTEM_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc.getId()));
+         Assert.assertNotNull(getDms().getDocument(movedDoc.getId()));
+         Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), TEST_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), SYSTEM_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), null)));
+
+         // move from "/test" using legacyId to "/" via prefixedId.
+         Folder targetFolder2 = getDms().getFolder(RepositoryIdUtils.addRepositoryId("/", SYSTEM_REPO_ID));
+         Document movedDoc2 = getDms().moveDocument(RepositoryIdUtils.stripRepositoryId(movedDoc.getId()), targetFolder2.getId());
+
+         Assert.assertNotNull(getDms().getDocument(movedDoc.getId()));
+         Assert.assertEquals(SYSTEM_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc2.getId()));
+         Assert.assertNotNull(getDms().getDocument(movedDoc2.getId()));
+         Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), TEST_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), SYSTEM_REPO_ID)));
+         Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), null)));
+   }
+
+   @Test
+   public void testSameRepositoryMoveFromSystemToLegacyPath() throws InterruptedException
+   {
+      Document doc = getDms().createDocument("/", DmsUtils.createDocumentInfo("test.txt"));
+      getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", SYSTEM_REPO_ID), DmsUtils.createFolderInfo("test"));
+
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), TEST_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+
+      // move from "/" to "/test" via path.
+      Document movedDoc = getDms().moveDocument(doc.getId(), "/test");
+
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertEquals(SYSTEM_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc.getId()));
+      Assert.assertNotNull(getDms().getDocument(movedDoc.getId()));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), TEST_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc.getId(), null)));
+
+      // move from "/test" to "/" via path.
+      Document movedDoc2 = getDms().moveDocument(movedDoc.getId(), "/");
+
+      Assert.assertNotNull(getDms().getDocument(movedDoc.getId()));
+      Assert.assertEquals(SYSTEM_REPO_ID, RepositoryIdUtils.extractRepositoryId(movedDoc2.getId()));
+      Assert.assertNotNull(getDms().getDocument(movedDoc2.getId()));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), TEST_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), SYSTEM_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(movedDoc2.getId(), null)));
+   }
+
 }

@@ -39,4 +39,6 @@ public interface IArchive
     */
    public String getArchiveManagerId();
 
+   public boolean isDump();
+
 }

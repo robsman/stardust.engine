@@ -1,25 +1,26 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.query.FilterAndTerm;
-import org.eclipse.stardust.engine.api.query.FilterOrTerm;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementPurger;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementsVisitor;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -51,8 +52,8 @@ public class ExportProcessesCommand implements ServiceCommand
    private static final Logger LOGGER = LogManager
          .getLogger(ExportProcessesCommand.class);
 
-   private static final List<ProcessInstanceState> EXPORT_STATES = Arrays.asList(
-         ProcessInstanceState.Completed, ProcessInstanceState.Aborted);
+   private static final int[] EXPORT_STATES = new int[] {
+      ProcessInstanceState.COMPLETED, ProcessInstanceState.ABORTED};
 
    private final Collection<Long> processInstanceOids;
 
@@ -67,10 +68,12 @@ public class ExportProcessesCommand implements ServiceCommand
    private ExportResult exportResult;
 
    private final Operation operation;
+   
+   private final boolean dumpData;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, ExportResult exportResult)
+         Date toDate, ExportResult exportResult, boolean dumpData)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -79,6 +82,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.fromDate = fromDate;
       this.toDate = toDate;
       this.exportResult = exportResult;
+      this.dumpData = dumpData;
    }
 
    /**
@@ -91,18 +95,18 @@ public class ExportProcessesCommand implements ServiceCommand
     *           Oids of process instances to export
     */
    public ExportProcessesCommand(Operation operation, List<Integer> modelOids,
-         Collection<Long> processInstanceOids)
+         Collection<Long> processInstanceOids, boolean dumpData)
    {
-      this(operation, null, modelOids, processInstanceOids, null, null, null);
+      this(operation, null, modelOids, processInstanceOids, null, null, null, dumpData);
    }
 
    /**
     * Use this constructor to export all processInstances
     */
-   public ExportProcessesCommand(Operation operation)
+   public ExportProcessesCommand(Operation operation, boolean dumpData)
    {
 
-      this(operation, null, null, null, null, null, null);
+      this(operation, null, null, null, null, null, null, dumpData);
    }
 
    /**
@@ -115,30 +119,32 @@ public class ExportProcessesCommand implements ServiceCommand
     * @param toDate
     *           includes processes with a termination time less or equal than toDate
     */
-   public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate)
+   public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate, boolean dumpData)
    {
 
-      this(operation, null, null, null, fromDate, toDate, null);
+      this(operation, null, null, null, fromDate, toDate, null, dumpData);
    }
 
    /**
     * Use this constructor to export all processInstances or models for given
-    * exportMetaData
+    * exportMetaData. Set dumpOnly to true if they should not be marked as exported by receiving a unique id
+    * 
+    * 
     */
-   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData)
+   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData, boolean dumpData)
    {
 
-      this(operation, exportMetaData, null, null, null, null, null);
+      this(operation, exportMetaData, null, null, null, null, null, dumpData);
    }
 
    /**
     * Use this constructor to archive or purge all processInstances for given
     * exportResults
     */
-   public ExportProcessesCommand(Operation operation, ExportResult exportResult)
+   public ExportProcessesCommand(Operation operation, ExportResult exportResult, boolean dumpData)
    {
 
-      this(operation, null, null, null, null, null, exportResult);
+      this(operation, null, null, null, null, null, exportResult, dumpData);
    }
 
    @Override
@@ -190,20 +196,19 @@ public class ExportProcessesCommand implements ServiceCommand
       int result;
       if (exportResult != null)
       {
-         if (CollectionUtils.isNotEmpty(exportResult.getAllProcessIds()))
+         if (CollectionUtils.isNotEmpty(exportResult.getPurgeProcessIds()))
          {
             if (LOGGER.isDebugEnabled())
             {
-               LOGGER.debug("Purging " + exportResult.getAllProcessIds().size() + " processInstances");
+               LOGGER.debug("Purging " + exportResult.getPurgeProcessIds().size()
+                     + " processInstances");
             }
-            if (exportResult == null)
-            {
-               exportResult = new ExportResult();
-            }
-            ProcessElementPurger purger = new ProcessElementPurger();;
+            ProcessElementPurger purger = new ProcessElementPurger();
+            ;
             ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(purger);
             // purge processInstances
-            result = processVisitor.visitProcessInstances(exportResult.getAllProcessIds(), session);
+            result = processVisitor.visitProcessInstances(
+                  exportResult.getPurgeProcessIds(), session);
             if (LOGGER.isDebugEnabled())
             {
                LOGGER.debug("Exporting complete.");
@@ -262,7 +267,8 @@ public class ExportProcessesCommand implements ServiceCommand
                ExportIndex exportIndex = exportResult.getExportIndex(date);
                if (success)
                {
-                  success = archiveManager.addIndex(key, ExportImportSupport.getGson().toJson(exportIndex));
+                  success = archiveManager.addIndex(key, ExportImportSupport.getGson()
+                        .toJson(exportIndex));
                   if (!success)
                   {
                      break dateloop;
@@ -284,7 +290,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void exportBatch(Session session)
    {
-      List<Long> allIds = exportMetaData.getAllProcessInstanceOids();
+      List<Long> allIds = exportMetaData.getAllProcessesForExport(dumpData);
       if (CollectionUtils.isNotEmpty(allIds))
       {
          if (LOGGER.isDebugEnabled())
@@ -293,9 +299,9 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          if (exportResult == null)
          {
-            exportResult = new ExportResult();
+            exportResult = new ExportResult(dumpData);
          }
-         ProcessElementExporter exporter = new ProcessElementExporter(exportResult);
+         ProcessElementExporter exporter = new ProcessElementExporter(exportResult, !dumpData);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
@@ -310,8 +316,17 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             LOGGER.debug("No processInstanceOids provided for export");
          }
+         if (exportResult == null)
+         {
+            exportResult = new ExportResult(dumpData);
+         }
       }
-
+      exportResult.getPurgeProcessIds().clear();
+      if (allIds != null)
+      {
+         exportResult.getPurgeProcessIds().addAll(allIds);
+      }
+      exportResult.getPurgeProcessIds().addAll(exportMetaData.getBackedUpProcesses());
    }
 
    private void exportModels(Session session)
@@ -327,7 +342,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       if (exportResult == null)
       {
-         exportResult = new ExportResult();
+         exportResult = new ExportResult(dumpData);
       }
       exportResult.setModelData(model);
    }
@@ -338,8 +353,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
       QueryService queryService = sf.getQueryService();
       exportMetaData = new ExportMetaData();
-      boolean hasModelOidsParameter = CollectionUtils.isNotEmpty(modelOids);
-      if (!hasModelOidsParameter)
+      if (CollectionUtils.isEmpty(modelOids))
       {
          if (modelOids == null)
          {
@@ -347,19 +361,7 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          modelOids.addAll(ExportImportSupport.getActiveModelOids());
       }
-
-      if (CollectionUtils.isNotEmpty(processInstanceOids) || hasModelOidsParameter)
-      {
-         findExportInstancesByOids(queryService);
-      }
-      else if (fromDate != null && toDate != null)
-      {
-         findExportInstancesByDate(queryService);
-      }
-      else
-      {
-         findExportInstancesAll(queryService);
-      }
+      findExportInstances(queryService);
    }
 
    private void queryAndExport(Session session, ServiceFactory sf)
@@ -371,7 +373,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       else
       {
-         exportResult = new ExportResult();
+         exportResult = new ExportResult(dumpData);
       }
       if (exportResult.hasModelData())
       {
@@ -379,98 +381,104 @@ public class ExportProcessesCommand implements ServiceCommand
       }
    }
 
-   private void findExportInstancesByDate(QueryService queryService)
+   private void processQueryResults(QueryDescriptor query)
    {
-
-      ProcessInstanceQuery query = new ProcessInstanceQuery();
-      FilterAndTerm andTerm = query.getFilter().addAndTerm();
-      andTerm
-            .and(ProcessInstanceQuery.START_TIME.greaterOrEqual(this.fromDate.getTime()));
-      andTerm
-            .and(ProcessInstanceQuery.TERMINATION_TIME.lessOrEqual(this.toDate.getTime()));
-      ProcessInstances processes = queryService.getAllProcessInstances(query);
-      if (processes != null)
+      ResultSet rs = ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL))
+            .executeQuery(query);
+      try
       {
-         for (ProcessInstance process : processes)
+         while (rs.next())
          {
-            if (process != null && modelOids.contains(process.getModelOID()))
+            Long oid = rs.getBigDecimal(ProcessInstanceBean.FIELD__OID).longValue();
+            Integer modelOid = rs.getBigDecimal(ProcessInstanceBean.FIELD__MODEL)
+                  .intValue();
+            Long rootOid = rs.getBigDecimal(
+                  ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE).longValue();
+            Date startDate = new Date(rs.getBigDecimal(
+                  ProcessInstanceBean.FIELD__START_TIME).longValue());
+            String uuid = rs.getString(ProcessInstanceProperty.FIELD__STRING_VALUE);
+            boolean exported = ExportImportSupport.getUUID(oid, startDate).equals(uuid);
+            if (exported)
             {
-               exportMetaData.addProcess(process);
+               exportMetaData.addProcess(oid, startDate, rootOid, modelOid, uuid);
+            }
+            else
+            {
+               exportMetaData.addProcess(oid, startDate, rootOid, modelOid, null);
             }
          }
       }
-   }
-
-   private void findExportInstancesAll(QueryService queryService)
-   {
-      ProcessInstanceQuery query = ProcessInstanceQuery
-            .findInState(new ProcessInstanceState[] {
-                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
-      ProcessInstances processes = queryService.getAllProcessInstances(query);
-      if (processes != null)
+      catch (SQLException e)
       {
-         for (ProcessInstance process : processes)
-         {
-            if (process != null && modelOids.contains(process.getModelOID()))
-            {
-               exportMetaData.addProcess(process);
-            }
-         }
+         throw new IllegalStateException("Can't find process instance to export", e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rs);
       }
    }
 
-   private void findExportInstancesByOids(QueryService queryService)
+   private QueryDescriptor getBaseQuery()
+   {
+      QueryDescriptor query = QueryDescriptor.from(ProcessInstanceBean.class).select(
+            new Column[] {
+                  ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__MODEL,
+                  ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
+                  ProcessInstanceBean.FR__START_TIME,
+                  ProcessInstanceProperty.FR__STRING_VALUE});
+
+      query.leftOuterJoin(ProcessInstanceProperty.class, "pip")
+            .on(ProcessInstanceBean.FR__OID, ProcessInstanceProperty.FIELD__OBJECT_OID)
+            .andOnConstant(ProcessInstanceProperty.FR__NAME,
+                  "'" + ProcessElementExporter.EXPORT_PROCESS_ID + "'");
+
+      return query;
+   }
+
+   private void findExportInstances(QueryService queryService)
    {
       if (LOGGER.isDebugEnabled())
       {
          LOGGER.debug("Received " + processInstanceOids.size() + " oids to export");
          LOGGER.debug("Received " + modelOids.size() + " modelIds to export");
       }
-      ProcessInstanceQuery query = new ProcessInstanceQuery();
+
+      QueryDescriptor query = getBaseQuery();
+      
+      ComparisonTerm processStateRestriction = Predicates.inList(
+            ProcessInstanceBean.FR__STATE, EXPORT_STATES);
+      ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
+            modelOids);
+      
+      // TODO add restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE: 
+      // (not like currentArchiveId_processId_starttime in long) or is null 
+      // currently dont know how to add such complex like condition
+      AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction);
+      
+      
       if (CollectionUtils.isNotEmpty(processInstanceOids))
       {
-         FilterOrTerm orTerm;
-         orTerm = query.getFilter().addOrTerm();
-         for (Long oid : processInstanceOids)
-         {
-            if (oid != null)
-            {
-               // check that the oid is valid. if it is valid add it to export, further if
-               // it has any subprocesses add them to the export as well
-               orTerm.or(ProcessInstanceQuery.ROOT_PROCESS_INSTANCE_OID.isEqual(oid));
-            }
-         }
+         ComparisonTerm oidTerm = new ComparisonTerm(ProcessInstanceBean.FR__OID,
+               Operator.IN, processInstanceOids);
+         ComparisonTerm rootOidTerm = new ComparisonTerm(
+               ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, Operator.IN,
+               processInstanceOids);
+         OrTerm processRestriction = Predicates.orTerm(oidTerm, rootOidTerm);
+         whereTerm.add(processRestriction);
       }
-
-      ProcessInstances processes = queryService.getAllProcessInstances(query);
-      if (processes != null)
+      if (fromDate != null && toDate != null)
       {
-         for (ProcessInstance process : processes)
-         {
-            if (EXPORT_STATES.contains(process.getState())
-                  && modelOids.contains(process.getModelOID()))
-            {
-               exportMetaData.addProcess(process);
-               if (LOGGER.isDebugEnabled())
-               {
-                  if (process.getOID() != process.getRootProcessInstanceOID())
-                  {
-                     LOGGER.debug("Adding process with oid " + process.getOID()
-                           + " to export");
-                  }
-               }
-            }
-            else
-            {
-               if (LOGGER.isInfoEnabled())
-               {
-                  LOGGER.info("Process with oid " + process.getOID()
-                        + " can't be exported as it is not in one in state: "
-                        + EXPORT_STATES);
-               }
-            }
-         }
+         AndTerm dateRestriction = Predicates.andTerm(
+               Predicates.greaterOrEqual(ProcessInstanceBean.FR__START_TIME,
+                     this.fromDate.getTime()),
+               Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME,
+                     this.toDate.getTime()));
+         whereTerm.add(dateRestriction);
       }
+      query.where(whereTerm);
+      // order by start time since root processes must be first
+      query.orderBy(ProcessInstanceBean.FR__START_TIME, ProcessInstanceBean.FR__OID);
+      processQueryResults(query);
    }
 
    private void validateDates()
@@ -528,29 +536,30 @@ public class ExportProcessesCommand implements ServiceCommand
        */
       ARCHIVE;
    };
-
+   
    public static class ExportMetaData implements Serializable
    {
       private static final long serialVersionUID = 1L;
 
-      private final HashMap<Long, ArrayList<Long>> uniqueOids;
-      
-      private final Map<Date,  List<Long>> dateToRootPIOids;
+      private final HashMap<ExportProcess, ArrayList<ExportProcess>> rootToSubProcesses;
 
-      private final Map<Date,  List<Integer>> dateToModelOids;
+      private final Map<Date, List<ExportProcess>> dateToRootPIOids;
+
+      private final Map<Date, List<Integer>> dateToModelOids;
 
       public ExportMetaData()
       {
          this.dateToModelOids = new HashMap<Date, List<Integer>>();
-         this.uniqueOids = new HashMap<Long, ArrayList<Long>>();
-         this.dateToRootPIOids = new HashMap<Date, List<Long>>();
+         this.rootToSubProcesses = new HashMap<ExportProcess, ArrayList<ExportProcess>>();
+         this.dateToRootPIOids = new HashMap<Date, List<ExportProcess>>();
       }
 
-      public ExportMetaData(Map<Date,  List<Integer>> dateToModelOids,
-            HashMap<Long, ArrayList<Long>> uniqueOids,  Map<Date, List<Long>> dateToRootProcessInstanceOids)
+      public ExportMetaData(Map<Date, List<Integer>> dateToModelOids,
+            HashMap<ExportProcess, ArrayList<ExportProcess>> rootToSubProcesses,
+            Map<Date, List<ExportProcess>> dateToRootProcessInstanceOids)
       {
          this.dateToModelOids = dateToModelOids;
-         this.uniqueOids = uniqueOids;
+         this.rootToSubProcesses = rootToSubProcesses;
          this.dateToRootPIOids = dateToRootProcessInstanceOids;
       }
 
@@ -558,11 +567,12 @@ public class ExportProcessesCommand implements ServiceCommand
        * Returns map of processInstanceOids with keyset being rootProcessInstanceOids and
        * values are corresponding subprocess's processInstanceOids
        * 
+       * 
        * @return
        */
-      public HashMap<Long, ArrayList<Long>> getMappedProcessInstances()
+      public HashMap<ExportProcess, ArrayList<ExportProcess>> getRootToSubProcessInstances()
       {
-         return uniqueOids;
+         return rootToSubProcesses;
       }
 
       /**
@@ -572,13 +582,13 @@ public class ExportProcessesCommand implements ServiceCommand
        */
       public List<Integer> getModelOids(Date date)
       {
-         if(date == null)
+         if (date == null)
          {
             throw new IllegalArgumentException("Invalid date provided");
          }
          return dateToModelOids.get(date);
       }
-      
+
       public Set<Integer> getModelOids()
       {
          HashSet<Integer> result = new HashSet<Integer>();
@@ -591,39 +601,66 @@ public class ExportProcessesCommand implements ServiceCommand
 
       public boolean hasExportOids()
       {
-         return uniqueOids != null && CollectionUtils.isNotEmpty(uniqueOids.keySet());
+         return rootToSubProcesses != null && CollectionUtils.isNotEmpty(rootToSubProcesses.keySet());
       }
 
       /**
        * 
        * @return list of root processInstanceOids
        */
-      public Collection<Long> getRootProcessInstanceOids()
+      public Collection<ExportProcess> getRootProcesses()
       {
-         Set<Long> allIds;
-         if (uniqueOids != null)
+         Set<ExportProcess> allIds;
+         if (rootToSubProcesses != null)
          {
-            allIds = uniqueOids.keySet();
+            allIds = rootToSubProcesses.keySet();
          }
          else
          {
-            allIds = new HashSet<Long>();
+            allIds = new HashSet<ExportProcess>();
          }
          return allIds;
       }
 
       /**
+       * @param dumpData 
        * @return Combined list of processInstanceOids for root processes and subprocesses
        */
-      public List<Long> getAllProcessInstanceOids()
+      public List<Long> getAllProcessesForExport(boolean dumpData)
       {
          List<Long> allIds = new ArrayList<Long>();
-         if (uniqueOids != null)
+         if (rootToSubProcesses != null)
          {
-            for (Long key : uniqueOids.keySet())
+            for (ExportProcess key : rootToSubProcesses.keySet())
             {
-               allIds.add(key);
-               allIds.addAll(uniqueOids.get(key));
+               if (key.getUuid() == null || dumpData)
+               {
+                  allIds.add(key.getOid());
+                  for (ExportProcess subProcess : rootToSubProcesses.get(key))
+                  {
+                     allIds.add(subProcess.getOid());
+                  }
+               }
+            }
+         }
+         return allIds;
+      }
+
+      public List<Long> getBackedUpProcesses()
+      {
+         List<Long> allIds = new ArrayList<Long>();
+         if (rootToSubProcesses != null)
+         {
+            for (ExportProcess key : rootToSubProcesses.keySet())
+            {
+               if (key.getUuid() != null)
+               {
+                  allIds.add(key.getOid());
+                  for (ExportProcess subProcess : rootToSubProcesses.get(key))
+                  {
+                     allIds.add(subProcess.getOid());
+                  }
+               }
             }
          }
          return allIds;
@@ -633,10 +670,10 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          return dateToRootPIOids.keySet();
       }
-      
-      public List<Long> getRootProcessesForDate(Date date)
+
+      public List<ExportProcess> getRootProcessesForDate(Date date)
       {
-         if(date == null)
+         if (date == null)
          {
             throw new IllegalArgumentException("Invalid date provided");
          }
@@ -644,35 +681,50 @@ public class ExportProcessesCommand implements ServiceCommand
          return dateToRootPIOids.get(indexDateTime);
       }
 
-      public void addProcess(ProcessInstance process)
+      public void addProcess(Long oid, Date startTime, Long rootProcessOid,
+            Integer modelOid, String uuid)
       {
-         Date indexDateTime = ExportImportSupport.getIndexDateTime(process.getStartTime());
-         if (process.getRootProcessInstanceOID() == process.getOID())
+         Date indexDateTime = ExportImportSupport.getIndexDateTime(startTime);
+         ExportProcess process = new ExportProcess(oid, uuid);
+         if (rootProcessOid.equals(oid))
          {
-            if (!uniqueOids.keySet().contains(process.getOID()))
+            ArrayList<ExportProcess> subProcesses = rootToSubProcesses.get(process);
+            if (subProcesses == null)
             {
-               uniqueOids.put(process.getOID(), new ArrayList<Long>());
+               rootToSubProcesses.put(process, new ArrayList<ExportProcess>());
             }
-            List<Long> piOids = dateToRootPIOids.get(indexDateTime);
+            List<ExportProcess> piOids = dateToRootPIOids.get(indexDateTime);
             if (piOids == null)
             {
-               piOids = new ArrayList<Long>();
+               piOids = new ArrayList<ExportProcess>();
                dateToRootPIOids.put(indexDateTime, piOids);
             }
-            piOids.add(process.getOID());
+            piOids.add(process);
          }
          else
          {
-            ArrayList<Long> siblingList = uniqueOids.get(process
-                  .getRootProcessInstanceOID());
+            ExportProcess rootProcess = null;
+            for (ExportProcess exportProcess: rootToSubProcesses.keySet())
+            {
+               if (exportProcess.getOid() == rootProcessOid)
+               {
+                  rootProcess = exportProcess;
+                  break;
+               }
+            }
+            if (rootProcess == null)
+            {
+               throw new IllegalStateException("Root processes not yet added");
+            }
+            ArrayList<ExportProcess> siblingList = rootToSubProcesses.get(rootProcess);
             if (siblingList == null)
             {
-               siblingList = new ArrayList<Long>();
-               uniqueOids.put(process.getRootProcessInstanceOID(), siblingList);
+               siblingList = new ArrayList<ExportProcess>();
+               rootToSubProcesses.put(rootProcess, siblingList);
             }
-            if (!siblingList.contains(process.getOID()))
+            if (!siblingList.contains(process))
             {
-               siblingList.add(process.getOID());
+               siblingList.add(process);
             }
          }
          List<Integer> modelOids = dateToModelOids.get(indexDateTime);
@@ -681,7 +733,7 @@ public class ExportProcessesCommand implements ServiceCommand
             modelOids = new ArrayList<Integer>();
             dateToModelOids.put(indexDateTime, modelOids);
          }
-         modelOids.add(process.getModelOID());
+         modelOids.add(modelOid);
       }
 
    }

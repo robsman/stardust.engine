@@ -19,22 +19,24 @@ public class ExportIndex implements Serializable
    @Expose
    private String archiveManagerId;
 
+   @Expose
+   private boolean isDump;
+
    public ExportIndex()
    {
-      this.processes = new HashMap<ExportProcess, List<ExportProcess>>();
    }
 
-   public ExportIndex(String archiveManagerId)
+   public ExportIndex(String archiveManagerId, boolean isDump)
    {
-      this.archiveManagerId = archiveManagerId;
-      this.processes = new HashMap<ExportProcess, List<ExportProcess>>();
+      this(archiveManagerId, new HashMap<ExportProcess, List<ExportProcess>>(), isDump);
    }
 
    public ExportIndex(String archiveManagerId, 
-         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses)
+         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses, boolean isDump)
    {
       this.archiveManagerId = archiveManagerId;
       this.processes = rootProcessToSubProcesses;
+      this.isDump = isDump;
    }
 
    public boolean contains(Long processInstanceOid)
@@ -77,6 +79,11 @@ public class ExportIndex implements Serializable
    public void setArchiveManagerId(String archiveManagerId)
    {
       this.archiveManagerId = archiveManagerId;
+   }
+
+   public boolean isDump()
+   {
+      return isDump;
    }
 
 }

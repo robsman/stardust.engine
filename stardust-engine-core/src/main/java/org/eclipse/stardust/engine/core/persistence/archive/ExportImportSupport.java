@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
@@ -49,6 +50,23 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
+
+   public static String getUUID(IProcessInstance processInstance)
+   {
+      return getUUID(processInstance.getOID(), processInstance.getStartTime());
+   }
+
+   public static String getUUID(ProcessInstance processInstance)
+   {
+      return getUUID(processInstance.getOID(), processInstance.getStartTime());
+   }
+   
+   public static String getUUID(Long oid, Date startDate)
+   {
+      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid
+            + "_" + startDate.getTime();
+      return uuid;
+   }
 
    public static Gson getGson()
    {
@@ -106,19 +124,19 @@ public class ExportImportSupport
       Set<Date> indexDates = exportMetaData.getIndexDates();
       for (Date date : indexDates)
       {
-         List<Long> processesForDate = exportMetaData.getRootProcessesForDate(date);
+         List<ExportProcess> processesForDate = exportMetaData.getRootProcessesForDate(date);
          if (processesForDate.size() > size)
          {
-            List<List<Long>> batches = partition(processesForDate, size);
-            for (List<Long> batch : batches)
+            List<List<ExportProcess>> batches = partition(processesForDate, size);
+            for (List<ExportProcess> batch : batches)
             {
-               HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
-               for (Long key : batch)
+               HashMap<ExportProcess, ArrayList<ExportProcess>> processesToSubprocesses = new HashMap<ExportProcess, ArrayList<ExportProcess>>();
+               for (ExportProcess key : batch)
                {
                   processesToSubprocesses.put(key, exportMetaData
-                        .getMappedProcessInstances().get(key));
+                        .getRootToSubProcessInstances().get(key));
                }
-               Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
+               Map<Date, List<ExportProcess>> dateToRootPiOids = new HashMap<Date, List<ExportProcess>>();
                Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
                dateToRootPiOids.put(date, batch);
                dateToModelOids.put(date, exportMetaData.getModelOids(date));
@@ -128,13 +146,13 @@ public class ExportImportSupport
          }
          else
          {
-            HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
-            for (Long key : processesForDate)
+            HashMap<ExportProcess, ArrayList<ExportProcess>> processesToSubprocesses = new HashMap<ExportProcess, ArrayList<ExportProcess>>();
+            for (ExportProcess key : processesForDate)
             {
                processesToSubprocesses.put(key, exportMetaData
-                     .getMappedProcessInstances().get(key));
+                     .getRootToSubProcessInstances().get(key));
             }
-            Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
+            Map<Date, List<ExportProcess>> dateToRootPiOids = new HashMap<Date, List<ExportProcess>>();
             Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
             dateToRootPiOids.put(date, processesForDate);
             dateToModelOids.put(date, exportMetaData.getModelOids(date));
@@ -151,6 +169,7 @@ public class ExportImportSupport
       ExportResult exportResult;
       if (CollectionUtils.isNotEmpty(exportResults))
       {
+         Set<Long> purgeProcessIds = new HashSet<Long>();
          Set<Date> uniqueDates = new HashSet<Date>();
          for (ExportResult result : exportResults)
          {
@@ -160,12 +179,14 @@ public class ExportImportSupport
                continue;
             }
             uniqueDates.addAll(result.getDates());
+            purgeProcessIds.addAll(result.getPurgeProcessIds());
          }
          HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
          String archiveManagerId = null;
+         boolean isDump = false;
          dateloop: for (Date date : uniqueDates)
          {
             for (ExportResult export : exportResults)
@@ -174,13 +195,10 @@ public class ExportImportSupport
                if (exportIndex != null)
                {
                   archiveManagerId = exportIndex.getArchiveManagerId();
+                  isDump = exportIndex.isDump();
                   break dateloop;
                }
             }
-         }
-         if (archiveManagerId == null)
-         {
-            throw new IllegalArgumentException("No valid Archive Manager Id in export results");
          }
          for (Date date : uniqueDates)
          {
@@ -189,7 +207,7 @@ public class ExportImportSupport
             if (allData == null)
             {
                allData = new byte[] {};
-               index = new ExportIndex(archiveManagerId);
+               index = new ExportIndex(archiveManagerId, isDump);
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
@@ -207,7 +225,7 @@ public class ExportImportSupport
                   resultsByDate.put(date, allData);
 
                   List<Long> processInstanceOids = processInstanceOidsByDate.get(date);
-                  List<Integer> processLengths= processLengthsByDate.get(date);
+                  List<Integer> processLengths = processLengthsByDate.get(date);
                   if (processInstanceOids == null)
                   {
                      processInstanceOids = new ArrayList<Long>();
@@ -215,7 +233,7 @@ public class ExportImportSupport
                      processInstanceOidsByDate.put(date, processInstanceOids);
                      processLengthsByDate.put(date, processLengths);
                   }
-                  
+
                   processInstanceOids.addAll(result.getProcessInstanceOids(date));
                   processLengths.addAll(result.getProcessLengths(date));
                   index.getRootProcessToSubProcesses().putAll(
@@ -228,7 +246,7 @@ public class ExportImportSupport
             }
          }
          exportResult = new ExportResult(modelData, resultsByDate, indexByDate,
-               processInstanceOidsByDate, processLengthsByDate);
+               processInstanceOidsByDate, processLengthsByDate, isDump, purgeProcessIds);
       }
       else
       {

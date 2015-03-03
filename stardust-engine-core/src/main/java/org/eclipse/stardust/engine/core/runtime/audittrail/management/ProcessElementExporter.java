@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -25,17 +26,20 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 public class ProcessElementExporter implements ProcessElementOperator
 {
 
+   public static final String EXPORT_PROCESS_ID = "ExportProcessID";
+
    public static final String EXPORT_BATCH_SIZE = "exportBatchSize";
 
    private static final int DEFAULT_EXPORT_BATCH_SIZE = 5;
 
-   
    private final ExportResult exportResult;
 
+   private final boolean markExported;
 
-   public ProcessElementExporter(ExportResult exportResult)
+   public ProcessElementExporter(ExportResult exportResult, boolean markExported)
    {
       this.exportResult = exportResult;
+      this.markExported = markExported;
    }
 
    @Override
@@ -56,6 +60,13 @@ public class ProcessElementExporter implements ProcessElementOperator
       if (partType == ProcessInstanceScopeBean.class)
       {
          return 0;
+      }
+      //if we are exporting a db dump we must exclude ExportProcessID
+      if (partType == ProcessInstanceProperty.class && !markExported)
+      {
+         ComparisonTerm uuidRestriction = Predicates.notEqual(
+               ProcessInstanceProperty.FR__NAME, EXPORT_PROCESS_ID);
+         predicate = Predicates.andTerm(predicate, uuidRestriction);
       }
       QueryDescriptor query = QueryDescriptor.from(partType).where(predicate);
       List<Persistent> instances = exportPersistents(session, query, partType);
@@ -80,7 +91,18 @@ public class ProcessElementExporter implements ProcessElementOperator
             long processInstanceOid = -1;
             if (partType == ProcessInstanceBean.class)
             {
-               exportResult.addResult(((ProcessInstanceBean)p));
+               ProcessInstanceBean processInstance = (ProcessInstanceBean) p;
+               if (markExported)
+               {
+                  String uuid = ExportImportSupport.getUUID(processInstance);
+                  AbstractProperty property = processInstance.createProperty(EXPORT_PROCESS_ID, uuid);
+                  exportResult.addResult(processInstance);
+                  exportResult.addResult(property, processInstance.getOID());
+               }
+               else
+               {
+                  exportResult.addResult(processInstance);
+               }
             }
             else if (!(p instanceof ProcessInstanceScopeBean))
             {
@@ -97,15 +119,17 @@ public class ProcessElementExporter implements ProcessElementOperator
                else if (p instanceof LargeStringHolder)
                {
                   LargeStringHolder str = ((LargeStringHolder) p);
-                  Long structureDataOid =  str.getObjectID();
+                  Long structureDataOid = str.getObjectID();
                   if (StructuredDataValueBean.TABLE_NAME.equals(str.getDataType()))
                   {
-                     StructuredDataValueBean dataBean = (StructuredDataValueBean)session.findByOID(StructuredDataValueBean.class, structureDataOid);
+                     StructuredDataValueBean dataBean = (StructuredDataValueBean) session
+                           .findByOID(StructuredDataValueBean.class, structureDataOid);
                      processInstanceOid = dataBean.getProcessInstance().getOID();
                   }
                   else if (DataValueBean.TABLE_NAME.equals(str.getDataType()))
                   {
-                     DataValueBean dataBean = (DataValueBean)session.findByOID(DataValueBean.class, structureDataOid);
+                     DataValueBean dataBean = (DataValueBean) session.findByOID(
+                           DataValueBean.class, structureDataOid);
                      processInstanceOid = dataBean.getProcessInstance().getOID();
                   }
                   else
@@ -121,11 +145,12 @@ public class ProcessElementExporter implements ProcessElementOperator
                         "Can't determine related process instance. Not a clob, IProcessInstanceAware or IActivityInstanceAware:"
                               + p.getClass().getName());
                }
-   
+
                if (processInstanceOid == -1)
                {
                   throw new IllegalStateException(
-                        "Can't determine related process instance." + p.getClass().getName());
+                        "Can't determine related process instance."
+                              + p.getClass().getName());
                }
                exportResult.addResult(p, processInstanceOid);
             }
@@ -140,7 +165,6 @@ public class ProcessElementExporter implements ProcessElementOperator
       return results;
    }
 
-   
    @Override
    public void finishVisit()
    {
@@ -162,7 +186,8 @@ public class ProcessElementExporter implements ProcessElementOperator
    }
 
    @Override
-   public void visitDataClusterValues(Session session, DataCluster dCluster, Collection piOids)
+   public void visitDataClusterValues(Session session, DataCluster dCluster,
+         Collection piOids)
    {
       // TODO what about this
    }

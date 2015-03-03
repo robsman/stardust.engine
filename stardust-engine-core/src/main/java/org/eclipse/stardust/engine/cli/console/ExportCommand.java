@@ -50,6 +50,8 @@ public class ExportCommand extends ConsoleCommand
    private static final String MODELS_BY_OID = "models";
 
    private static final String PURGE = "purge";
+   
+   private static final String DUMP = "dump";
 
    private static final String FROM_DATE = "fromDate";
 
@@ -95,6 +97,10 @@ public class ExportCommand extends ConsoleCommand
       argTypes.register("-" + PURGE, "-p", PURGE,
             "Add this option to purge process instances that are exported", false);
 
+
+      argTypes.register("-" + DUMP, "-d", DUMP,
+            "Backs up processes without generating a unique id, or deleting them ", false);
+           
       argTypes
             .register(
                   "-" + FROM_DATE,
@@ -147,6 +153,7 @@ public class ExportCommand extends ConsoleCommand
    public int run(Map options)
    {
       final boolean purge = options.containsKey(PURGE);
+      final boolean dumpData = options.containsKey(DUMP);
       final Date fromDate = getFromDate(options);
       final Date toDate = getToDate(options);
       final List<Long> processOids = getProcessOids(options);
@@ -170,15 +177,21 @@ public class ExportCommand extends ConsoleCommand
 //         }
 
          ExportMetaData exportMetaData = getExportOids(fromDate, toDate,
-               processOids, modelOids, serviceFactory);
+               processOids, modelOids, serviceFactory, dumpData);
 
-         print("Found " + exportMetaData.getAllProcessInstanceOids().size() + " processes to export");
+         print("Found " + exportMetaData.getAllProcessesForExport(dumpData).size() + " processes to export");
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
                batchSize);
          print("Found " + batches.size() + " batches to export");
-
-         final byte[] modelData = exportModel(partitionId, exportMetaData, serviceFactory);
-
+         final byte[] modelData;
+         if (exportMetaData.getAllProcessesForExport(dumpData).size() > 0)
+         {
+            modelData = exportModel(partitionId, exportMetaData, serviceFactory, dumpData);
+         }
+         else
+         {
+            modelData = null;
+         }
          ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
          List<Future<ExportResult>> results = new ArrayList<Future<ExportResult>>();
          for (final ExportMetaData batch : batches)
@@ -189,7 +202,7 @@ public class ExportCommand extends ConsoleCommand
                public ExportResult call() throws Exception
                {
                   ExportProcessesCommand command = new ExportProcessesCommand(
-                        ExportProcessesCommand.Operation.EXPORT_BATCH, batch);
+                        ExportProcessesCommand.Operation.EXPORT_BATCH, batch, dumpData);
                   ExportResult result = (ExportResult) serviceFactory
                         .getWorkflowService().execute(command);
                   if (result == null)
@@ -221,7 +234,7 @@ public class ExportCommand extends ConsoleCommand
          }
          print(new Date() + " Export Done for Partition: " + partitionId);
          ExportResult mergedResult = ExportImportSupport.merge(exportResults, modelData);
-         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult);
+         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpData);
          Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
          if (success)
          {
@@ -229,7 +242,7 @@ public class ExportCommand extends ConsoleCommand
             if (purge)
             {
                print("Starting Purge for Partition: " + partitionId);
-               command = new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, mergedResult);
+               command = new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, mergedResult, dumpData);
                int deleteCount = (Integer) serviceFactory.getWorkflowService().execute(command);
                //int deleteCount = purge(executor, exportResults, serviceFactory);
                print(new Date() + " Purge Done for Partition: " + partitionId + " deleted " + deleteCount);
@@ -251,46 +264,7 @@ public class ExportCommand extends ConsoleCommand
 
       return 0;
    }
-   
-   private int purge(ExecutorService executor, List<ExportResult> exportResults,
-         final ServiceFactory serviceFactory)
-   {
-      List<Future<Integer>> results = new ArrayList<Future<Integer>>();
-      for (final ExportResult batch : exportResults)
-      {
-         Callable<Integer> exportCallable = new Callable<Integer>()
-         {
-            @Override
-            public Integer call() throws Exception
-            {
-               ExportProcessesCommand command = new ExportProcessesCommand(
-                     ExportProcessesCommand.Operation.PURGE, batch);
-               Integer result = (Integer) serviceFactory
-                     .getWorkflowService().execute(command);
-               return result;
-            }
-
-         };
-         results.add(executor.submit(exportCallable));
-      }
-      int count = 0;
-
-     print(results.size() + " Archives Subitted for Purge" );
-      for (Future<Integer> result : results)
-      {
-         try
-         {
-            count += result.get();
-         }
-         catch (Exception e)
-         {
-            print("Unexpected Exception during Purge " + e.getMessage());
-            e.printStackTrace();
-         }
-      }
-      return count;
-   }
-   
+    
    private int getConcurrentBatches(Map options)
    {
       Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
@@ -391,22 +365,22 @@ public class ExportCommand extends ConsoleCommand
 
    private ExportMetaData getExportOids(final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
-         final ServiceFactory serviceFactory)
+         final ServiceFactory serviceFactory, boolean dumpData)
    {
       ExportProcessesCommand command;
       if (processOids != null || modelOids != null)
       {
          command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               modelOids, processOids);
+               modelOids, processOids, dumpData);
       }
       else if (fromDate != null || toDate != null)
       {
          command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               fromDate, toDate);
+               fromDate, toDate, dumpData);
       }
       else
       {
-         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY);
+         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, dumpData);
       }
       ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
             .getWorkflowService().execute(command);
@@ -414,10 +388,10 @@ public class ExportCommand extends ConsoleCommand
    }
 
    private byte[] exportModel(final String partitionId,
-         final ExportMetaData exportMetaData, final ServiceFactory serviceFactory)
+         final ExportMetaData exportMetaData, final ServiceFactory serviceFactory, boolean dump)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData);
+            ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, dump);
       ExportResult exportResult = (ExportResult) serviceFactory.getWorkflowService()
             .execute(command);
       if (exportResult == null)

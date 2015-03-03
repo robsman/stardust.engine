@@ -81,4 +81,10 @@ public class MemoryArchive implements IArchive
    {
       return getExportIndex().getArchiveManagerId();
    }
+   
+   @Override
+   public boolean isDump()
+   {
+      return getExportIndex().isDump();
+   }
 }

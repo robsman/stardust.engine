@@ -12,6 +12,11 @@ import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
+/**
+ * 
+ * @author jsaayman
+ *
+ */
 public class ExportResult implements Serializable
 {
    private static final long serialVersionUID = 1L;
@@ -32,31 +37,39 @@ public class ExportResult implements Serializable
    
    private byte[] modelData;
    
-   private Set<Long> allIds;
+   private final Set<Long> purgeProcessIds;
+   
+   private boolean isDump;
 
    public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate,
-         HashMap<Date, ExportIndex> exportIndexByDate, Map<Date, List<Long>> processInstanceOidsByDate, Map<Date, List<Integer>> processLengthsByDate)
+         HashMap<Date, ExportIndex> exportIndexByDate, Map<Date, 
+         List<Long>> processInstanceOidsByDate, Map<Date, List<Integer>> processLengthsByDate,
+         boolean isDump, Set<Long> purgeProcessIds)
    {
       this.modelData = modelData;
       this.resultsByDate = resultsByDate;
       this.exportIndexByDate = exportIndexByDate;
       this.processInstanceOidsByDate = processInstanceOidsByDate;
       this.processLengthsByDate = processLengthsByDate;
+      this.purgeProcessIds = purgeProcessIds;
       this.open = false;
+      this.isDump = isDump;
    }
 
-   public ExportResult()
+   public ExportResult(boolean isDump)
    {
       this.resultsByDate = new HashMap<Date, byte[]>();
       this.exportIndexByDate = new HashMap<Date, ExportIndex>();
       this.processInstanceOidsByDate = new HashMap<Date, List<Long>>();
       this.processLengthsByDate = new HashMap<Date, List<Integer>>();
+      this.purgeProcessIds = new HashSet<Long>();
+      this.isDump = isDump;
    }
 
 
    private static ExportProcess createExportProcess(IProcessInstance processInstance)
    {
-      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + processInstance.getOID() + "_" + processInstance.getStartTime().getTime();
+      String uuid = ExportImportSupport.getUUID(processInstance);
       ExportProcess result = new ExportProcess(processInstance.getOID(), uuid);
       return result;
    }
@@ -83,7 +96,7 @@ public class ExportResult implements Serializable
          ExportIndex exportIndex = exportIndexByDate.get(indexDate);
          if (exportIndex == null)
          {
-            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId());
+            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), isDump);
             exportIndexByDate.put(indexDate, exportIndex);
          }
          List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess);
@@ -253,32 +266,11 @@ public class ExportResult implements Serializable
       return modelData;
    }
 
-   public Set<Long> getAllProcessIds()
+   public Set<Long> getPurgeProcessIds()
    {
-      if (open)
-      {
-         throw new IllegalStateException("ExportResult is open. Close it first.");
-      }
-      if (allIds == null)
-      {
-         allIds = new HashSet<Long>();
-         for (Date date : getDates())
-         {
-            ExportIndex index = exportIndexByDate.get(date);
-            Map<ExportProcess, List<ExportProcess>> processes = index.getRootProcessToSubProcesses();
-            for (ExportProcess process : processes.keySet())
-            {
-               allIds.add(process.getOid());
-               for (ExportProcess sub : processes.get(process))
-               {
-                  allIds.add(sub.getOid());
-               }
-            }
-         }
-      }
-      return allIds;
+      return purgeProcessIds;
    }
-
+   
    public List<Long> getProcessInstanceOids(Date startDate)
    {
       if (open)

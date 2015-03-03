@@ -243,4 +243,10 @@ public class ZipArchive implements IArchive, Serializable
       return getExportIndex().getArchiveManagerId();
    }
 
+   @Override
+   public boolean isDump()
+   {
+      return getExportIndex().isDump();
+   }
+
 }

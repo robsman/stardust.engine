@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.ws;
+package org.eclipse.stardust.engine.core.runtime.command.impl;
 
 import java.io.Serializable;
 
@@ -16,7 +16,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 
-public class InputDocument implements Serializable
+public class StartProcessInputDocument implements Serializable
 {
 
    private static final long serialVersionUID = 1L;

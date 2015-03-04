@@ -45,6 +45,10 @@ public class ImportCommand extends ConsoleCommand
 
    private static final String PROCESSES_BY_OID = "processes";
 
+   private static final String PROCESS_MIN_OID = "processMin";
+   
+   private static final String PROCESS_MAX_OID = "processMax";
+
    private static final String FROM_DATE = "fromDate";
 
    private static final String TO_DATE = "toDate";
@@ -69,6 +73,13 @@ public class ImportCommand extends ConsoleCommand
       argTypes.register("-" + PROCESSES_BY_OID, null, PROCESSES_BY_OID,
             "Imports specified process instances (comma separated list of\n" + "OIDs).",
             true);
+
+      argTypes.register("-" + PROCESS_MIN_OID, null, PROCESS_MIN_OID,
+            "Imports all processes with OID great or equal to this number and less or equal to processMax.", true);
+
+
+      argTypes.register("-" + PROCESS_MAX_OID, null, PROCESS_MAX_OID,
+            "Imports all processes with OID great or equal to processMin and less or equal to this number.", true);
 
       argTypes
             .register(
@@ -107,6 +118,14 @@ public class ImportCommand extends ConsoleCommand
       argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {CONCURRENT_BATCHES}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, PROCESSES_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, PROCESSES_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, TO_DATE}, false);
+      argTypes.addInclusionRule(PROCESS_MIN_OID, PROCESS_MAX_OID);
+      argTypes.addInclusionRule(PROCESS_MAX_OID, PROCESS_MIN_OID);
    }
 
    public Options getOptions()
@@ -234,6 +253,16 @@ public class ImportCommand extends ConsoleCommand
          String processInstanceIds = (String) options.get(PROCESSES_BY_OID);
          processOids = new ArrayList<Long>();
          splitListLong(processInstanceIds, processOids);
+      }
+      else if (options.containsKey(PROCESS_MIN_OID) && options.containsKey(PROCESS_MAX_OID))
+      {
+         processOids = new ArrayList<Long>();
+         long min  = Options.getLongValue(options, PROCESS_MIN_OID);
+         long max = Options.getLongValue(options, PROCESS_MAX_OID);
+         for (long i = min; i <= max; i++)
+         {
+            processOids.add(i);
+         }
       }
       else
       {

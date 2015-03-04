@@ -46,6 +46,10 @@ public class ExportCommand extends ConsoleCommand
    private static final String PARTITION = "partition";
 
    private static final String PROCESSES_BY_OID = "processes";
+   
+   private static final String PROCESS_MIN_OID = "processMin";
+   
+   private static final String PROCESS_MAX_OID = "processMax";
 
    private static final String MODELS_BY_OID = "models";
 
@@ -83,6 +87,14 @@ public class ExportCommand extends ConsoleCommand
             "Archives/Deletes specified process instances (comma separated list of\n"
                   + "OIDs).\n"
                   + "Process instances must be terminated (completed or aborted).", true);
+
+
+      argTypes.register("-" + PROCESS_MIN_OID, null, PROCESS_MIN_OID,
+            "Archives/Deletes all processes with OID great or equal to this number and less or equal to processMax.", true);
+
+
+      argTypes.register("-" + PROCESS_MAX_OID, null, PROCESS_MAX_OID,
+            "Archives/Deletes all processes with OID great or equal to processMin and less or equal to this number.", true);
 
       argTypes
             .register(
@@ -136,6 +148,10 @@ public class ExportCommand extends ConsoleCommand
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {PARTITION}, false);
@@ -143,6 +159,10 @@ public class ExportCommand extends ConsoleCommand
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {BATCH_SIZE}, false);
       argTypes.addExclusionRule(new String[] {CONCURRENT_BATCHES}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, PROCESSES_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, PROCESSES_BY_OID}, false);
+      argTypes.addInclusionRule(PROCESS_MIN_OID, PROCESS_MAX_OID);
+      argTypes.addInclusionRule(PROCESS_MAX_OID, PROCESS_MIN_OID);
    }
 
    public Options getOptions()
@@ -323,6 +343,16 @@ public class ExportCommand extends ConsoleCommand
       else
       {
          processOids = null;
+      }
+      if (options.containsKey(PROCESS_MIN_OID) && options.containsKey(PROCESS_MAX_OID))
+      {
+         processOids = new ArrayList<Long>();
+         long min  = Options.getLongValue(options, PROCESS_MIN_OID);
+         long max = Options.getLongValue(options, PROCESS_MAX_OID);
+         for (long i = min; i <= max; i++)
+         {
+            processOids.add(i);
+         }
       }
       return processOids;
    }

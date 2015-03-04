@@ -14,13 +14,13 @@ public class ExportIndex implements Serializable
    private static final long serialVersionUID = 1L;
 
    @Expose
-   private Map<ExportProcess, List<ExportProcess>> processes;
-
-   @Expose
    private String archiveManagerId;
 
    @Expose
    private boolean isDump;
+   
+   @Expose
+   private Map<ExportProcess, List<ExportProcess>> processes;
 
    public ExportIndex()
    {

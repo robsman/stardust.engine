@@ -16,8 +16,8 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
-
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 
@@ -169,8 +169,10 @@ public class DmsFileArchiver
             if (null == properties)
             {
                properties = new HashMap<String, Serializable>();
-               String timestamp = SimpleDateFormat.getInstance().format(new Date());
-               properties.put("documentId", documentIdPrefix + documentIdDateFormat.format(new Date()));
+               String timestamp = SimpleDateFormat.getInstance().format(
+                     TimestampProviderUtils.getTimeStamp());
+               properties.put("documentId", documentIdPrefix + documentIdDateFormat.format(
+                     TimestampProviderUtils.getTimeStamp()));
                properties.put("documentType", documentType);
                properties.put("createDate", timestamp);
             }

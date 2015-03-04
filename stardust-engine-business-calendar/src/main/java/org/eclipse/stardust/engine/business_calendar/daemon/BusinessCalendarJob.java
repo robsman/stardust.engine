@@ -35,8 +35,8 @@ public class BusinessCalendarJob implements ICallable<Date>
    @Override
    public Date call() throws PublicException
    {
-      Date now = new Date();
-      daemonLogger.info("Executing calendar daemon at: " + TimestampProviderUtils.getTimeStamp());
+      Date now = TimestampProviderUtils.getTimeStamp();
+      daemonLogger.info("Executing calendar daemon at: " + now);
 
       @SuppressWarnings("unchecked")
       Iterator<AuditTrailPartitionBean> partitionsIterator = AuditTrailPartitionBean.findAll();

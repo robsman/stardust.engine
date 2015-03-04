@@ -1245,46 +1245,28 @@ public class ArchiveTest
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
       List<IArchive> archives = (List<IArchive>) workflowService
-            .execute(new ImportProcessesCommand(scriptProcessDate, scriptProcessDate));
-      assertEquals(1, archives.size());
+            .execute(new ImportProcessesCommand());
+      assertEquals(5, archives.size());
       ImportMetaData meta = (ImportMetaData) workflowService
             .execute(new ImportProcessesCommand(
                   ImportProcessesCommand.Operation.VALIDATE, archives.get(0), null));
       assertNotNull(meta);
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            scriptProcessDate, scriptProcessDate));
-      assertEquals(1, archives.size());
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, archives.get(0), null, meta));
+            ImportProcessesCommand.Operation.IMPORT, getArchive(scriptProcessDate, archives), null, meta));
       assertEquals(1, count);
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            simpleManualADate, simpleManualADate));
-      assertEquals(1, archives.size());
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, archives.get(0), null, meta));
+            ImportProcessesCommand.Operation.IMPORT, getArchive(simpleManualADate, archives), null, meta));
       assertEquals(2, count);
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            simpleManualBDate, simpleManualBDate));
-      assertEquals(1, archives.size());
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, archives.get(0), null, meta));
+            ImportProcessesCommand.Operation.IMPORT, getArchive(simpleManualBDate, archives), null, meta));
       assertEquals(3, count);
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            simpleDate, simpleDate));
-      assertEquals(1, archives.size());
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, archives.get(0), null, meta));
+            ImportProcessesCommand.Operation.IMPORT, getArchive(simpleDate, archives), null, meta));
       assertEquals(5, count);
       // assert that sub processes are archived with their root process
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            subProcessesDate, subProcessesDate));
-      assertEquals(0, archives.size());
-      assertEquals(5, count);
-      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
-            subProcessesInModelDate, subProcessesInModelDate));
-      assertEquals(1, archives.size());
+      assertNull(getArchive(subProcessesDate, archives));
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.IMPORT, archives.get(0), null, meta));
+            ImportProcessesCommand.Operation.IMPORT, getArchive(subProcessesInModelDate, archives), null, meta));
       assertEquals(8, count);
 
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
@@ -1294,6 +1276,17 @@ public class ArchiveTest
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
+   private IArchive getArchive(Date date, List<IArchive> archives)
+   {
+      for (IArchive archive : archives)
+      {
+         if (date.equals(archive.getArchiveKey()))
+         {
+            return archive;
+         }
+      }
+      return null;
+   }
    @Test
    public void testExportImportOperations() throws Exception
    {
@@ -1755,6 +1748,211 @@ public class ArchiveTest
 
       assertProcessInstancesEquals(expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testFindArchivesFromAndToDate() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualA, queryService, workflowService);// 1jan
+      testTimestampProvider.nextDay();
+      Date fromDate = testTimestampProvider.getTimestamp();// 2jan
+      final ProcessInstance simpleManualB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualB, queryService, workflowService);
+      final ProcessInstance simpleA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleA, queryService, workflowService);
+      testTimestampProvider.nextDay();// 3jan
+      Date toDate = testTimestampProvider.getTimestamp();
+      final ProcessInstance simpleB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleB, queryService, workflowService);
+      testTimestampProvider.nextDay();// 4jan
+      Date lastDate = testTimestampProvider.getTimestamp();
+      final ProcessInstance subProcessesInModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+      completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
+            false);
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+   
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      assertNotNull(oldInstances);
+      assertEquals(7, oldInstances.size());
+
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, false));
+      assertNotNullRawData(rawData, oldInstances);
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(fromDate, lastDate));
+      assertEquals(3, archives.size());
+      boolean foundFrom =  false;
+      boolean foundTo =  false;
+      boolean foundLast =  false;
+      for (IArchive archive : archives)
+      {
+         if (fromDate.equals(archive.getArchiveKey()))
+         {
+            foundFrom = true;
+         }
+         else if (toDate.equals(archive.getArchiveKey()))
+         {
+            foundTo = true;
+         }
+         else if (lastDate.equals(archive.getArchiveKey()))
+         {
+            foundLast = true;
+         }
+            
+      }
+      assertTrue(foundFrom);
+      assertTrue(foundTo);
+      assertTrue(foundLast);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testFindArchivesFromNullAndToDate() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      Date firstDate = testTimestampProvider.getTimestamp();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualA, queryService, workflowService);// 1jan
+      testTimestampProvider.nextDay();
+      Date fromDate = testTimestampProvider.getTimestamp();// 2jan
+      final ProcessInstance simpleManualB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualB, queryService, workflowService);
+      final ProcessInstance simpleA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleA, queryService, workflowService);
+      testTimestampProvider.nextDay();// 3jan
+      final ProcessInstance simpleB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleB, queryService, workflowService);
+      testTimestampProvider.nextDay();// 4jan
+      final ProcessInstance subProcessesInModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+      completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
+            false);
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+   
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      assertNotNull(oldInstances);
+      assertEquals(7, oldInstances.size());
+
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, false));
+      assertNotNullRawData(rawData, oldInstances);
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null, fromDate));
+      assertEquals(2, archives.size());
+      boolean foundFrom =  false;
+      boolean foundFirst =  false;
+      for (IArchive archive : archives)
+      {
+         if (fromDate.equals(archive.getArchiveKey()))
+         {
+            foundFrom = true;
+         }
+         else if (firstDate.equals(archive.getArchiveKey()))
+         {
+            foundFirst = true;
+         }
+            
+      }
+      assertTrue(foundFrom);
+      assertTrue(foundFirst);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testFindArchivesFromAndToDateNull() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualA, queryService, workflowService);// 1jan
+      testTimestampProvider.nextDay();
+      final ProcessInstance simpleManualB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(simpleManualB, queryService, workflowService);
+      final ProcessInstance simpleA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleA, queryService, workflowService);
+      testTimestampProvider.nextDay();// 3jan
+      Date toDate = testTimestampProvider.getTimestamp();
+      final ProcessInstance simpleB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      completeSimple(simpleB, queryService, workflowService);
+      testTimestampProvider.nextDay();// 4jan
+      Date lastDate = testTimestampProvider.getTimestamp();
+      final ProcessInstance subProcessesInModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+      completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
+            false);
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+   
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      assertNotNull(oldInstances);
+      assertEquals(7, oldInstances.size());
+
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, false));
+      assertNotNullRawData(rawData, oldInstances);
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(toDate, null));
+      assertEquals(2, archives.size());
+      boolean foundTo =  false;
+      boolean foundLast =  false;
+      for (IArchive archive : archives)
+      {
+         if (toDate.equals(archive.getArchiveKey()))
+         {
+            foundTo = true;
+         }
+         else if (lastDate.equals(archive.getArchiveKey()))
+         {
+            foundLast = true;
+         }
+            
+      }
+      assertTrue(foundTo);
+      assertTrue(foundLast);
    }
 
    @Test

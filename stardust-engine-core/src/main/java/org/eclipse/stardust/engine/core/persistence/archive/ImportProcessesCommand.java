@@ -181,6 +181,7 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private ArrayList<IArchive> query(ServiceFactory sf)
    {
+      validateDates();
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       ArrayList<IArchive> archives;
       if (processInstanceOids != null)

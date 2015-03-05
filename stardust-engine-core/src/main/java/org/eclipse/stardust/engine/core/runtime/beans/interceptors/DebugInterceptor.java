@@ -47,7 +47,7 @@ public class DebugInterceptor implements MethodInterceptor
 
       trace.info("--> " + methodName);
 
-      final TimeMeasure timer = new TimeMeasure().start();
+      final TimeMeasure timer = new TimeMeasure();
       final Parameters parameters = Parameters.instance();
       parameters.set(ISqlTimeRecorder.PRP_SQL_TIME_RECORDER, sqlTimeRecorder);
       

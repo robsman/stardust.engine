@@ -10,10 +10,43 @@
  *******************************************************************************/
 package org.eclipse.stardust.common;
 
+/**
+ * <p>
+ * TimeMeasure class can be used to compute the duration. The time measure will start
+ * as soon as the object is created or if you have explicitly called the 
+ * {@link TimeMeasure.start()} method. To get the elapsed time you can simply invoke
+ * {@link TimeMeasure.getDurationInMillis()}. This will automatically stop the timer if
+ * it is not already done to ensure repeatable and remaining durations if you don't invoke
+ * the {@link TimeMeasure.start()} method between the {@link TimeMeasure.getDurationInMillis()}
+ * invocations.
+ * </p>
+ * <b>Example:</b>
+ * <pre>
+ * TimeMeasure overallTimer = new TimeMeasure();
+ * TimeMeasure method2Timer = new TimeMeasure();
+ * 
+ * TimeMeasure method1Timer = new TimeMeasure();
+ * method1();
+ * long elapsedTimeOfMethod1 = method1Timer.getDurationInMillis(); // get elapsed time of method1()
+ * 
+ * method2Timer.start(); // starts method2Timer explicitly because we don't want to include the elapsed time of method1
+ * method2();
+ * method2Timer.stop();
+ * 
+ * method3();
+ * 
+ * long elapsedTimeOfMethod2 = method2Timer.getDurationInMillis(); // get elapsed time of method2()
+ * 
+ * overallTimer.stop(); // stop() method can be invoked explicitly without calling the start() method at first
+ * long overallElapsedTime = overallTimer.getDurationInMillis(); // get elapsed time of this example code
+ * 
+ * </pre>
+ * 
+ * @author Sven.Rottstock
+ */
 public class TimeMeasure
 {
    private long startTime;
-   private long objectCreatedTime;
    private long stopTime;
    
    public final static long NOT_INITIALIZED = -1L;
@@ -25,23 +58,27 @@ public class TimeMeasure
    
    private void init()
    {
-      objectCreatedTime = System.currentTimeMillis();
-      startTime = stopTime = NOT_INITIALIZED;
+      startTime = System.currentTimeMillis();
+      stopTime = NOT_INITIALIZED;
    }
    
    /**
     * Starts the timer explicitly. If this method is not invoked then the object creation
-    * time is used or the time as the {@link TimeMeasure.reset()} method was called.
+    * time is used for the computation of the duration. If the method is invoked for a 
+    * second time then it acts like a reset method.
+    * 
+    * @return The TimeMeasure itself
     */
    public TimeMeasure start()
    {
-      startTime = System.currentTimeMillis();
-      stopTime = NOT_INITIALIZED;
+      init();
       return this;
    }
    
    /**
     * Stops the timer.
+    * 
+    * @return The TimeMeasure itself
     */
    public TimeMeasure stop()
    {
@@ -50,32 +87,13 @@ public class TimeMeasure
    }
    
    /**
-    * Resets the timer to the same state as the constructor would be invoked.
-    */
-   public TimeMeasure reset()
-   {
-      init();
-      return this;
-   }
-   
-   /**
     * Returns the start time in millis.
     * @return Either the time as the {@link TimeMeasure.start()} method was invoked or 
-    *    {@link TimeMeasure.NOT_INITIALIZED} if it was never called.
+    *    if it was never called the object creation resp. reset time.
     */
    public long getStartTimeInMillis()
    {
       return startTime;
-   }
-   
-   /**
-    * Returns the start time in millis.
-    * @return Either the time as the {@link TimeMeasure.start()} method was invoked or 
-    *    if it was never called the object creation time.
-    */
-   public long getInitializedStartTimeInMillis()
-   {
-      return startTime == NOT_INITIALIZED ? objectCreatedTime : startTime;
    }
    
    /**
@@ -103,6 +121,6 @@ public class TimeMeasure
       {
          this.stop();
       }
-      return getStopTimeInMillis() - getInitializedStartTimeInMillis();
+      return getStopTimeInMillis() - getStartTimeInMillis();
    }
 }

@@ -493,7 +493,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             stmt = getConnection().createStatement();
             String stmtString = dmlManager.getInsertRowStatementString(persistent);
 
-            final TimeMeasure timer = new TimeMeasure().start();
+            final TimeMeasure timer = new TimeMeasure();
             if (useJdbc14GeneratedKeys)
             {
                stmt.executeUpdate(stmtString, Statement.RETURN_GENERATED_KEYS);
@@ -3160,7 +3160,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                statement = getConnection().prepareStatement(sqlString);
 
-               final TimeMeasure timer = new TimeMeasure().start();
+               final TimeMeasure timer = new TimeMeasure();
                statement.executeUpdate();
                
                monitorSqlExecution(sqlString, timer.stop());

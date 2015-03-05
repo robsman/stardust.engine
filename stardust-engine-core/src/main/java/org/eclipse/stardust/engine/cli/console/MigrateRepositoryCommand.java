@@ -70,7 +70,7 @@ public class MigrateRepositoryCommand extends ConsoleCommand
       ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
       try
       {
-         final TimeMeasure timer = new TimeMeasure().start();
+         final TimeMeasure timer = new TimeMeasure();
          DocumentManagementService dms = serviceFactory.getDocumentManagementService();
 
          RepositoryMigrationReport report = dms.migrateRepository(0, false);

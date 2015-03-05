@@ -72,7 +72,7 @@ public class ResultSetIterator implements ResultIterator
          boolean countAll)
    {
       int index = 0;
-      final TimeMeasure timer = new TimeMeasure().start();
+      final TimeMeasure timer = new TimeMeasure();
       try
       {
          Assert.condition(startIndex >= 0, "Index has to be >= 0.");

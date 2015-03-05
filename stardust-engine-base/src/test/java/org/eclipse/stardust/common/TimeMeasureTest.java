@@ -24,7 +24,7 @@ public class TimeMeasureTest
    public void testDurationWithPredefinedTimes()
    {
       TimeMeasure timer = Mockito.mock(TimeMeasure.class, Mockito.CALLS_REAL_METHODS);
-      when(timer.getInitializedStartTimeInMillis()).thenReturn(0L);
+      when(timer.getStartTimeInMillis()).thenReturn(0L);
       when(timer.getStopTimeInMillis()).thenReturn(120L);
       assertTrue(timer.getDurationInMillis() == 120L);
    }
@@ -58,15 +58,11 @@ public class TimeMeasureTest
    public void testStartTime() throws InterruptedException
    {
       TimeMeasure timer = new TimeMeasure();
-      long objectCreationTime = timer.getInitializedStartTimeInMillis();
-      assertTrue("start time must not be initialized", 
-            timer.getStartTimeInMillis() == TimeMeasure.NOT_INITIALIZED);
+      long objectCreationTime = timer.getStartTimeInMillis();
       Thread.sleep(MAX_WAIT_TIME);
       assertTrue("object creation time must be equal", 
-            objectCreationTime == timer.getInitializedStartTimeInMillis());
+            objectCreationTime == timer.getStartTimeInMillis());
       timer.start();
-      assertTrue("start time must be initialized", 
-            timer.getStartTimeInMillis() != TimeMeasure.NOT_INITIALIZED);
       assertTrue("start time must be later", 
             objectCreationTime < timer.getStartTimeInMillis());
    }
@@ -75,7 +71,7 @@ public class TimeMeasureTest
    public void testStopTime() throws InterruptedException
    {
       TimeMeasure timer = new TimeMeasure();
-      long objectCreationTime = timer.getInitializedStartTimeInMillis(); 
+      long objectCreationTime = timer.getStartTimeInMillis(); 
       assertTrue("stop time must not be initialized", 
             timer.getStopTimeInMillis() == TimeMeasure.NOT_INITIALIZED);
       Thread.sleep(MAX_WAIT_TIME);
@@ -95,21 +91,21 @@ public class TimeMeasureTest
    public void testResetTimer() throws InterruptedException
    {
       TimeMeasure timer = new TimeMeasure();
-      long objectCreationTime = timer.getInitializedStartTimeInMillis();
-      assertTrue(timer.getStartTimeInMillis() == TimeMeasure.NOT_INITIALIZED);
+      long objectCreationTime = timer.getStartTimeInMillis();
       assertTrue(timer.getStopTimeInMillis() == TimeMeasure.NOT_INITIALIZED);
       Thread.sleep(MAX_WAIT_TIME);
       // make sure that all time fields are initialized
       timer.start().stop();
-      assertTrue(timer.getStartTimeInMillis() != TimeMeasure.NOT_INITIALIZED);
+      long lastStartTime = timer.getStartTimeInMillis();
+      assertTrue(lastStartTime > objectCreationTime);
       assertTrue(timer.getStopTimeInMillis() != TimeMeasure.NOT_INITIALIZED);
-      // reset the timer
-      timer.reset();
-      long resetTime = timer.getInitializedStartTimeInMillis();
-      assertTrue((timer.getStartTimeInMillis() == TimeMeasure.NOT_INITIALIZED));
+      
+      // reset the timer by invoking the start method again
+      Thread.sleep(MAX_WAIT_TIME);
+      timer.start();
+      long resetTime = timer.getStartTimeInMillis();
+      assertTrue(resetTime > lastStartTime);
       assertTrue((timer.getStopTimeInMillis() == TimeMeasure.NOT_INITIALIZED));
-      // reset method will also reset the object creation time
-      assertTrue(resetTime > objectCreationTime);
    }
 
 }

@@ -327,8 +327,8 @@ public class XpdlUtils
 
    public static void convertCarnot2Xpdl(Source carnotXml, Result result, String encoding)
    {
-      final TimeMeasure conversionTimer = new TimeMeasure().start();
-      final TimeMeasure stylesheetLoadTimer = new TimeMeasure().start();
+      final TimeMeasure conversionTimer = new TimeMeasure();
+      final TimeMeasure stylesheetLoadTimer = new TimeMeasure();
 
       final URL xsltURL = XpdlUtils.class.getResource(WFM_2_XPDL_XSLT);
       if (xsltURL == null)
@@ -488,8 +488,8 @@ public class XpdlUtils
 
    public static void convertXpdl2Carnot(Source xpdlSource, Result result, String encoding)
    {
-      final TimeMeasure conversionTimer = new TimeMeasure().start();
-      final TimeMeasure stylesheetLoadTimer = new TimeMeasure().start();
+      final TimeMeasure conversionTimer = new TimeMeasure();
+      final TimeMeasure stylesheetLoadTimer = new TimeMeasure();
 
       final URL xsltURL = XpdlUtils.class.getResource(XPDL_2_WFM_XSLT);
       if (xsltURL == null)

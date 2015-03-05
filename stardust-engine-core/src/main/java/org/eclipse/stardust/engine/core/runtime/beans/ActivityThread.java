@@ -310,7 +310,7 @@ public class ActivityThread implements Runnable
          else
          {
             int count = 0;
-            final TimeMeasure timer = new TimeMeasure().start();
+            final TimeMeasure timer = new TimeMeasure();
 
             while (!enableVertex())
             {

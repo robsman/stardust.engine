@@ -69,7 +69,7 @@ public class DocumentQueryEvaluator implements QueryEvaluator
    private IQueryResult doQuery(DocumentQuery query, EvaluationContext context,
          SubsetPolicy subset, IDocumentRepositoryService vfs)
    {
-      final TimeMeasure timer = new TimeMeasure().start(); 
+      final TimeMeasure timer = new TimeMeasure(); 
       String xPathQuery = new DocumentXPathQueryBuilder(query, context,
             MetaDataLocation.LOCAL).build(getPartitionPrefix());
 

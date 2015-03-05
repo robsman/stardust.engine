@@ -354,7 +354,7 @@ public class DataClusterHelper
          try
          {
             stmt = sessionImpl.getConnection().createStatement();
-            final TimeMeasure timer = new TimeMeasure().start(); 
+            final TimeMeasure timer = new TimeMeasure(); 
             
             ResultSet rs = stmt.executeQuery(sqlString);
             rs.next();
@@ -401,7 +401,7 @@ public class DataClusterHelper
          try
          {
             stmt = sessionImpl.getConnection().createStatement();
-            final TimeMeasure timer = new TimeMeasure().start();
+            final TimeMeasure timer = new TimeMeasure();
             stmt.executeUpdate(sqlString);
             sessionImpl.monitorSqlExecution(sqlString, timer.stop());
          }
@@ -585,7 +585,7 @@ public class DataClusterHelper
                
                stmt.setLong(pos, piOid);
                
-               final TimeMeasure timer = new TimeMeasure().start();
+               final TimeMeasure timer = new TimeMeasure();
                stmt.executeUpdate();
                jdbcSession.monitorSqlExecution(stmtString, timer.stop());
             }

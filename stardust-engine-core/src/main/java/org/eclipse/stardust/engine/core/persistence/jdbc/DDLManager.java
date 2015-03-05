@@ -139,7 +139,7 @@ public class DDLManager
          {
             stmt = connection.createStatement();
 
-            final TimeMeasure timer = new TimeMeasure().start();
+            final TimeMeasure timer = new TimeMeasure();
             stmt.executeUpdate(statement);
             timer.stop();
             if(jdbcSession != null)

@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xsd.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,6 +26,8 @@ import org.w3c.dom.Node;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
@@ -42,6 +45,7 @@ import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
  */
 public class TypeDeclarationBean extends IdentifiableElementBean implements ITypeDeclaration
 {
+   private static final Logger trace = LogManager.getLogger(TypeDeclarationBean.class);
 
    private final IXpdlType xpdlType;
 
@@ -121,6 +125,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                er.getId())
                && er instanceof BpmRuntimeError)
          {
+            // ClasspathUriConverter exception bubbles up, no complete validation is possible.
             // Schema was not found or had non resolvable import/include to other schema.
             // The location of failed schema loading via classpath is contained in
             // exception thrown by ClasspathUriConverter and is reused for the validation error.
@@ -140,7 +145,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
 
       if (schema == null && !schemaResolveError)
       {
-         // Schema was not found
+         // Schema was not found -> ERROR
          BpmValidationError error = BpmValidationError.SDT_XSD_SCHEMA_NOT_FOUND
                .raise(td.getId(), getSchemaLocation(td));
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
@@ -149,37 +154,99 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
 
       if (schema != null)
       {
-         List<XSDImport> imports = TypeDeclarationUtils.getImports(schema);
-         if (imports != null)
+         schema.validate();
+         EList<XSDDiagnostic> allDiagnostics = schema.getAllDiagnostics();
+         if (!allDiagnostics.isEmpty())
          {
-            for (XSDImport xsdImport : imports)
+            for (XSDDiagnostic xsdDiagnostic : allDiagnostics)
             {
-               XSDSchema resolvedSchema = xsdImport.getResolvedSchema();
-               if (resolvedSchema == null)
+               String key = xsdDiagnostic.getKey();
+
+               // Note: Diagnostic keys are hardcoded in org.eclipse.xsd sources.
+               // see XSDSchemaImpl#validate()
+               // see XSDIncludeImpl#validate()
+               if ("src-import.0".equals(key))
                {
+                  // import not resolved -> ERROR
+
+                  String schemaLocation = "?";
+                  String namespace = "?";
+                  XSDConcreteComponent container = xsdDiagnostic.getContainer();
+                  if (container instanceof XSDImport)
+                  {
+                     XSDImport xsdImport = (XSDImport) container;
+
+                     schemaLocation = xsdImport.getSchemaLocation();
+                     namespace= xsdImport.getNamespace();
+                  }
+
                   BpmValidationError error = BpmValidationError.SDT_XSD_IMPORT_NOT_RESOLVABLE
-                        .raise(td.getId(), xsdImport.getSchemaLocation(),
-                              xsdImport.getNamespace());
+                        .raise(td.getId(), schemaLocation,
+                             namespace);
+                  inconsistencies.add(new Inconsistency(error, this,
+                        Inconsistency.ERROR));
+                  schemaResolveError = true;
+               }
+               else if ("src-include.0".equals(key))
+               {
+                  // include not resolved -> ERROR
+
+                  String schemaLocation = "?";
+                  XSDConcreteComponent container = xsdDiagnostic.getContainer();
+                  if (container instanceof XSDInclude)
+                  {
+                     XSDInclude xsdInclude = (XSDInclude) container;
+
+                     schemaLocation = xsdInclude.getSchemaLocation();
+                  }
+
+                  BpmValidationError error = BpmValidationError.SDT_XSD_INCLUDE_NOT_RESOLVABLE
+                        .raise(td.getId(), schemaLocation);
                   inconsistencies
                         .add(new Inconsistency(error, this, Inconsistency.ERROR));
                   schemaResolveError = true;
                }
-            }
-         }
-
-         List<XSDInclude> includes = TypeDeclarationUtils.getIncludes(schema);
-         if (includes != null)
-         {
-            for (XSDInclude xsdInclude : includes)
-            {
-               XSDSchema resolvedSchema = xsdInclude.getResolvedSchema();
-               if (resolvedSchema == null)
+               else if ("src-import.0.2".equals(key))
                {
-                  BpmValidationError error = BpmValidationError.SDT_XSD_INCLUDE_NOT_RESOLVABLE
-                        .raise(td.getId(), xsdInclude.getSchemaLocation());
+                  // import not used -> log WARN as it does not hurt functionality.
+
+                  XSDConcreteComponent container = xsdDiagnostic.getContainer();
+                  if (container instanceof XSDImport)
+                  {
+                     XSDImport xsdImport = (XSDImport) container;
+                     trace.warn("TypeDeclaration '" + td.getId()
+                           + "': xsd:import with location '"
+                           + xsdImport.getSchemaLocation() + "' and namespace '"
+                           + xsdImport.getNamespace() + "' is unused.");
+                  }
+               }
+               else if ("_UI_UnresolvedTypeDefinition_message".equals(key))
+               {
+                  // typeDefinition not resolved -> ERROR
+
+                  String name = "?";
+                  XSDConcreteComponent container = xsdDiagnostic.getContainer();
+                  if (container instanceof XSDElementDeclaration)
+                  {
+                     XSDElementDeclaration xsdElementDeclaration = (XSDElementDeclaration) container;
+
+                     name = xsdElementDeclaration.getName();
+                  }
+
+                  BpmValidationError error = BpmValidationError.SDT_XSD_TYPE_DEFINITION_NOT_RESOLVABLE
+                        .raise(td.getId(), name);
                   inconsistencies
                         .add(new Inconsistency(error, this, Inconsistency.ERROR));
                   schemaResolveError = true;
+               }
+               else
+               {
+                  // ignore unknown diagnostics
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Unhandled XSDDiagnostic: key'" + xsdDiagnostic.getKey()
+                           + "' message '" + xsdDiagnostic.getMessage() + "'.");
+                  }
                }
             }
          }

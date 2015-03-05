@@ -27,6 +27,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
@@ -48,6 +50,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.api.util.WaitTimeout;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -132,12 +135,10 @@ public class TransientProcessInstanceProfilingTest extends AbstractTransientProc
    {
       warmUp();
 
-      final long startTime = System.currentTimeMillis();
+      final TimeMeasure timer = new TimeMeasure();
       doTest();
-      final long endTime = System.currentTimeMillis();
-      final long duration = endTime - startTime;
-
-      LOG.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " + duration + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+      LOG.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " 
+            + timer.getDurationInMillis() + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
    }
 
    private static void incrementDbSequenceSize() throws SQLException

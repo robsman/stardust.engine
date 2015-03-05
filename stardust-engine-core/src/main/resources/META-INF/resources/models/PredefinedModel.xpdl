@@ -342,7 +342,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="1" CarnotVersion="8.2.0" ModelOid="0">
+         <carnot:Package Oid="1" CarnotVersion="1.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="10002" Id="primitive" Name="Primitive Data" IsPredefined="true">

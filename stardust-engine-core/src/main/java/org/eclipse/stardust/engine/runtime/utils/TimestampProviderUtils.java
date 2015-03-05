@@ -14,10 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.common.config.RealtimeTimestampProvider;
-import org.eclipse.stardust.common.config.TimestampProvider;
-import org.eclipse.stardust.common.config.ValueProvider;
+import org.eclipse.stardust.common.config.*;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -28,6 +25,8 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 public class TimestampProviderUtils
 {
    public static final String PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE = TimestampProvider.class.getName()+".CachedInstance";
+   
+   private static final ThreadLocal<BpmRuntimeEnvironment> propLayer = new ThreadLocal<BpmRuntimeEnvironment>();
 
    public static long getTimeStampValue()
    {
@@ -88,8 +87,12 @@ public class TimestampProviderUtils
 
       if (rtEnv == null)
       {
-         rtEnv = new BpmRuntimeEnvironment(null);
-         PropertyLayerProviderInterceptor.setCurrent(rtEnv);
+         rtEnv = propLayer.get();
+         if(rtEnv == null)
+         {
+            rtEnv = new BpmRuntimeEnvironment(null);
+            propLayer.set(rtEnv);
+         }
       }
       
       TimestampProvider result = rtEnv.getTimestampProvider();

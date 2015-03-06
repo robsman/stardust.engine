@@ -908,6 +908,12 @@ public class QueryAdapterUtils
          // *ProcessInstanceLinkFilter.class
          filterTerm.add(unmarshalProcessInstanceLinkFilter((ProcessInstanceLinkFilterXto) filterCriterionXto));
       }
+      else if (filterCriterionXto instanceof HavingDocumentFilterXto)
+      {
+         // *DocumentFilter.class
+         filterTerm.add(unmarshalHavingDocumentFilter((HavingDocumentFilterXto) filterCriterionXto));
+      }
+
       // else if (filterCriterionXto.getDataFilter() != null)
       // {
       // // *DataFilter.class,
@@ -1217,6 +1223,14 @@ public class QueryAdapterUtils
                "Error unmarshaling ParticipantAssociationFilterXto");
       }
    }
+
+   private static DocumentFilter unmarshalHavingDocumentFilter(
+         HavingDocumentFilterXto havingDocumentFilterXto)
+   {
+      return new DocumentFilter(havingDocumentFilterXto.getDocumentId(),
+            havingDocumentFilterXto.getModelId());
+   }
+
 
    private static WorklistQuery unmarshalUserContribution(
          UserContributionXto userContribution, WorklistQuery query)

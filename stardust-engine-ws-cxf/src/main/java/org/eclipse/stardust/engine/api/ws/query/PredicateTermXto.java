@@ -57,6 +57,7 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;element name="startingUser" type="{http://eclipse.org/stardust/ws/v2012a/api/query}StartingUserFilter"/>
  *           &lt;element name="userState" type="{http://eclipse.org/stardust/ws/v2012a/api/query}UserStateFilter"/>
  *           &lt;element name="participantAssociation" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ParticipantAssociationFilter"/>
+ *           &lt;element name="havingDocument" type="{http://eclipse.org/stardust/ws/v2012a/api/query}HavingDocumentFilter"/>
  *         &lt;/choice>
  *       &lt;/sequence>
  *     &lt;/extension>
@@ -108,7 +109,8 @@ public abstract class PredicateTermXto
         @XmlElement(name = "performingOnBehalfOf", type = PerformingOnBehalfOfFilterXto.class),
         @XmlElement(name = "startingUser", type = StartingUserFilterXto.class),
         @XmlElement(name = "userState", type = UserStateFilterXto.class),
-        @XmlElement(name = "participantAssociation", type = ParticipantAssociationFilterXto.class)
+        @XmlElement(name = "participantAssociation", type = ParticipantAssociationFilterXto.class),
+        @XmlElement(name = "havingDocument", type = HavingDocumentFilterXto.class)
     })
     protected List<PredicateBaseXto> andOrOrOrIsNull;
 
@@ -160,6 +162,7 @@ public abstract class PredicateTermXto
      * {@link StartingUserFilterXto }
      * {@link UserStateFilterXto }
      * {@link ParticipantAssociationFilterXto }
+     * {@link HavingDocumentFilterXto }
      * 
      * 
      */

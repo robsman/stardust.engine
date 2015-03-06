@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlType;
     PerformingParticipantFilterXto.class,
     UserStateFilterXto.class,
     PerformedByUserFilterXto.class,
+    HavingDocumentFilterXto.class,
     ProcessStateFilterXto.class,
     ProcessInstanceLinkFilterXto.class,
     ProcessInstanceFilterXto.class,

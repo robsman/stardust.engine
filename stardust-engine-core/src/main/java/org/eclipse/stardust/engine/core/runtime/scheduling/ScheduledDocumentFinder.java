@@ -16,6 +16,8 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
@@ -27,6 +29,8 @@ import com.google.gson.JsonParser;
 
 public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 {
+   private static final Logger trace = LogManager.getLogger(ScheduledDocumentFinder.class);
+
    public static final String REALMS_DIR = "/realms";
    public static final String USER_DIR = "/users";
    public static final String DESIGNS_SUBFOLDER = "/designs";
@@ -48,7 +52,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName, List<JsonObject> events);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String documentName,
+         String documentPath, List<JsonObject> events);
 
    protected abstract List<JsonObject> getEvents(String path, JsonObject documentJson);
 
@@ -92,8 +97,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             boolean matches = false;
 
             String owner = document.getOwner();
-            String reportName = document.getName();
-            reportName = reportName.substring(0, reportName.length() - extension.length());
+            String documentName = document.getName();
+            documentName = documentName.substring(0, documentName.length() - extension.length());
 
             JsonObject documentJson = getDocumentJson(document);
 
@@ -128,7 +133,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             {
                scheduledDocuments.add(createScheduledDocument(documentJson,
                      owner == null ? new QName("") : QName.valueOf(owner),
-                     reportName, matchingEvents));
+                     documentName, document.getPath(), matchingEvents));
             }
          }
       }
@@ -137,7 +142,8 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
    protected JsonObject getDocumentJson(String id)
    {
-      return getDocumentJson(getDocumentManagementService().getDocument(id));
+      Document document = getDocumentManagementService().getDocument(id);
+      return document == null ? null : getDocumentJson(document);
    }
 
    protected JsonObject getDocumentJson(Document document)
@@ -149,7 +155,15 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       }
       catch (Exception e)
       {
-         content = new String(dmService.retrieveDocumentContent(document.getId()));
+         try
+         {
+            content = new String(dmService.retrieveDocumentContent(document.getId()));
+         }
+         catch (Exception ex)
+         {
+            trace.warn("Could not read imported document '" + document.getPath() + "'.", ex);
+            return new JsonObject();
+         }
       }
       return new JsonParser().parse(content).getAsJsonObject();
    }

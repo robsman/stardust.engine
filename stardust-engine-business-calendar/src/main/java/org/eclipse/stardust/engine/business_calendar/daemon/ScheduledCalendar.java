@@ -18,6 +18,8 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject;
@@ -30,12 +32,18 @@ import com.google.gson.JsonObject;
 
 public class ScheduledCalendar extends ScheduledDocument
 {
+   private static final Logger trace = LogManager.getLogger(ScheduledCalendar.class);
+
+   private static final Object NO_BUSINESS_OBJECT = new Object();
+
    private List<JsonObject> events;
    private Map<String, Object> data;
+   private String documentPath;
 
-   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName, List<JsonObject> events)
+   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName, String documentPath, List<JsonObject> events)
    {
       super(documentJson, owner, documentName);
+      this.documentPath = documentPath;
       this.events = events;
    }
 
@@ -50,39 +58,62 @@ public class ScheduledCalendar extends ScheduledDocument
             if (!StringUtils.isEmpty(processId))
             {
                Map<String, Object> businessObjectData = getBusinessObjectData();
-               JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
-               if (relationship != null && !businessObjectData.isEmpty())
+               if (businessObjectData != null)
                {
-                  String other = SchedulingUtils.getAsString(relationship, "otherBusinessObject");
-                  if (!StringUtils.isEmpty(other))
+                  JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
+                  if (relationship != null && !businessObjectData.isEmpty())
                   {
-                     String fkField = SchedulingUtils.getAsString(relationship, "otherForeignKeyField");
-                     if (!StringUtils.isEmpty(fkField))
+                     String other = SchedulingUtils.getAsString(relationship, "otherBusinessObject");
+                     if (!StringUtils.isEmpty(other))
                      {
-                        String dataName = QName.valueOf(other).getLocalPart();
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> businessObjectValue = (Map<String, Object>) businessObjectData.values().iterator().next();
-                        @SuppressWarnings("unchecked")
-                        List<Object> fks = (List<Object>) businessObjectValue.get(fkField);
-                        for (Object fk : fks)
+                        String fkField = SchedulingUtils.getAsString(relationship, "otherForeignKeyField");
+                        if (!StringUtils.isEmpty(fkField))
                         {
-                           Map<String, Object> data = CollectionUtils.newMap();
-                           Object value = getBusinessObjectValue(other, fk);
-                           if (value != null)
+                           String dataName = QName.valueOf(other).getLocalPart();
+                           @SuppressWarnings("unchecked")
+                           Map<String, Object> businessObjectValue = (Map<String, Object>) businessObjectData.values().iterator().next();
+                           Object value = businessObjectValue.get(fkField);
+                           if (value instanceof List<?>)
                            {
-                              data.put(dataName, value);
-                              getWorkflowService().startProcess(processId, data, false);
+                              @SuppressWarnings("unchecked")
+                              List<?> fks = (List<Object>) value;
+                              for (Object fk : fks)
+                              {
+                                 Map<String, Object> data = CollectionUtils.newMap();
+                                 value = getBusinessObjectValue(other, fk);
+                                 if (value != NO_BUSINESS_OBJECT)
+                                 {
+                                    data.put(dataName, value);
+                                    startProcess(processId, data);
+                                 }
+                              }
+                           }
+                           else
+                           {
+                              trace.warn("'" + documentPath + "': relationship '" + fkField + "' is not a list.");
                            }
                         }
                      }
                   }
-               }
-               else
-               {
-                  getWorkflowService().startProcess(processId, businessObjectData, false);
+                  else
+                  {
+                     startProcess(processId, businessObjectData);
+                  }
                }
             }
          }
+      }
+   }
+
+   protected void startProcess(String processId, Map<String, Object> businessObjectData)
+   {
+      try
+      {
+         getWorkflowService().startProcess(processId, businessObjectData, false);
+      }
+      catch (Exception ex)
+      {
+         trace.warn("'" + documentPath + "': could not start scheduled process '" + processId + "'.");
       }
    }
 
@@ -100,6 +131,10 @@ public class ScheduledCalendar extends ScheduledDocument
 
             String boFullId = new QName(modelId, businessObjectId).toString();
             Object value = getBusinessObjectValue(boFullId, primaryKey);
+            if (value == NO_BUSINESS_OBJECT)
+            {
+               return null;
+            }
             if (value != null)
             {
                data.put(businessObjectId, value);
@@ -114,18 +149,17 @@ public class ScheduledCalendar extends ScheduledDocument
       BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(businessObject, primaryKey);
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
       BusinessObjects result = getQueryService().getAllBusinessObjects(query);
-      if (!result.isEmpty())
+      if (result.isEmpty())
       {
-         BusinessObject bo = result.get(0);
-         List<BusinessObject.Value> values = bo.getValues();
-         if (values != null && !values.isEmpty())
-         {
-            BusinessObject.Value value = values.get(0);
-            if (value.getValue() != null)
-            {
-               return value.getValue();
-            }
-         }
+         trace.warn("'" + documentPath + "': no value found for business object '" + businessObject + "' with primary key '" + primaryKey + "'.");
+         return NO_BUSINESS_OBJECT;
+      }
+      BusinessObject bo = result.get(0);
+      List<BusinessObject.Value> values = bo.getValues();
+      if (values != null && !values.isEmpty())
+      {
+         BusinessObject.Value value = values.get(0);
+         return value.getValue();
       }
       return null;
    }

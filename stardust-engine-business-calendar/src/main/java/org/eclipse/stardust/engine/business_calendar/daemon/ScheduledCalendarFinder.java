@@ -20,6 +20,8 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
@@ -33,6 +35,8 @@ import com.google.gson.JsonObject;
 
 public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCalendar>
 {
+   private static final Logger trace = LogManager.getLogger(ScheduledCalendarFinder.class);
+
    private static final String PATH_ATT = "path";
    private static final String EXTENSION = ".json";
    private static final String ROOT_PATH = "/business-calendars/processingCalendar";
@@ -54,9 +58,9 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
 
    @Override
    protected ScheduledCalendar createScheduledDocument(JsonObject documentJson,
-         QName owner, String documentName, List<JsonObject> events)
+         QName owner, String documentName, String documentPath, List<JsonObject> events)
    {
-      return new ScheduledCalendar(documentJson, owner, documentName, events);
+      return new ScheduledCalendar(documentJson, owner, documentName, documentPath, events);
    }
 
    @Override
@@ -104,12 +108,12 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
       {
          for (JsonElement importedCalendar : importedCalendars)
          {
-            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), PATH_ATT));
+            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), PATH_ATT), path);
          }
       }
    }
 
-   private void collectImportedEvents(List<JsonObject> events, String path)
+   private void collectImportedEvents(List<JsonObject> events, String path, String source)
    {
       if (path != null)
       {
@@ -117,7 +121,14 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
          if (vts == null)
          {
             JsonObject documentJson = getDocumentJson(path);
-            collectEvents(events, path, documentJson);
+            if (documentJson == null)
+            {
+               trace.warn("'" + source + "': could not find imported document '" + path + "'.");
+            }
+            else
+            {
+               collectEvents(events, path, documentJson);
+            }
          }
       }
    }

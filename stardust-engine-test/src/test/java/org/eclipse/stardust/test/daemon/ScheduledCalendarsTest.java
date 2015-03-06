@@ -23,7 +23,6 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -287,9 +286,9 @@ public class ScheduledCalendarsTest
       {
          @Override
          protected ScheduledCalendar createScheduledDocument(JsonObject documentJson,
-               QName owner, String documentName, List<JsonObject> events)
+               QName owner, String documentName, String documentPath, List<JsonObject> events)
          {
-            return new ScheduledCalendar(documentJson, owner, documentName, events)
+            return new ScheduledCalendar(documentJson, owner, documentName, documentPath, events)
             {
                @Override
                protected WorkflowService getWorkflowService()

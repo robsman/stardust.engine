@@ -2954,21 +2954,27 @@ public class XmlAdapterUtils
    public static DocumentXto toWs(Document doc, QName metaDataType,
          Set<TypedXPath> metaDataXPaths)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
+      }
       return xto;
    }
 
    public static DocumentXto toWs(Document doc, Model model, String metaDataTypeId, ModelResolver resolver)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
+      }
       return xto;
    }
 

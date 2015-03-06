@@ -1198,6 +1198,40 @@
       </complexType>
    </element>
 
+   <element name="moveDocument">
+      <complexType>
+         <sequence>
+            <element name="documentId" type="xsd:string" />
+            <element name="targetPath" type="xsd:string" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="moveDocumentResponse">
+      <complexType>
+         <sequence>
+            <element name="document" type="bat:Document" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="removeDocumentVersion">
+      <complexType>
+         <sequence>
+            <element name="documentId" type="xsd:string" />
+            <element name="documentRevisionId" type="xsd:string" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="removeDocumentVersionResponse">
+      <complexType>
+         <sequence>
+         </sequence>
+      </complexType>
+   </element>
+
+
    <complexType name="BpmFault">
       <sequence>
          <element name="faultCode" type="tns:BpmFaultCode" />
@@ -1623,7 +1657,7 @@
          </sequence>
       </complexType>
    </element>
-   
+
    <element name="getAllBusinessObjects">
    	   <complexType>
    	   	<sequence>
@@ -1631,14 +1665,14 @@
    	   	</sequence>
    	   </complexType>
    </element>
-   
+
    <element name="getAllBusinessObjectsResponse">
    	   <complexType>
    	   	<sequence>
    	   		<element name="queryResult" type="bat:BusinessObjects" nillable="true"/>
    	   	</sequence>
    	   </complexType>
-   </element>   
+   </element>
 
    <!-- UserService -->
 

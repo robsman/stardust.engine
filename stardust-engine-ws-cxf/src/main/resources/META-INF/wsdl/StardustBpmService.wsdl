@@ -720,6 +720,22 @@
       <wsdl:part element="impl:getDefaultRepositoryResponse" name="parameters"/>
    </wsdl:message>
 
+   <wsdl:message name="moveDocumentRequest">
+      <wsdl:part element="impl:moveDocument" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="moveDocumentResponse">
+      <wsdl:part element="impl:moveDocumentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeDocumentVersionRequest">
+      <wsdl:part element="impl:removeDocumentVersion" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeDocumentVersionResponse">
+      <wsdl:part element="impl:removeDocumentVersionResponse" name="parameters"/>
+   </wsdl:message>
+
    <!-- UserService -->
 
    <wsdl:message name="isInternalAuthenticationRequest">
@@ -2080,6 +2096,24 @@ The MigrationReport returned by each call contains information about: Total reso
          </wsdl:documentation>
          <wsdl:input message="impl:getDefaultRepositoryRequest" />
          <wsdl:output message="impl:getDefaultRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="moveDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Allows to identify the currently set default repository.
+         </wsdl:documentation>
+         <wsdl:input message="impl:moveDocumentRequest" />
+         <wsdl:output message="impl:moveDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDocumentVersion" parameterOrder="parameters">
+         <wsdl:documentation>
+         Allows to identify the currently set default repository.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeDocumentVersionRequest" />
+         <wsdl:output message="impl:removeDocumentVersionResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
@@ -3858,6 +3892,32 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="getDefaultRepository">
          <wsdlsoap:operation soapAction="getDefaultRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="moveDocument">
+         <wsdlsoap:operation soapAction="moveDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDocumentVersion">
+         <wsdlsoap:operation soapAction="removeDocumentVersion" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>

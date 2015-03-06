@@ -10,16 +10,26 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import java.util.List;
+import java.util.Vector;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry.ElementType;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 
@@ -90,9 +100,31 @@ public class PerformerUtils
 
       if ((PerformerType.ModelParticipant == performerKind) && (0 < performerOid))
       {
-         performer = ModelManagerFactory.getCurrent().findModelParticipant(
-               model.getModelOID(), performerOid);
+         
+         String[] fqId = ModelManagerFactory.getCurrent().getFqId(
+               IRuntimeOidRegistry.PARTICIPANT, performerOid);
+         
+         IModel participantModel = null;
+         if (fqId.length > 1)
+         {
+            participantModel  = ModelManagerFactory.getCurrent().findActiveModel(fqId[0]);
+         }
+         
+         // check if model can be traveres from context Model
+                         
+         if (participantModel != null && model.getModelOID() != participantModel.getModelOID()
+               && isParticipantModelLinkedToContextModel(model.getModelOID(),
+                     participantModel.getModelOID()))
+         {
+            performer = participantModel.findParticipant(fqId[1]);
+         }
+         else
+         {
+            performer = model.findParticipant(fqId[0]);
+         }
+      
       }
+            
       else if ((PerformerType.UserGroup == performerKind) && (0 != performerOid))
       {
          performer = UserGroupBean.findByOid(performerOid);
@@ -109,6 +141,57 @@ public class PerformerUtils
       return performer;
    }
    
+   
+   private static boolean isParticipantModelLinkedToContextModel (long modelOid, long participantModelOid)
+   {
+      return isParticipantModelLinkedToContextModel(modelOid, participantModelOid, new Vector<Long>() );
+   }
+   
+   private static boolean isParticipantModelLinkedToContextModel(long modelOid,
+         long participantModelOid, Vector<Long> visitedOids)
+   {
+      boolean isLinkedModel = false;
+
+      if ( !visitedOids.contains(modelOid))
+      {
+         visitedOids.add(modelOid);
+         List<IModel> usedModels = ModelRefBean.getUsedModels(ModelManagerFactory.getCurrent()
+               .findModel(modelOid));
+
+         for (IModel usedModel : usedModels)
+         {
+            if (usedModel.getModelOID() == participantModelOid)
+            {
+               return true;
+            }
+            else
+            {
+               isLinkedModel = isParticipantModelLinkedToContextModel(
+                     usedModel.getModelOID(), participantModelOid, visitedOids);
+            }
+         }
+
+         List<IModel> usingModels = ModelRefBean.getUsingModels(ModelManagerFactory.getCurrent()
+               .findModel(modelOid));
+
+         for (IModel usingModel : usingModels)
+         {
+            if (usingModel.getModelOID() == participantModelOid)
+            {
+               return true;
+            }
+            else
+            {
+               isLinkedModel = isParticipantModelLinkedToContextModel(
+                     usingModel.getModelOID(), participantModelOid, visitedOids);
+            }
+         }
+
+      }
+
+      return isLinkedModel;
+   }
+
    public static String getQualifiedName(IUser user)
    {
       StringBuffer label = new StringBuffer();

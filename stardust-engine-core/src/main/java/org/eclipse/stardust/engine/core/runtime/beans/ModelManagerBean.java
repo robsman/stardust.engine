@@ -37,6 +37,7 @@ import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry.ElementType;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
@@ -242,6 +243,11 @@ public class ModelManagerBean implements ModelManager
    public long getRuntimeOid(IData data, String xPath)
    {
       return getModelManagerPartition().getRuntimeOid(data, xPath);
+   }
+   
+   public String[] getFqId(ElementType type, long rtOid)
+   {
+      return getModelManagerPartition().getFqId(type, rtOid);
    }
 
    public DeploymentInfo deleteModel(IModel model)
@@ -1932,6 +1938,11 @@ public class ModelManagerBean implements ModelManager
       {
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,
                RuntimeOidUtils.getFqId(data, xPath));
+      }
+      
+      public String[] getFqId(ElementType type, long rtOid)
+      {
+         return rtOidRegistry.getFqId(type, rtOid);
       }
 
       public boolean isActive(IModel model)

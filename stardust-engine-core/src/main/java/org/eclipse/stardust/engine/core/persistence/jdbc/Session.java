@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
+import static org.eclipse.stardust.common.CollectionUtils.newList;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -1675,7 +1677,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          List<Persistent> persistentToBeInserted = Collections.EMPTY_LIST;
          List<Persistent> persistentToBeUpdated = Collections.EMPTY_LIST;
 
-         for (Class<?> type : objCacheRegistry.keySet())
+         // take a snapshot of the key set to avoid ConcurrentModificationExceptions
+         for (Class<?> type : newList(objCacheRegistry.keySet()))
          {
             Map cache = objCacheRegistry.get(type);
             if ((null == cache) || cache.isEmpty())

@@ -36,6 +36,8 @@ public abstract class SchedulingRecurrence
 
    private String startTime;
 
+   private Date date;
+
    public String getSECONDS()
    {
       return SECONDS;
@@ -156,7 +158,7 @@ public abstract class SchedulingRecurrence
    @SuppressWarnings("deprecation")
    protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression)
    {
-      Date currentDate = TimestampProviderUtils.getTimeStamp();
+      Date currentDate = getTimeStamp();
 
       String endDateStr = recurrenceRange.get("endDate").getAsString();
       Date endDate = SchedulingUtils.getParsedDate(endDateStr, SchedulingUtils.CLIENT_DATE_FORMAT);
@@ -193,7 +195,7 @@ public abstract class SchedulingRecurrence
    @SuppressWarnings("deprecation")
    protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression)
    {
-      Date currentDate = TimestampProviderUtils.getTimeStamp();
+      Date currentDate = getTimeStamp();
 
       // stop after n occurrences
       int occurences = recurrenceRange.get("occurences").getAsInt();
@@ -236,10 +238,28 @@ public abstract class SchedulingRecurrence
 
    protected Date getNoEndNextExecutionDate(CronExpression cronExpression)
    {
-      Date currentDate = TimestampProviderUtils.getTimeStamp();
+      Date currentDate = getTimeStamp();
 
       trace.info("No End Date is selected");
       return getNextExecutionDate(cronExpression, startDate.after(currentDate) ? startDate : currentDate, null);
+   }
+
+   /**
+    * Retrieves the current time stamp minute aligned.
+    *
+    * @return a date object corresponding to the start time stamp of the current minute.
+    */
+   protected Date getTimeStamp()
+   {
+      if (date == null)
+      {
+         date = TimestampProviderUtils.getTimeStamp();
+      }
+      Calendar calendar = TimestampProviderUtils.getCalendar(date);
+      calendar.setLenient(true);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      return calendar.getTime();
    }
 
    @SuppressWarnings("deprecation")
@@ -285,5 +305,10 @@ public abstract class SchedulingRecurrence
 
       }
       return nFutureExecutionDates;
+   }
+
+   public void setDate(Date date)
+   {
+      this.date = date;
    }
 }

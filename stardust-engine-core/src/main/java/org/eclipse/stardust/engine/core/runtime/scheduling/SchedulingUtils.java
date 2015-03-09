@@ -73,7 +73,7 @@ public class SchedulingUtils
     */
    public static String getExecutionTime(int slot)
    {
-      return TIME_SLOTS[slot - 1];
+      return TIME_SLOTS[slot];
    }
 
    public static Date getParsedDate(String startDateStr, DateFormat format)

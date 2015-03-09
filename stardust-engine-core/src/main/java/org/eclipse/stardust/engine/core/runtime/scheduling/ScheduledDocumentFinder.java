@@ -36,7 +36,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
    public static final String DESIGNS_SUBFOLDER = "/designs";
 
    private Date startingDate;
-   private Date executionDate;
+   protected Date executionDate;
    private DocumentManagementService dmService;
 
    private String extension;
@@ -118,6 +118,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
                   if (!matches)
                   {
                      SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+                     sc.setDate(executionDate);
                      Date processSchedule = sc.processSchedule(scheduleJson, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))

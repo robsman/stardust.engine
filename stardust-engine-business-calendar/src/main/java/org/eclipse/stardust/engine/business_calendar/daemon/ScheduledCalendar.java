@@ -128,16 +128,18 @@ public class ScheduledCalendar extends ScheduledDocument
             String businessObjectId = SchedulingUtils.getAsString(businessObjectJson, "businessObjectId");
             String modelId = SchedulingUtils.getAsString(businessObjectJson, "modelId");
             String primaryKey = SchedulingUtils.getAsString(businessObjectJson, "primaryKey");
-
-            String boFullId = new QName(modelId, businessObjectId).toString();
-            Object value = getBusinessObjectValue(boFullId, primaryKey);
-            if (value == NO_BUSINESS_OBJECT)
+            if (!StringUtils.isEmpty(businessObjectId) && !StringUtils.isEmpty(modelId) && !StringUtils.isEmpty(primaryKey))
             {
-               return null;
-            }
-            if (value != null)
-            {
-               data.put(businessObjectId, value);
+               String boFullId = new QName(modelId, businessObjectId).toString();
+               Object value = getBusinessObjectValue(boFullId, primaryKey);
+               if (value == NO_BUSINESS_OBJECT)
+               {
+                  return null;
+               }
+               if (value != null)
+               {
+                  data.put(businessObjectId, value);
+               }
             }
          }
       }

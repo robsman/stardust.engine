@@ -881,6 +881,7 @@ public class ModelManagerBean implements ModelManager
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
                if (predefinedModelElement != null)
                {
+                  trace.warn("Deploying missing PredefinedModel.xpdl");
                   loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT, rtOidRegistry);
 
                   Iterator<IModelPersistor> loadedModelsIncludingPredefinedModel = loader.loadModels();

@@ -114,13 +114,14 @@ public class PerformerUtils
                          
          if (participantModel != null && model.getModelOID() != participantModel.getModelOID()
                && isParticipantModelLinkedToContextModel(model.getModelOID(),
-                     participantModel.getModelOID()))
+                     participantModel.getId()))
          {
             performer = participantModel.findParticipant(fqId[1]);
          }
          else
          {
-            performer = model.findParticipant(fqId[0]);
+            performer = ModelManagerFactory.getCurrent().findModelParticipant(
+                  model.getModelOID(), performerOid);
          }
       
       }
@@ -142,13 +143,13 @@ public class PerformerUtils
    }
    
    
-   private static boolean isParticipantModelLinkedToContextModel (long modelOid, long participantModelOid)
+   private static boolean isParticipantModelLinkedToContextModel (long modelOid, String participantModelId)
    {
-      return isParticipantModelLinkedToContextModel(modelOid, participantModelOid, new Vector<Long>() );
+      return isParticipantModelLinkedToContextModel(modelOid, participantModelId, new Vector<Long>() );
    }
    
    private static boolean isParticipantModelLinkedToContextModel(long modelOid,
-         long participantModelOid, Vector<Long> visitedOids)
+         String participantModelId, Vector<Long> visitedOids)
    {
       boolean isLinkedModel = false;
 
@@ -160,14 +161,14 @@ public class PerformerUtils
 
          for (IModel usedModel : usedModels)
          {
-            if (usedModel.getModelOID() == participantModelOid)
+            if (usedModel.getId() == participantModelId)
             {
                return true;
             }
             else
             {
                isLinkedModel = isParticipantModelLinkedToContextModel(
-                     usedModel.getModelOID(), participantModelOid, visitedOids);
+                     usedModel.getModelOID(), participantModelId, visitedOids);
             }
          }
 
@@ -176,14 +177,14 @@ public class PerformerUtils
 
          for (IModel usingModel : usingModels)
          {
-            if (usingModel.getModelOID() == participantModelOid)
+            if (usingModel.getId() == participantModelId)
             {
                return true;
             }
             else
             {
                isLinkedModel = isParticipantModelLinkedToContextModel(
-                     usingModel.getModelOID(), participantModelOid, visitedOids);
+                     usingModel.getModelOID(), participantModelId, visitedOids);
             }
          }
 

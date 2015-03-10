@@ -18,9 +18,11 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
@@ -73,11 +75,13 @@ public abstract class ScheduledDocument
       String userId = owner.getLocalPart();
       if (StringUtils.isEmpty(userId))
       {
-//         IUser tu = TransientUser.getInstance();
-//         IUserRealm tr = tu.getRealm();
-//         return UserBean.createTransientUser(tu.getAccount(), tu.getFirstName(), tu.getLastName(),
-//               UserRealmBean.createTransientRealm(tr.getId(), tr.getName(), tr.getPartition()));
-         userId = "motu";
+         IAuditTrailPartition partition = SecurityProperties.getPartition();
+         UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
+               PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
+         return UserBean.createTransientUser(PredefinedConstants.SYSTEM,
+               PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
+               transientRealm);
+         //userId = "motu";
       }
 
       IUser user = new UserServiceImpl().internalGetUser(realmId, userId);

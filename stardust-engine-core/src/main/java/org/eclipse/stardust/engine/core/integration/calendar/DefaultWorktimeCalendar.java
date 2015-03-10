@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.core.integration.calendar;
 
 import java.util.Date;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * @author rsauer
  * @version $Revision$
@@ -34,7 +36,7 @@ public class DefaultWorktimeCalendar implements IWorktimeCalendar
 /*
       final Parameters params = Parameters.instance();
 
-      Calendar beginOfDay = Calendar.getInstance();
+      Calendar beginOfDay = TimestampProviderUtils.getCalendar();
       try
       {
          beginOfDay.setTime(timeParser.parse(params.getString(PARAM_BEGIN_OF_WORKDAY, "8:00")));
@@ -46,7 +48,7 @@ public class DefaultWorktimeCalendar implements IWorktimeCalendar
          beginOfDay.set(Calendar.HOUR_OF_DAY, 8);
       }
       
-      Calendar endOfDay = Calendar.getInstance();
+      Calendar endOfDay = TimestampProviderUtils.getCalendar();
       try
       {
          endOfDay.setTime(timeParser.parse(params.getString(PARAM_END_OF_WORKDAY, "16:00")));

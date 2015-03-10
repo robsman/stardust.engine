@@ -16,23 +16,27 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 {
+   private static final Logger trace = LogManager.getLogger(ScheduledDocumentFinder.class);
+
    public static final String REALMS_DIR = "/realms";
    public static final String USER_DIR = "/users";
    public static final String DESIGNS_SUBFOLDER = "/designs";
 
    private Date startingDate;
-   private Date executionDate;
+   protected Date executionDate;
    private DocumentManagementService dmService;
 
    private String extension;
@@ -48,7 +52,10 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       this.folderName = folderName;
    }
 
-   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String reportName);
+   protected abstract T createScheduledDocument(JsonObject documentJson, QName owner, String documentName,
+         String documentPath, List<JsonObject> events);
+
+   protected abstract List<JsonObject> getEvents(String path, JsonObject documentJson);
 
    protected String getExtension()
    {
@@ -90,53 +97,87 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
             boolean matches = false;
 
             String owner = document.getOwner();
-            String reportName = document.getName();
-            reportName = reportName.substring(0, reportName.length() - extension.length());
+            String documentName = document.getName();
+            documentName = documentName.substring(0, documentName.length() - extension.length());
 
-            String content = new String(dmService.retrieveDocumentContent(document.getId()));
-            JsonObject documentJson = new JsonParser().parse(content).getAsJsonObject();
-            JsonArray eventsArray = documentJson.getAsJsonArray("events");
+            JsonObject documentJson = getDocumentJson(document);
 
-            if (eventsArray != null)
+            List<JsonObject> matchingEvents = CollectionUtils.newList();
+            List<JsonObject> events = getEvents(document.getPath(), documentJson);
+            for (JsonObject event : events)
             {
-               for (JsonElement event : eventsArray)
+               JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(event, "scheduling");
+               if (scheduleJson != null && isActive(scheduleJson) && acceptEventType(SchedulingUtils.getAsString(event, "type")))
                {
-                  JsonObject eventJson = event.getAsJsonObject();
-                  if (eventJson != null && isActive(eventJson))
+                  if (isBlocking(event))
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(eventJson);
-                     Date processSchedule = sc.processSchedule(eventJson, true);
+                     matches = false;
+                     break;
+                  }
+
+                  if (!matches)
+                  {
+                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+                     sc.setDate(executionDate);
+                     Date processSchedule = sc.processSchedule(scheduleJson, true);
 
                      if (processSchedule != null && executionTimeMatches(processSchedule))
                      {
                         matches = true;
-                        break;
+                        matchingEvents.add(event);
                      }
                   }
                }
+            }
 
-               if (matches)
-               {
-                  scheduledDocuments.add(createScheduledDocument(documentJson,
-                        owner == null ? new QName("") : QName.valueOf(owner), reportName));
-               }
+            if (matches)
+            {
+               scheduledDocuments.add(createScheduledDocument(documentJson,
+                     owner == null ? new QName("") : QName.valueOf(owner),
+                     documentName, document.getPath(), matchingEvents));
             }
          }
       }
       return scheduledDocuments;
    }
 
+   protected JsonObject getDocumentJson(String id)
+   {
+      Document document = getDocumentManagementService().getDocument(id);
+      return document == null ? null : getDocumentJson(document);
+   }
+
+   protected JsonObject getDocumentJson(Document document)
+   {
+      String content;
+      try
+      {
+         content = new String(dmService.retrieveDocumentContent(document.getId()), "UTF-8");
+      }
+      catch (Exception e)
+      {
+         try
+         {
+            content = new String(dmService.retrieveDocumentContent(document.getId()));
+         }
+         catch (Exception ex)
+         {
+            trace.warn("Could not read imported document '" + document.getPath() + "'.", ex);
+            return new JsonObject();
+         }
+      }
+      return new JsonParser().parse(content).getAsJsonObject();
+   }
+
+   protected boolean isBlocking(JsonObject json)
+   {
+      return false;
+   }
+
    protected boolean isActive(JsonObject eventJson)
    {
       JsonElement active = eventJson.get("active");
-      return (active == null || active.getAsBoolean()) && acceptEventType(getAsString(eventJson, "type"));
-   }
-
-   private String getAsString(JsonObject json, String propertyName)
-   {
-      JsonElement property = json.get(propertyName);
-      return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
-            ? null : property.getAsString();
+      return active == null || active.getAsBoolean();
    }
 
    public List<Document> scanLocations()
@@ -207,17 +248,17 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
       Calendar scheduleCalendar = getCalendar(processSchedule);
       if (startingDate == null)
       {
-         return targetCalendar.after(scheduleCalendar);
+         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
       }
-
       Calendar startingCalendar = getCalendar(startingDate);
-      return scheduleCalendar.after(startingCalendar) && targetCalendar.after(scheduleCalendar);
+      return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
+            && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
    }
 
    protected Calendar getCalendar(Date date)
    {
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(date);
+      Calendar calendar = TimestampProviderUtils.getCalendar(date);
+      calendar.setLenient(true);
       calendar.set(Calendar.SECOND, 0);
       calendar.set(Calendar.MILLISECOND, 0);
       return calendar;

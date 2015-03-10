@@ -38,6 +38,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 import org.w3c.dom.Document;
 
 
@@ -139,7 +141,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       this.validFrom = validFrom;
       this.validTo = null;
       this.deploymentComment = comment;
-      this.deploymentStamp = new Date();
+      this.deploymentStamp = TimestampProviderUtils.getTimeStamp();
       this.disabled = 0;
       this.predecessor = predecessorOID;
       this.partition = partition;
@@ -156,7 +158,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
    public void modify(String comment)
    {
       this.deploymentComment = comment;
-      this.deploymentStamp = new Date();
+      this.deploymentStamp = TimestampProviderUtils.getTimeStamp();
    }
 
    public long getPredecessorOID()

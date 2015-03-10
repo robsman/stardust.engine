@@ -47,6 +47,7 @@ import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.core.struct.sxml.Text;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Searches for XPaths in an XSD
@@ -961,7 +962,7 @@ public class StructuredDataXPathUtils
       }
       else if (typeKey == BigData.DATE)
       {
-         return new Date();
+         return TimestampProviderUtils.getTimeStamp();
       }
       else if (typeKey == BigData.FLOAT)
       {

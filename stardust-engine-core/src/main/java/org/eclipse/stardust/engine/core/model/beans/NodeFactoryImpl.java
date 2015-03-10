@@ -23,6 +23,8 @@ import org.eclipse.stardust.engine.core.compatibility.diagram.GroupSymbol;
 import org.eclipse.stardust.engine.core.model.gui.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -498,7 +500,7 @@ public class NodeFactoryImpl implements NodeFactory
 
       writer.writeAttribute(MODEL_OID, model.getModelOID());
       writer.writeAttribute(VENDOR, VENDOR_NAME);
-      writer.writeAttribute(CREATED, new Date());
+      writer.writeAttribute(CREATED, TimestampProviderUtils.getTimeStamp());
 
       try
       {

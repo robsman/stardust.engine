@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.core.compatibility.gui;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * Entry representing java.util.Calendar values.
  */
@@ -49,8 +51,7 @@ public class DateEntry extends AbstractDateEntry
    {
       if (date != null)
       {
-         Calendar calendar = Calendar.getInstance();
-         calendar.setTime(date);
+         Calendar calendar = TimestampProviderUtils.getCalendar(date);
          setCalendar(calendar);
       }
       else

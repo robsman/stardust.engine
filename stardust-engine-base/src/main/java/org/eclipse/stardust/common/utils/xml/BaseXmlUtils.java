@@ -1095,18 +1095,4 @@ public class BaseXmlUtils
       }
    }
 
-   public static void main(String[] args)
-   {
-      String source = "C:\\development\\branches\\trunk\\runtime-New_configuration\\test\\models\\WorkflowModel.xpdl";
-      try
-      {
-         byte[] content = BaseXmlUtils.getContent(source);
-         System.out.println(content.length);
-         System.out.println(BaseXmlUtils.getXMLString(content));
-      }
-      catch (Throwable t)
-      {
-         t.printStackTrace();
-      }
-   }
 }

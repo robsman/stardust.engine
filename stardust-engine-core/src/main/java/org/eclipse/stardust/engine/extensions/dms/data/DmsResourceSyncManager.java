@@ -29,7 +29,6 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.query.DataQuery;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
@@ -39,15 +38,14 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * Responsible to sync existing AuditTrail document data and folder data.
- * 
+ *
  * @author Roland.Stamm
- * 
+ *
  */
 public class DmsResourceSyncManager
       implements IDmsResourceSyncListener, IDmsResourceSyncListener.Factory
@@ -105,7 +103,7 @@ public class DmsResourceSyncManager
                      if (value instanceof Document)
                      {
                         Document existingDocument = (Document) value;
-                        if (resourceIdEquals(existingDocument.getId(),
+                        if (RepositoryIdUtils.resourceIdEquals(existingDocument.getId(),
                               oldDocument.getId()))
                         {
                            // needs update
@@ -132,7 +130,7 @@ public class DmsResourceSyncManager
                         List<Document> documentList = CollectionUtils.newArrayList();
                         for (Document existingDocument : existingDocumentList)
                         {
-                           if (resourceIdEquals(existingDocument.getId(),
+                           if (RepositoryIdUtils.resourceIdEquals(existingDocument.getId(),
                                  oldDocument.getId()))
                            {
                               if (newDocument != null)
@@ -203,11 +201,19 @@ public class DmsResourceSyncManager
             String dataTypeId = iData.getType().getId();
             if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
             {
-               xPathOids.add(modelManager.getRuntimeOid(iData, AuditTrailUtils.RES_ID));
+               long runtimeOid = modelManager.getRuntimeOid(iData, AuditTrailUtils.RES_ID);
+               if (runtimeOid > 0)
+               {
+                  xPathOids.add(runtimeOid);
+               }
             }
             else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
             {
-               xPathOids.add(modelManager.getRuntimeOid(iData, documentsIdXPath));
+               long runtimeOid = modelManager.getRuntimeOid(iData, documentsIdXPath);
+               if (runtimeOid > 0)
+               {
+                  xPathOids.add(runtimeOid);
+               }
             }
          }
       }
@@ -262,37 +268,6 @@ public class DmsResourceSyncManager
          }
       }
       return scopePiOids;
-   }
-
-   /**
-    * Compares {@link Resource} Ids considering legacy Ids without repositoryId prefix.<br>
-    * The prefix pointing to the repositoryId
-    * {@link RepositoryManager#SYSTEM_REPOSITORY_ID} is optional.
-    * <p>
-    * For example: <br>
-    * '{urn:repository:default}{jcr-uuid}ABC' == '{jcr-uuid}ABC'.<br>
-    * However: <br>
-    * '{urn:repository:newRepository}{jcr-uuid}ABC' != '{jcr-uuid}ABC'
-    */
-   private static boolean resourceIdEquals(String id1, String id2)
-   {
-      String repositoryId1 = RepositoryIdUtils.extractRepositoryId(id1);
-      String repositoryId2 = RepositoryIdUtils.extractRepositoryId(id2);
-      if (repositoryId1 == null && repositoryId2 != null
-            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
-      {
-         return id1.equals(RepositoryIdUtils.stripRepositoryId(id2));
-      }
-      else if (repositoryId1 != null && repositoryId2 == null
-            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
-      {
-         return RepositoryIdUtils.stripRepositoryId(id1).equals(id2);
-      }
-      else
-      {
-         return id1.equals(id2);
-      }
-
    }
 
    public void folderChanged(Folder oldFolder, Folder newFolder)

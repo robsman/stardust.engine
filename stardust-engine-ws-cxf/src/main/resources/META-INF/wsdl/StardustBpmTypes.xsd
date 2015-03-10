@@ -242,45 +242,52 @@
 	-->
 
 	<complexType name="User">
-	    <annotation>
-	        <documentation>
-            The User represents a snapshot of the user state.
-            It contains general user information, as well as information regarding the
-            permissions the user currently has.
- 			The User can be modified and used to update the user's information including grants and userGroups.
-	        </documentation>
-	    </annotation>
-		<sequence>
-			<!-- optional for modify user -->
-			<element name="oid" type="long" minOccurs="0" />
+      <annotation>
+         <documentation>
+         The User represents a snapshot of the user state.
+         It contains general user information, as well as information regarding the
+         permissions the user currently has.
+   		The User can be modified and used to update the user's information including grants and userGroups.
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="oid" type="long" minOccurs="0" />
 
-			<element name="accountId" type="string" />
+         <element name="qualifiedId" type="string" minOccurs="0" />
+         <element name="accountId" type="string" />
 
-			<element name="firstName" type="string" minOccurs="0" />
-			<element name="lastName" type="string" minOccurs="0" />
-			<!-- optional for modify user -->
-			<element name="password" type="string" minOccurs="0" />
+         <element name="firstName" type="string" minOccurs="0" />
+         <element name="lastName" type="string" minOccurs="0" />
+         <!-- optional for modify user -->
+         <element name="password" type="string" minOccurs="0" />
 
-			<element name="previousLoginTime" type="dateTime" minOccurs="0" />
-			<element name="eMail" type="string" minOccurs="0" />
+         <element name="previousLoginTime" type="dateTime" minOccurs="0" />
+         <element name="eMail" type="string" minOccurs="0" />
 
-			<element name="validFrom" type="dateTime" minOccurs="0" />
-			<element name="validTo" type="dateTime" minOccurs="0" />
+         <element name="validFrom" type="dateTime" minOccurs="0" />
+         <element name="validTo" type="dateTime" minOccurs="0" />
 
-			<element name="description" type="string" minOccurs="0" />
-			<!-- optional for modify user -->
-			<element name="detailsLevel" type="int" minOccurs="0" />
+         <element name="description" type="string" minOccurs="0" />
 
-			<element name="userRealm" type="tns:UserRealm" minOccurs="0" />
+         <element name="administrator" type="boolean" />
 
-			<element name="userGroups" type="tns:UserGroups" minOccurs="0" />
+         <element name="permissionStates" type="tns:PermissionStates" minOccurs="0" />
 
-			<element name="grants" type="tns:Grants" minOccurs="0" />
+         <element name="detailsLevel" type="int" minOccurs="0" />
 
-			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+         <element name="userRealm" type="tns:UserRealm" minOccurs="0" />
 
-            <element name="passwordExpired" type="boolean" />
-		</sequence>
+         <element name="userGroups" type="tns:UserGroups" minOccurs="0" />
+
+         <element name="grants" type="tns:Grants" minOccurs="0" />
+
+         <element name="attributes" type="tns:Attributes" minOccurs="0" />
+
+         <element name="passwordExpired" type="boolean" />
+
+         <element name="qualityAssuranceProbability" type="int" minOccurs="0" />
+
+      </sequence>
 	</complexType>
 
 	<complexType name="Grants">
@@ -658,6 +665,7 @@
 			<!-- from ModelElement -->
 			<element name="modelOid" type="long" />
 			<element name="id" type="string" minOccurs="0" />
+			<element name="qualifiedId" type="string" minOccurs="0" />
 			<element name="name" type="string" minOccurs="0" />
 			<element name="description" type="string" minOccurs="0" />
 			<element name="partitionId" type="string" minOccurs="0" />
@@ -1241,14 +1249,14 @@
 				minOccurs="0" />
 			<element name="historicalEvents" type="tns:HistoricalEvents"
 				minOccurs="0" />
-				
+
 			<element name="criticality" type="double"/>
 
 			<element name="qualityAssuranceInfo" type="tns:QualityAssuranceInfo" minOccurs="0" />
 			<element name="qualityAssuranceState" type="tns:QualityAssuranceState" minOccurs="0" />
-						
+
 			<element name="attributes" type="tns:ActivityInstanceAttributes" minOccurs="0" />
-			
+
 		</sequence>
 	</complexType>
 
@@ -1283,6 +1291,7 @@
 
 			<element name="rootProcessOid" type="long" />
 			<element name="scopeProcessOid" type="long" />
+         <element name="parentProcessOid" type="long" />
 
 			<element name="priority" type="int" />
 
@@ -1305,6 +1314,9 @@
 
 			<element name="historicalEvents" type="tns:HistoricalEvents"
 				minOccurs="0" />
+
+         <element name="permissionStates" type="tns:PermissionStates"
+            minOccurs="0" />
 
 			<element name="caseProcessInstance" type="boolean" />
 
@@ -2566,7 +2578,7 @@
    			<element name="modelparticipantInfo" type="tns:ModelParticipantInfo" minOccurs="0" maxOccurs="unbounded" />
    		</sequence>
    </complexType>
-   
+
 	<complexType name="QualityAssuranceInfo">
 		<annotation>
 			<documentation>
@@ -2578,22 +2590,22 @@
 			<element name="monitoredInstance" type="tns:ActivityInstance" />
 
 		</sequence>
-	</complexType>   
-	
+	</complexType>
+
 	<complexType name="ActivityInstanceAttributes">
 		<annotation>
 			<documentation>
-				This class contains attributes for an activity instance. 
+				This class contains attributes for an activity instance.
 			</documentation>
 		</annotation>
 		<sequence>
 			<element name="activityInstanceOid" type="long" />
 			<element name="qualityAssuranceResult" type="tns:QualityAssuranceResult" />
 			<element name="notes" type="tns:Note"  minOccurs="0" maxOccurs="unbounded" />
-			
+
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="QualityAssuranceResult">
 		<annotation>
 			<documentation>
@@ -2619,11 +2631,11 @@
 			<element name="name" type="string"/>
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="BusinessObjects">
 		<sequence>
 			<element name="businessObject" type="tns:BusinessObject"
-				minOccurs="0" maxOccurs="unbounded" />		
+				minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
 
@@ -2641,28 +2653,28 @@
 			<element name="items" type="tns:BusinessObjectDefinitions" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="BusinessObjectValues">
 		<sequence>
 			<element name="value" type="tns:BusinessObjectValue"
-				minOccurs="0" maxOccurs="unbounded" />			
+				minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
 
 	<complexType name="BusinessObjectDefinitions">
 		<sequence>
 			<element name="item" type="tns:BusinessObjectDefinition"
-				minOccurs="0" maxOccurs="unbounded" />			
+				minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="BusinessObjectValue">
 		<sequence>
 			<element name="processInstanceOid" type="long" />
 			<element name="value" type="tns:Parameter" />
 		</sequence>
 	</complexType>
-	
+
 	<complexType name="BusinessObjectDefinition">
 		<sequence>
 			<element name="name" type="string" />
@@ -2762,7 +2774,7 @@
 			<enumeration value="SubHierarchy" />
 		</restriction>
 	</simpleType>
-	
+
 	<simpleType name="QualityAssuranceState">
 		<restriction base="string">
 			<enumeration value="NO_QUALITY_ASSURANCE" />
@@ -2771,7 +2783,7 @@
 			<enumeration value="IS_REVISED" />
 		</restriction>
 	</simpleType>
-	
+
 	<simpleType name="ResultState">
 		<restriction base="string">
 			<enumeration value="PASS_WITH_CORRECTION" />
@@ -2779,5 +2791,5 @@
 			<enumeration value="FAILED" />
 		</restriction>
 	</simpleType>
-		
+
 </schema>

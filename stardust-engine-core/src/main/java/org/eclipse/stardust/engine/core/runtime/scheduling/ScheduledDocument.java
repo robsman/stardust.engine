@@ -14,12 +14,11 @@ package org.eclipse.stardust.engine.core.runtime.scheduling;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.UserServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
@@ -72,6 +71,14 @@ public abstract class ScheduledDocument
          realmId = DEFAULT_REALM_ID;
       }
       String userId = owner.getLocalPart();
+      if (StringUtils.isEmpty(userId))
+      {
+//         IUser tu = TransientUser.getInstance();
+//         IUserRealm tr = tu.getRealm();
+//         return UserBean.createTransientUser(tu.getAccount(), tu.getFirstName(), tu.getLastName(),
+//               UserRealmBean.createTransientRealm(tr.getId(), tr.getName(), tr.getPartition()));
+         userId = "motu";
+      }
 
       IUser user = new UserServiceImpl().internalGetUser(realmId, userId);
 

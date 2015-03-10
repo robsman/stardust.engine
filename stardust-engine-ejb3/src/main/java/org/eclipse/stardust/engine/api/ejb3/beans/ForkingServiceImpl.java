@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
 import org.eclipse.stardust.engine.core.runtime.ejb.RemoteSessionForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -191,7 +192,7 @@ public class ForkingServiceImpl implements org.eclipse.stardust.engine.core.runt
       // prevent firing of batch events if the system time is changed on a running engine.
       String type = carrier.getType();
       Long lastRun = lastRuns.get(type);
-      long now = System.currentTimeMillis();
+      long now = TimestampProviderUtils.getTimeStampValue();
       if (lastRun == null || now - lastRun > 100 || now < lastRun)
       {
          ForkingService forkingService = getForkingServiceFactory().get();

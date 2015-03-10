@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.spi.security.CredentialDeliveryStrategy;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -347,10 +348,9 @@ public class SecurityUtils
          return false;
       }
 
-      Date now = new Date();      
+      Date now = TimestampProviderUtils.getTimeStamp();
       
-      Calendar expires = Calendar.getInstance();
-      expires.setTimeInMillis(lastModified);
+      Calendar expires = TimestampProviderUtils.getCalendar(lastModified);
       expires.add(Calendar.DATE, rules.getExpirationTime());
       
       if(expires.getTime().getTime() <= now.getTime())
@@ -385,10 +385,9 @@ public class SecurityUtils
          return false;
       }      
 
-      Date now = new Date();      
+      Date now = TimestampProviderUtils.getTimeStamp();
       
-      Calendar disabled = Calendar.getInstance();
-      disabled.setTimeInMillis(lastModified);
+      Calendar disabled = TimestampProviderUtils.getCalendar(lastModified);
       disabled.add(Calendar.DATE, rules.getExpirationTime());
       disabled.add(Calendar.DATE, rules.getDisableUserTime());
       
@@ -413,7 +412,7 @@ public class SecurityUtils
    
    public static boolean isUserInvalid(IUser user)
    {
-      if(user.getValidTo() == null || user.getValidTo().after(new Date()))
+      if(user.getValidTo() == null || user.getValidTo().after(TimestampProviderUtils.getTimeStamp()))
       {
          return false;
       }      
@@ -422,7 +421,7 @@ public class SecurityUtils
    
    public static void generatePasswordResetToken(IUser user)
    {
-		String plainToken = user.getOID() + "-" + new Date().getTime();
+		String plainToken = user.getOID() + "-" + TimestampProviderUtils.getTimeStampValue();
 		try
 		{
 			MessageDigest md = MessageDigest.getInstance("SHA-1");

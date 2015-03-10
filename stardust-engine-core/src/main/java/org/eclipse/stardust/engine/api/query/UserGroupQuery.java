@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.api.query;
 
 import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Query for fetching workflow user groups matching specific criteria. Most common filter
@@ -67,7 +68,7 @@ public class UserGroupQuery extends Query
    {
       UserGroupQuery query = new UserGroupQuery();
 
-      query.getFilter().addOrTerm().or(VALID_TO.greaterThan(System.currentTimeMillis()))
+      query.getFilter().addOrTerm().or(VALID_TO.greaterThan(TimestampProviderUtils.getTimeStampValue()))
             .or(VALID_TO.isEqual(0));
 
       return query;

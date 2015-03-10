@@ -42,6 +42,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.DocumentAnnotations;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -565,7 +566,7 @@ public class ExtractPageCommand implements ServiceCommand
    private String generateName()
    {
       StringBuilder name = new StringBuilder().append(fileName).append("_")
-            .append(String.valueOf(new Date().getTime()));
+            .append(String.valueOf(TimestampProviderUtils.getTimeStampValue()));
 
       if (StringUtils.isNotEmpty(fileExtn))
       {

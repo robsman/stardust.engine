@@ -49,7 +49,7 @@ public class VersionTest
    @Test
    public void testBuildVersionName()
    {
-      String version = BASE_VERSION_VAL + "." + BUILD_VAL + " (" + SNAPSHOT_ALIAS_VAL + ")";
+      String version = BASE_VERSION_VAL + "." + BUILD_VAL + "-" + SNAPSHOT_ALIAS_VAL.replace("-SNAPSHOT", "");
       assertEquals(version, CurrentVersion.getBuildVersionName());
    }
    

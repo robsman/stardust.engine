@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.upgrade.jobs.RuntimeJobs;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -38,7 +39,7 @@ public class RuntimeUpgrader extends Upgrader
 
    private String password;
    private List jobs;
-   private String id = Long.toString(Calendar.getInstance().getTime().getTime());
+   private String id = Long.toString(TimestampProviderUtils.getTimeStampValue());
    private boolean ignoreLock = false;
    
    private final boolean readonly;

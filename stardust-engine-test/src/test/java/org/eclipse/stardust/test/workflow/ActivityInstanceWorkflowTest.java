@@ -821,7 +821,7 @@ public class ActivityInstanceWorkflowTest
    @Test
    public void testActivateNextActivityInstanceByAiOid()
    {
-      // TODO remove as soon as CRNT-29836 has been resolved
+      /* increasing the timestamp epsilson to allow for reliable execution of 'activateNextActivityInstance()' */
       GlobalParameters.globals().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
 
       startProcess(PD_1_ID);

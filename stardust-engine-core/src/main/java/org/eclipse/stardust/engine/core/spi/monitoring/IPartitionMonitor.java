@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.monitoring;
+
+import java.util.Collection;
 
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
@@ -60,15 +62,30 @@ public interface IPartitionMonitor
     */
    void userDisabled(IUser user);
 
+   @Deprecated
+   void modelDeployed(IModel model, boolean isOverwrite) throws DeploymentException;
+ 
    /**
     * Client can check if arguments are valid and otherwise throw an DeploymentException.
+    * This is called before deployment/overwrite of all models given models is performed.
     * 
     * @param model
     * @param isOverwrite
     * @throws DeploymentException
     */
-   void modelDeployed(IModel model, boolean isOverwrite) throws DeploymentException;
- 
+   void beforeModelDeployment(Collection<IModel> models, boolean isOverwrite) throws DeploymentException;
+
+   /**
+    * Client can check if arguments are valid and otherwise throw an DeploymentException.
+    * This is called after deployment/overwrite of all models given models is performed. Still
+    *
+    *
+    * @param model
+    * @param isOverwrite
+    * @throws DeploymentException
+    */
+   void afterModelDeployment(Collection<IModel> models, boolean isOverwrite) throws DeploymentException;
+
    /**
     * Client can check if arguments are valid and otherwise throw an DeploymentException.
     * 

@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.preferences.IStaticConfigurationProvider;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -442,7 +443,7 @@ public class GlobalsCachedPersistenceManager
          {
             AgeCache realmPreferencesCache = getRealmPreferencesCache(partitionId, realmId);
 
-            realmPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
+            realmPreferencesCache.setLastModified(TimestampProviderUtils.getTimeStamp());
             realmPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
                   preferenceValues);
 
@@ -451,7 +452,7 @@ public class GlobalsCachedPersistenceManager
          {
             AgeCache partitionPreferencesCache = getPartitionPreferencesCache(partitionId);
 
-            partitionPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
+            partitionPreferencesCache.setLastModified(TimestampProviderUtils.getTimeStamp());
             partitionPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
                   preferenceValues);
 

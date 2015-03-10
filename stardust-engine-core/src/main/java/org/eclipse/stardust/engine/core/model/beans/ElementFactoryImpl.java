@@ -595,8 +595,12 @@ public class ElementFactoryImpl implements ElementFactory
       if (performer == null)
       {
          String dataId = reader.getRawAttribute(DATA_REF_ATT);
-         IData data = model.findData(dataId);
-
+         IData data = null;
+         if(!StringUtils.isEmpty(dataId))
+         {
+            data = model.findData(dataId);            
+         }
+            
          String dataPath = reader.getAttribute(DATA_PATH_ATT);
          boolean isUser = reader.getBooleanAttribute(IS_USER_ATT, false);
 

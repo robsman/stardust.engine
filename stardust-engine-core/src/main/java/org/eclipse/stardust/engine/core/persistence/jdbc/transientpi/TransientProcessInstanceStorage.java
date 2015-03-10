@@ -44,13 +44,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class TransientProcessInstanceStorage
 {
    private static final String PERSISTENT_TO_ROOT_PI_MAP_ID = "stardust::persistentToRootProcessInstanceMap";
 
    private static final String ROOT_PI_TO_PI_BLOB_MAP_ID = "stardust::rootProcessInstanceToProcessInstanceBlobMap";
+
+   private static volatile TransientProcessInstanceStorage instance;
 
    private final ProcessInstanceBlobsHolder piBlobsHolder;
 
@@ -59,7 +60,26 @@ public class TransientProcessInstanceStorage
     */
    public static TransientProcessInstanceStorage instance()
    {
-      return TransientProcessInstanceStorageHolder.instance;
+      if (instance == null)
+      {
+         synchronized (TransientProcessInstanceStorage.class)
+         {
+            if (instance == null)
+            {
+               instance = new TransientProcessInstanceStorage();
+            }
+         }
+      }
+      return instance;
+   }
+
+   public static void reset()
+   {
+      synchronized (TransientProcessInstanceStorage.class)
+      {
+         instance = null;
+      }
+      ClusterSafeObjectProviderHolder.OBJ_PROVIDER.reset();
    }
 
    /**
@@ -578,16 +598,5 @@ public class TransientProcessInstanceStorage
       {
          return rootPiToPiBlob.get(rootPiOid);
       }
-   }
-
-   /**
-    * <p>
-    * This class' only purpose is to ensure both safe publication and lazy initialization
-    * (see 'lazy initialization class holder' idiom).
-    * </p>
-    */
-   private static final class TransientProcessInstanceStorageHolder
-   {
-      public static final TransientProcessInstanceStorage instance = new TransientProcessInstanceStorage();
    }
 }

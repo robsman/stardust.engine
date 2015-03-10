@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine;
 import org.eclipse.stardust.common.BaseTestSuite;
 import org.eclipse.stardust.common.config.ConfigTestSuite;
 import org.eclipse.stardust.common.config.extensions.ExtensionsTestSuite;
+import org.eclipse.stardust.common.criticality.CriticalityTestSuite;
 import org.eclipse.stardust.common.reflect.ReflectTestSuite;
 import org.eclipse.stardust.common.utils.xml.XmlUtilsTestSuite;
 import org.eclipse.stardust.engine.api.query.QueryTestSuite;
@@ -32,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses( {  BaseTestSuite.class,
                   ConfigTestSuite.class,
+                  CriticalityTestSuite.class,
                   EngineSetupTestSuite.class,
                   ExtensionsTestSuite.class,
                   XmlUtilsTestSuite.class,

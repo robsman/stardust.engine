@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -56,11 +57,10 @@ public class UserLoginStatisticsRetriever implements IUserQueryEvaluator
 
       // retrieve login times
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
-      final Calendar cal = Calendar.getInstance();
+      final Calendar cal = TimestampProviderUtils.getCalendar(now);
 
-      cal.setTime(now);
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
       cal.set(Calendar.SECOND, 0);
@@ -105,8 +105,8 @@ public class UserLoginStatisticsRetriever implements IUserQueryEvaluator
 
       // TODO implement
 
-      final Date loggedInFrom = new Date();
-      final Date loggedInUntil = new Date();
+      final Date loggedInFrom = TimestampProviderUtils.getTimeStamp();
+      final Date loggedInUntil = TimestampProviderUtils.getTimeStamp();
 
       final Map<Long, Date> lastActivityPerUser = CollectionUtils.newMap();
       final Map<Long, LoginStatistics> loginStatistics = CollectionUtils.newMap();

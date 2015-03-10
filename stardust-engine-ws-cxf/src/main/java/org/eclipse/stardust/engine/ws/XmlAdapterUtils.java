@@ -21,18 +21,7 @@ import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.TYPE_ATT;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.getDmsTypeName;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.getStructuredTypeName;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.isDmsType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.isEntityBeanType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.isPrimitiveType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.isSerializableType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.isStructuredType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalInstanceProperties;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalPrimitiveType;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalProcessInstanceProperties;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalStructValue;
-import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalStructValue;
+import static org.eclipse.stardust.engine.ws.DataFlowUtils.*;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.storeDocumentIntoDms;
 import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
@@ -41,28 +30,26 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDNamedComponent;
+import org.eclipse.xsd.XSDSchema;
+import org.eclipse.xsd.util.XSDParser;
+import org.eclipse.xsd.util.XSDResourceImpl;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.ConfigurationError;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -71,146 +58,15 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.xml.StaticNamespaceContext;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.ConditionalPerformerInfoDetails;
-import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.DataDetails;
-import org.eclipse.stardust.engine.api.dto.DepartmentInfoDetails;
-import org.eclipse.stardust.engine.api.dto.HistoricalState;
-import org.eclipse.stardust.engine.api.dto.ModelDetails;
-import org.eclipse.stardust.engine.api.dto.ModelParticipantDetails;
-import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
-import org.eclipse.stardust.engine.api.dto.ModelReconfigurationInfoDetails;
-import org.eclipse.stardust.engine.api.dto.Note;
-import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
-import org.eclipse.stardust.engine.api.dto.PasswordRulesDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetailsLevel;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
+import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
-import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
-import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
-import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
-import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.Application;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.ConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.ConditionalPerformerInfo;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.DynamicParticipantInfo;
-import org.eclipse.stardust.engine.api.model.EventAction;
-import org.eclipse.stardust.engine.api.model.EventHandler;
-import org.eclipse.stardust.engine.api.model.ExternalReference;
-import org.eclipse.stardust.engine.api.model.FormalParameter;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.ModelElement;
-import org.eclipse.stardust.engine.api.model.ModelParticipant;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.Organization;
-import org.eclipse.stardust.engine.api.model.OrganizationInfo;
-import org.eclipse.stardust.engine.api.model.ParameterMapping;
-import org.eclipse.stardust.engine.api.model.Participant;
-import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ProcessInterface;
-import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.Role;
-import org.eclipse.stardust.engine.api.model.RoleInfo;
-import org.eclipse.stardust.engine.api.model.SchemaType;
-import org.eclipse.stardust.engine.api.model.Trigger;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.model.XpdlType;
-import org.eclipse.stardust.engine.api.query.ActivityInstances;
-import org.eclipse.stardust.engine.api.query.BusinessObjects;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
-import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
-import org.eclipse.stardust.engine.api.query.LogEntries;
-import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.query.Query;
-import org.eclipse.stardust.engine.api.query.QueryResult;
-import org.eclipse.stardust.engine.api.query.UserGroups;
-import org.eclipse.stardust.engine.api.query.Users;
-import org.eclipse.stardust.engine.api.query.Worklist;
-import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
-import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
-import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
-import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.ActivityScope;
-import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.BusinessObject;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
-import org.eclipse.stardust.engine.api.runtime.Daemon;
-import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
-import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
-import org.eclipse.stardust.engine.api.runtime.Deputy;
-import org.eclipse.stardust.engine.api.runtime.DeputyOptions;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.Documents;
-import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.FolderInfo;
-import org.eclipse.stardust.engine.api.runtime.Grant;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionDelegation;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionStateChange;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.ImplementationDescription;
-import org.eclipse.stardust.engine.api.runtime.ImplementationDescriptionDetails;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.LogEntry;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo;
-import org.eclipse.stardust.engine.api.runtime.ModelScope;
-import org.eclipse.stardust.engine.api.runtime.Models;
-import org.eclipse.stardust.engine.api.runtime.PasswordRules;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.Privilege;
-import org.eclipse.stardust.engine.api.runtime.ProcessDefinitions;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.ProcessScope;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
-import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
-import org.eclipse.stardust.engine.api.runtime.ResourceInfo;
-import org.eclipse.stardust.engine.api.runtime.RuntimePermissions;
-import org.eclipse.stardust.engine.api.runtime.Scope;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
-import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
-import org.eclipse.stardust.engine.api.runtime.UserInfo;
-import org.eclipse.stardust.engine.api.runtime.UserRealm;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto.InteractionContextsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.ErrorsXto;
@@ -252,28 +108,9 @@ import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
-import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlEntry;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlPolicy;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsPrivilege;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
-import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
+import org.eclipse.stardust.engine.extensions.dms.data.*;
 import org.eclipse.stardust.engine.extensions.dms.data.emfxsd.DmsSchemaProvider;
 import org.eclipse.stardust.engine.ws.processinterface.DomUtils;
-import org.eclipse.xsd.XSDElementDeclaration;
-import org.eclipse.xsd.XSDNamedComponent;
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.util.XSDParser;
-import org.eclipse.xsd.util.XSDResourceImpl;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * @author Robert.Sauer
@@ -429,6 +266,7 @@ public class XmlAdapterUtils
       xto.setOid(u.getOID());
 
       xto.setAccountId(u.getAccount());
+      xto.setQualifiedId(u.getQualifiedId());
 
       xto.setFirstName(u.getFirstName());
       xto.setLastName(u.getLastName());
@@ -440,6 +278,9 @@ public class XmlAdapterUtils
       xto.setValidTo(u.getValidTo());
 
       xto.setDescription(u.getDescription());
+      xto.setPermissionStates(marshalPrivatePermissionStatesMap(u));
+
+      xto.setAdministrator(u.isAdministrator());
 
       xto.setDetailsLevel(u.getDetailsLevel().getValue());
 
@@ -453,6 +294,20 @@ public class XmlAdapterUtils
 
       xto.setPasswordExpired(u.isPasswordExpired());
 
+      xto.setQualityAssuranceProbability(u.getQualityAssuranceProbability());
+
+      return xto;
+   }
+
+   private static PermissionStatesXto marshalPrivatePermissionStatesMap(Object object)
+   {
+      PermissionStatesXto xto = null;
+      if (object != null)
+      {
+         @SuppressWarnings("unchecked")
+         Map<String,PermissionState> permissionsMap = (Map<String,PermissionState>) Reflect.getFieldValue(object, "permissions");
+         xto = marshalPermissionStates(permissionsMap);
+      }
       return xto;
    }
 
@@ -500,6 +355,7 @@ public class XmlAdapterUtils
             ret.setValidFrom(user.getValidFrom());
             ret.setValidTo(user.getValidTo());
             ret.setPassword(user.getPassword());
+            ret.setQualityAssuranceProbability(user.getQualityAssuranceProbability());
 
             unmarshalGrants(user.getGrants(), ret);
 
@@ -627,7 +483,7 @@ public class XmlAdapterUtils
 			for (Grant remGrant : removeGrants) {
 				String qualifiedId = remGrant.getQualifiedId();
 				Department department = remGrant.getDepartment();
-				
+
 				if (department != null) {
 					DepartmentInfo departmentInfo = new DepartmentInfoDetails(
 							department.getOID(), department.getId(),
@@ -640,8 +496,8 @@ public class XmlAdapterUtils
 					ret.removeGrant(ParticipantInfoUtil
 							.newModelParticipantInfo(qualifiedId));
 				}
-			
-			}			
+
+			}
 		}
 	}
 
@@ -685,6 +541,7 @@ public class XmlAdapterUtils
          ret.setModelOid(me.getModelOID());
          ret.setName(me.getName());
          ret.setId(me.getId());
+         ret.setQualifiedId(me.getQualifiedId());
          ret.setDescription(me.getDescription());
          ret.setPartitionId(me.getPartitionId());
          ret.setPartitionOid(me.getPartitionOID());
@@ -1838,6 +1695,7 @@ public class XmlAdapterUtils
       res.setProcessDefinitionName(pi.getProcessName());
       res.setRootProcessOid(pi.getRootProcessInstanceOID());
       res.setScopeProcessOid(pi.getScopeProcessInstanceOID());
+      res.setParentProcessOid(pi.getParentProcessInstanceOid());
       res.setState(pi.getState());
       res.setPriority(pi.getPriority());
 
@@ -1870,6 +1728,8 @@ public class XmlAdapterUtils
       }
 
       res.setHistoricalEvents(marshalHistoricalEvents(pi.getHistoricalEvents()));
+
+      res.setPermissionStates(marshalPrivatePermissionStatesMap(pi));
 
       res.setCaseProcessInstance(pi.isCaseProcessInstance());
 
@@ -2262,7 +2122,7 @@ public class XmlAdapterUtils
          res.setProcessDefinitionId(ai.getProcessDefinitionId());
 
          res.setCriticality(ai.getCriticality());
-         
+
          // TODO replace with regular getter
          if (ai instanceof ActivityInstanceDetails)
          {
@@ -2271,9 +2131,7 @@ public class XmlAdapterUtils
          }
          if (ai instanceof ActivityInstanceDetails)
          {
-            @SuppressWarnings("unchecked")
-            Map<String, PermissionState> permissionStates = (Map<String, PermissionState>) Reflect.getFieldValue(ai, "permissions");
-            res.setPermissionStates(marshalPermissionStates(permissionStates));
+            res.setPermissionStates(marshalPrivatePermissionStatesMap(ai));
          }
 
          res.setProcessOid(ai.getProcessInstanceOID());
@@ -2330,11 +2188,11 @@ public class XmlAdapterUtils
          res.setHistoricalEvents(marshalHistoricalEvents(ai.getHistoricalEvents()));
 
          res.setQualityAssuranceInfo(marshalQualityAssuranceInfo(ai.getQualityAssuranceInfo()));
-         
+
          res.setQualityAssuranceState(marshalQualityAssuranceState(ai.getQualityAssuranceState()));
 
          res.setAttributes(marshalActivityInstanceAttributes(ai.getAttributes()));
-         
+
          final ModelParticipant defaultPerformer = ai.getActivity().getDefaultPerformer();
          if (defaultPerformer instanceof ConditionalPerformer)
          {
@@ -2357,7 +2215,7 @@ public class XmlAdapterUtils
       if (attributes != null)
       {
          ret = new ActivityInstanceAttributesXto();
-         
+
          ret.setActivityInstanceOid(attributes.getActivityInstanceOid());
          ret.getNotes().addAll(marshalNotes(attributes.getNotes()));
          ret.setQualityAssuranceResult(marshalQualityAssuranceResult(attributes.getQualityAssuranceResult()));
@@ -2372,7 +2230,7 @@ public class XmlAdapterUtils
       {
          ret = CollectionUtils.newArrayList();
          for (Note note : notes)
-         {                       
+         {
             NoteXto xto = new NoteXto();
             xto.setText(note.getText());
             xto.setTimestamp(note.getTimestamp());
@@ -2386,7 +2244,7 @@ public class XmlAdapterUtils
             {
                xto.setProcessOid(note.getContextOid());
             }
-                        
+
             ret.add(xto);
          }
       }
@@ -2414,14 +2272,14 @@ public class XmlAdapterUtils
       if (qualityAssuranceCodes != null)
       {
          ret = CollectionUtils.newSet();
-         
+
          for (QualityAssuranceCode qaCode : qualityAssuranceCodes)
          {
             QualityAssuranceCodeXto qaCodeXto = new QualityAssuranceCodeXto();
             qaCodeXto.setCode(qaCode.getCode());
             qaCodeXto.setDescription(qaCode.getDescription());
             qaCodeXto.setName(qaCode.getName());
-            
+
             ret.add(qaCodeXto);
          }
       }
@@ -3095,21 +2953,27 @@ public class XmlAdapterUtils
    public static DocumentXto toWs(Document doc, QName metaDataType,
          Set<TypedXPath> metaDataXPaths)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
+      }
       return xto;
    }
 
    public static DocumentXto toWs(Document doc, Model model, String metaDataTypeId, ModelResolver resolver)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
+      }
       return xto;
    }
 
@@ -4546,13 +4410,6 @@ public class XmlAdapterUtils
                err.getMessageArgs()));
 
       }
-      else if (errorCase instanceof ConfigurationError)
-      {
-         ConfigurationError err = (ConfigurationError) errorCase;
-
-         xto.setFaultId(err.getId());
-         xto.setFaultDescription(err.getDefaultMessage());
-      }
       throw new BpmFault(e.getMessage(), xto);
    }
 
@@ -5829,71 +5686,71 @@ public class XmlAdapterUtils
       xto.setVersioningSupported(capabilities.isVersioningSupported());
       xto.setWriteSupported(capabilities.isWriteSupported());
    }
-   
+
    public static BusinessObjectXto toWs(BusinessObject biObject)
    {
       BusinessObjectXto xto = null;
-      
+
       if(biObject != null)
       {
          xto = new BusinessObjectXto();
-               
+
          xto.setModelOid(biObject.getModelOid());
          xto.setId(biObject.getId());
          xto.setModelId(biObject.getModelId());
          xto.setName(biObject.getName());
-         
+
          xto.setItems(marshalBusinessObjectsDefinitions(biObject.getItems()));
-         
+
          xto.setValues(marshalBusinessObjectValuesXto(biObject.getValues(), biObject.getId(), biObject.getModelId()));
-         
+
       }
       return xto;
    }
-   
+
    private static BusinessObjectDefinitionsXto marshalBusinessObjectsDefinitions(
          List<Definition> biDefinitions)
    {
       BusinessObjectDefinitionsXto xto = null;
-      
+
       if (biDefinitions != null)
       {
          xto = new BusinessObjectDefinitionsXto();
-         
+
          for (Definition definition : biDefinitions)
          {
             xto.getItem().add(marshalBusinessObjectsDefinition(definition));
          }
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectValuesXto marshalBusinessObjectValuesXto(List<Value> biValues, String dataId, String modelId)
    {
       BusinessObjectValuesXto xto = null;
-      
+
       if (biValues != null)
       {
          xto = new BusinessObjectValuesXto();
-         
+
          for (Value value : biValues)
          {
             xto.getValue().add(marshalBusinessObjectsValue(value, dataId, modelId));
          }
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectDefinitionXto marshalBusinessObjectsDefinition(Definition definition)
    {
       BusinessObjectDefinitionXto xto = null;
-      
+
       if (definition != null)
       {
          xto = new BusinessObjectDefinitionXto();
-         
+
          xto.setIsList(definition.isList());
          xto.setKey(definition.isKey());
          xto.setName(definition.getName());
@@ -5901,44 +5758,44 @@ public class XmlAdapterUtils
          xto.setType(definition.getType());
          xto.setTypeName(definition.getTypeName());
       }
-      
+
       return xto;
    }
-   
+
    private static BusinessObjectValueXto marshalBusinessObjectsValue(Value value, String dataId, String modelId)
    {
       BusinessObjectValueXto xto = null;
-      
+
       if (value != null)
       {
          xto = new BusinessObjectValueXto();
 
          ModelResolver env = currentWebServiceEnvironment();
-         final ModelManager modelManager = ModelManagerFactory.getCurrent();         
-         
-         IModel model = modelManager.findActiveModel(modelId);      
-         
+         final ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+         IModel model = modelManager.findActiveModel(modelId);
+
          if (model == null)
          {
             throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
          }
-         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);         
-         
+         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);
+
          IData data = model.findData(dataId);
          if (data == null)
          {
             throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
          }
          Data dataDetails = (Data) DetailsFactory.create(data,
-               IData.class, DataDetails.class);         
-         
+               IData.class, DataDetails.class);
+
          xto.setProcessInstanceOid(value.getProcessInstanceOid());
 
          ParameterXto paramXto = DataFlowUtils.marshalStructValue(modelDetails,
                dataDetails, dataDetails.getId(), null, (Serializable) value.getValue(), env);
          xto.setValue(paramXto);
       }
-      
+
       return xto;
    }
 
@@ -5948,15 +5805,46 @@ public class XmlAdapterUtils
       if (bo != null)
       {
          xto = new BusinessObjectsXto();
-         
+
          for (BusinessObject obj : bo)
          {
             xto.getBusinessObject().add(toWs(obj));
          }
-         
+
          xto.getBusinessObject();
       }
       return xto;
    }
-    
+   
+   public static QualityAssuranceState unmarshalQualityAssuranceState(QualityAssuranceStateXto xto)
+   {
+      QualityAssuranceState ret = null;
+      if (xto != null)
+      {
+         if (QualityAssuranceStateXto.IS_QUALITY_ASSURANCE.equals(xto))
+         {
+            ret = QualityAssuranceState.IS_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceStateXto.IS_REVISED.equals(xto))
+         {
+            ret = QualityAssuranceState.IS_REVISED;
+         }
+         else if (QualityAssuranceStateXto.NO_QUALITY_ASSURANCE.equals(xto))
+         {
+            ret = QualityAssuranceState.NO_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceStateXto.QUALITY_ASSURANCE_TRIGGERED.equals(xto))
+         {
+            ret = QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED;
+         }         
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Unmarshaling of QualityAssuranceState not supported for: "
+                        + xto.name());
+         }
+      }
+      return ret;      
+   }
+  
 }

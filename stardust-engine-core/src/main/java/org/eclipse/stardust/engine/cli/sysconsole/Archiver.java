@@ -140,6 +140,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -1739,7 +1740,7 @@ public class Archiver
 
       // don't add models that are not valid yet
       // don't add models that have active or interrupted processes
-      long now = Calendar.getInstance().getTime().getTime();
+      long now = TimestampProviderUtils.getTimeStampValue();
       for (ModelHelper model : unsortedModels)
       {
          if (model.getValidFrom() < now && getAliveProcessInstancesCount(model.getOid()) == 0)

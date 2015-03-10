@@ -18,14 +18,14 @@ import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
 @SuiteClasses({
       ProcessEndpointTest.class, ProcessAttachementTest.class,
       ProcessCrossModelTest.class, ProcessWithExternalXsdTest.class,
-      SpawnSubProcessEndpointTest.class})
+      SpawnSubProcessEndpointTest.class, ProcessContinueTest.class})
 public class ProcessEndpointTestSuite
 {
    private static ClassPathXmlApplicationContext ctx;
    private static ServiceFactoryAccess serviceFactoryAccess;
    private static ServiceFactory sf;
    private static SpringTestUtils testUtils;
-   private static String[] deployedModels = {"GetPropertiesInvokerModel","PropertiesProducerModel", "ExternalXSDModel"};
+   private static String[] deployedModels = {"GetPropertiesInvokerModel","PropertiesProducerModel", "ExternalXSDModel", "ProcessContinueModel"};
    
    @BeforeClass
    public static void beforeClass() {

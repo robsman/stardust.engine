@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 import org.eclipse.stardust.engine.api.model.Participant;
+import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 
 
 /**
@@ -50,6 +51,13 @@ public interface HistoricalEventDescriptionStateChange extends HistoricalEventDe
    ActivityInstanceState getFromState();
    
    /**
+    * Will return the performer from before the state change was performed.
+    * 
+    * @return The performer from before the state change was performed.
+    */
+   ParticipantInfo getFromPerformer();
+
+   /**
     * Will return the state after state change was performed.
     * 
     * @return The state after state change was performed.
@@ -62,5 +70,12 @@ public interface HistoricalEventDescriptionStateChange extends HistoricalEventDe
     * @return The performer after state change was performed.
     */
    Participant getToPerformer();
+
+   /**
+    * Will return the performer this state change was performed on behalf of.
+    * 
+    * @return The performer this state change was performed on behalf of.
+    */
+   ParticipantInfo getOnBehalfOfPerformer();
 
 }

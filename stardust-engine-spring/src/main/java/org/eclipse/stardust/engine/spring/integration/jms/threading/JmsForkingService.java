@@ -81,6 +81,7 @@ public class JmsForkingService extends AbstractSpringForkingServiceBean
          
          if (action instanceof IMessageWithTtl)
          {
+            jmsTemplate.setExplicitQosEnabled(true);
             jmsTemplate.setTimeToLive(((IMessageWithTtl) action).getTimeToLive());
          }
          

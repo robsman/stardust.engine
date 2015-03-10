@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -51,56 +52,64 @@ import org.junit.rules.TestRule;
  * Tests whether the department evaluation algorithm
  * is implemented correctly.
  * </p>
- * 
+ *
  * <p>
  * This class focuses on the creation of work items.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class WorkitemsAssignmentCreationTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String USER_ID = "User";
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf)
                                           .around(userSf);
-   
+
    private Organization org1;
    private Organization org2;
    private Organization org3;
-   
+   private Organization orgEnumSD;
+   private Organization orgEnumJava;
+
    private Role role1;
-   
+
    private Department deptDe;
    private Department deptDeNorth;
-   
+   private Department deptKLM_SD;
+   private Department deptABC_Java;
+   private Department deptXYZ_Java;
+
    private ModelParticipantInfo org1De;
    private ModelParticipantInfo org2De;
    private ModelParticipantInfo org3DeNorth;
+   private ModelParticipantInfo orgEnumSdKLM;
+   private ModelParticipantInfo orgEnumJavaABC;
+   private ModelParticipantInfo orgEnumJavaXYZ;
    private ModelParticipantInfo role1De;
-   
+
    @Before
    public void setUp()
    {
       initOrgsAndRoles();
       createDepts();
       createScopedParticipants();
-      
-      UserHome.create(adminSf, USER_ID, org1, org2, org3, role1, org1De, org2De, org3DeNorth, role1De);
+
+      UserHome.create(adminSf, USER_ID, org1, org2, org3, orgEnumSD, orgEnumJava, role1, org1De, org2De, org3DeNorth, orgEnumSdKLM, orgEnumJavaABC, orgEnumJavaXYZ, role1De);
    }
-   
+
    /**
     * <p>
     * If the process is started with appropriate data for
@@ -113,10 +122,10 @@ public class WorkitemsAssignmentCreationTest
    public void testCreatedWorkitemIsScoped()
    {
       startProcess(PROCESS_ID_3);
-      
+
       ensureNoUnscopedWorkitems();
    }
-   
+
    /**
     * <p>
     * If created by "Org1", the <i>target-department</i> should
@@ -127,10 +136,10 @@ public class WorkitemsAssignmentCreationTest
    public void testCreationOfWorkitemByOrg1()
    {
       startProcess(PROCESS_ID_3);
-      
+
       ensureCorrectWorklistScopeId(deptDe.getId());
    }
-   
+
    /**
     * <p>
     * If created by "Org2", the <i>target-department</i> should
@@ -141,10 +150,10 @@ public class WorkitemsAssignmentCreationTest
    public void testCreationOfWorkitemByOrg2()
    {
       startProcess(PROCESS_ID_4);
-      
+
       ensureCorrectWorklistScopeId(deptDe.getId());
    }
-   
+
    /**
     * <p>
     * If created by "Org3", the <i>target-department</i> should
@@ -155,11 +164,11 @@ public class WorkitemsAssignmentCreationTest
    public void testCreationOfWorkitemByOrg3()
    {
       startProcess(PROCESS_ID_5);
-      
+
       ensureCorrectWorklistScopeId(deptDeNorth.getId());
       ensureCorrectWorklistParentScopeId(deptDe.getId());
    }
-   
+
    /**
     * <p>
     * If created by "Role1", the <i>target-department</i> should
@@ -170,81 +179,145 @@ public class WorkitemsAssignmentCreationTest
    public void testCreationOfWorkitemByRole1()
    {
       startProcess(PROCESS_ID_6);
-      
+
       ensureCorrectWorklistScopeId(deptDe.getId());
    }
-   
+
+   /**
+    * <p>
+    * If created by "OrgEnumSD", the <i>target-department</i> should
+    * be "KLM".
+    * </p>
+    */
+   @Test
+   public void testCreationOfWorkitemByOrgEnumSD()
+   {
+      startProcess(PROCESS_ID_9);
+
+      ensureCorrectWorklistScopeId(deptKLM_SD.getId());
+   }
+
+   /**
+    * <p>
+    * If created by "ScopeDataEnumJava", the <i>target-department</i> should
+    * be "XYZ" by default.
+    * </p>
+    */
+   @Test
+   public void testCreationOfWorkitemByOrgEnumJavaDefault()
+   {
+      startProcess(PROCESS_ID_10);
+
+      ensureCorrectWorklistScopeId(deptXYZ_Java.getId());
+   }
+
+   /**
+    * <p>
+    * If created by "ScopeDataEnumJava", the <i>target-department</i> should
+    * be "ABC" if requested explicitly.
+    * </p>
+    */
+   @Test
+   public void testCreationOfWorkitemByOrgEnumJavaABC()
+   {
+      startProcess(PROCESS_ID_10, new Pair(ENUM_JAVA_SCOPE, DEPT_ID_ABC));
+
+      ensureCorrectWorklistScopeId(deptABC_Java.getId());
+   }
+
    private void initOrgsAndRoles()
    {
       org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
       org2 = (Organization) adminSf.getQueryService().getParticipant(ORG2_ID);
       org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
+      orgEnumSD = (Organization) adminSf.getQueryService().getParticipant(ORG_ENUM_SD_ID);
+      orgEnumJava = (Organization) adminSf.getQueryService().getParticipant(ORG_ENUM_JAVA_ID);
       role1 = (Role) adminSf.getQueryService().getParticipant(ROLE1_ID);
    }
-   
+
    private void createDepts()
    {
       deptDe = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
       deptDeNorth = DepartmentHome.create(adminSf, SUB_DEPT_ID_NORTH, ORG3_ID, deptDe);
+
+      deptKLM_SD = DepartmentHome.create(adminSf, DEPT_ID_KLM, ORG_ENUM_SD_ID, null);
+
+      deptABC_Java = DepartmentHome.create(adminSf, DEPT_ID_ABC, ORG_ENUM_JAVA_ID, null);
+      deptXYZ_Java = DepartmentHome.create(adminSf, DEPT_ID_XYZ, ORG_ENUM_JAVA_ID, null);
    }
-   
+
    private void createScopedParticipants()
    {
       final Organization org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
       final Organization org2 = (Organization) adminSf.getQueryService().getParticipant(ORG2_ID);
       final Organization org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
+      final Organization orgEnumSd = (Organization) adminSf.getQueryService().getParticipant(ORG_ENUM_SD_ID);
+      final Organization orgEnumJava = (Organization) adminSf.getQueryService().getParticipant(ORG_ENUM_JAVA_ID);
       final Role role1 = (Role) adminSf.getQueryService().getParticipant(ROLE1_ID);
-      
+
       org1De = deptDe.getScopedParticipant(org1);
       org2De = deptDe.getScopedParticipant(org2);
       org3DeNorth = deptDeNorth.getScopedParticipant(org3);
+
+      orgEnumSdKLM = deptKLM_SD.getScopedParticipant(orgEnumSd);
+
+      orgEnumJavaABC = deptABC_Java.getScopedParticipant(orgEnumJava);
+      orgEnumJavaXYZ = deptXYZ_Java.getScopedParticipant(orgEnumJava);
+
       role1De = deptDe.getScopedParticipant(role1);
    }
-   
-   private void startProcess(final String processID)
+
+   private void startProcess(final String processID, final Pair<String, String> ... extraPiData)
    {
-      final Map<String, String> piData = new HashMap<String, String>(); 
+      final Map<String, String> piData = new HashMap<String, String>();
       piData.put(X_SCOPE, DEPT_ID_DE);
       piData.put(Y_SCOPE, SUB_DEPT_ID_NORTH);
+      piData.put(ENUM_SD_SCOPE, DEPT_ID_KLM);
+
+      for (Pair<String, String> pair : extraPiData)
+      {
+         piData.put(pair.getFirst(), pair.getSecond());
+      }
+
       userSf.getWorkflowService().startProcess(processID, piData, true);
    }
-   
+
    private void ensureNoUnscopedWorkitems()
    {
       final Iterator<Worklist> iter = getParticipantWorklist();
-      
+
       while (iter.hasNext())
       {
          DepartmentInfo deptInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
          assertNotNull("Work item must not be unscoped.", deptInfo);
       }
    }
-   
+
    private void ensureCorrectWorklistScopeId(final String expectedScopeId)
    {
       final Iterator<Worklist> iter = getParticipantWorklist();
-      
+
       assertTrue("There should be a work item.", iter.hasNext());
       final Worklist pwl = iter.next();
       assertFalse("There should be just one work item.", iter.hasNext());
-      
+
       final DepartmentInfo deptInfo = ((ModelParticipantInfo) pwl.getOwner()).getDepartment();
       assertNotNull("Work item must not be unscoped.", deptInfo);
-      
+
       final String actualScopeId = deptInfo.getId();
       assertEquals(expectedScopeId, actualScopeId);
    }
-   
+
    private void ensureCorrectWorklistParentScopeId(final String expectedParentScopeId)
    {
       final Iterator<Worklist> iter = getParticipantWorklist();
       final DepartmentInfo deptInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
       final DepartmentDetails deptDetails = (DepartmentDetails) deptInfo;
-      
+
       final Department parent = deptDetails.getParentDepartment();
       assertEquals(expectedParentScopeId, parent.getId());
    }
-   
+
    private Iterator<Worklist> getParticipantWorklist()
    {
       final Worklist wl = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());

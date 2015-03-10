@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -55,11 +56,10 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
 
       final OpenActivitiesStatisticsQuery oasq = (OpenActivitiesStatisticsQuery) query;
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
       final long nowInMilli = now.getTime();
 
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(now);
+      Calendar cal = TimestampProviderUtils.getCalendar(now);
       setTimeToDayEnd(cal);
 
       // history starts one month back
@@ -149,7 +149,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          private long tsFrom;
          private long tsUntil;
 
-         private final Date tsPiStart = new Date();
+         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
 
          private final Long[] history = (Long[]) historyTimestamps.toArray(new Long[0]);
 

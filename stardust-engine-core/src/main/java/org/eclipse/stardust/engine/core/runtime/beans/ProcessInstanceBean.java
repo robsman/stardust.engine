@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,33 +13,16 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Attribute;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.annotations.SPI;
 import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -47,40 +30,15 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
-import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
-import org.eclipse.stardust.engine.core.compatibility.el.Result;
-import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -97,11 +55,7 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -906,7 +860,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.CURRENT_DATE))
       {
-         dataValue.setValue(Calendar.getInstance(), false);
+         dataValue.setValue(TimestampProviderUtils.getCalendar(), false);
       }
       else if (dataID.equals(PredefinedConstants.PROCESS_ID))
       {
@@ -1404,7 +1358,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    void lockDataValue(IData data) throws PhantomException
    {
       // TODO (fh) hardcoded 1 min, should be configurable
-      long timeout = System.currentTimeMillis() + 60000;
+      long timeout = TimestampProviderUtils.getTimeStampValue() + 60000;
       IDataValue dataValue = getDataValue(data);
       if (dataValue instanceof DataValueBean)
       {
@@ -1422,7 +1376,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             }
             catch (ConcurrencyException ex)
             {
-               if (System.currentTimeMillis() > timeout)
+               if (TimestampProviderUtils.getTimeStampValue() > timeout)
                {
                   throw ex;
                }
@@ -1449,20 +1403,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
     */
    public boolean validateLoopCondition(String condition)
    {
-      try
-      {
-         trace.debug("Validating loop condition '" + condition + "'");
+      trace.debug("Validating loop condition '" + condition + "'");
 
-         return Result.TRUE.equals(Interpreter.evaluate(condition, this));
-      }
-      catch (SyntaxError x)
-      {
-         throw new InternalException(x);
-      }
-      catch (EvaluationError x)
-      {
-         throw new InternalException(x);
-      }
+      final IProcessDefinition processDefinition = getProcessDefinition();
+      return ConditionEvaluator.isEnabled(processDefinition, this, condition, true);
    }
 
    public void addDataValue(IDataValue value)
@@ -1922,12 +1866,16 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
                            && outputParameterId.equals(accessPointId)
                            && parameterContext.equals(context))
                      {
-                        int index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        int index = ((ActivityInstanceBean) startingActivityInstance).getIndex();
+                        if (index < 0)
+                        {
+                           index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        }
                         if (index >= 0)
                         {
                            try
                            {
-                              lockDataValue(data);
+                              ((ProcessInstanceBean) parentProcessInstance).lockDataValue(data);
                            }
                            catch (PhantomException e)
                            {

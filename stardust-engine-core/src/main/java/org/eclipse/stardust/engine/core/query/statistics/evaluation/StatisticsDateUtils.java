@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.stardust.common.Period;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -28,9 +29,8 @@ public class StatisticsDateUtils
 
    public static Date getBeginOfDay(Date time)
    {
-      Calendar cal = Calendar.getInstance();
+      Calendar cal = TimestampProviderUtils.getCalendar(time);
 
-      cal.setTime(time);
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
       cal.set(Calendar.SECOND, 0);
@@ -41,6 +41,8 @@ public class StatisticsDateUtils
 
    public static Date periodToDate(Period period)
    {
+      // TimestampProviderUtils isn't needed here because the calendar object will be
+      // reseted in periodToDate(Period, Calendar)
       return periodToDate(period, Calendar.getInstance());
    }
 

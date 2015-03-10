@@ -38,8 +38,8 @@ public class LogManager
 
    private static boolean bootstrapped = false;
    private static boolean debug;
-   private static List filters;
-   
+   private static List<String> filters;
+
    private LogManager()
    {
    }
@@ -48,7 +48,7 @@ public class LogManager
     * Retrieves an instance of the <code>Category</code> class with the specified
     * class name as channel name.
     */
-   public static Logger getLogger(Class clazz)
+   public static Logger getLogger(Class< ? > clazz)
    {
       return getLogger(clazz.getName());
    }
@@ -60,14 +60,19 @@ public class LogManager
    public static Logger getLogger(String name)
    {
       bootstrap();
-      
+
       switch (logType)
       {
-      case NOOP: return new NoopLogger();
-      case LOG4J: return getLog4JCategory(name);
-      case STDOUT: return new DefaultLogger(name);
+         case NOOP:
+            return new NoopLogger();
+         case LOG4J:
+            return getLog4JCategory(name);
+         case STDOUT:
+            return new DefaultLogger(name);
+         case CUSTOM:
+         default:
+            return getCustomCategory(name, custom);
       }
-      return getCustomCategory(name, custom);
    }
 
    private static synchronized void bootstrap()
@@ -76,13 +81,18 @@ public class LogManager
       {
          try
          {
-            custom = System.getProperty(LOGGER_TYPE);
-            logType = LogType.valueOf(custom);
+            String logTypeProperty = System.getProperty(LOGGER_TYPE);
+            if (logTypeProperty != null
+                  && logTypeProperty.toUpperCase().startsWith(LogType.CUSTOM.name()))
+            {
+               logType = LogType.CUSTOM;
+               custom = getCustomClassName(logTypeProperty);
+            }
          }
          catch (Exception e)
          {
          }
-   
+
          if (logType == null)
          {
             boolean besMatch = false;
@@ -96,7 +106,7 @@ public class LogManager
             }
             logType = besMatch ? LogType.STDOUT : LogType.LOG4J;
          }
-         
+
          if (logType == LogType.LOG4J)
          {
             try
@@ -108,7 +118,7 @@ public class LogManager
                logType = LogType.STDOUT;
             }
          }
-   
+
          bootstrapped = true;
       }
    }
@@ -117,8 +127,8 @@ public class LogManager
    {
       try
       {
-         Class clazz = Class.forName(className);
-         Constructor ctor = clazz.getConstructor(new Class[]{String.class});
+         Class< ? > clazz = Class.forName(className);
+         Constructor< ? > ctor = clazz.getConstructor(new Class[] {String.class});
          return (Logger) ctor.newInstance(new Object[]{name});
       }
       catch (Exception e)
@@ -172,5 +182,24 @@ public class LogManager
          }
       }
       debug = filters.size() > 0;
+   }
+
+   /**
+    * Extracts the string after the ',' separator.<br>
+    * The string is expected to have the qualified class name after a comma as separator
+    * e.g. "CUSTOM,a.b.c.DummyLogger".
+    *
+    * @param logTypeProperty
+    *           String prefixed with 'CUSTOM,'.
+    * @return The string after ',' or <code>CUSTOM</code> if no comma exists to support
+    *         legacy behavior.
+    */
+   private static String getCustomClassName(String logTypeProperty)
+   {
+      int separatorIdx = logTypeProperty.indexOf(",");
+
+      return separatorIdx >= 0 && logTypeProperty.length() > separatorIdx //
+      ? logTypeProperty.substring(separatorIdx + 1).trim() //
+            : "CUSTOM"; // legacy behavior loads default package CUSTOM class.
    }
 }

@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.camel.Exchange;
-
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -21,7 +20,6 @@ import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
-
 import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 
@@ -222,11 +220,27 @@ public abstract class AbstractBpmTypeConverter
 
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
-      return getTypeDeclaration(model, mapping.getDataId());
-      // IData data = model.findData(mapping.getDataId());
-      // return StructuredTypeRtUtils.getTypeDeclaration(data, model);
+       String typeDeclarationId = (String) mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+         
+       if (typeDeclaration == null) {
+          IModel refModel=null;
+          IData data = model.findData(mapping.getDataId());
+          if (data != null) {
+                refModel= (IModel) data.getParent();
+                typeDeclaration = refModel.findTypeDeclaration((String)data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT));
+          }
+          
+          if(typeDeclaration==null) {
+             IReference ref = data.getExternalReference();
+             if(ref!=null) {
+                refModel=ref.getExternalPackage().getReferencedModel();
+                typeDeclaration= refModel.findTypeDeclaration(ref.getId());
+             }
+          }
+       }
+       return typeDeclaration;
    }
-
    protected Object getTypeDeclaration(Model model, DataMapping mapping)
    {
       TypeDeclaration td = null;
@@ -301,6 +315,23 @@ public abstract class AbstractBpmTypeConverter
          ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
          return sf.getWorkflowService().execute(
                RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+      }
+   }
+   
+   protected static Object lookupModelById(String modelId)
+   {
+      BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
+
+      if (bpmRt != null)
+      {
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+         return modelManager.findActiveModel(modelId);
+      }
+      else
+      {
+         ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+         return sf.getWorkflowService().execute(
+               RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
       }
    }
 

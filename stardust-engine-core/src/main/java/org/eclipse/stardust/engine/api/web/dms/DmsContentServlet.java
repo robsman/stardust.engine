@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
 import org.eclipse.stardust.vfs.impl.jcr.web.AbstractVfsContentServlet;
 
@@ -358,7 +359,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                   request.userOid), Predicates.lessOrEqual(
                   UserSessionBean.FR__START_TIME, request.timestamp),
                   Predicates.greaterOrEqual(UserSessionBean.FR__EXPIRATION_TIME,
-                        System.currentTimeMillis())));
+                        TimestampProviderUtils.getTimeStampValue())));
 
       long nSessions = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(
             query.getType(), query.getQueryExtension());

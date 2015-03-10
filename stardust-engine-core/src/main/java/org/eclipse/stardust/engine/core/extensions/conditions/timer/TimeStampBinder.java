@@ -116,7 +116,7 @@ public class TimeStampBinder extends DefaultEventBinder
          else if (result instanceof Period)
          {
             targetStamp =
-                  ((Period) result).add(Calendar.getInstance()).getTime().getTime();
+                  ((Period) result).add(TimestampProviderUtils.getCalendar()).getTime().getTime();
          }
       }
       else
@@ -124,8 +124,7 @@ public class TimeStampBinder extends DefaultEventBinder
          Period period = (Period) attributes.get(PredefinedConstants.TIMER_PERIOD_ATT);
          if (period != null)
          {
-            Calendar now = Calendar.getInstance();
-            now.setTime(TimestampProviderUtils.getTimeStamp());
+            Calendar now = TimestampProviderUtils.getCalendar();
             targetStamp = period.add(now).getTime().getTime();
          }
       }

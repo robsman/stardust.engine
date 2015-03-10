@@ -13,9 +13,18 @@ package org.eclipse.stardust.engine.api.query;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelAwareQueryPredicate;
 
 /**
+ * Query container for building complex queries for business objects.
+ * <p/>
+ * <p>Valid filter criteria are:
+ * <ul>
+ *    <li>{@link FilterTerm} for building complex criteria.</li>
+ *    <li>{@link DataFilter} for finding business objects containing specific data.</li>
+ * </ul>
+ * </p>
  *
  * @author Florin.Herinean
  * @version $Revision: $
@@ -28,11 +37,31 @@ public class BusinessObjectQuery extends Query
    public static final String ID_ATTRIBUTE = "businessObjectId";
    public static final String PK_ATTRIBUTE = "primaryKey";
 
+   /**
+    * Policy options.
+    *
+    * @author Florin.Herinean
+    * @version $Revision: $
+    */
    public static enum Option
    {
-      WITH_DESCRIPTION, WITH_VALUES
+      /**
+       * Result includes business object description.
+       */
+      WITH_DESCRIPTION,
+
+      /**
+       * Result includes business object instance values.
+       */
+      WITH_VALUES
    }
 
+   /**
+    * Policy that specifies the query options.
+    *
+    * @author Florin.Herinean
+    * @version $Revision: $
+    */
    public static class Policy implements EvaluationPolicy
    {
       private static final long serialVersionUID = 1L;
@@ -96,6 +125,9 @@ public class BusinessObjectQuery extends Query
    private static final FilterableAttribute MODEL_OID = new FilterableAttributeImpl(
          BusinessObjectQuery.class, ModelAwareQueryPredicate.INTERNAL_MODEL_OID_ATTRIBUTE);
 
+   /**
+    * List of valid filters.
+    */
    public static final FilterVerifier FILTER_VERIFYER = new FilterScopeVerifier(
          new WhitelistFilterVerifyer(new Class[] {
                FilterTerm.class,
@@ -105,6 +137,9 @@ public class BusinessObjectQuery extends Query
                DataFilter.class
          }), BusinessObjectQuery.class);
 
+   /**
+    * Default constructor.
+    */
    private BusinessObjectQuery()
    {
       super(FILTER_VERIFYER);
@@ -120,6 +155,12 @@ public class BusinessObjectQuery extends Query
       return new BusinessObjectQuery();
    }
 
+   /**
+    * Creates a query for finding all business objects declared in the specified model.
+    *
+    * @param modelId the id of the model.
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findInModel(String modelId)
    {
       BusinessObjectQuery query = findAll();
@@ -127,6 +168,12 @@ public class BusinessObjectQuery extends Query
       return query;
    }
 
+   /**
+    * Creates a query for finding a specific business object.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object (in the form '{' + modelId + '}' + dataId).
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findForBusinessObject(String qualifiedBusinessObjectId)
    {
       QName qname = QName.valueOf(qualifiedBusinessObjectId);
@@ -135,15 +182,33 @@ public class BusinessObjectQuery extends Query
       return query;
    }
 
+   /**
+    * Creates a query for finding a specific instance of a business object.
+    *
+    * @param qualifiedBusinessObjectId the qualified id of the business object (in the form '{' + modelId + '}' + dataId).
+    * @param pk the primary key value of the business object instance.
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findWithPrimaryKey(String qualifiedBusinessObjectId, Object pk)
    {
       BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(qualifiedBusinessObjectId);
-      query.where(pk instanceof Number
-            ? PRIMARY_KEY.isEqual(((Number) pk).longValue())
-            : PRIMARY_KEY.isEqual(pk.toString()));
+      query.where(((FilterableAttributeImpl) PRIMARY_KEY).isEqual(pk));
       return query;
    }
 
+   /**
+    * Creates a query for finding all business objects declared in the specified model.
+    *
+    * @param modelOid the oid of a concrete deployed model or one of the predefined meta oids:
+    * <ul>
+    *    <li>{@link PredefinedConstants#ALL_MODELS} includes business objects from all models</li>
+    *    <li>{@link PredefinedConstants#ACTIVE_MODEL} includes business objects from the active models</li>
+    *    <li>{@link PredefinedConstants#LAST_DEPLOYED_MODEL} includes business objects from the last deployed models</li>
+    *    <li>{@link PredefinedConstants#ALIVE_MODELS} includes business objects from alive models</li>
+    *    <li>{@link PredefinedConstants#ANY_MODEL} includes business objects from the first matching model</li>
+    * </ul>
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findInModel(long modelOid)
    {
       BusinessObjectQuery query = findAll();
@@ -151,6 +216,13 @@ public class BusinessObjectQuery extends Query
       return query;
    }
 
+   /**
+    * Creates a query for finding a business object.
+    *
+    * @param modelOid the oid of a concrete deployed model or one of the predefined meta oids
+    * @param businessObjectId the id of the business object, either qualified or simple.
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findForBusinessObject(long modelOid, String businessObjectId)
    {
       QName qname = QName.valueOf(businessObjectId);
@@ -163,12 +235,18 @@ public class BusinessObjectQuery extends Query
       return query;
    }
 
+   /**
+    * Creates a query for finding a business object instance.
+    *
+    * @param modelOid the oid of a concrete deployed model or one of the predefined meta oids
+    * @param businessObjectId the id of the business object, either qualified or simple.
+    * @param pk the primary key value of the business object instance.
+    * @return The configured query.
+    */
    public static BusinessObjectQuery findWithPrimaryKey(long modelOid, String businessObjectId, Object pk)
    {
       BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(modelOid, businessObjectId);
-      query.where(pk instanceof Number
-            ? PRIMARY_KEY.isEqual(((Number) pk).longValue())
-            : PRIMARY_KEY.isEqual(pk.toString()));
+      query.where(((FilterableAttributeImpl) PRIMARY_KEY).isEqual(pk));
       return query;
    }
 }

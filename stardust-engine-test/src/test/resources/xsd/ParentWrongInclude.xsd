@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns:par="http://www.infinity.com/bpm/model/PepperSimpleModel/Parent" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.infinity.com/bpm/model/PepperSimpleModel/Parent">
+  <xsd:include schemaLocation="NotExistingInclude.xsd"/>
+  <xsd:complexType name="Parent">
+    <xsd:sequence>
+      <xsd:element name="p1" type="xsd:string"/>
+      <xsd:element name="p2" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="Parent" type="par:Parent"/>
+</xsd:schema>

@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.spinner.DefaultSpinRenderer;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.spinner.JSpinnerTime;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -43,7 +44,7 @@ public class TimeEntry extends JSpinnerTime implements ObservedEntry
    {
       super(new DefaultSpinRenderer(
                   DateFormat.getTimeInstance(DateFormat.MEDIUM).format(
-                        new Date()).length()),
+                        TimestampProviderUtils.getTimeStamp()).length()),
             DateFormat.getTimeInstance(DateFormat.MEDIUM));
 
       initialize();
@@ -172,6 +173,7 @@ public class TimeEntry extends JSpinnerTime implements ObservedEntry
 
    public Calendar getCalendar()
    {
+      // TimestampProviderUtils is needed here
       Calendar calendar = Calendar.getInstance();
       calendar.clear();
 
@@ -201,6 +203,8 @@ public class TimeEntry extends JSpinnerTime implements ObservedEntry
          setMinute(UNKNOWN_MINUTE);
          setSecond(UNKNOWN_SECOND);
 
+         // TimestampProviderUtils isn't needed here because the time is reseted after
+         // the object is created
          Calendar time = Calendar.getInstance();
          time.clear();
          getTimeModel().setTime(time);

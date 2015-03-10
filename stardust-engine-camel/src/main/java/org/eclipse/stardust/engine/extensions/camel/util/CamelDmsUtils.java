@@ -39,6 +39,40 @@ import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.CreateDoc
  */
 public class CamelDmsUtils
 {
+   /**
+    * Replace Invalid DMS characters with underscore 
+    * 
+    * @param fileName
+    * @return
+    */
+   private static String sanitize(String fileName){
+      String answer=fileName;
+      //][/:*?"<>|
+      
+      if (answer.contains("]"))
+         answer = answer.replaceAll("]", "_");
+      if (answer.contains("["))
+         answer = answer.replaceAll("[", "_");
+      if (answer.contains("/"))
+         answer = answer.replaceAll("/", "_");
+      if (answer.contains(":"))
+         answer = answer.replaceAll(":", "_");
+      if (answer.contains("*"))
+         answer = answer.replaceAll("*", "_");
+      if (answer.contains("?"))
+         answer = answer.replaceAll("?", "_");
+      if (answer.contains("\""))
+         answer = answer.replaceAll("\"", "_");
+      if (answer.contains("<"))
+         answer = answer.replaceAll("<", "_");
+      if (answer.contains(">"))
+         answer = answer.replaceAll(">", "_");
+      if (answer.contains("|"))
+         answer = answer.replaceAll("|", "_");
+         return answer;
+   }
+   
+   
    public static Document storeDocument(DocumentManagementService dms, ProcessInstance pi,
          byte[] content, String fileName, Boolean processAttachmentSupport) throws CreateDocumentException {
 
@@ -59,7 +93,7 @@ public class CamelDmsUtils
       ensureFolderExists(dms, defaultPath.toString());
       
       Document doc = storeDocumentIntoDms(dms, defaultPath.toString(),
-            content, fileName);
+            content, sanitize(fileName));
       
       return doc;
    }

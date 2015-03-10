@@ -28,16 +28,7 @@
    <description>This project allows for writing functional tests against 'Stardust Engine'.</description>
 
    <dependencies>
-      <dependency>
-         <groupId>com.h2database</groupId>
-         <artifactId>h2</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>logging-log4j-module</artifactId>
-         <version>${project.version}</version>
-         <type>pom</type>
-      </dependency>
+      <!-- Stardust Engine -->
       <dependency>
          <groupId>org.eclipse.stardust.engine</groupId>
          <artifactId>carnot-engine</artifactId>
@@ -50,36 +41,78 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>stardust-engine-business-calendar</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <!-- Stardust Engine Modules -->
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>jcr-jackrabbit-module</artifactId>
+         <version>${project.version}</version>
+         <scope>runtime</scope>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>jcr-vfs-module</artifactId>
+         <version>${project.version}</version>
+         <scope>runtime</scope>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>jms-activemq-module</artifactId>
+         <version>${project.version}</version>
+         <scope>runtime</scope>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
          <artifactId>jms-api-module</artifactId>
          <version>${project.version}</version>
          <type>pom</type>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>jta-jencks-module</artifactId>
+         <version>${project.version}</version>
+         <scope>runtime</scope>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>logging-log4j-module</artifactId>
+         <version>${project.version}</version>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>logging-slf4j-log4j-module</artifactId>
+         <version>${project.version}</version>
+         <scope>runtime</scope>
+         <type>pom</type>
+      </dependency>
+
+      <!-- Commons IO -->
+      <dependency>
          <groupId>commons-io</groupId>
          <artifactId>commons-io</artifactId>
       </dependency>
+
+      <!-- Commons Logging -->
       <dependency>
          <groupId>commons-logging</groupId>
          <artifactId>commons-logging</artifactId>
       </dependency>
+
+      <!-- H2 Database -->
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.hamcrest</groupId>
-               <artifactId>hamcrest-core</artifactId>
-            </exclusion>
-         </exclusions>
+         <groupId>com.h2database</groupId>
+         <artifactId>h2</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-context</artifactId>
-      </dependency>
+
+      <!-- Hazelcast -->
       <dependency>
          <groupId>com.hazelcast</groupId>
          <artifactId>hazelcast</artifactId>
@@ -90,49 +123,28 @@
          <artifactId>hazelcast-ra</artifactId>
          <scope>test</scope>
       </dependency>
+
+      <!-- J2EE Management Spec -->
       <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>jta-jencks-module</artifactId>
-         <scope>test</scope>
-         <type>pom</type>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>jcr-vfs-module</artifactId>
-         <type>pom</type>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
          <scope>runtime</scope>
-         <version>${project.version}</version>
       </dependency>
+
+      <!-- JUnit (incl. Hamcrest) -->
       <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>jcr-jackrabbit-module</artifactId>
-         <type>pom</type>
-         <scope>runtime</scope>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>logging-slf4j-log4j-module</artifactId>
-         <type>pom</type>
-         <scope>runtime</scope>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>jms-activemq-module</artifactId>
-         <type>pom</type>
-         <scope>runtime</scope>
-         <version>${project.version}</version>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
       </dependency>
       <dependency>
          <groupId>org.hamcrest</groupId>
          <artifactId>hamcrest-library</artifactId>
       </dependency>
+
+      <!-- Spring -->
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-         <scope>test</scope>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
       </dependency>
    </dependencies>
 
@@ -150,11 +162,19 @@
                </excludes>
                <forkCount>1</forkCount>
                <reuseForks>false</reuseForks>
-               <skip>false</skip>
                <failIfNoTests>false</failIfNoTests>
                <testFailureIgnore>true</testFailureIgnore>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
+            <executions>
+               <execution>
+                  <id>default-test</id>
+                  <phase combine.self="override">integration-test</phase>
+                  <goals>
+                     <goal>test</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>

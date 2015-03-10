@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstan
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
 import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeJob;
 import org.eclipse.stardust.engine.core.upgrade.jobs.RuntimeJobs;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -265,7 +266,7 @@ public class ModelManagerBean implements ModelManager
 
    public long getLastDeployment()
    {
-	   return getModelManagerPartition().getLastDeployment();
+      return getModelManagerPartition().getLastDeployment();
    }
 
    public boolean isAlive(IModel model)
@@ -880,6 +881,7 @@ public class ModelManagerBean implements ModelManager
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
                if (predefinedModelElement != null)
                {
+                  trace.warn("Deploying missing PredefinedModel.xpdl");
                   loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT, rtOidRegistry);
 
                   Iterator<IModelPersistor> loadedModelsIncludingPredefinedModel = loader.loadModels();
@@ -1166,7 +1168,7 @@ public class ModelManagerBean implements ModelManager
 
       public List<IModel> findLastDeployedModels()
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          List<IModel> result = CollectionUtils.newList();
          Set<String> ids = CollectionUtils.newSet();
          for (IModel candidate : orderedModelsByAge)
@@ -1188,12 +1190,12 @@ public class ModelManagerBean implements ModelManager
        */
       public IModel findActiveModel()
       {
-         return findActiveModel(new Date());
+         return findActiveModel(TimestampProviderUtils.getTimeStamp());
       }
 
       public List<IModel> findActiveModels()
       {
-         return findActiveModels(new Date());
+         return findActiveModels(TimestampProviderUtils.getTimeStamp());
       }
 
       public void reanimate(IModel model)
@@ -1422,7 +1424,7 @@ public class ModelManagerBean implements ModelManager
       private IModel getCurrentModel(String id)
       {
          IModel lastDeployedModel = null;
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          for (IModel model : models)
          {
             if (!id.equals(model.getId()))
@@ -1457,7 +1459,7 @@ public class ModelManagerBean implements ModelManager
 
       public IModel findActiveModel(String id)
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          for (IModel model : models)
          {
             if (!id.equals(model.getId()))
@@ -1730,27 +1732,28 @@ public class ModelManagerBean implements ModelManager
       public IProcessDefinition findProcessDefinition(long modelOid, long runtimeOid)
       {
          IProcessDefinition process = null;
-
-         ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
-               ? elementsByRtOid[(int) modelOid]
-               : null;
-         if ((null != byRtOid) && (null != byRtOid.processes)
-               && (runtimeOid < byRtOid.processes.length))
+         if (runtimeOid != -1)
          {
-            process = byRtOid.processes[(int) runtimeOid];
-         }
-
-         if (null == process)
-         {
-            IModel model = findModel(modelOid);
-            if (null != model)
+            ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
+                  ? elementsByRtOid[(int) modelOid]
+                  : null;
+            if ((null != byRtOid) && (null != byRtOid.processes)
+                  && (runtimeOid < byRtOid.processes.length))
             {
-               String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
-                     runtimeOid);
-               process = model.findProcessDefinition(fqId[fqId.length - 1]);
+               process = byRtOid.processes[(int) runtimeOid];
+            }
+
+            if (null == process)
+            {
+               IModel model = findModel(modelOid);
+               if (null != model)
+               {
+                  String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
+                        runtimeOid);
+                  process = model.findProcessDefinition(fqId[fqId.length - 1]);
+               }
             }
          }
-
          return process;
       }
 
@@ -2303,7 +2306,7 @@ public class ModelManagerBean implements ModelManager
 
       private boolean isHeated(IModel model)
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
 
          for (Iterator i = heatingEntries.iterator(); i.hasNext();)
          {
@@ -2338,8 +2341,8 @@ public class ModelManagerBean implements ModelManager
          // (fh) this is called whenever a new deployment is made.
          // we just reset here the lastDeployment flag because we do not want to fetch the
          // last deployment in the same transaction when a ModelDeploymentBean was created.
-    	  lastDeployment = ModelDeploymentBean.getLastDeployment();
-    	  lastDeploymentSet = true;
+         lastDeployment = ModelDeploymentBean.getLastDeployment();
+         lastDeploymentSet = true;
       }
 
       public long getLastDeployment()
@@ -2356,7 +2359,7 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
-    	 return lastDeployment;
+      return lastDeployment;
       }
    }
 

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.api.query;
 
 import java.util.List;
 
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
@@ -19,7 +20,7 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 import org.eclipse.stardust.vfs.IQueryResult;
 import org.eclipse.stardust.vfs.MetaDataLocation;
@@ -68,7 +69,7 @@ public class DocumentQueryEvaluator implements QueryEvaluator
    private IQueryResult doQuery(DocumentQuery query, EvaluationContext context,
          SubsetPolicy subset, IDocumentRepositoryService vfs)
    {
-      long startTime = System.currentTimeMillis();
+      final TimeMeasure timer = new TimeMeasure(); 
       String xPathQuery = new DocumentXPathQueryBuilder(query, context,
             MetaDataLocation.LOCAL).build(getPartitionPrefix());
 
@@ -87,9 +88,8 @@ public class DocumentQueryEvaluator implements QueryEvaluator
 
       if (trace.isDebugEnabled())
       {
-         long time = System.currentTimeMillis() - startTime;
          trace.info((result == null ? "0" : result.getResult().size())
-               + " Document(s) found in " + time + "ms with query (" + xPathQuery
+               + " Document(s) found in " + timer.stop().getDurationInMillis() + "ms with query (" + xPathQuery
                + ") limit=" + limit + " offset=" + offset);
       }
       return result;

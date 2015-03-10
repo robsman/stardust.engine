@@ -84,13 +84,12 @@ import org.junit.rules.TestRule;
  * </p>
  *
  * @author Roland.Stamm
- * @version $Revision$
  */
 public class CaseProcessInstanceTest
 {
    private static final Log LOG = LogFactory.getLog(CaseProcessInstanceTest.class);
 
-   /* package-private */ static final String MODEL_NAME = "CaseModel";
+   public static final String MODEL_NAME = "CaseModel";
 
    private static final String U1 = "u1";
    private static final String U2 = "u2";

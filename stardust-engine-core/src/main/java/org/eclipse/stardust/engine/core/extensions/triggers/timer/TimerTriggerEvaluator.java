@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.extensions.triggers.timer.TimerTriggerMatch;
 import org.eclipse.stardust.engine.core.runtime.beans.TimerLog;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.BatchedPullTriggerEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -62,7 +63,7 @@ public class TimerTriggerEvaluator implements BatchedPullTriggerEvaluator
       {
          triggerMatches = Collections.singletonList(new TimerTriggerMatch());
 
-         long now = System.currentTimeMillis();
+         long now = TimestampProviderUtils.getTimeStampValue();
 
          trace.debug("Write timer log with timestamp " + now + ".");
 
@@ -79,8 +80,8 @@ public class TimerTriggerEvaluator implements BatchedPullTriggerEvaluator
    private boolean isNewExecutionRequired(Period periodicity,
          Long startTimestamp, Long stopTimestamp, long lastExecutionTimestamp)
    {
-      final Calendar now = Calendar.getInstance();
-      final Calendar start = toCalendar(startTimestamp);      
+      final Calendar now = TimestampProviderUtils.getCalendar();
+      final Calendar start = toCalendar(startTimestamp);
       boolean executeTrigger;
 
       if ((null != start) && now.before(start))
@@ -200,8 +201,7 @@ public class TimerTriggerEvaluator implements BatchedPullTriggerEvaluator
    
    private static Calendar toCalendar(long timestamp)
    {
-      Calendar result = Calendar.getInstance();
-      result.setTimeInMillis(timestamp);
+      Calendar result = TimestampProviderUtils.getCalendar(timestamp);
       
       return result;
    }  

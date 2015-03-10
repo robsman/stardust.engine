@@ -21,6 +21,7 @@ import javax.swing.*;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -399,7 +400,7 @@ public abstract class AbstractMainWindow extends JFrame
             timeFormat = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.getDefault());
          }
 
-         Date currentTime = new Date();
+         Date currentTime = TimestampProviderUtils.getTimeStamp();
 
          String dateString = dateFormat.format(currentTime) + "   " + timeFormat.format(currentTime);
 

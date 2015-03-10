@@ -36,7 +36,6 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -47,6 +46,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.spi.security.*;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserConfiguration.GrantInfo;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -440,8 +440,6 @@ public abstract class SynchronizationService
                BpmRuntimeError.AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER.raise());
       }
 
-      ExtensionService.initializeRealmExtensions();
-
       String realmId = LoginUtils.getUserRealmId(properties);
 
       ExternalUserConfiguration userConf = provider.provideValidUserConfiguration(realmId,
@@ -632,12 +630,12 @@ public abstract class SynchronizationService
                               false))
                   {
                      Date validTo = user.getValidTo();
-                     if (validTo == null || validTo.after(Calendar.getInstance().getTime()))
+                     if (validTo == null || validTo.after(TimestampProviderUtils.getTimeStamp()))
                      {
                         trace.info("User '"
                               + user.getRealmQualifiedAccount()
                               + "' does not exist in external registry. User gets invalidated.");
-                        user.setValidTo(Calendar.getInstance().getTime());
+                        user.setValidTo(TimestampProviderUtils.getTimeStamp());
                      }
                   }
                   else
@@ -717,12 +715,12 @@ public abstract class SynchronizationService
                               false))
                   {
                      Date validTo = group.getValidTo();
-                     if (validTo == null || validTo.after(Calendar.getInstance().getTime()))
+                     if (validTo == null || validTo.after(TimestampProviderUtils.getTimeStamp()))
                      {
                         trace.info("User group '"
                               + group.getId()
                               + "' does not exist in external registry. User group gets invalidated.");
-                        group.setValidTo(Calendar.getInstance().getTime());
+                        group.setValidTo(TimestampProviderUtils.getTimeStamp());
                      }
                   }
                   else
@@ -833,9 +831,7 @@ public abstract class SynchronizationService
       if (!user.isValid())
       {
          // user is revalidated
-         ExtensionService.initializeRealmExtensions();
-
-         user.setValidFrom(new Date());
+         user.setValidFrom(TimestampProviderUtils.getTimeStamp());
       }
 
       user.setValidTo(null);
@@ -1156,7 +1152,7 @@ public abstract class SynchronizationService
    {
       if (!group.isValid())
       {
-         group.setValidFrom(new Date());
+         group.setValidFrom(TimestampProviderUtils.getTimeStamp());
       }
 
       group.setValidTo(null);

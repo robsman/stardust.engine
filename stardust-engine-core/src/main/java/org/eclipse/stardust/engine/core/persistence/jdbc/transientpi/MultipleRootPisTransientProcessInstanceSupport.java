@@ -290,11 +290,6 @@ public class MultipleRootPisTransientProcessInstanceSupport extends AbstractTran
             continue;
          }
 
-         if ( !pc.isCreated())
-         {
-            return false;
-         }
-
          if ( !ProcessInstanceUtils.isTransientExecutionScenario(pi))
          {
             return false;

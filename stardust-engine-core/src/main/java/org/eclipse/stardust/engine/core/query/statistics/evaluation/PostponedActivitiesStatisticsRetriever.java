@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -72,7 +73,7 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
 
       // retrieve login times
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       // TODO find all wiedervorlage event RT OIDs
 
@@ -162,8 +163,8 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
          private final PkRegistry visitedAis = new PkRegistry();
 //         private final PkRegistry visitedPis = new PkRegistry();
 
-         private final Date tsAiStarted = new Date();
-         private final Date tsPiStarted = new Date();
+         private final Date tsAiStarted = TimestampProviderUtils.getTimeStamp();
+         private final Date tsPiStarted = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {

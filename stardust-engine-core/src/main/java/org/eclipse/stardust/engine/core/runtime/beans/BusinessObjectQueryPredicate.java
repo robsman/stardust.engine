@@ -105,7 +105,7 @@ public class BusinessObjectQueryPredicate extends ModelAwareQueryPredicate<IData
       {
          Object result = null;
          @SuppressWarnings("unchecked")
-      List<FilterCriterion> parts = filter.getParts();
+         List<FilterCriterion> parts = filter.getParts();
          for (FilterCriterion criterion : parts)
          {
             Object value = criterion.accept(this, context);

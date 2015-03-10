@@ -91,123 +91,34 @@ public class TypedXPath implements Serializable
    private XPathEvaluator notNamespaceAwareCompiledXPath;
 
 
-   private TypedXPath parentXPath;
+   private final TypedXPath parentXPath;
 
    private List<TypedXPath> childXPaths = CollectionUtils.newArrayList();
 
    private List /* <Object> */ enumerationValues;
 
-   private boolean isAttribute;
+   private final boolean isAttribute;
 
    private boolean wildcards;
 
-   public static class Builder
-   {
-      private final TypedXPath parentXPath;
-      private final int orderKey;
-      private final String xPath;
-      private final int type;
-
-      private boolean isList = false;
-      private String xsdElementName;
-      private String xsdElementNs;
-      private String xsdTypeName;
-      private String xsdTypeNs;
-      private XPathAnnotations xPathAnnotations = XPathAnnotations.DEFAULT_ANNOTATIONS;
-      private List /* <Object> */ enumerationValues = Collections.EMPTY_LIST;
-
-      public Builder(TypedXPath parentXPath, int orderKey, String xPath, int type)
-      {
-         this.parentXPath = parentXPath;
-         this.orderKey = orderKey;
-         this.xPath = xPath;
-         this.type = type;
-      }
-
-      public void setList(boolean isList)
-      {
-         this.isList = isList;
-      }
-
-      public Builder xsdElementName(String xsdElementName)
-      {
-         this.xsdElementName = xsdElementName;
-         return this;
-      }
-
-      public Builder setXsdElementNs(String xsdElementNs)
-      {
-         this.xsdElementNs = xsdElementNs;
-         return this;
-      }
-
-      public Builder xsdTypeName(String xsdTypeName)
-      {
-         this.xsdTypeName = xsdTypeName;
-         return this;
-      }
-
-      public Builder xsdTypeNs(String xsdTypeNs)
-      {
-         this.xsdTypeNs = xsdTypeNs;
-         return this;
-      }
-
-      public Builder xPathAnnotations(XPathAnnotations pathAnnotations)
-      {
-         xPathAnnotations = pathAnnotations;
-         return this;
-      }
-
-      public Builder enumerationValues(List enumerationValues)
-      {
-         this.enumerationValues = enumerationValues;
-         return this;
-      }
-
-      public TypedXPath build()
-      {
-         return new TypedXPath(this);
-      }
-
-   }
-
-   private TypedXPath(Builder builder)
-   {
-      this.orderKey = builder.orderKey;
-      this.xPath = builder.xPath;
-      this.type = builder.type;
-      this.isList = builder.isList;
-      this.xsdElementName = builder.xsdElementName;
-      this.xsdElementNs = builder.xsdElementNs;
-      this.xsdTypeName = builder.xsdTypeName;
-      this.xsdTypeNs = builder.xsdTypeNs;
-      this.xPathAnnotations = builder.xPathAnnotations;
-      this.parentXPath = builder.parentXPath;
-      if (this.parentXPath != null)
-      {
-         // if not root, register itself at parent
-         this.parentXPath.addChildXPath(this);
-      }
-      this.enumerationValues = builder.enumerationValues;
-   }
-
    protected TypedXPath(TypedXPath typedXPath)
    {
-      this.orderKey = typedXPath.orderKey;
       this.xPath = typedXPath.xPath;
       this.type = typedXPath.type;
       this.isList = typedXPath.isList;
+      this.orderKey = typedXPath.orderKey;
       this.xsdElementName = typedXPath.xsdElementName;
       this.xsdElementNs = typedXPath.xsdElementNs;
       this.xsdTypeName = typedXPath.xsdTypeName;
       this.xsdTypeNs = typedXPath.xsdTypeNs;
       this.xPathAnnotations = typedXPath.xPathAnnotations;
-      this.parentXPath = typedXPath.parentXPath;
       this.namespaceAwareCompiledXPath = typedXPath.namespaceAwareCompiledXPath;
       this.notNamespaceAwareCompiledXPath = typedXPath.notNamespaceAwareCompiledXPath;
-      this.childXPaths = CollectionUtils.copyList(typedXPath.childXPaths);
+      this.parentXPath = typedXPath.parentXPath;
+      this.childXPaths.addAll(typedXPath.childXPaths);
       this.enumerationValues = CollectionUtils.copyList(typedXPath.enumerationValues);
+      this.isAttribute = typedXPath.isAttribute;
+      this.wildcards = typedXPath.wildcards;
    }
 
    public TypedXPath(TypedXPath parentXPath, int orderKey, String xPath,

@@ -8,22 +8,21 @@ public class SchedulingRecurrenceDaily extends SchedulingRecurrence
    public String generateSchedule(JsonObject json)
    {
       StringBuilder cronExpr = new StringBuilder();
+      cronExpr.append(getStartTime());
 
-      String daysRecurrence = json.get("dailyRecurrenceOptions").getAsJsonObject()
-            .get("daysRecurrence").getAsString();
+      JsonObject dailyRecurrenceOptions = json.get("dailyRecurrenceOptions").getAsJsonObject();
+      String daysRecurrence = dailyRecurrenceOptions.get("daysRecurrence").getAsString();
 
       if (daysRecurrence.equals("interval"))
       {
-         int daysIntervalCount = json.get("dailyRecurrenceOptions").getAsJsonObject()
-               .get("daysIntervalCount").getAsInt();
-         cronExpr.append(getStartTime() + getStartDate().getDate() + "/"
-               + daysIntervalCount + SchedulingUtils.BLANK_SPACE + "* ? *");
+         cronExpr.append(getStartDate().getDate())
+                 .append('/')
+                 .append(dailyRecurrenceOptions.get("daysIntervalCount"))
+                 .append(" * ? *");
       }
       else if (daysRecurrence.equals("weekdays"))
       {
-         String byDay = "MON-FRI";
-         cronExpr.append(getStartTime() + "? * " + byDay + SchedulingUtils.BLANK_SPACE
-               + "*");
+         cronExpr.append("? * MON-FRI *");
       }
 
       return cronExpr.toString();

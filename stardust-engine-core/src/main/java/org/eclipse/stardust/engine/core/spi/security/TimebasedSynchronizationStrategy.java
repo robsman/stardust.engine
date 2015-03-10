@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -62,7 +63,7 @@ public class TimebasedSynchronizationStrategy
 
       long lastSyncTime = ((Long) userSyncTimeStamps.get(user.getAccount())).longValue();
 
-      return timeout < (System.currentTimeMillis() - lastSyncTime);
+      return timeout < (TimestampProviderUtils.getTimeStampValue() - lastSyncTime);
    }
 
    /**
@@ -76,7 +77,7 @@ public class TimebasedSynchronizationStrategy
    {
       Map userSyncTimeStamps = getSyncTimeStamps(USER_SYNC_STAMPS);
       
-      userSyncTimeStamps.put(user.getAccount(), new Long(System.currentTimeMillis()));
+      userSyncTimeStamps.put(user.getAccount(), TimestampProviderUtils.getTimeStampValue());
    }
 
    /**
@@ -103,7 +104,7 @@ public class TimebasedSynchronizationStrategy
 
       long lastSyncTime = ((Long) userGroupSyncTimeStamps.get(userGroup.getId())).longValue();
 
-      return timeout < (System.currentTimeMillis() - lastSyncTime);
+      return timeout < (TimestampProviderUtils.getTimeStampValue() - lastSyncTime);
    }
 
    /**
@@ -119,7 +120,7 @@ public class TimebasedSynchronizationStrategy
       Map userGroupSyncTimeStamps = getSyncTimeStamps(USER_GROUP_SYNC_STAMPS);
       
       userGroupSyncTimeStamps
-            .put(userGroup.getId(), new Long(System.currentTimeMillis()));
+            .put(userGroup.getId(), TimestampProviderUtils.getTimeStampValue());
    }
 
    public synchronized void flush()

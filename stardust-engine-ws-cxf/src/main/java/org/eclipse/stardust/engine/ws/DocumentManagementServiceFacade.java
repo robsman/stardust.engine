@@ -807,4 +807,42 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       return null;
    }
 
+   @Override
+   public DocumentXto moveDocument(String documentId, String targetPath) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         Document document = dms.moveDocument(documentId, targetPath);
+
+         return XmlAdapterUtils.toWs(document, (QName) null, null);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public void removeDocumentVersion(String documentId, String documentRevisionId)
+         throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         DocumentManagementService dms = wsEnv.getServiceFactory()
+               .getDocumentManagementService();
+
+         dms.removeDocumentVersion(documentId, documentRevisionId);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
+
 }

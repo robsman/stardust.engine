@@ -14,6 +14,8 @@ import java.text.DateFormat;
 import java.util.Locale;
 import java.util.Calendar;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * @author rsauer
  * @version $Revision$
@@ -22,12 +24,12 @@ public class JSpinnerTime extends JSpinnerField
 {
    public JSpinnerTime()
    {
-      this(Calendar.getInstance());
+      this(TimestampProviderUtils.getCalendar());
    }
 
    public JSpinnerTime(SpinRenderer renderer, DateFormat format)
    {
-      this(Calendar.getInstance(), renderer, format);
+      this(TimestampProviderUtils.getCalendar(), renderer, format);
    }
 
    public JSpinnerTime(Calendar time)

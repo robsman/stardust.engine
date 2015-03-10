@@ -81,11 +81,9 @@ public abstract class ScheduledDocument
          return UserBean.createTransientUser(PredefinedConstants.SYSTEM,
                PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
                transientRealm);
-         //userId = "motu";
       }
 
       IUser user = new UserServiceImpl().internalGetUser(realmId, userId);
-
       if (user != null)
       {
          invalidUser = SecurityUtils.isUserDisabled(user) || SecurityUtils.isUserInvalid(user);

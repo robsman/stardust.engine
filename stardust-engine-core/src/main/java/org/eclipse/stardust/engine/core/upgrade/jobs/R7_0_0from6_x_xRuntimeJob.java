@@ -608,6 +608,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          IModelPersistor currentModel = (IModelPersistor) modelIter.next();
          IModel model = ModelManagerFactory.getCurrent().findModel(
                currentModel.getModelOID());
+         Utils.flushSession();
+         
          rtOidRegistry = getRuntimeOidRegistry(registries, partitionOid);
          for (Iterator allData = model.getAllData(); allData.hasNext();)
          {

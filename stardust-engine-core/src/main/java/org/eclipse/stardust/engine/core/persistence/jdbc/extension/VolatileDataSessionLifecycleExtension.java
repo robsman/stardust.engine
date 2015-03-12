@@ -60,8 +60,10 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
 
                DataValueBean data = dataIter.next();
 
-               if (Boolean.parseBoolean((String) data.getData().getAttribute(
-                     PredefinedConstants.VOLATILE_DATA)))
+               Boolean isVolatile = data.getData().getAttribute(
+                     PredefinedConstants.VOLATILE_DATA);
+               
+               if (isVolatile != null && isVolatile)
                {
                   if (trace.isDebugEnabled())
                   {

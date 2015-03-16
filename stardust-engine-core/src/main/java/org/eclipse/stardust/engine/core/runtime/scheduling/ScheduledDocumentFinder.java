@@ -118,7 +118,11 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
                   if (!matches)
                   {
                      SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
-                     if (sc != null)
+                     if (sc == null)
+                     {
+                        trace.warn("Invalid schedule in document '" + document.getPath() + "'.");
+                     }
+                     else
                      {
                         sc.setDate(executionDate);
                         Date processSchedule = sc.processSchedule(scheduleJson, true);

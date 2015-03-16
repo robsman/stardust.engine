@@ -15,7 +15,6 @@ import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +47,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.LoginServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.SessionBeanLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
@@ -204,12 +204,12 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
    private void doSecurityCheck(LoggedInUser user)
    {
-      InvokerPrincipal principal = getPrincipal(user);
+      Principal principal = getPrincipal(user);
 
       if (SecurityProperties.isInternalAuthentication())
       {
          // Check principal signature
-         boolean ok = InvokerPrincipalUtils.checkPrincipalSignature(principal);
+         boolean ok = InvokerPrincipalUtils.checkPrincipalSignature((InvokerPrincipal) principal);
          if ( !ok)
          {
             trace.warn("The signature for principal '" + principal + "' is corrupt.");
@@ -228,8 +228,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       }
    }
 
-   private InvokerPrincipal getPrincipal(LoggedInUser user)
+   private Principal getPrincipal(LoggedInUser user)
    {
+      if (SecurityProperties.isPrincipalBasedLogin() && this instanceof SessionBeanLoginInterceptor)
+      {
+         return ((SessionBeanLoginInterceptor) this).getPrincipal();
+      }
+
       InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
       if (principal == null)
       {
@@ -250,8 +255,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
    private void doReauthentication(LoggedInUser user)
    {
       // Check if re-authentication properties are present and do login check.
-      InvokerPrincipal principal = getPrincipal(user);
-      Map properties = principal.getProperties();
+      Principal principal = getPrincipal(user);
+      if ( !(principal instanceof InvokerPrincipal))
+      {
+         return;
+      }
+
+      Map<?, ?> properties = ((InvokerPrincipal) principal).getProperties();
       if (properties.containsKey(REAUTH_USER_ID))
       {
          String username = (String) properties.get(REAUTH_USER_ID);

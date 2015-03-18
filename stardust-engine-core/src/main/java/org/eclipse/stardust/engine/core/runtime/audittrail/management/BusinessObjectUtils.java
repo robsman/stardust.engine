@@ -717,16 +717,6 @@ public class BusinessObjectUtils
             && data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT) != null;
    }
 
-   public static class BusinessObjectKey
-   {
-
-      public BusinessObjectKey(IData data, Object pkValue)
-      {
-         // TODO Auto-generated constructor stub
-      }
-
-   }
-
    public static class BusinessObjectsListener implements DataValueChangeListener
    {
       private static final Logger trace = LogManager.getLogger(BusinessObjectsListener.class);

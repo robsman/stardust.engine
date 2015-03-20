@@ -16,11 +16,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gson.JsonObject;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
+import com.google.gson.JsonObject;
 
 public abstract class SchedulingRecurrence
 {
@@ -108,17 +108,7 @@ public abstract class SchedulingRecurrence
       JsonObject recurrenceRange = json.get("recurrenceRange").getAsJsonObject();
 
       String startDateStr = recurrenceRange.get("startDate").getAsString();
-      String executionTime = json.get("executionTime").getAsString();
-      if (executionTime != null && executionTime.length() == 2)
-      {
-         try
-         {
-            executionTime = SchedulingUtils.getExecutionTime(Integer.parseInt(executionTime));
-         }
-         catch (Exception ex)
-         {
-         }
-      }
+      String executionTime = getExecutionTime(json);
       startDate = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
 
       // Set Current time to compare with Scheduled Execution time.
@@ -137,6 +127,111 @@ public abstract class SchedulingRecurrence
          return getByDateNextExecutionDate(recurrenceRange, getCronExpression(json, daemon));
       }
       return null;
+   }
+
+   protected String getExecutionTime(JsonObject json)
+   {
+      String executionTime = json.get("executionTime").getAsString();
+      if (executionTime != null && executionTime.length() == 2)
+      {
+         try
+         {
+            executionTime = SchedulingUtils.getExecutionTime(Integer.parseInt(executionTime));
+         }
+         catch (Exception ex)
+         {
+         }
+      }
+      return executionTime;
+   }
+
+   public List<String> calculateSchedule(JsonObject json, String startDate, String endDate)
+   {
+      List<Date> scheduleDatesinRange = calculateScheduleDates(json, startDate, endDate);
+      List<String> futureExecutionDatesInRange = new ArrayList<String>(scheduleDatesinRange.size());
+      for (Date date : scheduleDatesinRange)
+      {
+         String convertDate = SchedulingUtils.CLIENT_DATE_FORMAT.format(date);
+         futureExecutionDatesInRange.add(convertDate);
+      }
+      return futureExecutionDatesInRange;
+   }
+
+   @SuppressWarnings("deprecation")
+   public List<Date> calculateScheduleDates(JsonObject json, String startDate, String endDate)
+   {
+      String executionTime = getExecutionTime(json);
+      this.startDate = SchedulingUtils.getParsedDate(startDate + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+
+      setStartTimeString(false);
+
+      // Set Current time to compare with Scheduled Execution time.
+      this.startDate.setHours(0);
+      this.startDate.setMinutes(0);
+      this.startDate.setSeconds(0);
+
+      trace.info("Start Date: " + this.startDate);
+
+      Date endDateObj = SchedulingUtils.getParsedDate(endDate,
+            SchedulingUtils.CLIENT_DATE_FORMAT);
+      endDateObj.setHours(23);
+      endDateObj.setMinutes(59);
+      endDateObj.setSeconds(59);
+
+      trace.info("End Date: " + endDateObj);
+
+      List<Date> futureExecutionDatesInRange = null;
+
+      String cronExpressionInput = this.generateSchedule(json);
+
+      CronExpression cronExpressionFuture = null;
+      try
+      {
+         cronExpressionFuture = new CronExpression(cronExpressionInput);
+      }
+      catch (ParseException e)
+      {
+         trace.error(e);
+      }
+
+      futureExecutionDatesInRange = generateFutureExecutionDatesInRange(
+            cronExpressionFuture, this.startDate, endDateObj);
+
+      trace.info("Future occurences between Start date: " + this.startDate
+            + " and End Date: " + endDateObj + ": "
+            + futureExecutionDatesInRange.toString());
+
+      return futureExecutionDatesInRange;
+   }
+
+   private List<Date> generateFutureExecutionDatesInRange(CronExpression cronExpression,
+         Date startDate, Date endDate)
+   {
+      Date clonedStartDate = new Date(startDate.getTime());
+
+      List<Date> futureExecutionDatesInRange = new ArrayList<Date>();
+
+      Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(clonedStartDate);
+      futureExecutionDatesInRange.add(nextValidTimeAfter);
+      trace.info("Next Execution Date: " + nextValidTimeAfter);
+      clonedStartDate = nextValidTimeAfter;
+      if (endDate == null)
+      {
+         return futureExecutionDatesInRange;
+      }
+      else
+      {
+         while (true)
+         {
+            nextValidTimeAfter = cronExpression.getNextValidTimeAfter(clonedStartDate);
+            if (nextValidTimeAfter.after(endDate))
+            {
+               return futureExecutionDatesInRange;
+            }
+            futureExecutionDatesInRange.add(nextValidTimeAfter);
+            clonedStartDate = nextValidTimeAfter;
+         }
+      }
    }
 
    protected CronExpression getCronExpression(JsonObject json, boolean daemon)

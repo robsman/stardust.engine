@@ -469,7 +469,7 @@
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:model:uuid" Value="24c8a0d1-20b0-4ee8-ae5f-7dabef54e60b"/>
-                     <carnot:Attribute Name="stardust:model:businessObject" Value="BusinessObjectSD"/>
+                     <carnot:Attribute Name="stardust:model:businessObjects" Value="BusinessObjectSD"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="29" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">

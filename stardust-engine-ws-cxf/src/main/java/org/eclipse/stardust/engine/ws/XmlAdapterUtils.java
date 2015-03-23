@@ -47,7 +47,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
@@ -2954,21 +2953,27 @@ public class XmlAdapterUtils
    public static DocumentXto toWs(Document doc, QName metaDataType,
          Set<TypedXPath> metaDataXPaths)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, metaDataType, metaDataXPaths, documentType);
+      }
       return xto;
    }
 
    public static DocumentXto toWs(Document doc, Model model, String metaDataTypeId, ModelResolver resolver)
    {
-      DocumentXto xto = marshalDocumentXto(doc, new DocumentXto());
+      DocumentXto xto = null;
+      if (doc != null)
+      {
+         xto = marshalDocumentXto(doc, new DocumentXto());
 
-      DocumentType documentType = doc == null ? null : doc.getDocumentType();
-      marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
-
+         DocumentType documentType = doc == null ? null : doc.getDocumentType();
+         marshalDmsMetaData(doc, xto, model, metaDataTypeId, documentType, resolver);
+      }
       return xto;
    }
 
@@ -5810,5 +5815,36 @@ public class XmlAdapterUtils
       }
       return xto;
    }
-
+   
+   public static QualityAssuranceState unmarshalQualityAssuranceState(QualityAssuranceStateXto xto)
+   {
+      QualityAssuranceState ret = null;
+      if (xto != null)
+      {
+         if (QualityAssuranceStateXto.IS_QUALITY_ASSURANCE.equals(xto))
+         {
+            ret = QualityAssuranceState.IS_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceStateXto.IS_REVISED.equals(xto))
+         {
+            ret = QualityAssuranceState.IS_REVISED;
+         }
+         else if (QualityAssuranceStateXto.NO_QUALITY_ASSURANCE.equals(xto))
+         {
+            ret = QualityAssuranceState.NO_QUALITY_ASSURANCE;
+         }
+         else if (QualityAssuranceStateXto.QUALITY_ASSURANCE_TRIGGERED.equals(xto))
+         {
+            ret = QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED;
+         }         
+         else
+         {
+            throw new UnsupportedOperationException(
+                  "Unmarshaling of QualityAssuranceState not supported for: "
+                        + xto.name());
+         }
+      }
+      return ret;      
+   }
+  
 }

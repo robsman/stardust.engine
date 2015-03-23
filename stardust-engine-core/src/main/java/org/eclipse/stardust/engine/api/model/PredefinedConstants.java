@@ -601,6 +601,8 @@ public final class PredefinedConstants
    public static final String BUSINESS_OBJECT_MANAGEDORGANIZATIONS = ENGINE_SCOPE + "managedOrganizations"; //$NON-NLS-1$
    public static final String BUSINESS_OBJECT_NAMEEXPRESSION = ENGINE_SCOPE + "nameExpression";
    
+   public static final String BUSINESS_OBJECTS_DATAREF = "stardust:model:businessObjects";
+   
    // volatile data attribute
    public static final String VOLATILE_DATA = ENGINE_SCOPE + "volatile";
    

@@ -14,7 +14,8 @@ public class SchedulingFactory
          case daily: return new SchedulingRecurrenceDaily();
          case weekly: return new SchedulingRecurrenceWeekly();
          case monthly: return new SchedulingRecurrenceMonthly();
-         default /*yearly*/: return new SchedulingRecurrenceYearly();
+         case yearly: return new SchedulingRecurrenceYearly();
+         default /*"none"*/: return new SchedulingRecurrenceNone();
          }
       }
       catch (Exception ex)

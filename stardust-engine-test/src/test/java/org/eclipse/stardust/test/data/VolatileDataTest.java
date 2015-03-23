@@ -208,7 +208,9 @@ public class VolatileDataTest
 
       for (Data data : dataList)
       {
-         if (Boolean.valueOf((String) data.getAttribute("carnot:engine:volatile")))
+         Boolean isVolatile = (Boolean) data.getAttribute("carnot:engine:volatile"); 
+         
+         if (isVolatile != null && isVolatile)
          {
 
             Connection connection = testClassSetup.dataSource().getConnection();
@@ -263,8 +265,10 @@ public class VolatileDataTest
 
       for (Data data : dataList)
       {
+         Boolean isVolatile = (Boolean) data.getAttribute("carnot:engine:volatile");
+         
          if (StructuredTypeRtUtils.isStructuredType(data.getTypeId())
-               && Boolean.valueOf((String) data.getAttribute("carnot:engine:volatile")))
+               && (isVolatile != null && isVolatile))
          {
             Connection connection = testClassSetup.dataSource().getConnection();
             Statement stmt = null;
@@ -320,8 +324,10 @@ public class VolatileDataTest
 
       for (Data data : dataList)
       {
+         Boolean isVolatile = (Boolean) data.getAttribute("carnot:engine:volatile");
+         
          if (StructuredTypeRtUtils.isStructuredType(data.getTypeId())
-               && Boolean.valueOf((String) data.getAttribute("carnot:engine:volatile")))
+               && (isVolatile != null && isVolatile))
          {
 
             Connection connection = testClassSetup.dataSource().getConnection();

@@ -531,12 +531,17 @@ public class JcrVfsRepositoryService
                pathWithPrefix += file.getName();
             }
 
-            if (file == null
-                  || hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
+            if (file != null
+                  && hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
                         AccessMode.Write))
             {
                return fromVfs(vfs.moveFile(documentIdWithPrefix, pathWithPrefix, null),
                      getPartitionPrefix());
+            }
+            else if (file == null)
+            {
+               throw new ObjectNotFoundException(
+                     BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(documentId));
             }
             else
             {

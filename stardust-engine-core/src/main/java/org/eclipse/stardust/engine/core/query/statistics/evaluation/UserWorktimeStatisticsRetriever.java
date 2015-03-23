@@ -42,6 +42,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -147,8 +148,8 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   SecurityProperties.getPartitionOid()));
       }
 
-      final Date tsFrom = new Date();
-      final Date tsUntil = new Date();
+      final Date tsFrom = TimestampProviderUtils.getTimeStamp();
+      final Date tsUntil = TimestampProviderUtils.getTimeStamp();
 
       final Map<Long, WorktimeStatistics> worktimeStatistics = CollectionUtils.newMap();
 
@@ -291,7 +292,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             Date periodEnd = dateRange.getIntervalEnd();
 
             // Interpret non set until timestamp (with 0 milis) as Now for activities that are currently suspended.
-            Date tsUntilWait = tsUntil.equals(new Date(0l))? new Date():tsUntil;
+            Date tsUntilWait = tsUntil.equals(new Date(0l))? TimestampProviderUtils.getTimeStamp():tsUntil;
 
             if (tsUntilWait.after(periodBegin) && tsFrom.before(periodEnd))
             {

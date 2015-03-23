@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 public class RelativePastDateRange implements DateRange
 {
    private static final long serialVersionUID = -6869385351019340999L;
@@ -38,9 +40,8 @@ public class RelativePastDateRange implements DateRange
    @Override
    public Date getIntervalBegin()
    {
-      Date now = new Date();
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(now);
+      Date now = TimestampProviderUtils.getTimeStamp();
+      Calendar cal = TimestampProviderUtils.getCalendar(now);
 
       // Subtract offset and snap to calendar unit type
       snapToBeginOfCalendarUnit(cal, offset, offsetType, true);
@@ -51,9 +52,8 @@ public class RelativePastDateRange implements DateRange
    @Override
    public Date getIntervalEnd()
    {
-      Date now = new Date();
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(now);
+      Date now = TimestampProviderUtils.getTimeStamp();
+      Calendar cal = TimestampProviderUtils.getCalendar(now);
 
       // Subtract offset and snap to calendar unit type
       snapToBeginOfCalendarUnit(cal, offset, offsetType, true);

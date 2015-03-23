@@ -51,6 +51,8 @@ import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.GetActivityInData.DataIdsXto;
 import org.eclipse.stardust.engine.api.ws.GetProcessProperties.PropertyIdsXto;
 import org.eclipse.stardust.engine.api.ws.query.WorklistQueryXto;
+import org.eclipse.stardust.engine.core.runtime.command.impl.StartProcessCommandException;
+import org.eclipse.stardust.engine.core.runtime.command.impl.StartProcessWithDocumentsCommand;
 
 
 /**
@@ -80,7 +82,7 @@ public class WorkflowServiceFacade implements IWorkflowService
             model = wsEnv.getActiveModel(qName.getNamespaceURI());
          }
 
-         WsApiStartProcessCommand command = new WsApiStartProcessCommand(processId, model.getModelOID(),
+         StartProcessWithDocumentsCommand command = new StartProcessWithDocumentsCommand(processId, model.getModelOID(),
                initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model));
 
          ProcessInstance pi = null;
@@ -94,10 +96,10 @@ public class WorkflowServiceFacade implements IWorkflowService
             Throwable cause = e.getCause();
             if (cause != null)
             {
-               if (cause instanceof InputDocumentStoreException)
+               if (cause instanceof StartProcessCommandException)
                {
                   WsApiStartProcessUtils
-                        .unwrapStartProcessBpmFault((InputDocumentStoreException) cause);
+                        .unwrapStartProcessBpmFault((StartProcessCommandException) cause);
                }
                else if (cause instanceof RuntimeException)
                {

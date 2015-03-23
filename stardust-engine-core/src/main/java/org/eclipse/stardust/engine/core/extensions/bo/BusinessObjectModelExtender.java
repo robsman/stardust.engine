@@ -1,5 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.extensions.bo;
 
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.BUSINESS_OBJECTS_DATAREF;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.PRIMARY_KEY_ATT;
 
 import java.util.Collection;
@@ -14,6 +25,7 @@ import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.core.model.beans.DataPathBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -158,8 +170,9 @@ public class BusinessObjectModelExtender implements IPartitionMonitor
                // Add descriptor to all process definitions referencing the BO
                for (IProcessDefinition pd : pds)
                {
-                  if (pd.getAttribute("stardust:model:businessObject").equals(
-                        typeDecl.getId()))
+                  if (pd.getAttribute(BUSINESS_OBJECTS_DATAREF) != null
+                        && pd.getAttribute(BUSINESS_OBJECTS_DATAREF).equals(
+                              typeDecl.getId()))
                   {
                      addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
                            descriptorLabelValue);

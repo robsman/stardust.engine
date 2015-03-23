@@ -65,6 +65,7 @@ public class ObjectFactory {
     private final static QName _HistoricalEventTypes_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "historicalEventTypes");
     private final static QName _TimeoutPolicy_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "timeoutPolicy");
     private final static QName _NotEqual_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "notEqual");
+    private final static QName _HavingDocumentFilter_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "havingDocumentFilter");
     private final static QName _PerformedByUser_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "performedByUser");
     private final static QName _UserState_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "userState");
     private final static QName _LessThan_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "lessThan");
@@ -222,6 +223,14 @@ public class ObjectFactory {
      */
     public PerformedByUserFilterXto createPerformedByUserFilterXto() {
         return new PerformedByUserFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link HavingDocumentFilterXto }
+     * 
+     */
+    public HavingDocumentFilterXto createHavingDocumentFilterXto() {
+        return new HavingDocumentFilterXto();
     }
 
     /**
@@ -1102,6 +1111,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "notEqual", substitutionHeadNamespace = "http://eclipse.org/stardust/ws/v2012a/api/query", substitutionHeadName = "filterCriterion")
     public JAXBElement<NotEqualPredicateXto> createNotEqual(NotEqualPredicateXto value) {
         return new JAXBElement<NotEqualPredicateXto>(_NotEqual_QNAME, NotEqualPredicateXto.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link HavingDocumentFilterXto }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "havingDocumentFilter", substitutionHeadNamespace = "http://eclipse.org/stardust/ws/v2012a/api/query", substitutionHeadName = "filterCriterion")
+    public JAXBElement<HavingDocumentFilterXto> createHavingDocumentFilter(HavingDocumentFilterXto value) {
+        return new JAXBElement<HavingDocumentFilterXto>(_HavingDocumentFilter_QNAME, HavingDocumentFilterXto.class, null, value);
     }
 
     /**

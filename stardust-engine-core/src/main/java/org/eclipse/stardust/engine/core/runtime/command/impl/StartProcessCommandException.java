@@ -8,21 +8,22 @@
  * Contributors:
  *    Roland.Stamm (SunGard CSA LLC) - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.ws;
+package org.eclipse.stardust.engine.core.runtime.command.impl;
+
 
 /**
- * Is thrown if {@link WsApiStartProcessCommand} fails to store an {@link InputDocument}.
+ * Is thrown if {@link StartProcessWithDocumentsCommand} fails to store an {@link StartProcessInputDocument}.
  *
  * @author Roland.Stamm
  */
-public class InputDocumentStoreException extends RuntimeException
+public class StartProcessCommandException extends RuntimeException
 {
 
    private static final long serialVersionUID = -431772655763932301L;
 
    private String faultCode;
 
-   public InputDocumentStoreException(String message, String faultCode)
+   public StartProcessCommandException(String message, String faultCode)
    {
       super(message);
       this.faultCode = faultCode;

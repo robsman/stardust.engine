@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.core.compatibility.gui.GUI;
 import org.eclipse.stardust.engine.core.compatibility.gui.ToolbarButton;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.DateEntry;
 import org.eclipse.stardust.engine.core.model.repository.ModelNode;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -143,7 +144,7 @@ public class DeployedModelsView extends JComponent
 
       public void actionPerformed(ActionEvent e)
       {
-         Calendar now = Calendar.getInstance();
+         Calendar now = TimestampProviderUtils.getCalendar();
          Calendar start = (Calendar) now.clone();
          start.add(Calendar.MONTH, -4);
          Calendar end = (Calendar) now.clone();
@@ -161,7 +162,7 @@ public class DeployedModelsView extends JComponent
 
       public void actionPerformed(ActionEvent event)
       {
-         Calendar now = Calendar.getInstance();
+         Calendar now = TimestampProviderUtils.getCalendar();
          long n = now.getTime().getTime();
          long s = Long.MAX_VALUE;
          long e = Long.MIN_VALUE;
@@ -413,7 +414,7 @@ public class DeployedModelsView extends JComponent
 
    private void set1YearScale()
    {
-      Calendar now = Calendar.getInstance();
+      Calendar now = TimestampProviderUtils.getCalendar();
       Calendar start = (Calendar) now.clone();
       start.add(Calendar.MONTH, -2);
       Calendar end = (Calendar) now.clone();

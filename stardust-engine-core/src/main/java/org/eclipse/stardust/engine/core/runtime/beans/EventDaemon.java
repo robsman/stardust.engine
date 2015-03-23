@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullEventEmitter;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -48,7 +49,7 @@ public class EventDaemon implements IDaemon
    {
       long nEvents = 0;
 
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
       if (!isEventDaemonDisabled(now))
       {
          ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance()
@@ -151,8 +152,7 @@ public class EventDaemon implements IDaemon
                + " expression: '" + daysExpr + "'");
       }
 
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(date);
+      Calendar cal = TimestampProviderUtils.getCalendar(date);
 
       int dow = cal.get(Calendar.DAY_OF_WEEK);
       boolean disabled = days.contains(new Integer(dow));

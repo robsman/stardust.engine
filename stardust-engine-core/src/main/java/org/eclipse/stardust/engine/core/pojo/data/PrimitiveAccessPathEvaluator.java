@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author ubirkemeyer
@@ -78,11 +79,11 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       }
       else if (type.equals(Type.Calendar))
       {
-         return Calendar.getInstance();
+         return TimestampProviderUtils.getCalendar();
       }
       else if (type.equals(Type.Timestamp))
       {
-         return new Date();
+         return TimestampProviderUtils.getTimeStamp();
       }
       else if (type.equals(Type.Money))
       {

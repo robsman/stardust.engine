@@ -23,6 +23,8 @@ import javax.swing.CellRendererPane;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * @author Claude Duguay
  * @author rsauer
@@ -47,7 +49,7 @@ public class CalendarMonth extends JPanel
    private static final int[] daysInMonth =
          {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-   private Calendar date = Calendar.getInstance();
+   private Calendar date = TimestampProviderUtils.getCalendar();
    private double xunit = 0;
    private double yunit = 0;
    private int first;

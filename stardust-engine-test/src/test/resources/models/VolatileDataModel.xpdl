@@ -207,7 +207,7 @@
                <carnot:DataField Oid="53" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:volatile" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:volatile" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value=""/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
@@ -264,7 +264,7 @@
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:autoInstantiate" Value="true" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:volatile" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:volatile" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.data.SerializedObject"/>
@@ -304,7 +304,7 @@
                      <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="carnot:engine:volatile" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:volatile" Value="true" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>

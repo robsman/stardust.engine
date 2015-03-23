@@ -22,6 +22,8 @@ import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.BusinessObjectDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
@@ -717,6 +719,8 @@ public class BusinessObjectUtils
 
    public static class BusinessObjectsListener implements DataValueChangeListener
    {
+      private static final Logger trace = LogManager.getLogger(BusinessObjectsListener.class);
+
       @Override
       public void onDataValueChanged(IDataValue dv)
       {
@@ -729,19 +733,41 @@ public class BusinessObjectUtils
                if (hasBusinessObject(data))
                {
                   Serializable value = (Serializable) pi.getInDataValue(data, null);
-                  IProcessInstance upi = findUnboundProcessInstance(data, getPK(data, value));
-                  if (upi == null)
+                  Object pk = getPK(data, value);
+
+                  // need to search in memory first for UPIs created in this transaction
+                  IProcessInstance upi = null;
+                  String key = "BusinessObject:" + data.getModel().getModelOID() + ':' + data.getElementOID() + ':' + pk;
+                  BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+                  if (rtEnv != null)
                   {
-                     lockData(data);
-                     //System.err.println("Creating BO from regular PI data.");
-                     upi = ProcessInstanceBean.createUnboundInstance((IModel) data.getModel());
-                  }
-                  else
-                  {
-                     upi.lock();
-                     //System.err.println("Updating BO from regular PI data.");
+                     upi = (IProcessInstance) rtEnv.get(key);
+                     if (upi == null)
+                     {
+                        upi = findUnboundProcessInstance(data, pk);
+                        if (upi == null)
+                        {
+                           lockData(data);
+                           //System.err.println("Creating BO from regular PI data.");
+                           upi = ProcessInstanceBean.createUnboundInstance((IModel) data.getModel());
+                           if (trace.isDebugEnabled())
+                           {
+                              trace.debug("Created new BO process: " + upi.getOID());
+                           }
+                        }
+                        else
+                        {
+                           upi.lock();
+                           //System.err.println("Updating BO from regular PI data.");
+                        }
+                        rtEnv.setProperty(key, upi);
+                     }
                   }
                   upi.setOutDataValue(data, null, value);
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Updated business object: " + dv.getData() + " by " + pi);
+                  }
                }
             }
          }

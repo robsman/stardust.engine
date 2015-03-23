@@ -201,7 +201,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
       }
       else if (isStructuredType(interaction.getModel(), inParam))
       {
-         List<Variant> providedMediaTypes = Variant.mediaTypes(APPLICATION_XML_TYPE, APPLICATION_JSON_TYPE).build();
+         List<Variant> providedMediaTypes = Variant.mediaTypes(APPLICATION_XML_TYPE, APPLICATION_JSON_TYPE).add().build();
 
          Variant selectedVariant = jaxRsRequest.selectVariant(providedMediaTypes);
 
@@ -284,7 +284,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
                   .getModel(data.getModelOID(), false);
          }
 
-         List<Variant> providedMediaTypes = Variant.mediaTypes(APPLICATION_XML_TYPE, APPLICATION_JSON_TYPE).build();
+         List<Variant> providedMediaTypes = Variant.mediaTypes(APPLICATION_XML_TYPE, APPLICATION_JSON_TYPE).add().build();
 
          Variant selectedVariant = jaxRsRequest.selectVariant(providedMediaTypes);
 

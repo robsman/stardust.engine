@@ -20,6 +20,7 @@ import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -114,9 +115,7 @@ public class ActivityInstanceLogBean extends IdentifiablePersistentBean
    {
       fetch();
 
-      Calendar time = Calendar.getInstance();
-
-      time.setTime(new Date(stamp));
+      Calendar time = TimestampProviderUtils.getCalendar(stamp);
 
       return time;
    }

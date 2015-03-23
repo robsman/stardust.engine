@@ -8,15 +8,13 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.ws;
+package org.eclipse.stardust.engine.core.runtime.command.impl;
 
 import static java.util.Collections.emptyList;
 import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
-import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
-import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.checkProcessAttachmentSupport;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +25,12 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDNamedComponent;
+import org.eclipse.xsd.XSDSchema;
+
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.ServiceCommandException;
@@ -39,9 +42,10 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
-public class WsApiStartProcessCommand implements ServiceCommand
+public class StartProcessWithDocumentsCommand implements ServiceCommand
 {
    private static final String PROCESS_ATTACHMENTS = DmsConstants.DATA_ID_ATTACHMENTS;
 
@@ -53,16 +57,16 @@ public class WsApiStartProcessCommand implements ServiceCommand
 
    private final Boolean startSynchronously;
 
-   private final List<InputDocument> attachments;
+   private final List<StartProcessInputDocument> attachments;
 
    private final DataUsageEvaluator dataUsageEvaluator;
 
    private int modelOid;
 
    @SuppressWarnings("unchecked")
-   public WsApiStartProcessCommand(String processId, int modelOid,
+   public StartProcessWithDocumentsCommand(String processId, int modelOid,
          Map<String, ? extends Serializable> parameters, Boolean startSynchronously,
-         List<InputDocument> attachments)
+         List<StartProcessInputDocument> attachments)
    {
       this.processId = processId;
       this.modelOid = modelOid;
@@ -115,7 +119,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
          {
             // performance optimization: if all attachments use a predefined path, store
             // them directly into the DMS and pass the docs directly with startProcess
-            for (InputDocument inputDoc : attachments)
+            for (StartProcessInputDocument inputDoc : attachments)
             {
                eagerlyStoreAttachments &= !isEmpty(inputDoc.getTargetFolder());
                allToAttachments &= isEmpty(inputDoc.getGlobalVariableId());
@@ -155,7 +159,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
                // handle each document separately.
 
                List<Document> processAttachments = CollectionUtils.newArrayList();
-               for (InputDocument attachment : attachments)
+               for (StartProcessInputDocument attachment : attachments)
                {
                   Document document = unmarshalAndStoreInputDocument(attachment, sf,
                         model, pi);
@@ -224,8 +228,8 @@ public class WsApiStartProcessCommand implements ServiceCommand
    }
 
    private List<Document> unmarshalAndStoreInputDocuments(
-         List<InputDocument> attachments, ServiceFactory sf, Model model,
-         ProcessInstance pi) throws InputDocumentStoreException
+         List<StartProcessInputDocument> attachments, ServiceFactory sf, Model model,
+         ProcessInstance pi) throws StartProcessCommandException
    {
       List<Document> theAttachments = emptyList();
 
@@ -233,7 +237,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
       {
          theAttachments = newArrayList();
 
-         for (InputDocument attachment : attachments)
+         for (StartProcessInputDocument attachment : attachments)
          {
             Document doc = unmarshalAndStoreInputDocument(attachment, sf, model, pi);
 
@@ -244,9 +248,9 @@ public class WsApiStartProcessCommand implements ServiceCommand
       return theAttachments;
    }
 
-   private Document unmarshalAndStoreInputDocument(InputDocument attachment,
+   private Document unmarshalAndStoreInputDocument(StartProcessInputDocument attachment,
          ServiceFactory sf, Model model, ProcessInstance pi)
-         throws InputDocumentStoreException
+         throws StartProcessCommandException
    {
       if (isEmpty(attachment.getTargetFolder()))
       {
@@ -271,7 +275,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
          attachment.setTargetFolder(defaultPath.toString());
       }
 
-      ensureFolderExists(sf.getDocumentManagementService(), attachment.getTargetFolder());
+      DmsUtils.ensureFolderHierarchyExists(attachment.getTargetFolder(), sf.getDocumentManagementService());
 
       Document doc = storeDocumentIntoDms(sf.getDocumentManagementService(), model,
             attachment);
@@ -279,7 +283,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
    }
 
    private Document storeDocumentIntoDms(DocumentManagementService dms, Model model,
-         InputDocument inputDoc) throws InputDocumentStoreException
+         StartProcessInputDocument inputDoc) throws StartProcessCommandException
    {
       DocumentInfo docInfo = inputDoc.getDocumentInfo();
       String folderId = inputDoc.getTargetFolder();
@@ -309,34 +313,34 @@ public class WsApiStartProcessCommand implements ServiceCommand
          if (BpmRuntimeError.DMS_ITEM_EXISTS.raise().getId()
                .equals(dmse.getError().getId()))
          {
-            throw new InputDocumentStoreException("There already exists a file at "
+            throw new StartProcessCommandException("There already exists a file at "
                   + documentPath, "ItemAlreadyExists");
          }
          else if (BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(null).getId()
                .equals(dmse.getError().getId()))
          {
-            throw new InputDocumentStoreException(dmse.getMessage(), "InvalidName");
+            throw new StartProcessCommandException(dmse.getMessage(), "InvalidName");
          }
          else if (BpmRuntimeError.DMS_UNKNOWN_FOLDER_ID.raise(null).getId()
                .equals(dmse.getError().getId()))
          {
 
-            throw new InputDocumentStoreException(dmse.getMessage(), "ItemDoesNotExist");
+            throw new StartProcessCommandException(dmse.getMessage(), "ItemDoesNotExist");
          }
          else if (BpmRuntimeError.DMS_DOCUMENT_TYPE_INVALID.raise(null).getId()
                .equals(dmse.getError().getId()))
          {
-            throw new InputDocumentStoreException(dmse.getMessage(),
+            throw new StartProcessCommandException(dmse.getMessage(),
                   "DocumentManagementServiceException");
          }
          else if (!isEmpty(dmse.getError().getId()) && !isEmpty(dmse.getMessage()))
          {
             // marshal as DocumentManagementServiceException if error ID exists.
-            throw new InputDocumentStoreException(dmse.getMessage(), "DocumentManagementServiceException");
+            throw new StartProcessCommandException(dmse.getMessage(), "DocumentManagementServiceException");
          }
          else
          {
-            throw new InputDocumentStoreException("Failed storing file at "
+            throw new StartProcessCommandException("Failed storing file at "
                   + documentPath, "UnknownError");
          }
       }
@@ -376,7 +380,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
          {
             Set<TypedXPath> definedXPaths = StructuredTypeRtUtils.getAllXPaths(model,
                   typeDeclaration);
-            Set<TypedXPath> requestedXPaths = XmlAdapterUtils.inferStructDefinition(
+            Set<TypedXPath> requestedXPaths = inferStructDefinition(
                   metaDataType, model);
             if (requestedXPaths != null && !requestedXPaths.equals(definedXPaths))
             {
@@ -388,4 +392,90 @@ public class WsApiStartProcessCommand implements ServiceCommand
          }
       }
    }
+
+   private static void checkProcessAttachmentSupport(String processId, Model model)
+         throws StartProcessCommandException
+   {
+      ProcessDefinition processDefinition = model.getProcessDefinition(processId);
+      if (processDefinition == null)
+      {
+         throw new StartProcessCommandException("The process with ID '" + processId
+               + "' was not found in the model.", "ObjectNotFoundException");
+      }
+      DataPath attachmentsDefinition = processDefinition.getDataPath("PROCESS_ATTACHMENTS");
+      if ((null == attachmentsDefinition)
+            || !attachmentsDefinition.getDirection().isCompatibleWith(Direction.IN))
+      {
+         throw new StartProcessCommandException("The process with ID '" + processId
+               + "' does not support attachments.", "InvalidConfiguration");
+      }
+   }
+
+  /**
+   * Infers the TypedXPaths from the QName of the type definition in the specified model.
+   *
+   * @param typeName The qualified name of the xsd type definition.
+   * @param model the model to look up in.
+   * @return Inferred XPaths.
+   */
+  private static Set<TypedXPath> inferStructDefinition(QName typeName, Model model)
+  {
+     Set<TypedXPath> xPaths = null;
+     if (model != null)
+     {
+        for (TypeDeclaration type : (List<TypeDeclaration>) model.getAllTypeDeclarations())
+        {
+           XSDSchema schema = null;
+           if (type.getXpdlType() instanceof SchemaType)
+           {
+              SchemaType schemaType = (SchemaType) type.getXpdlType();
+
+              schema = schemaType.getSchema();
+           }
+           else if (type.getXpdlType() instanceof ExternalReference)
+           {
+              ExternalReference refType = (ExternalReference) type.getXpdlType();
+
+              if (typeName.toString().equals(refType.getXref()))
+              {
+                 schema = refType.getSchema(model);
+              }
+           }
+
+           xPaths = getXPathsFromSchema(typeName, schema);
+           if ( !isEmpty(xPaths))
+           {
+              break;
+           }
+        }
+     }
+     return xPaths;
+  }
+
+  private static Set<TypedXPath> getXPathsFromSchema(QName typeName, XSDSchema schema)
+  {
+     Set<TypedXPath> xPaths = CollectionUtils.newSet();
+     if (null != schema)
+     {
+        XSDNamedComponent metaDataType = XPathFinder.findTypeDefinition(schema,
+              typeName.toString());
+
+        if (null == metaDataType)
+        {
+           XSDElementDeclaration element = XPathFinder.findElement(schema,
+                 typeName.toString());
+           if ((null != element) && (null != element.getAnonymousTypeDefinition()))
+           {
+              // matching element name defining an anonymous type
+              metaDataType = element;
+           }
+        }
+
+        if (null != metaDataType)
+        {
+           xPaths = XPathFinder.findAllXPaths(schema, metaDataType);
+        }
+     }
+     return xPaths;
+  }
 }

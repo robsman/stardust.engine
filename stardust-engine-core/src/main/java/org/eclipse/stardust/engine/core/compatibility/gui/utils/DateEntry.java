@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.calendar.CalendarMonth;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.calendar.JCalendar;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.calendar.SimpleCalendarRenderer;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -91,7 +92,7 @@ public class DateEntry extends JComponent implements ObservedEntry
     */
    public DateEntry()
    {
-      field = new JTextField(dateFormat.format(new Date()).length());
+      field = new JTextField(dateFormat.format(TimestampProviderUtils.getTimeStamp()).length());
 
       setBorder(field.getBorder());
       field.setBorder(null);
@@ -188,6 +189,7 @@ public class DateEntry extends JComponent implements ObservedEntry
       Calendar calendar = null;
       if (!isEmpty())
       {
+         // TimestampProviderUtils is needed here 
          calendar = Calendar.getInstance();
          calendar.clear();
 
@@ -297,6 +299,8 @@ public class DateEntry extends JComponent implements ObservedEntry
       Assert.condition((UNKNOWN_MONTH == month) || (month > 0 && month < 13));
       Assert.condition((UNKNOWN_YEAR == year) || (year >= 0 && year < 10000));
 
+      // TimestampProviderUtils isn't needed here because the time is reseted after
+      // the object is created
       Calendar calendar = Calendar.getInstance();
       calendar.clear();
       calendar.set(Calendar.YEAR, year);
@@ -314,9 +318,7 @@ public class DateEntry extends JComponent implements ObservedEntry
       }
       else
       {
-         Calendar calendar = Calendar.getInstance();
-         calendar.clear();
-         calendar.setTime(date);
+         Calendar calendar = TimestampProviderUtils.getCalendar(date);
          setCalendar(calendar);
       }
    }
@@ -407,8 +409,8 @@ public class DateEntry extends JComponent implements ObservedEntry
       {
          if (!StringUtils.isEmpty(field.getText()))
          {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dateFormat.parse(field.getText()));
+            Calendar calendar = TimestampProviderUtils.getCalendar(
+                  dateFormat.parse(field.getText()));
             setCalendar(calendar);
          }
          else
@@ -426,7 +428,7 @@ public class DateEntry extends JComponent implements ObservedEntry
    {
       if (null == date)
       {
-         date = Calendar.getInstance();
+         date = TimestampProviderUtils.getCalendar();
       }
 
       JCalendar calendar = new JCalendar(date, 1, 1,

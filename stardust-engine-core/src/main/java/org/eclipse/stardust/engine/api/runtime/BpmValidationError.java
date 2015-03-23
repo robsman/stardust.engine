@@ -161,6 +161,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args SDT_XSD_SCHEMA_NOT_FOUND = new Args("SDT01003");
    public static final Args SDT_XSD_IMPORT_NOT_RESOLVABLE = new Args("SDT01004");
    public static final Args SDT_XSD_INCLUDE_NOT_RESOLVABLE = new Args("SDT01005");
+   public static final Args SDT_XSD_TYPE_DEFINITION_NOT_RESOLVABLE = new Args("SDT01006");
+
 
    //Participant related
    public static final Args PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER = new Args("PART01001");

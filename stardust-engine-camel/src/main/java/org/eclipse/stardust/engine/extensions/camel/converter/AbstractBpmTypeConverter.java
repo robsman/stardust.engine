@@ -218,33 +218,29 @@ public abstract class AbstractBpmTypeConverter
       return StructuredTypeRtUtils.getTypeDeclaration(data, model);
    }
 
-   private String extractModelIdFromTypeDeclaration(String typeDeclarationId){
-      if(typeDeclarationId!=null && !typeDeclarationId.isEmpty()){
-         int leftIndex=typeDeclarationId.indexOf('{');
-         int rightIndex=typeDeclarationId.indexOf('}');
-         return typeDeclarationId.substring(leftIndex+1, rightIndex);
-      }
-      return null;
-   }
-   
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
-      AccessPoint ap=mapping.getApplicationAccessPoint();
-      String typeDeclarationId = (String) mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      ITypeDeclaration typeDeclaration=model.findTypeDeclaration(typeDeclarationId);
-      if(typeDeclaration==null){
-         //lookup in the parent process.
-         String modelId=extractModelIdFromTypeDeclaration(typeDeclarationId);
-         IModel parentModel=(IModel) lookupModelById(modelId);
-         if(typeDeclarationId.startsWith("typeDeclaration:")){
-            int length=("typeDeclaration:{"+modelId+"}").length();
-            typeDeclarationId=typeDeclarationId.substring(length);
-         }
-         typeDeclaration=parentModel.findTypeDeclaration(typeDeclarationId);
-      }
-     return  typeDeclaration;
+       String typeDeclarationId = (String) mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+         
+       if (typeDeclaration == null) {
+          IModel refModel=null;
+          IData data = model.findData(mapping.getDataId());
+          if (data != null) {
+                refModel= (IModel) data.getParent();
+                typeDeclaration = refModel.findTypeDeclaration((String)data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT));
+          }
+          
+          if(typeDeclaration==null) {
+             IReference ref = data.getExternalReference();
+             if(ref!=null) {
+                refModel=ref.getExternalPackage().getReferencedModel();
+                typeDeclaration= refModel.findTypeDeclaration(ref.getId());
+             }
+          }
+       }
+       return typeDeclaration;
    }
-
    protected Object getTypeDeclaration(Model model, DataMapping mapping)
    {
       TypeDeclaration td = null;

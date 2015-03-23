@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLogin
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -363,7 +364,7 @@ public class LoginUtils
 
    public static boolean isUserExpired(IUser user)
    {
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
 
       if ( ((user.getValidFrom() == null || user.getValidFrom().before(now)) && //
             (user.getValidTo() == null || user.getValidTo().after(now))))

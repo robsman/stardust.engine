@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.eclipse.stardust.common.Money;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -62,7 +63,7 @@ public class Person
    {
       this.name = name;
       this.firstName = firstName;
-      dateOfBirth = Calendar.getInstance();
+      dateOfBirth = TimestampProviderUtils.getCalendar();
       title = new TitleKey(TitleKey.DR);
       salary = new Money("15031.00");
 

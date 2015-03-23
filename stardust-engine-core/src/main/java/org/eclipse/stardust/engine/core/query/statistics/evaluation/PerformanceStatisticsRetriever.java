@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -70,7 +71,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
       }
       final Map<ParticipantDepartmentPair, ModelParticipantPerformance> mpPerformance = CollectionUtils.newMap();
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       final Set<ParticipantDepartmentOidPair> mpRtOids = StatisticsQueryUtils
          .extractModelParticipantFilter(woq.getFilter());
@@ -144,14 +145,14 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
       {
          private final ModelManager modelManager = ModelManagerFactory.getCurrent();
 
-         private final Calendar durationCalendar = Calendar.getInstance();
+         private final Calendar durationCalendar = TimestampProviderUtils.getCalendar(0L);
 
          private final PkRegistry openPis = new PkRegistry();
          private final PkRegistry openCriticalPis = new PkRegistry();
 
          private final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(woq);
 
-         private final Date tsPiStart = new Date();
+         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {
@@ -319,7 +320,7 @@ public class PerformanceStatisticsRetriever implements IUserQueryEvaluator
 
          private final PkRegistry completedPis = new PkRegistry();
 
-         private final Date tsAiCompletion = new Date();
+         private final Date tsAiCompletion = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {

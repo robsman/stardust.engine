@@ -25,7 +25,7 @@ public class SchedulingUtils
 
    public enum RecurrencePattern
    {
-      daily, weekly, monthly, yearly
+      none, daily, weekly, monthly, yearly
    }
 
    public enum EndMode

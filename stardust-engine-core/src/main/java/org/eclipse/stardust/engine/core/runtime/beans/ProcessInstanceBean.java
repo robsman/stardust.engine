@@ -13,16 +13,32 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.Attribute;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.annotations.SPI;
 import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -30,16 +46,38 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -56,7 +94,11 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -88,7 +130,14 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final int PI_PROPERTY_FLAG_NOTE = 2;          // second bit
    // PI_ABORTING useful for root process instances only
    public static final int PI_PROPERTY_FLAG_PI_ABORTING = 4;   // third bit
-   private static final int PI_PROPERTY_FLAG_ALL = ~0;         // all bits
+   private static final int PI_PROPERTY_FLAG_ALL = ~(3 << 30); // all bits, but the first two reserved for audit trail persistence mode
+
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT = 0;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE = 1 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED = 1 << 31;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT = 3 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL = 3 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL_COMPLEMENT = ~(3 << 30);
 
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__START_TIME = "startTime";
@@ -863,7 +912,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.CURRENT_DATE))
       {
-         dataValue.setValue(Calendar.getInstance(), false);
+         dataValue.setValue(TimestampProviderUtils.getCalendar(), false);
       }
       else if (dataID.equals(PredefinedConstants.PROCESS_ID))
       {
@@ -1361,7 +1410,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    void lockDataValue(IData data) throws PhantomException
    {
       // TODO (fh) hardcoded 1 min, should be configurable
-      long timeout = System.currentTimeMillis() + 60000;
+      long timeout = TimestampProviderUtils.getTimeStampValue() + 60000;
       IDataValue dataValue = getDataValue(data);
       if (dataValue instanceof DataValueBean)
       {
@@ -1379,7 +1428,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             }
             catch (ConcurrencyException ex)
             {
-               if (System.currentTimeMillis() > timeout)
+               if (TimestampProviderUtils.getTimeStampValue() > timeout)
                {
                   throw ex;
                }
@@ -1778,18 +1827,67 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void setAuditTrailPersistencePropertyValue(final AuditTrailPersistence value)
    {
-      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, value.name());
+      final int mask = determineAuditTrailPersistenceMaskFrom(value);
+
+      fetch();
+      final int newValue = (propertiesAvailable & PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL_COMPLEMENT) | mask;
+      if (newValue != propertiesAvailable)
+      {
+         propertiesAvailable = newValue;
+         markModified(FIELD__PROPERTIES_AVAILABLE);
+      }
    }
 
    private AuditTrailPersistence getAuditTrailPersistencePropertyValue()
    {
-      final String auditTrailPersistenceName = (String) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (auditTrailPersistenceName == null)
+      fetch();
+
+      return determineAuditTrailPersistenceFrom(propertiesAvailable & PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL);
+   }
+
+   private int determineAuditTrailPersistenceMaskFrom(final AuditTrailPersistence value)
+   {
+      switch (value)
+      {
+         case ENGINE_DEFAULT:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT;
+
+         case IMMEDIATE:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE;
+
+         case DEFERRED:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED;
+
+         case TRANSIENT:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT;
+
+         default:
+            throw new IllegalArgumentException("Illegal Audit Trail Persistence value '" + value + "'.");
+      }
+   }
+
+   private AuditTrailPersistence determineAuditTrailPersistenceFrom(final int mask)
+   {
+      if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT)
       {
          return AuditTrailPersistence.ENGINE_DEFAULT;
       }
-
-      return AuditTrailPersistence.valueOf(auditTrailPersistenceName);
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE)
+      {
+         return AuditTrailPersistence.IMMEDIATE;
+      }
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED)
+      {
+         return AuditTrailPersistence.DEFERRED;
+      }
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT)
+      {
+         return AuditTrailPersistence.TRANSIENT;
+      }
+      else
+      {
+         throw new IllegalArgumentException("Illegal Audit Trail Persistence mask '" + mask + "'.");
+      }
    }
 
    private boolean noteExists()

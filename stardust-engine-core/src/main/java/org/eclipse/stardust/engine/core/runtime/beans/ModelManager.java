@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry.ElementType;
 
 /**
  *
@@ -86,6 +87,8 @@ public interface ModelManager
    long getRuntimeOid(IdentifiableElement modelElement);
 
    long getRuntimeOid(IData data, String xPath);
+   
+   String[] getFqId(ElementType type, long rtOid);
 
    DeploymentInfo deleteModel(IModel model);
 

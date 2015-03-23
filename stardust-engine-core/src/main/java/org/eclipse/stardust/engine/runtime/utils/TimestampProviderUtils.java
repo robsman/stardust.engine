@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.runtime.utils;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
-import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.common.config.RealtimeTimestampProvider;
-import org.eclipse.stardust.common.config.TimestampProvider;
-import org.eclipse.stardust.common.config.ValueProvider;
+import org.eclipse.stardust.common.config.*;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -26,6 +25,8 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 public class TimestampProviderUtils
 {
    public static final String PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE = TimestampProvider.class.getName()+".CachedInstance";
+   
+   private static final ThreadLocal<BpmRuntimeEnvironment> propLayer = new ThreadLocal<BpmRuntimeEnvironment>();
 
    public static long getTimeStampValue()
    {
@@ -38,6 +39,43 @@ public class TimestampProviderUtils
             : provider.getTimestamp().getTime();
    }
 
+   public static Calendar getCalendar()
+   {
+      TimestampProvider provider = getProvider();
+      return getCalendar(provider.getTimestamp());
+   }
+   
+   public static Calendar getCalendar(Date date)
+   {
+      // Provider is not needed in this case
+      Calendar cal = Calendar.getInstance();
+      cal.setTime(date);
+      return cal;
+   }
+   
+   public static Calendar getCalendar(long timeInMillis)
+   {
+      // Provider is not needed in this case
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(timeInMillis);
+      return cal;
+   }
+   
+   public static Calendar getCalendar(TimeZone timeZone)
+   {
+      TimestampProvider provider = getProvider();
+      Calendar cal = Calendar.getInstance(timeZone);
+      cal.setTime(provider.getTimestamp());
+      return cal;
+   }
+   
+   public static Calendar getCalendar(TimeZone timeZone, Date date)
+   {
+      Calendar cal = Calendar.getInstance(timeZone);
+      cal.setTime(date);
+      return cal;
+   }
+
    public static Date getTimeStamp()
    {
       return getProvider().getTimestamp();
@@ -45,8 +83,18 @@ public class TimestampProviderUtils
 
    public static TimestampProvider getProvider()
    {
-      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
 
+      if (rtEnv == null)
+      {
+         rtEnv = propLayer.get();
+         if(rtEnv == null)
+         {
+            rtEnv = new BpmRuntimeEnvironment(null);
+            propLayer.set(rtEnv);
+         }
+      }
+      
       TimestampProvider result = rtEnv.getTimestampProvider();
 
       if (null == result)

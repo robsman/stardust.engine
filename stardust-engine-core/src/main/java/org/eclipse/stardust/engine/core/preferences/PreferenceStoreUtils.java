@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 public class PreferenceStoreUtils
@@ -44,7 +45,7 @@ public class PreferenceStoreUtils
                .getPartitionId();
 
          out.setComment("Preferences backup for partition '" + partitionId
-               + "', created on " + new Date());
+               + "', created on " + TimestampProviderUtils.getTimeStamp());
 
          for (Preferences preferences : preferencesList)
          {
@@ -62,7 +63,7 @@ public class PreferenceStoreUtils
                   + preferences.getPreferencesId();
             ZipEntry zipEntry = new ZipEntry(entryName);
             zipEntry.setSize(documentContent.length);
-            zipEntry.setTime(System.currentTimeMillis());
+            zipEntry.setTime(TimestampProviderUtils.getTimeStampValue());
             zipEntry.setComment("text/xml");
             out.putNextEntry(zipEntry);
 

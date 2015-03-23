@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.core.compatibility.gui.TimeEntry;
 import org.eclipse.stardust.engine.core.compatibility.spi.runtime.gui.RuntimeConditionPanel;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 public class TimerbasedRuntimeBindPanel extends RuntimeConditionPanel
@@ -59,7 +60,7 @@ public class TimerbasedRuntimeBindPanel extends RuntimeConditionPanel
    public void setData(EventAware owner, EventHandlerBinding handler)
    {
       this.handler = handler;
-      Calendar current = Calendar.getInstance();
+      Calendar current = TimestampProviderUtils.getCalendar();
       Long value = (Long) handler.getAttribute(PredefinedConstants.TARGET_TIMESTAMP_ATT);
       if (value != null)
       {

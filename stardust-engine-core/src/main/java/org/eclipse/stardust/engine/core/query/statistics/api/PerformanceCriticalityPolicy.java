@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.core.integration.calendar.IWorktimeCalendar;
 import org.eclipse.stardust.engine.core.integration.calendar.WorktimeCalendarUtils;
 import org.eclipse.stardust.engine.core.query.statistics.evaluation.StatisticsDateUtils;
 import org.eclipse.stardust.engine.core.query.statistics.evaluation.StatisticsModelUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -44,7 +45,7 @@ public class PerformanceCriticalityPolicy implements EvaluationPolicy
 
    private final float highPriorityCriticalPct;
 
-   private final Calendar comparisionCalendar = Calendar.getInstance();
+   private final Calendar comparisionCalendar = TimestampProviderUtils.getCalendar(0L);
 
    /**
     * PIs are considered critical if their duration exceeds a certain limit. Limits can be

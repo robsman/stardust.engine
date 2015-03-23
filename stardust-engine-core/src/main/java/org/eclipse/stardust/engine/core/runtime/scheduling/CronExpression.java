@@ -30,6 +30,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * Provides a parser and evaluator for unix-like cron expressions. Cron
  * expressions provide the ability to specify complex time combinations such as
@@ -285,8 +287,7 @@ public class CronExpression implements Serializable, Cloneable {
      *         expression
      */
     public boolean isSatisfiedBy(Date date) {
-        Calendar testDateCal = Calendar.getInstance(getTimeZone());
-        testDateCal.setTime(date);
+        Calendar testDateCal = TimestampProviderUtils.getCalendar(getTimeZone(), date);
         testDateCal.set(Calendar.MILLISECOND, 0);
         Date originalDate = testDateCal.getTime();
 
@@ -321,8 +322,7 @@ public class CronExpression implements Serializable, Cloneable {
         long difference = 1000;
 
         //move back to the nearest second so differences will be accurate
-        Calendar adjustCal = Calendar.getInstance(getTimeZone());
-        adjustCal.setTime(date);
+        Calendar adjustCal = TimestampProviderUtils.getCalendar(getTimeZone(), date);
         adjustCal.set(Calendar.MILLISECOND, 0);
         Date lastDate = adjustCal.getTime();
 
@@ -1212,7 +1212,7 @@ public class CronExpression implements Serializable, Cloneable {
                         t = day;
                         day = getLastDayOfMonth(mon, cl.get(Calendar.YEAR));
 
-                        java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
+                        java.util.Calendar tcal = TimestampProviderUtils.getCalendar(getTimeZone());
                         tcal.set(Calendar.SECOND, 0);
                         tcal.set(Calendar.MINUTE, 0);
                         tcal.set(Calendar.HOUR_OF_DAY, 0);
@@ -1248,7 +1248,7 @@ public class CronExpression implements Serializable, Cloneable {
                     t = day;
                     day = ((Integer) daysOfMonth.first()).intValue();
 
-                    java.util.Calendar tcal = java.util.Calendar.getInstance(getTimeZone());
+                    java.util.Calendar tcal = TimestampProviderUtils.getCalendar(getTimeZone());
                     tcal.set(Calendar.SECOND, 0);
                     tcal.set(Calendar.MINUTE, 0);
                     tcal.set(Calendar.HOUR_OF_DAY, 0);

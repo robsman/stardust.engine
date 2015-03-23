@@ -20,10 +20,13 @@ import javax.activation.DataHandler;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.ws.*;
+import org.eclipse.stardust.engine.core.runtime.command.impl.StartProcessInputDocument;
+import org.eclipse.stardust.engine.core.runtime.command.impl.StartProcessCommandException;
+import org.eclipse.stardust.engine.core.runtime.command.impl.StartProcessWithDocumentsCommand;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 
 /**
- * Various utility to help {@link WsApiStartProcessCommand} handle all data as java.io.Serializable.
+ * Various utility to help {@link StartProcessWithDocumentsCommand} handle all data as java.io.Serializable.
  *
  * @author Roland.Stamm
  */
@@ -35,7 +38,7 @@ public class WsApiStartProcessUtils
       // Utility class
    }
 
-   public static void unwrapStartProcessBpmFault(InputDocumentStoreException cause) throws BpmFault
+   public static void unwrapStartProcessBpmFault(StartProcessCommandException cause) throws BpmFault
    {
         BpmFaultCodeXto faultCodeXto = BpmFaultCodeXto.valueOf(cause.getFaultCode());
         BpmFaultXto bpmFaultXto = new BpmFaultXto();
@@ -43,9 +46,9 @@ public class WsApiStartProcessUtils
         throw new BpmFault(cause.getMessage(), bpmFaultXto);
    }
 
-   public static List<InputDocument> unmarshalToSerializable(InputDocumentsXto xto, Model model)
+   public static List<StartProcessInputDocument> unmarshalToSerializable(InputDocumentsXto xto, Model model)
    {
-      List<InputDocument> inputDocuments = null;
+      List<StartProcessInputDocument> inputDocuments = null;
 
       if (xto != null)
       {
@@ -54,7 +57,7 @@ public class WsApiStartProcessUtils
          List<InputDocumentXto> inputDocumentsXto = xto.getInputDocument();
          for (InputDocumentXto inputDocumentXto : inputDocumentsXto)
          {
-            InputDocument inputDocument = unmarshalToSerializable(inputDocumentXto, model);
+            StartProcessInputDocument inputDocument = unmarshalToSerializable(inputDocumentXto, model);
             if (inputDocument != null)
             {
                inputDocuments.add(inputDocument);
@@ -65,12 +68,12 @@ public class WsApiStartProcessUtils
       return inputDocuments;
    }
 
-   public static InputDocument unmarshalToSerializable(InputDocumentXto xto, Model model)
+   public static StartProcessInputDocument unmarshalToSerializable(InputDocumentXto xto, Model model)
    {
-      InputDocument inputDocument = null;
+      StartProcessInputDocument inputDocument = null;
       if (xto != null)
       {
-      inputDocument = new InputDocument();
+      inputDocument = new StartProcessInputDocument();
 
       inputDocument.setGlobalVariableId(xto.getGlobalVariableId());
       inputDocument.setTargetFolder(xto.getTargetFolder());

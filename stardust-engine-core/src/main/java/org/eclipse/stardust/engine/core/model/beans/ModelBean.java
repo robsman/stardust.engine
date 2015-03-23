@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  *
@@ -413,7 +414,8 @@ public class ModelBean extends RootElementBean
       if (ModelManagerFactory.isAvailable())
       {
          Date ref = (Date) getAttribute(PredefinedConstants.VALID_FROM_ATT);
-         return validateTransitiveConsistency(ModelManagerFactory.getCurrent(), ref == null ? new Date() : ref,
+         return validateTransitiveConsistency(ModelManagerFactory.getCurrent(),
+               ref == null ? TimestampProviderUtils.getTimeStamp() : ref,
                CollectionUtils.<String, IModel>newMap(), this, inconsistencies);
       }
       return true;

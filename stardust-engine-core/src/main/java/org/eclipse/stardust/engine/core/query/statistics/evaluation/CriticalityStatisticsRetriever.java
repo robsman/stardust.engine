@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
@@ -22,6 +32,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  *
@@ -53,8 +64,6 @@ public class CriticalityStatisticsRetriever implements IActivityInstanceQueryEva
 
       final CriticalityStatisticsQuery csq = (CriticalityStatisticsQuery) query;
       final CriticalityStatisticsResult result = new CriticalityStatisticsResult(csq);
-
-      final Date now = new Date();
 
       final Set<Long> processRtOidFilter = StatisticsQueryUtils.extractProcessFilter(csq.getFilter());
       for (Iterator<List<Long>> iterator = getSubLists(processRtOidFilter, 100).iterator(); iterator.hasNext();)

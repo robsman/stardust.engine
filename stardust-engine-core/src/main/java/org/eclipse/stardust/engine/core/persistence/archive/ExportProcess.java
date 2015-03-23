@@ -1,7 +1,9 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 
 public class ExportProcess implements Serializable
@@ -13,15 +15,19 @@ public class ExportProcess implements Serializable
 
    @Expose
    private String uuid;
+   
+   @Expose
+   Map<String, String> descriptors;
 
    public ExportProcess()
    {}
 
-   public ExportProcess(long oid, String uuid)
+   public ExportProcess(long oid, String uuid, Map<String, String> descriptors)
    {
       super();
       this.oid = oid;
       this.uuid = uuid;
+      this.descriptors = descriptors;
    }
 
    public long getOid()
@@ -46,8 +52,11 @@ public class ExportProcess implements Serializable
 
    @Override
    public String toString() {
-       String rv = String.valueOf(oid) + ":" + uuid;
-       return rv;
+      Gson gson = ExportImportSupport.getGson();
+      String descr = gson.toJson(descriptors);
+      
+      String rv = String.valueOf(oid) + ":" + uuid + ":" + descr.toString();
+      return rv;
    }
 
    @Override
@@ -81,4 +90,10 @@ public class ExportProcess implements Serializable
       }
       return true;
    }
+
+   public Map<String, String> getDescriptors()
+   {
+      return descriptors;
+   }
+   
 }

@@ -60,6 +60,10 @@ public class ExportCommand extends ConsoleCommand
    private static final String FROM_DATE = "fromDate";
 
    private static final String TO_DATE = "toDate";
+   
+   private static final String DESCRIPTORS = "descriptors";
+   
+   private static final String DATE_DESCRIPTORS = "dateDescriptors";
 
    private static final String BATCH_SIZE = "batchSize";
 
@@ -143,6 +147,30 @@ public class ExportCommand extends ConsoleCommand
                         + "If toDate is not provided and fromDate is provided toDate defaults to now.",
                   true);
 
+      argTypes
+            .register(
+                  "-" + DATE_DESCRIPTORS,
+                  "-ddscr",
+                  DATE_DESCRIPTORS,
+                  "Restricts any operation to process instances that has the specified descriptor values. Use this option to specify descriptors that have date values.\n"
+                        + "The specified date must conforms to ISO date patterns\n"
+                        + "(i.e. \"2005-12-31\", \"2005-12-31 23:59\" or \"2005-12-31T23:59:59:999\"),\n"
+                        + "or \""
+                        + DateUtils.getNoninteractiveDateFormat().toPattern()
+                        + "\" for backward compatibility.",
+                  true);
+      
+      argTypes
+      .register(
+            "-" + DESCRIPTORS,
+            "-dscr",
+            DESCRIPTORS,
+            "Restricts any operation to process instances that has the descriptor values. Use this option to specify all non-date descriptors.",
+            true);
+
+
+      argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
+      argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {PURGE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID}, false);
@@ -181,6 +209,7 @@ public class ExportCommand extends ConsoleCommand
       final List<String> partitionIds = getPartitions(options);
       final int batchSize = getBatchSize(options);
       final int concurrentBatches = getConcurrentBatches(options);
+      final HashMap<String, String> descriptors = getDescriptors(options);
 
       for (final String partitionId : partitionIds)
       {
@@ -197,7 +226,7 @@ public class ExportCommand extends ConsoleCommand
 //         }
 
          ExportMetaData exportMetaData = getExportOids(fromDate, toDate,
-               processOids, modelOids, serviceFactory, dumpData);
+               processOids, modelOids, serviceFactory, descriptors, dumpData);
 
          print("Found " + exportMetaData.getAllProcessesForExport(dumpData).size() + " processes to export");
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
@@ -285,6 +314,48 @@ public class ExportCommand extends ConsoleCommand
       return 0;
    }
     
+   private HashMap<String, String> getDescriptors(Map options)
+   {
+      // evaluate partition, fall back to default partition, if configured
+      String descr = (String) options.get(DESCRIPTORS);
+      String dateDescr = (String) options.get(DATE_DESCRIPTORS);
+      HashMap<String, String> descriptors = new HashMap<String, String>();
+      List<String> descriptorValues = new ArrayList<String>();
+      List<String> dateDescriptorValues = new ArrayList<String>();
+      splitListString(descr, descriptorValues);
+      splitListString(dateDescr, dateDescriptorValues);
+      listToMapString(descriptorValues, descriptors);
+      listToMapDate(dateDescriptorValues, descriptors);
+      return descriptors;
+   }
+   
+   private void listToMapString(List<String> descriptorValues, HashMap<String, String> descriptors)
+   {
+      for (String value : descriptorValues)
+      {
+         String[] nameValue = value.split("=", 2);
+         descriptors.put(nameValue[0], nameValue[1]);
+      }
+   }
+   private void listToMapDate(List<String> descriptorValues, HashMap<String, String> descriptors)
+   {
+      for (String value : descriptorValues)
+      {
+         String[] nameValue = value.split("=", 2);
+         Date date = Options.getDateValue(nameValue[1]);
+         if (date != null)
+         {
+            descriptors.put(nameValue[0], Long.toString(date.getTime()));
+         }
+         else
+         {
+            throw new PublicException(
+                  BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
+                        .raise(value));
+         }
+      }
+   }
+
    private int getConcurrentBatches(Map options)
    {
       Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
@@ -395,22 +466,22 @@ public class ExportCommand extends ConsoleCommand
 
    private ExportMetaData getExportOids(final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
-         final ServiceFactory serviceFactory, boolean dumpData)
+         final ServiceFactory serviceFactory, HashMap<String, String> descriptors, boolean dumpData)
    {
       ExportProcessesCommand command;
       if (processOids != null || modelOids != null)
       {
          command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               modelOids, processOids, dumpData);
+               modelOids, processOids, descriptors, dumpData);
       }
       else if (fromDate != null || toDate != null)
       {
          command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               fromDate, toDate, dumpData);
+               fromDate, toDate, descriptors, dumpData);
       }
       else
       {
-         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, dumpData);
+         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, descriptors, dumpData);
       }
       ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
             .getWorkflowService().execute(command);

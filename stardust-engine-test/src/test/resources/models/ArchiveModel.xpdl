@@ -285,6 +285,23 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="DefaultDate" Name="DefaultDate" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="DATETIME"/>
+         </DataType>
+         <InitialValue>2015/03/05 00:00:00:000</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="561" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="a44a0260-16f3-4fb9-bb23-7598b94ebf05"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="2015/03/05 00:00:00:000"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="SimpleManual" Name="SimpleManual" AccessLevel="PUBLIC">
@@ -1114,7 +1131,26 @@
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
-                  <carnot:DataPaths/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="586" Id="CustomerName" Name="CustomerName" Direction="IN" IsDescriptor="true" IsKey="true">
+                        <carnot:DataRef Id="TextData"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="587" Id="CustomerID" Name="CustomerID" Direction="IN" IsDescriptor="true" IsKey="false">
+                        <carnot:DataRef Id="NumberValue"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="588" Id="CustomerData" Name="CustomerData" Direction="IN" IsDescriptor="true" IsKey="false">
+                        <carnot:DataRef Id="StructuredData"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="589" Id="CustomerDataID" Name="CustomerDataID" Direction="IN" IsDescriptor="true" IsKey="false">
+                        <carnot:DataRef Id="StructuredData" Expression="MyFieldB"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="590" Id="CustomerDataName" Name="CustomerDataName" Direction="IN" IsDescriptor="true" IsKey="true">
+                        <carnot:DataRef Id="StructuredData" Expression="MyFieldA"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="591" Id="BusinessDate" Name="BusinessDate" Direction="IN" IsDescriptor="true" IsKey="true">
+                        <carnot:DataRef Id="DefaultDate"/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:model:uuid" Value="b7367e86-b24f-4654-98a6-7fe332f814aa"/>
@@ -1309,7 +1345,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Thu Feb 12 11:25:11 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Thu Mar 05 12:08:09 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

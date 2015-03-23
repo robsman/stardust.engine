@@ -70,7 +70,8 @@ public class ExportResult implements Serializable
    private static ExportProcess createExportProcess(IProcessInstance processInstance)
    {
       String uuid = ExportImportSupport.getUUID(processInstance);
-      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid);
+      Map<String, String> descriptors = ExportImportSupport.getDescriptors(processInstance, null);
+      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid, descriptors);
       return result;
    }
    

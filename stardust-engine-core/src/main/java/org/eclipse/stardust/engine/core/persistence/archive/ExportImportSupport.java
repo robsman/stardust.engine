@@ -18,14 +18,17 @@ import org.apache.commons.collections.CollectionUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
@@ -35,6 +38,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -60,11 +64,11 @@ public class ExportImportSupport
    {
       return getUUID(processInstance.getOID(), processInstance.getStartTime());
    }
-   
+
    public static String getUUID(Long oid, Date startDate)
    {
-      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid
-            + "_" + startDate.getTime();
+      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid + "_"
+            + startDate.getTime();
       return uuid;
    }
 
@@ -72,8 +76,10 @@ public class ExportImportSupport
    {
       GsonBuilder gsonBuilder = new GsonBuilder();
       gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-      gsonBuilder.registerTypeAdapter(ExportProcess.class, new ExportProcessSerializer());
+      ExportProcessSerializer typeAdapter = new ExportProcessSerializer();
+      gsonBuilder.registerTypeAdapter(ExportProcess.class, typeAdapter);
       Gson gson = gsonBuilder.create();
+      typeAdapter.setGson(gson);
       return gson;
    }
 
@@ -124,7 +130,8 @@ public class ExportImportSupport
       Set<Date> indexDates = exportMetaData.getIndexDates();
       for (Date date : indexDates)
       {
-         List<ExportProcess> processesForDate = exportMetaData.getRootProcessesForDate(date);
+         List<ExportProcess> processesForDate = exportMetaData
+               .getRootProcessesForDate(date);
          if (processesForDate.size() > size)
          {
             List<List<ExportProcess>> batches = partition(processesForDate, size);
@@ -297,6 +304,112 @@ public class ExportImportSupport
       c.set(Calendar.SECOND, 59);
       c.set(Calendar.MILLISECOND, 999);
       return c.getTime();
+   }
+
+   private static boolean isPathToInclude(IDataPath path, Set<String> ids)
+   {
+      if (path.getData().getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
+      {
+         return path.isDescriptor()
+               && (Direction.IN.equals(path.getDirection()) || Direction.IN_OUT
+                     .equals(path.getDirection()))
+               && ((null == ids) || ids.contains(path.getId()));
+      }
+      return false;
+   }
+ 
+   public static Map<String, String> getDescriptors(
+         IProcessInstance processInstance, Set<String> ids)
+         throws ObjectNotFoundException
+   {
+      if (processInstance == null)
+      {
+         throw new IllegalArgumentException("Provide a processInstance");
+      }
+      return getDescriptors(processInstance, processInstance.getProcessDefinition(), ids);
+   }
+
+   public static Map<String, String> getDescriptors(
+         IProcessInstance processInstance, IProcessDefinition processDefinition,
+         Set<String> ids) throws ObjectNotFoundException
+   {
+      if (processInstance == null)
+      {
+         throw new IllegalArgumentException("Provide a processInstance");
+      }
+      if (processDefinition == null)
+      {
+         throw new IllegalArgumentException("Provide a processDefinition");
+      }
+      if (processInstance.isCaseProcessInstance())
+      {
+         HashMap primitiveDescriptors = new HashMap(
+               ProcessInstanceGroupUtils.getPrimitiveDescriptors(processInstance, ids));
+
+         ModelElementList allDataPaths = processDefinition.getDataPaths();
+         for (int i = 0; i < allDataPaths.size(); i++)
+         {
+            final IDataPath path = (IDataPath) allDataPaths.get(i);
+            if (isPathToInclude(path, ids))
+            {
+               primitiveDescriptors.put(path.getId(),
+                     getInDataPath(processInstance, path));
+            }
+         }
+         return primitiveDescriptors;
+      }
+      else
+      {
+
+         List<IDataPath> requestedDataPaths = new ArrayList<IDataPath>();
+         ModelElementList allDataPaths = processDefinition.getDataPaths();
+         for (int i = 0; i < allDataPaths.size(); i++)
+         {
+            final IDataPath path = (IDataPath) allDataPaths.get(i);
+            if (isPathToInclude(path, ids))
+            {
+               requestedDataPaths.add(path);
+            }
+         }
+
+         // prefetch data values in batch to improve performance
+         List<IData> dataItems = new ArrayList<IData>(requestedDataPaths.size());
+         for (IDataPath path : requestedDataPaths)
+         {
+            dataItems.add(path.getData());
+         }
+         processInstance.preloadDataValues(dataItems);
+
+         Map<String, String> values = new HashMap<String, String>(
+               requestedDataPaths.size());
+         for (IDataPath path : requestedDataPaths)
+         {
+            values.put(path.getId(), getInDataPath(processInstance, path));
+         }
+
+         return values;
+      }
+   }
+
+   private static String getInDataPath(IProcessInstance processInstance,
+         IDataPath path)
+   {
+      IData data = path.getData();
+      if (data == null)
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.MDL_DANGLING_IN_DATA_PATH.raise(path));
+      }
+      Object value = processInstance.getInDataValue(data, path.getAccessPath());
+      Type type = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
+      if (type.equals(Type.Timestamp))
+      {
+         return Long.toString(((Date)value).getTime());
+      }
+      else
+      {
+         return value.toString();
+      }
    }
 
    /**

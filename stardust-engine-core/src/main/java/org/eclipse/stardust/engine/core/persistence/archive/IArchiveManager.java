@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface IArchiveManager
 {
@@ -42,11 +43,11 @@ public interface IArchiveManager
     */
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
-   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids);
+   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids, Map<String, String> descriptors);
 
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate);
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, String> descriptors);
 
-   public ArrayList<IArchive> findArchives();
+   public ArrayList<IArchive> findArchives(Map<String, String> descriptors);
 
    public boolean addIndex(Serializable key, String indexData);
 

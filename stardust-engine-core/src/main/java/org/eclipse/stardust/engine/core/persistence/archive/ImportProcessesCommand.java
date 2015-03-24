@@ -3,8 +3,6 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.*;
 
-import org.springframework.util.CollectionUtils;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -50,8 +48,10 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final Operation operation;
 
+   private final HashMap<String, String> descriptors;
+
    private ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, Date fromDate, Date toDate,
+         List<Long> processInstanceOids, Date fromDate, Date toDate, HashMap<String, String> descriptors,
          ImportMetaData importMetaData)
    {
       super();
@@ -61,6 +61,7 @@ public class ImportProcessesCommand implements ServiceCommand
       this.fromDate = fromDate;
       this.toDate = toDate;
       this.importMetaData = importMetaData;
+      this.descriptors = descriptors;
    }
 
    /**
@@ -70,10 +71,10 @@ public class ImportProcessesCommand implements ServiceCommand
     *           provide importMetaData if you already validated the model, else set it as
     *           null
     */
-   public ImportProcessesCommand(Operation operation, IArchive archive,
+   public ImportProcessesCommand(Operation operation, IArchive archive, HashMap<String, String> descriptors,
          ImportMetaData importMetaData)
    {
-      this(operation, archive, null, null, null, importMetaData);
+      this(operation, archive, null, null, null, descriptors, importMetaData);
    }
 
    /**
@@ -90,9 +91,9 @@ public class ImportProcessesCommand implements ServiceCommand
     *           null
     */
    public ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, ImportMetaData importMetaData)
+         List<Long> processInstanceOids, HashMap<String, String> descriptors, ImportMetaData importMetaData)
    {
-      this(operation, archive, processInstanceOids, null, null, importMetaData);
+      this(operation, archive, processInstanceOids, null, null, descriptors, importMetaData);
    }
 
    /**
@@ -111,19 +112,19 @@ public class ImportProcessesCommand implements ServiceCommand
     *           null
     */
    public ImportProcessesCommand(Operation operation, IArchive archive, Date fromDate,
-         Date toDate, ImportMetaData importMetaData)
+         Date toDate, HashMap<String, String> descriptors, ImportMetaData importMetaData)
    {
-      this(operation, archive, null, fromDate, toDate, importMetaData);
+      this(operation, archive, null, fromDate, toDate, descriptors, importMetaData);
    }
-
+   
    /**
     * Use this constructor to determine which archives to load
     * 
     * @param processOids
     */
-   public ImportProcessesCommand(List<Long> processInstanceOids)
+   public ImportProcessesCommand(List<Long> processInstanceOids, HashMap<String, String> descriptors)
    {
-      this(Operation.QUERY, null, processInstanceOids, null, null, null);
+      this(Operation.QUERY, null, processInstanceOids, null, null, descriptors, null);
    }
 
    /**
@@ -133,17 +134,17 @@ public class ImportProcessesCommand implements ServiceCommand
     * @param fromDate2
     * @param toDate2
     */
-   public ImportProcessesCommand(Date fromDate, Date toDate)
+   public ImportProcessesCommand(Date fromDate, Date toDate, HashMap<String, String> descriptors)
    {
-      this(Operation.QUERY, null, null, fromDate, toDate, null);
+      this(Operation.QUERY, null, null, fromDate, toDate, descriptors, null);
    }
 
    /**
     * Use this constructor to determine which archives to load
     */
-   public ImportProcessesCommand()
+   public ImportProcessesCommand(HashMap<String, String> descriptors)
    {
-      this(Operation.QUERY, null, null, null, null, null);
+      this(Operation.QUERY, null, null, null, descriptors, null);
    }
 
    @Override
@@ -164,7 +165,7 @@ public class ImportProcessesCommand implements ServiceCommand
             result = importMetaData;
             break;
          case IMPORT:
-            result = importData(sf, null);
+            result = importData(sf);
             break;
          case VALIDATE_AND_IMPORT:
             result = validateAndImport(sf);
@@ -186,15 +187,15 @@ public class ImportProcessesCommand implements ServiceCommand
       ArrayList<IArchive> archives;
       if (processInstanceOids != null)
       {
-         archives = archiveManager.findArchives(processInstanceOids);
+         archives = archiveManager.findArchives(processInstanceOids, descriptors);
       }
       else if (fromDate != null && toDate != null)
       {
-         archives = archiveManager.findArchives(fromDate, toDate);
+         archives = archiveManager.findArchives(fromDate, toDate, descriptors);
       }
       else
       {
-         archives = archiveManager.findArchives();
+         archives = archiveManager.findArchives(descriptors);
       }
       return archives;
    }
@@ -206,11 +207,11 @@ public class ImportProcessesCommand implements ServiceCommand
          throw new IllegalArgumentException(
                "When using VALIDATE_AND_IMPORT, provide the model data and the export data. Do not provide importMetaData");
       }
-      Map<String, List<byte[]>> dataByTable = validate(sf);
-      return importData(sf, dataByTable);
+      validate(sf);
+      return importData(sf);
    }
 
-   private int importData(ServiceFactory sf, Map<String, List<byte[]>> dataByTable)
+   private int importData(ServiceFactory sf)
    {
       int importCount;
       validateDates();
@@ -232,27 +233,22 @@ public class ImportProcessesCommand implements ServiceCommand
       }
       try
       {
-         if (CollectionUtils.isEmpty(dataByTable))
+         Map<String, List<byte[]>> dataByTable;
+         importCount = 0;
+         Map<ExportProcess, List<ExportProcess>> exportProcesses = archive
+               .getExportIndex().getProcesses(descriptors);
+         for (ExportProcess rootProcess : exportProcesses.keySet())
          {
-            importCount = 0;
-            for (ExportProcess rootProcess : archive.getExportIndex().getRootProcessToSubProcesses().keySet())
+            List<Long> processes = new ArrayList<Long>();
+            processes.add(rootProcess.getOid());
+            List<ExportProcess> subProcesses = exportProcesses.get(rootProcess);
+            for (ExportProcess subProcess : subProcesses)
             {
-               List<Long> processes = new ArrayList<Long>();
-               processes.add(rootProcess.getOid());
-               List<ExportProcess> subProcesses = archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcess);
-               for (ExportProcess subProcess : subProcesses)
-               {
-                  processes.add(subProcess.getOid());
-               }
-               dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
-               importCount += ExportImportSupport.importProcessInstances(dataByTable, session,
-                  filter, oidResolver);
+               processes.add(subProcess.getOid());
             }
-         }
-         else
-         {
-            importCount = ExportImportSupport.importProcessInstances(dataByTable, session,
-               filter, oidResolver);
+            dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
+            importCount += ExportImportSupport.importProcessInstances(dataByTable,
+                  session, filter, oidResolver);
          }
       }
       catch (IllegalStateException e)
@@ -273,27 +269,22 @@ public class ImportProcessesCommand implements ServiceCommand
 
    }
 
-   private Map<String, List<byte[]>> validate(ServiceFactory sf)
+   private void validate(ServiceFactory sf)
    {
       importMetaData = new ImportMetaData();
-      Map<String, List<byte[]>> dataByTable;
       try
       {
          byte[] modelData = archive.getModelData();
-         dataByTable = ExportImportSupport.validateModel(modelData,
-               importMetaData);
+         ExportImportSupport.validateModel(modelData, importMetaData);
       }
       catch (IllegalStateException e)
       {
-         dataByTable = null;
          LOGGER.error(e.getMessage(), e);
       }
       catch (Exception e)
       {
-         dataByTable = null;
          LOGGER.error("Failed to import processes from input provided", e);
       }
-      return dataByTable;
    }
 
    private void validateDates()

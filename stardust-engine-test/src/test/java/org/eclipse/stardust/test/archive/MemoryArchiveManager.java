@@ -11,7 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
-public class MemoryArchiveManager implements IArchiveManager
+public class MemoryArchiveManager extends BaseArchiveManager
 {
 
    private static HashMap<String, HashMap<Date, HashMap<Long, byte[]>>> repo;
@@ -41,6 +41,12 @@ public class MemoryArchiveManager implements IArchiveManager
          }
       }
    }
+   
+   @Override
+   public String getArchiveManagerId()
+   {
+      return archiveManagerId;
+   }
 
    @Override
    public Serializable open(Date indexDate)
@@ -68,11 +74,6 @@ public class MemoryArchiveManager implements IArchiveManager
       return indexDate;
    }
    
-   @Override
-   public String getArchiveManagerId()
-   {
-      return archiveManagerId;
-   }
 
    @Override
    public boolean add(Serializable key, byte[] results)
@@ -134,54 +135,23 @@ public class MemoryArchiveManager implements IArchiveManager
    }
 
    @Override
-   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids)
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, String> descriptors)
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findArchives();
-      Set<Long> searchItems = new HashSet<Long>();
-      searchItems.addAll(processInstanceOids);
-      Set<Long> found = new HashSet<Long>();
+      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       for (IArchive archive : unfilteredArchives)
       {
-         for (Long processInstanceOid : searchItems)
+         Date date = (Date)archive.getArchiveKey();
+         if ((fromDate.compareTo(date) < 1) && (toDate.compareTo(date) > -1))
          {
-            if (archive.getExportIndex().contains(processInstanceOid))
-            {
-               if (!archives.contains(archive))
-               {
-                  archives.add(archive);
-               }
-               found.add(processInstanceOid);
-            }
+            archives.add(archive);
          }
-         searchItems.removeAll(found);
-         found.clear();
-         if (searchItems.isEmpty())
+         //we did not find a match based on processInstanceOid so search by descriptors
+         if (!archives.contains(archive) && descriptors != null)
          {
-            break;
-         }
-      }
-      return archives;
-   }
-
-   @Override
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate)
-   {
-      ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
-            .getPartition().getId());
-      if (partitionRepo != null)
-      {
-         HashMap<Date, byte[]> partitionDateModel = dateModel.get(SecurityProperties
-               .getPartition().getId());
-         HashMap<Date, String> partitionDateIndex = dateIndex.get(SecurityProperties
-               .getPartition().getId());
-         for (Date date : partitionRepo.keySet())
-         {
-            if ((fromDate.compareTo(date) < 1) && (toDate.compareTo(date) > -1))
+            if (archive.getExportIndex().contains(descriptors))
             {
-               archives.add(new MemoryArchive(date, partitionRepo.get(date), partitionDateModel
-                     .get(date), partitionDateIndex.get(date)));
+               archives.add(archive);
             }
          }
       }
@@ -189,7 +159,7 @@ public class MemoryArchiveManager implements IArchiveManager
    }
 
    @Override
-   public ArrayList<IArchive> findArchives()
+   protected ArrayList<IArchive> findAllArchives()
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
       HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
@@ -208,7 +178,7 @@ public class MemoryArchiveManager implements IArchiveManager
       }
       return archives;
    }
-
+   
    @Override
    public boolean addIndex(Serializable key, String indexData)
    {

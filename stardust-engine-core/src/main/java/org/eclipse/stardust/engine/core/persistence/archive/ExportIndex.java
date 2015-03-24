@@ -59,6 +59,87 @@ public class ExportIndex implements Serializable
       }
       return false;
    }
+   
+   /**
+    * Returns true if any of the processes in the ExportIndex contains any of the specified descriptors
+    * @param descriptors
+    * @return
+    */
+   public boolean contains( Map<String, String> descriptors)
+   {
+      if (descriptors == null || descriptors.isEmpty())
+      {
+         return true;
+      }
+      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
+      {
+         if (descriptorMatch(rootProcess.getDescriptors(), descriptors))
+         {
+            return true;
+         }
+         List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
+               rootProcess);
+         for (ExportProcess subProcess : subProcesses)
+         {
+            if (descriptorMatch(subProcess.getDescriptors(), descriptors))
+            {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+   
+   /**
+    * Returns map of RootProcessToSubProcesses where the root process or one of it's subprocesses matches one of the descriptors
+    * @param descriptors
+    * @return
+    */
+   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, String> descriptors)
+   {
+      if (descriptors == null || descriptors.isEmpty())
+      {
+         return getRootProcessToSubProcesses();
+      }
+      Map<ExportProcess, List<ExportProcess>> result = new HashMap<ExportProcess, List<ExportProcess>>();
+      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
+      {
+         if (descriptorMatch(rootProcess.getDescriptors(), descriptors))
+         {
+            result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
+         }
+         else
+         {
+            List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
+                  rootProcess);
+            for (ExportProcess subProcess : subProcesses)
+            {
+               if (descriptorMatch(subProcess.getDescriptors(), descriptors))
+               {
+                  result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
+                  break;
+               }
+            }
+         }
+      }
+      return result;
+   }
+   
+   private boolean descriptorMatch(Map<String, String> descriptors, 
+         Map<String, String> searchDescriptors)
+   {
+      for (String key : searchDescriptors.keySet())
+      {
+         if (descriptors.containsKey(key))
+         {
+            if (descriptors.get(key).equals(searchDescriptors.get(key)))
+            {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
 
    public Map<ExportProcess, List<ExportProcess>> getRootProcessToSubProcesses()
    {

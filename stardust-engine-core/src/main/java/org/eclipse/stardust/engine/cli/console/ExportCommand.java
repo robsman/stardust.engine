@@ -16,12 +16,7 @@ import java.util.concurrent.*;
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
@@ -35,21 +30,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  * @author jsaayman
  * @version $Revision$
  */
-public class ExportCommand extends ConsoleCommand
+public class ExportCommand extends BaseExportImportCommand
 {
    private static final Options argTypes = new Options();
 
    private static final int DEFAULT_BATCH_SIZE = 1000;
-
-   private static final int DEFAULT_CONCURRENT_BATCHES = 10;
-
-   private static final String PARTITION = "partition";
-
-   private static final String PROCESSES_BY_OID = "processes";
-   
-   private static final String PROCESS_MIN_OID = "processMin";
-   
-   private static final String PROCESS_MAX_OID = "processMax";
 
    private static final String MODELS_BY_OID = "models";
 
@@ -57,17 +42,7 @@ public class ExportCommand extends ConsoleCommand
    
    private static final String DUMP = "dump";
 
-   private static final String FROM_DATE = "fromDate";
-
-   private static final String TO_DATE = "toDate";
-   
-   private static final String DESCRIPTORS = "descriptors";
-   
-   private static final String DATE_DESCRIPTORS = "dateDescriptors";
-
    private static final String BATCH_SIZE = "batchSize";
-
-   private static final String CONCURRENT_BATCHES = "concurrentBatches";
 
    static
    {
@@ -314,58 +289,6 @@ public class ExportCommand extends ConsoleCommand
       return 0;
    }
     
-   private HashMap<String, String> getDescriptors(Map options)
-   {
-      // evaluate partition, fall back to default partition, if configured
-      String descr = (String) options.get(DESCRIPTORS);
-      String dateDescr = (String) options.get(DATE_DESCRIPTORS);
-      HashMap<String, String> descriptors = new HashMap<String, String>();
-      List<String> descriptorValues = new ArrayList<String>();
-      List<String> dateDescriptorValues = new ArrayList<String>();
-      splitListString(descr, descriptorValues);
-      splitListString(dateDescr, dateDescriptorValues);
-      listToMapString(descriptorValues, descriptors);
-      listToMapDate(dateDescriptorValues, descriptors);
-      return descriptors;
-   }
-   
-   private void listToMapString(List<String> descriptorValues, HashMap<String, String> descriptors)
-   {
-      for (String value : descriptorValues)
-      {
-         String[] nameValue = value.split("=", 2);
-         descriptors.put(nameValue[0], nameValue[1]);
-      }
-   }
-   private void listToMapDate(List<String> descriptorValues, HashMap<String, String> descriptors)
-   {
-      for (String value : descriptorValues)
-      {
-         String[] nameValue = value.split("=", 2);
-         Date date = Options.getDateValue(nameValue[1]);
-         if (date != null)
-         {
-            descriptors.put(nameValue[0], Long.toString(date.getTime()));
-         }
-         else
-         {
-            throw new PublicException(
-                  BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
-                        .raise(value));
-         }
-      }
-   }
-
-   private int getConcurrentBatches(Map options)
-   {
-      Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
-      if (concurrent == null || concurrent < 1)
-      {
-         return DEFAULT_CONCURRENT_BATCHES;
-      }
-      return concurrent.intValue();
-   }
-
    private int getBatchSize(Map options)
    {
       Long batchSize = Options.getLongValue(options, BATCH_SIZE);
@@ -376,56 +299,6 @@ public class ExportCommand extends ConsoleCommand
       }
 
       return batchSize.intValue();
-   }
-
-   private Date getFromDate(Map options)
-   {
-      Date fromDate = Options.getDateValue(options, FROM_DATE);
-      if ((null == fromDate) && options.containsKey(FROM_DATE))
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
-                     .raise(options.get(FROM_DATE)));
-      }
-      return fromDate;
-   }
-
-   private Date getToDate(Map options)
-   {
-      Date toDate = Options.getDateValue(options, TO_DATE);
-      if ((null == toDate) && options.containsKey(TO_DATE))
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
-                     .raise(options.get(TO_DATE)));
-      }
-      return toDate;
-   }
-
-   private List<Long> getProcessOids(Map options)
-   {
-      List<Long> processOids;
-      if (options.containsKey(PROCESSES_BY_OID))
-      {
-         String processInstanceIds = (String) options.get(PROCESSES_BY_OID);
-         processOids = new ArrayList<Long>();
-         splitListLong(processInstanceIds, processOids);
-      }
-      else
-      {
-         processOids = null;
-      }
-      if (options.containsKey(PROCESS_MIN_OID) && options.containsKey(PROCESS_MAX_OID))
-      {
-         processOids = new ArrayList<Long>();
-         long min  = Options.getLongValue(options, PROCESS_MIN_OID);
-         long max = Options.getLongValue(options, PROCESS_MAX_OID);
-         for (long i = min; i <= max; i++)
-         {
-            processOids.add(i);
-         }
-      }
-      return processOids;
    }
 
    private List<Integer> getModelOids(Map options)
@@ -443,27 +316,7 @@ public class ExportCommand extends ConsoleCommand
       }
       return modelOids;
    }
-
-   private List<String> getPartitions(Map options)
-   {
-      // evaluate partition, fall back to default partition, if configured
-      String partitionSpec = (String) options.get(PARTITION);
-      if (StringUtils.isEmpty(partitionSpec))
-      {
-         partitionSpec = ParametersFacade.instance().getString(
-               SecurityProperties.DEFAULT_PARTITION,
-               PredefinedConstants.DEFAULT_PARTITION_ID);
-      }
-      List<String> partitionIds = new ArrayList<String>();
-      splitListString(partitionSpec, partitionIds);
-      if (partitionIds.isEmpty())
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED.raise());
-      }
-      return partitionIds;
-   }
-
+   
    private ExportMetaData getExportOids(final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
          final ServiceFactory serviceFactory, HashMap<String, String> descriptors, boolean dumpData)
@@ -504,26 +357,6 @@ public class ExportCommand extends ConsoleCommand
       {
          print("Model exported");
          return exportResult.getModelData();
-      }
-   }
-
-   private void splitListString(String partitionSpec, List<String> partitionIds)
-   {
-      for (Iterator i = StringUtils.split(partitionSpec, ","); i.hasNext();)
-      {
-         String id = (String) i.next();
-         id = getListValue(id);
-         partitionIds.add(id);
-      }
-   }
-
-   private void splitListLong(String partitionSpec, List<Long> partitionIds)
-   {
-      for (Iterator i = StringUtils.split(partitionSpec, ","); i.hasNext();)
-      {
-         String id = (String) i.next();
-         id = getListValue(id);
-         partitionIds.add(new Long(id));
       }
    }
 

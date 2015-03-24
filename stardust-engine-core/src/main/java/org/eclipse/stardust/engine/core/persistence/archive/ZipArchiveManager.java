@@ -15,7 +15,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
-public class ZipArchiveManager implements IArchiveManager
+public class ZipArchiveManager extends BaseArchiveManager
 {
    private static final String ZIP = ".zip";
 
@@ -90,50 +90,20 @@ public class ZipArchiveManager implements IArchiveManager
    }
    
    @Override
-   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids)
-   {
-      ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findArchives();
-      Set<Long> searchItems = new HashSet<Long>();
-      searchItems.addAll(processInstanceOids);
-      Set<Long> found = new HashSet<Long>();
-      for (IArchive archive : unfilteredArchives)
-      {
-         for (Long processInstanceOid : searchItems)
-         {
-            if (archive.getExportIndex().contains(processInstanceOid))
-            {
-               if (!archives.contains(archive))
-               {
-                  archives.add(archive);
-               }
-               found.add(processInstanceOid);
-            }
-         }
-         searchItems.removeAll(found);
-         found.clear();
-         if (searchItems.isEmpty())
-         {
-            break;
-         }
-      }
-      return archives;
-   }
-
-   @Override
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate)
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, String> descriptors)
    {
       Date fromIndex = ExportImportSupport.getIndexDateTime(fromDate);
       Date toIndex = ExportImportSupport.getIndexDateTime(toDate);
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
 
       String partitionFolderName = getPartitionFolderName();
-      Map<String, List<String>> allZipFiles = findZipFiles();
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       try
       {
-         for (String filePath : allZipFiles.keySet())
+         for (IArchive archive : unfilteredArchives)
          {
+            String filePath = (String)archive.getArchiveKey();
             String name = filePath.substring(partitionFolderName.length(),
                   filePath.length());
             name = name.substring(0, name.lastIndexOf(File.separatorChar));
@@ -141,7 +111,15 @@ public class ZipArchiveManager implements IArchiveManager
             Date folderDate = dateFormat.parse(name);
             if (fromIndex.compareTo(folderDate) < 1 && toIndex.compareTo(folderDate) > -1)
             {
-               archives.add(new ZipArchive(filePath, allZipFiles.get(filePath)));
+               archives.add(archive);
+            }
+            //we did not find a match based on processInstanceOid so search by descriptors
+            if (!archives.contains(archive) && descriptors != null)
+            {
+               if (archive.getExportIndex().contains(descriptors))
+               {
+                  archives.add(archive);
+               }
             }
          }
       }
@@ -152,9 +130,9 @@ public class ZipArchiveManager implements IArchiveManager
       return archives;
 
    }
-
+   
    @Override
-   public ArrayList<IArchive> findArchives()
+   protected ArrayList<IArchive> findAllArchives()
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
       Map<String, List<String>> allZipFiles = findZipFiles();

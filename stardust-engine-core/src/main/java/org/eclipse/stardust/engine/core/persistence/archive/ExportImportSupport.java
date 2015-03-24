@@ -483,17 +483,14 @@ public class ExportImportSupport
    }
 
    /**
-    * Validates the model being imported. Populates keyToRuntimeOidMap. Returns the data
-    * to import less the model.
+    * Validates the model being imported. Populates keyToRuntimeOidMap. 
     * 
     * @param rawData
     * @param classToRuntimeOidMap
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
-    * @return
-    * @return Map of tableNames to import and their corresponding byte[]
     */
-   public static Map<String, List<byte[]>> validateModel(byte[] rawData,
+   public static void validateModel(byte[] rawData,
          ImportMetaData importMetaData)
    {
       if (importMetaData == null)
@@ -597,16 +594,6 @@ public class ExportImportSupport
             }
             importMetaData.addMappingForClass(identifiableElement.getClass(), oldId,
                   modelManager.getRuntimeOid(identifiableElement));
-         }
-         reader.readByte();
-         if (reader.getCurrentIndex() < rawData.length)
-         {
-            return splitArrayByTables(reader, null);
-         }
-         else
-         {
-            LOGGER.info("No Process Data in this file");
-            return new HashMap<String, List<byte[]>>();
          }
       }
       finally

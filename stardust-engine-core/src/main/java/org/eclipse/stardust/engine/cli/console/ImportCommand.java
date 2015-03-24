@@ -16,13 +16,6 @@ import java.util.concurrent.*;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.DateUtils;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.console.ConsoleCommand;
-import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -35,26 +28,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  * @author jsaayman
  * @version $Revision$
  */
-public class ImportCommand extends ConsoleCommand
+public class ImportCommand extends BaseExportImportCommand
 {
-   private static final Options argTypes = new Options();
-
-   private static final int DEFAULT_CONCURRENT_BATCHES = 10;
-
-   private static final String PARTITION = "partition";
-
-   private static final String PROCESSES_BY_OID = "processes";
-
-   private static final String PROCESS_MIN_OID = "processMin";
-   
-   private static final String PROCESS_MAX_OID = "processMax";
-
-   private static final String FROM_DATE = "fromDate";
-
-   private static final String TO_DATE = "toDate";
-
-   private static final String CONCURRENT_BATCHES = "concurrentBatches";
-
    static
    {
       argTypes.register("-" + CONCURRENT_BATCHES, null, CONCURRENT_BATCHES,
@@ -110,7 +85,31 @@ public class ImportCommand extends ConsoleCommand
                         + "\" for backward compatibility."
                         + "If toDate is not provided and fromDate is provided toDate defaults to now.",
                   true);
+      
 
+      argTypes
+            .register(
+                  "-" + DATE_DESCRIPTORS,
+                  "-ddscr",
+                  DATE_DESCRIPTORS,
+                  "Restricts any operation to process instances that has the specified descriptor values. Use this option to specify descriptors that have date values.\n"
+                        + "The specified date must conforms to ISO date patterns\n"
+                        + "(i.e. \"2005-12-31\", \"2005-12-31 23:59\" or \"2005-12-31T23:59:59:999\"),\n"
+                        + "or \""
+                        + DateUtils.getNoninteractiveDateFormat().toPattern()
+                        + "\" for backward compatibility.",
+                  true);
+      
+      argTypes
+      .register(
+            "-" + DESCRIPTORS,
+            "-dscr",
+            DESCRIPTORS,
+            "Restricts any operation to process instances that has the descriptor values. Use this option to specify all non-date descriptors.",
+            true);
+
+      argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
+      argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, TO_DATE}, false);
@@ -128,11 +127,6 @@ public class ImportCommand extends ConsoleCommand
       argTypes.addInclusionRule(PROCESS_MAX_OID, PROCESS_MIN_OID);
    }
 
-   public Options getOptions()
-   {
-      return argTypes;
-   }
-
    public int run(Map options)
    {
       final Date fromDate = getFromDate(options);
@@ -140,6 +134,7 @@ public class ImportCommand extends ConsoleCommand
       final List<Long> processOids = getProcessOids(options);
       List<String> partitionIds = getPartitions(options);
       final int concurrentBatches = getConcurrentBatches(options);
+      final HashMap<String, String> descriptors = getDescriptors(options);
       for (final String partitionId : partitionIds)
       {
          Date start = new Date();
@@ -149,7 +144,7 @@ public class ImportCommand extends ConsoleCommand
                properties);
          final WorkflowService workflowService = serviceFactory.getWorkflowService();
 
-         final List<IArchive> archives = findArchives(serviceFactory, fromDate, toDate, processOids);
+         final List<IArchive> archives = findArchives(serviceFactory, fromDate, toDate, processOids, descriptors);
          print("Starting Import for partition " + partitionId + ". Found " + archives.size()
                + " archives to import.");
          
@@ -168,9 +163,9 @@ public class ImportCommand extends ConsoleCommand
                      ImportMetaData importMetaData = null;
                      if (CollectionUtils.isNotEmpty(archives))
                      {
-                        importMetaData = validateImport(currentArchive, workflowService);
+                        importMetaData = validateImport(currentArchive, workflowService,descriptors);
                      }
-                     int count = importFile(fromDate, toDate, processOids, partitionId,
+                     int count = importFile(fromDate, toDate, processOids,descriptors, partitionId,
                            importMetaData, serviceFactory, currentArchive);
                      return count;
                   }
@@ -211,92 +206,13 @@ public class ImportCommand extends ConsoleCommand
       return 0;
    }
 
-   private int getConcurrentBatches(Map options)
-   {
-      Long concurrent = Options.getLongValue(options, CONCURRENT_BATCHES);
-      if (concurrent == null || concurrent < 1)
-      {
-         return DEFAULT_CONCURRENT_BATCHES;
-      }
-      return concurrent.intValue();
-   }
-
-   private Date getFromDate(Map options)
-   {
-      Date fromDate = Options.getDateValue(options, FROM_DATE);
-      if ((null == fromDate) && options.containsKey(FROM_DATE))
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
-                     .raise(options.get(FROM_DATE)));
-      }
-      return fromDate;
-   }
-
-   private Date getToDate(Map options)
-   {
-      Date toDate = Options.getDateValue(options, TO_DATE);
-      if ((null == toDate) && options.containsKey(TO_DATE))
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
-                     .raise(options.get(TO_DATE)));
-      }
-      return toDate;
-   }
-
-   private List<Long> getProcessOids(Map options)
-   {
-      List<Long> processOids;
-      if (options.containsKey(PROCESSES_BY_OID))
-      {
-         String processInstanceIds = (String) options.get(PROCESSES_BY_OID);
-         processOids = new ArrayList<Long>();
-         splitListLong(processInstanceIds, processOids);
-      }
-      else if (options.containsKey(PROCESS_MIN_OID) && options.containsKey(PROCESS_MAX_OID))
-      {
-         processOids = new ArrayList<Long>();
-         long min  = Options.getLongValue(options, PROCESS_MIN_OID);
-         long max = Options.getLongValue(options, PROCESS_MAX_OID);
-         for (long i = min; i <= max; i++)
-         {
-            processOids.add(i);
-         }
-      }
-      else
-      {
-         processOids = null;
-      }
-      return processOids;
-   }
-
-   private List<String> getPartitions(Map options)
-   {
-      // evaluate partition, fall back to default partition, if configured
-      String partitionSpec = (String) options.get(PARTITION);
-      if (StringUtils.isEmpty(partitionSpec))
-      {
-         partitionSpec = ParametersFacade.instance().getString(
-               SecurityProperties.DEFAULT_PARTITION,
-               PredefinedConstants.DEFAULT_PARTITION_ID);
-      }
-      List<String> partitionIds = new ArrayList<String>();
-      splitListString(partitionSpec, partitionIds);
-      if (partitionIds.isEmpty())
-      {
-         throw new PublicException(
-               BpmRuntimeError.CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED.raise());
-      }
-      return partitionIds;
-   }
-   
-   private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService)
+   private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService,
+         HashMap<String, String> descriptors)
    {
       ImportMetaData importMetaData;
 
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE, archive, null);
+            ImportProcessesCommand.Operation.VALIDATE, archive, descriptors, null);
       importMetaData = (ImportMetaData) workflowService.execute(importCommand);
       if (importMetaData != null)
       {
@@ -310,7 +226,7 @@ public class ImportCommand extends ConsoleCommand
       return importMetaData;
    }
 
-   private int importFile(Date fromDate, Date toDate, List<Long> processOids,
+   private int importFile(Date fromDate, Date toDate, List<Long> processOids, HashMap<String, String> descriptors,
          String partitionId, ImportMetaData importMetaData,
          ServiceFactory serviceFactory, IArchive archive)
    {
@@ -322,17 +238,17 @@ public class ImportCommand extends ConsoleCommand
          if (processOids != null)
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, processOids, importMetaData);
+                  archive, processOids,descriptors, importMetaData);
          }
          else if (fromDate != null || toDate != null)
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, fromDate, toDate, importMetaData);
+                  archive, fromDate, toDate,descriptors, importMetaData);
          }
          else
          {
             command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, importMetaData);
+                  archive,descriptors, importMetaData);
          }
          count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
@@ -342,54 +258,24 @@ public class ImportCommand extends ConsoleCommand
       return count;
    }
 
-   private List<IArchive> findArchives(final ServiceFactory serviceFactory, final Date fromDate, final Date toDate, final List<Long> processOids)
+   private List<IArchive> findArchives(final ServiceFactory serviceFactory, final Date fromDate, final Date toDate, final List<Long> processOids,
+         HashMap<String, String> descriptors)
    {
       ImportProcessesCommand command;
       if (processOids != null)
       {
-         command = new ImportProcessesCommand(processOids);
+         command = new ImportProcessesCommand(processOids, descriptors);
       }
       else if (fromDate != null || toDate != null)
       {
-         command = new ImportProcessesCommand(fromDate, toDate);
+         command = new ImportProcessesCommand(fromDate, toDate, descriptors);
       }
       else
       {
-         command = new ImportProcessesCommand();
+         command = new ImportProcessesCommand(descriptors);
       }
       List<IArchive> archives = (List<IArchive>) serviceFactory.getWorkflowService().execute(command);
       return archives;
-   }
-
-   private void splitListString(String partitionSpec, List<String> partitionIds)
-   {
-      for (Iterator i = StringUtils.split(partitionSpec, ","); i.hasNext();)
-      {
-         String id = (String) i.next();
-         id = getListValue(id);
-         partitionIds.add(id);
-      }
-   }
-
-   private void splitListLong(String partitionSpec, List<Long> partitionIds)
-   {
-      for (Iterator i = StringUtils.split(partitionSpec, ","); i.hasNext();)
-      {
-         String id = (String) i.next();
-         id = getListValue(id);
-         partitionIds.add(new Long(id));
-      }
-   }
-
-   private String getListValue(String id)
-   {
-      if ((2 < id.length())
-            && ((id.startsWith("\"") && id.endsWith("\"") || (id.startsWith("'") && id
-                  .endsWith("'")))))
-      {
-         id = id.substring(1, id.length() - 2);
-      }
-      return id;
    }
 
    public void printCommand(Map options)

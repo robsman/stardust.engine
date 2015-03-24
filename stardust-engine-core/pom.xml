@@ -891,8 +891,6 @@
                   <include>api/query/WorklistLayoutPolicy.java</include>
                   <include>api/query/WorklistQuery.java</include>
                   
-                  <include>api/spring/SpringUtils.java</include>
-
                   <!-- org/eclipse/stardust/engine/core/query -->
                   <include>core/query/statistics/api/CriticalExecutionTimePolicy.java</include>
                   <include>core/query/statistics/api/CriticalCostPerExecutionPolicy.java</include>

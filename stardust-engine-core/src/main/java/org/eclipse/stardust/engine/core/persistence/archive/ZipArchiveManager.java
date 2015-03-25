@@ -90,7 +90,7 @@ public class ZipArchiveManager extends BaseArchiveManager
    }
    
    @Override
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, String> descriptors)
+   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, Object> descriptors)
    {
       Date fromIndex = ExportImportSupport.getIndexDateTime(fromDate);
       Date toIndex = ExportImportSupport.getIndexDateTime(toDate);

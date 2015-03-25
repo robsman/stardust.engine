@@ -70,7 +70,7 @@ public class ExportResult implements Serializable
    private static ExportProcess createExportProcess(IProcessInstance processInstance)
    {
       String uuid = ExportImportSupport.getUUID(processInstance);
-      Map<String, String> descriptors = ExportImportSupport.getDescriptors(processInstance, null);
+      Map<String, String> descriptors = ExportImportSupport.getFormattedDescriptors(processInstance, null);
       ExportProcess result = new ExportProcess(processInstance.getOID(), uuid, descriptors);
       return result;
    }
@@ -97,7 +97,8 @@ public class ExportResult implements Serializable
          ExportIndex exportIndex = exportIndexByDate.get(indexDate);
          if (exportIndex == null)
          {
-            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), isDump);
+            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), 
+                  ArchiveManagerFactory.getDateFormat(), isDump);
             exportIndexByDate.put(indexDate, exportIndex);
          }
          List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess);

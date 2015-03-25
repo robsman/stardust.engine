@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -193,6 +195,7 @@ public class ExportImportSupport
          HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
          String archiveManagerId = null;
+         String dateFormat = null;
          boolean isDump = false;
          dateloop: for (Date date : uniqueDates)
          {
@@ -202,6 +205,7 @@ public class ExportImportSupport
                if (exportIndex != null)
                {
                   archiveManagerId = exportIndex.getArchiveManagerId();
+                  dateFormat = exportIndex.getDateFormat();
                   isDump = exportIndex.isDump();
                   break dateloop;
                }
@@ -214,7 +218,7 @@ public class ExportImportSupport
             if (allData == null)
             {
                allData = new byte[] {};
-               index = new ExportIndex(archiveManagerId, isDump);
+               index = new ExportIndex(archiveManagerId, dateFormat, isDump);
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
@@ -317,10 +321,32 @@ public class ExportImportSupport
       }
       return false;
    }
- 
-   public static Map<String, String> getDescriptors(
+
+   public static Map<String, String> getFormattedDescriptors(
          IProcessInstance processInstance, Set<String> ids)
-         throws ObjectNotFoundException
+   {
+      Map<String, Object> descriptorObjects = getDescriptors(processInstance, ids);
+      Map<String, String> descriptors = new HashMap<String, String>();
+      DateFormat df = new SimpleDateFormat(ArchiveManagerFactory.getDateFormat());
+      for (String key : descriptorObjects.keySet())
+      {
+         Object value = descriptorObjects.get(key);
+         String stringValue;
+         if (value instanceof Date)
+         {
+            stringValue = df.format((Date) value);
+         }
+         else
+         {
+            stringValue = value.toString();
+         }
+         descriptors.put(key, stringValue);
+      }
+      return descriptors;
+   }
+
+   public static Map<String, Object> getDescriptors(IProcessInstance processInstance,
+         Set<String> ids) throws ObjectNotFoundException
    {
       if (processInstance == null)
       {
@@ -329,9 +355,9 @@ public class ExportImportSupport
       return getDescriptors(processInstance, processInstance.getProcessDefinition(), ids);
    }
 
-   public static Map<String, String> getDescriptors(
-         IProcessInstance processInstance, IProcessDefinition processDefinition,
-         Set<String> ids) throws ObjectNotFoundException
+   public static Map<String, Object> getDescriptors(IProcessInstance processInstance,
+         IProcessDefinition processDefinition, Set<String> ids)
+         throws ObjectNotFoundException
    {
       if (processInstance == null)
       {
@@ -380,7 +406,7 @@ public class ExportImportSupport
          }
          processInstance.preloadDataValues(dataItems);
 
-         Map<String, String> values = new HashMap<String, String>(
+         Map<String, Object> values = new HashMap<String, Object>(
                requestedDataPaths.size());
          for (IDataPath path : requestedDataPaths)
          {
@@ -391,8 +417,7 @@ public class ExportImportSupport
       }
    }
 
-   private static String getInDataPath(IProcessInstance processInstance,
-         IDataPath path)
+   private static Object getInDataPath(IProcessInstance processInstance, IDataPath path)
    {
       IData data = path.getData();
       if (data == null)
@@ -404,7 +429,7 @@ public class ExportImportSupport
       Type type = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
       if (type.equals(Type.Timestamp))
       {
-         return Long.toString(((Date)value).getTime());
+         return value;
       }
       else
       {
@@ -483,15 +508,14 @@ public class ExportImportSupport
    }
 
    /**
-    * Validates the model being imported. Populates keyToRuntimeOidMap. 
+    * Validates the model being imported. Populates keyToRuntimeOidMap.
     * 
     * @param rawData
     * @param classToRuntimeOidMap
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
     */
-   public static void validateModel(byte[] rawData,
-         ImportMetaData importMetaData)
+   public static void validateModel(byte[] rawData, ImportMetaData importMetaData)
    {
       if (importMetaData == null)
       {

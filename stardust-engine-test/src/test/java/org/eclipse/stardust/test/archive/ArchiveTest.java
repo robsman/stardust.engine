@@ -129,8 +129,8 @@ public class ArchiveTest
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_B, "sysop");
 
-      Map<String, String> propertiesA = new HashMap<String, String>();
-      Map<String, String> propertiesB = new HashMap<String, String>();
+      Map<String, Object> propertiesA = new HashMap<String, Object>();
+      Map<String, Object> propertiesB = new HashMap<String, Object>();
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
 
@@ -185,7 +185,7 @@ public class ArchiveTest
       assertDataExists(piB.getOID(), writeActivityB.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", qsB);
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawDataA = (ExportResult) wsA.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNullRawData(rawDataA, oldInstancesA);
@@ -258,8 +258,8 @@ public class ArchiveTest
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_B, "sysop");
 
-      Map<String, String> propertiesA = new HashMap<String, String>();
-      Map<String, String> propertiesB = new HashMap<String, String>();
+      Map<String, Object> propertiesA = new HashMap<String, Object>();
+      Map<String, Object> propertiesB = new HashMap<String, Object>();
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
 
@@ -307,7 +307,7 @@ public class ArchiveTest
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", qsA);
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) wsA.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNullRawData(rawData, oldInstancesA);
@@ -411,7 +411,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -492,7 +492,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -573,7 +573,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       List<Integer> modelOids = Arrays.asList(piOtherModel.getModelOID());
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
@@ -659,7 +659,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       List<Integer> modelOids = Arrays.asList(piModel.getModelOID());
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
@@ -727,7 +727,7 @@ public class ArchiveTest
 
       RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
       setUp();
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -783,7 +783,7 @@ public class ArchiveTest
       setUp();
       List<Integer> modelOids = Arrays.asList(pi.getModelOID());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, null,
@@ -838,7 +838,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       List<Long> oids = Arrays.asList(-1L);
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -858,7 +858,7 @@ public class ArchiveTest
    public void testExportNoData() throws Exception
    {
       WorkflowService workflowService = sf.getWorkflowService();
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -871,7 +871,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       Long oid = null;
       List<Long> oids = Arrays.asList(oid);
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -883,7 +883,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       List<Long> oids = new ArrayList<Long>();
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -900,7 +900,7 @@ public class ArchiveTest
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -980,7 +980,7 @@ public class ArchiveTest
 
       List<Long> oids = null;
       List<Integer> modelOids = null;
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, modelOids, oids, descriptors,
@@ -1082,7 +1082,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, fromDate, toDate, descriptors,
@@ -1239,7 +1239,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -1381,7 +1381,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY, descriptors, false);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
@@ -1484,7 +1484,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY, descriptors, false);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
@@ -1517,7 +1517,7 @@ public class ArchiveTest
             + testTimestampProvider.getTimestamp().getTime();
       ExportProcess process = new ExportProcess(1L, uuid, null);
       oids.put(process, new ArrayList<ExportProcess>());
-      String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), oids,
+      String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), oids,
             false));
       return json;
    }
@@ -1539,7 +1539,7 @@ public class ArchiveTest
       testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, toDate, fromDate, descriptors,
             false));
@@ -1560,7 +1560,7 @@ public class ArchiveTest
 
       completeSimple(pi, queryService, workflowService);
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -1726,7 +1726,7 @@ public class ArchiveTest
       assertEquals(7, expectedActivities.size());
       assertEquals(3, expectedInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -1820,7 +1820,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(6, oldInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -1831,7 +1831,7 @@ public class ArchiveTest
       assertTrue(success);
 
       List<Long> processInstanceOids = null;
-      descriptors = new HashMap<String, String>();
+      descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue2*2)));
       //key primitive
@@ -1900,7 +1900,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -1975,7 +1975,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2048,7 +2048,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2115,7 +2115,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2207,7 +2207,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2335,7 +2335,7 @@ public class ArchiveTest
       assertEquals(10, expectedActivities.size());
       assertEquals(4, expectedInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2477,7 +2477,7 @@ public class ArchiveTest
       assertEquals(17, expectedActivities.size());
       assertEquals(6, expectedInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2585,7 +2585,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       Date fromDate = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
@@ -2685,7 +2685,7 @@ public class ArchiveTest
       assertEquals(20, oldActivities.size());
 
       Date toDate = null;
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, fromDate, toDate,
@@ -2788,7 +2788,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2868,7 +2868,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -2923,7 +2923,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, true));
@@ -2997,7 +2997,7 @@ public class ArchiveTest
       }
       assertEquals(3, exported.size());
       // backup some processes
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawDataBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, exportedIds, descriptors,
@@ -3088,7 +3088,7 @@ public class ArchiveTest
       assertEquals(28, oldActivities.size());
 
       // backup all processes
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawDataBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3270,7 +3270,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3409,7 +3409,7 @@ public class ArchiveTest
       assertEquals(12, expectedActivities.size());
       assertEquals(4, expectedInstances.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3507,7 +3507,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3600,7 +3600,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3693,7 +3693,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       List<Long> oids = Arrays.asList(simpleA.getOID(), simpleManualA.getOID());
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
@@ -3757,7 +3757,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -3819,7 +3819,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -3864,7 +3864,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3912,7 +3912,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -3961,7 +3961,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, startDate, endDate,
@@ -4029,7 +4029,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -4102,7 +4102,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -4181,7 +4181,7 @@ public class ArchiveTest
 
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
 
-      HashMap<String, String> descriptors = new HashMap<String, String>();
+      HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put("invalid", "invalid");
       //key primitive
@@ -4251,7 +4251,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      HashMap<String, String> descriptors = new HashMap<String, String>();
+      HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue2*2)));
       //key primitive
@@ -4371,7 +4371,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -4401,7 +4401,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue3 * 2));
 
-      descriptors = new HashMap<String, String>();
+      descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue2*2)));
       //key primitive
@@ -4417,7 +4417,7 @@ public class ArchiveTest
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, descriptors, null));
       assertEquals(2, count);
-      descriptors = new HashMap<String, String>();
+      descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue1*2)));
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -4442,6 +4442,112 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testDescriptorDateImport() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      String textValue1 = "aaa";
+      int numberValue1 = 20;
+      String textValue2 = "ccc";
+      int numberValue2 = 10;
+      String textValue3 = "bbb";
+      int numberValue3 = 20;
+      
+      final ProcessInstance pi1 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      completeScriptProcess(pi1, numberValue1, textValue1, queryService, workflowService);
+      final ProcessInstance pi2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      completeScriptProcess(pi2, numberValue2, textValue2, queryService, workflowService);
+      final ProcessInstance pi3 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      completeScriptProcess(pi3, numberValue3, textValue3, queryService, workflowService);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      FilterOrTerm pOrTerm = pQuery.getFilter().addOrTerm();
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi1.getOID()));
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi2.getOID()));
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi3.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi1.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi2.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi3.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(3, oldInstances.size());
+      assertEquals(24, oldActivities.size());
+      assertNotNull(pi1.getScopeProcessInstanceOID());
+      assertNotNull(pi1.getRootProcessInstanceOID());
+
+      Set<String> dataPathIds = new HashSet<String>();
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_ID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_NAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERNAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_BUSINESSDATE);
+
+      assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+      assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
+      assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
+
+      HashMap<String, Object> descriptors = null;
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertNotNullRawData(rawData, oldInstances, true);
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, rawData, false));
+      assertEquals(3, deleteCount);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+
+      assertFalse(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue1 * 2));
+      assertFalse(hasStructuredDateField(pi2.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue2 * 2));
+      assertFalse(hasStructuredDateField(pi3.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue3 * 2));
+
+      descriptors = new HashMap<String, Object>();
+      final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+      Date date = dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE);
+      descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, date);
+      
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1, archives.size());
+      IArchive archive = archives.get(0);
+      assertTrue(archive.getExportIndex().contains(pi1.getOID()));
+      assertTrue(archive.getExportIndex().contains(pi2.getOID()));
+      assertTrue(archive.getExportIndex().contains(pi3.getOID()));
+      //change one exportProcess to not fit in descriptor filter
+      ExportProcess exportProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      exportProcess.getDescriptors().put(ArchiveModelConstants.DESCR_BUSINESSDATE, "2015/03/06 00:00:00:000");
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, descriptors, null));
+      assertEquals(2, count);
    }
    
    @SuppressWarnings("unchecked")
@@ -4500,7 +4606,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -4530,7 +4636,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue3 * 2));
 
-      descriptors = new HashMap<String, String>();
+      descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue2*2)));
       //key primitive
@@ -4550,7 +4656,7 @@ public class ArchiveTest
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, archive, descriptors, importMetaData));
       assertEquals(2, count);
-      descriptors = new HashMap<String, String>();
+      descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue1*2)));
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -4575,6 +4681,105 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
+   }
+
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testDescriptorsDifferentDateFormat() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      String textValue1 = "aaa";
+      int numberValue1 = 20;
+     
+      final ProcessInstance pi1 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      completeScriptProcess(pi1, numberValue1, textValue1, queryService, workflowService);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      FilterOrTerm pOrTerm = pQuery.getFilter().addOrTerm();
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi1.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi1.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(8, oldActivities.size());
+      assertNotNull(pi1.getScopeProcessInstanceOID());
+      assertNotNull(pi1.getRootProcessInstanceOID());
+
+      Set<String> dataPathIds = new HashSet<String>();
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_ID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_NAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERNAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_BUSINESSDATE);
+
+      assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+
+      HashMap<String, Object> descriptors = null;
+      ExportResult rawData = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertNotNullRawData(rawData, oldInstances, oldInstances, true);
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, rawData, false));
+      assertEquals(1, deleteCount);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+
+      assertFalse(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue1 * 2));
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1, archives.size());
+      MemoryArchive archive = (MemoryArchive)archives.get(0);
+      assertTrue(archive.getExportIndex().contains(pi1.getOID()));
+      
+      ExportProcess exportProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      exportProcess.getDescriptors().put(ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
+      
+      String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", archive.getExportIndex().getRootProcessToSubProcesses(),
+            false));
+      MemoryArchive archive1 = new MemoryArchive((Date)archive.getArchiveKey(), archive.getDataByProcess(), archive.getModelData(), json);
+      
+      descriptors = new HashMap<String, Object>();
+      //key primitive
+      final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+      Date date = dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE);
+      descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, date);
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, descriptors, null));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+
+      assertTrue(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue1));
+
+      assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
    }
    
    @SuppressWarnings("unchecked")
@@ -4633,11 +4838,11 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      HashMap<String, String> descriptors = new HashMap<String, String>();
+      HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //key primitive
       final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
       Date date = dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE);
-      descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, Long.toString(date.getTime()));
+      descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, date);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
@@ -4794,7 +4999,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi, textValue, 10, dataPathIds);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors, false));
@@ -4929,7 +5134,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi, textValue, 10, dataPathIds);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -5236,7 +5441,7 @@ public class ArchiveTest
       }
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -5448,7 +5653,7 @@ public class ArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID(), subSimple.getOID(),
             subSimpleManual.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -5556,7 +5761,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -5634,7 +5839,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
@@ -5717,7 +5922,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      HashMap<String, String> descriptors = null;
+      HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,

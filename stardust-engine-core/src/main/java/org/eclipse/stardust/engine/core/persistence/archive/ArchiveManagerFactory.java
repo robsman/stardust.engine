@@ -6,6 +6,8 @@ import org.eclipse.stardust.common.config.Parameters;
 public class ArchiveManagerFactory
 {
    private static final String DEFAULT_ARCHIVE_MANAGER = "ZIP";
+   
+   private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm";
 
    public static final int DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = 100;
 
@@ -16,6 +18,8 @@ public class ArchiveManagerFactory
    private static final String CARNOT_ARCHIVE_ROOTFOLDER = "Archive.Manager.RootFolder";
 
    private static final String CARNOT_ARCHIVE_FOLDER_FORMAT = "Archive.Manager.FolderFormat";
+
+   private static final String CARNOT_ARCHIVE_DATE_FORMAT = "Archive.Manager.DateFormat";
    
    private static final String ARCHIVE_ZIP_FILE_SIZE_MB = "Archive.Manager.ZipFile.SizeInMB";
 
@@ -51,6 +55,16 @@ public class ArchiveManagerFactory
          throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_ID + " must be provided for an Archive");
       }
       return id;
+   }
+   
+   /**
+    * Returns archive date format, used in export. 
+    * Note that archives being imported may have a different date format to be obtained from the archive's ExportIndex.
+    * @return
+    */
+   public static String getDateFormat() 
+   {
+      return Parameters.instance().getString(CARNOT_ARCHIVE_DATE_FORMAT,DEFAULT_DATE_FORMAT);
    }
 
    private static IArchiveManager getCustomArchiveManager()

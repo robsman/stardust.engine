@@ -72,11 +72,11 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final boolean dumpData;
 
-   private final HashMap<String, String> descriptors;
+   private final HashMap<String, Object> descriptors;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, HashMap<String, String> descriptors, ExportResult exportResult,
+         Date toDate, HashMap<String, Object> descriptors, ExportResult exportResult,
          boolean dumpData)
    {
       this.operation = operation;
@@ -100,7 +100,7 @@ public class ExportProcessesCommand implements ServiceCommand
     *           Oids of process instances to export
     */
    public ExportProcessesCommand(Operation operation, List<Integer> modelOids,
-         Collection<Long> processInstanceOids, HashMap<String, String> descriptors,
+         Collection<Long> processInstanceOids, HashMap<String, Object> descriptors,
          boolean dumpData)
    {
       this(operation, null, modelOids, processInstanceOids, null, null, descriptors,
@@ -111,7 +111,7 @@ public class ExportProcessesCommand implements ServiceCommand
     * Use this constructor to export all processInstances
     */
    public ExportProcessesCommand(Operation operation,
-         HashMap<String, String> descriptors, boolean dumpData)
+         HashMap<String, Object> descriptors, boolean dumpData)
    {
 
       this(operation, null, null, null, null, null, descriptors, null, dumpData);
@@ -128,7 +128,7 @@ public class ExportProcessesCommand implements ServiceCommand
     *           includes processes with a termination time less or equal than toDate
     */
    public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate,
-         HashMap<String, String> descriptors, boolean dumpData)
+         HashMap<String, Object> descriptors, boolean dumpData)
    {
 
       this(operation, null, null, null, fromDate, toDate, descriptors, null, dumpData);
@@ -412,12 +412,11 @@ public class ExportProcessesCommand implements ServiceCommand
             {
                IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
                IProcessDefinition processDefinition = processInstance.getProcessDefinition();
-
-               Map<String, String> pathValues = ExportImportSupport
+               Map<String, Object> pathValues = ExportImportSupport
                      .getDescriptors(processInstance, processDefinition, descriptors.keySet());
                for (String id : pathValues.keySet())
                {
-                  if (descriptors.get(id).equals(pathValues.get(id).toString()))
+                  if (descriptors.get(id).equals(pathValues.get(id)))
                   {
                      // we do or logic, as soon as one descriptor matches we have a match
                      isInFilter = true;

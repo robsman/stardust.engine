@@ -46,12 +46,12 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       return concurrent.intValue();
    }
 
-   protected HashMap<String, String> getDescriptors(Map options)
+   protected HashMap<String, Object> getDescriptors(Map options)
    {
       // evaluate partition, fall back to default partition, if configured
       String descr = (String) options.get(DESCRIPTORS);
       String dateDescr = (String) options.get(DATE_DESCRIPTORS);
-      HashMap<String, String> descriptors = new HashMap<String, String>();
+      HashMap<String, Object> descriptors = new HashMap<String, Object>();
       List<String> descriptorValues = new ArrayList<String>();
       List<String> dateDescriptorValues = new ArrayList<String>();
       splitListString(descr, descriptorValues);
@@ -61,7 +61,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       return descriptors;
    }
 
-   private void listToMapString(List<String> descriptorValues, HashMap<String, String> descriptors)
+   private void listToMapString(List<String> descriptorValues, HashMap<String, Object> descriptors)
    {
       for (String value : descriptorValues)
       {
@@ -70,7 +70,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       }
    }
 
-   private void listToMapDate(List<String> descriptorValues, HashMap<String, String> descriptors)
+   private void listToMapDate(List<String> descriptorValues, HashMap<String, Object> descriptors)
    {
       for (String value : descriptorValues)
       {
@@ -78,7 +78,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
          Date date = Options.getDateValue(nameValue[1]);
          if (date != null)
          {
-            descriptors.put(nameValue[0], Long.toString(date.getTime()));
+            descriptors.put(nameValue[0], date);
          }
          else
          {

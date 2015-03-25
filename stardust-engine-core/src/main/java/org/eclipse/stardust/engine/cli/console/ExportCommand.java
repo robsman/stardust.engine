@@ -184,7 +184,7 @@ public class ExportCommand extends BaseExportImportCommand
       final List<String> partitionIds = getPartitions(options);
       final int batchSize = getBatchSize(options);
       final int concurrentBatches = getConcurrentBatches(options);
-      final HashMap<String, String> descriptors = getDescriptors(options);
+      final HashMap<String, Object> descriptors = getDescriptors(options);
 
       for (final String partitionId : partitionIds)
       {
@@ -319,7 +319,7 @@ public class ExportCommand extends BaseExportImportCommand
    
    private ExportMetaData getExportOids(final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
-         final ServiceFactory serviceFactory, HashMap<String, String> descriptors, boolean dumpData)
+         final ServiceFactory serviceFactory, HashMap<String, Object> descriptors, boolean dumpData)
    {
       ExportProcessesCommand command;
       if (processOids != null || modelOids != null)

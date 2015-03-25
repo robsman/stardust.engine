@@ -46,6 +46,11 @@ public class MemoryArchive implements IArchive
       this.modelData = modelData;
    }
 
+   public HashMap<Long, byte[]> getDataByProcess()
+   {
+      return dataByProcess;
+   }
+   
    @Override
    public byte[] getData(List<Long> processInstanceOids)
    {

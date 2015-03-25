@@ -48,11 +48,11 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final Operation operation;
 
-   private final HashMap<String, String> descriptors;
+   private final HashMap<String, Object> descriptors;
 
    private ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, Date fromDate, Date toDate, HashMap<String, String> descriptors,
-         ImportMetaData importMetaData)
+         List<Long> processInstanceOids, Date fromDate, Date toDate,
+         HashMap<String, Object> descriptors, ImportMetaData importMetaData)
    {
       super();
       this.operation = operation;
@@ -71,8 +71,8 @@ public class ImportProcessesCommand implements ServiceCommand
     *           provide importMetaData if you already validated the model, else set it as
     *           null
     */
-   public ImportProcessesCommand(Operation operation, IArchive archive, HashMap<String, String> descriptors,
-         ImportMetaData importMetaData)
+   public ImportProcessesCommand(Operation operation, IArchive archive,
+         HashMap<String, Object> descriptors, ImportMetaData importMetaData)
    {
       this(operation, archive, null, null, null, descriptors, importMetaData);
    }
@@ -91,9 +91,11 @@ public class ImportProcessesCommand implements ServiceCommand
     *           null
     */
    public ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, HashMap<String, String> descriptors, ImportMetaData importMetaData)
+         List<Long> processInstanceOids, HashMap<String, Object> descriptors,
+         ImportMetaData importMetaData)
    {
-      this(operation, archive, processInstanceOids, null, null, descriptors, importMetaData);
+      this(operation, archive, processInstanceOids, null, null, descriptors,
+            importMetaData);
    }
 
    /**
@@ -112,17 +114,18 @@ public class ImportProcessesCommand implements ServiceCommand
     *           null
     */
    public ImportProcessesCommand(Operation operation, IArchive archive, Date fromDate,
-         Date toDate, HashMap<String, String> descriptors, ImportMetaData importMetaData)
+         Date toDate, HashMap<String, Object> descriptors, ImportMetaData importMetaData)
    {
       this(operation, archive, null, fromDate, toDate, descriptors, importMetaData);
    }
-   
+
    /**
     * Use this constructor to determine which archives to load
     * 
     * @param processOids
     */
-   public ImportProcessesCommand(List<Long> processInstanceOids, HashMap<String, String> descriptors)
+   public ImportProcessesCommand(List<Long> processInstanceOids,
+         HashMap<String, Object> descriptors)
    {
       this(Operation.QUERY, null, processInstanceOids, null, null, descriptors, null);
    }
@@ -134,7 +137,8 @@ public class ImportProcessesCommand implements ServiceCommand
     * @param fromDate2
     * @param toDate2
     */
-   public ImportProcessesCommand(Date fromDate, Date toDate, HashMap<String, String> descriptors)
+   public ImportProcessesCommand(Date fromDate, Date toDate,
+         HashMap<String, Object> descriptors)
    {
       this(Operation.QUERY, null, null, fromDate, toDate, descriptors, null);
    }
@@ -142,7 +146,7 @@ public class ImportProcessesCommand implements ServiceCommand
    /**
     * Use this constructor to determine which archives to load
     */
-   public ImportProcessesCommand(HashMap<String, String> descriptors)
+   public ImportProcessesCommand(HashMap<String, Object> descriptors)
    {
       this(Operation.QUERY, null, null, null, descriptors, null);
    }
@@ -172,7 +176,8 @@ public class ImportProcessesCommand implements ServiceCommand
             break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
-      };
+      }
+      ;
       if (LOGGER.isDebugEnabled())
       {
          LOGGER.debug("END Import " + operation.name());

@@ -134,7 +134,7 @@ public class ImportCommand extends BaseExportImportCommand
       final List<Long> processOids = getProcessOids(options);
       List<String> partitionIds = getPartitions(options);
       final int concurrentBatches = getConcurrentBatches(options);
-      final HashMap<String, String> descriptors = getDescriptors(options);
+      final HashMap<String, Object> descriptors = getDescriptors(options);
       for (final String partitionId : partitionIds)
       {
          Date start = new Date();
@@ -207,7 +207,7 @@ public class ImportCommand extends BaseExportImportCommand
    }
 
    private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService,
-         HashMap<String, String> descriptors)
+         HashMap<String, Object> descriptors)
    {
       ImportMetaData importMetaData;
 
@@ -226,7 +226,7 @@ public class ImportCommand extends BaseExportImportCommand
       return importMetaData;
    }
 
-   private int importFile(Date fromDate, Date toDate, List<Long> processOids, HashMap<String, String> descriptors,
+   private int importFile(Date fromDate, Date toDate, List<Long> processOids, HashMap<String, Object> descriptors,
          String partitionId, ImportMetaData importMetaData,
          ServiceFactory serviceFactory, IArchive archive)
    {
@@ -259,7 +259,7 @@ public class ImportCommand extends BaseExportImportCommand
    }
 
    private List<IArchive> findArchives(final ServiceFactory serviceFactory, final Date fromDate, final Date toDate, final List<Long> processOids,
-         HashMap<String, String> descriptors)
+         HashMap<String, Object> descriptors)
    {
       ImportProcessesCommand command;
       if (processOids != null)

@@ -1,6 +1,8 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.google.gson.annotations.Expose;
@@ -17,26 +19,31 @@ public class ExportIndex implements Serializable
    private String archiveManagerId;
 
    @Expose
+   private String dateFormat;
+   
+   @Expose
    private boolean isDump;
    
    @Expose
    private Map<ExportProcess, List<ExportProcess>> processes;
 
+
    public ExportIndex()
    {
    }
 
-   public ExportIndex(String archiveManagerId, boolean isDump)
+   public ExportIndex(String archiveManagerId, String dateFormat, boolean isDump)
    {
-      this(archiveManagerId, new HashMap<ExportProcess, List<ExportProcess>>(), isDump);
+      this(archiveManagerId, dateFormat, new HashMap<ExportProcess, List<ExportProcess>>(), isDump);
    }
 
-   public ExportIndex(String archiveManagerId, 
+   public ExportIndex(String archiveManagerId, String dateFormat, 
          Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses, boolean isDump)
    {
       this.archiveManagerId = archiveManagerId;
       this.processes = rootProcessToSubProcesses;
       this.isDump = isDump;
+      this.dateFormat = dateFormat;
    }
 
    public boolean contains(Long processInstanceOid)
@@ -65,7 +72,7 @@ public class ExportIndex implements Serializable
     * @param descriptors
     * @return
     */
-   public boolean contains( Map<String, String> descriptors)
+   public boolean contains( Map<String, Object> descriptors)
    {
       if (descriptors == null || descriptors.isEmpty())
       {
@@ -95,7 +102,7 @@ public class ExportIndex implements Serializable
     * @param descriptors
     * @return
     */
-   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, String> descriptors)
+   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors)
    {
       if (descriptors == null || descriptors.isEmpty())
       {
@@ -126,13 +133,25 @@ public class ExportIndex implements Serializable
    }
    
    private boolean descriptorMatch(Map<String, String> descriptors, 
-         Map<String, String> searchDescriptors)
+         Map<String, Object> searchDescriptors)
    {
       for (String key : searchDescriptors.keySet())
       {
          if (descriptors.containsKey(key))
          {
-            if (descriptors.get(key).equals(searchDescriptors.get(key)))
+            Object value = searchDescriptors.get(key);
+            String stringValue;
+            if (value instanceof Date)
+            {
+               DateFormat df = new SimpleDateFormat(dateFormat);
+               stringValue = df.format((Date) value);
+            }
+            else
+            {
+               stringValue = value.toString();
+            }
+                  
+            if (descriptors.get(key).equals(stringValue))
             {
                return true;
             }
@@ -149,6 +168,16 @@ public class ExportIndex implements Serializable
    public String getArchiveManagerId()
    {
       return archiveManagerId;
+   }
+   
+
+   /**
+    * Returns dateformat used for descri
+    * @return
+    */
+   public String getDateFormat()
+   {
+      return dateFormat;
    }
 
    public void setRootProcessToSubProcesses(

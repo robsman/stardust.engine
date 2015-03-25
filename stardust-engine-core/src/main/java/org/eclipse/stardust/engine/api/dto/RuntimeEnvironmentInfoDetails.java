@@ -13,11 +13,17 @@ package org.eclipse.stardust.engine.api.dto;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo;
-
+import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 
 public class RuntimeEnvironmentInfoDetails implements RuntimeEnvironmentInfo
 {
    private static final long serialVersionUID = 1L;
+
+   private long lastArchivingTime;
+
+   private String auditTrailUUID;
+
+   private String auditTrailName;
 
    private final Version version;
 
@@ -25,11 +31,32 @@ public class RuntimeEnvironmentInfoDetails implements RuntimeEnvironmentInfo
    {
       super();
       this.version = CurrentVersion.getBuildVersion();
+
+      this.auditTrailUUID = SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_UUID);
+      this.auditTrailName = SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_NAME);
+      this.lastArchivingTime = Long.parseLong(SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_ARCHIVING_TIMESTAMP));
+
    }
 
    public Version getVersion()
    {
       return version;
+   }
+
+   public long getLastArchivingTime()
+   {
+      return this.lastArchivingTime;
+   }
+
+   public String getAuditTrailUUID()
+   {
+      return this.auditTrailUUID;
+   }
+
+   public String getAuditTrailName()
+   {
+      // TODO Auto-generated method stub
+      return this.auditTrailName;
    }
 
 }

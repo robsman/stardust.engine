@@ -279,8 +279,8 @@ public class ImportProcessesCommand implements ServiceCommand
       importMetaData = new ImportMetaData();
       try
       {
-         byte[] modelData = archive.getModelData();
-         ExportImportSupport.validateModel(modelData, importMetaData);
+         ExportModel exportModel = archive.getExportModel();
+         ExportImportSupport.validateModel(exportModel, importMetaData);
       }
       catch (IllegalStateException e)
       {

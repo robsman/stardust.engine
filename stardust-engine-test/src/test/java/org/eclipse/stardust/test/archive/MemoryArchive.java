@@ -9,24 +9,24 @@ import com.google.gson.Gson;
 
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportIndex;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportModel;
 import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
 
 public class MemoryArchive implements IArchive
 {
-   private byte[] modelData;
-   
    private ExportIndex exportIndex;
+   private ExportModel exportModel;
    
    private HashMap<Long, byte[]> dataByProcess;
    
    private Date key;
 
-   public MemoryArchive(Date key, HashMap<Long, byte[]> dataByProcess, byte[] modelData, String indexString)
+   public MemoryArchive(Date key, HashMap<Long, byte[]> dataByProcess, String modelData, String indexString)
    {
       this.dataByProcess = dataByProcess;
-      this.modelData = modelData;
       Gson gson = ExportImportSupport.getGson();
       exportIndex = gson.fromJson(new String(indexString), ExportIndex.class);
+      exportModel = gson.fromJson(new String(modelData), ExportModel.class);
       this.key = key;
    }
 
@@ -36,14 +36,14 @@ public class MemoryArchive implements IArchive
       return key;
    }
 
-   public byte[] getModelData()
+   public ExportModel getExportModel()
    {
-      return modelData;
+      return exportModel;
    }
 
-   public void setModelData(byte[] modelData)
+   public void setModelData(ExportModel exportModel)
    {
-      this.modelData = modelData;
+      this.exportModel = exportModel;
    }
 
    public HashMap<Long, byte[]> getDataByProcess()

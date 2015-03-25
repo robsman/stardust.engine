@@ -18,7 +18,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
 
    private static HashMap<String, HashMap<Date, byte[]>> repoData;
 
-   private static HashMap<String, HashMap<Date, byte[]>> dateModel;
+   private static HashMap<String, HashMap<Date, String>> dateModel;
 
    private static HashMap<String, HashMap<Date, String>> dateIndex;
    
@@ -34,7 +34,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
             {
                repo = new HashMap<String, HashMap<Date, HashMap<Long, byte[]>>>();
                repoData = new HashMap<String, HashMap<Date, byte[]>>();
-               dateModel = new HashMap<String, HashMap<Date, byte[]>>();
+               dateModel = new HashMap<String, HashMap<Date, String>>();
                dateIndex = new HashMap<String, HashMap<Date, String>>();
                archiveManagerId = ArchiveManagerFactory.getCurrentId();
             }
@@ -62,7 +62,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
             repoData.put(SecurityProperties.getPartition().getId(),
                   new HashMap<Date, byte[]>());
             dateModel.put(SecurityProperties.getPartition().getId(),
-                  new HashMap<Date, byte[]>());
+                  new HashMap<Date, String>());
             dateIndex.put(SecurityProperties.getPartition().getId(),
                   new HashMap<Date, String>());
          }
@@ -86,12 +86,12 @@ public class MemoryArchiveManager extends BaseArchiveManager
    }
 
    @Override
-   public boolean addModel(Serializable key, byte[] results)
+   public boolean addModel(Serializable key, String model)
    {
       synchronized (key)
       {
          dateModel.get(SecurityProperties.getPartition().getId())
-               .put((Date) key, results);
+               .put((Date) key, model);
       }
       return true;
 
@@ -166,7 +166,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
             .getPartition().getId());
       if (partitionRepo != null)
       {
-         HashMap<Date, byte[]> partitionDateModel = dateModel.get(SecurityProperties
+         HashMap<Date, String> partitionDateModel = dateModel.get(SecurityProperties
                .getPartition().getId());
          HashMap<Date, String> partitionDateIndex = dateIndex.get(SecurityProperties
                .getPartition().getId());

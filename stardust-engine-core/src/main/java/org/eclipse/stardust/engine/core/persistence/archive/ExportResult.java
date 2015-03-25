@@ -35,18 +35,18 @@ public class ExportResult implements Serializable
    
    private boolean open = true;
    
-   private byte[] modelData;
+   private ExportModel exportModel;
    
    private final Set<Long> purgeProcessIds;
    
    private boolean isDump;
 
-   public ExportResult(byte[] modelData, HashMap<Date, byte[]> resultsByDate,
+   public ExportResult(ExportModel exportModel, HashMap<Date, byte[]> resultsByDate,
          HashMap<Date, ExportIndex> exportIndexByDate, Map<Date, 
          List<Long>> processInstanceOidsByDate, Map<Date, List<Integer>> processLengthsByDate,
          boolean isDump, Set<Long> purgeProcessIds)
    {
-      this.modelData = modelData;
+      this.exportModel = exportModel;
       this.resultsByDate = resultsByDate;
       this.exportIndexByDate = exportIndexByDate;
       this.processInstanceOidsByDate = processInstanceOidsByDate;
@@ -248,9 +248,9 @@ public class ExportResult implements Serializable
       return exportIndexByDate.get(indexDate);
    }
 
-   public boolean hasModelData()
+   public boolean hasExportModel()
    {
-      return modelData != null;
+      return exportModel != null;
    }
 
    public boolean hasExportData()
@@ -258,14 +258,14 @@ public class ExportResult implements Serializable
       return CollectionUtils.isNotEmpty(resultsByDate.keySet());
    }
 
-   public void setModelData(byte[] modelData)
+   public void setExportModel(ExportModel exportModel)
    {
-      this.modelData = modelData;
+      this.exportModel = exportModel;
    }
 
-   public byte[] getModelData()
+   public ExportModel getExportModel()
    {
-      return modelData;
+      return exportModel;
    }
 
    public Set<Long> getPurgeProcessIds()

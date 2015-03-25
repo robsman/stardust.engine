@@ -25,7 +25,7 @@ public interface IArchive
     * In such a case it must all be returned by getData()
     * @return
     */
-   public byte[] getModelData();
+   public ExportModel getExportModel();
 
    /**
     * Returns ExportIndex for this archive

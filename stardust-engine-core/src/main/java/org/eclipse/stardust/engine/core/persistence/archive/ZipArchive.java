@@ -25,13 +25,14 @@ public class ZipArchive implements IArchive, Serializable
 
    public static final int SIXTEEN_K = 16 * 1024;
 
-   public static final String FILENAME_MODEL = "model.dat";
+   public static final String FILENAME_MODEL = "model.json";
 
    public static final String FILENAME_INDEX = "index.json";
    
    public static final String FILENAME_KEY = "key.txt";
 
    private ExportIndex exportIndex = null;
+   private ExportModel exportModel = null;
 
    public ZipArchive(String part0AbsolutePath, List<String> partAbsolutePaths)
    {
@@ -79,9 +80,14 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public byte[] getModelData()
+   public ExportModel getExportModel()
    {
-      return uncompressZipEntry(part0AbsolutePath, FILENAME_MODEL);
+      if (exportModel == null)
+      {
+         byte[] jsonEntry = uncompressZipEntry(part0AbsolutePath, FILENAME_MODEL);
+         exportModel = ExportImportSupport.getGson().fromJson(new String(jsonEntry), ExportModel.class);
+      }
+      return exportModel;
    }
 
    private String getPartWithEntry(String entry)

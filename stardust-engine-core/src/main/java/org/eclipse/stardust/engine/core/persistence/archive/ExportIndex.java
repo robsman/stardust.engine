@@ -3,9 +3,10 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
-import com.google.gson.annotations.Expose;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ExportIndex implements Serializable
 {
@@ -15,18 +16,13 @@ public class ExportIndex implements Serializable
     */
    private static final long serialVersionUID = 1L;
 
-   @Expose
    private String archiveManagerId;
 
-   @Expose
    private String dateFormat;
    
-   @Expose
    private boolean isDump;
    
-   @Expose
    private Map<ExportProcess, List<ExportProcess>> processes;
-
 
    public ExportIndex()
    {

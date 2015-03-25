@@ -19,10 +19,8 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
@@ -207,14 +205,14 @@ public class ExportCommand extends BaseExportImportCommand
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
                batchSize);
          print("Found " + batches.size() + " batches to export");
-         final byte[] modelData;
+         final ExportModel exportModel;
          if (exportMetaData.getAllProcessesForExport(dumpData).size() > 0)
          {
-            modelData = exportModel(partitionId, exportMetaData, serviceFactory, dumpData);
+            exportModel = exportModel(partitionId, exportMetaData, serviceFactory, dumpData);
          }
          else
          {
-            modelData = null;
+            exportModel = null;
          }
          ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
          List<Future<ExportResult>> results = new ArrayList<Future<ExportResult>>();
@@ -257,7 +255,7 @@ public class ExportCommand extends BaseExportImportCommand
             }
          }
          print(new Date() + " Export Done for Partition: " + partitionId);
-         ExportResult mergedResult = ExportImportSupport.merge(exportResults, modelData);
+         ExportResult mergedResult = ExportImportSupport.merge(exportResults, exportModel);
          ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpData);
          Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
          if (success)
@@ -341,7 +339,7 @@ public class ExportCommand extends BaseExportImportCommand
       return exportMetaData;
    }
 
-   private byte[] exportModel(final String partitionId,
+   private ExportModel exportModel(final String partitionId,
          final ExportMetaData exportMetaData, final ServiceFactory serviceFactory, boolean dump)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
@@ -356,7 +354,7 @@ public class ExportCommand extends BaseExportImportCommand
       else
       {
          print("Model exported");
-         return exportResult.getModelData();
+         return exportResult.getExportModel();
       }
    }
 

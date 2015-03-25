@@ -7,6 +7,8 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.gson.Gson;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
@@ -266,9 +268,10 @@ public class ExportProcessesCommand implements ServiceCommand
                {
                   break dateloop;
                }
+               Gson gson = ExportImportSupport.getGson();
                if (success)
                {
-                  success = archiveManager.addModel(key, exportResult.getModelData());
+                  success = archiveManager.addModel(key, gson.toJson(exportResult.getExportModel()));
                   if (!success)
                   {
                      break dateloop;
@@ -277,7 +280,7 @@ public class ExportProcessesCommand implements ServiceCommand
                ExportIndex exportIndex = exportResult.getExportIndex(date);
                if (success)
                {
-                  success = archiveManager.addIndex(key, ExportImportSupport.getGson()
+                  success = archiveManager.addIndex(key, gson
                         .toJson(exportIndex));
                   if (!success)
                   {
@@ -342,20 +345,20 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void exportModels(Session session)
    {
-      byte[] model;
+      ExportModel exportModel;
       if (processInstanceOids != null || modelOids != null)
       {
-         model = ExportImportSupport.exportModels(exportMetaData.getModelOids());
+         exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids());
       }
       else
       {
-         model = ExportImportSupport.exportModels();
+         exportModel = ExportImportSupport.exportModels();
       }
       if (exportResult == null)
       {
          exportResult = new ExportResult(dumpData);
       }
-      exportResult.setModelData(model);
+      exportResult.setExportModel(exportModel);
    }
 
    private void query(Session session)
@@ -385,7 +388,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          exportResult = new ExportResult(dumpData);
       }
-      if (exportResult.hasModelData())
+      if (exportResult.hasExportModel())
       {
          exportBatch(session);
       }

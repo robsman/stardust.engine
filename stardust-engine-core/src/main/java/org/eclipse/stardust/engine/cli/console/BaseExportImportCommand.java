@@ -58,6 +58,10 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       splitListString(dateDescr, dateDescriptorValues);
       listToMapString(descriptorValues, descriptors);
       listToMapDate(dateDescriptorValues, descriptors);
+      if (descriptors.isEmpty())
+      {
+         return null;
+      }
       return descriptors;
    }
 

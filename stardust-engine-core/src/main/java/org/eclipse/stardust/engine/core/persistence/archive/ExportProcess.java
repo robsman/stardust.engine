@@ -4,19 +4,15 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
 
 public class ExportProcess implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
-   @Expose
    private long oid;
 
-   @Expose
    private String uuid;
    
-   @Expose
    Map<String, String> descriptors;
 
    public ExportProcess()
@@ -38,16 +34,6 @@ public class ExportProcess implements Serializable
    public String getUuid()
    {
       return uuid;
-   }
-
-   public void setOid(long oid)
-   {
-      this.oid = oid;
-   }
-
-   public void setUuid(String uuid)
-   {
-      this.uuid = uuid;
    }
 
    @Override

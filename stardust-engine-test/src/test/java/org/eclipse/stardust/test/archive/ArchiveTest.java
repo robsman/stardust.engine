@@ -36,7 +36,6 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.ServiceCommandException;
@@ -1405,7 +1404,7 @@ public class ArchiveTest
       }
 
       ExportResult exportResult = ExportImportSupport.merge(datas,
-            modelData.getModelData());
+            modelData.getExportModel());
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE,
             exportResult, false);
       Boolean success = (Boolean) workflowService.execute(command);
@@ -1498,7 +1497,7 @@ public class ArchiveTest
       String json = getExportIndexJSON();
 
       MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
-            data, rawData.getModelData(), json);
+            data, getJSON(rawData.getExportModel()), json);
 
       ImportMetaData importMetaData = (ImportMetaData) workflowService
             .execute(new ImportProcessesCommand(
@@ -1524,10 +1523,15 @@ public class ArchiveTest
 
    private String getJSON(ExportIndex index)
    {
-      GsonBuilder gsonBuilder = new GsonBuilder();
-      gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-      Gson gson = gsonBuilder.create();
+      Gson gson = ExportImportSupport.getGson();
       String json = gson.toJson(index);
+      return json;
+   }
+   
+   private String getJSON(ExportModel exportModel)
+   {
+      Gson gson = ExportImportSupport.getGson();
+      String json = gson.toJson(exportModel);
       return json;
    }
 
@@ -1586,8 +1590,9 @@ public class ArchiveTest
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {5});
       String json = getExportIndexJSON();
+      ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
       MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
-            dataByProcess, new byte[] {}, json);
+            dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
       assertEquals(0, count);
@@ -1600,8 +1605,10 @@ public class ArchiveTest
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_EOF});
       String json = getExportIndexJSON();
+      ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
+      
       MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
-            dataByProcess, new byte[] {}, json);
+            dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
       assertEquals(0, count);
@@ -1614,8 +1621,9 @@ public class ArchiveTest
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES});
       String json = getExportIndexJSON();
+      ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
       MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
-            dataByProcess, new byte[] {}, json);
+            dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
       assertEquals(0, count);
@@ -1628,8 +1636,9 @@ public class ArchiveTest
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES, 5});
       String json = getExportIndexJSON();
+      ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
       MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
-            dataByProcess, new byte[] {}, json);
+            dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
       assertEquals(0, count);
@@ -3127,7 +3136,7 @@ public class ArchiveTest
          datas.add(rawData);
       }
       ExportResult exportResult = ExportImportSupport.merge(datas,
-            modelData.getModelData());
+            modelData.getExportModel());
       int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.PURGE, exportResult, true));
       assertEquals(8, deleteCount);
@@ -3880,7 +3889,7 @@ public class ArchiveTest
       rawData = (ExportResult) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNull(rawData);
-      assertTrue(rawData.hasModelData());
+      assertTrue(rawData.hasExportModel());
       assertFalse(rawData.hasExportData());
       assertEquals(0, rawData.getDates().size());
       assertEquals(1, rawData.getPurgeProcessIds().size());
@@ -4758,7 +4767,7 @@ public class ArchiveTest
       
       String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", archive.getExportIndex().getRootProcessToSubProcesses(),
             false));
-      MemoryArchive archive1 = new MemoryArchive((Date)archive.getArchiveKey(), archive.getDataByProcess(), archive.getModelData(), json);
+      MemoryArchive archive1 = new MemoryArchive((Date)archive.getArchiveKey(), archive.getDataByProcess(), getJSON(archive.getExportModel()), json);
       
       descriptors = new HashMap<String, Object>();
       //key primitive
@@ -6276,14 +6285,14 @@ public class ArchiveTest
    private void assertNotNullBatches(ExportResult result)
    {
       assertNotNull(result);
-      assertFalse(result.hasModelData());
+      assertFalse(result.hasExportModel());
       assertTrue(result.hasExportData());
    }
 
    private void assertNotNullModel(ExportResult result)
    {
       assertNotNull(result);
-      assertTrue(result.hasModelData());
+      assertTrue(result.hasExportModel());
       assertFalse(result.hasExportData());
    }
 
@@ -6292,7 +6301,7 @@ public class ArchiveTest
          boolean mustHaveExportIds) throws Exception
    {
       assertNotNull(result);
-      assertTrue(result.hasModelData());
+      assertTrue(result.hasExportModel());
       assertTrue(result.hasExportData());
       if (result.hasExportData())
       {
@@ -6318,7 +6327,7 @@ public class ArchiveTest
 
    private void assertNullRawData(ExportResult result)
    {
-      assertFalse(result.hasModelData());
+      assertFalse(result.hasExportModel());
       assertFalse(result.hasExportData());
    }
 

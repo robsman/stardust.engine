@@ -31,7 +31,7 @@ public interface IArchiveManager
     * @param results
     * @return success indicator
     */
-   public boolean addModel(Serializable key, byte[] results);
+   public boolean addModel(Serializable key, String model);
    
    /**
     * Closes repository location identified by key, and performs any final operations needed

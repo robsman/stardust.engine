@@ -268,23 +268,23 @@ public class ZipArchiveManager extends BaseArchiveManager
    }
 
    @Override
-   public boolean addModel(Serializable key, byte[] results)
+   public boolean addModel(Serializable key, String model)
    {
       boolean success;
       try
       {
-         if (key != null && results != null)
+         if (key != null && model != null)
          {
             File dataFile = (File) key;
-            String name = FILENAME_MODEL_PREFIX + getIndex(key) + EXT_DAT;
+            String name = FILENAME_MODEL_PREFIX + getIndex(key) + EXT_JSON;
             File modelFile = new File(dataFile.getParentFile(), name);
-            writeByteArrayToFile(modelFile, results);
+            writeByteArrayToFile(modelFile, model.getBytes());
             success = true;
          }
          else
          {
             success = false;
-            LOGGER.error("Key or Model is Null. Key: " + key + ", Model:" + results);
+            LOGGER.error("Key or Model is Null. Key: " + key + ", Model:" + model);
          }
       }
       catch (IOException e)
@@ -816,11 +816,12 @@ public class ZipArchiveManager extends BaseArchiveManager
 
             // match path name extension
             if (ext.equals(EXT_DAT)
-                  && (fileName.startsWith(pattern) || fileName.startsWith(modelPattern)))
+                  && fileName.startsWith(pattern))
             {
                return true;
             }
-            else if (ext.equals(EXT_JSON) && fileName.startsWith(indexPattern))
+            else if (ext.equals(EXT_JSON) && (fileName.startsWith(indexPattern)
+                  || fileName.startsWith(modelPattern)))
             {
                return true;
             }

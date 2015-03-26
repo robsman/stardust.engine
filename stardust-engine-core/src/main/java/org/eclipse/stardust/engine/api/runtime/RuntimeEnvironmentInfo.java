@@ -41,7 +41,7 @@ public interface RuntimeEnvironmentInfo extends Serializable
     * 
     * @return timestamp last target archive time 
     */
-   public long getLastArchivingTime();
+   public Long getLastArchivingTime();
    
    /**
     * The UUID of the AuditTrail.

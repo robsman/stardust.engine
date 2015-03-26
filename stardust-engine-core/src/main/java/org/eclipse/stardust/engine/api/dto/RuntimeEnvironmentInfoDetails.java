@@ -19,7 +19,7 @@ public class RuntimeEnvironmentInfoDetails implements RuntimeEnvironmentInfo
 {
    private static final long serialVersionUID = 1L;
 
-   private long lastArchivingTime;
+   private Long lastArchivingTime;
 
    private String auditTrailUUID;
 
@@ -34,7 +34,15 @@ public class RuntimeEnvironmentInfoDetails implements RuntimeEnvironmentInfo
 
       this.auditTrailUUID = SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_UUID);
       this.auditTrailName = SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_NAME);
-      this.lastArchivingTime = Long.parseLong(SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_ARCHIVING_TIMESTAMP));
+
+      if (SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_ARCHIVING_TIMESTAMP) != null)
+      {
+         this.lastArchivingTime = Long.parseLong(SchemaHelper.getAuditTrailProperty(RuntimeEnvironmentInfo.AUDITTRAIL_ARCHIVING_TIMESTAMP));
+      }
+      else
+      {
+         this.lastArchivingTime = null;
+      }
 
    }
 
@@ -43,7 +51,7 @@ public class RuntimeEnvironmentInfoDetails implements RuntimeEnvironmentInfo
       return version;
    }
 
-   public long getLastArchivingTime()
+   public Long getLastArchivingTime()
    {
       return this.lastArchivingTime;
    }

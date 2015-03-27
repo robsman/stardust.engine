@@ -187,7 +187,7 @@ public class BusinessObjectUtils
          for (Iterator<IData> data = model.getData().iterator(); data.hasNext();)
          {
             IData item = data.next();
-            if (queryEvaluator.accept(item) && (auth == null || auth.accept(data)))
+            if (queryEvaluator.accept(item) && (auth == null || auth.accept(item)))
             {
                allData.add(item);
             }

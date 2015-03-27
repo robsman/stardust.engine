@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.IteratorUtils;
+
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -34,6 +35,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DeploymentUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 
 /**
  * @author pielmann
@@ -208,13 +210,25 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             checkImplementation(inconsistencies);
             if(declaresInterface)
             {
+               boolean externalProcessInvocation = isExternalProcessInvocation();
                for(IFormalParameter formalParameter : formalParameters)
                {
                   IData data = formalParameter.getData();
                   if(data == null)
                   {
-                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_NO_DATA_SET.raise(formalParameter);
+                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_NO_DATA_SET.raise(formalParameter.getId());
                      inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  }
+                  // For external process invocations check restricted types, only primitive and structured data are supported.
+                  else if (externalProcessInvocation
+                        && !StructuredTypeRtUtils.isStructuredType(data)
+                        && !PredefinedConstants.PRIMITIVE_DATA.equals(data.getType()
+                              .getId()))
+                  {
+                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_INCOMPATIBLE_DATA_FOR_EXTERNAL_INVOCATION
+                           .raise(formalParameter.getId());
+                     inconsistencies.add(new Inconsistency(error, this,
+                           Inconsistency.WARNING));
                   }
                }
             }
@@ -325,6 +339,19 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       {
          throw new InternalException("Process definition '" + getId() + "' cannot be checked.", e);
       }
+   }
+
+   private boolean isExternalProcessInvocation()
+   {
+      String externalInvocationAttribute = (String) getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE);
+      return externalInvocationAttribute == null
+            ? false
+            : PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP
+                  .equals(externalInvocationAttribute)
+                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_REST
+                        .equals(externalInvocationAttribute)
+                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH
+                        .equals(externalInvocationAttribute);
    }
 
    private void checkForDeadlocks(List<Inconsistency> inconsistencies)
@@ -889,7 +916,9 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
    public IData getMappedData(String parameterId)
    {
-      return ((IModel) getModel()).findData(formalParameterMappings.get(parameterId));
+      String id = formalParameterMappings.get(parameterId);
+
+      return StringUtils.isEmpty(id) ? null : ((IModel) getModel()).findData(id);
    }
 
    public String getMappedDataId(String parameterId)

@@ -115,23 +115,20 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
                      break;
                   }
 
-                  if (!matches)
+                  SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+                  if (sc == null)
                   {
-                     SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
-                     if (sc == null)
-                     {
-                        trace.warn("Invalid schedule in document '" + document.getPath() + "'.");
-                     }
-                     else
-                     {
-                        sc.setDate(executionDate);
-                        Date processSchedule = sc.processSchedule(scheduleJson, true);
+                     trace.warn("Invalid schedule in document '" + document.getPath() + "'.");
+                  }
+                  else
+                  {
+                     sc.setDate(executionDate);
+                     Date processSchedule = sc.processSchedule(scheduleJson, true);
 
-                        if (processSchedule != null && executionTimeMatches(processSchedule))
-                        {
-                           matches = true;
-                           matchingEvents.add(event);
-                        }
+                     if (processSchedule != null && executionTimeMatches(processSchedule))
+                     {
+                        matches = true;
+                        matchingEvents.add(event);
                      }
                   }
                }

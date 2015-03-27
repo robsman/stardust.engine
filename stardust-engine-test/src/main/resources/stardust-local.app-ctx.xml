@@ -28,7 +28,6 @@
       <property name="dataSource" ref="xaAuditTrailConnectionFactory" />
       <property name="jcaResourceProvider" ref="carnotJcaResourceResolver" />
       <property name="jmsResourceProvider" ref="jmsResourceResolver" />
-      <property name="carnotProperties" ref="customCarnotProperties" />
    </bean>
 
    <bean id="carnotWorkflowService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />

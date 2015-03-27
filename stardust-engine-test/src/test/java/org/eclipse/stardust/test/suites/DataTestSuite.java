@@ -34,6 +34,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                DefaultValuePrimitiveDataTest.class,
+               FormalParameterValidityTest.class,
                PrimitiveDataInOutDataMappingsTest.class,
                PrimitiveDataInOutDataPathsTest.class,
                InitialValuePrimitiveDataTest.class,
@@ -43,7 +44,7 @@ import org.junit.runners.Suite.SuiteClasses;
              })
 public class DataTestSuite
 {
-   
+
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, VOLATILE_MODEL_NAME);
 }

@@ -273,7 +273,7 @@ public abstract class SchedulingRecurrence
             // Start Date and End Date are less than current date.
             trace.info("Start Date and End Date are less than current date");
          }
-         else if (startDate.before(currentDate) && endDate.after(currentDate))
+         else if (!currentDate.before(startDate) && !currentDate.after(endDate))
          {
             // Current Running Scenario
             return getNextExecutionDate(cronExpression, currentDate, endDate);

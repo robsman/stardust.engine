@@ -75,11 +75,13 @@ public class ExportProcessesCommand implements ServiceCommand
    private final boolean dumpData;
 
    private final HashMap<String, Object> descriptors;
+   
+   private final IProcessInstance processInstance;
 
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
          Date toDate, HashMap<String, Object> descriptors, ExportResult exportResult,
-         boolean dumpData)
+         boolean dumpData, IProcessInstance processInstance)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -90,6 +92,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.exportResult = exportResult;
       this.descriptors = descriptors;
       this.dumpData = dumpData;
+      this.processInstance = processInstance;
    }
 
    /**
@@ -106,7 +109,7 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean dumpData)
    {
       this(operation, null, modelOids, processInstanceOids, null, null, descriptors,
-            null, dumpData);
+            null, dumpData, null);
    }
 
    /**
@@ -116,7 +119,7 @@ public class ExportProcessesCommand implements ServiceCommand
          HashMap<String, Object> descriptors, boolean dumpData)
    {
 
-      this(operation, null, null, null, null, null, descriptors, null, dumpData);
+      this(operation, null, null, null, null, null, descriptors, null, dumpData, null);
    }
 
    /**
@@ -133,7 +136,7 @@ public class ExportProcessesCommand implements ServiceCommand
          HashMap<String, Object> descriptors, boolean dumpData)
    {
 
-      this(operation, null, null, null, fromDate, toDate, descriptors, null, dumpData);
+      this(operation, null, null, null, fromDate, toDate, descriptors, null, dumpData, null);
    }
 
    /**
@@ -145,7 +148,7 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean dumpData)
    {
 
-      this(operation, exportMetaData, null, null, null, null, null, null, dumpData);
+      this(operation, exportMetaData, null, null, null, null, null, null, dumpData, null);
    }
 
    /**
@@ -156,7 +159,15 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean dumpData)
    {
 
-      this(operation, null, null, null, null, null, null, exportResult, dumpData);
+      this(operation, null, null, null, null, null, null, exportResult, dumpData, null);
+   }
+   
+   /**
+    * 
+    */
+   public ExportProcessesCommand(IProcessInstance processInstance)
+   {
+      this(Operation.EXPORT_PROCESS, null, null, new ArrayList<Long>(), null, null, null, null, false, processInstance);
    }
 
    @Override
@@ -193,6 +204,9 @@ public class ExportProcessesCommand implements ServiceCommand
          case ARCHIVE:
             result = archive();
             break;
+         case EXPORT_PROCESS:
+            result = exportProcess(session);
+            break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
       }
@@ -201,6 +215,59 @@ public class ExportProcessesCommand implements ServiceCommand
          LOGGER.debug("END Export Operation: " + this.operation.name());
       }
       return result;
+   }
+
+   private boolean exportProcess(Session session)
+   {
+      if (LOGGER.isDebugEnabled())
+      {
+         LOGGER.debug("Received processInstance: " + processInstance.getOID() + " to export");
+      }
+      exportMetaData = new ExportMetaData();
+      exportMetaData.addProcess(processInstance.getOID(), processInstance.getStartTime(),
+            processInstance.getOID(), (int) processInstance.getProcessDefinition()
+                  .getModel().getModelOID(), null);
+      addSubProcesses(session);
+      exportModels(session);
+      exportBatch(session);
+      archive();
+      return true;
+   }
+
+   private void addSubProcesses(Session session)
+   {
+      QueryDescriptor query = QueryDescriptor.from(ProcessInstanceBean.class).select(
+            new Column[] {
+                  ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__MODEL,
+                  ProcessInstanceBean.FR__START_TIME});
+
+      AndTerm subProcessTerm = Predicates.andTerm(Predicates.isEqual(
+            ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, processInstance.getOID()), Predicates
+            .notEqual(ProcessInstanceBean.FR__OID, processInstance.getOID()));
+
+      query.where(subProcessTerm);
+     
+      ResultSet rs = session.executeQuery(query);
+      try
+      {
+         while (rs.next())
+         {
+            Long oid = rs.getBigDecimal(ProcessInstanceBean.FIELD__OID).longValue();
+            Integer modelOid = rs.getBigDecimal(ProcessInstanceBean.FIELD__MODEL)
+                  .intValue();
+            Date startDate = new Date(rs.getBigDecimal(
+                  ProcessInstanceBean.FIELD__START_TIME).longValue());
+            exportMetaData.addProcess(oid, startDate, processInstance.getOID(), modelOid, null);
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new IllegalStateException("Can't find process instance to export", e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rs);
+      }
    }
 
    private int purge(Session session)
@@ -486,7 +553,7 @@ public class ExportProcessesCommand implements ServiceCommand
       ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
             modelOids);
 
-      // TODO add restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
+      // TODO Improve by adding restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
       // (not like currentArchiveId_processId_starttime in long) or is null
       // currently dont know how to add such complex like condition
       AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction);
@@ -562,13 +629,15 @@ public class ExportProcessesCommand implements ServiceCommand
        */
       EXPORT_BATCH,
       /**
-       
+       * Takes an export result and deletes the processes in it from the database
        */
       PURGE,
       /**
-       
+       * Takes an export result and persists it to an archive
        */
-      ARCHIVE;
+      ARCHIVE,
+      EXPORT_PROCESS
+      ;
    };
 
    public static class ExportMetaData implements Serializable

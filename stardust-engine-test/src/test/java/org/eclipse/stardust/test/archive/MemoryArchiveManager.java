@@ -14,15 +14,19 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class MemoryArchiveManager extends BaseArchiveManager
 {
 
-   private static HashMap<String, HashMap<Date, HashMap<Long, byte[]>>> repo;
+   private static HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
 
-   private static HashMap<String, HashMap<Date, byte[]>> repoData;
+   private static HashMap<String, HashMap<String, byte[]>> repoData;
 
-   private static HashMap<String, HashMap<Date, String>> dateModel;
+   private static HashMap<String, HashMap<String, String>> dateModel;
 
-   private static HashMap<String, HashMap<Date, String>> dateIndex;
+   private static HashMap<String, HashMap<String, String>> dateIndex;
+
+   private static HashMap<String, HashMap<String, Date>> dateArchiveKey;
    
    private String archiveManagerId;
+   
+   private static int keyCounter = 0;
 
    public MemoryArchiveManager()
    {
@@ -32,10 +36,11 @@ public class MemoryArchiveManager extends BaseArchiveManager
          {
             if (repo == null)
             {
-               repo = new HashMap<String, HashMap<Date, HashMap<Long, byte[]>>>();
-               repoData = new HashMap<String, HashMap<Date, byte[]>>();
-               dateModel = new HashMap<String, HashMap<Date, String>>();
-               dateIndex = new HashMap<String, HashMap<Date, String>>();
+               repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
+               repoData = new HashMap<String, HashMap<String, byte[]>>();
+               dateModel = new HashMap<String, HashMap<String, String>>();
+               dateIndex = new HashMap<String, HashMap<String, String>>();
+               dateArchiveKey = new HashMap<String, HashMap<String, Date>>();
                archiveManagerId = ArchiveManagerFactory.getCurrentId();
             }
          }
@@ -53,25 +58,27 @@ public class MemoryArchiveManager extends BaseArchiveManager
    {
       synchronized (indexDate)
       {
-         HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
+         HashMap<String, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
                .getPartition().getId());
          if (partitionRepo == null)
          {
-            partitionRepo = new HashMap<Date, HashMap<Long, byte[]>>();
+            partitionRepo = new HashMap<String, HashMap<Long, byte[]>>();
             repo.put(SecurityProperties.getPartition().getId(), partitionRepo);
             repoData.put(SecurityProperties.getPartition().getId(),
-                  new HashMap<Date, byte[]>());
+                  new HashMap<String, byte[]>());
             dateModel.put(SecurityProperties.getPartition().getId(),
-                  new HashMap<Date, String>());
+                  new HashMap<String, String>());
             dateIndex.put(SecurityProperties.getPartition().getId(),
-                  new HashMap<Date, String>());
+                  new HashMap<String, String>());
+            dateArchiveKey.put(SecurityProperties.getPartition().getId(),
+                  new HashMap<String, Date>());
          }
-         if (partitionRepo.get(indexDate) == null)
-         {
-            partitionRepo.put(indexDate, new HashMap<Long, byte[]>());
-         }
+         HashMap<String, Date> keyDateMap = dateArchiveKey.get(SecurityProperties.getPartition().getId());
+         String key = "key" + keyCounter++;
+         keyDateMap.put(key, indexDate);
+         partitionRepo.put(key, new HashMap<Long, byte[]>());
+         return key;
       }
-      return indexDate;
    }
    
 
@@ -80,7 +87,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
    {
       synchronized (key)
       {
-         repoData.get(SecurityProperties.getPartition().getId()).put((Date) key, results);
+         repoData.get(SecurityProperties.getPartition().getId()).put((String) key, results);
       }
       return true;
    }
@@ -91,7 +98,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
       synchronized (key)
       {
          dateModel.get(SecurityProperties.getPartition().getId())
-               .put((Date) key, model);
+               .put((String) key, model);
       }
       return true;
 
@@ -103,13 +110,13 @@ public class MemoryArchiveManager extends BaseArchiveManager
       synchronized (key)
       {
          List<Long> processInstanceOids = exportResult.getProcessInstanceOids(indexDate);
-         HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
+         HashMap<String, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
                .getPartition().getId());
-         HashMap<Date, byte[]> partitionRepoData = repoData.get(SecurityProperties
+         HashMap<String, byte[]> partitionRepoData = repoData.get(SecurityProperties
                .getPartition().getId());
 
-         HashMap<Long, byte[]> hashMap = partitionRepo.get((Date) key);
-         byte[] data = partitionRepoData.get((Date) key);
+         HashMap<Long, byte[]> hashMap = partitionRepo.get((String) key);
+         byte[] data = partitionRepoData.get((String) key);
          BufferedInputStream in = new BufferedInputStream(new ByteArrayInputStream(data));
 
          try
@@ -141,7 +148,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
       ArrayList<IArchive> unfilteredArchives = findAllArchives();
       for (IArchive archive : unfilteredArchives)
       {
-         Date date = (Date)archive.getArchiveKey();
+         Date date = dateArchiveKey.get(SecurityProperties.getPartition().getId()).get(archive.getArchiveKey());
          if ((fromDate.compareTo(date) < 1) && (toDate.compareTo(date) > -1))
          {
             archives.add(archive);
@@ -162,18 +169,20 @@ public class MemoryArchiveManager extends BaseArchiveManager
    protected ArrayList<IArchive> findAllArchives()
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      HashMap<Date, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
+      HashMap<String, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
             .getPartition().getId());
       if (partitionRepo != null)
       {
-         HashMap<Date, String> partitionDateModel = dateModel.get(SecurityProperties
+         HashMap<String, String> partitionDateModel = dateModel.get(SecurityProperties
                .getPartition().getId());
-         HashMap<Date, String> partitionDateIndex = dateIndex.get(SecurityProperties
+         HashMap<String, String> partitionDateIndex = dateIndex.get(SecurityProperties
                .getPartition().getId());
-         for (Date date : partitionRepo.keySet())
+         HashMap<String, Date> keyDate = dateArchiveKey.get(SecurityProperties
+               .getPartition().getId());
+         for (String key : partitionRepo.keySet())
          {
-            archives.add(new MemoryArchive(date, partitionRepo.get(date), partitionDateModel
-                  .get(date), partitionDateIndex.get(date)));
+            archives.add(new MemoryArchive(key, keyDate.get(key), partitionRepo.get(key), partitionDateModel
+                  .get(key), partitionDateIndex.get(key)));
          }
       }
       return archives;
@@ -184,7 +193,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
    {
       synchronized (key)
       {
-         dateIndex.get(SecurityProperties.getPartition().getId()).put((Date) key,
+         dateIndex.get(SecurityProperties.getPartition().getId()).put((String) key,
                indexData);
       }
       return true;

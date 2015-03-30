@@ -19,21 +19,28 @@ public class MemoryArchive implements IArchive
    
    private HashMap<Long, byte[]> dataByProcess;
    
-   private Date key;
+   private String key;
+   private Date date;
 
-   public MemoryArchive(Date key, HashMap<Long, byte[]> dataByProcess, String modelData, String indexString)
+   public MemoryArchive(String key, Date date, HashMap<Long, byte[]> dataByProcess, String modelData, String indexString)
    {
       this.dataByProcess = dataByProcess;
       Gson gson = ExportImportSupport.getGson();
       exportIndex = gson.fromJson(new String(indexString), ExportIndex.class);
       exportModel = gson.fromJson(new String(modelData), ExportModel.class);
       this.key = key;
+      this.date = date;
    }
 
    @Override
    public Serializable getArchiveKey()
    {
       return key;
+   }
+   
+   public Date getDate()
+   {
+      return date;
    }
 
    public ExportModel getExportModel()

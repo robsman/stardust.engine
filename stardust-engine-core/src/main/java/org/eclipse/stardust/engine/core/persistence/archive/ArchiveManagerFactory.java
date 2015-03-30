@@ -27,6 +27,10 @@ public class ArchiveManagerFactory
    
    public static final String CARNOT_ARCHIVE_MANAGER_ID = "Archive.Manager.ID";
 
+   public static final String CARNOT_AUTO_ARCHIVE = "Archive.Auto";
+
+   private static final boolean DEFAULT_AUTO_ARCHIVE = false;
+
    public static IArchiveManager getCurrent()
    {
       String archiveManagerType = Parameters.instance().getString(CARNOT_ARCHIVE_MANAGER,
@@ -65,6 +69,16 @@ public class ArchiveManagerFactory
    public static String getDateFormat() 
    {
       return Parameters.instance().getString(CARNOT_ARCHIVE_DATE_FORMAT,DEFAULT_DATE_FORMAT);
+   }
+   
+   /**
+    * Returns archive date format, used in export. 
+    * Note that archives being imported may have a different date format to be obtained from the archive's ExportIndex.
+    * @return
+    */
+   public static boolean autoArchive() 
+   {
+      return Parameters.instance().getBoolean(CARNOT_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
    }
 
    private static IArchiveManager getCustomArchiveManager()

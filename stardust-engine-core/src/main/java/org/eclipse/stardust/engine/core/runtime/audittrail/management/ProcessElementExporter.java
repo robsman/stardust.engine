@@ -95,9 +95,18 @@ public class ProcessElementExporter implements ProcessElementOperator
                if (markExported)
                {
                   String uuid = ExportImportSupport.getUUID(processInstance);
-                  AbstractProperty property = processInstance.createProperty(EXPORT_PROCESS_ID, uuid);
-                  exportResult.addResult(processInstance);
-                  exportResult.addResult(property, processInstance.getOID());
+                  // in the case of autoArchive the exportProcessId will be created already
+                  // don't just check for null because it could have been exported to a different archive
+                  if (!uuid.equals(processInstance.getPropertyValue(EXPORT_PROCESS_ID)))
+                  {
+                     AbstractProperty property = processInstance.createProperty(EXPORT_PROCESS_ID, uuid);
+                     exportResult.addResult(processInstance);
+                     exportResult.addResult(property, processInstance.getOID());
+                  }
+                  else
+                  {
+                     exportResult.addResult(processInstance);
+                  }
                }
                else
                {

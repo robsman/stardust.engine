@@ -23,7 +23,6 @@ import java.util.Date;
 import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.*;
-import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
@@ -43,6 +42,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.core.cache.AbstractCache;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
+import org.eclipse.stardust.engine.core.monitoring.DefaultProcessExecutionMonitor;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -1992,7 +1992,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             ModelManagerFactory.getCurrent().resetLastDeployment();
          }
 
-
+         if (DefaultProcessExecutionMonitor.ArchiveProcessInstance.get() != null)
+         {
+            ProcessInstanceUtils.archive(DefaultProcessExecutionMonitor.ArchiveProcessInstance.get());
+            DefaultProcessExecutionMonitor.ArchiveProcessInstance.remove();
+         }
       }
       catch (SQLException x)
       {

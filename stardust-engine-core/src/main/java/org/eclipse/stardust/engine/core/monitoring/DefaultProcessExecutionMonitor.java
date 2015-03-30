@@ -11,13 +11,19 @@
 package org.eclipse.stardust.engine.core.monitoring;
 
 
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor;
 
 
 public class DefaultProcessExecutionMonitor implements IProcessExecutionMonitor
 {
+
+   public static final ThreadLocal<IProcessInstance> ArchiveProcessInstance = new ThreadLocal<IProcessInstance>();
+   
    public void processStarted(IProcessInstance process)
    {
    }
@@ -25,11 +31,23 @@ public class DefaultProcessExecutionMonitor implements IProcessExecutionMonitor
    public void processCompleted(IProcessInstance process)
    {
       ProcessInstanceUtils.checkGroupTermination(process);
+      if (ArchiveManagerFactory.autoArchive())
+      {
+         String uuid = ExportImportSupport.getUUID(process);
+         process.createProperty(ProcessElementExporter.EXPORT_PROCESS_ID, uuid);
+         ArchiveProcessInstance.set(process);
+      }
    }
 
    public void processAborted(IProcessInstance process)
    {
       ProcessInstanceUtils.checkGroupTermination(process);
+      if (ArchiveManagerFactory.autoArchive())
+      {
+         String uuid = ExportImportSupport.getUUID(process);
+         process.createProperty(ProcessElementExporter.EXPORT_PROCESS_ID, uuid);
+         ArchiveProcessInstance.set(process);
+      }
    }
    
    public void processInterrupted(IProcessInstance process)

@@ -24,7 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
 
 import javax.sql.DataSource;
@@ -104,6 +104,8 @@ public class ArchiveTest
             "org.eclipse.stardust.test.archive.MemoryArchiveManager");
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
             "testid");
+      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "false");
       ((MemoryArchiveManager) ArchiveManagerFactory.getCurrent()).clear();
    }
 
@@ -120,8 +122,206 @@ public class ArchiveTest
             null);
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
             null);
+      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            null);
    }
 
+   @Test
+   @SuppressWarnings("unchecked")
+   public void autoExport() throws Exception
+   {
+      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "true");
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(0, archives.size());
+      startAllProcesses(workflowService, queryService, aQuery);
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      sf.getAdministrationService().abortProcessInstance(pi.getOID());
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Aborted);
+      
+      FilterOrTerm orTerm = (FilterOrTerm)aQuery.getFilter().getParts().iterator().next();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(9, oldInstances.size());
+      assertEquals(29, oldActivities.size());
+      assertExportIds(oldInstances, oldInstances, true);
+
+      //they are already auto exported so should not be exported again
+      HashMap<String, Object> descriptors = null;
+      ExportResult result = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertNotNull(result);
+      assertEquals(9, result.getPurgeProcessIds().size());
+      assertEquals(0, result.getDates().size());
+      
+      // double check they are not purged
+      oldInstances = queryService.getAllProcessInstances(pQuery);
+      oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(9, oldInstances.size());
+      assertEquals(29, oldActivities.size());
+
+      // check that they are archived
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(7, archives.size());
+      int deleteCount = (Integer) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.PURGE, result, false));
+      assertEquals(9, deleteCount);
+      ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(delInstances);
+      assertNotNull(delActivities);
+      assertEquals(0, delInstances.size());
+      assertEquals(0, delActivities.size());
+      
+      // import the backups
+      int count = 0;
+      for (IArchive archive : archives)
+      {
+         count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
+      }
+      assertEquals(9, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+      
+   @Test
+   @SuppressWarnings("unchecked")
+   public void autoExportConccurent() throws Exception
+   {
+      int concurrentThreads = 10;
+      
+      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "true");
+      final WorkflowService workflowService = sf.getWorkflowService();
+      final QueryService queryService = sf.getQueryService();
+      final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      final FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(0, archives.size());
+      
+      ExecutorService executor = Executors.newFixedThreadPool(concurrentThreads);
+      List<Callable<Integer>> callables = new ArrayList<Callable<Integer>>();
+      for (int i = 0; i < concurrentThreads; i++)
+      {
+         Callable<Integer> exportCallable = new Callable<Integer>()
+         {
+            @Override
+            public Integer call() throws Exception
+            {
+               final ProcessInstance pi = workflowService.startProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+               completeNextActivity(pi, ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", queryService, workflowService);
+               completeNextActivity(pi, null, null, queryService, workflowService);
+               orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+               ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+                     ProcessInstanceState.Completed);
+               return 1;
+            }
+
+         };
+         callables.add(exportCallable);
+      }
+      List<Future<Integer>> results = executor.invokeAll(callables);
+      
+      int count = 0;
+      for (Future<Integer> result : results)
+      {
+         try
+         {
+            count += result.get();
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+         }
+      }
+      assertEquals(concurrentThreads, count);
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1*concurrentThreads, oldInstances.size());
+      assertEquals(3*concurrentThreads, oldActivities.size());
+      // check that they are archived
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1*concurrentThreads, archives.size());
+      assertExportIds(oldInstances, oldInstances, true);
+
+      //they are already auto exported so should not be exported again
+      HashMap<String, Object> descriptors = null;
+      ExportResult result = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertNotNull(result);
+      assertEquals(1*concurrentThreads, result.getPurgeProcessIds().size());
+      assertEquals(0, result.getDates().size());
+      
+      // double check they are not purged
+      oldInstances = queryService.getAllProcessInstances(pQuery);
+      oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1*concurrentThreads, oldInstances.size());
+      assertEquals(3*concurrentThreads, oldActivities.size());
+
+      // check that they are archived
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1*concurrentThreads, archives.size());
+      int deleteCount = (Integer) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.PURGE, result, false));
+      assertEquals(1*concurrentThreads, deleteCount);
+      ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(delInstances);
+      assertNotNull(delActivities);
+      assertEquals(0, delInstances.size());
+      assertEquals(0, delActivities.size());
+      
+      // import the backups
+      count = 0;
+      for (IArchive archive : archives)
+      {
+         count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
+      }
+      assertEquals(concurrentThreads, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+   }
    @Test
    public void testMultiPartition() throws Exception
    {
@@ -1307,7 +1507,7 @@ public class ArchiveTest
    {
       for (IArchive archive : archives)
       {
-         if (date.equals(archive.getArchiveKey()))
+         if (date.equals(((MemoryArchive)archive).getDate()))
          {
             return archive;
          }
@@ -1496,7 +1696,7 @@ public class ArchiveTest
       data.put(1L, new byte[] {1});
       String json = getExportIndexJSON();
 
-      MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
+      MemoryArchive archive = new MemoryArchive("key", testTimestampProvider.getTimestamp(),
             data, getJSON(rawData.getExportModel()), json);
 
       ImportMetaData importMetaData = (ImportMetaData) workflowService
@@ -1591,7 +1791,7 @@ public class ArchiveTest
       dataByProcess.put(1L, new byte[] {5});
       String json = getExportIndexJSON();
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
-      MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
+      MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
@@ -1607,7 +1807,7 @@ public class ArchiveTest
       String json = getExportIndexJSON();
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
       
-      MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
+      MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
@@ -1622,7 +1822,7 @@ public class ArchiveTest
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES});
       String json = getExportIndexJSON();
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
-      MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
+      MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
@@ -1637,7 +1837,7 @@ public class ArchiveTest
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES, 5});
       String json = getExportIndexJSON();
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), new HashMap<String, Long>(), "");
-      MemoryArchive archive = new MemoryArchive(testTimestampProvider.getTimestamp(),
+      MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
@@ -1853,15 +2053,16 @@ public class ArchiveTest
       boolean foundLast = false;
       for (IArchive archive : archives)
       {
-         if (fromDate.equals(archive.getArchiveKey()))
+         MemoryArchive memeoryArchive = (MemoryArchive)archive;
+         if (fromDate.equals(memeoryArchive.getDate()))
          {
             foundFrom = true;
          }
-         else if (toDate.equals(archive.getArchiveKey()))
+         else if (toDate.equals(memeoryArchive.getDate()))
          {
             foundTo = true;
          }
-         else if (lastDate.equals(archive.getArchiveKey()))
+         else if (lastDate.equals(memeoryArchive.getDate()))
          {
             foundLast = true;
          }
@@ -1876,6 +2077,7 @@ public class ArchiveTest
    @Test
    public void testFindArchivesProcessInstanceOids() throws Exception
    {
+      Date firstDate = testTimestampProvider.getTimestamp();// 1jan
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
       final ProcessInstance simpleManualA = workflowService.startProcess(
@@ -1918,30 +2120,48 @@ public class ArchiveTest
             ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(4, archives.size());
 
       List<Long> processInstanceOids = Arrays.asList(simpleB.getOID());
-      List<IArchive> archives = (List<IArchive>) workflowService
+      archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(processInstanceOids, null));
       assertEquals(1, archives.size());
+      IArchive archive = archives.get(0);
+      assertEquals(1, archive.getExportIndex().getRootProcessToSubProcesses().keySet().size());
+      ExportProcess process = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      assertEquals(process.getOid(), simpleB.getOID());
+      processInstanceOids = Arrays.asList(simpleB.getOID(), simpleManualA.getOID());
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(processInstanceOids, null));
+      assertEquals(2, archives.size());
+
+      boolean foundFirst = false;
       boolean foundFrom = false;
       boolean foundTo = false;
       boolean foundLast = false;
-      for (IArchive archive : archives)
+      for (IArchive a : archives)
       {
-         if (fromDate.equals(archive.getArchiveKey()))
+         MemoryArchive memeoryArchive = (MemoryArchive)a;
+         if (fromDate.equals(memeoryArchive.getDate()))
          {
             foundFrom = true;
          }
-         else if (toDate.equals(archive.getArchiveKey()))
+         else if (toDate.equals(memeoryArchive.getDate()))
          {
             foundTo = true;
          }
-         else if (lastDate.equals(archive.getArchiveKey()))
+         else if (lastDate.equals(memeoryArchive.getDate()))
          {
             foundLast = true;
          }
-
+         else if (firstDate.equals(memeoryArchive.getDate()))
+         {
+            foundFirst = true;
+         }
       }
+      assertTrue(foundFirst);
       assertFalse(foundFrom);
       assertTrue(foundTo);
       assertFalse(foundLast);
@@ -2002,15 +2222,16 @@ public class ArchiveTest
       boolean foundLast = false;
       for (IArchive archive : archives)
       {
-         if (fromDate.equals(archive.getArchiveKey()))
+         MemoryArchive memeoryArchive = (MemoryArchive)archive;
+         if (fromDate.equals(memeoryArchive.getDate()))
          {
             foundFrom = true;
          }
-         else if (toDate.equals(archive.getArchiveKey()))
+         else if (toDate.equals(memeoryArchive.getDate()))
          {
             foundTo = true;
          }
-         else if (lastDate.equals(archive.getArchiveKey()))
+         else if (lastDate.equals(memeoryArchive.getDate()))
          {
             foundLast = true;
          }
@@ -2074,11 +2295,12 @@ public class ArchiveTest
       boolean foundFirst = false;
       for (IArchive archive : archives)
       {
-         if (fromDate.equals(archive.getArchiveKey()))
+         MemoryArchive memeoryArchive = (MemoryArchive)archive;
+         if (fromDate.equals(memeoryArchive.getDate()))
          {
             foundFrom = true;
          }
-         else if (firstDate.equals(archive.getArchiveKey()))
+         else if (firstDate.equals(memeoryArchive.getDate()))
          {
             foundFirst = true;
          }
@@ -2141,11 +2363,12 @@ public class ArchiveTest
       boolean foundLast = false;
       for (IArchive archive : archives)
       {
-         if (toDate.equals(archive.getArchiveKey()))
+         MemoryArchive memeoryArchive = (MemoryArchive)archive;
+         if (toDate.equals(memeoryArchive.getDate()))
          {
             foundTo = true;
          }
-         else if (lastDate.equals(archive.getArchiveKey()))
+         else if (lastDate.equals(memeoryArchive.getDate()))
          {
             foundLast = true;
          }
@@ -3063,11 +3286,25 @@ public class ArchiveTest
       assertEquals(0, clearedActivities.size());
 
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(null));
-      assertEquals(1, archives.size());
-      assertTrue(archives.get(0).isDump());
+      assertEquals(2, archives.size());
+      IArchive dump = null;
+      IArchive export = null;
+      for (IArchive a : archives)
+      {
+         if (a.isDump())
+         {
+            dump = a;
+         }
+         else
+         {
+            export = a;
+         }
+      }
+      assertNotNull(dump);
+      assertNotNull(export);
       // import the dump
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, dump, null, null));
       assertEquals(8, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
@@ -4767,7 +5004,7 @@ public class ArchiveTest
       
       String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", archive.getExportIndex().getRootProcessToSubProcesses(),
             false));
-      MemoryArchive archive1 = new MemoryArchive((Date)archive.getArchiveKey(), archive.getDataByProcess(), getJSON(archive.getExportModel()), json);
+      MemoryArchive archive1 = new MemoryArchive((String)archive.getArchiveKey(), archive.getDate(), archive.getDataByProcess(), getJSON(archive.getExportModel()), json);
       
       descriptors = new HashMap<String, Object>();
       //key primitive
@@ -5306,8 +5543,21 @@ public class ArchiveTest
    private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
          Object data, QueryService qs, WorkflowService ws)
    {
-      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
-            .findAlive(pi.getProcessID()));
+//      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
+//            .findAlive(pi.getProcessID()));
+      
+      final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterAndTerm term = aQuery.getFilter().addAndTerm();
+      term.and(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      term.and(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      
+      ActivityInstances allActivityInstances = qs.getAllActivityInstances(aQuery);
+      Long aiOid = null;
+      for (ActivityInstance ai : allActivityInstances)
+      {
+         System.out.println(ai.getOID());
+         aiOid = ai.getOID();
+      }
       Map<String, Object> outData;
       if (dataId != null)
       {
@@ -5318,7 +5568,7 @@ public class ArchiveTest
       {
          outData = null;
       }
-      final ActivityInstance writeActivity = ws.activateAndComplete(ai1.getOID(), null,
+      final ActivityInstance writeActivity = ws.activateAndComplete(aiOid, null,
             outData);
       return writeActivity;
    }
@@ -5326,8 +5576,22 @@ public class ArchiveTest
    private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
          Object data, String dataId2, Object data2, QueryService qs, WorkflowService ws)
    {
-      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
-            .findAlive(pi.getProcessID()));
+//      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
+//            .findForProcessInstance(pi.getOID()));
+      
+      final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterAndTerm term = aQuery.getFilter().addAndTerm();
+      term.and(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      term.and(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      
+      ActivityInstances allActivityInstances = qs.getAllActivityInstances(aQuery);
+      Long aiOid = null;
+      for (ActivityInstance ai : allActivityInstances)
+      {
+         System.out.println(ai.getOID());
+         aiOid = ai.getOID();
+      }
+      
       Map<String, Object> outData;
       if (dataId != null)
       {
@@ -5339,7 +5603,7 @@ public class ArchiveTest
       {
          outData = null;
       }
-      final ActivityInstance writeActivity = ws.activateAndComplete(ai1.getOID(), null,
+      final ActivityInstance writeActivity = ws.activateAndComplete(aiOid, null,
             outData);
       return writeActivity;
 

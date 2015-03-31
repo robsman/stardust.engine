@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.core.model.beans.DataPathBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
 import org.eclipse.stardust.engine.core.spi.monitoring.IPartitionMonitor;
@@ -191,9 +192,10 @@ public class BusinessObjectModelExtender implements IPartitionMonitor
 
       IDataPath dataPath = new DataPathBean(xpath, label, data, xpath, Direction.IN);
       dataPath.setDescriptor(true);
-
+      
       pd.addToDataPaths(dataPath);
 
+      dataPath.register(0);
       return pd;
    }
 

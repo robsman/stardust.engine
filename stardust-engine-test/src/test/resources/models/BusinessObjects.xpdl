@@ -33,6 +33,30 @@
                      </xsd:element>
                      <xsd:element name="Name" type="xsd:string"/>
                      <xsd:element minOccurs="0" name="Description" type="xsd:string"/>
+					 <xsd:element name="BOOLEAN" type="xsd:boolean">
+                        <xsd:annotation>
+                           <xsd:appinfo>
+                              <carnot:ui xmlns:carnot="http://www.carnot.ag/workflowmodel/3.1/struct">
+                                 <carnot:InputPreferences_label>Der BOOLEANR</carnot:InputPreferences_label>
+                              </carnot:ui>
+                              <carnot:storage xmlns:carnot="http://www.carnot.ag/workflowmodel/3.1/struct">
+                                 <carnot:descriptor>true</carnot:descriptor>
+                              </carnot:storage>                              
+                           </xsd:appinfo>
+                        </xsd:annotation>
+                     </xsd:element>                                         
+					 <xsd:element name="INTEGER" type="xsd:integer">
+                        <xsd:annotation>
+                           <xsd:appinfo>
+                              <carnot:ui xmlns:carnot="http://www.carnot.ag/workflowmodel/3.1/struct">
+                                 <carnot:InputPreferences_label>Der INTEGER</carnot:InputPreferences_label>
+                              </carnot:ui>
+                              <carnot:storage xmlns:carnot="http://www.carnot.ag/workflowmodel/3.1/struct">
+                                 <carnot:descriptor>true</carnot:descriptor>
+                              </carnot:storage>                              
+                           </xsd:appinfo>
+                        </xsd:annotation>
+                     </xsd:element>  
                   </xsd:sequence>
                </xsd:complexType>
                <xsd:element name="BusinessObjectSD" type="bus:BusinessObjectSD"/>

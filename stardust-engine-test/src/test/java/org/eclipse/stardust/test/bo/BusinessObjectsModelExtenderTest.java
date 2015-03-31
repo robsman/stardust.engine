@@ -56,6 +56,8 @@ public class BusinessObjectsModelExtenderTest
       businessObject.put("ID", "BO_ID");
       businessObject.put("Name", "BO_NAME");
       businessObject.put("Description", "BO_DESCRIPTION");
+      businessObject.put("INTEGER", 1000);
+      businessObject.put("BOOLEAN", true);
 
       this.processData = CollectionUtils.newHashMap();
 
@@ -77,13 +79,26 @@ public class BusinessObjectsModelExtenderTest
       String value = null;
       DataPath path = null;
 
+      System.out.println("Display all");
       for (DataPath p : paths)
       {
-         value = (String) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(),
-               p.getId());
-         path = p;
-         break;
+         System.out.println("######## "
+               + p.getQualifiedId()
+               + " with value "
+               +  serviceFactory.getWorkflowService().getInDataPath(pi.getOID(),
+                     p.getId()));
 
+      }
+
+      for (DataPath p : paths)
+      {
+         if (p.getId().equals("ID"))
+         {
+            value = (String) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(),
+                  p.getId());
+            path = p;
+            break;
+         }
       }
 
       System.out.println("----> Descriptor: " + path.getName());

@@ -25,7 +25,10 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.BusinessObjectDetails;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.Organization;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
@@ -492,8 +495,7 @@ public class BusinessObjectUtils
       return updateBusinessObjectInstance(pi, data, value);
    }
 
-   public static void deleteInstance(String businessObjectId,
-         Object pkValue)
+   public static void deleteInstance(String businessObjectId, Object pkValue)
    {
       IData data = findDataForUpdate(businessObjectId);
       IProcessInstance pi = findUnboundProcessInstance(data, pkValue);
@@ -503,8 +505,67 @@ public class BusinessObjectUtils
                BpmRuntimeError.ATDB_UNKNOWN_PROCESS_INSTANCE_OID.raise(0), 0);
       }
       pi.lock();
+      Map<String, BusinessObjectRelationship> rels = getBusinessObjectRelationships(data);
+      if (!rels.isEmpty())
+      {
+         Map<String, ?> value = (Map<String, ? >)pi.getInDataValue(data, null);
+         if (value != null)
+         {
+            for (BusinessObjectRelationship rel : rels.values())
+            {
+               Object otherPk = value.get(rel.otherForeignKeyField);
+               if (otherPk != null)
+               {
+                  switch (rel.otherCardinality)
+                  {
+                  case TO_ONE:
+                     cleanup(rel, otherPk, pkValue);
+                     break;
+                  case TO_MANY:
+                     for (Object itemPk : (Collection) otherPk)
+                     {
+                        cleanup(rel, itemPk, pkValue);
+                     }
+                     break;
+                  }
+               }
+            }
+         }
+      }
       ProcessInstanceUtils.deleteProcessInstances(Collections.singletonList(pi.getOID()),
             (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL));
+   }
+
+   private static void cleanup(BusinessObjectRelationship rel, Object otherPk, Object pkValue)
+   {
+      IData data = findDataForUpdate(rel.otherBusinessObject.modelId, rel.otherBusinessObject.id);
+      IProcessInstance pi = findUnboundProcessInstance(data, otherPk);
+      if (pi != null)
+      {
+         pi.lock();
+         Map<String, ?> value = (Map<String, ? >)pi.getInDataValue(data, null);
+         if (value != null)
+         {
+            boolean changed = false;
+            switch (rel.thisCardinality)
+            {
+            case TO_ONE:
+               if (pkValue.equals(value.get(rel.thisForeignKeyField)))
+               {
+                  value.remove(rel.thisForeignKeyField);
+                  changed = true;
+               }
+               break;
+            case TO_MANY:
+               changed = ((Collection) value.get(rel.thisForeignKeyField)).remove(pkValue);
+               break;
+            }
+            if (changed)
+            {
+               pi.setOutDataValue(data, null, value);
+            }
+         }
+      }
    }
 
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
@@ -565,6 +626,11 @@ public class BusinessObjectUtils
       String modelId = qname.getNamespaceURI();
       String businessObjectId = qname.getLocalPart();
 
+      return findDataForUpdate(modelId, businessObjectId);
+   }
+
+   protected static IData findDataForUpdate(String modelId, String businessObjectId)
+   {
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findActiveModel(modelId);
       if (model == null)
@@ -806,14 +872,21 @@ public class BusinessObjectUtils
       Map<String, BusinessObjectRelationship> map = data.getRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT);
       if (map == null)
       {
-         map = CollectionUtils.newMap();
          BusinessObjectRelationship[] relationships = BusinessObjectRelationship.fromJsonString(
                data.getStringAttribute("carnot:engine:businessObjectRelationships"));
-         for (BusinessObjectRelationship relationship : relationships)
+         if (relationships.length == 0)
          {
-            if (!StringUtils.isEmpty(relationship.otherForeignKeyField))
+            map = Collections.emptyMap();
+         }
+         else
+         {
+            map = CollectionUtils.newMap();
+            for (BusinessObjectRelationship relationship : relationships)
             {
-               map.put(relationship.otherForeignKeyField, relationship);
+               if (!StringUtils.isEmpty(relationship.otherForeignKeyField))
+               {
+                  map.put(relationship.otherForeignKeyField, relationship);
+               }
             }
          }
          data.setRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT, map);

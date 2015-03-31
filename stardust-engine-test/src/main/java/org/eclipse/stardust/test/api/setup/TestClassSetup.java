@@ -349,14 +349,26 @@ public class TestClassSetup extends ExternalResource
       return forkingServiceMode;
    }
 
+   /**
+    * <p>
+    * Retrieves the bean with the given {@code name} and {@code requiredType} from
+    * the <i>Spring</i> Application Context.
+    * </p>
+    *
+    * @see ApplicationContext#getBean(String, Class)
+    *
+    * @param name the name of the bean to retrieve
+    * @param requiredType the type the bean to retrieve must match
+    * @return an instance of the bean
+    */
+   public <T> T getBean(final String name, final Class<T> requiredType)
+   {
+      return springAppCtx.appCtx().getBean(name, requiredType);
+   }
+
    /* package-private */ void setTestClass(final Class<?> testClass)
    {
       this.testClass = testClass;
-   }
-
-   /* package-private */ ApplicationContext appCtx()
-   {
-      return springAppCtx.appCtx();
    }
 
    private IJmsResourceProvider initJmsResourceProvider()

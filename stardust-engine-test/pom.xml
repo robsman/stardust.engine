@@ -45,6 +45,50 @@
          <version>${project.version}</version>
       </dependency>
 
+      <!-- Stardust Camel Integration -->
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>stardust-engine-camel</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.camel</groupId>
+               <artifactId>*</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-http</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-mail</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-spring</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-script</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-sql</artifactId>
+         <scope>test</scope>
+      </dependency>
+
       <!-- Stardust Engine Modules -->
       <dependency>
          <groupId>org.eclipse.stardust.engine</groupId>

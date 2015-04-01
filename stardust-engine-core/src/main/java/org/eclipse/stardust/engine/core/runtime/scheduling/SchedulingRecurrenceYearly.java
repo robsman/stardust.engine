@@ -14,7 +14,7 @@ public class SchedulingRecurrenceYearly extends SchedulingRecurrence
 
       String yearlyRecurrence = yearlyRecurrenceOptions.get("yearlyRecurrence").getAsString();
 
-      if (yearlyRecurrence.equals("weekday"))
+      if (yearlyRecurrence.equals("date"))
       {
          cronExpr.append(yearlyRecurrenceOptions.get("onDay").getAsString())
                  .append(' ')
@@ -22,7 +22,7 @@ public class SchedulingRecurrenceYearly extends SchedulingRecurrence
                  .append(" ? ");
 
       }
-      else if (yearlyRecurrence.equals("date"))
+      else if (yearlyRecurrence.equals("weekday"))
       {
          cronExpr.append("? ")
                  .append(yearlyRecurrenceOptions.get("onTheMonth").getAsString())

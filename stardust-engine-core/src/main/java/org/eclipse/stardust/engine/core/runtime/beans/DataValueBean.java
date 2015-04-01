@@ -468,6 +468,11 @@ public class DataValueBean extends IdentifiablePersistentBean
          // that does not modify the database
          dataHandler = new TransientBigDataHandler();
       }
+      else if ((processInstance instanceof Persistent) && ((Persistent) processInstance).getPersistenceController().isCreated())
+      {
+         // defer large string serialization as much as possible
+         dataHandler = new LazilyPersistingBigDataHandler();
+      }
       else
       {
          dataHandler = new LargeStringHolderBigDataHandler(this);
@@ -530,6 +535,16 @@ public class DataValueBean extends IdentifiablePersistentBean
    {
       fetch();
       return ModelManagerFactory.getCurrent().findData(model, data);
+   }
+   
+   public void triggerSerialization()
+   {
+      if (dataHandler instanceof LazilyPersistingBigDataHandler)
+      {
+         Object transientValue = dataHandler.read();
+         this.dataHandler = new LargeStringHolderBigDataHandler(this);
+         dataHandler.write(transientValue, true);
+      }
    }
 
    /**

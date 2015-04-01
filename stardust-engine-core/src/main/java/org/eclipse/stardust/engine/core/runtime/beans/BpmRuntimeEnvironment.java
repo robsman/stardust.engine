@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.jms.JMSException;
+import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
@@ -220,6 +221,19 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       this.evaluatorRegistry = evaluatorRegistry;
    }
 
+   public QueueConnectionFactory retrieveQueueConnectionFactory(String name)
+   {
+      if (jmsResourceProvider != null)
+      {
+         return jmsResourceProvider.resolveQueueConnectionFactory(name);
+      }
+      else
+      {
+         Parameters params = Parameters.instance();
+         return params.getObject(name);
+      }
+   }
+
    public QueueConnection retrieveQueueConnection(QueueConnectionFactory factory)
          throws JMSException
    {
@@ -335,6 +349,19 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       }
 
       return sender;
+   }
+
+   public Queue resolveQueue(String name)
+   {
+      if (jmsResourceProvider != null)
+      {
+         return jmsResourceProvider.resolveQueue(name);
+      }
+      else
+      {
+         Parameters params = Parameters.instance();
+         return params.getObject(name);
+      }
    }
 
    public Connection retrieveJcaConnection(final ConnectionFactory connectionFactory) throws ResourceException

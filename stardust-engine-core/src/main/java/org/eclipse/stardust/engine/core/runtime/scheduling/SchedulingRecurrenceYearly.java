@@ -16,16 +16,16 @@ public class SchedulingRecurrenceYearly extends SchedulingRecurrence
 
       if (yearlyRecurrence.equals("weekday"))
       {
-         cronExpr.append(yearlyRecurrenceOptions.get("onDay"))
+         cronExpr.append(yearlyRecurrenceOptions.get("onDay").getAsString())
                  .append(' ')
-                 .append(yearlyRecurrenceOptions.get("onMonth"))
+                 .append(yearlyRecurrenceOptions.get("onMonth").getAsString())
                  .append(" ? ");
 
       }
       else if (yearlyRecurrence.equals("date"))
       {
          cronExpr.append("? ")
-                 .append(yearlyRecurrenceOptions.get("onTheMonth"))
+                 .append(yearlyRecurrenceOptions.get("onTheMonth").getAsString())
                  .append(' ')
                  .append(SchedulingUtils.getDayNameFromIndex(
                        yearlyRecurrenceOptions.get("onTheXDayName").getAsInt()))

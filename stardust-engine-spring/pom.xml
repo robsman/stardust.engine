@@ -128,6 +128,17 @@
                </excludes>
             </configuration>
          </plugin>
+         <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+               <sourcepath>
+                  ${basedir}/src/main/java/org/eclipse/stardust/engine/api/spring
+               </sourcepath>
+               <sourceFileIncludes>
+                  <include>SpringUtils.java</include>
+               </sourceFileIncludes>
+            </configuration>
+         </plugin>
       </plugins>
    </build>
    

@@ -273,7 +273,7 @@ public abstract class SchedulingRecurrence
             // Start Date and End Date are less than current date.
             trace.info("Start Date and End Date are less than current date");
          }
-         else if (startDate.before(currentDate) && endDate.after(currentDate))
+         else if (!currentDate.before(startDate) && !currentDate.after(endDate))
          {
             // Current Running Scenario
             return getNextExecutionDate(cronExpression, currentDate, endDate);
@@ -287,7 +287,6 @@ public abstract class SchedulingRecurrence
       return null;
    }
 
-   @SuppressWarnings("deprecation")
    protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression)
    {
       Date currentDate = getTimeStamp();
@@ -305,24 +304,12 @@ public abstract class SchedulingRecurrence
       trace.info("N Future occurences: " + nFutureExecutionDates.toString());
 
       Date lastDate = nFutureExecutionDates.get(nFutureExecutionDates.size() - 1);
-      if (daemon)
-      {
-         lastDate.setSeconds(59);
-      }
       if (!lastDate.before(currentDate))
       {
          for (Date date : nFutureExecutionDates)
          {
-            if (daemon)
+            if (!currentDate.after(date))
             {
-               date.setSeconds(59);
-            }
-            if (date.after(currentDate))
-            {
-               if (daemon)
-               {
-                  date.setSeconds(0);
-               }
                return date;
             }
          }
@@ -360,6 +347,9 @@ public abstract class SchedulingRecurrence
    @SuppressWarnings("deprecation")
    private void setStartTimeString(boolean daemon)
    {
+      // TODO: (fh) check consequences, but it should be:
+      // startTime = startDate.getSeconds() + ' ' + startDate.getMinutes() + ' ' + startDate.getHours() + ' ';
+
       String cronSeconds = "0/1";
       if (!daemon)
       {
@@ -393,11 +383,11 @@ public abstract class SchedulingRecurrence
          Date startDate, int count)
    {
       List<Date> nFutureExecutionDates = new ArrayList<Date>(count);
-      for (int i = 0; i < count; i++)
+      nFutureExecutionDates.add(startDate);
+      for (int i = 1; i < count; i++)
       {
          startDate = cronExpression.getNextValidTimeAfter(startDate);
          nFutureExecutionDates.add(startDate);
-
       }
       return nFutureExecutionDates;
    }

@@ -61,6 +61,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args PD_NO_ACTIVITIES_DEFINED = new Args("PD01007");
    public static final Args PD_PROCESS_INTERFACE_NOT_RESOLVED = new Args("PD01008");
    public static final Args PD_POTENTIAL_DEADLOCKS = new Args("PD01009");
+   public static final Args PD_FORMAL_PARAMETER_INCOMPATIBLE_DATA_FOR_EXTERNAL_INVOCATION = new Args("PD01010");
 
    //Application related
    public static final Args APP_TYPE_NO_LONGER_SUPPORTED = new Args("APP01001");

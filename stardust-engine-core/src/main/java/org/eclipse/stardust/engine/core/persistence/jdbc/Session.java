@@ -2150,7 +2150,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       else
       {
-         cntrl.markLinkFetched(linkIdx);
 
          Number linkOID = (Number) cntrl.getLinkBuffer()[linkIdx];
          if (linkOID == null || linkOID.longValue() == 0)
@@ -2169,6 +2168,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          try
          {
             link.getField().set(persistent, target);
+            cntrl.markLinkFetched(linkIdx);
          }
          catch (Exception x)
          {

@@ -27,12 +27,17 @@ public class BusinessObjectRelationship
       public String modelId;
    }
 
+   public static enum Cardinality
+   {
+      TO_ONE, TO_MANY;
+   }
+
    public BusinessObjectReference otherBusinessObject;
    public String otherRole;
-   public String otherCardinality; // TODO: (fh) make it an enumeration
+   public Cardinality otherCardinality;
    public String otherForeignKeyField;
    public String thisRole;
-   public String thisCardinality; // TODO: (fh) make it an enumeration
+   public Cardinality thisCardinality;
    public String thisForeignKeyField;
 
    public static BusinessObjectRelationship[] fromJsonString(String json)

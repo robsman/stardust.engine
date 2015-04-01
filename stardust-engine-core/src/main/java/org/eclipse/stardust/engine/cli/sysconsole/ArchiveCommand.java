@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -272,7 +273,9 @@ public class ArchiveCommand extends AuditTrailCommand
             archiver.archiveUserSessions(before, interval);
          }
       }
-
+      SchemaHelper.setAuditTrailProperty(
+            RuntimeEnvironmentInfo.AUDITTRAIL_ARCHIVING_TIMESTAMP,
+            String.valueOf(before != null ? before.getTime() : new Date().getTime()));
       return 0;
    }
 

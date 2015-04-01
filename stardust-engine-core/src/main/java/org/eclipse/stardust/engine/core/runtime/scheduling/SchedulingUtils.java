@@ -42,15 +42,15 @@ public class SchedulingUtils
       "sundays", "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays"
    };
 
+   /**
+    * Get the short name of the day.
+    *
+    * @param dayIndex a value between 1 and 7.
+    * @return the day short English name (SUN-SAT)
+    */
    public static String getDayNameFromIndex(int dayIndex)
    {
-      /*
-       * For UI, java.util.date 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 =
-       * Thursday, 5 = Friday, 6 = Saturday
-       *
-       * For Quartz, 1-7 or SUN-SAT
-       */
-      return DAY_SHORT_NAMES[dayIndex];
+      return DAY_SHORT_NAMES[dayIndex - 1];
    }
 
    private static final String[] TIME_SLOTS = {

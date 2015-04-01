@@ -107,8 +107,7 @@ public class AuthorizationContext
             }
          }
 
-         if (id == Id.readActivityInstanceData && (scope == Scope.activity || scope == Scope.workitem)
-          || id == Id.readDataValues && scope == Scope.data)
+         if (id == Id.readActivityInstanceData && (scope == Scope.activity || scope == Scope.workitem))
          {
             AuthorizationContext ctx = create(ClientPermission.READ_PROCESS_INSTANCE_DATA);
             if (!ctx.isAdminOverride())

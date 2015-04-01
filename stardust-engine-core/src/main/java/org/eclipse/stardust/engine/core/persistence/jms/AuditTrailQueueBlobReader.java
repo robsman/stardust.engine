@@ -90,9 +90,9 @@ public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
       try
       {
 
-         this.queue = (Queue) params.get(JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
+         this.queue = rtEnv.resolveQueue(JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
 
-         QueueConnectionFactory connectionFactory = (QueueConnectionFactory) params.get(JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
+         QueueConnectionFactory connectionFactory = rtEnv.retrieveQueueConnectionFactory(JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
          QueueConnection connection = rtEnv.retrieveQueueConnection(connectionFactory);
 
          this.queueSession = rtEnv.retrieveQueueSession(connection);

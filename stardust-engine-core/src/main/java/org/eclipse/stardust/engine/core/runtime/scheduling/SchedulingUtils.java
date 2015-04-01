@@ -34,12 +34,12 @@ public class SchedulingUtils
    }
 
    public static final String[] DAY_SHORT_NAMES = {
-      "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"
+      "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
    };
 
 
    public static final String[] WEEK_DAYS = {
-      "sundays", "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays"
+      "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"
    };
 
    /**

@@ -84,14 +84,15 @@ public class ArchiveTest
          ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING,
          ArchiveModelConstants.MODEL_ID, ArchiveModelConstants.MODEL_ID_OTHER);
 
-   private final TestTimestampProvider testTimestampProvider = new TestTimestampProvider();
+   private static TestTimestampProvider testTimestampProvider = new TestTimestampProvider();
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
    @Before
    public void setUp() throws Exception
-   {
+   { 
+      testTimestampProvider = new TestTimestampProvider();
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE,
             testTimestampProvider);
@@ -130,8 +131,7 @@ public class ArchiveTest
    @SuppressWarnings("unchecked")
    public void autoExport() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
+      enableAutoArchive();
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
       ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
@@ -206,15 +206,20 @@ public class ArchiveTest
       assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
-      
-   @Test
-   @SuppressWarnings("unchecked")
-   public void autoExportConccurent() throws Exception
+
+   private void enableAutoArchive()
    {
-      int concurrentThreads = 10;
-      
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
             "true");
+   }
+   
+   @Test
+   @SuppressWarnings("unchecked")
+   public void autoExportConcurrent() throws Exception
+   {
+      int concurrentThreads = 5;
+      
+      enableAutoArchive();
       final WorkflowService workflowService = sf.getWorkflowService();
       final QueryService queryService = sf.getQueryService();
       final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
@@ -3399,28 +3404,28 @@ public class ArchiveTest
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
-   private void startAllProcesses(WorkflowService workflowService,
-         QueryService queryService, ActivityInstanceQuery aQuery)
+   protected static void startAllProcesses(WorkflowService workflowService,
+         QueryService queryService, ActivityInstanceQuery aQuery, Map<String, String> options)
          throws TimeoutException, InterruptedException, Exception
    {
       final ProcessInstance simpleManualA = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, options, true);
       completeSimpleManual(simpleManualA, queryService, workflowService);
       final ProcessInstance simpleManualB = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, options, true);
       completeSimpleManual(simpleManualB, queryService, workflowService);
       final ProcessInstance simpleA = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, options, true);
       completeSimple(simpleA, queryService, workflowService);
       final ProcessInstance simpleB = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, options, true);
       completeSimple(simpleB, queryService, workflowService);
       final ProcessInstance subProcessesInModel = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, options, true);
       completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
             false);
       final ProcessInstance scriptProcess = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, options, true);
       completeScriptProcess(scriptProcess, 10, "aaa", queryService, workflowService);
 
       ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
@@ -3450,6 +3455,13 @@ public class ArchiveTest
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subProcessesInModel
             .getOID()));
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(scriptProcess.getOID()));
+   }
+   
+   protected static void startAllProcesses(WorkflowService workflowService,
+         QueryService queryService, ActivityInstanceQuery aQuery)
+         throws TimeoutException, InterruptedException, Exception
+   {
+      startAllProcesses(workflowService, queryService, aQuery, null);
    }
 
    @Test
@@ -4226,7 +4238,7 @@ public class ArchiveTest
       assertEquals(2, oldActivities.size());
    }
 
-   private ProcessInstance completeSimple(ProcessInstance pi, QueryService qs,
+   private static ProcessInstance completeSimple(ProcessInstance pi, QueryService qs,
          WorkflowService ws) throws TimeoutException, InterruptedException
    {
       completeNextActivity(pi, null, null, qs, ws);
@@ -5464,7 +5476,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private ActivityInstance completeScriptProcess(final ProcessInstance pi,
+   private static ActivityInstance completeScriptProcess(final ProcessInstance pi,
          int numberValue, String textValue, QueryService qs, WorkflowService ws)
          throws TimeoutException, InterruptedException
    {
@@ -5479,7 +5491,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private ActivityInstance completeSimpleManual(final ProcessInstance pi,
+   private static ActivityInstance completeSimpleManual(final ProcessInstance pi,
          QueryService qs, WorkflowService ws) throws TimeoutException,
          InterruptedException
    {
@@ -5493,7 +5505,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private Date completeSubProcessesInModel(final ProcessInstance pi, QueryService qs,
+   private static Date completeSubProcessesInModel(final ProcessInstance pi, QueryService qs,
          WorkflowService ws, boolean changeSubProcessDate) throws Exception
    {
 
@@ -5540,7 +5552,7 @@ public class ArchiveTest
       return subDate;
    }
 
-   private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
+   protected static ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
          Object data, QueryService qs, WorkflowService ws)
    {
 //      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
@@ -5573,7 +5585,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
+   private static ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
          Object data, String dataId2, Object data2, QueryService qs, WorkflowService ws)
    {
 //      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
@@ -5803,8 +5815,8 @@ public class ArchiveTest
       }
 
    }
-
-   private void createActivityInstanceProperty(ActivityInstance activity)
+  
+   protected static void createActivityInstanceProperty(ActivityInstance activity)
          throws Exception
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -6337,7 +6349,7 @@ public class ArchiveTest
       return result;
    }
 
-   private boolean hasEntryInDbForObject(final String tableName, String fieldName,
+   protected static boolean hasEntryInDbForObject(final String tableName, String fieldName,
          final long id) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -6368,7 +6380,7 @@ public class ArchiveTest
       return result;
    }
 
-   private void assertExportIds(List<ProcessInstance> instances,
+   protected static void assertExportIds(List<ProcessInstance> instances,
          List<ProcessInstance> exportedInstances, boolean mustHave) throws Exception
    {
       int count = 0;
@@ -6396,7 +6408,7 @@ public class ArchiveTest
       }
    }
 
-   private boolean hasEntryInDbForObject(final String tableName, String fieldName,
+   private static boolean hasEntryInDbForObject(final String tableName, String fieldName,
          final long id, String fieldName2, String field2Value) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -6428,7 +6440,7 @@ public class ArchiveTest
       return result;
    }
 
-   private void assertDataExists(long processInstanceOid, long activityOid,
+   protected static void assertDataExists(long processInstanceOid, long activityOid,
          String processName, String dataId, Serializable expectedValue,
          QueryService queryService)
    {
@@ -6436,7 +6448,7 @@ public class ArchiveTest
             true, queryService);
    }
 
-   private void assertDataNotExists(long processInstanceOid, long activityOid,
+   protected static void assertDataNotExists(long processInstanceOid, long activityOid,
          String processName, String dataId, Serializable expectedValue,
          QueryService queryService)
    {
@@ -6444,7 +6456,7 @@ public class ArchiveTest
             false, queryService);
    }
 
-   private void checkDataValue(long processInstanceOid, long activityOid,
+   private static void checkDataValue(long processInstanceOid, long activityOid,
          String processName, String dataId, Serializable expectedValue,
          boolean shouldExists, QueryService queryService)
    {
@@ -6486,20 +6498,20 @@ public class ArchiveTest
       }
    }
 
-   private void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
          ProcessInstances newInstances) throws Exception
    {
       assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true);
    }
 
-   private void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances)
          throws Exception
    {
       assertProcessInstancesEquals(oldInstances, newInstances, exportedInstances, true);
    }
 
-   private void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances,
          boolean compareRTOids) throws Exception
    {
@@ -6507,7 +6519,7 @@ public class ArchiveTest
             compareRTOids, true);
    }
 
-   private void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances,
          boolean compareRTOids, boolean mustHaveExportIds) throws Exception
    {
@@ -6518,11 +6530,11 @@ public class ArchiveTest
       for (ProcessInstance process : oldInstances)
       {
          assertThat(
-               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               NL + ASSERTION_MSG_HAS_ENTRY_IN_DB,
                hasEntryInDbForObject("PROCINST_SCOPE", "SCOPEPROCESSINSTANCE",
                      process.getScopeProcessInstanceOID()), is(true));
          assertThat(
-               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               NL + ASSERTION_MSG_HAS_ENTRY_IN_DB,
                hasEntryInDbForObject("PROCINST_SCOPE", "ROOTPROCESSINSTANCE",
                      process.getRootProcessInstanceOID()), is(true));
          for (ProcessInstance newProcess : newInstances)
@@ -6560,7 +6572,7 @@ public class ArchiveTest
       assertFalse(result.hasExportData());
    }
 
-   private void assertNotNullRawData(ExportResult result,
+   protected static void assertNotNullRawData(ExportResult result,
          List<ProcessInstance> oldInstances, List<ProcessInstance> exportedInstances,
          boolean mustHaveExportIds) throws Exception
    {
@@ -6577,31 +6589,31 @@ public class ArchiveTest
       assertExportIds(oldInstances, exportedInstances, mustHaveExportIds);
    }
 
-   private void assertNotNullRawData(ExportResult result,
+   protected static void assertNotNullRawData(ExportResult result,
          List<ProcessInstance> oldInstances, boolean mustHaveExportIds) throws Exception
    {
       assertNotNullRawData(result, oldInstances, oldInstances, mustHaveExportIds);
    }
 
-   private void assertNotNullRawData(ExportResult result,
+   protected static void assertNotNullRawData(ExportResult result,
          List<ProcessInstance> oldInstances) throws Exception
    {
       assertNotNullRawData(result, oldInstances, oldInstances, true);
    }
 
-   private void assertNullRawData(ExportResult result)
+   protected static void assertNullRawData(ExportResult result)
    {
       assertFalse(result.hasExportModel());
       assertFalse(result.hasExportData());
    }
 
-   private void assertActivityInstancesEquals(ActivityInstances oldActivities,
+   protected static void assertActivityInstancesEquals(ActivityInstances oldActivities,
          ActivityInstances newActivities) throws Exception
    {
       assertActivityInstancesEquals(oldActivities, newActivities, true);
    }
 
-   private void assertActivityInstancesEquals(ActivityInstances oldActivities,
+   protected static void assertActivityInstancesEquals(ActivityInstances oldActivities,
          ActivityInstances newActivities, boolean compareRTOids) throws Exception
    {
       int countCompared = 0;
@@ -6610,7 +6622,7 @@ public class ArchiveTest
       for (ActivityInstance activity : oldActivities)
       {
          assertThat(
-               NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB,
+               NL + ASSERTION_MSG_HAS_ENTRY_IN_DB,
                hasEntryInDbForObject("ACTIVITY_INSTANCE", "OID", activity.getOID()),
                is(true));
          for (ActivityInstance newActivity : newActivities)
@@ -6626,7 +6638,7 @@ public class ArchiveTest
       assertEquals(oldActivities.size(), countCompared);
    }
 
-   private void assertObjectEquals(Object a, Object b, Object from, boolean compareRTOids)
+   private static void assertObjectEquals(Object a, Object b, Object from, boolean compareRTOids)
          throws Exception
    {
       if (a == null && b == null)

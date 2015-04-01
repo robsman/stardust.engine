@@ -11,16 +11,15 @@ public class SchedulingRecurrenceWeekly extends SchedulingRecurrence
             .append(getStartTime())
             .append("? * ");
       int count = 0;
-      for (int i = 1; i <= SchedulingUtils.WEEK_DAYS.length; i++)
+      for (int i = 0; i < SchedulingUtils.WEEK_DAYS.length; i++)
       {
-         int x = i % SchedulingUtils.WEEK_DAYS.length;
-         if (weeklyRecurrenceOptions.get(SchedulingUtils.WEEK_DAYS[x]).getAsBoolean())
+         if (weeklyRecurrenceOptions.get(SchedulingUtils.WEEK_DAYS[i]).getAsBoolean())
          {
             if (count > 0)
             {
                builder.append(',');
             }
-            builder.append(SchedulingUtils.DAY_SHORT_NAMES[x]);
+            builder.append(SchedulingUtils.DAY_SHORT_NAMES[i]);
             count++;
          }
       }

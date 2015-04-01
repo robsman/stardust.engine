@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -24,7 +27,7 @@ public class RepositoryInstanceCache
    private static String INSTANCE_CACHE_KEY = IRepositoryInstance.class.getName()
          + ".cache";
 
-   private ConcurrentHashMap<Key, IRepositoryInstance> instances;
+   private volatile ConcurrentHashMap<Key, IRepositoryInstance> instances;
 
    public RepositoryInstanceCache()
    {
@@ -86,7 +89,19 @@ public class RepositoryInstanceCache
 
    public Iterable<IRepositoryInstance> values()
    {
-      return Collections.unmodifiableCollection(instances.values());
+      List<IRepositoryInstance> filteredInstances = CollectionUtils.newArrayList();
+      Collection<IRepositoryInstance> values = instances.values();
+      for (IRepositoryInstance iRepositoryInstance : values)
+      {
+         if (iRepositoryInstance.getPartitionId() == null //
+               || getPartitionId() != null && getPartitionId().equals(
+                     iRepositoryInstance.getPartitionId()))
+         {
+            filteredInstances.add(iRepositoryInstance);
+         }
+      }
+
+      return Collections.unmodifiableCollection(filteredInstances);
    }
 
    public boolean containsGlobalKey(String repositoryId)
@@ -103,7 +118,7 @@ public class RepositoryInstanceCache
    {
      instances.put(new Key(null, repositoryId), instance);
    }
-   
+
    public void removeGlobal(String repositoryId)
    {
       instances.remove(new Key(null, repositoryId));

@@ -16,14 +16,8 @@ import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_MODEL_NAME;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.dms.DmsAuditTrailMetaDataTest;
-import org.eclipse.stardust.test.dms.DmsCrossRepositoryMoveTest;
-import org.eclipse.stardust.test.dms.DmsDocumentAnnotationsTest;
-import org.eclipse.stardust.test.dms.DmsDocumentSearchTest;
-import org.eclipse.stardust.test.dms.DmsFederatedDocumentSearchTest;
-import org.eclipse.stardust.test.dms.DmsMultiRepositoryTest;
-import org.eclipse.stardust.test.dms.DmsSanityTest;
-import org.eclipse.stardust.test.dms.DmsSecurityTest;
+import org.eclipse.stardust.test.dms.*;
+
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -39,7 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein, Roland.Stamm
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsSanityTest.class, DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class, DmsAuditTrailMetaDataTest.class})
+@SuiteClasses({ DmsSanityTest.class, DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class, DmsSecurityTest.class , DmsMultiRepositoryTest.class, DmsMultiRepositoryMultiPartitionTest.class, DmsFederatedDocumentSearchTest.class, DmsCrossRepositoryMoveTest.class, DmsAuditTrailMetaDataTest.class})
 public class DmsTestSuite
 {
    @ClassRule

@@ -10,13 +10,18 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.rules.ExternalResource;
 
 /**
@@ -38,7 +43,10 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
 
    private final UsernamePasswordPair userPwdPair;
 
+   private final Map<String, String> properties;
+
    private ServiceFactory sf;
+
 
    /**
     * <p>
@@ -47,7 +55,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
     * {@link TestServiceFactory#before()}.
     * </p>
     *
-    * @param username the username password pair to use
+    * @param userPwdPair the username password pair to use.
     */
    public TestServiceFactory(final UsernamePasswordPair userPwdPair)
    {
@@ -57,6 +65,22 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       }
 
       this.userPwdPair = userPwdPair;
+      this.properties = null;
+   }
+
+   /**
+    * @param userPwdPair the username password pair to use.
+    * @param properties the properties to use.
+    */
+   public TestServiceFactory(final UsernamePasswordPair userPwdPair, String partition)
+   {
+      if (userPwdPair == null)
+      {
+         throw new NullPointerException("Username password pair must not be null.");
+      }
+
+      this.userPwdPair = userPwdPair;
+      this.properties = Collections.singletonMap(SecurityProperties.PARTITION, partition);
    }
 
    /**
@@ -68,7 +92,15 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
    protected void before()
    {
       LOG.debug("Retrieving service factory for '" + userPwdPair.username() + ":" + userPwdPair.password() + "'.");
-      sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
+      if (properties == null)
+      {
+         sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
+      }
+      else
+      {
+         sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password(),
+               properties);
+      }
    }
 
    /**

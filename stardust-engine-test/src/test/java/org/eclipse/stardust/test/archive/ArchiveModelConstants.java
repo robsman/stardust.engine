@@ -26,7 +26,7 @@ public class ArchiveModelConstants
     */
    public static final String MODEL_ID = "ArchiveModel";
 
-   static final String MODEL_ID_OTHER = "ArchiveModelOther";
+   public static final String MODEL_ID_OTHER = "ArchiveModelOther";
 
    static final String MODEL_ID_OTHER2 = "ArchiveModelOther2";
 
@@ -47,7 +47,14 @@ public class ArchiveModelConstants
    static final String PROCESS_DEF_CALL_SCRIPTPROCESS = MODEL_ID_PREFIX + "ScriptProcess";
 
    static final String PROCESS_DEF_OTHER = MODEL_ID_OTHER_PREFIX + "Other";
+   
 
+   static final String PROCESS_DEF_TRANSIENT = MODEL_ID_PREFIX + "TransientProcess";
+   
+   static final String PROCESS_DEF_DEFERRED = MODEL_ID_PREFIX + "DeferredProcess";
+   
+   static final String PROCESS_DEF_DEFERRED_WITH_SUBS = MODEL_ID_PREFIX + "DeferredWithSubs";
+   
    static final String DATA_ID_TEXTDATA = "TextData";
 
    static final String DATA_ID_TEXTDATA1 = "TextData1";

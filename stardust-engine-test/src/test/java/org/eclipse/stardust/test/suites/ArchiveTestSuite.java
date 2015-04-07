@@ -18,10 +18,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.archive.ArchiveModelConstants;
 import org.eclipse.stardust.test.archive.ArchiveTest;
+import org.eclipse.stardust.test.archive.AutoArchiveTest;
 
 /**
  * <p>
@@ -33,12 +35,14 @@ import org.eclipse.stardust.test.archive.ArchiveTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-   ArchiveTest.class
+   ArchiveTest.class, AutoArchiveTest.class
               })
+@ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
 public class ArchiveTestSuite
 {
    /* test suite */
 
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, ArchiveModelConstants.MODEL_ID);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.JMS, ArchiveModelConstants.MODEL_ID, ArchiveModelConstants.MODEL_ID_OTHER);
+
 }

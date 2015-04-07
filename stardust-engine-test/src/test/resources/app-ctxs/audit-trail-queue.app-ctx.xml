@@ -23,4 +23,11 @@
    </bean>
 
    <amq:queue id="auditTrailQueue" physicalName="CarnotAuditTrailQueue" />
+   
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotArchiveQueue" />
+      <property name="resource" ref="archiveQueue" />
+   </bean>
+
+   <amq:queue id="archiveQueue" physicalName="CarnotArchiveQueue" />
 </beans>

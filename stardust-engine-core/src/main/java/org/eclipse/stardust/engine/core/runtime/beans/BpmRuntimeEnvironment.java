@@ -15,12 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
+import javax.jms.*;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
@@ -105,6 +100,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
 
    private DataClusterRuntimeInfo dataClusterRuntimeInfo;
+   
+   private OperationMode operationMode = OperationMode.DEFAULT;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -631,4 +628,35 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
       return triesLeft.intValue() <= 0;
    }
+
+   public void setOperationMode(OperationMode operationMode)
+   {
+      if (operationMode == null)
+      {
+         throw new IllegalArgumentException("Provide a valid operation mode");
+      }
+      this.operationMode = operationMode;
+      
+   }
+   public OperationMode getOperationMode()
+   {
+      return operationMode;
+   }
+   
+   /**
+    * @author jsaayman
+    */
+   public static enum OperationMode
+   {
+      /**
+       * OperationMode to use during normal operations of system
+       */
+      DEFAULT,
+      /**
+       * OperationMode to use when processes are busy importing
+       */
+      PROCESS_IMPORT;
+   }
+
+
 }

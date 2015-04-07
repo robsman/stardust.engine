@@ -37,11 +37,11 @@ import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesComma
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils.ProcessBlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
+import org.eclipse.stardust.engine.core.persistence.jms.*;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
@@ -55,7 +55,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
-
+   
    public static String getUUID(IProcessInstance processInstance)
    {
       return getUUID(processInstance.getOID(), processInstance.getStartTime());
@@ -99,13 +99,13 @@ public class ExportImportSupport
             end = list.size();
          }
          List<T> batchList = new ArrayList<T>();
-         // sublisst is not serializable, so create an arraylist
+         // sublist is not serializable, so create an arraylist
          batchList.addAll(list.subList(i, end));
          result.add(batchList);
       }
       return result;
    }
-
+   
    public static byte[] addAll(final byte[] array1, final byte[] array2)
    {
       final byte[] joinedArray = new byte[array1.length + array2.length];
@@ -496,6 +496,8 @@ public class ExportImportSupport
 
          if (CollectionUtils.isNotEmpty(persistents))
          {
+            final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+            rtEnv.setOperationMode(BpmRuntimeEnvironment.OperationMode.PROCESS_IMPORT);
             count = prepareObjectsForImport(persistents, session);
          }
          else

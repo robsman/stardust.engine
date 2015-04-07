@@ -10,14 +10,12 @@ import java.util.List;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * @author jsaayman
@@ -88,81 +86,7 @@ public class ProcessElementExporter implements ProcessElementOperator
          {
             Persistent p = (Persistent) iterator.next();
             results.add(p);
-            long processInstanceOid = -1;
-            if (partType == ProcessInstanceBean.class)
-            {
-               ProcessInstanceBean processInstance = (ProcessInstanceBean) p;
-               if (markExported)
-               {
-                  String uuid = ExportImportSupport.getUUID(processInstance);
-                  // in the case of autoArchive the exportProcessId will be created already
-                  // don't just check for null because it could have been exported to a different archive
-                  if (!uuid.equals(processInstance.getPropertyValue(EXPORT_PROCESS_ID)))
-                  {
-                     AbstractProperty property = processInstance.createProperty(EXPORT_PROCESS_ID, uuid);
-                     exportResult.addResult(processInstance);
-                     exportResult.addResult(property, processInstance.getOID());
-                  }
-                  else
-                  {
-                     exportResult.addResult(processInstance);
-                  }
-               }
-               else
-               {
-                  exportResult.addResult(processInstance);
-               }
-            }
-            else if (!(p instanceof ProcessInstanceScopeBean))
-            {
-               if (p instanceof IProcessInstanceAware)
-               {
-                  processInstanceOid = ((IProcessInstanceAware) p).getProcessInstance()
-                        .getOID();
-               }
-               else if (p instanceof IActivityInstanceAware)
-               {
-                  processInstanceOid = ((IActivityInstanceAware) p).getActivityInstance()
-                        .getProcessInstance().getOID();
-               }
-               else if (p instanceof LargeStringHolder)
-               {
-                  LargeStringHolder str = ((LargeStringHolder) p);
-                  Long structureDataOid = str.getObjectID();
-                  if (StructuredDataValueBean.TABLE_NAME.equals(str.getDataType()))
-                  {
-                     StructuredDataValueBean dataBean = (StructuredDataValueBean) session
-                           .findByOID(StructuredDataValueBean.class, structureDataOid);
-                     processInstanceOid = dataBean.getProcessInstance().getOID();
-                  }
-                  else if (DataValueBean.TABLE_NAME.equals(str.getDataType()))
-                  {
-                     DataValueBean dataBean = (DataValueBean) session.findByOID(
-                           DataValueBean.class, structureDataOid);
-                     processInstanceOid = dataBean.getProcessInstance().getOID();
-                  }
-                  else
-                  {
-                     throw new IllegalStateException(
-                           "Can't determine related process instance. LargeStringHolder type is :"
-                                 + str.getDataType());
-                  }
-               }
-               else
-               {
-                  throw new IllegalStateException(
-                        "Can't determine related process instance. Not a clob, IProcessInstanceAware or IActivityInstanceAware:"
-                              + p.getClass().getName());
-               }
-
-               if (processInstanceOid == -1)
-               {
-                  throw new IllegalStateException(
-                        "Can't determine related process instance."
-                              + p.getClass().getName());
-               }
-               exportResult.addResult(p, processInstanceOid);
-            }
+            exportResult.addResult(session, p);
          }
 
       }

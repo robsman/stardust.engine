@@ -28,6 +28,7 @@ import org.eclipse.stardust.engine.core.persistence.archive.ImportOidResolver;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
+import org.eclipse.stardust.engine.core.persistence.jms.AbstractBlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
 
@@ -106,15 +107,21 @@ public class TransientProcessInstanceUtils
       }
    }
 
+   public static Set<Persistent> loadProcessInstanceGraph(
+         final byte[] blob, final Session session,
+         final PersistentKey pk)
+   {
+      final ProcessBlobReader reader = new ProcessBlobReader(session);
+      final Set<Persistent> persistents = reader.readProcessBlob(blob);
+
+      return processPersistents(session, pk, persistents);
+   }
+   
    /**
     * 
     * @param blob
     * @param session
     * @param pk
-    * @param filter
-    *           Filter to use when importing processes. Null filter will import all
-    *           processes.
-    * @param oidResolver
     * @return
     */
    private static Set<Persistent> loadProcessInstanceGraph(
@@ -320,8 +327,27 @@ public class TransientProcessInstanceUtils
 
          return persistents;
       }
+      
+      public Set<Persistent> readProcessBlob(AbstractBlobReader reader)
+      {
+         final Set<Persistent> persistents = new HashSet<Persistent>();
 
-      private void readSection(final ByteArrayBlobReader reader,
+         byte sectionMarker;
+         while ((sectionMarker = reader.readByte()) != BlobBuilder.SECTION_MARKER_EOF)
+         {
+            if (sectionMarker != BlobBuilder.SECTION_MARKER_INSTANCES)
+            {
+               throw new IllegalStateException("Unknown section marker '" + sectionMarker
+                     + "'.");
+            }
+
+            readSection(reader, persistents);
+         }
+
+         return persistents;
+      }
+
+      private void readSection(final AbstractBlobReader reader,
             final Set<Persistent> persistents)
       {
          final String tableName = reader.readString();
@@ -360,7 +386,7 @@ public class TransientProcessInstanceUtils
          }
       }
 
-      private Persistent recreatePersistent(final ByteArrayBlobReader reader,
+      private Persistent recreatePersistent(final AbstractBlobReader reader,
             final TypeDescriptor typeDesc, final List<FieldDescriptor> fieldDescs)
       {
          final Persistent p = (Persistent) Reflect.createInstance(typeDesc.getType(),
@@ -380,7 +406,7 @@ public class TransientProcessInstanceUtils
          return p;
       }
 
-      private Object[] recreateLinkBuffer(final ByteArrayBlobReader reader,
+      private Object[] recreateLinkBuffer(final AbstractBlobReader reader,
             final List<LinkDescriptor> linkDescs)
       {
          if (linkDescs.isEmpty())

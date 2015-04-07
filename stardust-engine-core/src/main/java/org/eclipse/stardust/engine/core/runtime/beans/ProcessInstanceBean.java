@@ -1700,7 +1700,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public AuditTrailPersistence getAuditTrailPersistence()
    {
-      if (isGlobalAuditTrailPersistenceOverride())
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      
+      if (isGlobalAuditTrailPersistenceOverride() && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT)
       {
          return determineGlobalOverride();
       }

@@ -12,13 +12,13 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
@@ -222,42 +222,67 @@ public class ClobDataBean extends IdentifiablePersistentBean
 
    private IProcessInstance getDataValueProcessInstance()
    {
-      long dvOid;
+      long dvOid = -1;
       QueryDescriptor clobQuery = QueryDescriptor.from(DataValueBean.class)
             .select(DataValueBean.FIELD__OID)
             .where(Predicates.andTerm(Predicates.isEqual(DataValueBean.FR__NUMBER_VALUE, getOID()), 
                   Predicates.isEqual(DataValueBean.FR__TYPE_KEY, BigData.LONG)));
             ;
-
-      ResultSet rs = ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL))
-            .executeQuery(clobQuery);
-      try
+      ResultSet rs = null;
+      if (!getPersistenceController().isCreated())
       {
-         if (rs.next())
+         rs = ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL))
+            .executeQuery(clobQuery);
+         try
          {
-            dvOid = rs.getBigDecimal(DataValueBean.FIELD__OID).longValue();
             if (rs.next())
             {
-               throw new IllegalStateException(
-                     "Can't determine related process instance for clob with id: " 
-                           + getOID() + ", too many results returned");
+               dvOid = rs.getBigDecimal(DataValueBean.FIELD__OID).longValue();
+               if (rs.next())
+               {
+                  throw new IllegalStateException(
+                        "Can't determine related process instance for clob with id: " 
+                              + getOID() + ", too many results returned");
+               }
             }
+         }
+         catch (SQLException e)
+         {
+            throw new IllegalStateException(
+                  "Can't determine related process instance for clob with id: " + getOID(),
+                  e);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rs);
+         }
+      }
+      if (dvOid == -1)
+      {
+         // we can get here during import of archive
+         // the datavalue is not in the DB yet and 
+         // MultipleRootPisTransientProcessInstanceSupport tries to figure out to which process instance it belongs
+         
+        Iterator<DataValueBean> sessionCacheIterator = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getSessionCacheIterator(DataValueBean.class, new FilterOperation<DataValueBean>()
+         {
+            @Override
+            public FilterResult filter(final DataValueBean persistentToFilter)
+            {
+               final boolean isDVForThisClob = persistentToFilter.getLongValue() == getOID();
+               final boolean isLinkToPi = persistentToFilter.getType() == BigData.LONG;
+               return (isDVForThisClob && isLinkToPi) ? FilterResult.ADD : FilterResult.OMIT;
+            }
+         });
+         if (sessionCacheIterator.hasNext())
+         {
+            dvOid = sessionCacheIterator.next().getOID();
          }
          else
          {
             dvOid = -1;
          }
       }
-      catch (SQLException e)
-      {
-         throw new IllegalStateException(
-               "Can't determine related process instance for clob with id: " + getOID(),
-               e);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rs);
-      }
+      
       if (dvOid != -1)
       {
          return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)

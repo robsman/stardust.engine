@@ -173,7 +173,7 @@ public class BusinessObjectModelExtender implements IPartitionMonitor
                {
                   if (pd.getAttribute(BUSINESS_OBJECTS_DATAREF) != null
                         && pd.getAttribute(BUSINESS_OBJECTS_DATAREF).equals(
-                              typeDecl.getId()))
+                              data.getId()))
                   {
                      addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
                            descriptorLabelValue);

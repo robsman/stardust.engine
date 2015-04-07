@@ -10,15 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jms;
 
-import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -29,7 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
  * @author sauer
  * @version $Revision$
  */
-public abstract class AbstractByteArrayBlobReader implements BlobReader
+public abstract class AbstractByteArrayBlobReader extends AbstractBlobReader
 {
    private byte[] blob;
 
@@ -38,11 +33,9 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
    private DataInputStream dis;
 
    protected abstract byte[] nextByteArray();
-   private final Map<Class<?>, ReadOp> readOps;
-
    public AbstractByteArrayBlobReader()
    {
-      this.readOps = initReadOpMap();
+      super();
    }
    public byte[] getBlob()
    {
@@ -254,147 +247,6 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
       catch (IOException ioe)
       {
          throw new InternalException("Failed reading value from blob.", ioe);
-      }
-   }
-   
-   public Object readFieldValue(final Class<?> fieldType)
-   {
-      final ReadOp readOp = readOps.get(fieldType);
-      if (readOp == null)
-      {
-         throw new IllegalArgumentException("Unsupported field type '" + fieldType + "'.");
-      }
-
-      return readOp.read(this);
-   }
-
-   private Map<Class<?>, ReadOp> initReadOpMap()
-   {
-      final Map<Class<?>, ReadOp> result = newHashMap();
-
-      result.put(Boolean.TYPE, new BooleanReadOp());
-      result.put(Boolean.class, new BooleanReadOp());
-
-      result.put(Byte.TYPE, new ByteReadOp());
-      result.put(Byte.class, new ByteReadOp());
-
-      result.put(Character.TYPE, new CharacterReadOp());
-      result.put(Character.class, new CharacterReadOp());
-
-      result.put(Short.TYPE, new ShortReadOp());
-      result.put(Short.class, new ShortReadOp());
-
-      result.put(Integer.TYPE, new IntegerReadOp());
-      result.put(Integer.class, new IntegerReadOp());
-
-      result.put(Long.TYPE, new LongReadOp());
-      result.put(Long.class, new LongReadOp());
-
-      result.put(Float.TYPE, new FloatReadOp());
-      result.put(Float.class, new FloatReadOp());
-
-      result.put(Double.TYPE, new DoubleReadOp());
-      result.put(Double.class, new DoubleReadOp());
-
-      result.put(String.class, new StringReadOp());
-
-      result.put(Date.class, new DateReadOp());
-
-      return result;
-   }
-
-   private static interface ReadOp
-   {
-      Object read(final BlobReader reader);
-   }
-
-   private static class BooleanReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readBoolean();
-      }
-   }
-
-   private static class ByteReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readByte();
-      }
-   }
-
-   private static class CharacterReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readChar();
-      }
-   }
-
-   private static class ShortReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readShort();
-      }
-   }
-
-   private static class IntegerReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readInt();
-      }
-   }
-
-   private static class LongReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readLong();
-      }
-   }
-
-   private static class FloatReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readFloat();
-      }
-   }
-
-   private static class DoubleReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readDouble();
-      }
-   }
-
-   private static class StringReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return reader.readString();
-      }
-   }
-
-   private static class DateReadOp implements ReadOp
-   {
-      @Override
-      public Object read(final BlobReader reader)
-      {
-         return new Date(reader.readLong());
       }
    }
 }

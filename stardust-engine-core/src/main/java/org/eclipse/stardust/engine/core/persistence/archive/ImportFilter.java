@@ -23,8 +23,6 @@ public class ImportFilter
 
    private final Date toDate;
 
-   private final List<Long> processInstanceOids;
-
    private final List<Long> dataValueNumberValuesInFilter = new ArrayList<Long>();
 
    private final Map<Long, Boolean> processMap = new HashMap<Long, Boolean>();
@@ -34,26 +32,17 @@ public class ImportFilter
    public ImportFilter(Date fromDate, Date toDate)
    {
       super();
-      this.processInstanceOids = null;
       this.fromDate = fromDate;
       this.toDate = toDate;
-   }
-
-   public ImportFilter(List<Long> processInstanceOids)
-   {
-      super();
-      this.processInstanceOids = processInstanceOids;
-      this.fromDate = null;
-      this.toDate = null;
    }
 
    public ImportFilter()
    {
       super();
-      this.processInstanceOids = null;
       this.fromDate = null;
       this.toDate = null;
    }
+
 
    public boolean isInFilter(ProcessInstanceBean process, Object[] linkBuffer)
    {
@@ -61,23 +50,7 @@ public class ImportFilter
 
       if (isInFilter == null)
       {
-         TypeDescriptor typeDescriptor = TypeDescriptor.get(ProcessInstanceBean.class);
-         if (processInstanceOids != null)
-         {
-            final int linkIdx = typeDescriptor
-                  .getLinkIdx(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE);
-            Number rootProcessInstanceOID = (Number) linkBuffer[linkIdx];
-
-            if (process.getOID() == rootProcessInstanceOID.longValue())
-            {
-               isInFilter = processInstanceOids.contains(process.getOID());
-            }
-            else
-            {
-               isInFilter = processInstanceOids.contains(rootProcessInstanceOID);
-            }
-         }
-         else if (fromDate != null && toDate != null)
+         if (fromDate != null && toDate != null)
          {
             isInFilter = (fromDate.compareTo(process.getStartTime()) < 1)
                   && (toDate.compareTo(process.getTerminationTime()) > -1);

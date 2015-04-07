@@ -98,16 +98,16 @@ public class ExportIndex implements Serializable
     * @param descriptors
     * @return
     */
-   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors)
+   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids)
    {
-      if (descriptors == null || descriptors.isEmpty())
+      if ((descriptors == null || descriptors.isEmpty()) && processInstanceOids == null)
       {
          return getRootProcessToSubProcesses();
       }
       Map<ExportProcess, List<ExportProcess>> result = new HashMap<ExportProcess, List<ExportProcess>>();
       for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
       {
-         if (descriptorMatch(rootProcess.getDescriptors(), descriptors))
+         if (processInstanceOidMatch(processInstanceOids, rootProcess.getOid()) && descriptorMatch(rootProcess.getDescriptors(), descriptors))
          {
             result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
          }
@@ -117,7 +117,7 @@ public class ExportIndex implements Serializable
                   rootProcess);
             for (ExportProcess subProcess : subProcesses)
             {
-               if (descriptorMatch(subProcess.getDescriptors(), descriptors))
+               if (processInstanceOidMatch(processInstanceOids, subProcess.getOid()) && descriptorMatch(subProcess.getDescriptors(), descriptors))
                {
                   result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
                   break;
@@ -128,9 +128,22 @@ public class ExportIndex implements Serializable
       return result;
    }
    
+   private boolean processInstanceOidMatch(List<Long> processInstanceOids, Long oid)
+   {
+      if (processInstanceOids == null)
+      {
+         return true;
+      }
+      return processInstanceOids.contains(oid);
+   }
+   
    private boolean descriptorMatch(Map<String, String> descriptors, 
          Map<String, Object> searchDescriptors)
    {
+      if (searchDescriptors == null)
+      {
+         return true;
+      }
       for (String key : searchDescriptors.keySet())
       {
          if (descriptors.containsKey(key))

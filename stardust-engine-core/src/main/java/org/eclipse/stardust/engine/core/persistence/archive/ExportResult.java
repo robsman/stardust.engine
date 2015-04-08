@@ -6,11 +6,13 @@ import java.util.*;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 /**
  * 
@@ -26,25 +28,26 @@ public class ExportResult implements Serializable
    private transient final HashMap<Date, Map<Long, Map<Class, List<Persistent>>>> dateToPersistents = new HashMap<Date, Map<Long, Map<Class, List<Persistent>>>>();
 
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
-   
+
    private final Map<Date, ExportIndex> exportIndexByDate;
 
    private final Map<Date, List<Long>> processInstanceOidsByDate;
 
    private final Map<Date, List<Integer>> processLengthsByDate;
-   
+
    private boolean open = true;
-   
+
    private ExportModel exportModel;
-   
+
    private final Set<Long> purgeProcessIds;
-   
+
    private boolean isDump;
 
    public ExportResult(ExportModel exportModel, HashMap<Date, byte[]> resultsByDate,
-         HashMap<Date, ExportIndex> exportIndexByDate, Map<Date, 
-         List<Long>> processInstanceOidsByDate, Map<Date, List<Integer>> processLengthsByDate,
-         boolean isDump, Set<Long> purgeProcessIds)
+         HashMap<Date, ExportIndex> exportIndexByDate,
+         Map<Date, List<Long>> processInstanceOidsByDate,
+         Map<Date, List<Integer>> processLengthsByDate, boolean isDump,
+         Set<Long> purgeProcessIds)
    {
       this.exportModel = exportModel;
       this.resultsByDate = resultsByDate;
@@ -66,16 +69,17 @@ public class ExportResult implements Serializable
       this.isDump = isDump;
    }
 
-
    private static ExportProcess createExportProcess(IProcessInstance processInstance)
    {
       String uuid = ExportImportSupport.getUUID(processInstance);
-      Map<String, String> descriptors = ExportImportSupport.getFormattedDescriptors(processInstance, null);
-      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid, descriptors);
+      Map<String, String> descriptors = ExportImportSupport.getFormattedDescriptors(
+            processInstance, null);
+      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid,
+            descriptors);
       return result;
    }
-   
-   public void addResult(ProcessInstanceBean process)
+
+   private void addResult(IProcessInstance process)
    {
       if (open)
       {
@@ -84,24 +88,26 @@ public class ExportResult implements Serializable
          ExportProcess subProcess = null;
          if (process.getOID() == process.getRootProcessInstanceOID())
          {
-            rootProcess = createExportProcess(process.getProcessInstance());
+            rootProcess = createExportProcess(process);
             indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
          }
          else
          {
-            indexDate = ExportImportSupport.getIndexDateTime(process.getRootProcessInstance().getStartTime());
+            indexDate = ExportImportSupport.getIndexDateTime(process
+                  .getRootProcessInstance().getStartTime());
             rootProcess = createExportProcess(process.getRootProcessInstance());
-            subProcess = createExportProcess(process.getProcessInstance());
+            subProcess = createExportProcess(process);
          }
 
          ExportIndex exportIndex = exportIndexByDate.get(indexDate);
          if (exportIndex == null)
          {
-            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), 
+            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(),
                   ArchiveManagerFactory.getDateFormat(), isDump);
             exportIndexByDate.put(indexDate, exportIndex);
          }
-         List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess);
+         List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses()
+               .get(rootProcess);
          if (subProcesses == null)
          {
             subProcesses = new ArrayList<ExportProcess>();
@@ -125,7 +131,7 @@ public class ExportResult implements Serializable
       }
    }
 
-   public void addResult(Persistent persistent, long processInstanceOid)
+   private void addResult(Persistent persistent, long processInstanceOid)
    {
       if (open)
       {
@@ -176,6 +182,114 @@ public class ExportResult implements Serializable
       }
    }
 
+   public void addResult(Session session, Persistent persistent)
+   {
+      long processInstanceOid = -1;
+      if (persistent instanceof ProcessInstanceBean)
+      {
+         ProcessInstanceBean processInstance = (ProcessInstanceBean) persistent;
+         addResult(processInstance);
+      }
+      else if (!(persistent instanceof ProcessInstanceScopeBean))
+      {
+         if (persistent instanceof IProcessInstanceAware)
+         {
+            processInstanceOid = ((IProcessInstanceAware) persistent)
+                  .getProcessInstance().getOID();
+         }
+         else if (persistent instanceof IActivityInstanceAware)
+         {
+            processInstanceOid = ((IActivityInstanceAware) persistent)
+                  .getActivityInstance().getProcessInstance().getOID();
+         }
+         else if (persistent instanceof LargeStringHolder)
+         {
+            LargeStringHolder str = ((LargeStringHolder) persistent);
+            Long structureDataOid = str.getObjectID();
+            if (StructuredDataValueBean.TABLE_NAME.equals(str.getDataType()))
+            {
+               StructuredDataValueBean dataBean = (StructuredDataValueBean) session
+                     .findByOID(StructuredDataValueBean.class, structureDataOid);
+               processInstanceOid = dataBean.getProcessInstance().getOID();
+            }
+            else if (DataValueBean.TABLE_NAME.equals(str.getDataType()))
+            {
+               DataValueBean dataBean = (DataValueBean) session.findByOID(
+                     DataValueBean.class, structureDataOid);
+               processInstanceOid = dataBean.getProcessInstance().getOID();
+            }
+            else
+            {
+               throw new IllegalStateException(
+                     "Can't determine related process instance. LargeStringHolder type is :"
+                           + str.getDataType());
+            }
+         }
+         else
+         {
+            throw new IllegalStateException(
+                  "Can't determine related process instance. Not a clob, IProcessInstanceAware or IActivityInstanceAware:"
+                        + persistent.getClass().getName());
+         }
+
+         if (processInstanceOid == -1)
+         {
+            throw new IllegalStateException("Can't determine related process instance."
+                  + persistent.getClass().getName());
+         }
+         addResult(persistent, processInstanceOid);
+      }
+   }
+
+   public void close(final ByteArrayBlobBuilder blobBuilder, Session session)
+   {
+      if (open)
+      {
+         final Set<Persistent> persistents = TransientProcessInstanceUtils.loadProcessInstanceGraph(blobBuilder.getBlob(), session, null);
+         
+         List<Persistent> subs = new ArrayList<Persistent>();
+         List<Persistent> other = new ArrayList<Persistent>();
+
+         Set<Integer> modelOids = new HashSet<Integer>();
+         for (Persistent persistent : persistents)
+         {
+            if (persistent instanceof ProcessInstanceBean)
+            {
+               ProcessInstanceBean process = (ProcessInstanceBean) persistent;
+               if (process.getRootProcessInstanceOID() == process.getOID())
+               {
+                  addResult(session, process);
+                  modelOids.add(process.getProcessDefinition().getModel().getModelOID());
+               }
+               else
+               {
+                  subs.add(process);
+               }
+            }
+            else
+            {
+               other.add(persistent);
+            }
+            
+         }
+         exportModel = ExportImportSupport.exportModels(modelOids);
+         for (Persistent persistent : subs)
+         {
+            addResult(session, persistent);
+         }
+         for (Persistent persistent : other)
+         {
+            addResult(session, persistent);
+         }
+         close();
+      }
+      else
+      {
+         throw new IllegalStateException("ExportResult is not open.");
+      }
+      open = false;
+   }
+
    public void close()
    {
       if (open)
@@ -200,10 +314,10 @@ public class ExportResult implements Serializable
                }
                blobBuilder.persistAndClose();
                byte[] processData = blobBuilder.getBlob();
-               
-               //they are created already when adding, now just add oids and lengths
+
+               // they are created already when adding, now just add oids and lengths
                List<Long> processInstanceOids = processInstanceOidsByDate.get(indexDate);
-               List<Integer> processLengths= processLengthsByDate.get(indexDate);
+               List<Integer> processLengths = processLengthsByDate.get(indexDate);
                if (processInstanceOids == null)
                {
                   processInstanceOids = new ArrayList<Long>();

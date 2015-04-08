@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import javax.jms.JMSException;
+import javax.jms.ObjectMessage;
+
 import org.apache.commons.collections.CollectionUtils;
 
 import com.google.gson.Gson;
@@ -76,12 +79,12 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final HashMap<String, Object> descriptors;
    
-   private final IProcessInstance processInstance;
-
+   private final List<ObjectMessage> messages;
+   
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
          Date toDate, HashMap<String, Object> descriptors, ExportResult exportResult,
-         boolean dumpData, IProcessInstance processInstance)
+         boolean dumpData, List<ObjectMessage> messages)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -92,7 +95,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.exportResult = exportResult;
       this.descriptors = descriptors;
       this.dumpData = dumpData;
-      this.processInstance = processInstance;
+      this.messages = messages;
    }
 
    /**
@@ -161,15 +164,17 @@ public class ExportProcessesCommand implements ServiceCommand
 
       this(operation, null, null, null, null, null, null, exportResult, dumpData, null);
    }
-   
+    
    /**
-    * 
-    */
-   public ExportProcessesCommand(IProcessInstance processInstance)
+   * Use this constructor to auto archive a DEFERRED process instance
+   */
+   public ExportProcessesCommand(List<ObjectMessage> messages)
    {
-      this(Operation.EXPORT_PROCESS, null, null, new ArrayList<Long>(), null, null, null, null, false, processInstance);
+      this(Operation.ARCHIVE_MESSAGES, null, null, new ArrayList<Long>(), null, null, null,
+            null, false, messages);
    }
 
+   
    @Override
    public Serializable execute(ServiceFactory sf)
    {
@@ -202,10 +207,10 @@ public class ExportProcessesCommand implements ServiceCommand
             result = purge(session);
             break;
          case ARCHIVE:
-            result = archive();
+            result = archive(session);
             break;
-         case EXPORT_PROCESS:
-            result = exportProcess(session);
+         case ARCHIVE_MESSAGES:
+            result = archiveMessages(session);
             break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
@@ -217,57 +222,47 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
-   private boolean exportProcess(Session session)
+   private boolean archiveMessages(Session session)
    {
       if (LOGGER.isDebugEnabled())
       {
-         LOGGER.debug("Received processInstance: " + processInstance.getOID() + " to export");
+         LOGGER.debug("Received message to export");
       }
-      exportMetaData = new ExportMetaData();
-      exportMetaData.addProcess(processInstance.getOID(), processInstance.getStartTime(),
-            processInstance.getOID(), (int) processInstance.getProcessDefinition()
-                  .getModel().getModelOID(), null);
-      addSubProcesses(session);
-      exportModels(session);
-      exportBatch(session);
-      archive();
-      return true;
-   }
-
-   private void addSubProcesses(Session session)
-   {
-      QueryDescriptor query = QueryDescriptor.from(ProcessInstanceBean.class).select(
-            new Column[] {
-                  ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__MODEL,
-                  ProcessInstanceBean.FR__START_TIME});
-
-      AndTerm subProcessTerm = Predicates.andTerm(Predicates.isEqual(
-            ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, processInstance.getOID()), Predicates
-            .notEqual(ProcessInstanceBean.FR__OID, processInstance.getOID()));
-
-      query.where(subProcessTerm);
-     
-      ResultSet rs = session.executeQuery(query);
-      try
+      
+      Serializable object;
+      List<ExportResult> exportResults = new ArrayList<ExportResult>();
+      for (ObjectMessage message : messages)
       {
-         while (rs.next())
+         try
          {
-            Long oid = rs.getBigDecimal(ProcessInstanceBean.FIELD__OID).longValue();
-            Integer modelOid = rs.getBigDecimal(ProcessInstanceBean.FIELD__MODEL)
-                  .intValue();
-            Date startDate = new Date(rs.getBigDecimal(
-                  ProcessInstanceBean.FIELD__START_TIME).longValue());
-            exportMetaData.addProcess(oid, startDate, processInstance.getOID(), modelOid, null);
+            object = message.getObject();
+            if (object instanceof ExportResult)
+            {
+               ExportResult result = (ExportResult) object;
+               exportResults.add(result);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Invalid object received to archive.");
+            }
+         }
+         catch (JMSException e)
+         {
+            LOGGER.error("Failed to retrieve archive object from message", e);
+            return false;
          }
       }
-      catch (SQLException e)
+      
+      if (!exportResults.isEmpty())
       {
-         throw new IllegalStateException("Can't find process instance to export", e);
+         List<ExportResult> groupedResults = ExportImportSupport.groupByExportModel(exportResults);
+         for (ExportResult result : groupedResults)
+         {
+            exportResult = result;
+            archive(session);
+         }
       }
-      finally
-      {
-         QueryUtils.closeResultSet(rs);
-      }
+      return true;
    }
 
    private int purge(Session session)
@@ -313,7 +308,7 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
-   private Boolean archive()
+   private Boolean archive(Session session)
    {
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       boolean success = true;
@@ -321,6 +316,13 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          dateloop: for (Date date : exportResult.getDates())
          {
+
+            ExportIndex exportIndex = exportResult.getExportIndex(date);
+            if (!exportIndex.isDump())
+            {
+               markProcessesAsExported(session, exportIndex);
+            }
+            
             Serializable key = archiveManager.open(date);
             if (key == null)
             {
@@ -344,7 +346,6 @@ public class ExportProcessesCommand implements ServiceCommand
                      break dateloop;
                   }
                }
-               ExportIndex exportIndex = exportResult.getExportIndex(date);
                if (success)
                {
                   success = archiveManager.addIndex(key, gson
@@ -368,6 +369,33 @@ public class ExportProcessesCommand implements ServiceCommand
       return success;
    }
 
+   private void markProcessesAsExported(Session session, ExportIndex exportIndex)
+   {
+      for (ExportProcess rootProcess : exportIndex.getRootProcessToSubProcesses().keySet())
+      {
+         
+         ProcessInstanceBean instance = (ProcessInstanceBean) session.findByOID(ProcessInstanceBean.class, rootProcess.getOid());
+         // instance can be null if archiving of queue is done after process already deleted
+         // this will not harm anything the export id will be in archive anyways
+         if (instance != null)
+         {
+            instance.createProperty(
+                  ProcessElementExporter.EXPORT_PROCESS_ID, rootProcess.getUuid());
+            
+            List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess);
+            for (ExportProcess subProcess : subProcesses)
+            {
+               instance = (ProcessInstanceBean) session.findByOID(ProcessInstanceBean.class, subProcess.getOid());
+               if (instance != null)
+               {
+                  instance.createProperty(
+                     ProcessElementExporter.EXPORT_PROCESS_ID, subProcess.getUuid());
+               }
+            }
+         }
+      }
+   }
+   
    private void exportBatch(Session session)
    {
       List<Long> allIds = exportMetaData.getAllProcessesForExport(dumpData);
@@ -560,13 +588,13 @@ public class ExportProcessesCommand implements ServiceCommand
 
       if (CollectionUtils.isNotEmpty(processInstanceOids))
       {
-         ComparisonTerm oidTerm = new ComparisonTerm(ProcessInstanceBean.FR__OID,
-               Operator.IN, processInstanceOids);
+//         ComparisonTerm oidTerm = new ComparisonTerm(ProcessInstanceBean.FR__OID,
+//               Operator.IN, processInstanceOids);
          ComparisonTerm rootOidTerm = new ComparisonTerm(
                ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, Operator.IN,
                processInstanceOids);
-         OrTerm processRestriction = Predicates.orTerm(oidTerm, rootOidTerm);
-         whereTerm.add(processRestriction);
+//         OrTerm processRestriction = Predicates.orTerm(oidTerm, rootOidTerm);
+         whereTerm.add(rootOidTerm);
       }
       if (fromDate != null && toDate != null)
       {
@@ -636,7 +664,10 @@ public class ExportProcessesCommand implements ServiceCommand
        * Takes an export result and persists it to an archive
        */
       ARCHIVE,
-      EXPORT_PROCESS
+      /**
+       * Takes messages that has been read from a JMS queue and archives them 
+       */
+      ARCHIVE_MESSAGES
       ;
    };
 

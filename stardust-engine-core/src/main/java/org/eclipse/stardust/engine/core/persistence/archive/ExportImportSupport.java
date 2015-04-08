@@ -172,6 +172,125 @@ public class ExportImportSupport
       return result;
    }
 
+   public static List<ExportResult> groupByExportModel(List<ExportResult> exportResults)
+   {
+      List<ExportResult> results;
+      if (CollectionUtils.isNotEmpty(exportResults))
+      {  
+         results = new ArrayList<ExportResult>();
+         Map<ExportModel, List<ExportResult>> modelToResults = new HashMap<ExportModel, List<ExportResult>>();
+         String partition = null;
+         for (ExportResult result : exportResults)
+         {
+            ExportModel model = result.getExportModel();
+            if (partition == null)
+            {
+               partition = model.getPartition();
+            }
+            else
+            {
+               if (!partition.equals(model.getPartition()))
+               {
+                  throw new IllegalArgumentException("All export models must be for the same partition");
+               }
+            }
+            
+            List<ExportResult> exports = modelToResults.get(model);
+            // we do not yet have results for this exportmodel
+            if (exports == null)
+            {
+               // see if there is an existing exportModel that we can combine with this model. IE they do not have conflicting IPP models in them
+               for (ExportModel temp : modelToResults.keySet())
+               {
+                  ExportModel combinedModel = addModel(temp, model);
+                  if (combinedModel != null)
+                  {
+                     exports = modelToResults.get(temp);
+                     modelToResults.remove(temp);
+                     model = combinedModel;
+                     break;
+                  }
+               }
+               if (exports == null)
+               {
+                  exports = new ArrayList<ExportResult>();
+               }
+               modelToResults.put(model, exports);
+            }
+            exports.add(result);
+         }
+         for (ExportModel model : modelToResults.keySet())
+         {
+            ExportResult exportResult = merge(modelToResults.get(model), model);
+            results.add(exportResult);
+         }
+      }
+      else
+      {
+         results = null;
+      }
+      return results;
+   }
+   
+   /**
+    * adds modelB to modelA if possible.
+    * if modelA is equal to modelB modelB is returned
+    * if modelA and modelB has no conflict their content is combined and returned as a new Object, else NULL is returned 
+    * @param modelA
+    * @param modelB
+    * @return
+    */
+   private static ExportModel addModel(ExportModel modelA, ExportModel modelB)
+   {
+      ExportModel result;
+      if (modelA.equals(modelB))
+      {
+         result = modelB;
+      }
+      else
+      {
+         if (!hasModelConflict(modelA, modelB))
+         {
+            Map<String, Long> modelIdToOid = new HashMap<String, Long>();
+            Map<String, Long> fqIdToRtOid = new HashMap<String, Long>();
+            
+            modelIdToOid.putAll(modelA.getModelIdToOid());
+            modelIdToOid.putAll(modelB.getModelIdToOid());
+            fqIdToRtOid.putAll(modelA.getFqIdToRtOid());
+            fqIdToRtOid.putAll(modelB.getFqIdToRtOid());
+            result = new ExportModel(fqIdToRtOid, modelIdToOid, modelB.getPartition());
+         }
+         else
+         {
+            result = null;
+         }
+      }
+      return result;
+   }
+   
+   private static boolean hasModelConflict(ExportModel modelA, ExportModel modelB)
+   {
+      boolean hasConflict = !modelA.equals(modelB);
+      if (hasConflict)
+      {
+         for (String key : modelA.getModelIdToOid().keySet())
+         {
+            Long idA = modelA.getModelIdToOid().get(key);
+            Long idB = modelB.getModelIdToOid().get(key);
+            // if idB is null ExportModel B is not in conflict, it just doesn't have that model in it
+            if (idB != null)
+            {
+               hasConflict = !idA.equals(idB);
+               if (hasConflict)
+               {
+                  break;
+               }
+            }
+         }
+      }
+      return hasConflict;
+   }
+   
    public static ExportResult merge(List<ExportResult> exportResults, ExportModel exportModel)
    {
       ExportResult exportResult;

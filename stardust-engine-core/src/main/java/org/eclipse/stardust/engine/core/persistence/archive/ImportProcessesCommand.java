@@ -8,6 +8,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -224,11 +226,7 @@ public class ImportProcessesCommand implements ServiceCommand
       final Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
       ImportFilter filter;
-      if (processInstanceOids != null)
-      {
-         filter = new ImportFilter(processInstanceOids);
-      }
-      else if (fromDate != null && toDate != null)
+      if (fromDate != null && toDate != null)
       {
          filter = new ImportFilter(fromDate, toDate);
       }
@@ -241,7 +239,7 @@ public class ImportProcessesCommand implements ServiceCommand
          Map<String, List<byte[]>> dataByTable;
          importCount = 0;
          Map<ExportProcess, List<ExportProcess>> exportProcesses = archive
-               .getExportIndex().getProcesses(descriptors);
+               .getExportIndex().getProcesses(descriptors, processInstanceOids);
          for (ExportProcess rootProcess : exportProcesses.keySet())
          {
             List<Long> processes = new ArrayList<Long>();
@@ -254,6 +252,20 @@ public class ImportProcessesCommand implements ServiceCommand
             dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
             importCount += ExportImportSupport.importProcessInstances(dataByTable,
                   session, filter, oidResolver);
+            
+            // create the export process ids, unless we are importing a dump
+            if (!archive.getExportIndex().isDump())
+            {
+               ProcessInstanceBean instance = ProcessInstanceBean.findByOID(rootProcess.getOid());
+               instance.createProperty(
+                     ProcessElementExporter.EXPORT_PROCESS_ID, rootProcess.getUuid());
+               for (ExportProcess subProcess : subProcesses)
+               {
+                  instance = ProcessInstanceBean.findByOID(subProcess.getOid());
+                  instance.createProperty(
+                        ProcessElementExporter.EXPORT_PROCESS_ID, subProcess.getUuid());
+               }
+            }
          }
       }
       catch (IllegalStateException e)

@@ -78,23 +78,4 @@ public class ArchiveQueueSender
       }
    }
 
-   public void sendMessage(Long processInstanceOid)
-   {
-      try
-      {
-         msg.setObject(processInstanceOid);
-
-         queueSender.send(queue, msg);
-
-         this.msg = null;
-
-         // sender, session and connection will be closed by RT Environment and end of TX
-      }
-      catch (JMSException jmse)
-      {
-         throw new PublicException(
-               BpmRuntimeError.JMS_FAILED_WRITING_BLOB_TO_JMS.raise(), jmse);
-      }
-   }
-
 }

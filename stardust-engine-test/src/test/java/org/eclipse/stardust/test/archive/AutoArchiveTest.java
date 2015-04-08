@@ -3,12 +3,12 @@ package org.eclipse.stardust.test.archive;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
+import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -36,10 +37,14 @@ import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelc
 import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.TestTimeZoneProvider;
 import org.eclipse.stardust.test.api.util.TestTimestampProvider;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest;
 
+
+//test with write behind
+//test with date changes
 @ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
 public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 {
@@ -78,6 +83,8 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @Before
    public void setUp() throws Exception
    { 
+      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "true");
       testTimestampProvider = new TestTimestampProvider();
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE,
@@ -91,8 +98,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             "org.eclipse.stardust.test.archive.MemoryArchiveManager");
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
             "testid");
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "false");
       ((MemoryArchiveManager) ArchiveManagerFactory.getCurrent()).clear();
       
       final GlobalParameters params = GlobalParameters.globals();
@@ -122,6 +127,10 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             null);
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
             null);
+      GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, null);
+      GlobalParameters.globals().set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, null);
+
+      
    }
 
 
@@ -129,10 +138,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void autoExportTransientAll() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
-
 
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
@@ -151,6 +157,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(),
             ProcessInstanceState.Aborted);
       
+      // deferred is forced to be transient due to global, so it must not be saved/exported/imported
       final ProcessInstance pi2 = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_DEFERRED, null, true);
 
@@ -218,8 +225,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void testExportImportSubProcessesInModelGlobalOverrideAlwaysTransient() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -323,10 +328,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
-      ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
-      Boolean success = (Boolean) workflowService.execute(command);
-      assertTrue(success);
       int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.PURGE, rawData, false));
       assertEquals(3, deleteCount);
@@ -398,9 +399,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void testExportImportSubProcessesInModelGlobalOverrideAfterExportAlwaysTransient() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
-      
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
       String dataInput1 = "aaaa";
@@ -501,10 +499,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
-      ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
-      Boolean success = (Boolean) workflowService.execute(command);
-      assertTrue(success);
+      archiveQueue();
       int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.PURGE, rawData, false));
       assertEquals(3, deleteCount);
@@ -578,8 +573,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void testExportImportSubProcessesInModelGlobalOverrideAlwaysDeferred() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -682,10 +675,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
-      ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, rawData, false);
-      Boolean success = (Boolean) workflowService.execute(command);
-      assertTrue(success);
+      archiveQueue();
       int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.PURGE, rawData, false));
       assertEquals(3, deleteCount);
@@ -757,10 +747,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void testExportImportTransient() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
-//      disableInMemStorageExposal();
-//      enableTransientProcessesSupport();
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -796,16 +782,396 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, archives.size());
    }
    
-   //test with multiple subprocesses
-   //test with multiple rootpis
-   //test with write behind
-   //test with model changed
+   @Test
+   public void testExportAllTwoModels() throws Exception
+   {
+      GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
+
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualA, queryService, workflowService);
+      final ProcessInstance simpleManualB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualB, queryService, workflowService);
+      final ProcessInstance simpleA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      ArchiveTest.completeSimple(simpleA, queryService, workflowService);
+      final ProcessInstance simpleB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      ArchiveTest.completeSimple(simpleB, queryService, workflowService);
+      final ProcessInstance subProcessesInModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+      ArchiveTest.completeSubProcessesInModel(subProcessesInModel, queryService, workflowService,
+            false, testTimestampProvider);
+      final ProcessInstance scriptProcess = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      ActivityInstance writeActivity = ArchiveTest.completeScriptProcess(scriptProcess, 10, "aaa",
+            queryService, workflowService);
+      int modelOID = subProcessesInModel.getModelOID();
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+      ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLE);
+      querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstanceQuery querySubManual = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL);
+      querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances oldSubProcessInstancesSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances oldSubProcessInstancesManual = queryService
+            .getAllProcessInstances(querySubManual);
+      assertNotNull(oldSubProcessInstancesSimple);
+      assertEquals(1, oldSubProcessInstancesSimple.size());
+      assertNotNull(oldSubProcessInstancesManual);
+      assertEquals(1, oldSubProcessInstancesManual.size());
+      ProcessInstance subSimple = oldSubProcessInstancesSimple.iterator().next();
+      ProcessInstance subManual = oldSubProcessInstancesManual.iterator().next();
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleA.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleB.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleManualA.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleManualB.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subSimple.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subManual.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subProcessesInModel
+            .getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(scriptProcess.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(8, oldInstances.size());
+      assertEquals(28, oldActivities.size());
+
+      HashMap<String, Object> descriptors = null;
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      ArchiveTest.assertNotNullExportResult(exportResult);
+     
+      archiveQueue();
+      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
+      
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, exportResult, false));
+      assertEquals(8, deleteCount);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1, archives.size());
+      
+      Models models = queryService.getModels(DeployedModelQuery
+            .findForId(ArchiveModelConstants.MODEL_ID_OTHER));
+      DeployedModelDescription model = models.get(0);
+      adminService.deleteModel(model.getModelOID());
+      adminService.deleteModel(modelOID);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      setUp();
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), null, null));
+      models = queryService.getModels(DeployedModelQuery
+            .findForId(ArchiveModelConstants.MODEL_ID_OTHER2));
+      model = models.get(0);
+      adminService.deleteModel(model.getModelOID());
+      setUp();
+      assertEquals(8, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
+
+      ArchiveTest.assertDataExists(scriptProcess.getOID(), writeActivity.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
+            ArchiveModelConstants.DATA_ID_NUMBERVALUE, 20, queryService);
+
+      assertTrue(ArchiveTest.hasStructuredDateField(scriptProcess.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, 20));
+
+      assertTrue(ArchiveTest.hasStructuredDateField(scriptProcess.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, "aaa"));
+   }
+   
+   @Test
+   public void testModelRedeployBeforeArchive() throws Exception
+   {
+      enableTransientProcessesSupport();
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualA, queryService, workflowService);
+      int modelOID1 = simpleManualA.getModelOID();
+
+      final ProcessInstance piOtherModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_OTHER, null, true);
+
+      ArchiveTest.completeOther(piOtherModel, 5, queryService, workflowService);
+      int modelOID2 = piOtherModel.getModelOID();
+
+      ProcessInstanceStateBarrier.instance().await(piOtherModel.getOID(),
+            ProcessInstanceState.Completed);
+      
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+            
+      final ProcessInstance piDeferred = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(piDeferred.getOID(),
+            ProcessInstanceState.Completed);
+      
+    
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleManualA.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piDeferred.getOID()));
+
+      // we have completed three processes from two different models
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(3, oldInstances.size());
+      assertEquals(10, oldActivities.size());
+
+      // clear the completed processes without archive queue cleared yet
+      HashMap<String, Object> descriptors = null;
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      ArchiveTest.assertNotNullExportResult(exportResult);
+
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, exportResult, false));
+      assertEquals(3, deleteCount);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+      
+      // delete all the models, then redeploy them so they have different ids
+      adminService.deleteModel(modelOID2);
+      adminService.deleteModel(modelOID1);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      setUp();
+      
+      // start all the processes again, now with different model oids
+      final ProcessInstance simpleManualA2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualA2, queryService, workflowService);
+      int modelOID12 = simpleManualA2.getModelOID();
+      
+      final ProcessInstance piOtherModel2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_OTHER, null, true);
+
+      ArchiveTest.completeOther(piOtherModel2, 5, queryService, workflowService);
+      int modelOID22 = piOtherModel2.getModelOID();
+
+      ProcessInstanceStateBarrier.instance().await(piOtherModel.getOID(),
+            ProcessInstanceState.Completed);
+            
+      final ProcessInstance piDeferred2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(piDeferred2.getOID(),
+            ProcessInstanceState.Completed);
+      
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleManualA2.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel2.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piDeferred2.getOID()));
+      
+      // clear the completed processes without archive queue cleared yet
+      exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      ArchiveTest.assertNotNullExportResult(exportResult);
+
+      deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, exportResult, false));
+      assertEquals(3, deleteCount);
+
+      clearedInstances = queryService.getAllProcessInstances(pQuery);
+      assertNotNull(clearedInstances);
+      assertEquals(0, clearedInstances.size());
+      
+      archiveQueue();
+      
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(2, archives.size());
+            
+      IArchive archive1 = archives.get(0);
+      IArchive archive2 = archives.get(1);
+      assertEquals(2, archive1.getExportModel().getModelIdToOid().size());
+      assertEquals(2, archive2.getExportModel().getModelIdToOid().size());
+      assertTrue(archive1.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
+      assertTrue(archive1.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertTrue(modelOID1 == archive1.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
+      assertTrue(modelOID2 == archive1.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertTrue(archive2.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
+      assertTrue(archive2.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertTrue(modelOID12 == archive2.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
+      assertTrue(modelOID22 == archive2.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, null, null));
+      assertEquals(3, count);
+         count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive2, null, null));
+      Models models = queryService.getModels(DeployedModelQuery
+            .findForId(ArchiveModelConstants.MODEL_ID_OTHER2));
+      DeployedModelDescription model = models.get(0);
+      adminService.deleteModel(model.getModelOID());
+      setUp();
+      assertEquals(6, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+      assertEquals(6, newInstances.size());
+      assertEquals(20, newActivities.size());
+   }
+   
+   @Test
+   public void testMultiModelDeleteBeforeArchive() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      AdministrationService adminService = sf.getAdministrationService();
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualA, queryService, workflowService);
+      int modelOID1 = simpleManualA.getModelOID();
+
+      final ProcessInstance piOtherModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_OTHER, null, true);
+
+      ArchiveTest.completeOther(piOtherModel, 5, queryService, workflowService);
+      int modelOID2 = piOtherModel.getModelOID();
+
+
+      ProcessInstanceStateBarrier.instance().await(piOtherModel.getOID(),
+            ProcessInstanceState.Completed);
+      
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+            
+      final ProcessInstance piDeferred = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(piDeferred.getOID(),
+            ProcessInstanceState.Completed);
+      
+    
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(simpleManualA.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piDeferred.getOID()));
+
+      // we have completed three processes from two different models
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(3, oldInstances.size());
+      assertEquals(10, oldActivities.size());
+
+      // clear the completed processes without archive queue cleared yet
+      HashMap<String, Object> descriptors = null;
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      ArchiveTest.assertNotNullExportResult(exportResult);
+
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, exportResult, false));
+      assertEquals(3, deleteCount);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+      
+      // delete all the models, then redeploy them so they have different ids
+      adminService.deleteModel(modelOID2);
+      adminService.deleteModel(modelOID1);
+
+      setUp();
+      // archive whilst no models active
+      archiveQueue();
+      
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      
+      
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1, archives.size());
+            
+      IArchive archive = archives.get(0);
+      assertEquals(2, archive.getExportModel().getModelIdToOid().size());
+      assertTrue(archive.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
+      assertTrue(archive.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertTrue(modelOID1 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
+      assertTrue(modelOID2 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
+      Models models = queryService.getModels(DeployedModelQuery
+            .findForId(ArchiveModelConstants.MODEL_ID_OTHER2));
+      DeployedModelDescription model = models.get(0);
+      adminService.deleteModel(model.getModelOID());
+      setUp();
+      assertEquals(3, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
+
+   }
+   
    @Test
    @SuppressWarnings("unchecked")
    public void testExportImportDeferredWithSubs() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       enableTransientProcessesSupport();
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -900,8 +1266,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void testExportImportDeferredUniqueRootPiTransientProcessInstanceSupport() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       enableTransientProcessesSupport();
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -984,12 +1348,203 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
    }
    
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testDatesAndHours() throws Exception
+   {
+      enableTransientProcessesSupport();
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(0, archives.size());
+      Date simpleManualADate = testTimestampProvider.getTimestamp(); //1.1.2080 00:00
+      final ProcessInstance simpleManualA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      testTimestampProvider.nextDay();
+      ArchiveTest.completeSimpleManual(simpleManualA, queryService, workflowService);
+      Date simpleManualBDate = testTimestampProvider.getTimestamp(); //2.1.2080 00:00
+      final ProcessInstance simpleManualB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      ArchiveTest.completeSimpleManual(simpleManualB, queryService, workflowService);
+      testTimestampProvider.nextHour();
+      Date simpleDate = testTimestampProvider.getTimestamp(); //2.1.2080 01:00
+      final ProcessInstance simpleA = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      ArchiveTest.completeSimple(simpleA, queryService, workflowService);
+      final ProcessInstance simpleB = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      testTimestampProvider.nextHour();
+      ArchiveTest.completeSimple(simpleB, queryService, workflowService);
+      Date subProcessesInModelDate = testTimestampProvider.getTimestamp(); //2.1.2080 02:00
+      final ProcessInstance subProcessesInModel = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+      Date subProcessesDate = ArchiveTest.completeSubProcessesInModel(subProcessesInModel,
+            queryService, workflowService, true, testTimestampProvider);
+      testTimestampProvider.nextHour();
+      Date deferredDate = testTimestampProvider.getTimestamp(); //2.1.2080 04:00
+      final ProcessInstance piDeferred = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_WITH_SUBS, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(piDeferred.getOID(),
+            ProcessInstanceState.Completed);
+      testTimestampProvider.nextDay();
+      Date scriptProcessDate = testTimestampProvider.getTimestamp(); //3.1.2080 04:00
+      final ProcessInstance scriptProcess = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS, null, true);
+      ArchiveTest.completeScriptProcess(scriptProcess, 10, "aaa", queryService, workflowService);
+
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+      ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLE);
+      querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstanceQuery querySubManual = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL);
+      querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances oldSubProcessInstancesSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances oldSubProcessInstancesManual = queryService
+            .getAllProcessInstances(querySubManual);
+      assertNotNull(oldSubProcessInstancesSimple);
+      assertEquals(1, oldSubProcessInstancesSimple.size());
+      assertNotNull(oldSubProcessInstancesManual);
+      assertEquals(1, oldSubProcessInstancesManual.size());
+      ProcessInstance subSimple = oldSubProcessInstancesSimple.iterator().next();
+      ProcessInstance subManual = oldSubProcessInstancesManual.iterator().next();
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      
+      for (ProcessInstance p : oldInstances)
+      {
+         orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(p.getOID()));
+      }
+
+      final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm",
+            Locale.GERMAN);
+      dateFormat.setTimeZone(TestTimeZoneProvider.FIXED_TEST_TIME_ZONE);
+      for (ProcessInstance process : oldInstances)
+      {
+         if (process.getOID() == simpleA.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 01:00"), process.getStartTime());
+            assertEquals(simpleDate, process.getStartTime());
+         }
+         if (process.getOID() == simpleB.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 01:00"), process.getStartTime());
+            assertEquals(simpleDate, process.getStartTime());
+         }
+         if (process.getOID() == simpleManualA.getOID())
+         {
+            assertEquals(dateFormat.parse("1.1.2080 00:00"), process.getStartTime());
+            assertEquals(simpleManualADate, process.getStartTime());
+         }
+         if (process.getOID() == simpleManualB.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 00:00"), process.getStartTime());
+            assertEquals(simpleManualBDate, process.getStartTime());
+         }
+         if (process.getOID() == subSimple.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 03:00"), process.getStartTime());
+            assertEquals(subProcessesDate, process.getStartTime());
+         }
+         if (process.getOID() == subManual.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 03:00"), process.getStartTime());
+            assertEquals(subProcessesDate, process.getStartTime());
+         }
+         if (process.getOID() == subProcessesInModel.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 02:00"), process.getStartTime());
+            assertEquals(subProcessesInModelDate, process.getStartTime());
+         }
+         if (process.getOID() == piDeferred.getOID())
+         {
+            assertEquals(dateFormat.parse("2.1.2080 04:00"), process.getStartTime());
+            assertEquals(deferredDate, process.getStartTime());
+         }
+         if (process.getOID() == scriptProcess.getOID())
+         {
+            assertEquals(dateFormat.parse("3.1.2080 04:00"), process.getStartTime());
+            assertEquals(scriptProcessDate, process.getStartTime());
+         }
+      }
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(11, oldInstances.size());
+      assertEquals(38, oldActivities.size());
+
+
+      archiveQueue();
+      HashMap<String, Object> descriptors = null;
+      ExportResult result = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertEquals(11, result.getPurgeProcessIds().size());
+      assertEquals(0, result.getDates().size());
+
+      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
+      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.PURGE, result, false));
+      assertEquals(11, deleteCount);
+
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(6, archives.size());
+      ImportMetaData meta = (ImportMetaData) workflowService
+            .execute(new ImportProcessesCommand(
+                  ImportProcessesCommand.Operation.VALIDATE, archives.get(0),null,  null));
+      assertNotNull(meta);
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(scriptProcessDate,
+                  archives), null, meta));
+      assertEquals(1, count);
+      count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleManualADate,
+                  archives), null, meta));
+      assertEquals(2, count);
+      count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleManualBDate,
+                  archives), null, meta));
+      assertEquals(3, count);
+      count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleDate, archives),
+            null, meta));
+      assertEquals(5, count);
+      // assert that sub processes are archived with their root process
+      assertNull(ArchiveTest.getArchive(subProcessesDate, archives));
+      count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(deferredDate,
+                  archives), null, meta));
+      count += (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(subProcessesInModelDate,
+                  archives), null, meta));
+      assertEquals(11, count);
+
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
+      ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+   
    @Test
    @SuppressWarnings("unchecked")
-   public void testExportImportDeferredGlobalOverrideToTransienAfterExport() throws Exception
+   public void testDeferredGlobalOverrideToTransienAfterExport() throws Exception
    {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       enableTransientProcessesSupport();
 
       WorkflowService workflowService = sf.getWorkflowService();
@@ -1078,7 +1633,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void autoExportMultipleRootPisTransientProcessInstanceSupport() throws Exception
    {
-      enableAutoArchive();
       enableTransientProcessesSupport();
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
@@ -1164,8 +1718,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    public void autoExportConcurrent() throws Exception
    {
       int concurrentThreads = 5;
-      
-      enableAutoArchive();
       final WorkflowService workflowService = sf.getWorkflowService();
       final QueryService queryService = sf.getQueryService();
       final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
@@ -1270,19 +1822,13 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
    }
-   
-   private void enableAutoArchive()
-   {
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
-   }
-   
+     
    private void archiveQueue() throws JMSException
    {
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(5000L);
+      jmsTemplate.setReceiveTimeout(2000L);
 
       Message message = null;
       List<ObjectMessage> messages = new ArrayList<ObjectMessage>();

@@ -1317,7 +1317,7 @@ public class ArchiveTest
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
-   private IArchive getArchive(Date date, List<IArchive> archives)
+   public static IArchive getArchive(Date date, List<IArchive> archives)
    {
       for (IArchive archive : archives)
       {
@@ -4224,7 +4224,7 @@ public class ArchiveTest
       assertEquals(2, oldActivities.size());
    }
 
-   private static ProcessInstance completeSimple(ProcessInstance pi, QueryService qs,
+   public static ProcessInstance completeSimple(ProcessInstance pi, QueryService qs,
          WorkflowService ws) throws TimeoutException, InterruptedException
    {
       completeNextActivity(pi, null, null, qs, ws);
@@ -5457,7 +5457,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi, textValue, 10, dataPathIds);
    }
 
-   private ActivityInstance completeOther(final ProcessInstance pi, int numberValue,
+   public static ActivityInstance completeOther(final ProcessInstance pi, int numberValue,
          QueryService qs, WorkflowService ws) throws TimeoutException,
          InterruptedException
    {
@@ -5472,7 +5472,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private static ActivityInstance completeScriptProcess(final ProcessInstance pi,
+   public static ActivityInstance completeScriptProcess(final ProcessInstance pi,
          int numberValue, String textValue, QueryService qs, WorkflowService ws)
          throws TimeoutException, InterruptedException
    {
@@ -5487,7 +5487,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private static ActivityInstance completeSimpleManual(final ProcessInstance pi,
+   public static ActivityInstance completeSimpleManual(final ProcessInstance pi,
          QueryService qs, WorkflowService ws) throws TimeoutException,
          InterruptedException
    {
@@ -5503,6 +5503,13 @@ public class ArchiveTest
 
    private static Date completeSubProcessesInModel(final ProcessInstance pi, QueryService qs,
          WorkflowService ws, boolean changeSubProcessDate) throws Exception
+   {
+
+      return completeSubProcessesInModel(pi, qs, ws, changeSubProcessDate, testTimestampProvider);
+   }
+   
+   public static Date completeSubProcessesInModel(final ProcessInstance pi, QueryService qs,
+         WorkflowService ws, boolean changeSubProcessDate, TestTimestampProvider testTimestampProvider) throws Exception
    {
 
       String dataInput1 = "aaaa";
@@ -5581,7 +5588,7 @@ public class ArchiveTest
       return writeActivity;
    }
 
-   private static ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
+   public static ActivityInstance completeNextActivity(final ProcessInstance pi, String dataId,
          Object data, String dataId2, Object data2, QueryService qs, WorkflowService ws)
    {
 //      final ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery
@@ -6257,7 +6264,7 @@ public class ArchiveTest
 
    }
 
-   private boolean hasStructuredDateField(long processInstanceOid, String dataId,
+   public static boolean hasStructuredDateField(long processInstanceOid, String dataId,
          String fieldName, Object value) throws Exception
    {
       String sql = "select cd.stringvalue from data d inner join data_value dv on d.oid = dv.data"
@@ -6460,7 +6467,7 @@ public class ArchiveTest
             false, queryService);
    }
 
-   private static void checkDataValue(long processInstanceOid, long activityOid,
+   public static void checkDataValue(long processInstanceOid, long activityOid,
          String processName, String dataId, Serializable expectedValue,
          boolean shouldExists, QueryService queryService)
    {

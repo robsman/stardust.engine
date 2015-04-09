@@ -42,12 +42,12 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.core.cache.AbstractCache;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
-import org.eclipse.stardust.engine.core.monitoring.DefaultProcessExecutionMonitor;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
@@ -55,8 +55,10 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenera
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -1677,6 +1679,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          List<Persistent> persistentToBeInserted = Collections.EMPTY_LIST;
          List<Persistent> persistentToBeUpdated = Collections.EMPTY_LIST;
 
+         List<IProcessInstance> processesToArchive = null;
+         boolean isNotTransient = true;
+         if (transientPiSupport.arePisTransientExecutionCandidates() || transientPiSupport.isTransientExecutionCancelled())
+         {
+            isNotTransient = transientPiSupport.persistentsNeedToBeWrittenToBlob();
+         }
+         boolean isAutoArchiveEnabled = ArchiveManagerFactory.autoArchive();
          // take a snapshot of the key set to avoid ConcurrentModificationExceptions
          for (Class<?> type : newList(objCacheRegistry.keySet()))
          {
@@ -1699,6 +1708,19 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             for (PersistenceController dpc : (Collection<PersistenceController>) cache.values())
             {
                Persistent persistent = dpc.getPersistent();
+               if (isNotTransient && type == ProcessInstanceBean.class && isAutoArchiveEnabled)
+               {
+                  ProcessInstanceBean pi = (ProcessInstanceBean) persistent;
+                  if (mustProcessBeArchived(pi))
+                  {
+                     if (processesToArchive == null)
+                     {
+                        processesToArchive = CollectionUtils.newArrayList(25);
+                     }
+                     processesToArchive.add(pi);
+                  }
+               }
+               
                if ((dpc.isCreated() || dpc.isModified())
                      && (persistent instanceof LazilyEvaluated))
                {
@@ -1960,9 +1982,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             try
             {
                blobBuilder.persistAndClose();
-
+               if (CollectionUtils.isNotEmpty(processesToArchive))
+               {
+                  ByteArrayBlobBuilder bb = (ByteArrayBlobBuilder) blobBuilder;
+                  ProcessInstanceUtils.archive(bb, this);
+               }
                transientPiSupport.storeBlob(blobBuilder, this, params);
-
                if (trace.isDebugEnabled())
                {
                   trace.debug("Persisted processes to BLOB.");
@@ -1972,6 +1997,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                throw new InternalException(
                      "Failed to persist processes to BLOB: " + e.getMessage(), e);
+            }
+         }
+         else
+         {
+            if (CollectionUtils.isNotEmpty(processesToArchive))
+            {
+               ProcessInstanceUtils.archive(processesToArchive);
             }
          }
 
@@ -1992,20 +2024,37 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             ModelManagerFactory.getCurrent().resetLastDeployment();
          }
 
-         if (DefaultProcessExecutionMonitor.ArchiveProcessInstance.get() != null)
-         {
-            ProcessInstanceUtils.archive(DefaultProcessExecutionMonitor.ArchiveProcessInstance.get());
-            DefaultProcessExecutionMonitor.ArchiveProcessInstance.remove();
-         }
       }
       catch (SQLException x)
       {
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
       }
+      finally 
+      {
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (rtEnv != null)
+         {
+            rtEnv.setOperationMode(BpmRuntimeEnvironment.OperationMode.DEFAULT);
+         }
+      }
       SessionLifecycleUtils.getSessionLifecycleExtension().afterSave(this);
    }
 
+   private boolean mustProcessBeArchived(ProcessInstanceBean persistentToFilter)
+   {
+      // check not archive for excluding re-archiving imported archived processes
+      final boolean isNotArchived = null == persistentToFilter.getPropertyValue(ProcessElementExporter.EXPORT_PROCESS_ID);
+      final boolean isAborted = persistentToFilter.isAborted();
+      final boolean isCompleted = persistentToFilter.isCompleted();
+      final boolean isRoot = persistentToFilter.getOID() == persistentToFilter.getRootProcessInstanceOID();
+      
+      final boolean isCreated = persistentToFilter.getPersistenceController().isCreated();
+      final boolean isModified = persistentToFilter.getPersistenceController().isModified();
+      
+      return (isNotArchived && (isCreated || isModified) && isRoot && (isAborted || isCompleted));
+   }
+   
    private void remove(AbstractCache externalCache, Persistent persistent)
    {
       if (externalCache != null)

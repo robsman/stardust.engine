@@ -18,17 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -43,39 +33,16 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
-import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.Note;
-import org.eclipse.stardust.engine.api.dto.NoteDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
-import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.RuntimeObject;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.api.dto.*;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveQueueSender;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
-import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -101,17 +68,53 @@ public class ProcessInstanceUtils
 
    private static final int PK_OID = 0;
 
-   public static void archive(IProcessInstance pi)
+   public static void archive(List<IProcessInstance> pis)
    {
-      if (pi.getRootProcessInstanceOID() == pi.getOID())
+      if (CollectionUtils.isNotEmpty(pis))
       {
-         if (ArchiveManagerFactory.autoArchive())
+         List<Long> oids = new ArrayList<Long>();
+         for (IProcessInstance pi : pis)
          {
-            ExportProcessesCommand command = new ExportProcessesCommand(pi);
-
-            new WorkflowServiceImpl().execute(command);
+            oids.add(pi.getOID());
          }
+         HashMap<String, Object> descriptors = null;
+         ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
+               .execute(new ExportProcessesCommand(
+                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
+                     false));
+         ArchiveQueueSender sender = new ArchiveQueueSender();
+         sender.sendMessage(exportResult);
       }
+      else
+      {
+         trace.warn("Received empty list of processes to archive.");
+      }
+   }
+   
+
+   /**
+    * for archiving deferred processes
+    * @param blobBuilder
+    * @param session
+    */
+   public static void archive(ByteArrayBlobBuilder blobBuilder, Session session)
+   {
+      if (blobBuilder == null)
+      {
+         trace.warn("Received null blobBuilder to archive.");
+         return;
+      }
+      if (session == null)
+      {
+         trace.warn("Received null session to archive.");
+         return;
+      }
+      
+      ExportResult exportResult = new ExportResult(false);
+      exportResult.close(blobBuilder, session);
+     
+      ArchiveQueueSender sender = new ArchiveQueueSender();
+      sender.sendMessage(exportResult);
    }
    
    public static void cleanupProcessInstance(IProcessInstance pi)

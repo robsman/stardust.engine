@@ -42,7 +42,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  *
  * @author Roland.Stamm
  */
-@FixMethodOrder(MethodSorters.JVM)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DmsMultiRepositoryMultiPartitionTest
 {
    private static final String PARTITION1 = "dms_multi_partition_1";
@@ -103,7 +103,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testConfigurationTemplate()
+   public void test01ConfigurationTemplate()
    {
       List<IRepositoryProviderInfo> providerInfos = getDms().getRepositoryProviderInfos();
 
@@ -122,7 +122,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testConfigurationTemplate_p1()
+   public void test02ConfigurationTemplate_p1()
    {
       List<IRepositoryProviderInfo> providerInfos = getDmsP1().getRepositoryProviderInfos();
 
@@ -142,7 +142,7 @@ public class DmsMultiRepositoryMultiPartitionTest
 
 
    @Test
-   public void testBind()
+   public void test03Bind()
    {
       IRepositoryConfiguration config = RepositoryTestUtils.createTestRepoConfig();
       getDms().bindRepository(config);
@@ -154,7 +154,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testBind_p1()
+   public void test04Bind_p1()
    {
       IRepositoryConfiguration config = RepositoryTestUtils.createTestRepoConfig();
       getDmsP1().bindRepository(config);
@@ -166,7 +166,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testListing()
+   public void test05Listing()
    {
 
       List<IRepositoryProviderInfo> repositoryProviderInfos = getDms().getRepositoryProviderInfos();
@@ -185,7 +185,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testListing_p1()
+   public void test06Listing_p1()
    {
 
       List<IRepositoryProviderInfo> repositoryProviderInfos = getDmsP1().getRepositoryProviderInfos();
@@ -204,7 +204,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testLegacyIdAccess()
+   public void test07LegacyIdAccess()
    {
       getDms().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", SYSTEM_REPO_ID));
@@ -221,7 +221,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testLegacyIdAccessTestRepo()
+   public void test08LegacyIdAccessTestRepo()
    {
       getDms().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -238,7 +238,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testLegacyIdAccessTestRepo_p1()
+   public void test09LegacyIdAccessTestRepo_p1()
    {
       getDmsP1().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -255,7 +255,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSeparation()
+   public void test10Separation()
    {
       getDms().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -273,7 +273,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSeparation_p1()
+   public void test11Separation_p1()
    {
       getDmsP1().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -291,7 +291,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSeparationWithVersioning()
+   public void test12SeparationWithVersioning()
    {
       getDms().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -329,7 +329,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSeparationWithVersioning_p1()
+   public void test13SeparationWithVersioning_p1()
    {
       getDmsP1().removeDocument(
             RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
@@ -367,7 +367,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testFolderHierarchyIds()
+   public void test14FolderHierarchyIds()
    {
       getDms().createFolder(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
             DmsUtils.createFolderInfo("testFolder"));
@@ -399,7 +399,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testFolderHierarchyIds_p1()
+   public void test15FolderHierarchyIds_p1()
    {
       getDmsP1().createFolder(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID),
             DmsUtils.createFolderInfo("testFolder"));
@@ -431,7 +431,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSwitchDefaultRepository()
+   public void test16SwitchDefaultRepository()
    {
       Assert.assertEquals(SYSTEM_REPO_ID, getDms().getDefaultRepository());
 
@@ -460,7 +460,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSwitchDefaultRepository_p1()
+   public void test17SwitchDefaultRepository_p1()
    {
       Assert.assertEquals(SYSTEM_REPO_ID, getDmsP1().getDefaultRepository());
 
@@ -489,7 +489,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSwitchBackDefaultRepository()
+   public void test18SwitchBackDefaultRepository()
    {
       Assert.assertEquals(TEST_REPO_ID, getDms().getDefaultRepository());
 
@@ -521,7 +521,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testSwitchBackDefaultRepository_p1()
+   public void test19SwitchBackDefaultRepository_p1()
    {
       Assert.assertEquals(TEST_REPO_ID, getDmsP1().getDefaultRepository());
 
@@ -553,7 +553,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test(expected = DocumentManagementServiceException.class)
-   public void testSetInvalidDefaultRepository()
+   public void test20SetInvalidDefaultRepository()
    {
       getDms().setDefaultRepository("invalid");
 
@@ -561,7 +561,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test(expected = DocumentManagementServiceException.class)
-   public void testSetInvalidDefaultRepository_p1()
+   public void test21SetInvalidDefaultRepository_p1()
    {
       getDmsP1().setDefaultRepository("invalid");
 
@@ -569,19 +569,19 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test(expected = DocumentManagementServiceException.class)
-   public void testBindAlreadyExisting()
+   public void test22BindAlreadyExisting()
    {
       getDms().bindRepository(RepositoryTestUtils.createTestRepoConfig());
    }
 
    @Test(expected = DocumentManagementServiceException.class)
-   public void testBindAlreadyExisting_p1()
+   public void test23BindAlreadyExisting_p1()
    {
       getDmsP1().bindRepository(RepositoryTestUtils.createTestRepoConfig());
    }
 
    @Test
-   public void testUnbind()
+   public void test24Unbind()
    {
       getDms().unbindRepository(TEST_REPO_ID);
 
@@ -594,7 +594,7 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test
-   public void testUnbind_p1()
+   public void test25Unbind_p1()
    {
       getDmsP1().unbindRepository(TEST_REPO_ID);
 
@@ -607,14 +607,14 @@ public class DmsMultiRepositoryMultiPartitionTest
    }
 
    @Test(expected = PublicException.class)
-   public void testRequestDocumentNonExistingRepository()
+   public void test26RequestDocumentNonExistingRepository()
    {
       getDms().getDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
       Assert.fail("Exception should be thrown.");
    }
 
    @Test(expected = PublicException.class)
-   public void testRequestDocumentNonExistingRepository_p1()
+   public void test27RequestDocumentNonExistingRepository_p1()
    {
       getDmsP1().getDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
       Assert.fail("Exception should be thrown.");

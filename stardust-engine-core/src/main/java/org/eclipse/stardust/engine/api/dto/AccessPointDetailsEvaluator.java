@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,27 +28,27 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider
 
 /**
  * This class is used to evaluate AccessPointDetails for AccessPointOwner.
- * 
+ *
  * @author sborn
  * @version $Revision$
  */
 public class AccessPointDetailsEvaluator implements Serializable
 {
    private static final long serialVersionUID = 1L;
-   
+
    private String providerClassName;
    private List persistentAccessPoints;
    private List transientAccessPoints = null;
-   
+
    private List allAccessPoints = null;
 
    private Map detailsAttributes;
    private Map typeAttributes;
-   
+
    /**
-    * This utility method helps to determine if an activity is implemented in terms 
+    * This utility method helps to determine if an activity is implemented in terms
     * of an interactive application.
-    * 
+    *
     * @param activity the activity;
     * @return true if activity is implemented in terms of an interactive application.
     */
@@ -57,11 +57,11 @@ public class AccessPointDetailsEvaluator implements Serializable
       return ImplementationType.Application.equals(activity.getImplementationType())
             && activity.getApplication().isInteractive();
    }
-   
+
    // TODO: calculate both attribute maps for owner internally.
    /**
     * @param owner the access point owner.
-    * @param isInteractiveApplication  If set to true, then the evaluation of the access 
+    * @param isInteractiveApplication  If set to true, then the evaluation of the access
     *                                  points will be done in the context of the client.
     * @param detailsAttributes the attributes of the owner, owner.getAllAttributes()
     * @param typeAttributes the type attributes of the owner, i.e. ((Typeable)owner).getType().getAllAttributes().
@@ -83,13 +83,14 @@ public class AccessPointDetailsEvaluator implements Serializable
       }
       else
       {
-         boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
+         final boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
                Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
          // do instant evaluation
-         allAccessPoints = isArchiveAuditTrail ? Collections.emptyList() : createDetailsCollection(owner.getAllAccessPoints());
+         allAccessPoints = isArchiveAuditTrail ? Collections.emptyList()
+               : createDetailsCollection(owner.getAllAccessPoints());
       }
    }
-   
+
    private static List createDetailsCollection(Iterator iterator)
    {
       return DetailsFactory.createCollection(iterator, AccessPoint.class,
@@ -107,7 +108,7 @@ public class AccessPointDetailsEvaluator implements Serializable
 
       return allAccessPoints;
    }
-   
+
    public AccessPointDetails findAccessPoint(String id)
    {
       for (Iterator persIter = getAccessPoints().iterator(); persIter.hasNext();)

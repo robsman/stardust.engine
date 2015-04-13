@@ -85,5 +85,5 @@ public class HistoricalEventDescriptionStateChangeDetails implements
    public ParticipantInfo getOnBehalfOfPerformer()
    {
       return onBehalfOfPerformer;
-}
+   }
 }

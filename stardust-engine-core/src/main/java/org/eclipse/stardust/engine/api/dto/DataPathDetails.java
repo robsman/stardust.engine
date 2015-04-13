@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,13 @@ package org.eclipse.stardust.engine.api.dto;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
@@ -39,7 +41,7 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
    private boolean keyDescriptor;
    private String accessPath;
    private String data;
-   
+
    private final String processDefinitionId;
 
    DataPathDetails(CaseDescriptorRef ref)
@@ -63,7 +65,10 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
          IDataType dataType = (IDataType) path.getData().getType();
          String validatorClass = dataType
                .getStringAttribute(PredefinedConstants.VALIDATOR_CLASS_ATT);
-         if ( !StringUtils.isEmpty(validatorClass))
+         final boolean isArchiveAuditTrail = ParametersFacade.instance().getBoolean(
+               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+
+         if ( !isArchiveAuditTrail && !StringUtils.isEmpty(validatorClass))
          {
             ExtendedDataValidator validator = SpiUtils
                   .createExtendedDataValidator(validatorClass);
@@ -89,11 +94,11 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
       keyDescriptor = path.isKeyDescriptor();
       accessPath = path.getAccessPath();
       data = path.getData().getId();
-      
+
       ModelElement parent = path.getParent();
       this.processDefinitionId = (parent instanceof IProcessDefinition)
             ? ((IProcessDefinition) parent).getId()
-            : null; 
+            : null;
    }
 
    public Class getMappedType()

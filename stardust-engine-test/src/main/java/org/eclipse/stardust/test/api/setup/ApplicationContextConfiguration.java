@@ -26,6 +26,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * </p>
  *
  * <p>
+ * All {@link ApplicationContextConfiguration} annotations in a class hierarchy will be respected, i.e. if the test class extends another class
+ * and both classes have (different) {@link ApplicationContextConfiguration} annotations, the specified {@link #locations()} will be cumulated.
+ * </p>
+ *
+ * <p>
  * Only those {@link #locations()} are allowed that could also be passed to {@link ClassPathXmlApplicationContext#ClassPathXmlApplicationContext(String...)}.
  * </p>
  *

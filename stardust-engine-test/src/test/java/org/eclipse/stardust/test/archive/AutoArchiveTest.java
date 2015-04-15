@@ -28,12 +28,14 @@ import org.springframework.jms.core.JmsTemplate;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
+import org.eclipse.stardust.engine.spring.integration.jms.archiving.ArchiveQueueAggregator;
 import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
@@ -45,7 +47,7 @@ import org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTes
 
 //test with write behind
 //test with date changes
-@ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
+@ApplicationContextConfiguration(locations = "classpath:app-ctxs/archive.app-ctx.xml")
 public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 {
 
@@ -60,6 +62,8 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
+   
+   ArchiveQueueAggregator aggregator;
    
    private static TestTimestampProvider testTimestampProvider = new TestTimestampProvider();
 
@@ -83,6 +87,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @Before
    public void setUp() throws Exception
    { 
+      aggregator = SpringUtils.getApplicationContext().getBean("ArchiveQueueAggregator", ArchiveQueueAggregator.class);
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
             "true");
       testTimestampProvider = new TestTimestampProvider();
@@ -1030,9 +1035,22 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(2, archives.size());
-            
-      IArchive archive1 = archives.get(0);
-      IArchive archive2 = archives.get(1);
+
+      IArchive archive1 = null;
+      IArchive archive2 = null;
+      for (IArchive archive : archives)
+      {
+         if (modelOID1 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID))
+         {
+            archive1 = archive;
+         }
+         if (modelOID12 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID))
+         {
+            archive2 = archive;
+         }
+      }
+      assertNotNull(archive1);
+      assertNotNull(archive2);
       assertEquals(2, archive1.getExportModel().getModelIdToOid().size());
       assertEquals(2, archive2.getExportModel().getModelIdToOid().size());
       assertTrue(archive1.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
@@ -1825,28 +1843,26 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
      
    private void archiveQueue() throws JMSException
    {
+      aggregator.doAggregate(testClassSetup.queueConnectionFactory(), testClassSetup.queue(JmsProperties.EXPORT_QUEUE_NAME_PROPERTY),
+            testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY));
+      
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
       jmsTemplate.setReceiveTimeout(2000L);
 
       Message message = null;
-      List<ObjectMessage> messages = new ArrayList<ObjectMessage>();
-      do {
-         message = jmsTemplate.receive(queue);
-         if (message != null && !(message instanceof ObjectMessage))
-         {
-            throw new UnsupportedOperationException("Can only read from Object message.");
-         }
-         if (message != null)
-         {
-            ObjectMessage objMessage = (ObjectMessage) message;
-            messages.add(objMessage);
-         }
-      }
-      while (message != null);
      
-      final ExportProcessesCommand command = new ExportProcessesCommand(messages);
-      sf.getWorkflowService().execute(command);
+      message = jmsTemplate.receive(queue);
+      if (message != null && !(message instanceof ObjectMessage))
+      {
+         throw new UnsupportedOperationException("Can only read from Object message.");
+      }
+         
+      if (message != null)
+      {
+         final ExportProcessesCommand command = new ExportProcessesCommand((ObjectMessage) message);
+         sf.getWorkflowService().execute(command);
+      }
    }
 }

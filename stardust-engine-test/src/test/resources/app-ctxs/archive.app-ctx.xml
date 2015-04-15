@@ -16,11 +16,22 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
-
+   
    <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
-      <property name="name" value="jms/CarnotAuditTrailQueue" />
-      <property name="resource" ref="auditTrailQueue" />
+      <property name="name" value="jms/CarnotArchiveQueue" />
+      <property name="resource" ref="CarnotJmsArchiveQueue" />
    </bean>
 
-   <amq:queue id="auditTrailQueue" physicalName="CarnotAuditTrailQueue" />
+   <amq:queue id="CarnotJmsArchiveQueue" physicalName="CarnotArchiveQueue" />
+   
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotExportQueue" />
+      <property name="resource" ref="CarnotJmsExportQueue" />
+   </bean>
+
+   <amq:queue id="CarnotJmsExportQueue" physicalName="CarnotExportQueue" />
+   
+   <bean name="ArchiveQueueAggregator" class="org.eclipse.stardust.engine.spring.integration.jms.archiving.ArchiveQueueAggregator">
+       <property name="transactionManager" ref="jtaTxManager"/>
+   </bean>
 </beans>

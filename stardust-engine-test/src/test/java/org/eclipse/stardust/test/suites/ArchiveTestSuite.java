@@ -37,7 +37,7 @@ import org.eclipse.stardust.test.archive.AutoArchiveTest;
 @SuiteClasses({
    ArchiveTest.class, AutoArchiveTest.class
               })
-@ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
+@ApplicationContextConfiguration(locations = "classpath:app-ctxs/archive.app-ctx.xml")
 public class ArchiveTestSuite
 {
    /* test suite */

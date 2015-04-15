@@ -36,7 +36,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveQueueSender;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportQueueSender;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
@@ -82,7 +82,7 @@ public class ProcessInstanceUtils
                .execute(new ExportProcessesCommand(
                      ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                      false));
-         ArchiveQueueSender sender = new ArchiveQueueSender();
+         ExportQueueSender sender = new ExportQueueSender();
          sender.sendMessage(exportResult);
       }
       else
@@ -113,7 +113,7 @@ public class ProcessInstanceUtils
       ExportResult exportResult = new ExportResult(false);
       exportResult.close(blobBuilder, session);
      
-      ArchiveQueueSender sender = new ArchiveQueueSender();
+      ExportQueueSender sender = new ExportQueueSender();
       sender.sendMessage(exportResult);
    }
    

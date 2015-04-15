@@ -105,7 +105,6 @@ public class ArchiveQueueAggregator implements ApplicationContextAware
          {
             trace.debug("ArchiveQueueAggregator processed " + messageCount + " messages");
          }
-         System.out.println("ArchiveQueueAggregator processed " + messageCount + " messages");
 
          if (CollectionUtils.isNotEmpty(partitionObjects.keySet()))
          {
@@ -121,10 +120,6 @@ public class ArchiveQueueAggregator implements ApplicationContextAware
                         partitionObjects.get(partition).size() + 
                         " messages to partition " + partition);
                }
-               System.out.println("ArchiveQueueAggregator sent " + 
-                     partitionObjects.get(partition).size() + 
-                     " messages to partition " + partition);
-
             }
             success = true;
          }

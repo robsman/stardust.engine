@@ -495,6 +495,7 @@ public class ExportProcessesCommand implements ServiceCommand
       ResultSet rs = session.executeQuery(query);
       try
       {
+         String dateFormat = ArchiveManagerFactory.getDateFormat();
          while (rs.next())
          {
             Long oid = rs.getBigDecimal(ProcessInstanceBean.FIELD__OID).longValue();
@@ -504,6 +505,8 @@ public class ExportProcessesCommand implements ServiceCommand
                   ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE).longValue();
             Date startDate = new Date(rs.getBigDecimal(
                   ProcessInstanceBean.FIELD__START_TIME).longValue());
+            Date terminationTime = new Date(rs.getBigDecimal(
+                  ProcessInstanceBean.FIELD__TERMINATION_TIME).longValue());
             String uuid = rs.getString(ProcessInstanceProperty.FIELD__STRING_VALUE);
             boolean exported = ExportImportSupport.getUUID(oid, startDate).equals(uuid);
             boolean isInFilter = false;
@@ -531,11 +534,11 @@ public class ExportProcessesCommand implements ServiceCommand
             {
                if (exported)
                {
-                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, uuid);
+                  exportMetaData.addProcess(oid, startDate, terminationTime, rootOid, modelOid, uuid, dateFormat);
                }
                else
                {
-                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, null);
+                  exportMetaData.addProcess(oid, startDate, terminationTime, rootOid, modelOid, null, dateFormat);
                }
             }
          }
@@ -556,7 +559,7 @@ public class ExportProcessesCommand implements ServiceCommand
             new Column[] {
                   ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__MODEL,
                   ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
-                  ProcessInstanceBean.FR__START_TIME,
+                  ProcessInstanceBean.FR__START_TIME, ProcessInstanceBean.FR__TERMINATION_TIME,
                   ProcessInstanceProperty.FR__STRING_VALUE});
 
       query.leftOuterJoin(ProcessInstanceProperty.class, "pip")
@@ -815,11 +818,13 @@ public class ExportProcessesCommand implements ServiceCommand
          return dateToRootPIOids.get(indexDateTime);
       }
 
-      public void addProcess(Long oid, Date startTime, Long rootProcessOid,
-            Integer modelOid, String uuid)
+      private void addProcess(Long oid, Date startTime, Date terminationTime, Long rootProcessOid,
+            Integer modelOid, String uuid, String dateFormat)
       {
          Date indexDateTime = ExportImportSupport.getIndexDateTime(startTime);
-         ExportProcess process = new ExportProcess(oid, uuid, null);
+         ExportProcess process = new ExportProcess(oid,  ExportImportSupport.formatDate(startTime, dateFormat), 
+               ExportImportSupport.formatDate(terminationTime, dateFormat),
+               uuid, null);
          if (rootProcessOid.equals(oid))
          {
             ArrayList<ExportProcess> subProcesses = rootToSubProcesses.get(process);

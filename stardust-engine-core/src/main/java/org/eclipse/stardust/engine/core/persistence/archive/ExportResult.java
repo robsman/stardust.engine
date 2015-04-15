@@ -74,8 +74,10 @@ public class ExportResult implements Serializable
       String uuid = ExportImportSupport.getUUID(processInstance);
       Map<String, String> descriptors = ExportImportSupport.getFormattedDescriptors(
             processInstance, null);
-      ExportProcess result = new ExportProcess(processInstance.getOID(), uuid,
-            descriptors);
+      ExportProcess result = new ExportProcess(processInstance.getOID(),
+            ExportImportSupport.formatDate(processInstance.getStartTime(), null),
+            ExportImportSupport.formatDate(processInstance.getTerminationTime(), null),
+            uuid, descriptors);
       return result;
    }
 

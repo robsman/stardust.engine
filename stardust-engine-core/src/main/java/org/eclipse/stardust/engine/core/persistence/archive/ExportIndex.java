@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,18 +97,24 @@ public class ExportIndex implements Serializable
    /**
     * Returns map of RootProcessToSubProcesses where the root process or one of it's subprocesses matches one of the descriptors
     * @param descriptors
+    * @param toDate 
+    * @param fromDate 
     * @return
     */
-   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids)
+   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids, 
+         Date startDate, Date endDate)
    {
-      if ((descriptors == null || descriptors.isEmpty()) && processInstanceOids == null)
+      if ((descriptors == null || descriptors.isEmpty()) && (processInstanceOids == null && (startDate == null || endDate == null)))
       {
          return getRootProcessToSubProcesses();
       }
+      DateFormat df = new SimpleDateFormat(dateFormat);
       Map<ExportProcess, List<ExportProcess>> result = new HashMap<ExportProcess, List<ExportProcess>>();
       for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
       {
-         if (processInstanceOidMatch(processInstanceOids, rootProcess.getOid()) && descriptorMatch(rootProcess.getDescriptors(), descriptors))
+         if (dateMatch(df, rootProcess, startDate, endDate) 
+               && processInstanceOidMatch(processInstanceOids, rootProcess.getOid()) 
+               && descriptorMatch(rootProcess.getDescriptors(), descriptors))
          {
             result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
          }
@@ -117,7 +124,9 @@ public class ExportIndex implements Serializable
                   rootProcess);
             for (ExportProcess subProcess : subProcesses)
             {
-               if (processInstanceOidMatch(processInstanceOids, subProcess.getOid()) && descriptorMatch(subProcess.getDescriptors(), descriptors))
+               if (dateMatch(df, subProcess, startDate, endDate) 
+                     && processInstanceOidMatch(processInstanceOids, subProcess.getOid()) 
+                     && descriptorMatch(subProcess.getDescriptors(), descriptors))
                {
                   result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
                   break;
@@ -126,6 +135,25 @@ public class ExportIndex implements Serializable
          }
       }
       return result;
+   }
+
+   private boolean dateMatch(DateFormat df, ExportProcess process, Date startDate, Date endDate)
+   {
+      if (startDate == null || endDate == null)
+      {
+         return true;
+      }
+      try
+      {
+         Date processStart = df.parse(process.getStartDate());
+         Date processEnd = df.parse(process.getEndDate());
+         return (startDate.compareTo(processStart) < 1)
+               && (endDate.compareTo(processEnd) > -1);
+      }
+      catch (ParseException e)
+      {
+         throw new IllegalStateException("Failed to parse date in archive " + e.getMessage(), e);
+      }
    }
    
    private boolean processInstanceOidMatch(List<Long> processInstanceOids, Long oid)

@@ -225,23 +225,21 @@ public class ImportProcessesCommand implements ServiceCommand
       ImportOidResolver oidResolver = new ImportOidResolver(importMetaData);
       final Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
-      ImportFilter filter;
-      if (fromDate != null && toDate != null)
-      {
-         filter = new ImportFilter(fromDate, toDate);
-      }
-      else
-      {
-         filter = new ImportFilter();
-      }
       try
       {
          Map<String, List<byte[]>> dataByTable;
          importCount = 0;
          Map<ExportProcess, List<ExportProcess>> exportProcesses = archive
-               .getExportIndex().getProcesses(descriptors, processInstanceOids);
+               .getExportIndex().getProcesses(descriptors, processInstanceOids, fromDate, toDate);
          for (ExportProcess rootProcess : exportProcesses.keySet())
          {
+            ProcessInstanceBean existing = (ProcessInstanceBean) session.findByOID(
+                        ProcessInstanceBean.class, rootProcess.getOid());
+            // this process already exists, do not import it again
+            if (existing != null)
+            {
+               continue;
+            }
             List<Long> processes = new ArrayList<Long>();
             processes.add(rootProcess.getOid());
             List<ExportProcess> subProcesses = exportProcesses.get(rootProcess);
@@ -251,7 +249,7 @@ public class ImportProcessesCommand implements ServiceCommand
             }
             dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
             importCount += ExportImportSupport.importProcessInstances(dataByTable,
-                  session, filter, oidResolver);
+                  session, oidResolver);
             
             // create the export process ids, unless we are importing a dump
             if (!archive.getExportIndex().isDump())

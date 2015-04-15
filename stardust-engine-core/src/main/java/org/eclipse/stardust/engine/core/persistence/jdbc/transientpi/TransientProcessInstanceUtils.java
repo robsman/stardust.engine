@@ -23,7 +23,6 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.archive.ImportFilter;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportOidResolver;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
@@ -254,8 +253,6 @@ public class TransientProcessInstanceUtils
 
       private final TypeDescriptorRegistry typeDescRegistry;
 
-      private final ImportFilter filter;
-
       private final ImportOidResolver oidResolver;
 
       /**
@@ -276,12 +273,10 @@ public class TransientProcessInstanceUtils
 
          this.session = session;
          this.typeDescRegistry = TypeDescriptorRegistry.current();
-         this.filter = null;
          this.oidResolver = null;
       }
 
-      public ProcessBlobReader(final Session session, final ImportFilter filter,
-            final ImportOidResolver oidResolver)
+      public ProcessBlobReader(final Session session, final ImportOidResolver oidResolver)
       {
          if (session == null)
          {
@@ -290,7 +285,6 @@ public class TransientProcessInstanceUtils
 
          this.session = session;
          this.typeDescRegistry = TypeDescriptorRegistry.current();
-         this.filter = filter;
          this.oidResolver = oidResolver;
       }
 
@@ -365,24 +359,10 @@ public class TransientProcessInstanceUtils
 
             final Object[] linkBuffer = recreateLinkBuffer(reader, linkDescs);
 
-            if (this.filter == null)
-            {
-               final DefaultPersistenceController pc = new DefaultPersistenceController(
-                     session, typeDesc, persistent, linkBuffer);
-               pc.markCreated();
-               persistents.add(persistent);
-            }
-            else
-            {
-               boolean isInFilter = filter.isInFilter(persistent, linkBuffer);
-               if (isInFilter)
-               {
-                  final DefaultPersistenceController pc = new DefaultPersistenceController(
-                        session, typeDesc, persistent, linkBuffer);
-                  persistents.add(persistent);
-                  pc.markCreated();
-               }
-            }
+            final DefaultPersistenceController pc = new DefaultPersistenceController(
+                  session, typeDesc, persistent, linkBuffer);
+            pc.markCreated();
+            persistents.add(persistent);
          }
       }
 

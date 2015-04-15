@@ -10,6 +10,10 @@ public class ExportProcess implements Serializable
    private static final long serialVersionUID = 1L;
 
    private long oid;
+   
+   private String startDate;
+   
+   private String endDate;
 
    private String uuid;
    
@@ -18,14 +22,16 @@ public class ExportProcess implements Serializable
    public ExportProcess()
    {}
 
-   public ExportProcess(long oid, String uuid, Map<String, String> descriptors)
+   public ExportProcess(long oid, String startDate, String endDate, String uuid, Map<String, String> descriptors)
    {
       super();
       this.oid = oid;
       this.uuid = uuid;
       this.descriptors = descriptors;
+      this.startDate = startDate;
+      this.endDate = endDate;
    }
-
+   
    public long getOid()
    {
       return oid;
@@ -41,7 +47,11 @@ public class ExportProcess implements Serializable
       Gson gson = ExportImportSupport.getGson();
       String descr = gson.toJson(descriptors);
       
-      String rv = String.valueOf(oid) + ":" + uuid + ":" + descr.toString();
+      String rv = String.valueOf(oid) + ExportProcessSerializer.DELIMETER + 
+            startDate + ExportProcessSerializer.DELIMETER + 
+            endDate + ExportProcessSerializer.DELIMETER + 
+            uuid + ExportProcessSerializer.DELIMETER + 
+            descr.toString();
       return rv;
    }
 
@@ -75,6 +85,16 @@ public class ExportProcess implements Serializable
          return false;
       }
       return true;
+   }
+   
+   public String getStartDate()
+   {
+      return startDate;
+   }
+
+   public String getEndDate()
+   {
+      return endDate;
    }
 
    public Map<String, String> getDescriptors()

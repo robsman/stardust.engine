@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -289,6 +290,34 @@ public class ExportImportSupport
          }
       }
       return hasConflict;
+   }
+   
+   /**
+    * Formats a date with the given dateFormat, if dateFormat is empty
+    * ArchiveManagerFactory.getDateFormat() is used
+    * @param date
+    * @param dateFormat
+    * @return
+    */
+   public static String formatDate(Date date, String dateFormat)
+   {
+      try
+      {
+         if (StringUtils.isEmpty(dateFormat))
+         {
+            dateFormat = ArchiveManagerFactory.getDateFormat();  
+         }
+         DateFormat df = new SimpleDateFormat(dateFormat);
+         if (date != null)
+         {
+            return df.format((Date) date);
+         }
+         return "";
+      }
+      catch (Exception e)
+      {
+         throw new IllegalArgumentException("Failed to format date " + date + " with date pattern: " + dateFormat);
+      }
    }
    
    public static ExportResult merge(List<ExportResult> exportResults, ExportModel exportModel)
@@ -572,7 +601,7 @@ public class ExportImportSupport
     * 
     */
    public static int importProcessInstances(Map<String, List<byte[]>> rawData,
-         final Session session, ImportFilter filter, ImportOidResolver oidResolver)
+         final Session session, ImportOidResolver oidResolver)
    {
       int count;
       if (rawData == null)
@@ -581,7 +610,7 @@ public class ExportImportSupport
       }
       else
       {
-         final ProcessBlobReader reader = new ProcessBlobReader(session, filter,
+         final ProcessBlobReader reader = new ProcessBlobReader(session,
                oidResolver);
          final Set<Persistent> persistents = new HashSet<Persistent>();
 

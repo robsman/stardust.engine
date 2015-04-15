@@ -79,12 +79,12 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final HashMap<String, Object> descriptors;
    
-   private final List<ObjectMessage> messages;
+   private final ObjectMessage message;
    
    private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
          Date toDate, HashMap<String, Object> descriptors, ExportResult exportResult,
-         boolean dumpData, List<ObjectMessage> messages)
+         boolean dumpData, ObjectMessage message)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -95,7 +95,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.exportResult = exportResult;
       this.descriptors = descriptors;
       this.dumpData = dumpData;
-      this.messages = messages;
+      this.message = message;
    }
 
    /**
@@ -168,10 +168,10 @@ public class ExportProcessesCommand implements ServiceCommand
    /**
    * Use this constructor to auto archive a DEFERRED process instance
    */
-   public ExportProcessesCommand(List<ObjectMessage> messages)
+   public ExportProcessesCommand(ObjectMessage message)
    {
       this(Operation.ARCHIVE_MESSAGES, null, null, new ArrayList<Long>(), null, null, null,
-            null, false, messages);
+            null, false, message);
    }
 
    
@@ -230,27 +230,23 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       
       Serializable object;
-      List<ExportResult> exportResults = new ArrayList<ExportResult>();
-      for (ObjectMessage message : messages)
+      List<ExportResult> exportResults;
+      try
       {
-         try
+         object = message.getObject();
+         if (object instanceof List)
          {
-            object = message.getObject();
-            if (object instanceof ExportResult)
-            {
-               ExportResult result = (ExportResult) object;
-               exportResults.add(result);
-            }
-            else
-            {
-               throw new IllegalArgumentException("Invalid object received to archive.");
-            }
+            exportResults = (List) object;
          }
-         catch (JMSException e)
+         else
          {
-            LOGGER.error("Failed to retrieve archive object from message", e);
-            return false;
+            throw new IllegalArgumentException("Invalid object received to archive.");
          }
+      }
+      catch (JMSException e)
+      {
+         LOGGER.error("Failed to retrieve archive object from message", e);
+         return false;
       }
       
       if (!exportResults.isEmpty())
@@ -262,6 +258,10 @@ public class ExportProcessesCommand implements ServiceCommand
             archive(session);
          }
       }
+//      if (1 ==1 )
+//      {
+//         throw new RuntimeException();
+//      }
       return true;
    }
 
@@ -374,11 +374,12 @@ public class ExportProcessesCommand implements ServiceCommand
       for (ExportProcess rootProcess : exportIndex.getRootProcessToSubProcesses().keySet())
       {
          
-         ProcessInstanceBean instance = (ProcessInstanceBean) session.findByOID(ProcessInstanceBean.class, rootProcess.getOid());
+         Persistent persistent = session.findByOID(ProcessInstanceBean.class, rootProcess.getOid());
          // instance can be null if archiving of queue is done after process already deleted
          // this will not harm anything the export id will be in archive anyways
-         if (instance != null)
+         if (persistent != null)
          {
+            ProcessInstanceBean instance = (ProcessInstanceBean) persistent;
             instance.createProperty(
                   ProcessElementExporter.EXPORT_PROCESS_ID, rootProcess.getUuid());
             

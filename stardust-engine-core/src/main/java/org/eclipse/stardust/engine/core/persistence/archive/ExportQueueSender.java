@@ -17,13 +17,17 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 
 
 /**
+ * This class sends messages to jms/CarnotExportQueue
+ * This is invoked upon complete/abort of a process for the purpose of archiving processes
  * @author jsaayman
  * @version $Revision$
  */
-public class ArchiveQueueSender
+public class ExportQueueSender
 {
 
    private QueueSession queueSession;
@@ -34,20 +38,19 @@ public class ArchiveQueueSender
 
    private ObjectMessage msg;
 
-   public ArchiveQueueSender() throws PublicException
+   public ExportQueueSender() throws PublicException
    {
       try
       {
          if (null == queueSession)
          {
             final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-
             QueueConnectionFactory connectionFactory = rtEnv.retrieveQueueConnectionFactory(JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
             QueueConnection connection = rtEnv.retrieveQueueConnection(connectionFactory);
             this.queueSession = rtEnv.retrieveQueueSession(connection);
             this.queueSender = rtEnv.retrieveUnidentifiedQueueSender(queueSession);
 
-            this.queue = rtEnv.resolveQueue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
+            this.queue = rtEnv.resolveQueue(JmsProperties.EXPORT_QUEUE_NAME_PROPERTY);
          }
 
          this.msg = queueSession.createObjectMessage();
@@ -64,12 +67,13 @@ public class ArchiveQueueSender
       try
       {
          msg.setObject(exportResult);
+         msg.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, SecurityProperties.getPartition().getId());
 
          queueSender.send(queue, msg);
 
          this.msg = null;
 
-         // sender, session and connection will be closed by RT Environment and end of TX
+         // sender, session and connection will be closed by RT Environment at end of TX
       }
       catch (JMSException jmse)
       {

@@ -1615,8 +1615,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          // TODO make sure no non-PI related data is lost
 
          Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
-
-         boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false);
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false) && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT;
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
 
          final AbstractTransientProcessInstanceSupport transientPiSupport;
@@ -1982,11 +1982,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             try
             {
                blobBuilder.persistAndClose();
-               if (CollectionUtils.isNotEmpty(processesToArchive))
-               {
-                  ByteArrayBlobBuilder bb = (ByteArrayBlobBuilder) blobBuilder;
-                  ProcessInstanceUtils.archive(bb, this);
-               }
                transientPiSupport.storeBlob(blobBuilder, this, params);
                if (trace.isDebugEnabled())
                {
@@ -2018,7 +2013,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             executeDelete(bulkDeleteStatement.getStatementString(), bulkDeleteStatement.getBindValueList(), bulkDeleteStatement.getType());
          }
 
-         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv != null && rtEnv.isDeploymentBeanCreated())
          {
             ModelManagerFactory.getCurrent().resetLastDeployment();

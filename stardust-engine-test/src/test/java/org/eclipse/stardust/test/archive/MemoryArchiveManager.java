@@ -206,6 +206,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
       dateModel.clear();
       dateIndex.clear();
       dateArchiveKey.clear();
+      keyCounter = 0;
    }
 
 }

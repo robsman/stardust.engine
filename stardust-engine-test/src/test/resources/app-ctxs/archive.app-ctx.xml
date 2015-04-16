@@ -31,6 +31,13 @@
 
    <amq:queue id="CarnotJmsExportQueue" physicalName="CarnotExportQueue" />
    
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotAuditTrailQueue" />
+      <property name="resource" ref="CarnotJmsAuditTrailQueue" />
+   </bean>
+
+   <amq:queue id="CarnotJmsAuditTrailQueue" physicalName="CarnotAuditTrailQueue" />
+      
    <bean name="ArchiveQueueAggregator" class="org.eclipse.stardust.engine.spring.integration.jms.archiving.ArchiveQueueAggregator">
        <property name="transactionManager" ref="jtaTxManager"/>
    </bean>

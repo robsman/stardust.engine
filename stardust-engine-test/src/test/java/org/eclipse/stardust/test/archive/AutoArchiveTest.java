@@ -45,8 +45,6 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.transientpi.AbstractTransientProcessInstanceTest;
 
 
-//test with write behind
-//test with date changes
 @ApplicationContextConfiguration(locations = "classpath:app-ctxs/archive.app-ctx.xml")
 public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 {
@@ -84,7 +82,16 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       super(testClassSetup);
    }
    
-   @Before
+   @Before 
+   public void init() throws Exception
+   {
+      setUp();
+      // clear any messages from queue
+      clearQueue();
+      ((MemoryArchiveManager) ArchiveManagerFactory.getCurrent()).clear();
+   }
+   
+   
    public void setUp() throws Exception
    { 
       aggregator = SpringUtils.getApplicationContext().getBean("ArchiveQueueAggregator", ArchiveQueueAggregator.class);
@@ -103,7 +110,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             "org.eclipse.stardust.test.archive.MemoryArchiveManager");
       GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
             "testid");
-      ((MemoryArchiveManager) ArchiveManagerFactory.getCurrent()).clear();
       
       final GlobalParameters params = GlobalParameters.globals();
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
@@ -115,7 +121,10 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       dropTransientProcessInstanceStorage();
       dropSerialActivityThreadQueues();
+     
    }
+   
+   
 
    @After
    public void tearDown()
@@ -135,7 +144,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, null);
       GlobalParameters.globals().set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, null);
 
-      
+      GlobalParameters.globals().set(KernelTweakingProperties.ASYNC_WRITE, null);
    }
 
 
@@ -1649,6 +1658,105 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    
    @Test
    @SuppressWarnings("unchecked")
+   public void autoExportWriteBehind() throws Exception
+   {
+      enableTransientProcessesSupport();
+      enableWriteBehind();
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(0, archives.size());
+      ArchiveTest.startAllProcesses(workflowService, queryService, aQuery);
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      sf.getAdministrationService().abortProcessInstance(pi.getOID());
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Aborted);
+      
+      final ProcessInstance pi2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi2.getOID(),
+            ProcessInstanceState.Completed);
+      
+      final ProcessInstance pi3 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_WITH_SUBS, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi3.getOID(),
+            ProcessInstanceState.Completed);
+      
+      FilterOrTerm orTerm = (FilterOrTerm)aQuery.getFilter().getParts().iterator().next();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi2.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi3.getOID()));
+
+      writeFromQueueToAuditTrail(sf, JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
+      writeFromQueueToAuditTrail(sf, JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
+      
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(13, oldInstances.size());
+      assertEquals(36, oldActivities.size());
+      
+      archiveQueue();
+      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
+
+      //they are already auto exported so should not be exported again
+      HashMap<String, Object> descriptors = null;
+      ExportResult result = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertNotNull(result);
+      assertEquals(13, result.getPurgeProcessIds().size());
+      assertEquals(0, result.getDates().size());
+      
+      // double check they are not purged
+      oldInstances = queryService.getAllProcessInstances(pQuery);
+      oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(13, oldInstances.size());
+      assertEquals(36, oldActivities.size());
+
+      // check that they are archived
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(null));
+      assertEquals(1, archives.size());
+      IArchive archive = archives.get(0);
+     // assertEquals(11, archive.getExportIndex().getRootProcessToSubProcesses().keySet().size());
+      int deleteCount = (Integer) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.PURGE, result, false));
+      assertEquals(13, deleteCount);
+      ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(delInstances);
+      assertNotNull(delActivities);
+      assertEquals(0, delInstances.size());
+      assertEquals(0, delActivities.size());
+
+      // import the backups
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, null, null));
+      assertEquals(13, count);
+
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+   
+   @Test
+   @SuppressWarnings("unchecked")
    public void autoExportMultipleRootPisTransientProcessInstanceSupport() throws Exception
    {
       enableTransientProcessesSupport();
@@ -1864,5 +1972,22 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
          final ExportProcessesCommand command = new ExportProcessesCommand((ObjectMessage) message);
          sf.getWorkflowService().execute(command);
       }
+   }
+   
+   private void clearQueue() throws JMSException
+   {
+      aggregator.doAggregate(testClassSetup.queueConnectionFactory(), testClassSetup.queue(JmsProperties.EXPORT_QUEUE_NAME_PROPERTY),
+            testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY));
+      
+      final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setReceiveTimeout(2000L);
+      jmsTemplate.receive(queue);
+   }
+   
+   private void enableWriteBehind()
+   {
+      GlobalParameters.globals().set(KernelTweakingProperties.ASYNC_WRITE, true);
    }
 }

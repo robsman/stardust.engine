@@ -105,16 +105,6 @@ public class TransientProcessInstanceUtils
          return null;
       }
    }
-
-   public static Set<Persistent> loadProcessInstanceGraph(
-         final byte[] blob, final Session session,
-         final PersistentKey pk)
-   {
-      final ProcessBlobReader reader = new ProcessBlobReader(session);
-      final Set<Persistent> persistents = reader.readProcessBlob(blob);
-
-      return processPersistents(session, pk, persistents);
-   }
    
    /**
     * 

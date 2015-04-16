@@ -36,13 +36,12 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportQueueSender;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportQueueSender;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -91,17 +90,16 @@ public class ProcessInstanceUtils
       }
    }
    
-
    /**
-    * for archiving deferred processes
+    * for archiving deferred/writebehind processes
     * @param blobBuilder
     * @param session
     */
-   public static void archive(ByteArrayBlobBuilder blobBuilder, Session session)
+   public static void archive(Set<Persistent> persistents, Session session)
    {
-      if (blobBuilder == null)
+      if (persistents == null)
       {
-         trace.warn("Received null blobBuilder to archive.");
+         trace.warn("Received null persistents to archive.");
          return;
       }
       if (session == null)
@@ -111,7 +109,7 @@ public class ProcessInstanceUtils
       }
       
       ExportResult exportResult = new ExportResult(false);
-      exportResult.close(blobBuilder, session);
+      exportResult.close(persistents, session);
      
       ExportQueueSender sender = new ExportQueueSender();
       sender.sendMessage(exportResult);

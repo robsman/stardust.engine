@@ -242,13 +242,12 @@ public class ExportResult implements Serializable
          addResult(persistent, processInstanceOid);
       }
    }
-
-   public void close(final ByteArrayBlobBuilder blobBuilder, Session session)
+      
+   public void close(Set<Persistent> persistents, Session session)
    {
       if (open)
       {
-         final Set<Persistent> persistents = TransientProcessInstanceUtils.loadProcessInstanceGraph(blobBuilder.getBlob(), session, null);
-         
+         persistents = TransientProcessInstanceUtils.processPersistents(session, null, persistents);
          List<Persistent> subs = new ArrayList<Persistent>();
          List<Persistent> other = new ArrayList<Persistent>();
 

@@ -13,34 +13,20 @@ package org.eclipse.stardust.engine.core.persistence.jms;
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.jdbc.BatchStatementWrapper;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptorRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
+import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 
 
 /**
@@ -243,6 +229,20 @@ public class ProcessBlobAuditTrailPersistor
 
    public void persistBlob(BlobReader blob)
    {
+      boolean isAutoArchiveEnabled = ArchiveManagerFactory.autoArchive();
+      final Session session;
+
+      final Set<Persistent> persistents;
+      if (isAutoArchiveEnabled)
+      {
+         session = (org.eclipse.stardust.engine.core.persistence.jdbc.Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         persistents = new HashSet<Persistent>();
+      }
+      else
+      {
+         session = null;
+         persistents = null;
+      }
       while (true)
       {
          final byte sectionMarker = blob.readByte();
@@ -289,6 +289,20 @@ public class ProcessBlobAuditTrailPersistor
                   }
 
                   final Object[] rowValues = new Object[fields.size() + links.size()];
+                  
+                  final Persistent persistent;
+                  final Object[] linkBuffer;
+                  if (isAutoArchiveEnabled)
+                  {
+                     persistent = (Persistent) Reflect.createInstance(td.getType(),
+                           null, null);
+                     linkBuffer = new Object[links.size()];
+                  }
+                  else
+                  {
+                     persistent = null;
+                     linkBuffer = null;
+                  }
 
                   for (int j = 0; j < fields.size(); ++j)
                   {
@@ -296,7 +310,10 @@ public class ProcessBlobAuditTrailPersistor
 
                      Field javaField = field.getField();
                      Object value = readField(blob, javaField.getType());
-
+                     if (isAutoArchiveEnabled)
+                     {
+                        Reflect.setFieldValue(persistent, javaField, value);
+                     }
                      if (trace.isDebugEnabled())
                      {
                         trace.debug("Extracted value " + javaField.getName() + " -> "
@@ -317,10 +334,18 @@ public class ProcessBlobAuditTrailPersistor
                         trace.debug("Extracted foreign key " + link.getField().getName()
                               + " -> " + fkValue);
                      }
-
+                     if (isAutoArchiveEnabled)
+                     {
+                        linkBuffer[j] = fkValue;
+                     }
+                     
                      rowValues[fields.size() + j] = fkValue;
                   }
-
+                  if (isAutoArchiveEnabled)
+                  {
+                     new DefaultPersistenceController(session, td, persistent, linkBuffer);
+                     persistents.add(persistent);
+                  }
                   rows.add(rowValues);
                }
 
@@ -341,6 +366,10 @@ public class ProcessBlobAuditTrailPersistor
             throw new PublicException(
                   BpmRuntimeError.JMS_UNEXPECTED_SECTION_MARKER.raise(sectionMarker));
          }
+      }
+      if (isAutoArchiveEnabled)
+      {
+         ProcessInstanceUtils.archive(persistents, (org.eclipse.stardust.engine.core.persistence.jdbc.Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL));
       }
    }
 

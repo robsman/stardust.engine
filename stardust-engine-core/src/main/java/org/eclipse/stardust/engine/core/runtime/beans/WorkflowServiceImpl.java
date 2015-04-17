@@ -2320,7 +2320,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       List<Note> addedNotes = attributes.getAddedNotes();
       if(addedNotes != null && !addedNotes.isEmpty())
       {
-         writeNotes(activityInstance.getProcessInstance(), addedNotes);
+         writeNotes(activityInstance.getProcessInstance().getScopeProcessInstance(),
+               addedNotes);
       }
 
       ActivityInstanceAttributes preparedAttributes =

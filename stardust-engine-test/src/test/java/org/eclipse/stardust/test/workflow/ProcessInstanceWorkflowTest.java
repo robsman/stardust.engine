@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
@@ -43,6 +44,7 @@ import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -54,34 +56,34 @@ import org.junit.rules.TestRule;
  * <p>
  * Tests basic functionality regarding the workflow of process instances.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ProcessInstanceWorkflowTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String DEFAULT_ROLE_USER_ID = "u1";
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf)
                                           .around(userSf);
-   
+
    @Before
    public void setUp()
    {
       UserHome.create(adminSf, DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_ID);
    }
-   
+
    /**
     * <p>
     * Tests whether starting the process instance synchronously
@@ -126,7 +128,7 @@ public class ProcessInstanceWorkflowTest
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }
-   
+
    /**
     * <p>
     * Tests whether the process data will be initialized correctly with the
@@ -141,16 +143,16 @@ public class ProcessInstanceWorkflowTest
       final Map<String, Object> data = CollectionUtils.newHashMap();
       data.put(MY_STRING_DATA_ID, originalString);
       data.put(MY_INT_DATA_ID, originalInt);
-      
+
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, data, true);
-      
+
       final String actualString = (String) userSf.getWorkflowService().getInDataPath(pi.getOID(), MY_STRING_IN_DATA_PATH_ID);
       final int actualInt = (Integer) userSf.getWorkflowService().getInDataPath(pi.getOID(), MY_INT_IN_DATA_PATH_ID);
-      
+
       assertThat(actualString, equalTo(originalString));
       assertThat(actualInt, equalTo(originalInt));
-   }   
-   
+   }
+
    /**
     * <p>
     * Tests whether the appropriate exception is thrown when the process definition
@@ -162,7 +164,7 @@ public class ProcessInstanceWorkflowTest
    {
       userSf.getWorkflowService().startProcess("N/A", null, true);
    }
-   
+
    /**
     * <p>
     * Tests whether aborting a process instance works correctly.
@@ -176,7 +178,7 @@ public class ProcessInstanceWorkflowTest
       assertThat(abortedPi.getState(), isOneOf(ProcessInstanceState.Aborting, ProcessInstanceState.Aborted));
       ProcessInstanceStateBarrier.instance().await(abortedPi.getOID(), ProcessInstanceState.Aborted);
    }
-   
+
    /**
     * <p>
     * Tests whether the process instance abortion throws the correct exception
@@ -202,7 +204,7 @@ public class ProcessInstanceWorkflowTest
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       userSf.getWorkflowService().abortProcessInstance(pi.getOID(), AbortScope.SubHierarchy);
    }
-   
+
    /**
     * <p>
     * Tests whether retrieving the process instance works correctly.
@@ -213,10 +215,10 @@ public class ProcessInstanceWorkflowTest
    {
       final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       final ProcessInstance retrievedPi = userSf.getWorkflowService().getProcessInstance(originalPi.getOID());
-      
+
       assertThat(retrievedPi, equalTo(originalPi));
    }
-   
+
    /**
     * <p>
     * Tests whether the process instance abortion throws the correct exception
@@ -239,7 +241,7 @@ public class ProcessInstanceWorkflowTest
    public void testGetStartableProcessDefinitionsForDefaultRole()
    {
       final List<ProcessDefinition> userPds = userSf.getWorkflowService().getStartableProcessDefinitions();
-      
+
       assertThat(userPds.size(), is(1));
       final ProcessDefinition pd = userPds.get(0);
       assertThat(pd.getId(), is(PD_3_ID));
@@ -255,12 +257,12 @@ public class ProcessInstanceWorkflowTest
    public void testGetStartableProcessDefinitionsForAdminRole()
    {
       final List<ProcessDefinition> adminPds = adminSf.getWorkflowService().getStartableProcessDefinitions();
-      
+
       assertThat(adminPds.size(), is(1));
       final ProcessDefinition pd = adminPds.get(0);
       assertThat(pd.getId(), is(PD_2_ID));
    }
-   
+
    /**
     * <p>
     * Tests whether setting of process instance attributes works correctly.
@@ -270,12 +272,12 @@ public class ProcessInstanceWorkflowTest
    public void testSetProcessInstanceAttributes()
    {
       final String testText = "This is a test";
-      
+
       final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       final ProcessInstanceAttributes originalAttributes = originalPi.getAttributes();
       originalAttributes.addNote(testText);
       userSf.getWorkflowService().setProcessInstanceAttributes(originalAttributes);
-      
+
       final ProcessInstance retrievedPi = userSf.getWorkflowService().getProcessInstance(originalPi.getOID());
       final ProcessInstanceAttributes retrievedAttributes = retrievedPi.getAttributes();
       final List<Note> notes = retrievedAttributes.getNotes();
@@ -283,7 +285,43 @@ public class ProcessInstanceWorkflowTest
       final Note note = notes.get(0);
       assertThat(note.getText(), equalTo(testText));
    }
-   
+
+   @Test
+   public void testSetProcessInstanceAttributesAndSpawnSubprocess()
+   {
+      final String testText = "This is a test";
+
+      final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstanceAttributes originalAttributes = originalPi.getAttributes();
+      originalAttributes.addNote(testText);
+      userSf.getWorkflowService().setProcessInstanceAttributes(originalAttributes);
+
+      ProcessInstance retrievedPi = userSf.getWorkflowService().spawnSubprocessInstance(originalPi.getOID(), PD_1_ID, true, null);
+      final ProcessInstanceAttributes retrievedAttributes = retrievedPi.getAttributes();
+      final List<Note> notes = retrievedAttributes.getNotes();
+      assertThat(notes.size(), is(1));
+      final Note note = notes.get(0);
+      assertThat(note.getText(), equalTo(testText));
+   }
+
+   @Test
+   public void testSetProcessInstanceAttributesAndSpawnPeerprocess()
+   {
+      final String testText = "This is a test";
+
+      final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstanceAttributes originalAttributes = originalPi.getAttributes();
+      originalAttributes.addNote(testText);
+      userSf.getWorkflowService().setProcessInstanceAttributes(originalAttributes);
+
+      ProcessInstance retrievedPi = userSf.getWorkflowService().spawnPeerProcessInstance(originalPi.getOID(), PD_1_ID, new SpawnOptions(null, false, null, null));
+      final ProcessInstanceAttributes retrievedAttributes = retrievedPi.getAttributes();
+      final List<Note> notes = retrievedAttributes.getNotes();
+      assertThat(notes.size(), is(1));
+      final Note note = notes.get(0);
+      assertThat(note.getText(), equalTo(testText));
+   }
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the process instance cannot be found.
@@ -295,10 +333,10 @@ public class ProcessInstanceWorkflowTest
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       final ProcessInstanceAttributes attributes = pi.getAttributes();
       adminSf.getAdministrationService().cleanupRuntime(true);
-      
+
       userSf.getWorkflowService().setProcessInstanceAttributes(attributes);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the process instance is not
@@ -309,14 +347,14 @@ public class ProcessInstanceWorkflowTest
    public void testSetProcessInstanceAttributesFailNotScopeProcessInstance()
    {
       final String testText = "This is a test.";
-      
+
       userSf.getWorkflowService().startProcess(PD_4_ID, null, true);
       final ProcessInstance pi = adminSf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess(PD_1_ID));
       final ProcessInstanceAttributes attributes = pi.getAttributes();
       attributes.addNote(testText);
       userSf.getWorkflowService().setProcessInstanceAttributes(attributes);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the process instance attribute

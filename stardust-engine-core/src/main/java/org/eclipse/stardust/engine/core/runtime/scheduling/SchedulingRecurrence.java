@@ -11,10 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.scheduling;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -180,28 +177,24 @@ public abstract class SchedulingRecurrence
 
       trace.info("End Date: " + endDateObj);
 
-      List<Date> futureExecutionDatesInRange = null;
-
-      String cronExpressionInput = this.generateSchedule(json);
-
-      CronExpression cronExpressionFuture = null;
       try
       {
-         cronExpressionFuture = new CronExpression(cronExpressionInput);
+         String cronExpressionInput = generateSchedule(json);
+         CronExpression cronExpressionFuture = new CronExpression(cronExpressionInput);
+         List<Date> futureExecutionDatesInRange = generateFutureExecutionDatesInRange(
+               cronExpressionFuture, this.startDate, endDateObj);
+
+         trace.info("Future occurences between Start date: " + this.startDate
+               + " and End Date: " + endDateObj + ": "
+               + futureExecutionDatesInRange.toString());
+
+         return futureExecutionDatesInRange;
       }
       catch (ParseException e)
       {
          trace.error(e);
+         return Collections.emptyList();
       }
-
-      futureExecutionDatesInRange = generateFutureExecutionDatesInRange(
-            cronExpressionFuture, this.startDate, endDateObj);
-
-      trace.info("Future occurences between Start date: " + this.startDate
-            + " and End Date: " + endDateObj + ": "
-            + futureExecutionDatesInRange.toString());
-
-      return futureExecutionDatesInRange;
    }
 
    private List<Date> generateFutureExecutionDatesInRange(CronExpression cronExpression,
@@ -383,8 +376,8 @@ public abstract class SchedulingRecurrence
          Date startDate, int count)
    {
       List<Date> nFutureExecutionDates = new ArrayList<Date>(count);
-      nFutureExecutionDates.add(startDate);
-      for (int i = 1; i < count; i++)
+      startDate = new Date(startDate.getTime() - 1000);
+      for (int i = 0; i < count; i++)
       {
          startDate = cronExpression.getNextValidTimeAfter(startDate);
          nFutureExecutionDates.add(startDate);

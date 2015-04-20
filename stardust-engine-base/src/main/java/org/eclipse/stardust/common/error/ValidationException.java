@@ -14,7 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- *
+ * Thrown to indicate that validation of a model element has failed.
+ * 
  * @author ubirkemeyer
  * @version $Revision$
  */
@@ -25,11 +26,29 @@ public class ValidationException extends PublicException
    private Collection messages;
    private boolean canClose;
 
+   /**
+    * Creates a new exception instance with the specified detail message.
+    * 
+    * @param summary
+    *           The detail message describing the error condition.
+    * @param canClose
+    *           Flag if displayed deployment warnings can be closed.
+    */
    public ValidationException(String summary, boolean canClose)
    {
       this(summary, Collections.EMPTY_LIST, canClose);
    }
 
+   /**
+    * Creates a new exception instance with the specified detail message.
+    * 
+    * @param summary
+    *           The detail message describing the error condition.
+    * @param messages
+    *           All validation messages for this validation exception.
+    * @param canClose
+    *           Flag if displayed deployment warnings can be closed.
+    */
    public ValidationException(String summary, Collection messages, boolean canClose)
    {
       super(summary);
@@ -37,11 +56,21 @@ public class ValidationException extends PublicException
       this.canClose = canClose;
    }
 
+   /**
+    * Returns all validation messages for this validation exception.
+    * 
+    * @return validation messages
+    */
    public Collection getMessages()
    {
       return Collections.unmodifiableCollection(messages);
    }
 
+   /**
+    * Returns if displayed deployment validation messages can be closed.
+    * 
+    * @return Flag if displayed warnings can be closed.
+    */
    public boolean canClose()
    {
       return canClose;

@@ -1289,8 +1289,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       OutDataMappingValueProvider dvProvider = new OutDataMappingValueProvider(data, path, value, context);
-      IDataValue dataValue = getDataValue(data, dvProvider);
-
+      ExtendedAccessPathEvaluator evaluator = SpiUtils
+            .createExtendedAccessPathEvaluator(data, path);
+      
+      IDataValue dataValue = null;
+      if(evaluator instanceof IHandleGetDataValue)
+      {
+         dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);               
+      }
+      else
+      {
+         dataValue = getDataValue(data, dvProvider);         
+      }
+      
       Assert.isNotNull(dataValue);
 
       if ( !dvProvider.isUsedForInitialization())
@@ -1355,14 +1366,18 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }*/
 
-      IDataValue dataValue = getDataValue(data);
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
             targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
-      return evaluator.evaluate(data, dataValue.getValue(), path, evaluationContext);
+            
+      if(!(evaluator instanceof IHandleGetDataValue))
+      {
+         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);         
+      }
+      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);      
    }
 
    void lockDataValue(IData data) throws PhantomException

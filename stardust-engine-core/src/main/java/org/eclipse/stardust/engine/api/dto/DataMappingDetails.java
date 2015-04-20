@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,15 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -30,25 +26,27 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
 /**
  * A read only view of the client side part of a data mapping.
- * 
+ *
  * @author ubirkemeyer
  * @version $Revision$
  */
 public class DataMappingDetails extends ModelElementDetails implements DataMapping
 {
+   private static final String FALLBACK_TYPE_NAME = Object.class.getName();
+
    private static final long serialVersionUID = 2L;
-   
+
    private String applicationPath;
    private String type;
    private Direction direction;
-   
+
    private final String activityId;
    private final String processDefinitionId;
-   
+
    private final String context;
    private String dataId;
    private String dataPath;
-   
+
    private AccessPointDetailsEvaluator apEvaluator;
    private String accessPointId;
 
@@ -56,7 +54,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
    {
       super(mapping, mapping.getId(), mapping.getName(), mapping.getDescription());
       this.applicationPath = mapping.getActivityPath();
-      
+
       // prepare attribute maps for application context.
       IActivity activity = mapping.getActivity();
       IApplicationContext applContext = activity.getContext(
@@ -69,10 +67,10 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
       apEvaluator = new AccessPointDetailsEvaluator(applContext, isInteractive,
             contextAttributes, typeAttributes);
       accessPointId = mapping.getActivityAccessPointId();
-      
+
       this.direction = mapping.getDirection();
       this.dataPath = mapping.getDataPath();
-      
+
       // todo: (france, fh) only data bridge object is considered ???
       try
       {
@@ -82,23 +80,32 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
                .createExtendedDataValidator(validatorClass);
          AccessPathEvaluationContext context = new AccessPathEvaluationContext(null,
                null, null, activity);
-         type = validator.getBridgeObject(mapping.getData(), mapping.getDataPath(),
-               Direction.IN.equals(direction) ? Direction.OUT : Direction.IN, context)
-               .getEndClass().getName();
+
+         final boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
+               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+
+         type = isArchiveAuditTrail
+                  ? FALLBACK_TYPE_NAME
+                  : validator.getBridgeObject(mapping.getData(),
+                        mapping.getDataPath(),
+                        Direction.IN.equals(direction)
+                           ? Direction.OUT
+                           : Direction.IN, context)
+                     .getEndClass().getName();
       }
       catch (Exception e)
       {
          LogUtils.traceException(e, false);
-         type = Object.class.getName();
+         type = FALLBACK_TYPE_NAME;
       }
-      
+
       this.activityId = activity.getId();
       this.processDefinitionId = activity.getProcessDefinition().getId();
-      
+
       this.context = mapping.getContext();
       this.dataId = mapping.getData().getId();
    }
-   
+
    public String getApplicationPath()
    {
       return applicationPath;
@@ -133,7 +140,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
    {
       return context;
    }
-   
+
    public String getDataId()
    {
       return this.dataId;
@@ -148,7 +155,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
          Map contextAttributes, Map typeAttributes)
    {
       contextAttributes.putAll(context.getAllAttributes());
-   
+
       IApplicationContextType contextType = (IApplicationContextType) context.getType();
       if (null != contextType)
       {

@@ -44,6 +44,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -334,36 +335,62 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       return session.exists(ActivityInstanceBean.class, queryExtension);
    }
 
-   public static IUser getLastActivityPerformer(long processInstanceOid)
+   public static IUser getLastActivityPerformer(final long processInstanceOid)
    {
-      QueryExtension query = QueryExtension.where(Predicates.andTerm(
-            Predicates.isEqual(FR__PROCESS_INSTANCE, processInstanceOid),
-            Predicates.isEqual(FR__STATE, ActivityInstanceState.COMPLETED)));
-
-      // start finding performers at last completed AI (CRNT-5888)
-      query.addOrderBy(FR__LAST_MODIFICATION_TIME, false);
-
       IUser user = null;
 
-      ClosableIterator ais = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
-            .getIterator(ActivityInstanceBean.class, query);
-      try
+      // we look up first in the session cache, since it's obvious that if we
+      // completed any interactive activity in the current transaction, then we're the
+      // "last activity performer".
+      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      Iterator<ActivityInstanceBean> cachedAIs = session.getSessionCacheIterator(ActivityInstanceBean.class, new FilterOperation<ActivityInstanceBean>()
       {
-         while (ais.hasNext())
+         @Override
+         public org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult filter(
+               ActivityInstanceBean ai)
          {
-            IActivityInstance ai = (IActivityInstance) ais.next();
-            if (null != ai.getPerformedBy())
+            return ai.isCompleted() && (ai.getProcessInstanceOID() == processInstanceOid)
+                  ? Session.FilterOperation.FilterResult.ADD
+                  : Session.FilterOperation.FilterResult.OMIT;
+         }
+      });
+      Date stamp = null;
+      while (cachedAIs.hasNext())
+      {
+         IActivityInstance ai = cachedAIs.next();
+         Date last = ai.getLastModificationTime();
+         if (stamp == null || !last.before(stamp))
+         {
+            IUser performed = ai.getPerformedBy();
+            if (performed != null)
             {
-               user = ai.getPerformedBy();
-               break;
+               user = performed;
             }
          }
       }
-      finally
-      {
-         ais.close();
-      }
 
+      if (user == null)
+      {
+         // we haven't completed any interactive activity in the current transaction, so
+         // start finding performers at last completed AI committed (CRNT-5888)
+         QueryExtension query = QueryExtension.where(Predicates.andTerm(
+               Predicates.isEqual(FR__PROCESS_INSTANCE, processInstanceOid),
+               Predicates.isEqual(FR__STATE, ActivityInstanceState.COMPLETED)));
+         query.addOrderBy(FR__LAST_MODIFICATION_TIME, false);
+         ClosableIterator ais = session.getIterator(ActivityInstanceBean.class, query);
+         try
+         {
+            while (user == null && ais.hasNext())
+            {
+               IActivityInstance ai = (IActivityInstance) ais.next();
+               user = ai.getPerformedBy();
+            }
+         }
+         finally
+         {
+            ais.close();
+         }
+      }
       return user;
    }
 

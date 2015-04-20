@@ -59,6 +59,7 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
             {
 
                DataValueBean data = dataIter.next();
+               data.triggerSerialization();
 
                Boolean isVolatile = data.getData().getAttribute(
                      PredefinedConstants.VOLATILE_DATA);

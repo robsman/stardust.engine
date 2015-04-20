@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
-import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerAction;
 
 public class LazilyPersistingBigDataHandler implements BigDataHandler
 {
@@ -30,7 +29,7 @@ public class LazilyPersistingBigDataHandler implements BigDataHandler
    {
       // nothing to be done
    }
-   
+
    public static class LazilySerializedDataValueListener implements IPersistentListener, IPersistentListener.Factory
    {
 

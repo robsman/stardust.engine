@@ -229,40 +229,33 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          Map<String, List<byte[]>> dataByTable;
          importCount = 0;
-         Map<ExportProcess, List<ExportProcess>> exportProcesses = archive
+         Set<Long> exportProcesses = archive
                .getExportIndex().getProcesses(descriptors, processInstanceOids, fromDate, toDate);
-         for (ExportProcess rootProcess : exportProcesses.keySet())
+         List<Long> processes = new ArrayList<Long>();
+         for (Long oid : exportProcesses)
          {
             ProcessInstanceBean existing = (ProcessInstanceBean) session.findByOID(
-                        ProcessInstanceBean.class, rootProcess.getOid());
+                        ProcessInstanceBean.class, oid);
             // this process already exists, do not import it again
             if (existing != null)
             {
                continue;
             }
-            List<Long> processes = new ArrayList<Long>();
-            processes.add(rootProcess.getOid());
-            List<ExportProcess> subProcesses = exportProcesses.get(rootProcess);
-            for (ExportProcess subProcess : subProcesses)
-            {
-               processes.add(subProcess.getOid());
-            }
-            dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
-            importCount += ExportImportSupport.importProcessInstances(dataByTable,
-                  session, oidResolver);
+            processes.add(oid);
+         }
+         
+         dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
+         importCount = ExportImportSupport.importProcessInstances(dataByTable,
+               session, oidResolver);
             
-            // create the export process ids, unless we are importing a dump
-            if (!archive.getExportIndex().isDump())
+         // create the export process ids, unless we are importing a dump
+         if (!archive.getExportIndex().isDump())
+         {
+            for (Long oid : processes)
             {
-               ProcessInstanceBean instance = ProcessInstanceBean.findByOID(rootProcess.getOid());
+               ProcessInstanceBean instance = ProcessInstanceBean.findByOID(oid);
                instance.createProperty(
-                     ProcessElementExporter.EXPORT_PROCESS_ID, rootProcess.getUuid());
-               for (ExportProcess subProcess : subProcesses)
-               {
-                  instance = ProcessInstanceBean.findByOID(subProcess.getOid());
-                  instance.createProperty(
-                        ProcessElementExporter.EXPORT_PROCESS_ID, subProcess.getUuid());
-               }
+                     ProcessElementExporter.EXPORT_PROCESS_ID, archive.getExportIndex().getUuid(oid));
             }
          }
       }

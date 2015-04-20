@@ -1401,7 +1401,7 @@ public class ArchiveTest
       List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData, 5);
       List<ExportResult> datas = new ArrayList<ExportResult>();
       assertEquals(8, exportMetaData.getAllProcessesForExport(false).size());
-      assertEquals(6, exportMetaData.getRootProcesses().size());
+      assertEquals(6, exportMetaData.getRootToSubProcesses().keySet().size());
 
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.EXPORT_MODEL,
             exportMetaData, false);
@@ -1525,15 +1525,19 @@ public class ArchiveTest
 
    private String getExportIndexJSON()
    {
-      Map<ExportProcess, List<ExportProcess>> oids = new HashMap<ExportProcess, List<ExportProcess>>();
+      Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
       String uuid = ArchiveManagerFactory.getCurrentId() + "_" + 1 + "_"
             + testTimestampProvider.getTimestamp().getTime();
       String start = "2015/03/05 00:00:00:000";
       String end = "2015/03/05 13:00:00:000";
-      ExportProcess process = new ExportProcess(1L, start, end, uuid, null);
-      oids.put(process, new ArrayList<ExportProcess>());
-      String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), oids,
-            false));
+      oids.put(1L, new ArrayList<Long>());
+      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), false);
+      List<Long> subProcesses = new ArrayList<Long>();
+      exportIndex.getRootProcessToSubProcesses().put(1L, subProcesses);
+      exportIndex.setUuid(1L, uuid);
+      exportIndex.addField(1L, ExportIndex.FIELD_START_DATE, start);
+      exportIndex.addField(1L, ExportIndex.FIELD_END_DATE, end);
+      String json = getJSON(exportIndex);
       return json;
    }
 
@@ -2080,8 +2084,8 @@ public class ArchiveTest
       assertEquals(1, archives.size());
       IArchive archive = archives.get(0);
       assertEquals(1, archive.getExportIndex().getRootProcessToSubProcesses().keySet().size());
-      ExportProcess process = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
-      assertEquals(process.getOid(), simpleB.getOID());
+      Long process = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      assertTrue(process == simpleB.getOID());
       processInstanceOids = Arrays.asList(simpleB.getOID(), simpleManualA.getOID());
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(processInstanceOids, null));
@@ -4924,11 +4928,22 @@ public class ArchiveTest
       assertTrue(archive.getExportIndex().contains(pi2.getOID()));
       assertTrue(archive.getExportIndex().contains(pi3.getOID()));
       //change one exportProcess to not fit in descriptor filter
-      ExportProcess exportProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
-      exportProcess.getDescriptors().put(ArchiveModelConstants.DESCR_BUSINESSDATE, "2015/03/06 00:00:00:000");
+      Long processInstanceOid = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      updateField(archive, processInstanceOid, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015/03/06 00:00:00:000");
+      
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, descriptors, null));
       assertEquals(2, count);
+   }
+
+   private void updateField(IArchive archive, Long processInstanceOid, String field, String value)
+   {
+      Map<String, List<Long>> valuesToProcesses = archive.getExportIndex().getFields().get(field);
+      for (String str : valuesToProcesses.keySet())
+      {
+         valuesToProcesses.get(str).remove(processInstanceOid);
+      }
+      archive.getExportIndex().addField(processInstanceOid, field, value);
    }
    
    @SuppressWarnings("unchecked")
@@ -5134,13 +5149,26 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
       MemoryArchive archive = (MemoryArchive)archives.get(0);
-      assertTrue(archive.getExportIndex().contains(pi1.getOID()));
+      ExportIndex oldIndex = archive.getExportIndex();
+      assertTrue(oldIndex.contains(pi1.getOID()));
       
-      ExportProcess exportProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
-      exportProcess.getDescriptors().put(ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
+      Long exportProcess = oldIndex.getRootProcessToSubProcesses().keySet().iterator().next();
+      oldIndex.addField(exportProcess, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
+  
+      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", false);
       
-      String json = getJSON(new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", archive.getExportIndex().getRootProcessToSubProcesses(),
-            false));
+      for (Long oid : oldIndex.getRootProcessToSubProcesses().keySet())
+      {
+         exportIndex.getRootProcessToSubProcesses().put(oid, oldIndex.getRootProcessToSubProcesses().get(oid));
+         exportIndex.setUuid(oid, oldIndex.getUuid(oid));
+         for (Long subId : oldIndex.getRootProcessToSubProcesses().get(oid))
+         {
+            exportIndex.setUuid(subId, oldIndex.getUuid(subId));
+         }
+      }      
+      exportIndex.setFields(oldIndex.getFields());
+      
+      String json = getJSON(exportIndex);
       MemoryArchive archive1 = new MemoryArchive((String)archive.getArchiveKey(), archive.getDate(), archive.getDataByProcess(), getJSON(archive.getExportModel()), json);
       
       descriptors = new HashMap<String, Object>();

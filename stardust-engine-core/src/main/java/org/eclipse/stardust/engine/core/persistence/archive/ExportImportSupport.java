@@ -78,10 +78,7 @@ public class ExportImportSupport
    {
       GsonBuilder gsonBuilder = new GsonBuilder();
       gsonBuilder.setPrettyPrinting();
-      ExportProcessSerializer typeAdapter = new ExportProcessSerializer();
-      gsonBuilder.registerTypeAdapter(ExportProcess.class, typeAdapter);
       Gson gson = gsonBuilder.create();
-      typeAdapter.setGson(gson);
       return gson;
    }
 
@@ -132,41 +129,53 @@ public class ExportImportSupport
       Set<Date> indexDates = exportMetaData.getIndexDates();
       for (Date date : indexDates)
       {
-         List<ExportProcess> processesForDate = exportMetaData
+         List<Long> processesForDate = exportMetaData
                .getRootProcessesForDate(date);
          if (processesForDate.size() > size)
          {
-            List<List<ExportProcess>> batches = partition(processesForDate, size);
-            for (List<ExportProcess> batch : batches)
+            List<List<Long>> batches = partition(processesForDate, size);
+            for (List<Long> rootOids : batches)
             {
-               HashMap<ExportProcess, ArrayList<ExportProcess>> processesToSubprocesses = new HashMap<ExportProcess, ArrayList<ExportProcess>>();
-               for (ExportProcess key : batch)
+               HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
+               Map<Long, String> oidsToUuids = new HashMap<Long, String>();
+               for (Long rootOid : rootOids)
                {
-                  processesToSubprocesses.put(key, exportMetaData
-                        .getRootToSubProcessInstances().get(key));
+                  processesToSubprocesses.put(rootOid, exportMetaData
+                        .getRootToSubProcesses().get(rootOid));
+                  oidsToUuids.put(rootOid, exportMetaData.getOidsToUuids().get(rootOid));
+                  for (Long subOid : processesToSubprocesses.get(rootOid))
+                  {
+                     oidsToUuids.put(subOid, exportMetaData.getOidsToUuids().get(subOid));
+                  }
                }
-               Map<Date, List<ExportProcess>> dateToRootPiOids = new HashMap<Date, List<ExportProcess>>();
+               Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
                Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
-               dateToRootPiOids.put(date, batch);
+               dateToRootPiOids.put(date, rootOids);
                dateToModelOids.put(date, exportMetaData.getModelOids(date));
                result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
-                     dateToRootPiOids));
+                     dateToRootPiOids, oidsToUuids));
             }
          }
          else
          {
-            HashMap<ExportProcess, ArrayList<ExportProcess>> processesToSubprocesses = new HashMap<ExportProcess, ArrayList<ExportProcess>>();
-            for (ExportProcess key : processesForDate)
+            HashMap<Long, ArrayList<Long>> processesToSubprocesses = new HashMap<Long, ArrayList<Long>>();
+            Map<Long, String> oidsToUuids = new HashMap<Long, String>();
+            for (Long rootOid : processesForDate)
             {
-               processesToSubprocesses.put(key, exportMetaData
-                     .getRootToSubProcessInstances().get(key));
+               processesToSubprocesses.put(rootOid, exportMetaData
+                     .getRootToSubProcesses().get(rootOid));
+               oidsToUuids.put(rootOid, exportMetaData.getOidsToUuids().get(rootOid));
+               for (Long subOid : processesToSubprocesses.get(rootOid))
+               {
+                  oidsToUuids.put(subOid, exportMetaData.getOidsToUuids().get(subOid));
+               }
             }
-            Map<Date, List<ExportProcess>> dateToRootPiOids = new HashMap<Date, List<ExportProcess>>();
+            Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
             Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
             dateToRootPiOids.put(date, processesForDate);
             dateToModelOids.put(date, exportMetaData.getModelOids(date));
             result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
-                  dateToRootPiOids));
+                  dateToRootPiOids, oidsToUuids));
          }
       }
 
@@ -396,6 +405,8 @@ public class ExportImportSupport
                   processLengths.addAll(result.getProcessLengths(date));
                   index.getRootProcessToSubProcesses().putAll(
                         result.getExportIndex(date).getRootProcessToSubProcesses());
+                  index.getFields().putAll(result.getExportIndex(date).getFields());
+                  index.getOidsToUuids().putAll(result.getExportIndex(date).getOidsToUuids());
                   if (exportModel == null)
                   {
                      exportModel = result.getExportModel();

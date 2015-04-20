@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExportIndex implements Serializable
 {
 
+   public static final String FIELD_START_DATE = "startDate";
+   public static final String FIELD_END_DATE = "endDate";
+   
    /**
     * 
     */
@@ -22,8 +22,16 @@ public class ExportIndex implements Serializable
    private String dateFormat;
    
    private boolean isDump;
+
+   // map of root oid to subprocess process oids.
+   // if a root process has no subprocesses the sublist will be empty, it will not be null
+   private Map<Long, List<Long>> rootProcessToSubProcesses;
    
-   private Map<ExportProcess, List<ExportProcess>> processes;
+   private Map<Long, String> oidsToUuids;
+
+   // map of fields to values. values is map of values to processInstanceOids that contains them
+   // e.g. fields.get("name").get("John") returns oids of all processes that has a field "name" with value "John"
+   private Map<String, Map<String, List<Long>>> fields;
 
    public ExportIndex()
    {
@@ -31,37 +39,25 @@ public class ExportIndex implements Serializable
 
    public ExportIndex(String archiveManagerId, String dateFormat, boolean isDump)
    {
-      this(archiveManagerId, dateFormat, new HashMap<ExportProcess, List<ExportProcess>>(), isDump);
+      this(archiveManagerId, dateFormat, new HashMap<Long, List<Long>>(), 
+            new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), isDump);
    }
 
    public ExportIndex(String archiveManagerId, String dateFormat, 
-         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses, boolean isDump)
+         Map<Long, List<Long>> processes,
+         Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, boolean isDump)
    {
       this.archiveManagerId = archiveManagerId;
-      this.processes = rootProcessToSubProcesses;
+      this.rootProcessToSubProcesses = processes;
+      this.fields = fields;
       this.isDump = isDump;
       this.dateFormat = dateFormat;
+      this.oidsToUuids = oidsToUuids;
    }
 
    public boolean contains(Long processInstanceOid)
    {
-      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
-      {
-         if (rootProcess.getOid() == processInstanceOid)
-         {
-            return true;
-         }
-         List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
-               rootProcess);
-         for (ExportProcess subProcess : subProcesses)
-         {
-            if (subProcess.getOid() == processInstanceOid)
-            {
-               return true;
-            }
-         }
-      }
-      return false;
+      return oidsToUuids.get(processInstanceOid) != null;
    }
    
    /**
@@ -69,86 +65,121 @@ public class ExportIndex implements Serializable
     * @param descriptors
     * @return
     */
-   public boolean contains( Map<String, Object> descriptors)
+   public boolean contains(Map<String, Object> descriptors)
    {
       if (descriptors == null || descriptors.isEmpty())
       {
          return true;
       }
-      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
+      for (String key : descriptors.keySet())
       {
-         if (descriptorMatch(rootProcess.getDescriptors(), descriptors))
+         if (!descriptorMatch(key, descriptors.get(key)).isEmpty())
          {
             return true;
-         }
-         List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
-               rootProcess);
-         for (ExportProcess subProcess : subProcesses)
-         {
-            if (descriptorMatch(subProcess.getDescriptors(), descriptors))
-            {
-               return true;
-            }
          }
       }
       return false;
    }
    
-   /**
-    * Returns map of RootProcessToSubProcesses where the root process or one of it's subprocesses matches one of the descriptors
-    * @param descriptors
-    * @param toDate 
-    * @param fromDate 
-    * @return
-    */
-   public Map<ExportProcess, List<ExportProcess>> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids, 
-         Date startDate, Date endDate)
+   private List<Long> descriptorMatch(String key, Object value)
    {
-      if ((descriptors == null || descriptors.isEmpty()) && (processInstanceOids == null && (startDate == null || endDate == null)))
+      String stringValue;
+      if (value instanceof Date)
       {
-         return getRootProcessToSubProcesses();
+         DateFormat df = new SimpleDateFormat(dateFormat);
+         stringValue = df.format((Date) value);
       }
-      DateFormat df = new SimpleDateFormat(dateFormat);
-      Map<ExportProcess, List<ExportProcess>> result = new HashMap<ExportProcess, List<ExportProcess>>();
-      for (ExportProcess rootProcess : getRootProcessToSubProcesses().keySet())
+      else
       {
-         if (dateMatch(df, rootProcess, startDate, endDate) 
-               && processInstanceOidMatch(processInstanceOids, rootProcess.getOid()) 
-               && descriptorMatch(rootProcess.getDescriptors(), descriptors))
-         {
-            result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
-         }
-         else
-         {
-            List<ExportProcess> subProcesses = getRootProcessToSubProcesses().get(
-                  rootProcess);
-            for (ExportProcess subProcess : subProcesses)
-            {
-               if (dateMatch(df, subProcess, startDate, endDate) 
-                     && processInstanceOidMatch(processInstanceOids, subProcess.getOid()) 
-                     && descriptorMatch(subProcess.getDescriptors(), descriptors))
-               {
-                  result.put(rootProcess, getRootProcessToSubProcesses().get(rootProcess));
-                  break;
-               }
-            }
-         }
+         stringValue = value.toString();
+      }
+      Map<String, List<Long>> valuesToProcesses = fields.get(key); 
+      List<Long> result;
+      if (valuesToProcesses != null)
+      {
+         result = valuesToProcesses.get(stringValue);
+      }
+      else
+      {
+         result = null;
+      }
+      if (result == null)
+      {
+         result = new ArrayList<Long>();
       }
       return result;
    }
 
-   private boolean dateMatch(DateFormat df, ExportProcess process, Date startDate, Date endDate)
+   /**
+    * Returns map of RootProcessToSubProcesses where the root process or one of it's subprocesses matches one of the descriptors, 
+    * processInstanceOids or started after startDate and ended before endDate
+    * @param descriptors
+    * @param processInstanceOids
+    * @param startDate 
+    * @param endDate 
+    * @return
+    */
+   public Set<Long> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids, 
+         Date startDate, Date endDate)
    {
+      if ((descriptors == null || descriptors.isEmpty()) && (processInstanceOids == null && (startDate == null || endDate == null)))
+      {
+         return oidsToUuids.keySet();
+      }
+      Set<Long> result = new HashSet<Long>();
+      DateFormat df = new SimpleDateFormat(dateFormat);
+      
+      if (descriptors != null)
+      {
+         for (String key : descriptors.keySet())
+         {
+            result.addAll(descriptorMatch(key, descriptors.get(key)));
+         }
+      }
+      result.addAll(processInstanceOidMatch(processInstanceOids));
+      result.addAll(dateMatch(df, startDate, endDate));
+      
+      return result;
+   }
+
+   private List<Long> dateMatch(DateFormat df, Date startDate, Date endDate)
+   {
+      List<Long> result = new ArrayList<Long>();
       if (startDate == null || endDate == null)
       {
-         return true;
+         return result;
       }
       try
       {
-         Date processStart = df.parse(process.getStartDate());
-         Date processEnd = df.parse(process.getEndDate());
-         return (startDate.compareTo(processStart) < 1)
-               && (endDate.compareTo(processEnd) > -1);
+         Map<String, List<Long>> startDates = fields.get(FIELD_START_DATE);
+         Map<String, List<Long>> endDates = fields.get(FIELD_END_DATE);
+         List<Long> matchedStartDates = new ArrayList<Long>();
+               
+         
+         for (String startString : startDates.keySet())
+         {
+            Date processStart = df.parse(startString);
+            if (startDate.compareTo(processStart) < 1)
+            {
+               matchedStartDates.addAll(startDates.get(startString));
+            }
+         }
+         for (String endString : endDates.keySet())
+         {
+            Date processEnd = df.parse(endString);
+            if (endDate.compareTo(processEnd) > -1)
+            {
+               for (Long oid : endDates.get(endString))
+               {
+                  if (matchedStartDates.contains(oid))
+                  {
+                     result.add(oid);
+                  }
+               }
+                  
+            }
+         }
+         return result;
       }
       catch (ParseException e)
       {
@@ -156,57 +187,98 @@ public class ExportIndex implements Serializable
       }
    }
    
-   private boolean processInstanceOidMatch(List<Long> processInstanceOids, Long oid)
+   private Set<Long> processInstanceOidMatch(List<Long> processInstanceOids)
    {
-      if (processInstanceOids == null)
+      Set<Long> result = new HashSet<Long>();
+      if (processInstanceOids != null)
       {
-         return true;
-      }
-      return processInstanceOids.contains(oid);
-   }
-   
-   private boolean descriptorMatch(Map<String, String> descriptors, 
-         Map<String, Object> searchDescriptors)
-   {
-      if (searchDescriptors == null)
-      {
-         return true;
-      }
-      for (String key : searchDescriptors.keySet())
-      {
-         if (descriptors.containsKey(key))
+         for (Long oid : processInstanceOids)
          {
-            Object value = searchDescriptors.get(key);
-            String stringValue;
-            if (value instanceof Date)
+            if (oidsToUuids.containsKey(oid))
             {
-               DateFormat df = new SimpleDateFormat(dateFormat);
-               stringValue = df.format((Date) value);
+               result.add(oid);
+               List<Long> subProcesses = rootProcessToSubProcesses.get(oid);
+               if (subProcesses != null)
+               {
+                  result.addAll(subProcesses);
+               }
+               else
+               {
+                  // if subprocesses is null it means we are dealing with a subprocess
+                  // add it parent and all its siblings
+                  for (Long rootOid : rootProcessToSubProcesses.keySet())
+                  {
+                     if (rootProcessToSubProcesses.get(rootOid).contains(oid))
+                     {
+                        result.add(rootOid);
+                        result.addAll(rootProcessToSubProcesses.get(rootOid));
+                        break;
+                     }
+                  }
+               }
             }
-            else
-            {
-               stringValue = value.toString();
-            }
-                  
-            if (descriptors.get(key).equals(stringValue))
-            {
-               return true;
-            }
+            
          }
       }
-      return false;
+      return result;
    }
 
-   public Map<ExportProcess, List<ExportProcess>> getRootProcessToSubProcesses()
+   public String getUuid(Long processInstanceOid)
    {
-      return processes;
+      return oidsToUuids.get(processInstanceOid);
+   }
+
+   public void setUuid(long processInstanceOid, String uuid)
+   {
+      oidsToUuids.put(processInstanceOid, uuid);
+   }
+   
+   public Map<Long, String> getOidsToUuids()
+   {
+      return oidsToUuids;
+   }
+
+   public void addField(Long processInstanceOid, String field, String value)
+   {
+      Map<String, List<Long>> values = fields.get(field);
+      if (values == null)
+      {
+         values = new HashMap<String, List<Long>>();
+         fields.put(field, values);
+      }
+      List<Long> processes = values.get(value);
+      if (processes == null)
+      {
+         processes = new ArrayList<Long>();
+         values.put(value, processes);
+      }
+      processes.add(processInstanceOid);
+   }
+   
+   public Set<Long> getProcessInstanceOids()
+   {
+      return oidsToUuids.keySet();
+   }
+   
+   public Map<Long, List<Long>> getRootProcessToSubProcesses()
+   {
+      return rootProcessToSubProcesses;
    }
 
    public String getArchiveManagerId()
    {
       return archiveManagerId;
    }
-   
+
+   public Map<String, Map<String, List<Long>>> getFields()
+   {
+      return fields;
+   }
+
+   public void setFields(Map<String, Map<String, List<Long>>> fields)
+   {
+      this.fields = fields;
+   }
 
    /**
     * Returns dateformat used for descri
@@ -215,12 +287,6 @@ public class ExportIndex implements Serializable
    public String getDateFormat()
    {
       return dateFormat;
-   }
-
-   public void setRootProcessToSubProcesses(
-         Map<ExportProcess, List<ExportProcess>> rootProcessToSubProcesses)
-   {
-      this.processes = rootProcessToSubProcesses;
    }
 
    public void setArchiveManagerId(String archiveManagerId)

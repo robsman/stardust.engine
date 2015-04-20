@@ -1244,7 +1244,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
       IArchive archive = archives.get(0);
       assertEquals(1, archive.getExportIndex().getRootProcessToSubProcesses().size());
-      ExportProcess rootProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
+      Long rootProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
       assertEquals(2, archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcess).size());
       ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());

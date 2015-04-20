@@ -69,16 +69,39 @@ public class ExportResult implements Serializable
       this.isDump = isDump;
    }
 
-   private static ExportProcess createExportProcess(IProcessInstance processInstance)
+   private static void addExportProcess(ExportIndex exportIndex, IProcessInstance rootProcess,
+         IProcessInstance subProcess)
+   {
+      
+      List<Long> subProcesses = exportIndex.getRootProcessToSubProcesses().get(rootProcess.getOID());
+      if (subProcesses == null)
+      {
+         subProcesses = new ArrayList<Long>();
+         exportIndex.getRootProcessToSubProcesses().put(rootProcess.getOID(), subProcesses);
+         addProcessDetail(exportIndex, rootProcess);
+      }
+      if (subProcess != null)
+      {
+         subProcesses.add(subProcess.getOID());
+         addProcessDetail(exportIndex, subProcess);
+      }
+   }
+   
+   private static void addProcessDetail(ExportIndex exportIndex, IProcessInstance processInstance)
    {
       String uuid = ExportImportSupport.getUUID(processInstance);
       Map<String, String> descriptors = ExportImportSupport.getFormattedDescriptors(
             processInstance, null);
-      ExportProcess result = new ExportProcess(processInstance.getOID(),
-            ExportImportSupport.formatDate(processInstance.getStartTime(), null),
-            ExportImportSupport.formatDate(processInstance.getTerminationTime(), null),
-            uuid, descriptors);
-      return result;
+      String start = ExportImportSupport.formatDate(processInstance.getStartTime(), null);
+      String end = ExportImportSupport.formatDate(processInstance.getTerminationTime(), null);
+      
+      exportIndex.setUuid(processInstance.getOID(), uuid);
+      for (String field : descriptors.keySet())
+      {
+         exportIndex.addField(processInstance.getOID(), field, descriptors.get(field));
+      }
+      exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_START_DATE, start);
+      exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_END_DATE, end);
    }
 
    private void addResult(IProcessInstance process)
@@ -86,19 +109,21 @@ public class ExportResult implements Serializable
       if (open)
       {
          Date indexDate;
-         ExportProcess rootProcess;
-         ExportProcess subProcess = null;
+         IProcessInstance rootProcess;
+         IProcessInstance subProcess;
+         
          if (process.getOID() == process.getRootProcessInstanceOID())
          {
-            rootProcess = createExportProcess(process);
+            subProcess = null;
+            rootProcess = process;
             indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
          }
          else
          {
+            subProcess = process;
+            rootProcess = process.getRootProcessInstance();
             indexDate = ExportImportSupport.getIndexDateTime(process
                   .getRootProcessInstance().getStartTime());
-            rootProcess = createExportProcess(process.getRootProcessInstance());
-            subProcess = createExportProcess(process);
          }
 
          ExportIndex exportIndex = exportIndexByDate.get(indexDate);
@@ -108,17 +133,9 @@ public class ExportResult implements Serializable
                   ArchiveManagerFactory.getDateFormat(), isDump);
             exportIndexByDate.put(indexDate, exportIndex);
          }
-         List<ExportProcess> subProcesses = exportIndex.getRootProcessToSubProcesses()
-               .get(rootProcess);
-         if (subProcesses == null)
-         {
-            subProcesses = new ArrayList<ExportProcess>();
-            exportIndex.getRootProcessToSubProcesses().put(rootProcess, subProcesses);
-         }
-         if (subProcess != null)
-         {
-            subProcesses.add(subProcess);
-         }
+         
+         addExportProcess(exportIndex, rootProcess, subProcess);
+        
          if (indexDate == null)
          {
             throw new IllegalStateException("ProcessInstanceOid " + process.getOID()

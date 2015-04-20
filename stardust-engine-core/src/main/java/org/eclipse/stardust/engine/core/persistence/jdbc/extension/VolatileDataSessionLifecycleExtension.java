@@ -6,6 +6,9 @@ import java.util.Set;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -13,6 +16,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -63,7 +67,7 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
 
                Boolean isVolatile = data.getData().getAttribute(
                      PredefinedConstants.VOLATILE_DATA);
-               
+
                if (isVolatile != null && isVolatile)
                {
                   if (trace.isDebugEnabled())
@@ -71,54 +75,80 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
                      trace.info("Data <" + data.getData().getId()
                            + "> is volatile and will be deleted now");
                   }
-                  
+
                   if (StructuredTypeRtUtils.isDmsType(data.getData().getType().getId())
                         || StructuredTypeRtUtils.isStructuredType(data.getData()
                               .getType()
                               .getId()))
-                  {                                         
+                  {
                      IXPathMap xpathMap = DataXPathMap.getXPathMap(data.getData());
-                     
-                     Set xPathOids = xpathMap.getAllXPathOids();                     
+
+                     Set xPathOids = xpathMap.getAllXPathOids();
                      Iterator xpathOidIter = xPathOids.iterator();
-                     
-                     
+
                      while (xpathOidIter.hasNext())
                      {
                         long xPathOid = (Long) xpathOidIter.next();
-                        
+
                         if (trace.isDebugEnabled())
                         {
                            trace.debug("XPath with OID <" + xPathOid
                                  + "> for volatile structured data <"
                                  + data.getData().getId() + ">  found, deleting content");
                         }
-                        
-                        Iterator<StructuredDataValueBean> dataValueIter = session.getSessionCacheIterator(
-                              StructuredDataValueBean.class,
-                              StructuredDataValueFilterOperation.forProcessInstance(xPathOid, pi.getOID()));
-                        
+
+                        QueryExtension query = new QueryExtension();
+                        query.setWhere(Predicates.andTerm(Predicates.isEqual(
+                              StructuredDataValueBean.FR__PROCESS_INSTANCE, pi.getOID()),
+                              Predicates.isEqual(StructuredDataValueBean.FR__XPATH,
+                                    xPathOid)));
+
+                        Iterator<StructuredDataValueBean> dataValueIter = session.getIterator(
+                              StructuredDataValueBean.class, query);
+
                         while (dataValueIter.hasNext())
                         {
                            dataValueIter.next().delete();
                         }
-                        
+
+                        Iterator<StructuredDataValueBean> cachedDataValueIter = session.getSessionCacheIterator(
+                              StructuredDataValueBean.class,
+                              StructuredDataValueFilterOperation.forProcessInstance(
+                                    xPathOid, pi.getOID()));
+
+                        while (cachedDataValueIter.hasNext())
+                        {
+                           cachedDataValueIter.next().delete();
+                        }
+
                      }
-                     
-                     Iterator<ClobDataBean> clobIterator = session.getSessionCacheIterator(
+
+                     QueryExtension query = new QueryExtension();
+                     query.setWhere(Predicates.isEqual(ClobDataBean.FR__OID,
+                           data.getLongValue()));
+
+                     Iterator<ClobDataBean> clobIterator = session.getIterator(
+                           ClobDataBean.class, query);
+
+                     while (clobIterator.hasNext())
+                     {
+                        clobIterator.next().delete();
+                     }
+
+                     Iterator<ClobDataBean> cachedClobIterator = session.getSessionCacheIterator(
                            ClobDataBean.class,
                            ClobDataFilter.findForOid(data.getLongValue()));
-                     
-                     while (clobIterator.hasNext())
-                     {                  
+
+                     while (cachedClobIterator.hasNext())
+                     {
                         if (trace.isDebugEnabled())
                         {
                            trace.debug("CLOB data for volatile structured data <"
                                  + data.getData().getId() + ">  found, deleting content");
                         }
-                        clobIterator.next().delete();
+                        cachedClobIterator.next().delete();
                      }
-                                                                                                         
+
                   }
                   else
                   {
@@ -126,13 +156,26 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
                      if (data.getType() == BigData.BIG_SERIALIZABLE
                            || data.getType() == BigData.BIG_STRING)
                      {
-                        Iterator<LargeStringHolder> largeStringList = session.getSessionCacheIterator(
+
+                        QueryExtension query = new QueryExtension();
+                        query.setWhere(Predicates.isEqual(LargeStringHolder.FR__OID,
+                              data.getLongValue()));
+
+                        Iterator<LargeStringHolder> largeStringHolderIterator = session.getIterator(
+                              LargeStringHolder.class, query);
+
+                        while (largeStringHolderIterator.hasNext())
+                        {
+                           largeStringHolderIterator.next().delete();
+                        }
+
+                        Iterator<LargeStringHolder> cachedLargeStringList = session.getSessionCacheIterator(
                               LargeStringHolder.class,
                               StringDataForDataValueFilterIOperation.filterForDataValueOid(data.getOID()));
 
-                        while (largeStringList.hasNext())
+                        while (cachedLargeStringList.hasNext())
                         {
-                           LargeStringHolder holder = largeStringList.next();
+                           LargeStringHolder holder = cachedLargeStringList.next();
                            if (trace.isDebugEnabled())
                            {
                               trace.debug("Large String Holder found with OID <"
@@ -142,8 +185,21 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
 
                         }
                      }
-                     data.delete();
+
                   }
+                  
+                  QueryExtension query = new QueryExtension();
+                  query.setWhere(Predicates.isEqual(DataValueBean.FR__OID,
+                        data.getOID()));
+                  
+                  Iterator<DataValueBean> dataValueBeanIterator = session.getIterator(
+                        DataValueBean.class, query);
+                  
+                  while (dataValueBeanIterator.hasNext())
+                  {
+                     dataValueBeanIterator.next().delete();
+                  }                    
+                  data.delete();
                }
 
             }
@@ -160,7 +216,6 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
    }
 
    /******************** Defining FilterOperations ****************/
-
 
    private static class TerminatedProcessInstanceFilterOperation
          implements FilterOperation<ProcessInstanceBean>
@@ -232,17 +287,18 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
       }
 
    }
-   
-   public static class StructuredDataFilter implements FilterOperation<StructuredDataBean>
+
+   public static class StructuredDataFilter
+         implements FilterOperation<StructuredDataBean>
    {
       private static long dataOid;
-      
+
       public static StructuredDataFilter forData(long oid)
       {
          dataOid = oid;
          return new StructuredDataFilter();
       }
-                 
+
       @Override
       public org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult filter(
             StructuredDataBean persistentToFilter)
@@ -251,18 +307,18 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
          return isElementOfData ? FilterResult.ADD : FilterResult.OMIT;
       }
    }
-   
+
    public static class ClobDataFilter implements FilterOperation<ClobDataBean>
    {
-      
+
       private static long dataOid;
-            
+
       public static ClobDataFilter findForOid(long oid)
       {
          dataOid = oid;
          return new ClobDataFilter();
       }
-            
+
       @Override
       public org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult filter(
             ClobDataBean persistentToFilter)
@@ -270,7 +326,7 @@ public class VolatileDataSessionLifecycleExtension implements ISessionLifecycleE
          boolean isClobOfData = persistentToFilter.getOID() == dataOid;
          return isClobOfData ? FilterResult.ADD : FilterResult.OMIT;
       }
-                  
+
    }
 
 }

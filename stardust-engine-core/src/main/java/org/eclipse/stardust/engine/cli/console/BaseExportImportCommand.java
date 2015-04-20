@@ -87,7 +87,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
          else
          {
             throw new PublicException(
-                  BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
+                  BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_DATEDESCRIPTOR
                         .raise(value));
          }
       }
@@ -99,7 +99,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       if ((null == fromDate) && options.containsKey(FROM_DATE))
       {
          throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
+               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_FROMDATE
                      .raise(options.get(FROM_DATE)));
       }
       return fromDate;
@@ -111,7 +111,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       if ((null == toDate) && options.containsKey(TO_DATE))
       {
          throw new PublicException(
-               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
+               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TODATE
                      .raise(options.get(TO_DATE)));
       }
       return toDate;

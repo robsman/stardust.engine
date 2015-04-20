@@ -58,7 +58,7 @@ public class ExportQueueSender
       catch (JMSException jmse)
       {
          throw new PublicException(
-               BpmRuntimeError.JMS_FAILED_INITIALIZING_JMS_BLOB_BUILDER.raise(), jmse);
+               BpmRuntimeError.JMS_FAILED_INITIALIZING_JMS_EXPORTQUEUE_SENDER.raise(), jmse);
       }
    }
 
@@ -78,7 +78,7 @@ public class ExportQueueSender
       catch (JMSException jmse)
       {
          throw new PublicException(
-               BpmRuntimeError.JMS_FAILED_WRITING_BLOB_TO_JMS.raise(), jmse);
+               BpmRuntimeError.JMS_FAILED_SEND_EXPORTQUEUE_SENDER.raise(), jmse);
       }
    }
 

@@ -34,7 +34,6 @@ public interface Constants
     */
    public static final Class<? extends Persistent>[] PERSISTENT_RUNTIME_PI_CLASSES =
          new Class[]{ActivityInstanceBean.class,
-                     ActivityInstanceLogBean.class,
                      ActivityInstanceHistoryBean.class,
                      ActivityInstanceProperty.class,
                      TransitionInstanceBean.class,
@@ -81,7 +80,6 @@ public interface Constants
     */
    public static final Class[] PERSISTENT_RUNTIME_CLASSES =
          new Class[]{ActivityInstanceBean.class,
-                     ActivityInstanceLogBean.class,
                      ActivityInstanceHistoryBean.class,
                      ActivityInstanceProperty.class,
                      TransitionInstanceBean.class,

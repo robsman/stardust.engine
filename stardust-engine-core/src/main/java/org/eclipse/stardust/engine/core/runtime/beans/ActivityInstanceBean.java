@@ -569,55 +569,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                + ActivityInstanceState.getString(state) + ".");
       }
 
-      if (Parameters.instance()
-            .getString("ProcessWarehouse.ActivityInstanceLog", "off")
-            .equals("on"))
-      {
-         switch (state)
-         {
-         case ActivityInstanceState.CREATED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.CREATION, this,
-                  lastModificationTime);
-            break;
-         }
-         case ActivityInstanceState.APPLICATION:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.ACTIVATION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.COMPLETED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.COMPLETION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.INTERRUPTED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.INTERRUPTION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.SUSPENDED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.SUSPEND, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.ABORTED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.ABORTION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         }
-      }
    }
 
    public Date getStartTime()

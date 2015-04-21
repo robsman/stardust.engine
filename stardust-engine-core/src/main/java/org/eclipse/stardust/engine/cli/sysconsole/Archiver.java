@@ -84,7 +84,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.AdminServiceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
@@ -1558,9 +1557,6 @@ public class Archiver
       backupAiParts(piOids, EventBindingBean.class, EventBindingBean.FIELD__OBJECT_OID,
             PT_EVENT_BINDING_AI);
 
-      backupAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FIELD__ACTIVITY_INSTANCE);
-
       backupAiParts(piOids, LogEntryBean.class, LogEntryBean.FIELD__ACTIVITY_INSTANCE);
 
       backupAiParts(piOids, WorkItemBean.class, WorkItemBean.FIELD__ACTIVITY_INSTANCE);
@@ -2363,9 +2359,6 @@ public class Archiver
             TransitionInstanceBean.FR__PROCESS_INSTANCE);
 
       deleteAiParts(piOids, LogEntryBean.class, LogEntryBean.FR__ACTIVITY_INSTANCE);
-
-      deleteAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE);
 
       deleteAiParts(piOids, ActivityInstanceHistoryBean.class,
             ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE);

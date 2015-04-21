@@ -78,7 +78,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortionJanitorCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.AbstractPropertyWithUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -449,9 +448,6 @@ public class ProcessInstanceUtils
             TransitionInstanceBean.FR__PROCESS_INSTANCE, session);
 
       deleteAiParts(piOids, LogEntryBean.class, LogEntryBean.FR__ACTIVITY_INSTANCE, session);
-
-      deleteAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE, session);
 
       deleteAiParts(piOids, ActivityInstanceHistoryBean.class,
             ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, session);

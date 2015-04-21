@@ -42,7 +42,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptorRegistry;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
@@ -458,10 +457,6 @@ public class RuntimeOidPatcher
          workItemRefBuffer.append(" ");
          workItemRefBuffer.append(workItemPerformerCondition);
 
-         // update references from activity_inst_log
-         String aiLogRef = getUpdateStatement(patch, ActivityInstanceLogBean.class,
-               ActivityInstanceLogBean.FR__MODEL, ActivityInstanceLogBean.FR__PARTICIPANT);
-
          // update references from activity instance
          String aiRef = getUpdateStatement(patch, ActivityInstanceBean.class,
                ActivityInstanceBean.FR__MODEL, ActivityInstanceBean.FR__CURRENT_PERFORMER);
@@ -482,7 +477,6 @@ public class RuntimeOidPatcher
          updateStatements.add(aihPerformerRefBuffer.toString());
          updateStatements.add(aihOnBehalfRefBuffer.toString());
          updateStatements.add(workItemRefBuffer.toString());
-         updateStatements.add(aiLogRef);
          updateStatements.add(aiRef);
          updateStatements.add(uplRef);
          updateStatements.add(deleteDuplicatesStatement);

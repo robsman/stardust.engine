@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:camel="http://camel.apache.org/schema/spring"
    xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-   <bean id="camelTriggerLoader"
-      class="org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader">
+   <bean id="camelTriggerLoader" class="org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader">
       <property name="forkingService" ref="carnotForkingService" />
    </bean>
 
-   <bean id="camelApplicationLoader"
-      class="org.eclipse.stardust.engine.extensions.camel.app.CamelApplicationLoader">
+   <bean id="camelApplicationLoader" class="org.eclipse.stardust.engine.extensions.camel.app.CamelApplicationLoader">
       <property name="forkingService" ref="carnotForkingService" />
    </bean>
 
@@ -27,11 +25,17 @@
    <bean name="mapAppenderProcessor"
       class="org.eclipse.stardust.engine.extensions.camel.enricher.MapAppenderProcessor" />
 
-   <bean id="documentHandler"
-      class="org.eclipse.stardust.engine.extensions.camel.attachment.DocumentHandler" />
+   <bean id="documentHandler" class="org.eclipse.stardust.engine.extensions.camel.attachment.DocumentHandler" />
 
    <bean id="sqlPrepareStatementStrategy"
       class="org.eclipse.stardust.engine.extensions.camel.sql.SqlPrepareStatementStrategy" />
+   
+   <bean id="traceFormatter" class="org.eclipse.stardust.engine.extensions.camel.log.TraceFormatter" >
+      <!-- <property name="filterHeaders" value="breadcrumbId,input" /> -->
+   </bean>
+
+   <bean id="messageInterceptor"
+      class="org.eclipse.stardust.engine.extensions.camel.intercept.MessageInterceptor" />
 
    <camelContext id="defaultCamelContext" trace="true"
       xmlns="http://camel.apache.org/schema/spring">

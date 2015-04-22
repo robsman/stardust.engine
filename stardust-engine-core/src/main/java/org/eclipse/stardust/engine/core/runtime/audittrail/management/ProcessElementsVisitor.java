@@ -83,9 +83,6 @@ public class ProcessElementsVisitor
          visitPiParts(piOids, LogEntryBean.class, LogEntryBean.FR__PROCESS_INSTANCE,
                session);
 
-         visitAiParts(piOids, ActivityInstanceLogBean.class,
-               ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE, session);
-
          visitPiParts(piOids, ActivityInstanceHistoryBean.class,
                ActivityInstanceHistoryBean.FR__PROCESS_INSTANCE, session);
 

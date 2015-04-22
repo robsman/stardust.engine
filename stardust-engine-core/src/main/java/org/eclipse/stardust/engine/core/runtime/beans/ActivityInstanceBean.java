@@ -571,55 +571,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                + ActivityInstanceState.getString(state) + ".");
       }
 
-      if (Parameters.instance()
-            .getString("ProcessWarehouse.ActivityInstanceLog", "off")
-            .equals("on"))
-      {
-         switch (state)
-         {
-         case ActivityInstanceState.CREATED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.CREATION, this,
-                  lastModificationTime);
-            break;
-         }
-         case ActivityInstanceState.APPLICATION:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.ACTIVATION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.COMPLETED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.COMPLETION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.INTERRUPTED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.INTERRUPTION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.SUSPENDED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.SUSPEND, this,
-                  lastModificationTime);
-
-            break;
-         }
-         case ActivityInstanceState.ABORTED:
-         {
-            new ActivityInstanceLogBean(IActivityInstanceLog.ABORTION, this,
-                  lastModificationTime);
-
-            break;
-         }
-         }
-      }
    }
 
    public Date getStartTime()
@@ -981,29 +932,91 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private void putToParticipantWorklist(IModelParticipant participant, long departmentOid)
    {
       fetch();
-
-      recordHistoricState();
-      recordInitialPerformer();
-
-      if (0 != currentUserPerformer)
+      
+      if ((ModelManagerFactory.getCurrent().getRuntimeOid(participant) != this.currentPerformer)
+            || (departmentOid != this.currentDepartment))
       {
-         markModified(FIELD__CURRENT_USER_PERFORMER);
-         this.currentUserPerformer = 0;
-      }
-      markModified(FIELD__CURRENT_PERFORMER);
-      this.currentPerformer = ModelManagerFactory.getCurrent().getRuntimeOid(participant);
 
-      markModified(FIELD__CURRENT_DEPARTMENT);
-      currentDepartment = departmentOid;
+         final long oldUserPerformer = currentUserPerformer;
+         final long oldPerformer = currentPerformer;
+         final long oldDepartment = currentDepartment;
 
-      if (departmentOid > 0)
-      {
-         trace.info("Performer of " + this + " set to " + participant + "["
-               + departmentOid + "].");
-      }
-      else
-      {
-         trace.info("Performer of " + this + " set to " + participant + ".");
+         recordHistoricState();
+         recordInitialPerformer();
+      
+         try
+         {
+            // marking fields as modified is deferred to finally block
+            this.currentUserPerformer = 0;
+            this.currentPerformer = ModelManagerFactory.getCurrent().getRuntimeOid(
+                  participant);
+            this.currentDepartment = departmentOid;
+
+            if (state != ActivityInstanceState.CREATED
+                  && getActivity().hasEventHandlers(
+                        PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+            {
+               Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(),
+                     Event.OID_UNDEFINED, Event.OID_UNDEFINED, Event.ENGINE_EVENT);
+               event.setAttribute(PredefinedConstants.SOURCE_USER_ATT,
+                     Long.valueOf(oldUserPerformer));
+               event.setAttribute(PredefinedConstants.TARGET_USER_ATT,
+                     Long.valueOf(participant.getOID()));
+
+               Event handledEvent = EventUtils.processAutomaticEvent(getActivity(),
+                     PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION, event);
+
+               if (null != handledEvent.getIntendedState())
+               {
+                  try
+                  {
+                     setState(handledEvent.getIntendedState().getValue());
+                  }
+                  catch (IllegalStateChangeException e)
+                  {
+                     AuditTrailLogger.getInstance(LogCode.EVENT, this).error(
+                           "Skipping " + "illegal state change requested during event "
+                                 + "action processing", e);
+                  }
+               }
+            }
+         }
+         catch (PublicException e)
+         {
+            // rollback to pre-assignment state, i.e. in case of a 4eyes assertion
+
+            recordHistoricState();
+
+            this.currentUserPerformer = oldUserPerformer;
+            this.currentPerformer = oldPerformer;
+            this.currentDepartment = oldDepartment;
+            throw e;
+         }
+         finally
+         {
+            // now flag the actual modifications so they will be persisted
+            if (currentUserPerformer != oldUserPerformer)
+            {
+               markModified(FIELD__CURRENT_USER_PERFORMER);
+            }
+            if (currentPerformer != oldPerformer)
+            {
+               markModified(FIELD__CURRENT_PERFORMER);
+            }
+            if (currentDepartment != oldDepartment)
+            {
+               markModified(FIELD__CURRENT_DEPARTMENT);
+            }
+         }
+         if (departmentOid > 0)
+         {
+            trace.info("Performer of " + this + " set to " + participant + "["
+                  + departmentOid + "].");
+         }
+         else
+         {
+            trace.info("Performer of " + this + " set to " + participant + ".");
+         }
       }
    }
 

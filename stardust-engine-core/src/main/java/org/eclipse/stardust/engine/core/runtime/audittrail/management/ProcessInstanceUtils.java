@@ -18,7 +18,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -33,13 +43,68 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.Note;
+import org.eclipse.stardust.engine.api.dto.NoteDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.RuntimeObject;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortionJanitorCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.AbstractPropertyWithUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
+import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessAbortionJanitor;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -63,7 +128,7 @@ public class ProcessInstanceUtils
    private static final int DEFAULT_STATEMENT_BATCH_SIZE = 100;
 
    private static final int PK_OID = 0;
-   
+
    public static void cleanupProcessInstance(IProcessInstance pi)
    {
       // hierarchy is deleted only for root process instances
@@ -384,9 +449,6 @@ public class ProcessInstanceUtils
 
       deleteAiParts(piOids, LogEntryBean.class, LogEntryBean.FR__ACTIVITY_INSTANCE, session);
 
-      deleteAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE, session);
-
       deleteAiParts(piOids, ActivityInstanceHistoryBean.class,
             ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE, session);
 
@@ -686,24 +748,24 @@ public class ProcessInstanceUtils
                   "Lock-tables are not supported for types with compound PKs.");
 
             DeleteDescriptor delete = DeleteDescriptor
-            		.fromLockTable(partType);
+                  .fromLockTable(partType);
 
             String partOid = tdType.getPkFields()[PK_OID].getName();
             PredicateTerm lockRowsPredicate = Predicates
-            		.inList(delete.fieldRef(partOid), QueryDescriptor
-            				.from(partType)
-            				.select(partOid)
-            				.where(predicate));
+                  .inList(delete.fieldRef(partOid), QueryDescriptor
+                        .from(partType)
+                        .select(partOid)
+                        .where(predicate));
 
             session.executeDelete(delete
-            		.where(lockRowsPredicate));
+                  .where(lockRowsPredicate));
          }
 
          // delete data rows
 
          DeleteDescriptor delete = DeleteDescriptor
-         		.from(partType)
-         		.where(predicate);
+               .from(partType)
+               .where(predicate);
 
          processedItems += session.executeDelete(delete);
       }
@@ -749,9 +811,9 @@ public class ProcessInstanceUtils
          List<Long> piOidsBatch = iterator.next();
 
          PredicateTerm predicate = Predicates
-         		.andTerm(
-         				Predicates.inList(piOidField, piOidsBatch),
-         				(null != restriction) ? restriction : Predicates.TRUE);
+               .andTerm(
+                     Predicates.inList(piOidField, piOidsBatch),
+                     (null != restriction) ? restriction : Predicates.TRUE);
 
          // delete lock rows
          TypeDescriptor tdType = TypeDescriptor.get(partType);
@@ -763,11 +825,11 @@ public class ProcessInstanceUtils
             String partOid = tdType.getPkFields()[PK_OID].getName();
 
             QueryDescriptor lckSubselect = QueryDescriptor
-            		.from(partType)
-            		.select(partOid);
+                  .from(partType)
+                  .select(partOid);
 
             lckSubselect.innerJoin(piPartType)
-            		.on(fkPiPartField, piPartPkName);
+                  .on(fkPiPartField, piPartPkName);
 
             DeleteDescriptor delete = DeleteDescriptor.fromLockTable(partType);
             delete.where(Predicates.inList(delete.fieldRef(partOid), lckSubselect.where(predicate)));
@@ -780,7 +842,7 @@ public class ProcessInstanceUtils
          DeleteDescriptor delete = DeleteDescriptor.from(partType);
 
          delete.innerJoin(piPartType)
-         		.on(fkPiPartField, piPartPkName);
+               .on(fkPiPartField, piPartPkName);
 
          processedItems += session.executeDelete(delete.where(predicate));
       }

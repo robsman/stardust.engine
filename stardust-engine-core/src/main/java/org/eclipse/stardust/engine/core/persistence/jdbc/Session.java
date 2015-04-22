@@ -48,6 +48,7 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
 import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
@@ -55,7 +56,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenera
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
@@ -1998,7 +1998,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             if (CollectionUtils.isNotEmpty(processesToArchive))
             {
-               ProcessInstanceUtils.archive(processesToArchive);
+               ExportImportSupport.archive(processesToArchive);
             }
          }
 

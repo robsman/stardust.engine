@@ -36,9 +36,6 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportQueueSender;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
@@ -66,54 +63,6 @@ public class ProcessInstanceUtils
    private static final int DEFAULT_STATEMENT_BATCH_SIZE = 100;
 
    private static final int PK_OID = 0;
-
-   public static void archive(List<IProcessInstance> pis)
-   {
-      if (CollectionUtils.isNotEmpty(pis))
-      {
-         List<Long> oids = new ArrayList<Long>();
-         for (IProcessInstance pi : pis)
-         {
-            oids.add(pi.getOID());
-         }
-         HashMap<String, Object> descriptors = null;
-         ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
-               .execute(new ExportProcessesCommand(
-                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
-                     false));
-         ExportQueueSender sender = new ExportQueueSender();
-         sender.sendMessage(exportResult);
-      }
-      else
-      {
-         trace.warn("Received empty list of processes to archive.");
-      }
-   }
-   
-   /**
-    * for archiving deferred/writebehind processes
-    * @param blobBuilder
-    * @param session
-    */
-   public static void archive(Set<Persistent> persistents, Session session)
-   {
-      if (persistents == null)
-      {
-         trace.warn("Received null persistents to archive.");
-         return;
-      }
-      if (session == null)
-      {
-         trace.warn("Received null session to archive.");
-         return;
-      }
-      
-      ExportResult exportResult = new ExportResult(false);
-      exportResult.close(persistents, session);
-     
-      ExportQueueSender sender = new ExportQueueSender();
-      sender.sendMessage(exportResult);
-   }
    
    public static void cleanupProcessInstance(IProcessInstance pi)
    {

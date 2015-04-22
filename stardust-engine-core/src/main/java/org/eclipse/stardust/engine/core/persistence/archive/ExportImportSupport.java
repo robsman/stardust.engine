@@ -57,6 +57,54 @@ public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
    
+   public static void archive(List<IProcessInstance> pis)
+   {
+      if (CollectionUtils.isNotEmpty(pis))
+      {
+         List<Long> oids = new ArrayList<Long>();
+         for (IProcessInstance pi : pis)
+         {
+            oids.add(pi.getOID());
+         }
+         HashMap<String, Object> descriptors = null;
+         ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
+               .execute(new ExportProcessesCommand(
+                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
+                     false));
+         ExportQueueSender sender = new ExportQueueSender();
+         sender.sendMessage(exportResult);
+      }
+      else
+      {
+         LOGGER.warn("Received empty list of processes to archive.");
+      }
+   }
+   
+   /**
+    * for archiving deferred/writebehind processes
+    * @param blobBuilder
+    * @param session
+    */
+   public static void archive(Set<Persistent> persistents, Session session)
+   {
+      if (persistents == null)
+      {
+         LOGGER.warn("Received null persistents to archive.");
+         return;
+      }
+      if (session == null)
+      {
+         LOGGER.warn("Received null session to archive.");
+         return;
+      }
+      
+      ExportResult exportResult = new ExportResult(false);
+      exportResult.close(persistents, session);
+     
+      ExportQueueSender sender = new ExportQueueSender();
+      sender.sendMessage(exportResult);
+   }
+   
    public static String getUUID(IProcessInstance processInstance)
    {
       return getUUID(processInstance.getOID(), processInstance.getStartTime());

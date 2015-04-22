@@ -24,8 +24,8 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 
 
@@ -369,7 +369,7 @@ public class ProcessBlobAuditTrailPersistor
       }
       if (isAutoArchiveEnabled)
       {
-         ProcessInstanceUtils.archive(persistents, (org.eclipse.stardust.engine.core.persistence.jdbc.Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL));
+         ExportImportSupport.archive(persistents, (org.eclipse.stardust.engine.core.persistence.jdbc.Session)SessionFactory.getSession(SessionFactory.AUDIT_TRAIL));
       }
    }
 

@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.eclipse.stardust.common.DateUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -165,8 +166,12 @@ public class ImportCommand extends BaseExportImportCommand
                      {
                         importMetaData = validateImport(currentArchive, workflowService,descriptors);
                      }
-                     int count = importFile(fromDate, toDate, processOids,descriptors, partitionId,
-                           importMetaData, serviceFactory, currentArchive);
+                     int count = 0;
+                     if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
+                     {
+                        count = importFile(fromDate, toDate, processOids,descriptors, partitionId,
+                        importMetaData, serviceFactory, currentArchive);
+                     }
                      return count;
                   }
 
@@ -214,13 +219,13 @@ public class ImportCommand extends BaseExportImportCommand
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE, archive, descriptors, null);
       importMetaData = (ImportMetaData) workflowService.execute(importCommand);
-      if (importMetaData != null)
+      if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
       {
-         print("Model validated");
+         print("Model validated, proceding with import for " + archive.getArchiveKey());
       }
       else
       {
-         print("Model validation failed. No import can be done. Model file: "
+         print("Model validation failed. " + importMetaData.getErrorMessage() + ". Import can not be done for archive: "
                + archive.getArchiveKey());
       }
       return importMetaData;

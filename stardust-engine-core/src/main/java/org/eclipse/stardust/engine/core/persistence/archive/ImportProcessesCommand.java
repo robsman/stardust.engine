@@ -244,9 +244,12 @@ public class ImportProcessesCommand implements ServiceCommand
             processes.add(oid);
          }
          
-         dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
-         importCount = ExportImportSupport.importProcessInstances(dataByTable,
-               session, oidResolver);
+         if (processes.size() > 0)
+         {
+            dataByTable = ExportImportSupport.getDataByTable(archive.getData(processes));
+            importCount = ExportImportSupport.importProcessInstances(dataByTable,
+                  session, oidResolver);
+         }
             
          // create the export process ids, unless we are importing a dump
          if (!archive.getExportIndex().isDump())
@@ -285,13 +288,10 @@ public class ImportProcessesCommand implements ServiceCommand
          ExportModel exportModel = archive.getExportModel();
          ExportImportSupport.validateModel(exportModel, importMetaData);
       }
-      catch (IllegalStateException e)
-      {
-         LOGGER.error(e.getMessage(), e);
-      }
       catch (Exception e)
       {
-         LOGGER.error("Failed to import processes from input provided", e);
+         LOGGER.error(e.getMessage(), e);
+         importMetaData.setErrorMessage("Failed to import processes from input provided. " + e.getMessage());
       }
    }
 
@@ -312,8 +312,6 @@ public class ImportProcessesCommand implements ServiceCommand
             throw new IllegalArgumentException(
                   "Import from date can not be before import to date");
          }
-         this.fromDate = ExportImportSupport.getStartOfDay(fromDate);
-         this.toDate = ExportImportSupport.getEndOfDay(toDate);
       }
    }
 
@@ -346,6 +344,8 @@ public class ImportProcessesCommand implements ServiceCommand
       private static final long serialVersionUID = 1L;
 
       private final HashMap<Class, Map<Long, Long>> classToRuntimeOidMap;
+      
+      private String errorMessage;
 
       public ImportMetaData()
       {
@@ -367,5 +367,16 @@ public class ImportProcessesCommand implements ServiceCommand
       {
          return classToRuntimeOidMap.get(type).get(exportId);
       }
+
+      public String getErrorMessage()
+      {
+         return errorMessage;
+      }
+
+      public void setErrorMessage(String errorMessage)
+      {
+         this.errorMessage = errorMessage;
+      }
+      
    }
 }

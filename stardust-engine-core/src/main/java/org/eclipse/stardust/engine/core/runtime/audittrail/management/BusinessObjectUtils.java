@@ -421,16 +421,12 @@ public class BusinessObjectUtils
 
    private static Object getNameValue(IData data, Object value)
    {
-      String nameExpression = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
       if (value instanceof Map)
       {
-         Object nameValue = ((Map<?, ?>) value).get(nameExpression);
-         if (nameValue != null)
-         {
-            return nameValue;
-         }
+         String nameExpression = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
+         return nameExpression == null ? null : ((Map<?, ?>) value).get(nameExpression);
       }
-      throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
+      return null;
    }
 
    private static Object getPK(IData data, Object value)

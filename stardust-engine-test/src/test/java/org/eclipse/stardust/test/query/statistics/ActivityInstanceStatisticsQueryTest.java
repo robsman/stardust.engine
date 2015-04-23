@@ -85,17 +85,6 @@ public class ActivityInstanceStatisticsQueryTest
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
 
-   @Ignore("CRNT-34715")
-   @Test
-   public void testRetrieveAiStatisticsForAllProcesses()
-   {
-      final ActivityStatisticsQuery query = ActivityStatisticsQuery.forAllProcesses();
-      setCriticalExecutionTimePolicy(query);
-      final ActivityStatisticsResult result = (ActivityStatisticsResult) sf.getQueryService().getAllActivityInstances(query);
-
-      assertThatStatisticsAreCorrect(result);
-   }
-
    @Test
    public void testRetrieveAiStatisticsForProcessIds()
    {

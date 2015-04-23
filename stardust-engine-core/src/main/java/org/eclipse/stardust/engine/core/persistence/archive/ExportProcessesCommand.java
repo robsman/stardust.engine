@@ -430,7 +430,7 @@ public class ExportProcessesCommand implements ServiceCommand
    private void exportModels(Session session)
    {
       ExportModel exportModel;
-      if (processInstanceOids != null || modelOids != null)
+      if (CollectionUtils.isNotEmpty(exportMetaData.getModelOids()))
       {
          exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids());
       }
@@ -568,27 +568,27 @@ public class ExportProcessesCommand implements ServiceCommand
             ProcessInstanceBean.FR__STATE, EXPORT_STATES);
       ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
             modelOids);
+      ComparisonTerm processDefinitionRestriction = Predicates.greaterThan(
+            ProcessInstanceBean.FR__PROCESS_DEFINITION, 0);
 
       // TODO Improve by adding restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
       // (not like currentArchiveId_processId_starttime in long) or is null
       // currently dont know how to add such complex like condition
-      AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction);
+      AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction,
+            processDefinitionRestriction);
 
       if (CollectionUtils.isNotEmpty(processInstanceOids))
       {
-//         ComparisonTerm oidTerm = new ComparisonTerm(ProcessInstanceBean.FR__OID,
-//               Operator.IN, processInstanceOids);
          ComparisonTerm rootOidTerm = new ComparisonTerm(
                ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, Operator.IN,
                processInstanceOids);
-//         OrTerm processRestriction = Predicates.orTerm(oidTerm, rootOidTerm);
          whereTerm.add(rootOidTerm);
       }
       if (fromDate != null && toDate != null)
       {
          AndTerm dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
                ProcessInstanceBean.FR__START_TIME, this.fromDate.getTime()), Predicates
-               .lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME,
+               .lessOrEqual(ProcessInstanceBean.FR__START_TIME,
                      this.toDate.getTime()));
          whereTerm.add(dateRestriction);
       }
@@ -615,8 +615,6 @@ public class ExportProcessesCommand implements ServiceCommand
             throw new IllegalArgumentException(
                   "Export from date can not be before export to date");
          }
-         this.fromDate = ExportImportSupport.getStartOfDay(fromDate);
-         this.toDate = ExportImportSupport.getEndOfDay(toDate);
       }
    }
 

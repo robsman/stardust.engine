@@ -7,7 +7,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.collections.EnumerationUtils;
-import org.apache.commons.io.IOUtils;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -188,7 +187,7 @@ public class ZipArchive implements IArchive, Serializable
             bufferedInputStream = new BufferedInputStream(inputStream, SIXTEEN_K);
 
             byte[] buffer = new byte[SIXTEEN_K];
-            IOUtils.copyLarge(bufferedInputStream, bufferedOutputStream, buffer);
+            copy(bufferedInputStream, bufferedOutputStream, buffer);
          }
          bufferedOutputStream.close();
          result = byteArrayOutputStream.toByteArray();
@@ -243,6 +242,19 @@ public class ZipArchive implements IArchive, Serializable
       return result;
    }
 
+   private long copy(InputStream input, OutputStream output, byte[] buffer)
+         throws IOException
+   {
+      long count = 0;
+      int n = 0;
+      while (-1 != (n = input.read(buffer)))
+      {
+         output.write(buffer, 0, n);
+         count += n;
+      }
+      return count;
+   }
+   
    @Override
    public String getArchiveManagerId()
    {

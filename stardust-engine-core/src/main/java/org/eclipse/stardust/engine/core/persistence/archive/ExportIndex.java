@@ -152,33 +152,35 @@ public class ExportIndex implements Serializable
       try
       {
          Map<String, List<Long>> startDates = fields.get(FIELD_START_DATE);
-         Map<String, List<Long>> endDates = fields.get(FIELD_END_DATE);
-         List<Long> matchedStartDates = new ArrayList<Long>();
+         //Map<String, List<Long>> endDates = fields.get(FIELD_END_DATE);
+         //List<Long> matchedStartDates = new ArrayList<Long>();
                
          
          for (String startString : startDates.keySet())
          {
             Date processStart = df.parse(startString);
-            if (startDate.compareTo(processStart) < 1)
+            if (startDate.compareTo(processStart) < 1 && endDate.compareTo(processStart) > -1)
             {
-               matchedStartDates.addAll(startDates.get(startString));
+               //matchedStartDates.addAll(startDates.get(startString));
+               result.addAll(startDates.get(startString));
             }
          }
-         for (String endString : endDates.keySet())
-         {
-            Date processEnd = df.parse(endString);
-            if (endDate.compareTo(processEnd) > -1)
-            {
-               for (Long oid : endDates.get(endString))
-               {
-                  if (matchedStartDates.contains(oid))
-                  {
-                     result.add(oid);
-                  }
-               }
-                  
-            }
-         }
+         //add this uncommented logic back in if we want to add parameter for terminatedBefore
+//         for (String endString : endDates.keySet())
+//         {
+//            Date processEnd = df.parse(endString);
+//            if (endDate.compareTo(processEnd) > -1)
+//            {
+//               for (Long oid : endDates.get(endString))
+//               {
+//                  if (matchedStartDates.contains(oid))
+//                  {
+//                     result.add(oid);
+//                  }
+//               }
+//                  
+//            }
+//         }
          return result;
       }
       catch (ParseException e)

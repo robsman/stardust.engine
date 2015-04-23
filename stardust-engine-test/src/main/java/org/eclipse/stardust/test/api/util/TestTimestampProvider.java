@@ -86,4 +86,9 @@ public class TestTimestampProvider implements TimestampProvider
    {
       cal.add(Calendar.HOUR_OF_DAY, 1);
    }
+
+   public void nextMinute()
+   {
+      cal.add(Calendar.MINUTE, 1);
+   }
 }

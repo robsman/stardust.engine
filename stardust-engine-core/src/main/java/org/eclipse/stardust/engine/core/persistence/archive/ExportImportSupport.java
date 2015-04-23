@@ -453,7 +453,8 @@ public class ExportImportSupport
                   processLengths.addAll(result.getProcessLengths(date));
                   index.getRootProcessToSubProcesses().putAll(
                         result.getExportIndex(date).getRootProcessToSubProcesses());
-                  index.getFields().putAll(result.getExportIndex(date).getFields());
+                  
+                  mergeFields(index, result.getExportIndex(date));
                   index.getOidsToUuids().putAll(result.getExportIndex(date).getOidsToUuids());
                   if (exportModel == null)
                   {
@@ -470,6 +471,31 @@ public class ExportImportSupport
          exportResult = null;
       }
       return exportResult;
+   }
+
+   private static void mergeFields(ExportIndex index, ExportIndex batchResultIndex)
+   {
+      for (String field : batchResultIndex.getFields().keySet())
+      {
+         if (index.getFields().get(field) != null)
+         {
+            for (String value : batchResultIndex.getFields().get(field).keySet())
+            {
+               if (index.getFields().get(field).get(value) == null)
+               {
+                  index.getFields().get(field).put(value, batchResultIndex.getFields().get(field).get(value));
+               }
+               else
+               {
+                  index.getFields().get(field).get(value).addAll(batchResultIndex.getFields().get(field).get(value));
+               }
+            }
+         }
+         else
+         {
+            index.getFields().put(field, batchResultIndex.getFields().get(field));
+         }
+      }
    }
 
    public static Date getIndexDateTime(Date date)
@@ -558,7 +584,16 @@ public class ExportImportSupport
       {
          throw new IllegalArgumentException("Provide a processInstance");
       }
-      return getDescriptors(processInstance, processInstance.getProcessDefinition(), ids);
+      try
+      {
+         IProcessDefinition processDefinition = processInstance.getProcessDefinition();
+         return getDescriptors(processInstance, processDefinition, ids);
+      }
+      catch (ObjectNotFoundException e)
+      {
+         LOGGER.warn("Process Definition not found for pi OID: " + processInstance.getOID());
+         return new HashMap<String, Object>();
+      }
    }
 
    public static Map<String, Object> getDescriptors(IProcessInstance processInstance,

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
@@ -95,7 +96,7 @@ public class RtEnvHome
     * @throws ModelIOException if an exception occurs while reading the model from the file system
     * @throws DeploymentException if an exception occurs during model deployment
     */
-   public static List<DeploymentInfo> deploy(final AdministrationService adminService, final DeploymentOptions deploymentOptions, final String ... modelNames) throws ModelIOException, DeploymentException
+   public static List<DeploymentInfo> deployModel(final AdministrationService adminService, final DeploymentOptions deploymentOptions, final String ... modelNames) throws ModelIOException, DeploymentException
    {
       if (adminService == null)
       {
@@ -118,6 +119,41 @@ public class RtEnvHome
       }
 
       return adminService.deployModel(deploymentElements, deploymentOptions);
+   }
+
+   /**
+    * <p>
+    * Overrides the currently active model deployed in the Stardust Engine Runtime with the model having the given name.
+    * </p>
+    *
+    * <p>
+    * A model to be deployed with this method must reside in the folder
+    * <code>models</code> on the classpath.
+    * </p>
+    *
+    * @param adminService an administration service of a user authorized to deploy models
+    * @param deploymentOptions the deployment options; may be null, in that case default deployment options are used
+    * @param modelName the name of the model without extension (which will be assumed to be <code>xpdl</code>)
+    *
+    * @return deployment information, including possible errors or warnings, one {@link DeploymentInfo} per {@link DeploymentElement}
+    *
+    * @throws ModelIOException if an exception occurs while reading the model from the file system
+    * @throws DeploymentException if an exception occurs during model deployment
+    */
+   public static DeploymentInfo overwriteModel(final AdministrationService adminService, final DeploymentOptions deploymentOptions, final String modelName) throws ModelIOException, DeploymentException
+   {
+      if (adminService == null)
+      {
+         throw new NullPointerException("Administration Service must not be null.");
+      }
+      if (modelName == null)
+      {
+         throw new NullPointerException("Name of Models must not be null.");
+      }
+
+      final DeploymentElement deploymentElement = getDeploymentElement(modelName);
+
+      return adminService.overwriteModel(deploymentElement, PredefinedConstants.ACTIVE_MODEL, deploymentOptions);
    }
 
    /**

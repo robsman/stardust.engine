@@ -72,7 +72,10 @@ public abstract class AbstractPropertyWithUser extends AbstractProperty
 
    public <T extends AbstractPropertyWithUser> T clone(long objectId, T property)
    {
-     property.workflowUser = this.workflowUser;
+      // HINT: avoid "<field_name> has private access in 
+      // org.eclipse.stardust.engine.core.runtime.beans.AbstractPropertyWithUser"
+      // by casting the parameter explicitly to AbstractPropertyWithUser
+     ((AbstractPropertyWithUser) property).workflowUser = this.workflowUser;
      return super.clone(objectId, property);
    }
 }

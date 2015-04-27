@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -265,6 +266,14 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
          // TODO Auto-generated method stub
          return false;
       }
+
+      @Override
+      public java.util.logging.Logger getParentLogger()
+            throws SQLFeatureNotSupportedException
+      {
+         throw new UnsupportedOperationException(
+               "This Spring DataSource adapter is not intended to be used this way.");
+      }
    }
 
    private static final class DeferredConnectionDataSourceAdapter
@@ -388,6 +397,14 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
       {
          // TODO Auto-generated method stub
          return false;
+      }
+
+      @Override
+      public java.util.logging.Logger getParentLogger()
+            throws SQLFeatureNotSupportedException
+      {
+         throw new UnsupportedOperationException(
+               "This Spring DataSource adapter is not intended to be used this way.");
       }
    }
 }

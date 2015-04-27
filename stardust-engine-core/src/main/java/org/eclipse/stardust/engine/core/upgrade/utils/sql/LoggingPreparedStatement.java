@@ -620,4 +620,16 @@ public class LoggingPreparedStatement implements PreparedStatement
       logParameter(parameterIndex, reader);
       delegate.setNClob(parameterIndex, reader);
    }
+
+   @Override
+   public void closeOnCompletion() throws SQLException
+   {
+      delegate.closeOnCompletion();
+   }
+
+   @Override
+   public boolean isCloseOnCompletion() throws SQLException
+   {
+      return delegate.isCloseOnCompletion();
+   }
 }

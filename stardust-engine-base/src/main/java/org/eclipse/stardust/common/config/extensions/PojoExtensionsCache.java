@@ -85,7 +85,7 @@ public class PojoExtensionsCache<T> extends AbstractList<T>
                      + instanceType);
             }
 
-            sharedInstance.compareAndSet(null, instantiatePojoExtension(instanceType));
+            sharedInstance.compareAndSet(null, (T)instantiatePojoExtension(instanceType));
          }
 
          return sharedInstance.get();

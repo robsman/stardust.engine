@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import javax.sql.DataSource;
 
@@ -184,6 +185,14 @@ public class LocalDataSource  implements DataSource, IDisposable
 
    @Override
    public <T> T unwrap(Class<T> iface) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public java.util.logging.Logger getParentLogger()
+         throws SQLFeatureNotSupportedException
    {
       // TODO Auto-generated method stub
       return null;

@@ -289,26 +289,6 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.camel</groupId>
-         <artifactId>camel-smpp</artifactId>
-         <scope>runtime</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.camel</groupId>
-               <artifactId>camel-core</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>commons-codec</groupId>
-               <artifactId>commons-codec</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.servicemix.bundles</groupId>
-         <artifactId>org.apache.servicemix.bundles.jsmpp</artifactId>
-         <scope>runtime</scope>
-      </dependency>
-      <dependency>
          <groupId>org.eclipse.xsd</groupId>
          <artifactId>org.eclipse.xsd</artifactId>
          <scope>compile</scope>

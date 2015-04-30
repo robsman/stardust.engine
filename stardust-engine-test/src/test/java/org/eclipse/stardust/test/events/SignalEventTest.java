@@ -10,9 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.events;
 
-import static java.util.Collections.singletonMap;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
@@ -22,17 +20,6 @@ import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.eclipse.stardust.engine.api.query.ActivityFilter;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -44,6 +31,14 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 
 public class SignalEventTest
 {
@@ -81,15 +76,15 @@ public class SignalEventTest
       // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "LeftSignal");
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "RightSignal");
-      
+
       sendSignalEvent("Signal1");
-      
+
       Thread.sleep(2000);
-      
+
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
    }
-   
+
    private void sendSignalEvent(final String signalName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());

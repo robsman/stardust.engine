@@ -8,7 +8,7 @@ import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 
-public class ProducerRouteContext extends ApplicationRouteContext
+public abstract class ProducerRouteContext extends ApplicationRouteContext
 {
    public ProducerRouteContext(IApplication application, String partitionId,
          String camelContextId)
@@ -18,11 +18,7 @@ public class ProducerRouteContext extends ApplicationRouteContext
       this.camelContextId = camelContextId;
    }
 
-   public String getUserProvidedRouteConfiguration()
-   {
-
-      return Util.getProducerRouteConfiguration(application);
-   }
+   public abstract String getUserProvidedRouteConfiguration();
 
    public String getRouteId()
    {

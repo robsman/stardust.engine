@@ -473,7 +473,7 @@ public class RouteDefinitionBuilder
     *           flag
     * @return route
     */
-   private static String route(String id, boolean autoStartUp)
+   public static String route(String id, boolean autoStartUp)
    {
       StringBuilder route = new StringBuilder(LESS_THAN_SIGN + "route");
 
@@ -497,13 +497,13 @@ public class RouteDefinitionBuilder
       return route.toString();
    }
 
-   private static String from(final String uri)
+   public static String from(final String uri)
    {
       StringBuilder from = new StringBuilder();
       from.append(LESS_THAN_SIGN + "from uri=\"" + uri + "\" /" + GREATER_THAN_SIGN);
       return from.toString();
    }
-   private static String description(final String customDescription)
+   public static String description(final String customDescription)
    {
       StringBuilder description = new StringBuilder();
       description.append(LESS_THAN_SIGN + "description"+GREATER_THAN_SIGN+"" + customDescription + LESS_THAN_SIGN + "/description"+GREATER_THAN_SIGN+"");
@@ -520,42 +520,42 @@ public class RouteDefinitionBuilder
     * @param constant
     * @return
     */
-   private static String to(final String uri)
+   public static String to(final String uri)
    {
       StringBuilder to = new StringBuilder();
       to.append(LESS_THAN_SIGN + "to uri=\"" + uri + "\" /" + GREATER_THAN_SIGN);
       return to.toString();
    }
 
-   private static String process(final String beanId)
+   public static String process(final String beanId)
    {
       StringBuilder process = new StringBuilder();
       process.append(LESS_THAN_SIGN + "process ref=\"" + beanId + "\" /" + GREATER_THAN_SIGN);
       return process.toString();
    }
 
-   private static String transacted(final String tranId)
+   public static String transacted(final String tranId)
    {
       StringBuilder transacted = new StringBuilder();
       transacted.append(LESS_THAN_SIGN + "transacted ref=\"" + tranId + "\" /" + GREATER_THAN_SIGN);
       return transacted.toString();
    }
 
-   private static String buildConstantExpression(String expression)
+   public static String buildConstantExpression(String expression)
    {
       StringBuffer exp = new StringBuffer();
       exp.append("<constant>" + expression + "</constant>");
       return exp.toString();
    }
 
-   private static String buildSimpleExpression(String expression)
+   public static String buildSimpleExpression(String expression)
    {
       StringBuffer exp = new StringBuffer();
       exp.append("<simple>$simple{" + expression + "}</simple>\n");
       return exp.toString();
    }
 
-   private static String setHeader(String headerName, String headerValue)
+   public static String setHeader(String headerName, String headerValue)
    {
       StringBuffer header = new StringBuffer();
 

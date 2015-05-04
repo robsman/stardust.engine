@@ -182,12 +182,6 @@ public class ErrorMessageAcceptor implements MessageAcceptor, Stateless
                errorCode);
 
          activityInstance.activate();
-
-         // ActivityThread at = new ActivityThread(null, null, activityInstance, null,
-         // data, false);
-         // at.run();
-
       }
    }
-
 }

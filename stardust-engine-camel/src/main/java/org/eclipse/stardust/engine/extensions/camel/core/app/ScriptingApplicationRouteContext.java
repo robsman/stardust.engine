@@ -1,4 +1,4 @@
-package org.eclipse.stardust.engine.extensions.camel.core.app.scripting;
+package org.eclipse.stardust.engine.extensions.camel.core.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder.*;

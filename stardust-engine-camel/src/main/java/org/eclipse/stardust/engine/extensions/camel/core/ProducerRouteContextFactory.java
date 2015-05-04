@@ -5,7 +5,7 @@ import org.apache.camel.CamelContext;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 import org.eclipse.stardust.engine.extensions.camel.core.app.GenericApplicationRouteContext;
-import org.eclipse.stardust.engine.extensions.camel.core.app.scripting.ScriptingApplicationRouteContext;
+import org.eclipse.stardust.engine.extensions.camel.core.app.ScriptingApplicationRouteContext;
 
 public class ProducerRouteContextFactory
 {

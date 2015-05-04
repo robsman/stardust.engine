@@ -326,9 +326,12 @@ public class BusinessObjectUtils
                         .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
                }
                AndTerm restriction = join.getRestriction();
-               for (PredicateTerm term : restriction.getParts())
+               if (restriction != null)
                {
-                  sdvJoin.where(replace(term, join, sdvJoin));
+                  for (PredicateTerm term : restriction.getParts())
+                  {
+                     sdvJoin.where(replace(term, join, sdvJoin));
+                  }
                }
             }
          }

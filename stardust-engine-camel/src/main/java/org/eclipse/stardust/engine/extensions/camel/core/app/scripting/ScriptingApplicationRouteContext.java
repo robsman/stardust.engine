@@ -36,8 +36,9 @@ import com.google.gson.JsonSerializer;
 
 public class ScriptingApplicationRouteContext extends ProducerRouteContext
 {
-   public static final Logger logger = LogManager.getLogger(ScriptingApplicationRouteContext.class);
-   
+   public static final Logger logger = LogManager
+         .getLogger(ScriptingApplicationRouteContext.class);
+
    public ScriptingApplicationRouteContext(IApplication application, String partitionId,
          String camelContextId)
    {
@@ -47,16 +48,20 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
    @Override
    public String getUserProvidedRouteConfiguration()
    {
-      String providedRoute=Util.getProducerRouteConfiguration(this.application);
-      if(StringUtils.isEmpty(providedRoute)){
-         logger.debug("The extended attribute "+PRODUCER_ROUTE_ATT+" is not found. The new route generation strategy will be used.");
+      String providedRoute = Util.getProducerRouteConfiguration(this.application);
+      if (StringUtils.isEmpty(providedRoute))
+      {
+         logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
+               + " is not found. The new route generation strategy will be used.");
          return generateRoute(this.application);
       }
-      logger.debug("The extended attribute "+PRODUCER_ROUTE_ATT+" is found. The route generation strategy will not be used. ");
+      logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
+            + " is found. The route generation strategy will not be used. ");
       return providedRoute;
    }
 
    /**
+    * Contains the internal logic to generate a Camel route for each Scripting language.
     * 
     * @param application
     * @return
@@ -204,10 +209,10 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       StringBuilder script = new StringBuilder();
       script.append("<![CDATA[\n");
       script.append(buildCoreJavascriptFunctions());
-      script.append(buildInputParametersInitializationScript(application)+"\n");
+      script.append(buildInputParametersInitializationScript(application) + "\n");
       String scriptCode = Util.getScriptCode(application);
-      script.append(scriptCode+"\n");
-      script.append(buildOutputParametersInitializationScript(application)+"\n");
+      script.append(scriptCode + "\n");
+      script.append(buildOutputParametersInitializationScript(application) + "\n");
       script.append("]]>\n");
       return script.toString();
    }
@@ -229,12 +234,15 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
          if (ap.getType().getId().equalsIgnoreCase("primitive"))
          {
             if (type != null
-                  && (type.getId().equalsIgnoreCase(Type.Integer.getId())|| type.getId().equalsIgnoreCase(Type.Float.getId()) 
-                        || type.getId().equalsIgnoreCase(Type.Double.getId()) || type.getId().equalsIgnoreCase(Type.Long.getId())))
+                  && (type.getId().equalsIgnoreCase(Type.Integer.getId())
+                        || type.getId().equalsIgnoreCase(Type.Float.getId())
+                        || type.getId().equalsIgnoreCase(Type.Double.getId()) || type
+                        .getId().equalsIgnoreCase(Type.Long.getId())))
             {
                script.append(ap.getId() + " = new Number( request.headers.get('"
                      + ap.getId() + "'));\n");
-            }else if (type != null
+            }
+            else if (type != null
                   && (type.getId().equalsIgnoreCase(Type.Boolean.getId()) || type.getId()
                         .equals("boolean")))
             {
@@ -253,8 +261,11 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
                script.append(ap.getId() + " =  request.headers.get('" + ap.getId()
                      + "');");
                script.append("}");
-            }else{
-               script.append(ap.getId() + " =  request.headers.get('" + ap.getId()+ "');");
+            }
+            else
+            {
+               script.append(ap.getId() + " =  request.headers.get('" + ap.getId()
+                     + "');");
             }
          }
          else if (ap.getType().getId()
@@ -270,10 +281,10 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
          {
             script.append(ap.getId() + " = \"\";\n");
          }
-       if (type != null && (type.getId().equalsIgnoreCase(Type.Double.getId())))
-       {
-          script.append(ap.getId() + " = new Number(0);\n");
-       }
+         if (type != null && (type.getId().equalsIgnoreCase(Type.Double.getId())))
+         {
+            script.append(ap.getId() + " = new Number(0);\n");
+         }
          if (type != null && (type.getId().equalsIgnoreCase(Type.Timestamp.getId())))
          {
             script.append(ap.getId() + " = new java.util.Date();\n");
@@ -311,9 +322,9 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
          }
          else
          {
-//            script.append("if(request.headers.get('" + ap.getId() + "')!=null){\n");
-//            script.append(ap.getId() + "= request.headers.get('" + ap.getId() + "');");
-//            script.append("}");
+            // script.append("if(request.headers.get('" + ap.getId() + "')!=null){\n");
+            // script.append(ap.getId() + "= request.headers.get('" + ap.getId() + "');");
+            // script.append("}");
          }
       }
 

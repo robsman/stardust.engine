@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.extensions.camel.core.ConsumerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContextFactory;
+import org.eclipse.stardust.engine.extensions.camel.core.app.ConsumerApplicationRouteContext;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.Format;
@@ -247,7 +248,7 @@ public class RouteHelper
    public static void createAndStartConsumerRoute(IApplication application, CamelContext context, String partitionId)
          throws Exception
    {
-      ConsumerRouteContext consumerContext=new ConsumerRouteContext(application,partitionId,context.getName());
+      ConsumerRouteContext consumerContext=new ConsumerApplicationRouteContext(application,partitionId,context.getName());
       String routeId =consumerContext.getRouteId();
 
       RouteDefinition runningRoute = ((ModelCamelContext) context).getRouteDefinition(routeId);

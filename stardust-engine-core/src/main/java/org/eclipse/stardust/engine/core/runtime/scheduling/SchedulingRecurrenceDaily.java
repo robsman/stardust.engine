@@ -15,9 +15,15 @@ public class SchedulingRecurrenceDaily extends SchedulingRecurrence
 
       if (daysRecurrence.equals("interval"))
       {
-         cronExpr.append(getStartDate().getDate())
+         int interval = Integer.parseInt(dailyRecurrenceOptions.get("daysIntervalCount").getAsString());
+         int day = interval < 2 ? 1 : getStartDate().getDate() % interval;
+         if (day == 0)
+         {
+            day += interval;
+         }
+         cronExpr.append(day)
                  .append('/')
-                 .append(dailyRecurrenceOptions.get("daysIntervalCount").getAsString())
+                 .append(interval)
                  .append(" * ? *");
       }
       else if (daysRecurrence.equals("weekdays"))

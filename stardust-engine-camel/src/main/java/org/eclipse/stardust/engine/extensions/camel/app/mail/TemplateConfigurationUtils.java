@@ -17,6 +17,24 @@ public class TemplateConfigurationUtils
 {
    public static final Logger logger = LogManager.getLogger(TemplateConfigurationUtils.class);
 
+   public static List<TemplateConfiguration> toTemplateConfigurations(List<Map<String, Object>> configuration)
+   {
+      List<TemplateConfiguration> templateConfigurations = new ArrayList<TemplateConfiguration>();
+      if(!configuration.isEmpty()){
+         for(Map<String,Object> elt:configuration){
+            TemplateConfiguration templateConfiguration = new TemplateConfiguration();
+            templateConfiguration.setTemplate((Boolean)elt.get("tTemplate"));
+            templateConfiguration.setName((String)elt.get("tName"));
+            templateConfiguration.setFormat((String)elt.get("tFormat"));
+            templateConfiguration.setPath((String)elt.get("tPath"));
+            templateConfiguration.setSource((String)elt.get("tSource"));
+            templateConfigurations.add(templateConfiguration);
+         }
+         
+      }
+      return templateConfigurations;
+   }
+   
    @SuppressWarnings("unchecked")
    public static List<TemplateConfiguration> toTemplateConfigurations(Map<String, Object> documentRequest)
    {

@@ -1564,7 +1564,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     */
    public void flush()
    {
-      if (isArchiveAuditTrail)
+      if (isReadOnly())
       {
          // readonly
          return;

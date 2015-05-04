@@ -31,7 +31,7 @@ public interface BusinessObject extends Serializable
     * @author Florin.Herinean
     * @version $Revision: $
     */
-   public static interface Definition
+   public static interface Definition extends Serializable
    {
       /**
        * Retrieves the name of the structure.
@@ -93,7 +93,7 @@ public interface BusinessObject extends Serializable
     * @author Florin.Herinean
     * @version $Revision: $
     */
-   public static interface Value
+   public static interface Value extends Serializable
    {
       /**
        * Retrieves the process instance oid containing the actual data value.

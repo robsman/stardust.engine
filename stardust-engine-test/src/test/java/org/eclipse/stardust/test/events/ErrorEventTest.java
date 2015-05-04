@@ -63,8 +63,6 @@ public class ErrorEventTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      // TODO This test sometimes fails (sometimes it succeeds)
-
       ProcessInstance rootProcess = wfs.startProcess("{ErrorEventTest}RootProcess",
             singletonMap("ProcessKey", Long.toString(System.nanoTime())), true);
 

@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -69,7 +70,7 @@ public class MultipleStartEventsTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
+      ProcessInstance rootProcess = wfs.startProcess("{MultipleStartEventsTest}MultipleStartEventsTest",
             singletonMap("StartEventId", "BPMN_JMSTrigger1"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
@@ -93,7 +94,7 @@ public class MultipleStartEventsTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
+      ProcessInstance rootProcess = wfs.startProcess("{MultipleStartEventsTest}MultipleStartEventsTest",
             singletonMap("StartEventId", "BPMN_JMSTrigger2"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
@@ -117,7 +118,7 @@ public class MultipleStartEventsTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      ProcessInstance rootProcess = wfs.startProcess("MultipleStartEventsTest",
+      ProcessInstance rootProcess = wfs.startProcess("{MultipleStartEventsTest}MultipleStartEventsTest",
             singletonMap("StartEventId", "BPMN_JMSTrigger3"), true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
@@ -139,57 +140,56 @@ public class MultipleStartEventsTest
    @Test
    public void testStartEvent1ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
-	  sendMessages("MyTest", "BPMN_JMSTrigger1");
+     sendMessages("MyTest", "BPMN_JMSTrigger1");
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
-	  ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+     ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
       Thread.sleep(2000);
-	  ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("MultipleStartEventsTest"));
+     ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("{MultipleStartEventsTest}MultipleStartEventsTest"));
       aiStateChangeBarrier.awaitForId(processInstance.getOID(), "StartActivity1");
-	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
+     piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
 
    @Test
    public void testStartEvent2ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
-	  sendMessages("MyTest", "BPMN_JMSTrigger2");
+     sendMessages("MyTest", "BPMN_JMSTrigger2");
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
-	  ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+     ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
       Thread.sleep(2000);
-	  ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("MultipleStartEventsTest"));
+     ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("{MultipleStartEventsTest}MultipleStartEventsTest"));
       aiStateChangeBarrier.awaitForId(processInstance.getOID(), "StartActivity2");
-	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
+     piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
 
    @Test
    public void testStartEvent3ViaJMS() throws InterruptedException, TimeoutException, JMSException{
 
-	  sendMessages("MyTest", "BPMN_JMSTrigger3");
+     sendMessages("MyTest", "BPMN_JMSTrigger3");
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
-	  ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+     ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
       Thread.sleep(2000);
-	  ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("MultipleStartEventsTest"));
+     ProcessInstance processInstance = sf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess("{MultipleStartEventsTest}MultipleStartEventsTest"));
       aiStateChangeBarrier.awaitForId(processInstance.getOID(), "StartActivity3");
-	  piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
+     piStateChangeBarrier.await(processInstance.getOID(), ProcessInstanceState.Completed);
       Assert.assertEquals(sf.getQueryService().getActivityInstancesCount(ActivityInstanceQuery.findForProcessInstance(processInstance.getOID())), 2);
    }
 
-   private void sendMessages(String messageId, final String startEventName)
-         throws JMSException
+   private void sendMessages(String messageId, final String startEventName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());
 
       final StringBuilder payload = new StringBuilder();
-      payload.append("Message [").append(messageId).append("] sent at: ")
-            .append(new Date());
+      payload.append("Message [").append(messageId).append("] sent at: ").append(new Date());
 
-      jmsTemplate.send(testClassSetup.queue("jms/CarnotApplicationQueue"),
+      jmsTemplate.send(testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY),
             new MessageCreator()
             {
                public Message createMessage(Session session) throws JMSException
                {
                   TextMessage message = session.createTextMessage(payload.toString());
+                  message.setStringProperty("processID", "{MultipleStartEventsTest}MultipleStartEventsTest");
                   message.setStringProperty("StartEventId", startEventName);
                   return message;
                }

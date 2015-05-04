@@ -14,12 +14,13 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.events.ErrorEventHierarchyTest.ERROR_EVENTS_HIERARCHY_MODEL_NAME;
 import static org.eclipse.stardust.test.events.ErrorEventTest.ERROR_EVENTS_MODEL_NAME;
 import static org.eclipse.stardust.test.events.EscalationEventTest.ESCALATION_EVENTS_MODEL_NAME;
+import static org.eclipse.stardust.test.events.MultipleStartEventsTest.START_EVENTS_MODEL_NAME;
+import static org.eclipse.stardust.test.events.SignalEventTest.SIGNAL_EVENTS_MODEL_NAME;
 
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -28,12 +29,18 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 @SuiteClasses({
                ErrorEventTest.class,
                ErrorEventHierarchyTest.class,
-               EscalationEventTest.class
+               EscalationEventTest.class,
+               MultipleStartEventsTest.class,
+               SignalEventTest.class
              })
 public class EventsTestSuite
 {
    /* test suite */
 
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME, ERROR_EVENTS_HIERARCHY_MODEL_NAME, ESCALATION_EVENTS_MODEL_NAME);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.JMS, ERROR_EVENTS_MODEL_NAME,
+                                                                                                                                                            ERROR_EVENTS_HIERARCHY_MODEL_NAME,
+                                                                                                                                                            ESCALATION_EVENTS_MODEL_NAME,
+                                                                                                                                                            START_EVENTS_MODEL_NAME,
+                                                                                                                                                            SIGNAL_EVENTS_MODEL_NAME);
 }

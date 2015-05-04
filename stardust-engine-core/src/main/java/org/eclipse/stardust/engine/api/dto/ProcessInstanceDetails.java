@@ -141,9 +141,17 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       this.terminationTime = processInstance.getTerminationTime();
       this.state = processInstance.getState();
 
-      UserDetailsLevel userDetailsLevel = ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
-            ? UserDetailsLevel.Minimal
-            : UserDetailsLevel.Core;
+      final UserDetailsLevel userDetailsLevel;
+      if (ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
+            && processInstance.getPersistenceController().isCreated())
+      {
+         userDetailsLevel = UserDetailsLevel.Minimal;
+      }
+      else
+      {
+         userDetailsLevel = UserDetailsLevel.Core;
+      }
+      
       startingUserDetails = initStartingUser(processInstance, parameters, userDetailsLevel);
 
       // get the starting AI oid

@@ -511,7 +511,7 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       final long modelOid = deploymentInfos.get(0).getModelOID();
       
@@ -538,7 +538,7 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       final long modelOid = deploymentInfos.get(0).getModelOID();
       
@@ -565,7 +565,7 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       final long modelOid = deploymentInfos.get(0).getModelOID();
       
@@ -592,7 +592,7 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       final long modelOid = deploymentInfos.get(0).getModelOID();
       

@@ -1,19 +1,21 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
 /**
- * Value Converter to marshal objects between Java and Javascript.
+ * Converts Rhino's NativeObjects to Structured Data.
  * 
  */
 public final class ScriptValueConverter
@@ -21,9 +23,13 @@ public final class ScriptValueConverter
    private ScriptValueConverter()
    {}
 
-   public static Object unwrapValue(Object value)
+   public static Object unwrapValue(Object value, TypedXPath xPaths)
    {
       if (value == null)
+      {
+         return null;
+      }
+      if (value instanceof Undefined)
       {
          return null;
       }
@@ -31,7 +37,7 @@ public final class ScriptValueConverter
       {
          // unwrap a Java object from a JavaScript wrapper
          // recursively call this method to convert the unwrapped value
-         value = unwrapValue(((Wrapper) value).unwrap());
+         value = unwrapValue(((Wrapper) value).unwrap(), xPaths);
       }
       else if (value instanceof IdScriptableObject)
       {
@@ -70,7 +76,7 @@ public final class ScriptValueConverter
                      // get the value out for the specified key
                      Object val = values.get(propId, values);
                      // recursively call this method to convert the value
-                     propValues.add(unwrapValue(val));
+                     propValues.add(unwrapValue(val, xPaths));
                   }
                }
 
@@ -80,7 +86,8 @@ public final class ScriptValueConverter
             {
                // any other JavaScript object that supports properties - convert to a Map
                // of objects
-               Map<String, Object> propValues = new HashMap<String, Object>(propIds.length);
+               Map<String, Object> propValues = new HashMap<String, Object>(
+                     propIds.length);
                for (int i = 0; i < propIds.length; i++)
                {
                   // work on each key in turn
@@ -91,8 +98,11 @@ public final class ScriptValueConverter
                   {
                      // get the value out for the specified key
                      Object val = values.get((String) propId, values);
+                     TypedXPath xpath = findChildXPathByName((String) propId, xPaths);
                      // recursively call this method to convert the value
-                     propValues.put((String) propId, unwrapValue(val));
+                     propValues.put(getId((String) propId, xpath),
+                           unwrapValue(val, xpath));
+
                   }
                }
                value = propValues;
@@ -106,7 +116,7 @@ public final class ScriptValueConverter
          ArrayList<Object> list = new ArrayList<Object>(array.length);
          for (int i = 0; i < array.length; i++)
          {
-            list.add(unwrapValue(array[i]));
+            list.add(unwrapValue(array[i], xPaths));
          }
          value = list;
       }
@@ -118,53 +128,13 @@ public final class ScriptValueConverter
          Map<Object, Object> copyMap = new HashMap<Object, Object>(map.size());
          for (Object key : map.keySet())
          {
-            copyMap.put(key, unwrapValue(map.get(key)));
+            TypedXPath xpath = findChildXPathByName((String) key, xPaths);
+            copyMap.put(getId((String) key, xpath), unwrapValue(map.get(key), xpath));
          }
          value = copyMap;
       }
       return value;
    }
-
-   // public static Object wrapValue(Scriptable scope, Object value)
-   // {
-   // // perform conversions from Java objects to JavaScript scriptable instances
-   // if (value == null)
-   // {
-   // return null;
-   // }
-   // else if (value instanceof Date)
-   // {
-   // // convert Date to JavaScript native Date object
-   // // call the "Date" constructor on the root scope object - passing in the millisecond
-   // // value from the Java date - this will construct a JavaScript Date with the same
-   // value
-   // Date date = (Date)value;
-   // value = ScriptRuntime.newObject(
-   // Context.getCurrentContext(), scope, TYPE_DATE, new Object[] {date.getTime()});
-   // }
-   // else if (value instanceof Collection)
-   // {
-   // // recursively convert each value in the collection
-   // Collection<Object> collection = (Collection<Object>)value;
-   // Object[] array = new Object[collection.size()];
-   // int index = 0;
-   // for (Object obj : collection)
-   // {
-   // array[index++] = wrapValue(scope, obj);
-   // }
-   // // convert array to a native JavaScript Array
-   // value = Context.getCurrentContext().newArray(scope, array);
-   // }
-   // else if (value instanceof Map)
-   // {
-   // value = new NativeMap(scope, (Map)value);
-   // }
-   //
-   // // simple numbers, strings and booleans are wrapped automatically by Rhino
-   //
-   // return value;
-   // }
-   //
 
    private static boolean isArray(final Object[] ids)
    {
@@ -179,4 +149,24 @@ public final class ScriptValueConverter
       }
       return result;
    }
+
+   private static TypedXPath findChildXPathByName(String key, TypedXPath parentXPath)
+   {
+      TypedXPath childXPath = parentXPath.getChildXPath(key);
+      if (childXPath == null)
+      {
+         childXPath = parentXPath.getChildXPath("@" + key);
+      }
+      return childXPath;
+   }
+
+   private static String getId(String propId, TypedXPath xpath)
+   {
+      if (xpath!=null && xpath.isAttribute())
+      {
+         return "@" + propId;
+      }
+      return propId;
+   }
+
 }

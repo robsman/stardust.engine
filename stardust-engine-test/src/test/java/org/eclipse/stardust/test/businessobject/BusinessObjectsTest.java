@@ -329,7 +329,7 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 1, values.size());
       checkValue(values, true, "EmpName", "Florin");
       
-      RtEnvHome.deploy(sf.getAdministrationService(), null, MODEL_NAME3);
+      RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_NAME3);
       createEmployee(businessObjectQualifiedId, "3", "Meyer");
       query = BusinessObjectQuery.findForBusinessObject(PredefinedConstants.ACTIVE_MODEL, businessObjectQualifiedId);
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));

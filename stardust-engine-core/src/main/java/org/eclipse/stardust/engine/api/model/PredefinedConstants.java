@@ -183,8 +183,6 @@ public final class PredefinedConstants
 
    public static final String MODELELEMENT_VISIBILITY = ENGINE_SCOPE + "visibility";
 
-   public static final String HIBERNATE_DELETE_IF_NULL_ATT = ENGINE_SCOPE + "hibernate:deleteIfNull";
-
    // common for generic WebService application types.
    public static final String AUTHENTICATION_ATT = ENGINE_SCOPE + "wsAuthentication";
    public static final String BASIC_AUTHENTICATION = "basic";

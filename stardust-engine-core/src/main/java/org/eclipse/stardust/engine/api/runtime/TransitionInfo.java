@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
  * Base class containing common information of transition steps and targets.
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -26,7 +26,7 @@ public abstract class TransitionInfo implements Serializable
 
    private long modelOid;
    private long activityRuntimeOid;
-   
+
    private String activityId;
    private String activityName;
 
@@ -35,7 +35,7 @@ public abstract class TransitionInfo implements Serializable
 
    private String modelId;
    private String modelName;
-   
+
    TransitionInfo(long activityInstanceOid, long modelOid, long activityRuntimeOid, String activityId,
          String activityName, String processId, String processName, String modelId, String modelName)
    {
@@ -50,26 +50,53 @@ public abstract class TransitionInfo implements Serializable
       this.modelName = modelName;
    }
 
+   /**
+    * Retrieves the source activity instance OID.
+    * <br>
+    * For the case of a TransitionTarget, this represents the activity instance from where the ad-hoc
+    * transition is performed.
+    * <br>
+    * For the case of a TransitionStep, this is either the OID of the activity instance that started the subprocess
+    * or -1 if there is no subprocess started yet.
+    * <br>
+    * This value is necessary to perform the actual transition, but is not relevant for clients.
+    *
+    * @return a long representing the OID of the activity instance or -1 if there is no corresponding activity instance.
+    */
    public long getActivityInstanceOid()
    {
       return activityInstanceOid;
    }
-   
+
    /**
-    * Retrieves the OID of the model containing the activity.
+    * Retrieves the OID of the model containing the activity that represents the target of this operation.
+    * <br>
+    * This value is necessary to perform the actual transition, but is not relevant for clients.
+    *
+    * @return a long representing the OID of the deployed model.
     */
    public long getModelOid()
    {
       return modelOid;
    }
-   
+
+   /**
+    * Retrieves the runtime OID of the activity that represents the target of this operation.
+    * <br>
+    * This value is necessary to perform the actual transition, but is not relevant for clients.
+    * Together with the model OID is used to uniquely identify a specific activity in the model repository.
+    *
+    * @return a long representing the runtimeOID of the activity.
+    */
    public long getActivityRuntimeOid()
    {
       return activityRuntimeOid;
    }
-   
+
    /**
-    * Retrieves the activity id.
+    * Retrieves the Id of the activity that represents the target of this operation.
+    *
+    * @return a string containing the id of the activity.
     */
    public String getActivityId()
    {
@@ -77,45 +104,56 @@ public abstract class TransitionInfo implements Serializable
    }
 
    /**
-    * Retrieves the activity name.
+    * Retrieves the Name of the activity that represents the target of this operation.
+    *
+    * @return a string containing the name of the activity.
     */
    public String getActivityName()
    {
       return activityName;
    }
-   
+
    /**
-    * Retrieves the process definition id.
+    * Retrieves the Id of the process definition containing the activity that represents the target of this operation.
+    *
+    * @return a string containing the id of the process definition.
     */
    public String getProcessId()
    {
       return processId;
    }
-   
+
    /**
-    * Retrieves the process definition name.
+    * Retrieves the Name of the process definition containing the activity that represents the target of this operation.
+    *
+    * @return a string containing the name of the process definition.
     */
    public String getProcessName()
    {
       return processName;
    }
-   
+
    /**
-    * Retrieves the model id.
+    * Retrieves the Id of the model containing the activity that represents the target of this operation.
+    *
+    * @return a string containing the id of the model.
     */
    public String getModelId()
    {
       return modelId;
    }
-   
+
    /**
-    * Retrieves the model name.
+    * Retrieves the Name of the model containing the activity that represents the target of this operation.
+    *
+    * @return a string containing the name of the model.
     */
    public String getModelName()
    {
       return modelName;
    }
 
+   @Override
    public int hashCode()
    {
       final int prime = 31;

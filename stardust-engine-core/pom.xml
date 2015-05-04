@@ -735,6 +735,7 @@
                   <include>api/runtime/HistoricalEventDescriptionDelegation.java</include>
                   <include>api/runtime/HistoricalEventDescriptionStateChange.java</include>
                   <include>api/runtime/HistoricalEventType.java</include>
+                  <include>api/runtime/IDescriptorProvider.java</include>
                   <include>api/runtime/IllegalOperationException.java</include>
                   <include>api/runtime/IllegalStateChangeException.java</include>
                   <include>api/runtime/ImplementationDescription.java</include>

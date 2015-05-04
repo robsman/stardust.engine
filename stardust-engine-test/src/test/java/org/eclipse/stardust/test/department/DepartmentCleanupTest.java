@@ -94,7 +94,7 @@ public class DepartmentCleanupTest
    {
       DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntimeAndModels();
-      RtEnvHome.deploy(sf.getAdministrationService(), null, MODEL_NAME);
+      RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_NAME);
       ensureDepartmentCleanup();
    }
    

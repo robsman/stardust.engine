@@ -5,9 +5,13 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 
 public class JavaScriptTypeConverter extends JsonTypeConverter.ApplicationTypeConverter
 {
@@ -19,11 +23,18 @@ public class JavaScriptTypeConverter extends JsonTypeConverter.ApplicationTypeCo
    @Override
    public void unmarshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
    {
-      if (isStuctured(dataMapping))
+      Object javascriptResponse = findDataValue(dataMapping, extendedAttributes);
+      if (javascriptResponse != null && (isStuctured(dataMapping)))
       {
-         super.marshal(dataMapping, extendedAttributes);
-         super.unmarshal(dataMapping, extendedAttributes);
+         long modelOid = new Long(dataMapping.getModelOID());
+         SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+         Set<TypedXPath> allXPaths = converter.getxPathMap().getAllXPaths();
+         IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+         TypedXPath rootXPath = xPathMap.getRootXPath();
+         javascriptResponse = ScriptValueConverter.unwrapValue(javascriptResponse,
+               rootXPath);
       }
+      replaceDataValue(dataMapping, javascriptResponse, extendedAttributes);
    }
 
    @Override

@@ -5,18 +5,18 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 import org.mozilla.javascript.IdScriptableObject;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -95,7 +95,6 @@ public class JsonTypeConverter
             if (dataMap != null)
             {
                GsonBuilder gsonBuilder = new GsonBuilder();
-
                if (LONG_DATA_FORMAT.equals(this.dateFormat))
                {
                   gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
@@ -114,18 +113,27 @@ public class JsonTypeConverter
                {
                   gsonBuilder.setDateFormat(this.dateFormat).create();
                }
-
-               Gson gson = gsonBuilder.create();
+               
+               Gson gson=gsonBuilder.create();
+               
                String json = null;
-
-               if (dataMap instanceof IdScriptableObject )
+               if (dataMap instanceof IdScriptableObject)
                {
-                  json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap));
+                  long modelOid = new Long(dataMapping.getModelOID());
+                  SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+                  Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
+                  IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+                  TypedXPath rootXPath=    xPathMap.getRootXPath();
+                  json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap,rootXPath));
                }
                else
                {
                   json = gson.toJson(dataMap);
                }
+               //workaround to customize fields name since FieldNAmingStrategy is not working with 1.6
+               //TODO: replace workaround after gson upgrade
+               if(json.contains("@"))
+                  json=json.replaceAll("@", "");
 
                replaceDataValue(dataMapping, json, extendedAttributes);
             }
@@ -169,5 +177,4 @@ public class JsonTypeConverter
          }
       }
    }
-
 }

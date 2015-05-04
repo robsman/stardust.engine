@@ -195,7 +195,7 @@ public class TestClassSetup extends ExternalResource
       if (modelNames.length > 0)
       {
          LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-         RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, modelNames);
+         RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions, modelNames);
       }
 
       LOG.info("<--- ... setup of test environment done.");

@@ -20,22 +20,88 @@ import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.ValidationException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
+import org.eclipse.stardust.engine.api.dto.DeploymentInfoDetails;
+import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.OrganizationInfo;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.ProfileScope;
+import org.eclipse.stardust.engine.api.model.QualifiedModelParticipantInfo;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery.DeployedModelState;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
+import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
+import org.eclipse.stardust.engine.api.query.RawQueryResult;
+import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport;
+import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReportGenerator;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.Daemon;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentExistsException;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
+import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
+import org.eclipse.stardust.engine.api.runtime.LinkingOptions;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo;
+import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
+import org.eclipse.stardust.engine.api.runtime.PasswordRules;
+import org.eclipse.stardust.engine.api.runtime.Permission;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.RuntimePermissions;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -45,12 +111,25 @@ import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.preferences.*;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStoreUtils;
+import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
@@ -160,6 +239,11 @@ public class AdministrationServiceImpl
    public DeploymentInfo overwriteModel(DeploymentElement deploymentElement,
          int modelOID, DeploymentOptions options) throws DeploymentException
    {
+      if (switchToDeploy(deploymentElement, modelOID, options))
+      {
+         return deployModel(Collections.singletonList(deploymentElement), options).get(0);
+      }
+
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
 
       DeploymentInfo deploymentInfo;
@@ -199,6 +283,40 @@ public class AdministrationServiceImpl
       }
 
       return deploymentInfo;
+   }
+
+   private boolean switchToDeploy(DeploymentElement deploymentElement, int modelOID, DeploymentOptions options)
+   {
+      if (modelOID != PredefinedConstants.ACTIVE_MODEL)
+      {
+         return false;
+      }
+
+      if (options == null || !options.isAllowOverwriteWithoutInitialModel())
+      {
+         return false;
+      }
+
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      if (modelManager.getModelCount() == 0)
+      {
+         return true;
+      }
+
+      try
+      {
+         ModelInfo info = ModelInfoRetriever.get(deploymentElement.getContent());
+         if (modelManager.getModelsForId(info.id).isEmpty())
+         {
+            return true;
+         }
+      }
+      catch (Exception e)
+      {
+         return false;
+      }
+
+      return false;
    }
 
    private static byte[] encode(String content)
@@ -1852,7 +1970,7 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("organization"));
       }
-      
+
       return DepartmentUtils.createDepartment(id, name, description, parent, organization);
    }
 
@@ -1865,7 +1983,7 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("name"));
       }
-      
+
       return DepartmentUtils.modifyDepartment(oid, name, description);
    }
 

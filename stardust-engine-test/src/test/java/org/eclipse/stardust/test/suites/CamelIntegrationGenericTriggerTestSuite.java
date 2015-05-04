@@ -62,7 +62,7 @@ public class CamelIntegrationGenericTriggerTestSuite extends AbstractCamelIntegr
    {
       DeploymentOptions options = DeploymentOptions.DEFAULT;
       options.setIgnoreWarnings(true);
-      RtEnvHome.deploy(adminSf.getAdministrationService(), options, MODEL_IDS);
+      RtEnvHome.deployModel(adminSf.getAdministrationService(), options, MODEL_IDS);
    }
 
    @ClassRule

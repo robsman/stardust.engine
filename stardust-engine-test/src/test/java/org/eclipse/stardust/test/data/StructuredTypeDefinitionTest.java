@@ -137,7 +137,7 @@ public class StructuredTypeDefinitionTest
 
    private void deploy(String modelId)
    {
-      RtEnvHome.deploy(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
+      RtEnvHome.deployModel(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
             new String[] {modelId});
    }
 

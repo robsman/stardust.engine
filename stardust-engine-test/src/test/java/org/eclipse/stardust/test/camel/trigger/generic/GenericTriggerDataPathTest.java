@@ -73,7 +73,7 @@ public class GenericTriggerDataPathTest extends AbstractCamelIntegrationTest
    {
       DeploymentOptions options = DeploymentOptions.DEFAULT;
       options.setIgnoreWarnings(true);
-      RtEnvHome.deploy(adminSf.getAdministrationService(), options, "GenericTriggerDataPathTestModel");
+      RtEnvHome.deployModel(adminSf.getAdministrationService(), options, "GenericTriggerDataPathTestModel");
    }
 
    @SuppressWarnings("rawtypes")

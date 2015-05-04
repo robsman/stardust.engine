@@ -74,8 +74,6 @@ public class ErrorEventTest
       ProcessInstance failingProcess = sf.getQueryService().findFirstProcessInstance(
             ProcessInstanceQuery.findForProcess("FailingProcess"));
 
-      aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "AwaitAbort");
-
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
 

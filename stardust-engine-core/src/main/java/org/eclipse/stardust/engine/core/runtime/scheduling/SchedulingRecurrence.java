@@ -273,8 +273,18 @@ public abstract class SchedulingRecurrence
          }
          else if (startDate.after(currentDate))
          {
+            // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+            Date compareDate = (Date) startDate.clone();
+            compareDate.setHours(currentDate.getHours());
+            compareDate.setMinutes(currentDate.getMinutes());
+            
+            // from here next execution date             
+            Date startDateClone = (Date) startDate.clone();
+            startDateClone.setHours(0);
+            startDateClone.setMinutes(0);
+            startDateClone.setSeconds(0);            
             // Future Date Scenario
-            return getNextExecutionDate(cronExpression, startDate, endDate);
+            return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, endDate);
          }
       }
       return null;
@@ -316,7 +326,17 @@ public abstract class SchedulingRecurrence
       Date currentDate = getTimeStamp();
 
       trace.info("No End Date is selected");
-      return getNextExecutionDate(cronExpression, startDate.after(currentDate) ? startDate : currentDate, null);
+      // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+      Date compareDate = (Date) startDate.clone();
+      compareDate.setHours(currentDate.getHours());
+      compareDate.setMinutes(currentDate.getMinutes());
+
+      // from here next execution date 
+      Date startDateClone = (Date) startDate.clone();
+      startDateClone.setHours(0);
+      startDateClone.setMinutes(0);
+      startDateClone.setSeconds(0);
+      return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, null);
    }
 
    /**
@@ -361,7 +381,7 @@ public abstract class SchedulingRecurrence
    private Date getNextExecutionDate(CronExpression cronExpression, Date startDate, Date endDate)
    {
       Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(startDate);
-      trace.info("Next Execution Date: " + nextValidTimeAfter);
+      trace.info("Next Execution Date: " + nextValidTimeAfter + " after " + startDate);
       if (endDate == null)
       {
          return nextValidTimeAfter;

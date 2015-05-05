@@ -153,8 +153,8 @@ public class ArchiveTest
       QueryService qsB = factoryB.getQueryService();
       AdministrationService asB = factoryB.getAdministrationService();
 
-      RtEnvHome.deploy(asA, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(asB, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(asA, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(asB, null, ArchiveModelConstants.MODEL_ID);
       setUp();
       final ProcessInstance piA = wsA.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
@@ -282,8 +282,8 @@ public class ArchiveTest
       QueryService qsB = factoryB.getQueryService();
       AdministrationService asB = factoryB.getAdministrationService();
 
-      RtEnvHome.deploy(asA, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(asB, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(asA, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(asB, null, ArchiveModelConstants.MODEL_ID);
       setUp();
       final ProcessInstance piA = wsA.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
@@ -528,7 +528,7 @@ public class ArchiveTest
 
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), null, null));
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       assertEquals(0, count);
    }
@@ -736,7 +736,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
       setUp();
       HashMap<String, Object> descriptors = null;
       ExportResult exportResult = (ExportResult) workflowService
@@ -790,7 +790,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
       setUp();
       List<Integer> modelOids = Arrays.asList(pi.getModelOID());
 
@@ -3169,9 +3169,9 @@ public class ArchiveTest
       DeployedModelDescription model = models.get(0);
       adminService.deleteModel(model.getModelOID());
       adminService.deleteModel(modelOID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
       
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -6406,9 +6406,9 @@ public class ArchiveTest
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), null, null));
 
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       assertEquals(0, count);
       barrier
@@ -6480,7 +6480,7 @@ public class ArchiveTest
             adminService.deleteModel(model.getModelOID());
          }
       }
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER2);
       setUp();
       
@@ -6489,9 +6489,9 @@ public class ArchiveTest
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), null, null));
 
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       barrier
             .waitForLogMessage(
@@ -6563,9 +6563,9 @@ public class ArchiveTest
       DeployedModelDescription model = models.get(0);
       adminService.deleteModel(model.getModelOID());
       adminService.deleteModel(modelOID);
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(sf.getAdministrationService(), null,
+      RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(

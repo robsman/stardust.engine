@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactor
 import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
 
 /**
@@ -229,7 +230,8 @@ public class ProcessBlobAuditTrailPersistor
 
    public void persistBlob(BlobReader blob)
    {
-      boolean isAutoArchiveEnabled = ArchiveManagerFactory.autoArchive();
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      boolean isAutoArchiveEnabled = ArchiveManagerFactory.autoArchive() && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT;
       final Session session;
 
       final Set<Persistent> persistents;

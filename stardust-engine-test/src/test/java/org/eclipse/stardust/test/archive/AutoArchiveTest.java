@@ -233,6 +233,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+      assertQueueEmpty();
    }
    
    @Test
@@ -406,6 +407,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
             ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService);
+      assertQueueEmpty();
 
    }
    
@@ -580,6 +582,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
             ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService);
+      assertQueueEmpty();
 
    }
    
@@ -754,6 +757,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
             ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
             ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService);
+      assertQueueEmpty();
 
    }
    
@@ -794,6 +798,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(0, archives.size());
+      assertQueueEmpty();
    }
    
    @Test
@@ -895,9 +900,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       DeployedModelDescription model = models.get(0);
       adminService.deleteModel(model.getModelOID());
       adminService.deleteModel(modelOID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
       
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -925,6 +930,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertTrue(ArchiveTest.hasStructuredDateField(scriptProcess.getOID(),
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, "aaa"));
+      assertQueueEmpty();
    }
    
    @Test
@@ -994,9 +1000,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       // delete all the models, then redeploy them so they have different ids
       adminService.deleteModel(modelOID2);
       adminService.deleteModel(modelOID1);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
       
       // start all the processes again, now with different model oids
@@ -1086,6 +1092,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
       assertEquals(6, newInstances.size());
       assertEquals(20, newActivities.size());
+      assertQueueEmpty();
    }
    
    @Test
@@ -1162,9 +1169,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       // archive whilst no models active
       archiveQueue();
       
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID);
-      RtEnvHome.deploy(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       
       
       @SuppressWarnings("unchecked")
@@ -1192,7 +1199,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
-
+      assertQueueEmpty();
    }
    
    @Test
@@ -1287,6 +1294,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), oldActivities.get(0).getOID(),
             ArchiveModelConstants.PROCESS_DEF_DEFERRED_WITH_SUBS,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 288, queryService);
+      assertQueueEmpty();
    }
    
    @Test
@@ -1373,6 +1381,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
             ArchiveModelConstants.PROCESS_DEF_DEFERRED,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
+      assertQueueEmpty();
    }
    
    @SuppressWarnings("unchecked")
@@ -1566,6 +1575,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+      assertQueueEmpty();
    }
    
    @Test
@@ -1654,6 +1664,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
             ArchiveModelConstants.PROCESS_DEF_DEFERRED,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
+      assertQueueEmpty();
    }
    
    @Test
@@ -1753,6 +1764,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+      assertQueueEmpty();
    }
    
    @Test
@@ -1838,6 +1850,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+      assertQueueEmpty();
    }
    @Test
    @SuppressWarnings("unchecked")
@@ -1947,6 +1960,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
+      assertQueueEmpty();
    }
      
    private void archiveQueue() throws JMSException
@@ -1974,6 +1988,22 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       }
    }
    
+   private void assertQueueEmpty() throws JMSException
+   {
+      aggregator.doAggregate(testClassSetup.queueConnectionFactory(), testClassSetup.queue(JmsProperties.EXPORT_QUEUE_NAME_PROPERTY),
+            testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY));
+      
+      final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setReceiveTimeout(1000L);
+
+      Message message = null;
+     
+      message = jmsTemplate.receive(queue);
+      assertNull("Archive Queue is not empty", message);
+   }
+   
    private void clearQueue() throws JMSException
    {
       aggregator.doAggregate(testClassSetup.queueConnectionFactory(), testClassSetup.queue(JmsProperties.EXPORT_QUEUE_NAME_PROPERTY),
@@ -1982,7 +2012,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(2000L);
+      jmsTemplate.setReceiveTimeout(1000L);
       jmsTemplate.receive(queue);
    }
    

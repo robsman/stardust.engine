@@ -60,6 +60,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private static final int[] EXPORT_STATES = new int[] {
          ProcessInstanceState.COMPLETED, ProcessInstanceState.ABORTED};
+   private static final int SQL_IN_CHUNK_SIZE = 1000;
 
    private final Collection<Long> processInstanceOids;
 
@@ -579,9 +580,12 @@ public class ExportProcessesCommand implements ServiceCommand
 
       if (CollectionUtils.isNotEmpty(processInstanceOids))
       {
-         ComparisonTerm rootOidTerm = new ComparisonTerm(
-               ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, Operator.IN,
-               processInstanceOids);
+         List<List<Long>> splitList = org.eclipse.stardust.common.CollectionUtils.split(processInstanceOids, SQL_IN_CHUNK_SIZE);
+         MultiPartPredicateTerm rootOidTerm = new OrTerm();
+         for (List<Long> list : splitList)
+         {
+            rootOidTerm.add(Predicates.inList(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, list));
+         }
          whereTerm.add(rootOidTerm);
       }
       if (fromDate != null && toDate != null)

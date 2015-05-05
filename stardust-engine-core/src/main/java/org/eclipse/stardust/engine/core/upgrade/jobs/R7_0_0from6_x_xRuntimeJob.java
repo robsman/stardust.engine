@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,8 +49,8 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.utils.sql.UpdateColumnInfo;
 
 /**
@@ -496,6 +496,23 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
+
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            try
+            {
+               upgradePartitionLockTable();
+            }
+            catch (SQLException sqle)
+            {
+               reportExeption(sqle,
+                     "Failed migrating partition lock table (nested exception).");
+            }
+         }
+      });
    }
 
    private void initFinalizeSchemaTasks()
@@ -609,7 +626,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          IModel model = ModelManagerFactory.getCurrent().findModel(
                currentModel.getModelOID());
          Utils.flushSession();
-         
+
          rtOidRegistry = getRuntimeOidRegistry(registries, partitionOid);
          for (Iterator allData = model.getAllData(); allData.hasNext();)
          {
@@ -782,6 +799,57 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          updateStatement.execute();
          updateStatement.close();
       }
+   }
+
+   private void upgradePartitionLockTable() throws SQLException
+   {
+      if (!containsTable(P_LCK_TABLE_NAME))
+      {
+         // Nothing to do if table has not been created before
+         return;
+      }
+   
+      info("Upgrading Partition Lock Table...");
+   
+      PreparedStatement insertStatement = null;
+      try
+      {
+         Connection connection = item.getConnection();
+         StringBuffer insertCmd = new StringBuffer();
+   
+         // @formatter:off
+         insertCmd.append(INSERT_INTO).append(P_LCK_TABLE_NAME)
+                  .append(" (").append(P_LCK_FIELD__OID).append(") ")
+                  .append("VALUES (?)");
+         // @formatter:on
+   
+         insertStatement = connection.prepareStatement(insertCmd.toString());
+   
+         Set<Pair<Long, String>> partitions = fetchListOfPartitionInfo();
+         for (Pair<Long, String> partitionInfo : partitions)
+         {
+            long partitionOid = partitionInfo.getFirst();
+   
+            trace.debug("Adding OID for partition '" + partitionInfo.getSecond() + "'...");
+            insertStatement.setLong(1, partitionOid);
+            try
+            {
+               insertStatement.execute();
+               trace.debug("Added OID " + partitionOid + ".");
+            }
+            catch (SQLException e)
+            {
+               warn("Failed to insert OID " + partitionOid + " for partition '"
+                     + partitionInfo.getSecond() + "'...", e);
+            }
+         }
+      }
+      finally
+      {
+         QueryUtils.closeStatement(insertStatement);
+      }
+   
+      info("Upgrading Partition Lock Table...done.");
    }
 
    private Set<Pair<Long, String>> fetchListOfPartitionInfo() throws SQLException

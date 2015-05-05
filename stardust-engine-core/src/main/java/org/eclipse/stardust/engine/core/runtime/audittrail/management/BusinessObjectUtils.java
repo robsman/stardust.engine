@@ -326,9 +326,12 @@ public class BusinessObjectUtils
                         .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
                }
                AndTerm restriction = join.getRestriction();
-               for (PredicateTerm term : restriction.getParts())
+               if (restriction != null)
                {
-                  sdvJoin.where(replace(term, join, sdvJoin));
+                  for (PredicateTerm term : restriction.getParts())
+                  {
+                     sdvJoin.where(replace(term, join, sdvJoin));
+                  }
                }
             }
          }
@@ -421,16 +424,12 @@ public class BusinessObjectUtils
 
    private static Object getNameValue(IData data, Object value)
    {
-      String nameExpression = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
       if (value instanceof Map)
       {
-         Object nameValue = ((Map<?, ?>) value).get(nameExpression);
-         if (nameValue != null)
-         {
-            return nameValue;
-         }
+         String nameExpression = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
+         return nameExpression == null ? null : ((Map<?, ?>) value).get(nameExpression);
       }
-      throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
+      return null;
    }
 
    private static Object getPK(IData data, Object value)
@@ -609,10 +608,16 @@ public class BusinessObjectUtils
             }
 
             Organization organization = (Organization) queryService.getParticipant(activeModel.getModelOID(), organizationId);
-            String id = (String) getPK(data, newValue);
-            String name = (String) getNameValue(data, newValue);
-
-            DepartmentUtils.createOrModifyDepartment(id, name, "", null, organization);
+            Object pk = getPK(data, newValue);
+            if (pk != null)
+            {
+               String id = pk.toString();
+               if (!id.isEmpty())
+               {
+                  Object name = getNameValue(data, newValue);
+                  DepartmentUtils.createOrModifyDepartment(id, name == null ? id : name.toString(), "", null, organization);
+               }
+            }
          }
       }
 

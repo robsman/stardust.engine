@@ -28,13 +28,12 @@ public abstract class AbstractThrowEventAction  implements EventActionInstance
    static final Logger trace = LogManager.getLogger(AbstractThrowEventAction.class);
 
    public final static String THROW_EVENT_TYPE_HEADER = "throwEventType";
-   
+
    protected String eventCode;
 
    @Override
    public Event execute(Event event) throws UnrecoverableExecutionException
    {
-
       BpmRuntimeEnvironment bpmrt = PropertyLayerProviderInterceptor.getCurrent();
       Queue queue = bpmrt.getJmsResourceProvider().resolveQueue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
       QueueConnectionFactory connectionFactory = bpmrt.getJmsResourceProvider().resolveQueueConnectionFactory(
@@ -85,7 +84,8 @@ public abstract class AbstractThrowEventAction  implements EventActionInstance
       }
       catch (JMSException e)
       {
-         e.printStackTrace();
+         // TODO - bpmn-2-events - review exception handling
+         throw new UnrecoverableExecutionException("Unable to send event message.", e);
       }
 
       return event;

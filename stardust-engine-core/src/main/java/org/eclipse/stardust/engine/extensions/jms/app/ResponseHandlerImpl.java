@@ -389,27 +389,6 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       }
 
       return DEFAULT_TRIGGER_MESSAGE_ACCEPTOR;
-/*      try
-      {
-         String acceptorClassName = (String) trigger.getAttribute(
-               PredefinedConstants.ACCEPTOR_CLASS_ATT);
-
-         Class acceptorClass = Reflect.getClassFromClassName(acceptorClassName);
-
-         return (TriggerMessageAcceptor) acceptorClass.newInstance();
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }
-      catch (InstantiationException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }*/
    }
 
    public static interface Match

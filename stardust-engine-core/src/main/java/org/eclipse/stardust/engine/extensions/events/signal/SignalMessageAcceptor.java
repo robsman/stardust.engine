@@ -17,7 +17,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringKey;
@@ -29,48 +28,32 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.ActivityFilter;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.EvaluationContext;
-import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
-import org.eclipse.stardust.engine.api.query.RawQueryResult;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
-import org.eclipse.stardust.engine.extensions.events.escalation.ThrowEscalationEventAction;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.engine.extensions.jms.app.JMSLocation;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageType;
 import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
 import org.eclipse.stardust.engine.extensions.jms.app.spi.MultiMatchCapable;
-
-import com.hazelcast.query.Predicate;
 
 /**
  * @author Simon Nikles
@@ -109,14 +92,11 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          if (message.propertyExists("stardust.bpmn.signal"))
          {
             String signalName = message.getStringProperty("stardust.bpmn.signal");
-            //               if (trace.isDebugEnabled())
-            {
-               trace.info("Accept message " + SendSignalEventAction.SIGNAL_EVENT_TYPE
+            trace.info("Accept message " + SendSignalEventAction.SIGNAL_EVENT_TYPE
                      + " for signal name " + signalName + ".");
-            }
 
             OrTerm activityFilter = new OrTerm();
-            
+
             List<IEventHandler> signalEventHandlers = initializeFromModel();
             for (IEventHandler signalEventHandler : signalEventHandlers)
             {
@@ -124,33 +104,35 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
                   IActivity parentActivity = (IActivity) signalEventHandler.getParent();
                   activityFilter.add(
                         andTerm(
-                              isEqual(ActivityInstanceBean.FR__ACTIVITY, ModelManagerFactory.getCurrent().getRuntimeOid(parentActivity)), 
+                              isEqual(ActivityInstanceBean.FR__ACTIVITY, ModelManagerFactory.getCurrent().getRuntimeOid(parentActivity)),
                               isEqual(ActivityInstanceBean.FR__MODEL,  parentActivity.getModel().getOID())));
                }
             }
-            
+
             Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-            ResultIterator iterator = session.getIterator(ActivityInstanceBean.class, 
+            ResultIterator iterator = session.getIterator(ActivityInstanceBean.class,
                                 where(andTerm(isEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.HIBERNATED), activityFilter)));
-            
+
             List<IActivityInstance> activities = newArrayList();
-            while(iterator.hasNext()) {  
-               
+            while(iterator.hasNext()) {
+
                IActivityInstance activityInstance = (IActivityInstance) iterator.next();
                trace.info("Found signal target: " + activityInstance);
                activities.add(activityInstance);
             }
-            
+
             iterator.close();
-            
+
             return activities.iterator();
-         }      
+         }
       }
       catch (ObjectNotFoundException o)
       {
+         // TODO - bpmn-2-events - left empty deliberately?
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
       return result.iterator();
@@ -176,6 +158,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
    }
@@ -250,7 +233,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          {
             trace.info("Abort Process Instance " + subProcessInstance.getOID() + " due to Escalation Message");
 
-            // TODO handle concurrency exception / trigger retry
+            // TODO - bpmn-2-events - handle concurrency exception / trigger retry
             ProcessInstanceUtils.abortProcessInstance(subProcessInstance);
 
             trace.debug("Activate boundary path for " + "activity instance = " + activityInstance.getOID());
@@ -265,6 +248,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             trace.info("Trigger NonInterrupting escalation flow due to event message; " + "activity instance = " + activityInstance.getOID());
             try
             {
+               // TODO - bpmn-2-events - get rid of copy/paste
                /**
                 * copied from CompleteActivityEventAction.execute()
                 */
@@ -281,22 +265,6 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             } catch (Exception e) {
                trace.error("Failed processing non interrupting escalation.", e);
             }
-
-            /*
-             * This doesn't work because the subprocess-activity is in state 'suspended';
-             *
-            ActivityThread at = new ActivityThread(null, null, activityInstance, null, data, false);
-            activityInstance.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY,
-                  escalationCode);
-            try
-            {
-               at.run();
-            }
-            finally
-            {
-               activityInstance.removeProperty(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
-            }*/
-
          }
       }
 
@@ -309,8 +277,8 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
                if (handler.getAllAttributes().containsKey("stardust.bpmn.signal")) {
                   return handler;
                }
-               
-               // TODO signalName
+
+               // TODO - bpmn-2-events - signalName
             }
             catch (Exception e)
             {
@@ -322,7 +290,6 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
       private boolean isInterrupting(IEventHandler handler)
       {
-         // <carnot:Attribute Name= Value="Non-interrupting"/>
          return "Interrupting".equals(handler.getStringAttribute("carnot:engine:event:boundaryEventType"));
       }
    }
@@ -339,7 +306,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       List<ITrigger> signalTriggers = newArrayList();
       List<IEventHandler> signalEvents = newArrayList();
 
-      // TODO for activities we have to consider all versions having running processInstances; For triggers we consider only the active/latest model version
+      // TODO - bpmn-2-events - for activities we have to consider all versions having running processInstances; For triggers we consider only the active/latest model version
       List<IModel> activeModels = ModelManagerFactory.getCurrent().getModels();
       for (IModel model : activeModels) {
          Object cachedSignalTriggers = model.getRuntimeAttribute(CACHED_SIGNAL_TRIGGERS);
@@ -375,7 +342,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             model.setRuntimeAttribute(CACHED_SIGNAL_EVENTS, signalEvents);
          }
       }
-      
+
       return signalEvents;
    }
 
@@ -389,12 +356,12 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    }
 
    private Collection<? extends Match> findActivitiesForSignal(String signal) {
-      // TODO create matches for eventHandlers of activities (as found in model definitions) in active models
+      // TODO - bpmn-2-events - create matches for eventHandlers of activities (as found in model definitions) in active models
       return null;
    }
 
    private Collection<? extends Match> findTriggersForSignal(String signal) {
-      // TODO create matches for startTriggers
+      // TODO - bpmn-2-events - create matches for startTriggers
       return null;
    }
 

@@ -90,9 +90,11 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
       }
       catch (ObjectNotFoundException o)
       {
+         // TODO - bpmn-2-events - left empty deliberately?
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
       return result.iterator();
@@ -118,6 +120,7 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
    }
@@ -192,7 +195,7 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
          {
             trace.info("Abort Process Instance " + subProcessInstance.getOID() + " due to Escalation Message");
 
-            // TODO handle concurrency exception / trigger retry
+            // TODO - bpmn-2-events - handle concurrency exception / trigger retry
             ProcessInstanceUtils.abortProcessInstance(subProcessInstance);
 
             trace.debug("Activate boundary path for " + "activity instance = " + activityInstance.getOID());
@@ -207,38 +210,24 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
             trace.info("Trigger NonInterrupting escalation flow due to event message; " + "activity instance = " + activityInstance.getOID());
             try
             {
+               // TODO - bpmn-2-events - get rid of copy/paste
                /**
                 * copied from EventUtils.triggerNonInterruptingExceptionFlow()
                 */
                final IActivity currentActivity = activityInstance.getActivity();
                final ITransition exceptionTransition = currentActivity.getExceptionTransition(matchingHandler.getId());
                final IActivity exceptionFlowActivity = exceptionTransition.getToActivity();
-               
+
                /* create the token to be consumed ... */
                final TransitionTokenBean exceptionTransitionToken = new TransitionTokenBean(activityInstance.getProcessInstance(), exceptionTransition, activityInstance.getOID());
                exceptionTransitionToken.persist();
-               
+
                /* ... by the activity thread created */
                ActivityThread.schedule(activityInstance.getProcessInstance(), exceptionFlowActivity, null, false, null, null, false);
             } catch (Exception e) {
+               // TODO - bpmn-2-events - review exception handling
                trace.error("Failed processing non interrupting escalation.", e);
             }
-            
-            /*
-             * This doesn't work because the subprocess-activity is in state 'suspended'; 
-             *  
-            ActivityThread at = new ActivityThread(null, null, activityInstance, null, data, false);
-            activityInstance.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY,
-                  escalationCode);
-            try
-            {
-               at.run();
-            }
-            finally
-            {
-               activityInstance.removeProperty(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
-            }*/
- 
          }
       }
 
@@ -262,7 +251,6 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
 
       private boolean isInterrupting(IEventHandler handler)
       {
-         // <carnot:Attribute Name= Value="Non-interrupting"/>
          return "Interrupting".equals(handler.getStringAttribute("carnot:engine:event:boundaryEventType"));
       }
 

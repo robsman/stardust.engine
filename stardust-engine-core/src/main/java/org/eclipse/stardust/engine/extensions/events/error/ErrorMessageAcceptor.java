@@ -84,9 +84,11 @@ public class ErrorMessageAcceptor implements MessageAcceptor, Stateless
       }
       catch (ObjectNotFoundException o)
       {
+         // TODO - bpmn-2-events - left empty deliberately?
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
       return result.iterator();
@@ -112,6 +114,7 @@ public class ErrorMessageAcceptor implements MessageAcceptor, Stateless
       }
       catch (JMSException e)
       {
+         // TODO - bpmn-2-events - review exception handling
          throw new PublicException(e);
       }
    }
@@ -168,7 +171,7 @@ public class ErrorMessageAcceptor implements MessageAcceptor, Stateless
          IProcessInstance subProcessInstance = ProcessInstanceBean.findForStartingActivityInstance(activityInstance
                .getOID());
          trace.info("Abort Process Instance " + subProcessInstance.getOID() + " due to Error Message");
-         // TODO handle concurrency exception / trigger retry
+         // TODO - bpmn-2-events - handle concurrency exception / trigger retry
          ProcessInstanceUtils.abortProcessInstance(subProcessInstance);
          Map<String, Object> data = acceptor.getData(message, null, null);
 

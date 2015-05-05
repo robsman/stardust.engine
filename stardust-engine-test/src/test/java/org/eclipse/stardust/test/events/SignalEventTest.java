@@ -81,6 +81,8 @@ public class SignalEventTest
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
    }
 
+   // TODO - bpmn-2-events - test case for interrupting signal event
+
    private void sendSignalEvent(final String signalName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());

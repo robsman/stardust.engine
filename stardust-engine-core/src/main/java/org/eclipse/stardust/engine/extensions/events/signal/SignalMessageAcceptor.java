@@ -105,8 +105,12 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
                   activityFilter.add(
                         andTerm(
                               isEqual(ActivityInstanceBean.FR__ACTIVITY, ModelManagerFactory.getCurrent().getRuntimeOid(parentActivity)),
-                              isEqual(ActivityInstanceBean.FR__MODEL,  parentActivity.getModel().getOID())));
+                              isEqual(ActivityInstanceBean.FR__MODEL,  parentActivity.getModel().getModelOID())));
                }
+            }
+            if (activityFilter.getParts().isEmpty())
+            {
+               return result.iterator();
             }
 
             Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -303,47 +307,53 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          trace.debug("Bootstrapping signal acceptors");
       }
 
-      List<ITrigger> signalTriggers = newArrayList();
-      List<IEventHandler> signalEvents = newArrayList();
+      List<ITrigger> allSignalTriggers = newArrayList();
+      List<IEventHandler> allSignalEvents = newArrayList();
 
       // TODO - bpmn-2-events - for activities we have to consider all versions having running processInstances; For triggers we consider only the active/latest model version
       List<IModel> activeModels = ModelManagerFactory.getCurrent().getModels();
       for (IModel model : activeModels) {
          Object cachedSignalTriggers = model.getRuntimeAttribute(CACHED_SIGNAL_TRIGGERS);
          Object cachedSignalEvents = model.getRuntimeAttribute(CACHED_SIGNAL_EVENTS);
-         if (null == cachedSignalTriggers || null == cachedSignalEvents) {
+
+         if (null == cachedSignalTriggers) {
+            List<ITrigger> signalTriggersPerModel = newArrayList();
             for (IProcessDefinition processDef : model.getProcessDefinitions()) {
-               if (null != cachedSignalTriggers) {
-                  signalTriggers = (List<ITrigger>) cachedSignalTriggers;
-               } else {
-                  for (ITrigger trigger : processDef.getTriggers())
+               for (ITrigger trigger : processDef.getTriggers())
+               {
+                  if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType()))
                   {
-                     if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType()))
-                     {
-                        if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey("stardust.bpmn.signal")) {
-                           signalTriggers.add(trigger);
-                        }
-                     }
-                  }
-               }
-               if (null != cachedSignalEvents) {
-                  signalEvents = (List<IEventHandler>) cachedSignalEvents;
-               } else {
-                  for (IActivity activity : processDef.getActivities()) {
-                     for (IEventHandler event : activity.getEventHandlers()) {
-                        if (null != event.getAllAttributes() && event.getAllAttributes().containsKey("stardust.bpmn.signal")) {
-                           signalEvents.add(event);
-                        }
+                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey("stardust.bpmn.signal")) {
+                        signalTriggersPerModel.add(trigger);
                      }
                   }
                }
             }
-            model.setRuntimeAttribute(CACHED_SIGNAL_TRIGGERS, signalTriggers);
-            model.setRuntimeAttribute(CACHED_SIGNAL_EVENTS, signalEvents);
+            model.setRuntimeAttribute(CACHED_SIGNAL_TRIGGERS, signalTriggersPerModel);
+            allSignalTriggers.addAll((List<ITrigger>) signalTriggersPerModel);
+         } else {
+            allSignalTriggers.addAll((List<ITrigger>) cachedSignalTriggers);
+         }
+
+         if (null == cachedSignalEvents) {
+            List<IEventHandler> signalEventsPerModel = newArrayList();
+            for (IProcessDefinition processDef : model.getProcessDefinitions()) {
+               for (IActivity activity : processDef.getActivities()) {
+                  for (IEventHandler event : activity.getEventHandlers()) {
+                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey("stardust.bpmn.signal")) {
+                        signalEventsPerModel.add(event);
+                     }
+                  }
+               }
+            }
+            model.setRuntimeAttribute(CACHED_SIGNAL_EVENTS, signalEventsPerModel);
+            allSignalEvents.addAll((List<IEventHandler>) signalEventsPerModel);
+         } else {
+            allSignalEvents.addAll((List<IEventHandler>) cachedSignalEvents);
          }
       }
 
-      return signalEvents;
+      return allSignalEvents;
    }
 
    private Set<Match> findSignalAcceptors(String signal) {

@@ -78,6 +78,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private final ProcessInstanceState state;
    private final Date startingTime;
    private final Date terminationTime;
+   private final long benchmark;
+   private final int benchmarkValue;
 
    private ProcessInstance scopeprocessInstance = null;
 
@@ -140,6 +142,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       this.startingTime = processInstance.getStartTime();
       this.terminationTime = processInstance.getTerminationTime();
       this.state = processInstance.getState();
+      this.benchmarkValue = processInstance.getBenchmarkValue();
+      this.benchmark = processInstance.getBenchmark();
 
       final UserDetailsLevel userDetailsLevel;
       if (ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
@@ -699,4 +703,15 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          return options.props;
       }
    }
+   
+   public long getBenchmark()
+   {
+      return this.benchmark;
+   }
+   
+   public int getBenchmarkValue()
+   {
+      return this.benchmarkValue;
+   }
+   
 }

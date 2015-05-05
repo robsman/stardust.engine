@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 72686 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 72686
+ * @version $Revision
  */
 public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IAdministrationService
 {

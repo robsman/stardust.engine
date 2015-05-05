@@ -150,6 +150,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String FIELD__SCOPE_PROCESS_INSTANCE = "scopeProcessInstance";
    public static final String FIELD__STARTING_USER = "startingUser";
    public static final String FIELD__STARTING_ACTIVITY_INSTANCE = "startingActivityInstance";
+   public static final String FIELD__BENCHMARK_OID = "benchmark";
+   public static final String FIELD__BENCHMARK_VALUE = "benchmarkValue";
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -168,6 +170,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final FieldRef FR__SCOPE_PROCESS_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__SCOPE_PROCESS_INSTANCE);
    public static final FieldRef FR__STARTING_USER = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_USER);
    public static final FieldRef FR__STARTING_ACTIVITY_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_ACTIVITY_INSTANCE);
+   public static final FieldRef FR__BENCHMARK_OID = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_OID);
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_VALUE);
+   
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -203,6 +208,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private long processDefinition;
    private int priority;
    private long deployment;
+   private long benchmark;
+   private int benchmarkValue;
 
    private ProcessInstanceBean rootProcessInstance;
    private static final String rootProcessInstance_EAGER_FETCH = Boolean.FALSE.toString();
@@ -2256,4 +2263,29 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return this;
    }
+   
+   public void setBenchmark(long benchmarkOid)
+   {
+      markModified(FIELD__BENCHMARK_OID);
+      this.benchmark = benchmarkOid;
+   }
+   
+   public long getBenchmark()
+   {
+      fetch();
+      return this.benchmark;
+   }
+   
+   public void setBenchmarkValue(int benchmarkValue)
+   {
+      markModified(FIELD__BENCHMARK_VALUE);
+      this.benchmarkValue = benchmarkValue;
+   }
+   
+   public int getBenchmarkValue()   
+   {
+      fetch();
+      return this.benchmarkValue;
+   }   
+   
 }

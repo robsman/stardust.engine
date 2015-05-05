@@ -1234,10 +1234,17 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                public IProcessInstance call() throws Exception
                {
-                  return ProcessInstanceBean.createInstance(
+                  ProcessInstanceBean instance = ProcessInstanceBean.createInstance(
                         getActivity().getImplementationProcessDefinition(),
                         ActivityInstanceBean.this, SecurityProperties.getUser(),
                         Collections.EMPTY_MAP, true);
+                  
+                  if (BenchmarkUtils.isBenchmarkedPI(getProcessInstance()))
+                  {
+                     instance.setBenchmark(getProcessInstance().getBenchmark());
+                  }
+                  
+                  return instance;
                }
             });
          }
@@ -1246,6 +1253,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             subProcess = ProcessInstanceBean.createInstance(
                   getActivity().getImplementationProcessDefinition(),
                   SecurityProperties.getUser(), Collections.EMPTY_MAP, true);
+            
+            if (BenchmarkUtils.isBenchmarkedPI(getProcessInstance()))
+            {
+               subProcess.setBenchmark(getProcessInstance().getBenchmark());
+            }
+            
             if (ActivityInstanceUtils.isTransientExecutionScenario(this))
             {
                if (subProcess.getAuditTrailPersistence() == AuditTrailPersistence.ENGINE_DEFAULT)

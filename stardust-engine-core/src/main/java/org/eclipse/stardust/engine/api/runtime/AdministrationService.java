@@ -63,6 +63,11 @@ public interface AdministrationService extends Service
     * The predefined criticality daemon type.
     */
    String CRITICALITY_DAEMON = "criticality.daemon";
+   
+   /**
+    * The predefined benchmark daemon type-
+    */
+   String BENCHMARK_DAEMON = "benchmark.daemon";
 
    /**
     * Set password rule.

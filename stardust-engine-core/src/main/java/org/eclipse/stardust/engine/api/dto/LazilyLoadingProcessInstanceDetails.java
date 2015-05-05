@@ -407,4 +407,16 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    {
       throw new UnsupportedOperationException();
    }
+
+   @Override
+   public int getBenchmarkValue()
+   {
+      return getProcessInstanceDetails().getBenchmarkValue();
+   }
+
+   @Override
+   public long getBenchmark()
+   {
+      return getProcessInstanceDetails().getBenchmark();
+   }
 }

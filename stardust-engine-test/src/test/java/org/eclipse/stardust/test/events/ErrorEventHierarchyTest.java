@@ -79,8 +79,6 @@ public class ErrorEventHierarchyTest
       ProcessInstance failingProcess = sf.getQueryService().findFirstProcessInstance(
             ProcessInstanceQuery.findForProcess("HierarchyFailingProcess"));
 
-      aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "AwaitAbort");
-
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
 

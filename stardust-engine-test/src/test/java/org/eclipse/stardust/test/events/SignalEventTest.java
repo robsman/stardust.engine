@@ -23,6 +23,7 @@ import javax.jms.TextMessage;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -66,20 +67,15 @@ public class SignalEventTest
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      // TODO This test sometimes fails (sometimes it succeeds)
-
       ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}TwoSignalsParallel", null, true);
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
 
-      // failing sub-process was started
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "LeftSignal");
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "RightSignal");
 
       sendSignalEvent("Signal1");
-
-      Thread.sleep(2000);
 
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
@@ -93,7 +89,7 @@ public class SignalEventTest
       payload.append("Message [").append(signalName).append("] sent at: ")
             .append(new Date());
 
-      jmsTemplate.send(testClassSetup.queue("jms/CarnotApplicationQueue"),
+      jmsTemplate.send(testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY),
             new MessageCreator()
             {
                public Message createMessage(Session session) throws JMSException

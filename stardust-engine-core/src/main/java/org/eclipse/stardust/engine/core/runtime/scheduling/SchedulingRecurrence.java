@@ -381,7 +381,7 @@ public abstract class SchedulingRecurrence
    private Date getNextExecutionDate(CronExpression cronExpression, Date startDate, Date endDate)
    {
       Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(startDate);
-      trace.info("Next Execution Date: " + nextValidTimeAfter + " after " + startDate);
+      trace.info("Next Execution Date: " + nextValidTimeAfter);
       if (endDate == null)
       {
          return nextValidTimeAfter;

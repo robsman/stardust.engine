@@ -585,7 +585,13 @@ public class ZipArchiveManager extends BaseArchiveManager
          out.putNextEntry(entry);
          out.write(archiveManagerId.getBytes());
          out.write(",".getBytes());
-         out.write(part0Name.getBytes());
+         
+         String partitionFolderName = getPartitionFolderName();
+         String name = part0Name.substring(partitionFolderName.length(),
+               part0Name.length());
+         name = name.substring(1, name.length());
+               
+         out.write(name.getBytes());
          out.closeEntry();
          size = entry.getCompressedSize();
       }

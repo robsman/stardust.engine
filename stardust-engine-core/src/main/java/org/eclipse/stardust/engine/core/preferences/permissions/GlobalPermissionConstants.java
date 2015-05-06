@@ -142,6 +142,16 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
     */
    public static final String GLOBAL_SPAWN_SUB_PROCESS_INSTANCE = ExecutionPermission.Id.spawnSubProcessInstance.name();
 
+   /**
+    * permission to deploy and manage a runtime artifact.
+    */
+   public static final String DEPLOY_RUNTIME_ARTIFACT = ExecutionPermission.Id.deployRuntimeArtifact.name();
+   /**
+    * permission to read a deployed runtime artifact.
+    */
+   public static final String READ_RUNTIME_ARTIFACT = ExecutionPermission.Id.readRuntimeArtifact.name();
+
+
    public static final Set<String> globalPermissionIds = CollectionUtils.newSet();
 
    static

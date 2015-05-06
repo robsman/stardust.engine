@@ -744,6 +744,11 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
          resultTerm = Predicates.isEqual(LogEntryBean.FR__PARTITION, filter
                .getPartitionOid());
       }
+      else if (RuntimeArtifactBean.class.isAssignableFrom(filter.getType()) )
+      {
+         resultTerm = Predicates.isEqual(RuntimeArtifactBean.FR__PARTITION, filter
+               .getPartitionOid());
+      }
       else
       {
          Assert.lineNeverReached(//

@@ -72,7 +72,8 @@ public interface Constants
                      ModelRefBean.class,
                      ModelDeploymentBean.class,
                      PreferencesBean.class,
-                     ProcessInstanceLinkTypeBean.class
+                     ProcessInstanceLinkTypeBean.class,
+                     RuntimeArtifactBean.class
          };
 
    /**
@@ -115,7 +116,8 @@ public interface Constants
                      ModelDeploymentBean.class,
                      PreferencesBean.class,
                      ProcessInstanceLinkBean.class,
-                     ProcessInstanceLinkTypeBean.class
+                     ProcessInstanceLinkTypeBean.class,
+                     RuntimeArtifactBean.class
          };
 
    /**

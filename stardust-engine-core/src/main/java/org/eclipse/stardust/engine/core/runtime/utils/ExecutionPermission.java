@@ -182,7 +182,15 @@ public @interface ExecutionPermission {
       /**
        * permission to spawn a sub process instance
        */
-      spawnSubProcessInstance
+      spawnSubProcessInstance,
+      /**
+       * permission to deploy and manage a runtime artifact.
+       */
+      deployRuntimeArtifact,
+      /**
+       * permission to read a deployed runtime artifact.
+       */
+      readRuntimeArtifact
    }
 
    /**

@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -82,55 +81,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.AdminServiceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTriggerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceLink;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUserGroupLink;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
@@ -1325,6 +1276,7 @@ public class Archiver
          synchronizePreferencesTableArchive();
          synchronizeModelTables(modelOid);
          synchronizeProcessInstanceLinkTypeArchive();
+         synchronizeRuntimeArtifactsTable();
          commit();
 
          trace.info("Synchronized model and utility tables.");
@@ -3860,6 +3812,11 @@ public class Archiver
    private void synchronizeProcessInstanceLinkTypeArchive()
    {
       synchronizePkStableTables(ProcessInstanceLinkTypeBean.class, null);
+   }
+
+   private void synchronizeRuntimeArtifactsTable()
+   {
+      synchronizePkStableTables(RuntimeArtifactBean.class, null);
    }
 
    private void archiveModels(Long modelOid)

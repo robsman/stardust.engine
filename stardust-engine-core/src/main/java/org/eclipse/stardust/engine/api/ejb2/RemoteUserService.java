@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 73658 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 73658
+ * @version $Revision
  */
 public interface RemoteUserService extends javax.ejb.EJBObject
 {

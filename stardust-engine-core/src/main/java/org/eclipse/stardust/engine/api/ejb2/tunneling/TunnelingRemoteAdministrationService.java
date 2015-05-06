@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72686 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 72686
+ * @version $Revision
  */
 public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingRemoteService
 {
@@ -1465,6 +1465,79 @@ public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObjec
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
+     *     )
+     */
+    public java.util.List<java.lang.String>
+         getSupportedRuntimeArtifactTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(
+     *     org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(
+     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+     *     runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(
+     *     long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
+     *     long oid)
+     */
+    public void deleteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
          }

@@ -1193,6 +1193,30 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
          
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
+     *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+     */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

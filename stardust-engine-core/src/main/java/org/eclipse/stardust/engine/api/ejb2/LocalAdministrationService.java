@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72686 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 72686
+ * @version $Revision
  */
 public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
 {
@@ -1341,6 +1341,66 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
     public void
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
+     *     )
+     */
+    public java.util.List<java.lang.String> getSupportedRuntimeArtifactTypes()
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(
+     *     org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(
+     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+     *     runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(
+     *     long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
+     *     long oid)
+     */
+    public void deleteRuntimeArtifact(long oid)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
     void login(java.lang.String userId, java.lang.String password)

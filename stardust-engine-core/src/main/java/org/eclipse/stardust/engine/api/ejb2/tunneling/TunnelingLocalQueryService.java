@@ -1214,4 +1214,29 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
+     *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+     */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          }

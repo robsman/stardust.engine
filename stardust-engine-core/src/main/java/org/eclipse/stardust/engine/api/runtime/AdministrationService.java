@@ -806,4 +806,19 @@ public interface AdministrationService extends Service
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    public void setGlobalPermissions(RuntimePermissions permissions) throws AccessForbiddenException;
 
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public DeployedRuntimeArtifact deployRuntimeArtifact(RuntimeArtifact runtimeArtifact);
+
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact);
+
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public void deleteRuntimeArtifact(long oid);
+
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   public RuntimeArtifact getRuntimeArtifact(long oid);
+
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   public List<ArtifactType> getSupportedRuntimeArtifactTypes();
+
 }

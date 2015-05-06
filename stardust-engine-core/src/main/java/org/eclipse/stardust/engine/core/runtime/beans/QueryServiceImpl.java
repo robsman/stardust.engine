@@ -43,25 +43,7 @@ import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.Documents;
-import org.eclipse.stardust.engine.api.runtime.LogEntry;
-import org.eclipse.stardust.engine.api.runtime.Models;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.ProcessDefinitions;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ResourceBundle;
-import org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
@@ -73,12 +55,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -969,6 +953,22 @@ public class QueryServiceImpl implements QueryService, Serializable
       ResourceBundle resourcebundle = ResourceBundleLocator.getInstance().getResourceBundle(moduleId, bundleName, locale);
 
       return resourcebundle;
+   }
+
+   @Override
+   public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query)
+   {
+      RawQueryResult<DeployedRuntimeArtifact> result = GenericQueryEvaluator.<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails>evaluate(
+            query, RuntimeArtifactBean.class, IRuntimeArtifact.class, DeployedRuntimeArtifactDetails.class,
+            getDefaultEvaluationContext());
+
+      return QueryResultFactory.createDeployedArtifactQueryResult(query, result);
+   }
+
+   @Override
+   public RuntimeArtifact getRuntimeArtifact(long oid)
+   {
+      return ArtifactManagerFactory.getCurrent().getArtifact(oid);
    }
 
    private Class<? extends ProcessInstance> determineProcessInstanceDetailsClass()

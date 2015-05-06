@@ -73,35 +73,7 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
 import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.query.RawQueryResult;
-import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport;
-import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReportGenerator;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Daemon;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentExistsException;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
-import org.eclipse.stardust.engine.api.runtime.DeploymentException;
-import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
-import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
-import org.eclipse.stardust.engine.api.runtime.LinkingOptions;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo;
-import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
-import org.eclipse.stardust.engine.api.runtime.PasswordRules;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.RuntimePermissions;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -145,6 +117,8 @@ import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManager;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 /**
  * This class implements <code>java.io.Serializable</code>, because it might be desirable
@@ -2183,8 +2157,44 @@ public class AdministrationServiceImpl
       }
    }
 
+   @Override
+   public List<ArtifactType> getSupportedRuntimeArtifactTypes()
+   {
+      return getArtifactManager().getSupportedArtifactTypes();
+   }
+
+   @Override
+   public DeployedRuntimeArtifact deployRuntimeArtifact(RuntimeArtifact runtimeArtifact)
+   {
+      return getArtifactManager().deployArtifact(runtimeArtifact);
+   }
+
+   @Override
+   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid,
+         RuntimeArtifact runtimeArtifact)
+   {
+      return getArtifactManager().overwriteArtifact(oid, runtimeArtifact);
+   }
+
+   @Override
+   public RuntimeArtifact getRuntimeArtifact(long oid)
+   {
+      return getArtifactManager().getArtifact(oid);
+   }
+
+   @Override
+   public void deleteRuntimeArtifact(long oid)
+   {
+      getArtifactManager().deleteArtifact(oid);
+   }
+
    private static IPreferenceStorageManager getPreferenceStore()
    {
       return PreferenceStorageFactory.getCurrent();
+   }
+
+   private static ArtifactManager getArtifactManager()
+   {
+      return ArtifactManagerFactory.getCurrent();
    }
 }

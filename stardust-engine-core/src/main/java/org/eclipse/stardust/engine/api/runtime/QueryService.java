@@ -24,8 +24,10 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 
 
@@ -819,4 +821,10 @@ public interface QueryService extends Service
     * @return The ResourceBundle or null if no ResourceBundle was found.
     */
    ResourceBundle getResourceBundle(String moduleId, String bundleName, Locale locale);
+
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   public RuntimeArtifact getRuntimeArtifact(long oid);
+
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
 }

@@ -67,6 +67,9 @@ public class AuditTrailManagementUtils
       // Delete partition scope preferences
       AdminServiceUtils.deletePartitionPreferences(partitionOid, session);
 
+      // Delete partition runtime artifacts
+      AdminServiceUtils.deletePartitionRuntimeArtifacts(partitionOid, session);
+
       // There should only be one for this partition. But to be on the safe side...
       Iterator<UserDomainBean> domains = session.getIterator(UserDomainBean.class, //
             where(isEqual(UserDomainBean.FR__PARTITION, partitionOid)));

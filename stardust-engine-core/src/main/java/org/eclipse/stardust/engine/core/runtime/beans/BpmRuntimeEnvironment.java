@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryIn
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManager;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
@@ -65,6 +66,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Session session;
 
    private IPreferenceStorageManager preferenceStore;
+
+   private ArtifactManager artifactManager;
 
    private ActivityThreadContext activityThreadContext;
 
@@ -563,6 +566,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public IPreferenceStorageManager getPreferenceStore()
    {
       return preferenceStore;
+   }
+
+   public ArtifactManager getArtifactManager()
+   {
+      return artifactManager;
+   }
+
+   public void setArtifactManager(ArtifactManager artifactManager)
+   {
+      this.artifactManager = artifactManager;
    }
 
    public void setPreferenceStore(IPreferenceStorageManager preferenceStore)

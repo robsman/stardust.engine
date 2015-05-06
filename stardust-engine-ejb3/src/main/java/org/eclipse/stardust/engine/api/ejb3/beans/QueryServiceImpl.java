@@ -1412,6 +1412,65 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
       }
     }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+    */
+   public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getRuntimeArtifact(oid);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+    */
+   public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getRuntimeArtifacts(query);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
 	public QueryServiceImpl()
 	{
       this.serviceType=org.eclipse.stardust.engine.api.runtime.QueryService.class;

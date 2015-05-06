@@ -64,11 +64,9 @@ public class RuntimeArtifactBean extends IdentifiablePersistentBean implements I
 
    public static final String DEFAULT_ALIAS = "ra";
 
-   @SuppressWarnings("unused")
-   private static final String PK_FIELD = FIELD__OID;
+   public static final String PK_FIELD = FIELD__OID;
 
-   @SuppressWarnings("unused")
-   private static final String PK_SEQUENCE = "runtime_artifact_seq";
+   public static final String PK_SEQUENCE = "runtime_artifact_seq";
 
    public static final boolean TRY_DEFERRED_INSERT = true;
 
@@ -77,12 +75,16 @@ public class RuntimeArtifactBean extends IdentifiablePersistentBean implements I
    public static final String[] runtime_artifact_idx2_INDEX = new String[] {
          FIELD__ARTIFACT_TYPE_ID, FIELD__ARTIFACT_ID, FIELD__PARTITION};
 
+   static final int artifactTypeId_COLUMN_LENGTH = 255;
    private String artifactTypeId;
 
+   static final int artifactId_COLUMN_LENGTH = 255;
    private String artifactId;
 
+   static final int artifactName_COLUMN_LENGTH = 255;
    private String artifactName;
 
+   static final int referenceId_COLUMN_LENGTH = 255;
    private String referenceId;
 
    private long validFrom;

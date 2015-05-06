@@ -274,6 +274,7 @@ public class ExportResult implements Serializable
             if (persistent instanceof ProcessInstanceBean)
             {
                ProcessInstanceBean process = (ProcessInstanceBean) persistent;
+               purgeProcessIds.add(process.getOID());
                if (process.getRootProcessInstanceOID() == process.getOID())
                {
                   addResult(session, process);

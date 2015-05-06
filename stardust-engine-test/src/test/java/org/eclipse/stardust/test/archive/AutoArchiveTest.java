@@ -189,7 +189,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(9, oldInstances.size());
       assertEquals(29, oldActivities.size());
       archiveQueue();
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
 
       //they are already auto exported so should not be exported again
       HashMap<String, Object> descriptors = null;
@@ -197,26 +196,13 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNull(result);
-      assertEquals(9, result.getPurgeProcessIds().size());
       assertEquals(0, result.getDates().size());
-      
-      // double check they are not purged
-      oldInstances = queryService.getAllProcessInstances(pQuery);
-      oldActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(oldInstances);
-      assertNotNull(oldActivities);
-      assertEquals(9, oldInstances.size());
-      assertEquals(29, oldActivities.size());
-
+    
       archiveQueue();
       // check that they are archived
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.PURGE, result, false));
-      assertEquals(9, deleteCount);
       ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(delInstances);
@@ -332,7 +318,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -340,12 +325,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
-
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
       ProcessInstances clearedInstancesSubSimple = queryService
@@ -504,7 +484,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -512,13 +491,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
       archiveQueue();
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
       ProcessInstances clearedInstancesSubSimple = queryService
@@ -681,7 +656,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -689,13 +663,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
       archiveQueue();
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
       ProcessInstances clearedInstancesSubSimple = queryService
@@ -877,12 +847,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertNotNullExportResult(exportResult);
      
       archiveQueue();
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, exportResult, false));
-      assertEquals(8, deleteCount);
-
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(clearedInstances);
@@ -985,17 +950,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       ArchiveTest.assertNotNullExportResult(exportResult);
-
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, exportResult, false));
-      assertEquals(3, deleteCount);
-
-      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
-      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(clearedInstances);
-      assertNotNull(clearedActivities);
-      assertEquals(0, clearedInstances.size());
-      assertEquals(0, clearedActivities.size());
       
       // delete all the models, then redeploy them so they have different ids
       adminService.deleteModel(modelOID2);
@@ -1036,15 +990,15 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       ArchiveTest.assertNotNullExportResult(exportResult);
 
-      deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, exportResult, false));
-      assertEquals(3, deleteCount);
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      assertNotNull(clearedInstances);
+      assertEquals(3, clearedInstances.size());
+      
+      archiveQueue();
 
       clearedInstances = queryService.getAllProcessInstances(pQuery);
       assertNotNull(clearedInstances);
       assertEquals(0, clearedInstances.size());
-      
-      archiveQueue();
       
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -1150,17 +1104,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       ArchiveTest.assertNotNullExportResult(exportResult);
 
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, exportResult, false));
-      assertEquals(3, deleteCount);
-
-      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
-      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(clearedInstances);
-      assertNotNull(clearedActivities);
-      assertEquals(0, clearedInstances.size());
-      assertEquals(0, clearedActivities.size());
-      
       // delete all the models, then redeploy them so they have different ids
       adminService.deleteModel(modelOID2);
       adminService.deleteModel(modelOID1);
@@ -1168,6 +1111,13 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       setUp();
       // archive whilst no models active
       archiveQueue();
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
       
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
@@ -1253,7 +1203,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archive.getExportIndex().getRootProcessToSubProcesses().size());
       Long rootProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
       assertEquals(2, archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcess).size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -1261,12 +1210,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(3, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
-
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(3, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
       ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
@@ -1340,7 +1284,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -1348,12 +1291,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(1, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
-
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(1, deleteCount);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
       ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
@@ -1516,27 +1454,23 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(11, oldInstances.size());
       assertEquals(38, oldActivities.size());
 
-
       archiveQueue();
-      HashMap<String, Object> descriptors = null;
-      ExportResult result = (ExportResult) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
-      assertEquals(11, result.getPurgeProcessIds().size());
-      assertEquals(0, result.getDates().size());
-
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, result, false));
-      assertEquals(11, deleteCount);
-
-
+      
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(clearedInstances);
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
+      
+      HashMap<String, Object> descriptors = null;
+      ExportResult result = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
+      assertEquals(0, result.getPurgeProcessIds().size());
+      assertEquals(0, result.getDates().size());
+
+     
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(6, archives.size());
@@ -1621,7 +1555,14 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
+      
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+      
       List<Long> oids = Arrays.asList(pi.getOID());
       HashMap<String, Object> descriptors = null;
       ExportResult rawData = (ExportResult) workflowService
@@ -1629,19 +1570,8 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
                   false));
       assertNotNull(rawData);
-      assertEquals(1, rawData.getPurgeProcessIds().size());
       assertEquals(0, rawData.getDates().size());
 
-      int deleteCount = (Integer) workflowService.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.PURGE, rawData, false));
-      assertEquals(1, deleteCount);
-
-      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
-      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(clearedInstances);
-      assertNotNull(clearedActivities);
-      assertEquals(0, clearedInstances.size());
-      assertEquals(0, clearedActivities.size());
       
       ArchiveTest.assertDataNotExists(pi.getOID(), oldActivities.get(1).getOID(),
             ArchiveModelConstants.PROCESS_DEF_DEFERRED,
@@ -1718,7 +1648,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(36, oldActivities.size());
       
       archiveQueue();
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
 
       //they are already auto exported so should not be exported again
       HashMap<String, Object> descriptors = null;
@@ -1726,27 +1655,14 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNull(result);
-      assertEquals(13, result.getPurgeProcessIds().size());
       assertEquals(0, result.getDates().size());
-      
-      // double check they are not purged
-      oldInstances = queryService.getAllProcessInstances(pQuery);
-      oldActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(oldInstances);
-      assertNotNull(oldActivities);
-      assertEquals(13, oldInstances.size());
-      assertEquals(36, oldActivities.size());
-
+          
       // check that they are archived
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
       IArchive archive = archives.get(0);
      // assertEquals(11, archive.getExportIndex().getRootProcessToSubProcesses().keySet().size());
-      int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.PURGE, result, false));
-      assertEquals(13, deleteCount);
       ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(delInstances);
@@ -1807,7 +1723,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(32, oldActivities.size());
       
       archiveQueue();
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
 
       //they are already auto exported so should not be exported again
       HashMap<String, Object> descriptors = null;
@@ -1815,25 +1730,12 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNull(result);
-      assertEquals(10, result.getPurgeProcessIds().size());
       assertEquals(0, result.getDates().size());
       
-      // double check they are not purged
-      oldInstances = queryService.getAllProcessInstances(pQuery);
-      oldActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(oldInstances);
-      assertNotNull(oldActivities);
-      assertEquals(10, oldInstances.size());
-      assertEquals(32, oldActivities.size());
-
       // check that they are archived
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.PURGE, result, false));
-      assertEquals(10, deleteCount);
       ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(delInstances);
@@ -1856,7 +1758,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @SuppressWarnings("unchecked")
    public void autoExportConcurrent() throws Exception
    {
-      int concurrentThreads = 5;
+      int concurrentThreads = 3;
       final WorkflowService workflowService = sf.getWorkflowService();
       final QueryService queryService = sf.getQueryService();
       final ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
@@ -1917,7 +1819,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      ArchiveTest.assertExportIds(oldInstances, oldInstances, true);
 
       //they are already auto exported so should not be exported again
       HashMap<String, Object> descriptors = null;
@@ -1925,25 +1826,12 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, descriptors, false));
       assertNotNull(result);
-      assertEquals(1*concurrentThreads, result.getPurgeProcessIds().size());
       assertEquals(0, result.getDates().size());
-      
-      // double check they are not purged
-      oldInstances = queryService.getAllProcessInstances(pQuery);
-      oldActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(oldInstances);
-      assertNotNull(oldActivities);
-      assertEquals(1*concurrentThreads, oldInstances.size());
-      assertEquals(3*concurrentThreads, oldActivities.size());
-
+  
       // check that they are archived
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(null));
       assertEquals(1, archives.size());
-      int deleteCount = (Integer) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.PURGE, result, false));
-      assertEquals(1*concurrentThreads, deleteCount);
       ProcessInstances delInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances delActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(delInstances);
@@ -1971,7 +1859,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(2000L);
+      jmsTemplate.setReceiveTimeout(3000L);
 
       Message message = null;
      
@@ -1996,7 +1884,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(1000L);
+      jmsTemplate.setReceiveTimeout(500L);
 
       Message message = null;
      
@@ -2012,7 +1900,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       final Queue queue = testClassSetup.queue(JmsProperties.ARCHIVE_QUEUE_NAME_PROPERTY);
       final JmsTemplate jmsTemplate = new JmsTemplate();
       jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(1000L);
+      jmsTemplate.setReceiveTimeout(500L);
       jmsTemplate.receive(queue);
    }
    

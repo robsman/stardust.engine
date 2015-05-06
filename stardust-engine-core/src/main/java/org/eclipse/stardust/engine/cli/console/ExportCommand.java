@@ -36,8 +36,6 @@ public class ExportCommand extends BaseExportImportCommand
 
    private static final String MODELS_BY_OID = "models";
 
-   private static final String PURGE = "purge";
-   
    private static final String DUMP = "dump";
 
    private static final String BATCH_SIZE = "batchSize";
@@ -82,10 +80,6 @@ public class ExportCommand extends BaseExportImportCommand
                         + "OIDs).\n"
                         + "Process instances must be terminated (completed or aborted).",
                   true);
-
-      argTypes.register("-" + PURGE, "-p", PURGE,
-            "Add this option to purge process instances that are exported", false);
-
 
       argTypes.register("-" + DUMP, "-d", DUMP,
             "Backs up processes without generating a unique id, or deleting them ", false);
@@ -144,7 +138,6 @@ public class ExportCommand extends BaseExportImportCommand
 
       argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
-      argTypes.addExclusionRule(new String[] {PURGE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
@@ -173,7 +166,6 @@ public class ExportCommand extends BaseExportImportCommand
 
    public int run(Map options)
    {
-      final boolean purge = options.containsKey(PURGE);
       final boolean dumpData = options.containsKey(DUMP);
       final Date fromDate = getFromDate(options);
       final Date toDate = getToDate(options);
@@ -254,25 +246,46 @@ public class ExportCommand extends BaseExportImportCommand
                e.printStackTrace();
             }
          }
+         String operation = dumpData ? "Dump" : "Archive";
          print(new Date() + " Export Done for Partition: " + partitionId);
          ExportResult mergedResult = ExportImportSupport.merge(exportResults, exportModel);
-         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpData);
-         Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
-         if (success)
+         if (mergedResult != null)
          {
-            print(new Date() + " Archive Done for Partition: " + partitionId);
-            if (purge)
+            int archiveCount = 0;
+            for (Date date : mergedResult.getDates())
             {
-               print("Starting Purge for Partition: " + partitionId);
-               command = new ExportProcessesCommand(ExportProcessesCommand.Operation.PURGE, mergedResult, dumpData);
-               int deleteCount = (Integer) serviceFactory.getWorkflowService().execute(command);
-               //int deleteCount = purge(executor, exportResults, serviceFactory);
-               print(new Date() + " Purge Done for Partition: " + partitionId + " deleted " + deleteCount);
+               ExportIndex exportIndex = mergedResult.getExportIndex(date);
+               archiveCount += exportIndex.getOidsToUuids().size();
+            }
+            if (dumpData)
+            {
+               print(new Date() + " Processes to " + operation + ": " + archiveCount);
+            }
+            else
+            {
+               print(new Date() + " Processes to " + operation + ": " + archiveCount + "; Processes to delete: " +  mergedResult.getPurgeProcessIds().size());
             }
          }
          else
          {
-            print("Archive Failed for Partition: " + partitionId);
+            if (dumpData)
+            {
+               print(new Date() + " Processes to " + operation + ": 0");
+            }
+            else
+            {
+               print(new Date() + " Processes to " + operation + ": 0; Processes to delete: 0");
+            }
+         }
+         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpData);
+         Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
+         if (success)
+         {
+            print(new Date() + " " + operation + " Done for Partition: " + partitionId);
+         }
+         else
+         {
+            print(operation + " Failed for Partition: " + partitionId);
          }
 
          Date end = new Date();

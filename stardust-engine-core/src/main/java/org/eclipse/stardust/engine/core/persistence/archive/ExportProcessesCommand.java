@@ -167,7 +167,7 @@ public class ExportProcessesCommand implements ServiceCommand
    }
     
    /**
-   * Use this constructor to auto archive a DEFERRED process instance
+   * Use this constructor when auto archive is enabled auto archive
    */
    public ExportProcessesCommand(ObjectMessage message)
    {
@@ -203,9 +203,6 @@ public class ExportProcessesCommand implements ServiceCommand
          case EXPORT_BATCH:
             exportBatch(session);
             result = exportResult;
-            break;
-         case PURGE:
-            result = purge(session);
             break;
          case ARCHIVE:
             result = archive(session);
@@ -259,10 +256,6 @@ public class ExportProcessesCommand implements ServiceCommand
             archive(session);
          }
       }
-//      if (1 ==1 )
-//      {
-//         throw new RuntimeException();
-//      }
       return true;
    }
 
@@ -319,11 +312,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
 
             ExportIndex exportIndex = exportResult.getExportIndex(date);
-            if (!exportIndex.isDump())
-            {
-               markProcessesAsExported(session, exportIndex);
-            }
-            
+                        
             Serializable key = archiveManager.open(date);
             if (key == null)
             {
@@ -366,24 +355,12 @@ public class ExportProcessesCommand implements ServiceCommand
                break;
             }
          }
-      }
-      return success;
-   }
-
-   private void markProcessesAsExported(Session session, ExportIndex exportIndex)
-   {
-      for (Long oid : exportIndex.getProcessInstanceOids())
-      {
-         Persistent persistent = session.findByOID(ProcessInstanceBean.class, oid);
-         // instance can be null if archiving of queue is done after process already deleted
-         // this will not harm anything the export id will be in archive anyways
-         if (persistent != null)
+         if (!dumpData)
          {
-            ProcessInstanceBean instance = (ProcessInstanceBean) persistent;
-            instance.createProperty(
-                  ProcessElementExporter.EXPORT_PROCESS_ID, exportIndex.getUuid(oid));
+            purge(session);
          }
       }
+      return success;
    }
    
    private void exportBatch(Session session)
@@ -419,6 +396,7 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             exportResult = new ExportResult(dumpData);
          }
+         exportResult.close();
       }
       exportResult.getPurgeProcessIds().clear();
       if (allIds != null)
@@ -647,15 +625,11 @@ public class ExportProcessesCommand implements ServiceCommand
        */
       EXPORT_BATCH,
       /**
-       * Takes an export result and deletes the processes in it from the database
-       */
-      PURGE,
-      /**
-       * Takes an export result and persists it to an archive
+       * Takes an export result and persists it to an archive, deletes processes it if the archive is not a dump
        */
       ARCHIVE,
       /**
-       * Takes messages that has been read from a JMS queue and archives them 
+       * Takes messages that has been read from a JMS queue and archives them, then deletes them 
        */
       ARCHIVE_MESSAGES
       ;

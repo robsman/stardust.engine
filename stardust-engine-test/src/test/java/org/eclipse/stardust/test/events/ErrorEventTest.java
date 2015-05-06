@@ -12,20 +12,17 @@ package org.eclipse.stardust.test.events;
 
 import static java.util.Collections.singletonMap;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeoutException;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.ActivityFilter;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -36,6 +33,12 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 public class ErrorEventTest
 {
@@ -76,6 +79,9 @@ public class ErrorEventTest
 
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
+      ActivityInstance throwErrorAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState("FailingProcess", "ThrowError", new ActivityInstanceState[] { ActivityInstanceState.Aborting, ActivityInstanceState.Aborted}));
+      assertThat(throwErrorAi, notNullValue());
+      aiStateChangeBarrier.await(throwErrorAi.getOID(), ActivityInstanceState.Aborted);
 
       // await error was received
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "ReceivedError");

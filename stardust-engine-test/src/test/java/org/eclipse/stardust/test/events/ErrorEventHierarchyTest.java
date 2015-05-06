@@ -13,7 +13,9 @@ package org.eclipse.stardust.test.events;
 
 import static java.util.Collections.singletonMap;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeoutException;
 
@@ -23,10 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-
 import org.eclipse.stardust.engine.api.query.ActivityFilter;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -81,6 +84,9 @@ public class ErrorEventHierarchyTest
 
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
+      ActivityInstance throwErrorAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState("HierarchyFailingProcess", "ThrowError", new ActivityInstanceState[] { ActivityInstanceState.Aborting, ActivityInstanceState.Aborted}));
+      assertThat(throwErrorAi, notNullValue());
+      aiStateChangeBarrier.await(throwErrorAi.getOID(), ActivityInstanceState.Aborted);
 
       // await error was received
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "ReceivedError");

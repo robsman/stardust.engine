@@ -505,20 +505,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       this.lastModifyingUser = workflowUserOid;
       this.state = state;
 
-      if (getActivity().hasEventHandlers(
-            PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION))
-      {
-         Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED,
-               Event.OID_UNDEFINED, Event.ENGINE_EVENT);
-         event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT,
-               ActivityInstanceState.getState(oldState));
-         event.setAttribute(PredefinedConstants.TARGET_STATE_ATT,
-               ActivityInstanceState.getState(state));
-
-         EventUtils.processAutomaticEvent(getActivity(),
-               PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION, event);
-      }
-
       if (trace.isInfoEnabled())
       {
          trace.info("State change for " + this + ": "
@@ -574,6 +560,20 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             break;
          }
          }
+      }
+
+      if (getActivity().hasEventHandlers(
+            PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION))
+      {
+         Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED,
+               Event.OID_UNDEFINED, Event.ENGINE_EVENT);
+         event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT,
+               ActivityInstanceState.getState(oldState));
+         event.setAttribute(PredefinedConstants.TARGET_STATE_ATT,
+               ActivityInstanceState.getState(state));
+
+         EventUtils.processAutomaticEvent(getActivity(),
+               PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION, event);
       }
    }
 
@@ -1236,7 +1236,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw e;
       }
 
-      ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();      
+      ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();
 
       if (plan != null && plan.hasNextActivity())
       {

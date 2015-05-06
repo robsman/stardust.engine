@@ -6,7 +6,11 @@ import java.util.Map;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExecutionException;
 import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
 
 /**
@@ -25,6 +29,18 @@ public class ThrowErrorEventAction extends AbstractThrowEventAction
    {
       Object code = actionAttributes.get(ErrorMessageAcceptor.BPMN_ERROR_CODE);
       this.eventCode = null != code ? code.toString() : "";
+   }
+
+   @Override
+   public Event execute(Event event) throws UnrecoverableExecutionException
+   {
+      if (Event.ACTIVITY_INSTANCE == event.getType())
+      {
+         ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
+         ActivityInstanceUtils.abortActivityInstance(ai);
+      }
+
+      return super.execute(event);
    }
 
    @Override

@@ -529,6 +529,27 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
             serviceProxy).getResourceBundle(moduleId, bundleName, locale);
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+    */
+   public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getRuntimeArtifact(oid);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+    */
+   public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getRuntimeArtifacts(query);
+   }
+
 	public QueryServiceBean()
 	{
       super(org.eclipse.stardust.engine.api.runtime.QueryService.class,

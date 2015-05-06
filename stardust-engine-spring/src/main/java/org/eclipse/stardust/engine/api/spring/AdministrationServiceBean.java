@@ -578,6 +578,58 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
             serviceProxy).setGlobalPermissions(permissions);
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+    */
+   public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).deployRuntimeArtifact(runtimeArtifact);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+    */
+   public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).overwriteRuntimeArtifact(oid, runtimeArtifact);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(long oid)
+    */
+   public void deleteRuntimeArtifact(long oid)
+   {
+      ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).deleteRuntimeArtifact(oid);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(long oid)
+    */
+   public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).getRuntimeArtifact(oid);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes()
+    */
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.ArtifactType>
+         getSupportedRuntimeArtifactTypes()
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).getSupportedRuntimeArtifactTypes();
+   }
+
 	public AdministrationServiceBean()
 	{
       super(org.eclipse.stardust.engine.api.runtime.AdministrationService.class,

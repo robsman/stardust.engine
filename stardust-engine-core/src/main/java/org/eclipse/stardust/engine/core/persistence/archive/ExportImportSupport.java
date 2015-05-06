@@ -66,10 +66,10 @@ public class ExportImportSupport
          {
             oids.add(pi.getOID());
          }
-         HashMap<String, Object> descriptors = null;
+         ArchiveFilter filter = new ArchiveFilter(oids, null, null, null, null);
          ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
                .execute(new ExportProcessesCommand(
-                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, null, oids, descriptors,
+                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, 
                      false));
          ExportQueueSender sender = new ExportQueueSender();
          sender.sendMessage(exportResult);

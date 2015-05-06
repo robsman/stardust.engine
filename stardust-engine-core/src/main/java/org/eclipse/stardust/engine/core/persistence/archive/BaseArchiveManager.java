@@ -8,7 +8,7 @@ public abstract class BaseArchiveManager implements IArchiveManager
    protected abstract ArrayList<IArchive> findAllArchives();
 
    @Override
-   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids, Map<String, Object> descriptors)
+   public ArrayList<IArchive> findArchives(Collection<Long> processInstanceOids, Map<String, Object> descriptors)
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
       ArrayList<IArchive> unfilteredArchives = findAllArchives();

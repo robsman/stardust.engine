@@ -17,7 +17,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    protected static final Options argTypes = new Options();
    private static final int DEFAULT_CONCURRENT_BATCHES = 10;
    protected static final String PARTITION = "partition";
-   protected static final String PROCESSES_BY_OID = "processes";
+   protected static final String PROCESSES_BY_OID = "processOids";
    protected static final String PROCESS_MIN_OID = "processMin";
    protected static final String PROCESS_MAX_OID = "processMax";
    protected static final String FROM_DATE = "fromDate";
@@ -25,6 +25,8 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    protected static final String CONCURRENT_BATCHES = "concurrentBatches";
    protected static final String DESCRIPTORS = "descriptors";
    protected static final String DATE_DESCRIPTORS = "dateDescriptors";
+   protected static final String MODEL_IDS = "models";
+   protected static final String PROCESS_DEFINITION_IDS = "processes";
 
    public BaseExportImportCommand()
    {
@@ -143,6 +145,22 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       return processOids;
    }
 
+   protected List<String> getProcessDefinitionIds(Map options)
+   {
+      String value = (String) options.get(PROCESS_DEFINITION_IDS);
+      List<String> ids = new ArrayList<String>();
+      splitListString(value, ids);
+      return ids;
+   }
+   
+   protected List<String> getModelIds(Map options)
+   {
+      String value = (String) options.get(MODEL_IDS);
+      List<String> ids = new ArrayList<String>();
+      splitListString(value, ids);
+      return ids;
+   }
+   
    protected List<String> getPartitions(Map options)
    {
       // evaluate partition, fall back to default partition, if configured

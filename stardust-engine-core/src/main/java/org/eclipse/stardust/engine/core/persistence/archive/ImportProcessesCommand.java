@@ -11,7 +11,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
-import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * This class allows a request to import archived processes instances. The processes are
@@ -40,85 +39,21 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private final IArchive archive;
 
-   private Date fromDate;
-
-   private Date toDate;
-
-   private final List<Long> processInstanceOids;
+   private final ArchiveFilter filter;
 
    private ImportMetaData importMetaData;
 
    private final Operation operation;
 
-   private final HashMap<String, Object> descriptors;
 
-   private ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, Date fromDate, Date toDate,
-         HashMap<String, Object> descriptors, ImportMetaData importMetaData)
+   public ImportProcessesCommand(Operation operation, IArchive archive, 
+         ArchiveFilter filter, ImportMetaData importMetaData)
    {
       super();
       this.operation = operation;
-      this.processInstanceOids = processInstanceOids;
+      this.filter = filter;
       this.archive = archive;
-      this.fromDate = fromDate;
-      this.toDate = toDate;
       this.importMetaData = importMetaData;
-      this.descriptors = descriptors;
-   }
-
-   /**
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format
-    * @param importMetaData
-    *           provide importMetaData if you already validated the model, else set it as
-    *           null
-    */
-   public ImportProcessesCommand(Operation operation, IArchive archive,
-         HashMap<String, Object> descriptors, ImportMetaData importMetaData)
-   {
-      this(operation, archive, null, null, null, descriptors, importMetaData);
-   }
-
-   /**
-    * If processInstanceOids is null everything will be imported. If processInstanceOids
-    * is null nothing will be imported If processInstanceOIDs and ModelOIDs are provided
-    * we perform AND logic between the processInstanceOIDs and ModelOIDs provided.
-    * 
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format
-    * @param processInstanceOids
-    *           Oids of process instances to import.
-    * @param importMetaData
-    *           provide importMetaData if you already validated the model, else set it as
-    *           null
-    */
-   public ImportProcessesCommand(Operation operation, IArchive archive,
-         List<Long> processInstanceOids, HashMap<String, Object> descriptors,
-         ImportMetaData importMetaData)
-   {
-      this(operation, archive, processInstanceOids, null, null, descriptors,
-            importMetaData);
-   }
-
-   /**
-    * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
-    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null
-    * fromDate and toDate is provided then all processes will be imported.
-    * 
-    * @param rawData
-    *           This contains the data that needs to be imported in byte[] format
-    * @param fromDate
-    *           includes processes with a start time greator or equal to fromDate
-    * @param toDate
-    *           includes processes with a termination time less or equal than toDate
-    * @param importMetaData
-    *           provide importMetaData if you already validated the model, else set it as
-    *           null
-    */
-   public ImportProcessesCommand(Operation operation, IArchive archive, Date fromDate,
-         Date toDate, HashMap<String, Object> descriptors, ImportMetaData importMetaData)
-   {
-      this(operation, archive, null, fromDate, toDate, descriptors, importMetaData);
    }
 
    /**
@@ -126,31 +61,9 @@ public class ImportProcessesCommand implements ServiceCommand
     * 
     * @param processOids
     */
-   public ImportProcessesCommand(List<Long> processInstanceOids,
-         HashMap<String, Object> descriptors)
+   public ImportProcessesCommand(ArchiveFilter filter)
    {
-      this(Operation.QUERY, null, processInstanceOids, null, null, descriptors, null);
-   }
-
-   /**
-    * Use this constructor to determine which archives to load
-    * 
-    * @param operation
-    * @param fromDate2
-    * @param toDate2
-    */
-   public ImportProcessesCommand(Date fromDate, Date toDate,
-         HashMap<String, Object> descriptors)
-   {
-      this(Operation.QUERY, null, null, fromDate, toDate, descriptors, null);
-   }
-
-   /**
-    * Use this constructor to determine which archives to load
-    */
-   public ImportProcessesCommand(HashMap<String, Object> descriptors)
-   {
-      this(Operation.QUERY, null, null, null, descriptors, null);
+      this(Operation.QUERY, null, filter, null);
    }
 
    @Override
@@ -189,20 +102,20 @@ public class ImportProcessesCommand implements ServiceCommand
 
    private ArrayList<IArchive> query(ServiceFactory sf)
    {
-      validateDates();
+      filter.validateDates();
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
       ArrayList<IArchive> archives;
-      if (processInstanceOids != null)
+      if (filter.getProcessInstanceOids() != null)
       {
-         archives = archiveManager.findArchives(processInstanceOids, descriptors);
+         archives = archiveManager.findArchives(filter.getProcessInstanceOids(), filter.getDescriptors());
       }
-      else if (fromDate != null && toDate != null)
+      else if (filter.getFromDate() != null && filter.getToDate() != null)
       {
-         archives = archiveManager.findArchives(fromDate, toDate, descriptors);
+         archives = archiveManager.findArchives(filter.getFromDate(), filter.getToDate(), filter.getDescriptors());
       }
       else
       {
-         archives = archiveManager.findArchives(descriptors);
+         archives = archiveManager.findArchives(filter.getDescriptors());
       }
       return archives;
    }
@@ -221,7 +134,7 @@ public class ImportProcessesCommand implements ServiceCommand
    private int importData(ServiceFactory sf)
    {
       int importCount;
-      validateDates();
+      filter.validateDates();
       ImportOidResolver oidResolver = new ImportOidResolver(importMetaData);
       final Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
@@ -230,7 +143,7 @@ public class ImportProcessesCommand implements ServiceCommand
          Map<String, List<byte[]>> dataByTable;
          importCount = 0;
          Set<Long> exportProcesses = archive
-               .getExportIndex().getProcesses(descriptors, processInstanceOids, fromDate, toDate);
+               .getExportIndex().getProcesses(filter.getDescriptors(), filter.getProcessInstanceOids(), filter.getFromDate(), filter.getToDate());
          List<Long> processes = new ArrayList<Long>();
          for (Long oid : exportProcesses)
          {
@@ -295,25 +208,6 @@ public class ImportProcessesCommand implements ServiceCommand
       }
    }
 
-   private void validateDates()
-   {
-      if (fromDate != null || toDate != null)
-      {
-         if (fromDate == null)
-         {
-            this.fromDate = new Date(0);
-         }
-         if (toDate == null)
-         {
-            this.toDate = TimestampProviderUtils.getTimeStamp();
-         }
-         if (toDate.before(fromDate))
-         {
-            throw new IllegalArgumentException(
-                  "Import from date can not be before import to date");
-         }
-      }
-   }
 
    /**
     * @author jsaayman

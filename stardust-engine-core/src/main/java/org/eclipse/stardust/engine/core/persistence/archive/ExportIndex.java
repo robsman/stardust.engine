@@ -119,7 +119,7 @@ public class ExportIndex implements Serializable
     * @param endDate 
     * @return
     */
-   public Set<Long> getProcesses(Map<String, Object> descriptors, List<Long> processInstanceOids, 
+   public Set<Long> getProcesses(Map<String, Object> descriptors, Collection<Long> processInstanceOids, 
          Date startDate, Date endDate)
    {
       if ((descriptors == null || descriptors.isEmpty()) && (processInstanceOids == null && (startDate == null || endDate == null)))
@@ -189,7 +189,7 @@ public class ExportIndex implements Serializable
       }
    }
    
-   private Set<Long> processInstanceOidMatch(List<Long> processInstanceOids)
+   private Set<Long> processInstanceOidMatch(Collection<Long> processInstanceOids)
    {
       Set<Long> result = new HashSet<Long>();
       if (processInstanceOids != null)

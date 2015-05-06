@@ -2,8 +2,8 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public interface IArchiveManager
@@ -43,7 +43,7 @@ public interface IArchiveManager
     */
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
-   public ArrayList<IArchive> findArchives(List<Long> processInstanceOids, Map<String, Object> descriptors);
+   public ArrayList<IArchive> findArchives(Collection<Long> processInstanceOids, Map<String, Object> descriptors);
 
    public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, Object> descriptors);
 

@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveFilter;
 import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
@@ -50,6 +51,15 @@ public class ImportCommand extends BaseExportImportCommand
             "Imports specified process instances (comma separated list of\n" + "OIDs).",
             true);
 
+      argTypes.register("-" + PROCESS_DEFINITION_IDS, "-procDef", PROCESS_DEFINITION_IDS,
+            "Imports process instances for specified list of process definition IDs(comma separated list of\n"
+                  + "IDs).", true);
+
+      argTypes.register("-" + MODEL_IDS, "-model", MODEL_IDS,
+            "Imports process instances for specified list of model IDs(comma separated list of\n"
+                  + "IDs).", true);
+    
+      
       argTypes.register("-" + PROCESS_MIN_OID, null, PROCESS_MIN_OID,
             "Imports all processes with OID great or equal to this number and less or equal to processMax.", true);
 
@@ -112,8 +122,12 @@ public class ImportCommand extends BaseExportImportCommand
       argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_DEFINITION_IDS}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {PARTITION}, false);
       argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
@@ -215,9 +229,9 @@ public class ImportCommand extends BaseExportImportCommand
          HashMap<String, Object> descriptors)
    {
       ImportMetaData importMetaData;
-
+      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null);
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE, archive, descriptors, null);
+            ImportProcessesCommand.Operation.VALIDATE, archive, filter, null);
       importMetaData = (ImportMetaData) workflowService.execute(importCommand);
       if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
       {
@@ -239,22 +253,9 @@ public class ImportCommand extends BaseExportImportCommand
 
       if (archive != null)
       {
-         ImportProcessesCommand command;
-         if (processOids != null)
-         {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, processOids,descriptors, importMetaData);
-         }
-         else if (fromDate != null || toDate != null)
-         {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, fromDate, toDate,descriptors, importMetaData);
-         }
-         else
-         {
-            command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive,descriptors, importMetaData);
-         }
+         ArchiveFilter filter = new ArchiveFilter(processOids, null, fromDate, toDate, descriptors);
+         ImportProcessesCommand command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
+                  archive, filter, importMetaData);
          count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
          print("Imported " + count + " process instances into partition " + partitionId
@@ -266,19 +267,8 @@ public class ImportCommand extends BaseExportImportCommand
    private List<IArchive> findArchives(final ServiceFactory serviceFactory, final Date fromDate, final Date toDate, final List<Long> processOids,
          HashMap<String, Object> descriptors)
    {
-      ImportProcessesCommand command;
-      if (processOids != null)
-      {
-         command = new ImportProcessesCommand(processOids, descriptors);
-      }
-      else if (fromDate != null || toDate != null)
-      {
-         command = new ImportProcessesCommand(fromDate, toDate, descriptors);
-      }
-      else
-      {
-         command = new ImportProcessesCommand(descriptors);
-      }
+      ArchiveFilter filter = new ArchiveFilter(processOids, null, fromDate, toDate, descriptors);
+      ImportProcessesCommand command = new ImportProcessesCommand(filter);
       List<IArchive> archives = (List<IArchive>) serviceFactory.getWorkflowService().execute(command);
       return archives;
    }

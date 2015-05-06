@@ -34,7 +34,7 @@ public class ExportCommand extends BaseExportImportCommand
 
    private static final int DEFAULT_BATCH_SIZE = 1000;
 
-   private static final String MODELS_BY_OID = "models";
+   private static final String MODELS_BY_OID = "modelOids";
 
    private static final String DUMP = "dump";
 
@@ -59,24 +59,34 @@ public class ExportCommand extends BaseExportImportCommand
                   true);
 
       argTypes.register("-" + PROCESSES_BY_OID, null, PROCESSES_BY_OID,
-            "Archives/Deletes specified process instances (comma separated list of\n"
+            "Archives/Dumps specified process instances (comma separated list of\n"
                   + "OIDs).\n"
                   + "Process instances must be terminated (completed or aborted).", true);
 
+      argTypes.register("-" + PROCESS_DEFINITION_IDS, "-procDef", PROCESS_DEFINITION_IDS,
+            "Archives/Dumps process instances for specified list of process definition IDs(comma separated list of\n"
+                  + "IDs).\n"
+                  + "Process instances must be terminated (completed or aborted).", true);
+
+      argTypes.register("-" + MODEL_IDS, "-model", MODEL_IDS,
+            "Archives/Dumps process instances for specified list of model IDs(comma separated list of\n"
+                  + "IDs).\n"
+                  + "Process instances must be terminated (completed or aborted).", true);
+    
 
       argTypes.register("-" + PROCESS_MIN_OID, null, PROCESS_MIN_OID,
-            "Archives/Deletes all processes with OID great or equal to this number and less or equal to processMax.", true);
+            "Archives/Dumps all processes with OID great or equal to this number and less or equal to processMax.", true);
 
 
       argTypes.register("-" + PROCESS_MAX_OID, null, PROCESS_MAX_OID,
-            "Archives/Deletes all processes with OID great or equal to processMin and less or equal to this number.", true);
+            "Archives/Dumps all processes with OID great or equal to processMin and less or equal to this number.", true);
 
       argTypes
             .register(
                   "-" + MODELS_BY_OID,
                   null,
                   MODELS_BY_OID,
-                  "Archives/Deletes process instances for the models specified by the models oids provided (comma separated list of\n"
+                  "Archives/Dumps process instances for the models specified by the models oids provided (comma separated list of\n"
                         + "OIDs).\n"
                         + "Process instances must be terminated (completed or aborted).",
                   true);
@@ -139,7 +149,9 @@ public class ExportCommand extends BaseExportImportCommand
       argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {PROCESS_DEFINITION_IDS}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, FROM_DATE}, false);
@@ -148,6 +160,8 @@ public class ExportCommand extends BaseExportImportCommand
       argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID, FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {MODELS_BY_OID, TO_DATE}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS, FROM_DATE}, false);
+      argTypes.addExclusionRule(new String[] {MODEL_IDS, TO_DATE}, false);
       argTypes.addExclusionRule(new String[] {PARTITION}, false);
       argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
       argTypes.addExclusionRule(new String[] {TO_DATE}, false);
@@ -332,21 +346,8 @@ public class ExportCommand extends BaseExportImportCommand
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
          final ServiceFactory serviceFactory, HashMap<String, Object> descriptors, boolean dumpData)
    {
-      ExportProcessesCommand command;
-      if (processOids != null || modelOids != null)
-      {
-         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               modelOids, processOids, descriptors, dumpData);
-      }
-      else if (fromDate != null || toDate != null)
-      {
-         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY,
-               fromDate, toDate, descriptors, dumpData);
-      }
-      else
-      {
-         command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, descriptors, dumpData);
-      }
+      ArchiveFilter filter = new ArchiveFilter(processOids, modelOids, fromDate, toDate, descriptors);
+      ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, filter, dumpData);
       ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
             .getWorkflowService().execute(command);
       return exportMetaData;

@@ -28,7 +28,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
-import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * This class allows a request to archive processes instances. The processes will be
@@ -62,14 +61,7 @@ public class ExportProcessesCommand implements ServiceCommand
          ProcessInstanceState.COMPLETED, ProcessInstanceState.ABORTED};
    private static final int SQL_IN_CHUNK_SIZE = 1000;
 
-   private final Collection<Long> processInstanceOids;
-
-   private List<Integer> modelOids;
-
-   private Date fromDate;
-
-   private Date toDate;
-
+   
    private ExportMetaData exportMetaData;
 
    private ExportResult exportResult;
@@ -77,72 +69,33 @@ public class ExportProcessesCommand implements ServiceCommand
    private final Operation operation;
 
    private final boolean dumpData;
-
-   private final HashMap<String, Object> descriptors;
    
+   private final ArchiveFilter filter;
+
    private final ObjectMessage message;
    
-   private ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
-         List<Integer> modelOids, Collection<Long> processInstanceOids, Date fromDate,
-         Date toDate, HashMap<String, Object> descriptors, ExportResult exportResult,
+   private ExportProcessesCommand(Operation operation, ArchiveFilter filter, ExportMetaData exportMetaData,
+         ExportResult exportResult,
          boolean dumpData, ObjectMessage message)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
-      this.processInstanceOids = processInstanceOids;
-      this.modelOids = modelOids;
-      this.fromDate = fromDate;
-      this.toDate = toDate;
+      this.filter = filter;
       this.exportResult = exportResult;
-      this.descriptors = descriptors;
       this.dumpData = dumpData;
       this.message = message;
    }
 
    /**
-    * If processInstanceOIDs and ModelOIDs are provided we perform AND logic between the
-    * processInstanceOIDs and ModelOIDs provided
     * 
-    * @param modelOids
-    *           Oids of models to export
-    * @param processInstanceOids
-    *           Oids of process instances to export
+    * @param filter criteria
     */
-   public ExportProcessesCommand(Operation operation, List<Integer> modelOids,
-         Collection<Long> processInstanceOids, HashMap<String, Object> descriptors,
+   public ExportProcessesCommand(Operation operation, ArchiveFilter filter,
          boolean dumpData)
    {
-      this(operation, null, modelOids, processInstanceOids, null, null, descriptors,
-            null, dumpData, null);
+      this(operation, filter, null, null, dumpData, null);
    }
-
-   /**
-    * Use this constructor to export all processInstances
-    */
-   public ExportProcessesCommand(Operation operation,
-         HashMap<String, Object> descriptors, boolean dumpData)
-   {
-
-      this(operation, null, null, null, null, null, descriptors, null, dumpData, null);
-   }
-
-   /**
-    * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
-    * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null
-    * fromDate and toDate is provided then all processes will be exported.
-    * 
-    * @param fromDate
-    *           includes processes with a start time greator or equal to fromDate
-    * @param toDate
-    *           includes processes with a termination time less or equal than toDate
-    */
-   public ExportProcessesCommand(Operation operation, Date fromDate, Date toDate,
-         HashMap<String, Object> descriptors, boolean dumpData)
-   {
-
-      this(operation, null, null, null, fromDate, toDate, descriptors, null, dumpData, null);
-   }
-
+   
    /**
     * Use this constructor to export all processInstances or models for given
     * exportMetaData. Set dumpOnly to true if they should not be marked as exported by
@@ -152,7 +105,7 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean dumpData)
    {
 
-      this(operation, exportMetaData, null, null, null, null, null, null, dumpData, null);
+      this(operation, null, exportMetaData, null, dumpData, null);
    }
 
    /**
@@ -163,7 +116,7 @@ public class ExportProcessesCommand implements ServiceCommand
          boolean dumpData)
    {
 
-      this(operation, null, null, null, null, null, null, exportResult, dumpData, null);
+      this(operation, null, null, exportResult, dumpData, null);
    }
     
    /**
@@ -171,8 +124,7 @@ public class ExportProcessesCommand implements ServiceCommand
    */
    public ExportProcessesCommand(ObjectMessage message)
    {
-      this(Operation.ARCHIVE_MESSAGES, null, null, new ArrayList<Long>(), null, null, null,
-            null, false, message);
+      this(Operation.ARCHIVE_MESSAGES, null, null, null, false, message);
    }
 
    
@@ -426,16 +378,12 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void query(Session session)
    {
-      validateDates();
+      filter.validateDates();
 
       exportMetaData = new ExportMetaData();
-      if (CollectionUtils.isEmpty(modelOids))
+      if (CollectionUtils.isEmpty(filter.getModelOids()))
       {
-         if (modelOids == null)
-         {
-            modelOids = new ArrayList<Integer>();
-         }
-         modelOids.addAll(ExportImportSupport.getActiveModelOids());
+         filter.getModelOids().addAll(ExportImportSupport.getActiveModelOids());
       }
       findExportInstances(session);
    }
@@ -474,15 +422,15 @@ public class ExportProcessesCommand implements ServiceCommand
             String uuid = rs.getString(ProcessInstanceProperty.FIELD__STRING_VALUE);
             boolean exported = ExportImportSupport.getUUID(oid, startDate).equals(uuid);
             boolean isInFilter = false;
-            if (descriptors != null && descriptors.size() > 0)
+            if (filter.getDescriptors() != null && filter.getDescriptors().size() > 0)
             {
                IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
                IProcessDefinition processDefinition = processInstance.getProcessDefinition();
                Map<String, Object> pathValues = ExportImportSupport
-                     .getDescriptors(processInstance, processDefinition, descriptors.keySet());
+                     .getDescriptors(processInstance, processDefinition, filter.getDescriptors().keySet());
                for (String id : pathValues.keySet())
                {
-                  if (descriptors.get(id).equals(pathValues.get(id)))
+                  if (filter.getDescriptors().get(id).equals(pathValues.get(id)))
                   {
                      // we do or logic, as soon as one descriptor matches we have a match
                      isInFilter = true;
@@ -537,8 +485,8 @@ public class ExportProcessesCommand implements ServiceCommand
    {
       if (LOGGER.isDebugEnabled())
       {
-         LOGGER.debug("Received " + processInstanceOids.size() + " oids to export");
-         LOGGER.debug("Received " + modelOids.size() + " modelIds to export");
+         LOGGER.debug("Received " + filter.getProcessInstanceOids().size() + " oids to export");
+         LOGGER.debug("Received " + filter.getModelOids().size() + " modelIds to export");
       }
 
       QueryDescriptor query = getBaseQuery();
@@ -546,7 +494,7 @@ public class ExportProcessesCommand implements ServiceCommand
       ComparisonTerm processStateRestriction = Predicates.inList(
             ProcessInstanceBean.FR__STATE, EXPORT_STATES);
       ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
-            modelOids);
+            filter.getModelOids());
       ComparisonTerm processDefinitionRestriction = Predicates.greaterThan(
             ProcessInstanceBean.FR__PROCESS_DEFINITION, 0);
 
@@ -556,9 +504,9 @@ public class ExportProcessesCommand implements ServiceCommand
       AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction,
             processDefinitionRestriction);
 
-      if (CollectionUtils.isNotEmpty(processInstanceOids))
+      if (CollectionUtils.isNotEmpty(filter.getProcessInstanceOids()))
       {
-         List<List<Long>> splitList = org.eclipse.stardust.common.CollectionUtils.split(processInstanceOids, SQL_IN_CHUNK_SIZE);
+         List<List<Long>> splitList = org.eclipse.stardust.common.CollectionUtils.split(filter.getProcessInstanceOids(), SQL_IN_CHUNK_SIZE);
          MultiPartPredicateTerm rootOidTerm = new OrTerm();
          for (List<Long> list : splitList)
          {
@@ -566,12 +514,12 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          whereTerm.add(rootOidTerm);
       }
-      if (fromDate != null && toDate != null)
+      if (filter.getFromDate() != null && filter.getToDate() != null)
       {
          AndTerm dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
-               ProcessInstanceBean.FR__START_TIME, this.fromDate.getTime()), Predicates
+               ProcessInstanceBean.FR__START_TIME, this.filter.getFromDate().getTime()), Predicates
                .lessOrEqual(ProcessInstanceBean.FR__START_TIME,
-                     this.toDate.getTime()));
+                     this.filter.getToDate().getTime()));
          whereTerm.add(dateRestriction);
       }
       query.where(whereTerm);
@@ -580,25 +528,6 @@ public class ExportProcessesCommand implements ServiceCommand
       processQueryResults(session, query);
    }
 
-   private void validateDates()
-   {
-      if (fromDate != null || toDate != null)
-      {
-         if (fromDate == null)
-         {
-            this.fromDate = new Date(0);
-         }
-         if (toDate == null)
-         {
-            this.toDate = TimestampProviderUtils.getTimeStamp();
-         }
-         if (toDate.before(fromDate))
-         {
-            throw new IllegalArgumentException(
-                  "Export from date can not be before export to date");
-         }
-      }
-   }
 
    /**
     * @author jsaayman

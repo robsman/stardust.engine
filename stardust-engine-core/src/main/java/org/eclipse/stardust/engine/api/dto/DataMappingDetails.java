@@ -17,13 +17,7 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -113,7 +107,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
       this.context = mapping.getContext();
       this.dataId = mapping.getData().getId();
    }
-   
+
    private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)
    {
       return validator instanceof PrimitiveValidator

@@ -16,12 +16,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.CaseDescriptorRef;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
@@ -39,7 +34,7 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 public class DataPathDetails extends ModelElementDetails implements DataPath
 {
    private static final String FALLBACK_TYPE_NAME = Object.class.getName();
-	  
+   
    private static final long serialVersionUID = -1198825507540508071L;
 
    private static final Logger trace = LogManager.getLogger(DataPathDetails.class);

@@ -495,6 +495,6 @@ public class AdminServiceUtils
       // PreferencesBean Partition Preferences
       PredicateTerm partitionArtifacts = Predicates.isEqual(RuntimeArtifactBean.FR__PARTITION, partitionOid);
 
-      session.delete(PreferencesBean.class, partitionArtifacts, false);
+      session.delete(RuntimeArtifactBean.class, partitionArtifacts, false);
    }
 }

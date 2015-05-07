@@ -73,7 +73,7 @@ public class RuntimeArtifactBean extends IdentifiablePersistentBean implements I
    public static final String[] runtime_artifact_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
 
    public static final String[] runtime_artifact_idx2_INDEX = new String[] {
-         FIELD__ARTIFACT_TYPE_ID, FIELD__ARTIFACT_ID, FIELD__PARTITION};
+         FIELD__ARTIFACT_TYPE_ID, FIELD__ARTIFACT_ID, FIELD__VALID_FROM, FIELD__PARTITION};
 
    static final int artifactTypeId_COLUMN_LENGTH = 255;
    private String artifactTypeId;

@@ -98,7 +98,7 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      true, new FieldInfo[] {oid});
 
                private final IndexInfo IDX2 = new IndexInfo(RUNTIME_ARTIFACT_IDX2,
-                     true, new FieldInfo[] {artifactTypeId, artifactId, partition});
+                     false, new FieldInfo[] {artifactTypeId, artifactId, validFrom, partition});
 
                @Override
                public FieldInfo[] getFields()

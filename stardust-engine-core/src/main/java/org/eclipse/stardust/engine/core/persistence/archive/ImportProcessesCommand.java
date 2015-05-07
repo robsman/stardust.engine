@@ -104,19 +104,7 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       filter.validateDates();
       IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
-      ArrayList<IArchive> archives;
-      if (filter.getProcessInstanceOids() != null)
-      {
-         archives = archiveManager.findArchives(filter.getProcessInstanceOids(), filter.getDescriptors());
-      }
-      else if (filter.getFromDate() != null && filter.getToDate() != null)
-      {
-         archives = archiveManager.findArchives(filter.getFromDate(), filter.getToDate(), filter.getDescriptors());
-      }
-      else
-      {
-         archives = archiveManager.findArchives(filter.getDescriptors());
-      }
+      ArrayList<IArchive> archives = archiveManager.findArchives(filter);
       return archives;
    }
 
@@ -143,7 +131,7 @@ public class ImportProcessesCommand implements ServiceCommand
          Map<String, List<byte[]>> dataByTable;
          importCount = 0;
          Set<Long> exportProcesses = archive
-               .getExportIndex().getProcesses(filter.getDescriptors(), filter.getProcessInstanceOids(), filter.getFromDate(), filter.getToDate());
+               .getExportIndex().getProcesses(filter);
          List<Long> processes = new ArrayList<Long>();
          for (Long oid : exportProcesses)
          {

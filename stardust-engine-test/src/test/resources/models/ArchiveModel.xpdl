@@ -551,7 +551,11 @@
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
-                  <carnot:DataPaths/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="768" Id="SimpleDescriptor" Name="SimpleDescriptor" Direction="IN" IsDescriptor="true" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ID" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:model:uuid" Value="b4f7e87c-c6b3-4230-b700-aea9fadf3fbe"/>
@@ -774,7 +778,11 @@
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
-                  <carnot:DataPaths/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="772" Id="CallSubProcessesInModelDescriptor" Name="CallSubProcessesInModelDescriptor" Direction="IN" IsDescriptor="true" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ID" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:model:uuid" Value="81fafffd-1b16-4fe3-8403-fc9d8e9340ff"/>
@@ -1923,7 +1931,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Thu Apr 02 15:26:30 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Thu May 07 14:29:55 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

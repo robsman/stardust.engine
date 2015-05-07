@@ -102,6 +102,8 @@ public class ExportResult implements Serializable
       }
       exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_START_DATE, start);
       exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_END_DATE, end);
+      exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_MODEL_ID, processInstance.getProcessDefinition().getModel().getId());
+      exportIndex.addField(processInstance.getOID(), ExportIndex.FIELD_PROCESS_DEFINITION_ID, processInstance.getProcessDefinition().getId());
    }
 
    private void addResult(IProcessInstance process)

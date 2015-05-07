@@ -8,6 +8,25 @@ public abstract class BaseArchiveManager implements IArchiveManager
    protected abstract ArrayList<IArchive> findAllArchives();
 
    @Override
+   public ArrayList<IArchive> findArchives(ArchiveFilter filter)
+   {
+      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      if (filter.getProcessInstanceOids() != null)
+      {
+         archives = findArchives(filter.getProcessInstanceOids(), filter.getDescriptors());
+      }
+      else if (filter.getFromDate() != null && filter.getToDate() != null)
+      {
+         archives = findArchives(filter.getFromDate(), filter.getToDate(), filter.getDescriptors());
+      }
+      else
+      {
+         archives = findArchives(filter.getDescriptors());
+      }
+      return archives;
+   }
+   
+   @Override
    public ArrayList<IArchive> findArchives(Collection<Long> processInstanceOids, Map<String, Object> descriptors)
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();

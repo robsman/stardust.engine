@@ -13,6 +13,8 @@ public class ArchiveFilter implements Serializable
    private static final long serialVersionUID = 1L;
 
    private Collection<Long> processInstanceOids;
+   private Collection<String> processDefinitionIds;
+   private Collection<String> modelIds;
 
    private List<Integer> modelOids;
 
@@ -22,14 +24,18 @@ public class ArchiveFilter implements Serializable
    
    private HashMap<String, Object> descriptors;
    
-   public ArchiveFilter(Collection<Long> processInstanceOids, List<Integer> modelOids,
-         Date fromDate, Date toDate, HashMap<String, Object> descriptors)
+   public ArchiveFilter(Collection<String> modelIds,
+         Collection<String> processDefinitionIds, Collection<Long> processInstanceOids,
+         List<Integer> modelOids, Date fromDate, Date toDate,
+         HashMap<String, Object> descriptors)
    {
       super();
       if (modelOids == null)
       {
          modelOids = new ArrayList<Integer>();
       }
+      this.processDefinitionIds = processDefinitionIds;
+      this.modelIds = modelIds;
       this.processInstanceOids = processInstanceOids;
       this.modelOids = modelOids;
       this.fromDate = fromDate;
@@ -57,9 +63,29 @@ public class ArchiveFilter implements Serializable
       }
    }
 
+   public static long getSerialversionuid()
+   {
+      return serialVersionUID;
+   }
+
+   public Collection<String> getProcessDefinitionIds()
+   {
+      return processDefinitionIds;
+   }
+
+   public Collection<String> getModelIds()
+   {
+      return modelIds;
+   }
+
    public Collection<Long> getProcessInstanceOids()
    {
       return processInstanceOids;
+   }
+
+   public void setProcessInstanceOids(Collection<Long> processInstanceOids)
+   {
+      this.processInstanceOids = processInstanceOids;
    }
 
    public List<Integer> getModelOids()

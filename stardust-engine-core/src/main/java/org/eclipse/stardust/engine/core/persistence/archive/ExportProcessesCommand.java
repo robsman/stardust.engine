@@ -30,8 +30,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 
 /**
- * This class allows a request to archive processes instances. The processes will be
- * exported to a byte[] and will optionally be deleted from the database. If a process has
+ * This class allows a request to archive or dump processes instances. The processes will be
+ * exported to a byte[] and will be deleted from the database if the operation is not a dump operation. If a process has
  * subprocesses the subprocesses will be exported and purged as well.
  * 
  * Processes can be exported:<br/>
@@ -39,8 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
  * <li/>
  * by business identifier (unique primitive key descriptor) <li/>by from/to filter (start
  * time to termination time) Dates are inclusive <br/>
- * If no valid processInstanceOids are provided or derived from criteria then null will be
- * returned. <br/>
+ * If no valid processInstanceOids are provided or derived from criteria then no processes will be included. <br/>
  * If a fromDate is provided, but no toDate then toDate defaults to now. If a toDate is
  * provided, but no fromDate then fromDate defaults to 1 January 1970. If a null fromDate
  * and toDate is provided then all processes will be exported. <br/>
@@ -70,7 +69,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final boolean dumpData;
    
-   private final ArchiveFilter filter;
+   private ArchiveFilter filter;
 
    private final ObjectMessage message;
    
@@ -381,13 +380,81 @@ public class ExportProcessesCommand implements ServiceCommand
       filter.validateDates();
 
       exportMetaData = new ExportMetaData();
-      if (CollectionUtils.isEmpty(filter.getModelOids()))
+      if (CollectionUtils.isNotEmpty(filter.getModelIds()))
+      {
+         List<Integer> modelOids = ExportImportSupport.findModelOids(filter.getModelIds());
+         filter.getModelOids().clear();
+         filter.getModelOids().addAll(modelOids);
+      }
+      else if (CollectionUtils.isEmpty(filter.getModelOids()))
       {
          filter.getModelOids().addAll(ExportImportSupport.getActiveModelOids());
       }
-      findExportInstances(session);
+      if (CollectionUtils.isNotEmpty(filter.getModelOids()))
+      {
+         if (CollectionUtils.isNotEmpty(filter.getProcessDefinitionIds()))
+         {
+            List<Integer> processDefinitionOids = ExportImportSupport.findProcessDefinitionOids(filter.getProcessDefinitionIds());
+            List<Long> oids = findRootProcesses(session, processDefinitionOids);
+            // if no process instances are found we add and invalid processInstance, 
+            // since our filtering uses an AND conjunction no results should be returned
+            if (CollectionUtils.isEmpty(oids))
+            {
+               oids = Arrays.asList(-1L);
+            }
+            if (filter.getProcessInstanceOids() == null)
+            {
+               filter.setProcessInstanceOids(oids);
+            }
+            else
+            {
+               filter.getProcessInstanceOids().addAll(oids);
+            }
+         }
+         List<Long> rootsNotAddedYet = findExportInstances(session);
+         // in case a subprocess matched and could not be added, add it's process tree now
+         if (!rootsNotAddedYet.isEmpty())
+         {
+            filter = new ArchiveFilter(null, null, rootsNotAddedYet, filter.getModelOids(), null, null, null);
+            findExportInstances(session);
+         }
+      }
    }
 
+   private List<Long> findRootProcesses(Session session, List<Integer> processDefinitionOids)
+   {
+      List<Long> result = new ArrayList<Long>();
+
+      if (CollectionUtils.isNotEmpty(processDefinitionOids))
+      {
+         QueryDescriptor query = QueryDescriptor.from(ProcessInstanceBean.class).select(
+               new Column[] {ProcessInstanceBean.FR__OID});
+         AndTerm processDefRestriction = Predicates.andTerm(Predicates.inList(ProcessInstanceBean.FR__PROCESS_DEFINITION,
+               processDefinitionOids), Predicates.isEqual(
+                     ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FR__OID));
+         query.where(processDefRestriction);
+         
+         ResultSet rs = session.executeQuery(query);
+         try
+         {
+            while (rs.next())
+            {
+               Long oid = rs.getBigDecimal(ProcessInstanceBean.FIELD__OID).longValue();
+               result.add(oid);
+            }
+         }
+         catch (SQLException e)
+         {
+            throw new IllegalStateException("Can't find process instances for processdefinition", e);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rs);
+         }
+      }
+      return result;
+   }
+   
    private void queryAndExport(Session session)
    {
       query(session);
@@ -405,9 +472,19 @@ public class ExportProcessesCommand implements ServiceCommand
       }
    }
 
-   private void processQueryResults(Session session, QueryDescriptor query)
+   /**
+    * returns any root processes that could not be added first time around and has to be queried for again,
+    * e.g when descriptor of a subprocess matched filter criteria
+    * @param session
+    * @return
+    */
+   private List<Long> processQueryResults(Session session, QueryDescriptor query)
    {
       ResultSet rs = session.executeQuery(query);
+      // store root processInstanceOids that matched by descriptor, so we can add it's subs
+      List<Long> descriptorMatchedRootOids = new ArrayList<Long>();
+      // store root processInstanceOids where the subProcess matched by descriptor so we can add root and siblings
+      List<Long> descriptorMatchedSubRootOids = new ArrayList<Long>();
       try
       {
          while (rs.next())
@@ -424,17 +501,42 @@ public class ExportProcessesCommand implements ServiceCommand
             boolean isInFilter = false;
             if (filter.getDescriptors() != null && filter.getDescriptors().size() > 0)
             {
-               IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
-               IProcessDefinition processDefinition = processInstance.getProcessDefinition();
-               Map<String, Object> pathValues = ExportImportSupport
-                     .getDescriptors(processInstance, processDefinition, filter.getDescriptors().keySet());
-               for (String id : pathValues.keySet())
+               if (descriptorMatchedRootOids.contains(rootOid))
                {
-                  if (filter.getDescriptors().get(id).equals(pathValues.get(id)))
+                  isInFilter = true;
+               }
+               else
+               {
+                  IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
+                  IProcessDefinition processDefinition = processInstance
+                        .getProcessDefinition();
+                  Map<String, Object> pathValues = ExportImportSupport
+                        .getDescriptors(processInstance, processDefinition, filter
+                              .getDescriptors().keySet());
+                  for (String id : pathValues.keySet())
                   {
-                     // we do or logic, as soon as one descriptor matches we have a match
-                     isInFilter = true;
-                     break;
+                     if (filter.getDescriptors().get(id).equals(pathValues.get(id)))
+                     {
+                        // we do or logic, as soon as one descriptor matches we have a match
+                        isInFilter = true;
+                        break;
+                     }
+                  }
+               }
+              
+               if (isInFilter)
+               {
+                  // the root process matched, remember this so we can automatically add it's subs
+                  if (oid.equals(rootOid))
+                  {
+                     descriptorMatchedRootOids.add(oid);
+                  }
+                  else
+                  {
+                     // if the match is by subProcess, we can't add subprocess now since root is not added.
+                     // we will need to iterate of rs again to add these
+                     isInFilter = false;
+                     descriptorMatchedSubRootOids.add(rootOid);
                   }
                }
             }
@@ -463,6 +565,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          QueryUtils.closeResultSet(rs);
       }
+      return descriptorMatchedSubRootOids;
    }
 
    private QueryDescriptor getBaseQuery()
@@ -481,7 +584,13 @@ public class ExportProcessesCommand implements ServiceCommand
       return query;
    }
 
-   private void findExportInstances(Session session)
+   /**
+    * returns any root processes that could not be added first time around and has to be queried for again,
+    * e.g when descriptor of a subprocess matched filter criteria
+    * @param session
+    * @return
+    */
+   private List<Long> findExportInstances(Session session)
    {
       if (LOGGER.isDebugEnabled())
       {
@@ -493,6 +602,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
       ComparisonTerm processStateRestriction = Predicates.inList(
             ProcessInstanceBean.FR__STATE, EXPORT_STATES);
+      
       ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
             filter.getModelOids());
       ComparisonTerm processDefinitionRestriction = Predicates.greaterThan(
@@ -525,7 +635,7 @@ public class ExportProcessesCommand implements ServiceCommand
       query.where(whereTerm);
       // order by start time since root processes must be first
       query.orderBy(ProcessInstanceBean.FR__START_TIME, ProcessInstanceBean.FR__OID);
-      processQueryResults(session, query);
+      return processQueryResults(session, query);
    }
 
 

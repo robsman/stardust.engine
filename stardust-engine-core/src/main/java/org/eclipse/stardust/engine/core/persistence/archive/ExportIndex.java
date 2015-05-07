@@ -6,11 +6,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
+
 public class ExportIndex implements Serializable
 {
 
    public static final String FIELD_START_DATE = "startDate";
    public static final String FIELD_END_DATE = "endDate";
+   public static final String FIELD_MODEL_ID = "modelId";
+   public static final String FIELD_PROCESS_DEFINITION_ID = "procDefId";
    
    /**
     * 
@@ -119,26 +123,50 @@ public class ExportIndex implements Serializable
     * @param endDate 
     * @return
     */
-   public Set<Long> getProcesses(Map<String, Object> descriptors, Collection<Long> processInstanceOids, 
-         Date startDate, Date endDate)
+   public Set<Long> getProcesses(ArchiveFilter filter)
    {
-      if ((descriptors == null || descriptors.isEmpty()) && (processInstanceOids == null && (startDate == null || endDate == null)))
+      if ((filter.getDescriptors() == null || filter.getDescriptors().isEmpty()) 
+            && (filter.getProcessInstanceOids() == null && (filter.getFromDate() == null || filter.getToDate() == null))
+            && CollectionUtils.isEmpty(filter.getModelIds())
+            && CollectionUtils.isEmpty(filter.getProcessDefinitionIds()))
       {
          return oidsToUuids.keySet();
       }
       Set<Long> result = new HashSet<Long>();
       DateFormat df = new SimpleDateFormat(dateFormat);
       
-      if (descriptors != null)
+      if (filter.getDescriptors() != null)
       {
-         for (String key : descriptors.keySet())
+         for (String key : filter.getDescriptors().keySet())
          {
-            result.addAll(descriptorMatch(key, descriptors.get(key)));
+            result.addAll(descriptorMatch(key, Arrays.asList(filter.getDescriptors().get(key)), false));
          }
       }
-      result.addAll(processInstanceOidMatch(processInstanceOids));
-      result.addAll(dateMatch(df, startDate, endDate));
+      if (CollectionUtils.isNotEmpty(filter.getModelIds()))
+      {
+         result.addAll(descriptorMatch(FIELD_MODEL_ID, filter.getModelIds(), true));
+      }
+      if (CollectionUtils.isNotEmpty(filter.getProcessDefinitionIds()))
+      {
+         result.addAll(descriptorMatch(FIELD_PROCESS_DEFINITION_ID, filter.getProcessDefinitionIds(), true));
+      }
+      result.addAll(processInstanceOidMatch(filter.getProcessInstanceOids()));
+      result.addAll(dateMatch(df, filter.getFromDate(), filter.getToDate()));
       
+      return result;
+   }
+   
+   private Set<Long> descriptorMatch(String key, Collection<? extends Object> values, boolean onlyRoots)
+   {
+      Set<Long> result = new HashSet<Long>();
+      for (Object value : values)
+      {
+         List<Long> oids = descriptorMatch(key, value);
+         for (Long oid : oids)
+         {
+            addProcessAndSubs(result, oid, onlyRoots);
+         }
+      }
       return result;
    }
 
@@ -198,31 +226,37 @@ public class ExportIndex implements Serializable
          {
             if (oidsToUuids.containsKey(oid))
             {
-               result.add(oid);
-               List<Long> subProcesses = rootProcessToSubProcesses.get(oid);
-               if (subProcesses != null)
-               {
-                  result.addAll(subProcesses);
-               }
-               else
-               {
-                  // if subprocesses is null it means we are dealing with a subprocess
-                  // add it parent and all its siblings
-                  for (Long rootOid : rootProcessToSubProcesses.keySet())
-                  {
-                     if (rootProcessToSubProcesses.get(rootOid).contains(oid))
-                     {
-                        result.add(rootOid);
-                        result.addAll(rootProcessToSubProcesses.get(rootOid));
-                        break;
-                     }
-                  }
-               }
+               addProcessAndSubs(result, oid, false);
             }
             
          }
       }
       return result;
+   }
+
+   private void addProcessAndSubs(Set<Long> result, Long oid, boolean onlyAddIfRoot)
+   {
+      List<Long> subProcesses = rootProcessToSubProcesses.get(oid);
+      // we have a root process
+      if (subProcesses != null)
+      {
+         result.add(oid);
+         result.addAll(subProcesses);
+      }
+      else if (!onlyAddIfRoot)
+      {
+         // if subprocesses is null it means we are dealing with a subprocess
+         // add it parent and all its siblings
+         for (Long rootOid : rootProcessToSubProcesses.keySet())
+         {
+            if (rootProcessToSubProcesses.get(rootOid).contains(oid))
+            {
+               result.add(rootOid);
+               result.addAll(rootProcessToSubProcesses.get(rootOid));
+               break;
+            }
+         }
+      }
    }
 
    public String getUuid(Long processInstanceOid)

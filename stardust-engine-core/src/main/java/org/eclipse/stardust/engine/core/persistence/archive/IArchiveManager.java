@@ -52,4 +52,6 @@ public interface IArchiveManager
    public boolean addIndex(Serializable key, String indexData);
 
    public String getArchiveManagerId();
+
+   public ArrayList<IArchive> findArchives(ArchiveFilter filter);
 }

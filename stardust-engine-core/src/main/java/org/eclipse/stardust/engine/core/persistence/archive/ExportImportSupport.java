@@ -38,7 +38,8 @@ import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesComma
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceUtils.ProcessBlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.*;
+import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
@@ -66,7 +67,7 @@ public class ExportImportSupport
          {
             oids.add(pi.getOID());
          }
-         ArchiveFilter filter = new ArchiveFilter(oids, null, null, null, null);
+         ArchiveFilter filter = new ArchiveFilter(null, null, oids, null, null, null, null);
          ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
                .execute(new ExportProcessesCommand(
                      ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, 
@@ -926,6 +927,56 @@ public class ExportImportSupport
       return exportModels(modelManager, allModels);
    }
 
+
+   public static List<Integer> findProcessDefinitionOids(
+         Collection<String> processDefinitionIds)
+   {
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+
+      List<IModel> activeModels = modelManager.findActiveModels();
+      List<Integer> result = new ArrayList<Integer>();
+      Set<String> searchItems = new HashSet<String>();
+      searchItems.addAll(processDefinitionIds);
+      Set<String> found = new HashSet<String>();
+      for (IModel model : activeModels)
+      {
+         for (String proc : processDefinitionIds)
+         {
+            IProcessDefinition procDef = model.findProcessDefinition(proc);
+            if (procDef != null)
+            {
+               found.add(proc);
+               result.add((int)modelManager.getRuntimeOid(procDef));
+            }
+         }
+         searchItems.removeAll(found);
+         found.clear();
+         if (searchItems.isEmpty())
+         {
+            break;
+         }
+      }
+      return result;
+   }
+
+   public static List<Integer> findModelOids(Collection<String> modelIds)
+   {
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+
+      List<Integer> result = new ArrayList<Integer>();
+      for (String id : modelIds)
+      {
+         IModel model = modelManager.findActiveModel(id);
+         if (model != null)
+         {
+            result.add((int)model.getModelOID());
+         }
+      }
+      return result;
+   }
+   
    public static ExportModel exportModels()
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory

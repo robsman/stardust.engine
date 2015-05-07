@@ -189,6 +189,8 @@ public class ExportCommand extends BaseExportImportCommand
       final int batchSize = getBatchSize(options);
       final int concurrentBatches = getConcurrentBatches(options);
       final HashMap<String, Object> descriptors = getDescriptors(options);
+      final Collection<String> processDefinitionIds = getProcessDefinitionIds(options);
+      final Collection<String> modelIds = getModelIds(options); 
 
       for (final String partitionId : partitionIds)
       {
@@ -204,7 +206,7 @@ public class ExportCommand extends BaseExportImportCommand
 //            return 0;
 //         }
 
-         ExportMetaData exportMetaData = getExportOids(fromDate, toDate,
+         ExportMetaData exportMetaData = getExportOids(processDefinitionIds, modelIds, fromDate, toDate,
                processOids, modelOids, serviceFactory, descriptors, dumpData);
 
          print("Found " + exportMetaData.getAllProcessesForExport(dumpData).size() + " processes to export");
@@ -342,11 +344,12 @@ public class ExportCommand extends BaseExportImportCommand
       return modelOids;
    }
    
-   private ExportMetaData getExportOids(final Date fromDate,
+   private ExportMetaData getExportOids(final Collection<String> processDefinitionIds,
+         final Collection<String> modelIds, final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
          final ServiceFactory serviceFactory, HashMap<String, Object> descriptors, boolean dumpData)
    {
-      ArchiveFilter filter = new ArchiveFilter(processOids, modelOids, fromDate, toDate, descriptors);
+      ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds, processOids, modelOids, fromDate, toDate, descriptors);
       ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, filter, dumpData);
       ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
             .getWorkflowService().execute(command);

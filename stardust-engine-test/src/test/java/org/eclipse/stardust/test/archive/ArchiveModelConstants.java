@@ -83,6 +83,10 @@ public class ArchiveModelConstants
    
    static final String DESCR_BUSINESSDATE = "BusinessDate"; // DefaultDate
    
+   static final String DESCR_CALL_SUBPROCESSES_IN_MODEL = "CallSubProcessesInModelDescriptor"; // process instance oid
+   
+   static final String DESCR_SIMPLE = "SimpleDescriptor"; // process instance oid
+   
    static final String DEFAULT_DATE = "2015/03/05 00:00:00:000";
 
 }

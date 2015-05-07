@@ -86,7 +86,6 @@ public class ErrorEventHierarchyTest
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
       ActivityInstance throwErrorAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState("HierarchyFailingProcess", "ThrowError", new ActivityInstanceState[] { ActivityInstanceState.Aborting, ActivityInstanceState.Aborted}));
       assertThat(throwErrorAi, notNullValue());
-      aiStateChangeBarrier.await(throwErrorAi.getOID(), ActivityInstanceState.Aborted);
 
       // await error was received
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "ReceivedError");

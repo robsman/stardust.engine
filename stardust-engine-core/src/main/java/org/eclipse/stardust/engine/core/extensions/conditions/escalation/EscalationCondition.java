@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
+import org.eclipse.stardust.engine.extensions.events.escalation.EscalationMessageAcceptor;
 
 /**
  * @author Stephane Ruffieux
@@ -32,6 +33,6 @@ public class EscalationCondition implements EventHandlerInstance
 
    public boolean accept(Event event)
    {
-      return attributes.containsKey("carnot:engine:escalationCode");
+      return attributes.containsKey(EscalationMessageAcceptor.BPMN_ESCALATION_CODE);
    }
 }

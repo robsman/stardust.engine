@@ -8,31 +8,23 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.core.extensions.conditions.escalation;
+package org.eclipse.stardust.engine.core.extensions.conditions;
 
 import java.util.Map;
 
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
-import org.eclipse.stardust.engine.extensions.events.escalation.EscalationMessageAcceptor;
 
-/**
- * @author Stephane Ruffieux
- * @author Simon Nikles
- *
- */
-public class EscalationCondition implements EventHandlerInstance
+public class NoOpCondition implements EventHandlerInstance
 {
-
-   private Map attributes;
-
    public void bootstrap(Map attributes)
    {
-      this.attributes = attributes;
+      /* nothing to do */
    }
 
    public boolean accept(Event event)
    {
-      return attributes.containsKey(EscalationMessageAcceptor.BPMN_ESCALATION_CODE);
+      /* nothing to do */
+      return false;
    }
 }

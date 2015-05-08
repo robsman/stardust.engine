@@ -3,12 +3,9 @@ package org.eclipse.stardust.engine.extensions.events.error;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExecutionException;
 import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
@@ -49,23 +46,8 @@ public class ThrowErrorEventAction extends AbstractThrowEventAction
    }
 
    @Override
-   protected boolean hasMatchingCatchEvent(IActivityInstance startingActivityInstance)
+   protected String getConditionType()
    {
-      ModelElementList<IEventHandler> eventHandlers = startingActivityInstance.getActivity().getEventHandlers();
-      for (IEventHandler handler : eventHandlers)
-      {
-         if (handler.getType().getId().equals(PredefinedConstants.EXCEPTION_CONDITION))
-         {
-            Object exceptionName = handler.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
-            if (null != exceptionName && exceptionName.toString().equals(ErrorCodeException.class.getName()))
-            {
-               if (handler.getId().equals(eventCode))
-               {
-                  return true;
-               }
-            }
-         }
-      }
-      return false;
+      return PredefinedConstants.SUBPROCESS_EXCEPTION;
    }
 }

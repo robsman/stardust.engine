@@ -111,6 +111,7 @@ public class EscalationEventTest
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "TwoLevelEscalationState");
 
       // continue normal flow (which is hibernated in order to keep the sub-process alive)
+      aiStateChangeBarrier.awaitForId(escalatingProcessTwo.getOID(), "NormalFlow");
       aiq = ActivityInstanceQuery.findForProcessInstance(escalatingProcessTwo.getOID());
       aiq.where(ActivityFilter.forProcess("NormalFlow", THROWING_SUBPROCESS));
       normalFlowInSubprocess = sf.getQueryService().findFirstActivityInstance(aiq);
@@ -129,7 +130,6 @@ public class EscalationEventTest
 
       // await root process completion
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
-
    }
 
    @Test

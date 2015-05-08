@@ -103,6 +103,7 @@ public final class PredefinedConstants
    public static final String EXTERNAL_EVENT_CONDITION = "external";
    public static final String OBSERVER_EVENT_CONDITION = "observer";
    public static final String SIGNAL_CONDITION = "signal";
+   public static final String SUBPROCESS_EXCEPTION = "subprocessException";
 
    // predefined data
    public static final String LAST_ACTIVITY_PERFORMER = "LAST_ACTIVITY_PERFORMER";
@@ -263,8 +264,6 @@ public final class PredefinedConstants
    public static final String SET_DATA_ACTION_DATA_ID_ATT = ENGINE_SCOPE + "dataId";
    public static final String SET_DATA_ACTION_DATA_PATH_ATT = ENGINE_SCOPE + "dataPath";
    public static final String EXCEPTION_CLASS_ATT = ENGINE_SCOPE + "exceptionName";
-   public static final String ESCALATION_CLASS_ATT = ENGINE_SCOPE + "escalationName";
-   public static final String SIGNAL_CLASS_ATT = ENGINE_SCOPE + "signalName";
    public static final String TYPE_ATT = ENGINE_SCOPE + "type";
    public static final String DEFAULT_VALUE_ATT = ENGINE_SCOPE + "defaultValue";
 

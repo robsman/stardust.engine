@@ -403,11 +403,9 @@
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Activity Oid="57" Implementation="Subprocess" IsHibernatedOnCreation="false" SubProcessMode="sync_shared">
                         <carnot:EventHandlers>
-                           <carnot:EventHandler Oid="106" Id="testErrorCode" Name="testErrorCode" Type="exception">
+                           <carnot:EventHandler Oid="106" Id="testErrorCode" Name="testErrorCode" Type="subprocessException">
                               <carnot:EventActions/>
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:exceptionName" Value="org.eclipse.stardust.engine.extensions.events.error.ErrorCodeException"/>
-                              </carnot:Attributes>
+                              <carnot:Attributes/>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
@@ -995,6 +993,12 @@
                         <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionConditionAccessPointProvider"/>
                         <carnot:Attribute Name="carnot:engine:condition" Value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionCondition"/>
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.conditions.exception.ExceptionConditionValidator"/>
+                     </carnot:Attributes>
+                  </carnot:EventConditionType>
+                  <carnot:EventConditionType Oid="400" Id="subprocessException" Name="On Subprocess Exception" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/exception/icon.gif"/>
+                        <carnot:Attribute Name="carnot:engine:condition" Value="org.eclipse.stardust.engine.core.extensions.conditions.NoOpCondition"/>
                      </carnot:Attributes>
                   </carnot:EventConditionType>
                   <carnot:EventConditionType Oid="28" Id="statechange" Name="On Activity State Change" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">

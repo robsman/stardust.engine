@@ -83,6 +83,8 @@ public class SignalEventTest
 
    // TODO - bpmn-2-events - test case for interrupting signal event
 
+   // TODO - bpmn-2-events - test that uses the throwing part, i.e. 'SendSignalEventAction'
+
    private void sendSignalEvent(final String signalName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());

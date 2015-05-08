@@ -626,10 +626,21 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       if (filter.getFromDate() != null && filter.getToDate() != null)
       {
-         AndTerm dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
+         AndTerm dateRestriction;
+         if (dumpData)
+         {
+            dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
                ProcessInstanceBean.FR__START_TIME, this.filter.getFromDate().getTime()), Predicates
                .lessOrEqual(ProcessInstanceBean.FR__START_TIME,
                      this.filter.getToDate().getTime()));
+         }
+         else
+         {
+            dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
+                  ProcessInstanceBean.FR__TERMINATION_TIME, this.filter.getFromDate().getTime()), Predicates
+                  .lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME,
+                        this.filter.getToDate().getTime()));
+         }
          whereTerm.add(dateRestriction);
       }
       query.where(whereTerm);

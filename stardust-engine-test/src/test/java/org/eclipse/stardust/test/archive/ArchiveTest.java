@@ -1435,6 +1435,174 @@ public class ArchiveTest
             Arrays.asList(simpleManualB, simpleA, simpleB));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
+   
+   @Test
+   public void testFilterDateArchive() throws Exception
+   {
+
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      Date startP1 = testTimestampProvider.getTimestamp();
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+
+      testTimestampProvider.nextDay();
+      Date midP1 = testTimestampProvider.getTimestamp();
+      completeNextActivity(pi, ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data",
+            queryService, workflowService);
+
+      testTimestampProvider.nextDay();
+      Date endP1 = testTimestampProvider.getTimestamp();
+      completeNextActivity(pi, null, null, queryService, workflowService);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+
+      testTimestampProvider.nextDay();
+            
+      final ProcessInstance pi2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(pi2, queryService, workflowService);
+      
+      ProcessInstanceStateBarrier.instance().await(pi2.getOID(),
+            ProcessInstanceState.Completed);
+     
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+     
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi2.getOID()));
+     
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(2, oldInstances.size());
+      assertEquals(6, oldActivities.size());
+
+      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startP1, midP1, null);
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  false));
+      assertNullRawData(exportResult);
+
+      filter = new ArchiveFilter(null, null,null, null, midP1, endP1, null);
+      exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  false));
+      assertNotNullExportResult(exportResult);
+      
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(1, clearedInstances.size());
+      assertEquals(3, clearedActivities.size());
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter));
+      assertEquals(1, archives.size());
+
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      IArchive archive = archives.get(0);
+      assertNotNull(archive.getExportIndex().getOidsToUuids().get(pi.getOID()));
+      assertNull(archive.getExportIndex().getOidsToUuids().get(pi2.getOID()));
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(oldInstances, newInstances, Arrays.asList(pi), false);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+
+   @Test
+   public void testFilterDateDump() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      Date startP1 = testTimestampProvider.getTimestamp();
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+
+      testTimestampProvider.nextDay();
+      Date midP1 = testTimestampProvider.getTimestamp();
+      completeNextActivity(pi, ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data",
+            queryService, workflowService);
+
+      testTimestampProvider.nextDay();
+      completeNextActivity(pi, null, null, queryService, workflowService);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Completed);
+
+      testTimestampProvider.nextDay();
+            
+      final ProcessInstance pi2 = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL, null, true);
+      completeSimpleManual(pi2, queryService, workflowService);
+      
+      ProcessInstanceStateBarrier.instance().await(pi2.getOID(),
+            ProcessInstanceState.Completed);
+     
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+     
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi2.getOID()));
+     
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(2, oldInstances.size());
+      assertEquals(6, oldActivities.size());
+
+      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startP1, midP1, null);
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  true));
+
+      assertNotNullExportResult(exportResult);
+      
+      ExportProcessesCommand command = new ExportProcessesCommand(
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, true);
+      Boolean success = (Boolean) workflowService.execute(command);
+      assertTrue(success);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(2, clearedInstances.size());
+      assertEquals(6, clearedActivities.size());
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter));
+      assertEquals(1, archives.size());
+
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      IArchive archive = archives.get(0);
+      assertNotNull(archive.getExportIndex().getOidsToUuids().get(pi.getOID()));
+      assertNull(archive.getExportIndex().getOidsToUuids().get(pi2.getOID()));
+   }
 
    @Test
    public void testImportFilterProcessDefinitionIds() throws Exception

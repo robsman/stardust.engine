@@ -21,7 +21,6 @@ import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
  */
 public class ThrowErrorEventAction extends AbstractThrowEventAction
 {
-
    public static final String THROW_EVENT_TYPE = "errorEvent";
 
    @Override
@@ -69,5 +68,4 @@ public class ThrowErrorEventAction extends AbstractThrowEventAction
       }
       return false;
    }
-
 }

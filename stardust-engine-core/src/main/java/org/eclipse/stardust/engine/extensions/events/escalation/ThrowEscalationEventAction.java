@@ -6,6 +6,7 @@ import java.util.Map;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
@@ -20,9 +21,9 @@ public class ThrowEscalationEventAction extends AbstractThrowEventAction
 {
 
    public static final String THROW_EVENT_TYPE = "escalationEvent";
-   
+
    static final Logger trace = LogManager.getLogger(EscalationMessageAcceptor.class);
-   
+
    @Override
    public void bootstrap(Map actionAttributes, Iterator accessPoints)
    {
@@ -42,9 +43,9 @@ public class ThrowEscalationEventAction extends AbstractThrowEventAction
       ModelElementList<IEventHandler> eventHandlers = startingActivityInstance.getActivity().getEventHandlers();
       for (IEventHandler handler : eventHandlers)
       {
-         if (handler.getType().getId().equals("escalation"))
+         if (handler.getType().getId().equals(PredefinedConstants.ESCALATION_CONDITION))
          {
-            Object escalationName = handler.getAttribute("carnot:engine:escalationName");
+            Object escalationName = handler.getAttribute(PredefinedConstants.ESCALATION_CLASS_ATT);
             if (null != escalationName && escalationName.toString().equals(Escalation.class.getName())) {
                if (handler.getId().equals(eventCode)) {
                   return true;
@@ -54,6 +55,4 @@ public class ThrowEscalationEventAction extends AbstractThrowEventAction
       }
       return false;
    }
-
-
 }

@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
@@ -50,7 +51,6 @@ import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
  */
 public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
 {
-
    private static final Logger trace = LogManager.getLogger(EscalationMessageAcceptor.class);
 
    public static final String BPMN_ESCALATION_CODE = "carnot:engine:escalationCode";
@@ -251,9 +251,8 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
 
       private boolean isInterrupting(IEventHandler handler)
       {
-         return "Interrupting".equals(handler.getStringAttribute("carnot:engine:event:boundaryEventType"));
+         return EventHandlerBean.BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE.equals(handler.getStringAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY));
       }
 
    }
-
 }

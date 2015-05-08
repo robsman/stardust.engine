@@ -70,6 +70,8 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
    public static final String BPMN_SIGNAL_CODE = "carnot:engine:signalCode";
 
+   private static final String BPMN_SIGNAL_PROPERTY_KEY = "stardust.bpmn.signal";
+
    @Override
    public boolean isStateless()
    {
@@ -89,9 +91,9 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       List<IActivityInstance> result = newArrayList();
       try
       {
-         if (message.propertyExists("stardust.bpmn.signal"))
+         if (message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY))
          {
-            String signalName = message.getStringProperty("stardust.bpmn.signal");
+            String signalName = message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
             trace.info("Accept message " + SendSignalEventAction.SIGNAL_EVENT_TYPE
                      + " for signal name " + signalName + ".");
 
@@ -278,7 +280,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          {
             try
             {
-               if (handler.getAllAttributes().containsKey("stardust.bpmn.signal")) {
+               if (handler.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
                   return handler;
                }
 
@@ -323,7 +325,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
                {
                   if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType()))
                   {
-                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey("stardust.bpmn.signal")) {
+                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
                         signalTriggersPerModel.add(trigger);
                      }
                   }
@@ -340,7 +342,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             for (IProcessDefinition processDef : model.getProcessDefinitions()) {
                for (IActivity activity : processDef.getActivities()) {
                   for (IEventHandler event : activity.getEventHandlers()) {
-                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey("stardust.bpmn.signal")) {
+                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
                         signalEventsPerModel.add(event);
                      }
                   }

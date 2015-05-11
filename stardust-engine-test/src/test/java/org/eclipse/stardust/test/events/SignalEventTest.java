@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.extensions.events.signal.SignalMessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -63,7 +64,7 @@ public class SignalEventTest
    {}
 
    @Test
-   public void testThrownSignalEventIsReceivedByTwoParallelSignalEvents() throws InterruptedException, TimeoutException, JMSException
+   public void testManuallySentSignalEventIsReceivedByTwoParallelSignalEvents() throws InterruptedException, TimeoutException, JMSException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -81,29 +82,43 @@ public class SignalEventTest
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
    }
 
-   // TODO - bpmn-2-events - test case for interrupting signal event
+   @Test
+   public void testSignalEventSentByProcessInstanceIsReceivedByTwoParallelSignalEvents() throws InterruptedException, TimeoutException, JMSException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
 
-   // TODO - bpmn-2-events - test that uses the throwing part, i.e. 'SendSignalEventAction'
+      ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}TwoSignalsParallel", null, true);
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "LeftSignal");
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "RightSignal");
+
+      wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
+
+      // await root process completion
+      piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+   }
+
+   // TODO - bpmn-2-events - test case for interrupting signal event
 
    private void sendSignalEvent(final String signalName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());
 
       final StringBuilder payload = new StringBuilder();
-      payload.append("Message [").append(signalName).append("] sent at: ")
-            .append(new Date());
+      payload.append("Message [").append(signalName).append("] sent at: ").append(new Date());
 
-      jmsTemplate.send(testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY),
-            new MessageCreator()
+      jmsTemplate.send(testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY), new MessageCreator()
+         {
+            public Message createMessage(Session session) throws JMSException
             {
-               public Message createMessage(Session session) throws JMSException
-               {
-                  TextMessage message = session.createTextMessage(payload.toString());
-                  message.setStringProperty("stardust.bpmn.signal", signalName);
-                  message.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, "default");
-                  return message;
-               }
-            });
+               TextMessage message = session.createTextMessage(payload.toString());
+               message.setStringProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY, signalName);
+               message.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, "default");
+               return message;
+            }
+         });
    }
-
 }

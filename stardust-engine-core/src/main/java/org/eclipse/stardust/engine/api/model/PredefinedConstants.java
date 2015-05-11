@@ -102,7 +102,6 @@ public final class PredefinedConstants
    public static final String PROCESS_STATECHANGE_CONDITION = "processStatechange";
    public static final String EXTERNAL_EVENT_CONDITION = "external";
    public static final String OBSERVER_EVENT_CONDITION = "observer";
-   public static final String SIGNAL_CONDITION = "signal";
    public static final String SUBPROCESS_EXCEPTION = "subprocessException";
 
    // predefined data

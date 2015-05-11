@@ -36,8 +36,6 @@ public abstract class AbstractThrowEventAction implements EventActionInstance
    @Override
    public Event execute(Event event) throws UnrecoverableExecutionException
    {
-      // TODO - bpmn-2-events - handle sending signals as well
-
       BpmRuntimeEnvironment bpmrt = PropertyLayerProviderInterceptor.getCurrent();
       Queue queue = bpmrt.getJmsResourceProvider().resolveQueue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
       QueueConnectionFactory connectionFactory = bpmrt.getJmsResourceProvider().resolveQueueConnectionFactory(

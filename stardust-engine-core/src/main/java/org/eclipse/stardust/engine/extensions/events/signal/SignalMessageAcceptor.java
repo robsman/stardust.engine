@@ -70,7 +70,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
    public static final String BPMN_SIGNAL_CODE = "carnot:engine:signalCode";
 
-   private static final String BPMN_SIGNAL_PROPERTY_KEY = "stardust.bpmn.signal";
+   public static final String BPMN_SIGNAL_PROPERTY_KEY = "stardust.bpmn.signal";
 
    @Override
    public boolean isStateless()

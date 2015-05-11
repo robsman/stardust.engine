@@ -41,12 +41,12 @@ public class ExportResult implements Serializable
 
    private final Set<Long> purgeProcessIds;
 
-   private boolean isDump;
+   private String dumpLocation;
 
    public ExportResult(ExportModel exportModel, HashMap<Date, byte[]> resultsByDate,
          HashMap<Date, ExportIndex> exportIndexByDate,
          Map<Date, List<Long>> processInstanceOidsByDate,
-         Map<Date, List<Integer>> processLengthsByDate, boolean isDump,
+         Map<Date, List<Integer>> processLengthsByDate, String dumpLocation,
          Set<Long> purgeProcessIds)
    {
       this.exportModel = exportModel;
@@ -56,17 +56,17 @@ public class ExportResult implements Serializable
       this.processLengthsByDate = processLengthsByDate;
       this.purgeProcessIds = purgeProcessIds;
       this.open = false;
-      this.isDump = isDump;
+      this.dumpLocation = dumpLocation;
    }
 
-   public ExportResult(boolean isDump)
+   public ExportResult(String dumpLocation)
    {
       this.resultsByDate = new HashMap<Date, byte[]>();
       this.exportIndexByDate = new HashMap<Date, ExportIndex>();
       this.processInstanceOidsByDate = new HashMap<Date, List<Long>>();
       this.processLengthsByDate = new HashMap<Date, List<Integer>>();
       this.purgeProcessIds = new HashSet<Long>();
-      this.isDump = isDump;
+      this.dumpLocation = dumpLocation;
    }
 
    private static void addExportProcess(ExportIndex exportIndex, IProcessInstance rootProcess,
@@ -132,7 +132,7 @@ public class ExportResult implements Serializable
          if (exportIndex == null)
          {
             exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(),
-                  ArchiveManagerFactory.getDateFormat(), isDump);
+                  ArchiveManagerFactory.getDateFormat(), dumpLocation);
             exportIndexByDate.put(indexDate, exportIndex);
          }
          

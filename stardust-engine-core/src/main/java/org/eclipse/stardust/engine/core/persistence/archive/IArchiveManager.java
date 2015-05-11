@@ -15,7 +15,7 @@ public interface IArchiveManager
     * @param indexDate
     * @return Returns a handle to the place in the repository where the data must be written to
     */
-   public Serializable open(Date indexDate);
+   public Serializable open(Date indexDate, ExportIndex exportIndex);
 
    /**
     * Adds results to the repository location identified by key

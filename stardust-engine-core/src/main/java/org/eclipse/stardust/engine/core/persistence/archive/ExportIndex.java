@@ -25,7 +25,7 @@ public class ExportIndex implements Serializable
 
    private String dateFormat;
    
-   private boolean isDump;
+   private String dumpLocation;
 
    // map of root oid to subprocess process oids.
    // if a root process has no subprocesses the sublist will be empty, it will not be null
@@ -41,20 +41,20 @@ public class ExportIndex implements Serializable
    {
    }
 
-   public ExportIndex(String archiveManagerId, String dateFormat, boolean isDump)
+   public ExportIndex(String archiveManagerId, String dateFormat, String dumpLocation)
    {
       this(archiveManagerId, dateFormat, new HashMap<Long, List<Long>>(), 
-            new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), isDump);
+            new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), dumpLocation);
    }
 
    public ExportIndex(String archiveManagerId, String dateFormat, 
          Map<Long, List<Long>> processes,
-         Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, boolean isDump)
+         Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, String dumpLocation)
    {
       this.archiveManagerId = archiveManagerId;
       this.rootProcessToSubProcesses = processes;
       this.fields = fields;
-      this.isDump = isDump;
+      this.dumpLocation = dumpLocation;
       this.dateFormat = dateFormat;
       this.oidsToUuids = oidsToUuids;
    }
@@ -408,9 +408,9 @@ public class ExportIndex implements Serializable
       this.archiveManagerId = archiveManagerId;
    }
 
-   public boolean isDump()
+   public String getDumpLocation()
    {
-      return isDump;
+      return dumpLocation;
    }
 
 }

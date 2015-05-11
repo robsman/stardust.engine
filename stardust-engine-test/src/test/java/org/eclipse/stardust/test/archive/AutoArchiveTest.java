@@ -195,7 +195,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNull(result);
       assertEquals(0, result.getDates().size());
     
@@ -326,7 +326,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -494,7 +494,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -668,7 +668,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -852,7 +852,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       ArchiveTest.assertNotNullExportResult(exportResult);
      
       archiveQueue();
@@ -958,7 +958,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       ArchiveTest.assertNotNullExportResult(exportResult);
       
       // delete all the models, then redeploy them so they have different ids
@@ -998,7 +998,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       ArchiveTest.assertNotNullExportResult(exportResult);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1114,7 +1114,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       ArchiveTest.assertNotNullExportResult(exportResult);
 
       // delete all the models, then redeploy them so they have different ids
@@ -1223,7 +1223,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -1306,7 +1306,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -1485,7 +1485,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertEquals(0, result.getPurgeProcessIds().size());
       assertEquals(0, result.getDates().size());
 
@@ -1595,7 +1595,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(rawData);
       assertEquals(0, rawData.getDates().size());
 
@@ -1682,7 +1682,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNull(result);
       assertEquals(0, result.getDates().size());
           
@@ -1759,7 +1759,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNull(result);
       assertEquals(0, result.getDates().size());
       
@@ -1857,7 +1857,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNull(result);
       assertEquals(0, result.getDates().size());
   

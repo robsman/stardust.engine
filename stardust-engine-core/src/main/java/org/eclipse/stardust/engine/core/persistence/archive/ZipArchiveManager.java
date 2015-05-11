@@ -99,7 +99,7 @@ public class ZipArchiveManager extends BaseArchiveManager
          unfilteredArchives = findAllArchives();
       }
 
-      String partitionFolderName = getPartitionFolderName();
+      String partitionFolderName = getPartitionFolderName(null);
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
       try
       {
@@ -137,7 +137,7 @@ public class ZipArchiveManager extends BaseArchiveManager
    protected ArrayList<IArchive> findAllArchives()
    {
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      Map<String, List<String>> allZipFiles = findZipFiles();
+      Map<String, List<String>> allZipFiles = findZipFiles(null);
       for (String filePath : allZipFiles.keySet())
       {
          archives.add(new ZipArchive(filePath, allZipFiles.get(filePath)));
@@ -146,9 +146,9 @@ public class ZipArchiveManager extends BaseArchiveManager
    }
 
    @Override
-   public Serializable open(Date indexDate)
+   public Serializable open(Date indexDate, ExportIndex exportIndex)
    {
-      File dataFolder = getFolder(indexDate);
+      File dataFolder = getFolder(indexDate, exportIndex.getDumpLocation());
       File file;
       // allow one thread at a time to lock the folder for this server
       synchronized (dataFolder.getPath())
@@ -156,7 +156,7 @@ public class ZipArchiveManager extends BaseArchiveManager
          // make sure the folder exists
          if (!dataFolder.exists())
          {
-            dataFolder = getFolder(indexDate);
+            dataFolder = getFolder(indexDate, exportIndex.getDumpLocation());
             if (!dataFolder.exists())
             {
                dataFolder.mkdirs();
@@ -338,7 +338,7 @@ public class ZipArchiveManager extends BaseArchiveManager
       String zipFileNameWithoutExtension = FILENAME_ZIP_PREFIX + index;
       success = zip(filesToZip, dataFolder.getAbsolutePath(),
             zipFileNameWithoutExtension, exportResult.getProcessInstanceOids(indexDate),
-            exportResult.getProcessLengths(indexDate));
+            exportResult.getProcessLengths(indexDate), exportResult.getExportIndex(indexDate).getDumpLocation());
       if (!success)
       {
          LOGGER.error("Error creating Zipped archive for export: " + dataFolder.getPath()
@@ -365,18 +365,25 @@ public class ZipArchiveManager extends BaseArchiveManager
       return exportIndex;
    }
 
-   private File getFolder(Date date)
+   private File getFolder(Date date, String dumpLocation)
    {
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
       String dateString = dateFormat.format(date);
-      File file = new File(getPartitionFolderName() + dateString);
+      File file = new File(getPartitionFolderName(dumpLocation) + dateString);
       return file;
    }
 
-   private String getPartitionFolderName()
+   private String getPartitionFolderName(String dumpLocation)
    {
       String partition = SecurityProperties.getPartition().getId();
+      if (dumpLocation == null)
+      {
       return rootFolder + partition;
+      }
+      else
+      {
+         return dumpLocation + partition;
+      }
    }
 
    private String getUniqueFileName(File dataFolder)
@@ -412,7 +419,8 @@ public class ZipArchiveManager extends BaseArchiveManager
    }
 
    private boolean zip(String filesToZip[], String parentFoder,
-         String zipFileNameWithoutExtension, List<Long> processIds, List<Integer> lengths)
+         String zipFileNameWithoutExtension, List<Long> processIds, List<Integer> lengths,
+         String dumpLocation)
    {
       boolean success = true;
       String part0Name;
@@ -461,7 +469,7 @@ public class ZipArchiveManager extends BaseArchiveManager
                   dataFile = fileAbsolutePath;
                }
             }
-            long entrySize = writeKey(out, part0Name);
+            long entrySize = writeKey(out, part0Name, dumpLocation);
             if (entrySize > -1)
             {
                size += entrySize;
@@ -486,7 +494,7 @@ public class ZipArchiveManager extends BaseArchiveManager
                            zipFileNameWithoutExtension);
                      out = new ZipOutputStream(new BufferedOutputStream(
                            new FileOutputStream(zippedFileName)));
-                     entrySize = writeKey(out, part0Name);
+                     entrySize = writeKey(out, part0Name, dumpLocation);
                      if (entrySize > -1)
                      {
                         size = entrySize;
@@ -580,7 +588,7 @@ public class ZipArchiveManager extends BaseArchiveManager
       return size;
    }
 
-   private long writeKey(ZipOutputStream out, String part0Name)
+   private long writeKey(ZipOutputStream out, String part0Name, String dumpLocation)
    {
       long size = -1L;
       try
@@ -590,7 +598,7 @@ public class ZipArchiveManager extends BaseArchiveManager
          out.write(archiveManagerId.getBytes());
          out.write(",".getBytes());
          
-         String partitionFolderName = getPartitionFolderName();
+         String partitionFolderName = getPartitionFolderName(dumpLocation);
          String name = part0Name.substring(partitionFolderName.length(),
                part0Name.length());
          name = name.substring(1, name.length());
@@ -663,9 +671,9 @@ public class ZipArchiveManager extends BaseArchiveManager
       return zippedFileName;
    }
 
-   private Map<String, List<String>> findZipFiles()
+   private Map<String, List<String>> findZipFiles(String dumpLocation)
    {
-      File directory = new File(getPartitionFolderName());
+      File directory = new File(getPartitionFolderName(dumpLocation));
       Map<String, List<String>> allZipFiles = new HashMap<String, List<String>>();
       findZipFiles(allZipFiles, directory);
       return allZipFiles;

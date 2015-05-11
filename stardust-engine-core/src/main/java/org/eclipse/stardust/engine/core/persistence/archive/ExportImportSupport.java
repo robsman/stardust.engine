@@ -71,7 +71,7 @@ public class ExportImportSupport
          ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
                .execute(new ExportProcessesCommand(
                      ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, 
-                     false));
+                     null));
          ExportQueueSender sender = new ExportQueueSender();
          sender.sendMessage(exportResult);
       }
@@ -99,7 +99,7 @@ public class ExportImportSupport
          return;
       }
       
-      ExportResult exportResult = new ExportResult(false);
+      ExportResult exportResult = new ExportResult(null);
       exportResult.close(persistents, session);
      
       ExportQueueSender sender = new ExportQueueSender();
@@ -401,7 +401,7 @@ public class ExportImportSupport
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
          String archiveManagerId = null;
          String dateFormat = null;
-         boolean isDump = false;
+         String dumpLocation = null;
          dateloop: for (Date date : uniqueDates)
          {
             for (ExportResult export : exportResults)
@@ -411,7 +411,7 @@ public class ExportImportSupport
                {
                   archiveManagerId = exportIndex.getArchiveManagerId();
                   dateFormat = exportIndex.getDateFormat();
-                  isDump = exportIndex.isDump();
+                  dumpLocation = exportIndex.getDumpLocation();
                   break dateloop;
                }
             }
@@ -423,7 +423,7 @@ public class ExportImportSupport
             if (allData == null)
             {
                allData = new byte[] {};
-               index = new ExportIndex(archiveManagerId, dateFormat, isDump);
+               index = new ExportIndex(archiveManagerId, dateFormat, dumpLocation);
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
@@ -465,7 +465,7 @@ public class ExportImportSupport
             }
          }
          exportResult = new ExportResult(exportModel, resultsByDate, indexByDate,
-               processInstanceOidsByDate, processLengthsByDate, isDump, purgeProcessIds);
+               processInstanceOidsByDate, processLengthsByDate, dumpLocation, purgeProcessIds);
       }
       else
       {

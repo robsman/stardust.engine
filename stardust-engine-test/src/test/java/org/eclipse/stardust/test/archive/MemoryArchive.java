@@ -95,8 +95,8 @@ public class MemoryArchive implements IArchive
    }
    
    @Override
-   public boolean isDump()
+   public String getDumpLocation()
    {
-      return getExportIndex().isDump();
+      return getExportIndex().getDumpLocation();
    }
 }

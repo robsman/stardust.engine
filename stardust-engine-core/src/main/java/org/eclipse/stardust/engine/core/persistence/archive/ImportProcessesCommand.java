@@ -153,7 +153,7 @@ public class ImportProcessesCommand implements ServiceCommand
          }
             
          // create the export process ids, unless we are importing a dump
-         if (!archive.getExportIndex().isDump())
+         if (archive.getExportIndex().getDumpLocation() == null)
          {
             for (Long oid : processes)
             {

@@ -194,17 +194,17 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
 
       ExportResult exportResultA = (ExportResult) wsA.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResultA);
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResultB = (ExportResult) wsB.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResultB);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResultA, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResultA, null);
       Boolean success = (Boolean) wsA.execute(command);
       command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResultB, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResultB, null);
       success = (Boolean) wsB.execute(command);
       assertTrue(success);
   
@@ -310,11 +310,11 @@ public class ArchiveTest
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) wsA.execute(new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+            ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) wsA.execute(command);
       assertTrue(success);
 
@@ -411,10 +411,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -490,10 +490,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       @SuppressWarnings("unchecked")
@@ -570,11 +570,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -652,11 +652,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -736,11 +736,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -820,11 +820,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -903,13 +903,13 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNull(exportResult);
       assertEquals(0, exportResult.getPurgeProcessIds().size());
       assertEquals(0, exportResult.getDates().size());
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -975,10 +975,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1039,7 +1039,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1095,20 +1095,20 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY, filter, false));
+                  ExportProcessesCommand.Operation.QUERY, filter, null));
       assertNotNull(exportMetaData);
       ExportResult exportResultModel = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, false));
+                  ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, null));
       ExportResult data = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.EXPORT_BATCH, exportMetaData, false));
+                  ExportProcessesCommand.Operation.EXPORT_BATCH, exportMetaData, null));
       assertNotNull(data);
       ExportResult exportResult = ExportImportSupport.merge(Arrays.asList(data),
             exportResultModel.getExportModel());
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1161,9 +1161,9 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       @SuppressWarnings("unchecked")
@@ -1180,7 +1180,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
    }
 
@@ -1193,7 +1193,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
    }
 
@@ -1205,7 +1205,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
    }
 
@@ -1222,10 +1222,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       // ensure it was not purged
@@ -1303,11 +1303,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1404,11 +1404,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1487,18 +1487,18 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNullRawData(exportResult);
 
       filter = new ArchiveFilter(null, null,null, null, midP1, endP1, null);
       exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1577,12 +1577,12 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  true));
+                  "c"));
 
       assertNotNullExportResult(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, true);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, "c");
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1693,11 +1693,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1818,11 +1818,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -1943,11 +1943,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2068,11 +2068,12 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); 
+      assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2152,12 +2153,12 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2216,11 +2217,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2320,11 +2321,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2424,14 +2425,14 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
       assertEquals(3, exportResult.getPurgeProcessIds().size());
       assertEquals(1, exportResult.getDates().size());
       assertEquals(3, exportResult.getExportIndex(exportResult.getDates().iterator().next()).getOidsToUuids().size());
 
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2512,12 +2513,12 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNullRawData(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2561,11 +2562,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNullRawData(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -2700,10 +2701,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, simpleManualADate, scriptProcessDate, null);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, result, false);
+            ExportProcessesCommand.Operation.ARCHIVE, result, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       assertEquals(5, result.getDates().size());
@@ -2850,7 +2851,7 @@ public class ArchiveTest
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY, filter, false);
+            ExportProcessesCommand.Operation.QUERY, filter, null);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
       List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData, 5);
       List<ExportResult> datas = new ArrayList<ExportResult>();
@@ -2858,14 +2859,14 @@ public class ArchiveTest
       assertEquals(6, exportMetaData.getRootToSubProcesses().keySet().size());
 
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.EXPORT_MODEL,
-            exportMetaData, false);
+            exportMetaData, null);
       ExportResult modelData = (ExportResult) workflowService.execute(command);
       assertNotNullModel(modelData);
 
       for (ExportMetaData batch : batches)
       {
          command = new ExportProcessesCommand(
-               ExportProcessesCommand.Operation.EXPORT_BATCH, batch, false);
+               ExportProcessesCommand.Operation.EXPORT_BATCH, batch, null);
          ExportResult exportResult = (ExportResult) workflowService.execute(command);
          assertNotNullBatches(exportResult);
          datas.add(exportResult);
@@ -2874,7 +2875,7 @@ public class ArchiveTest
       ExportResult exportResult = ExportImportSupport.merge(datas,
             modelData.getExportModel());
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE,
-            exportResult, false);
+            exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3000,7 +3001,7 @@ public class ArchiveTest
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY, filter, false);
+            ExportProcessesCommand.Operation.QUERY, filter, null);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
       List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData, 5);
       List<ExportResult> datas = new ArrayList<ExportResult>();
@@ -3008,7 +3009,7 @@ public class ArchiveTest
       assertEquals(6, exportMetaData.getRootToSubProcesses().keySet().size());
 
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.EXPORT_MODEL,
-            exportMetaData, false);
+            exportMetaData, null);
       ExportResult modelData = (ExportResult) workflowService.execute(command);
       assertNotNullModel(modelData);
 
@@ -3016,7 +3017,7 @@ public class ArchiveTest
       for (ExportMetaData batch : batches)
       {
          command = new ExportProcessesCommand(
-               ExportProcessesCommand.Operation.EXPORT_BATCH, batch, false);
+               ExportProcessesCommand.Operation.EXPORT_BATCH, batch, null);
          ExportResult exportResult = (ExportResult) workflowService.execute(command);
          assertNotNullBatches(exportResult);
          datas.add(exportResult);
@@ -3027,7 +3028,7 @@ public class ArchiveTest
             modelData.getExportModel());
       assertEquals(6, exportResult.getExportIndex(indexDate).getFields().get(ExportIndex.FIELD_START_DATE).size());
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE,
-            exportResult, false);
+            exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3094,11 +3095,11 @@ public class ArchiveTest
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.QUERY, filter, false);
+            ExportProcessesCommand.Operation.QUERY, filter, null);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
 
       command = new ExportProcessesCommand(ExportProcessesCommand.Operation.EXPORT_MODEL,
-            exportMetaData, false);
+            exportMetaData, null);
       ExportResult exportResult = (ExportResult) workflowService.execute(command);
       assertNotNullModel(exportResult);
       HashMap<Long, byte[]> data = new HashMap<Long, byte[]>();
@@ -3126,7 +3127,7 @@ public class ArchiveTest
       String start = "2015/03/05 00:00:00:000";
       String end = "2015/03/05 13:00:00:000";
       oids.put(1L, new ArrayList<Long>());
-      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), false);
+      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), "c");
       List<Long> subProcesses = new ArrayList<Long>();
       exportIndex.getRootProcessToSubProcesses().put(1L, subProcesses);
       exportIndex.setUuid(1L, uuid);
@@ -3161,7 +3162,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, toDate, fromDate, null);
       workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
-            false));
+            null));
       fail("Invalid date ranges. Code should not get here");
    }
 
@@ -3182,10 +3183,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       @SuppressWarnings("unchecked")
@@ -3356,10 +3357,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3485,10 +3486,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3585,10 +3586,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3668,10 +3669,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3752,10 +3753,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3846,11 +3847,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -3949,11 +3950,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4024,12 +4025,12 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
 
       assertNotNullExportResult(exportResult);
       
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4090,10 +4091,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -4185,10 +4186,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       filter = new ArchiveFilter(null, null,null, null, fromDate, lastDate, null);
@@ -4259,10 +4260,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       filter = new ArchiveFilter(null, null,null, null, null, fromDate, null);
@@ -4327,10 +4328,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       filter = new ArchiveFilter(null, null,null, null, toDate, null, null);
@@ -4420,10 +4421,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4545,11 +4546,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4688,11 +4689,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4798,10 +4799,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4893,10 +4894,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -4992,11 +4993,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
      
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       
@@ -5073,11 +5074,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5126,12 +5127,12 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, true));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, "c"));
       assertNotNullExportResult(exportResult);
-      assertTrue(exportResult.getExportIndex(exportResult.getDates().iterator().next()).isDump());
+      assertEquals("c", exportResult.getExportIndex(exportResult.getDates().iterator().next()).getDumpLocation());
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, true);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, "c");
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5185,20 +5186,20 @@ public class ArchiveTest
       ExportResult exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResultBackUp);
       assertEquals(3, exportResultBackUp.getPurgeProcessIds().size());
       assertEquals(1, exportResultBackUp.getDates().size());
-      assertFalse(exportResultBackUp
-            .getExportIndex(exportResultBackUp.getDates().iterator().next()).isDump());
+      assertNull(exportResultBackUp
+            .getExportIndex(exportResultBackUp.getDates().iterator().next()).getDumpLocation());
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResultBackUp, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResultBackUp, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter));
       assertEquals(1, archives.size());
-      assertFalse(archives.get(0).isDump());
+      assertNull(archives.get(0).getDumpLocation());
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
@@ -5227,7 +5228,7 @@ public class ArchiveTest
       exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNull(exportResultBackUp);
       assertEquals(3, exportResultBackUp.getPurgeProcessIds().size());
       assertEquals(0, exportResultBackUp.getDates().size());
@@ -5236,14 +5237,14 @@ public class ArchiveTest
       assertNull(exportIndex);
       
       command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResultBackUp, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResultBackUp, null);
       success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter));
       // check no new archives added
       assertEquals(1, archives.size());
-      assertFalse(archives.get(0).isDump());
+      assertNull(archives.get(0).getDumpLocation());
       
       // check processes deleted again
       clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5381,10 +5382,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5517,11 +5518,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5639,11 +5640,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5734,11 +5735,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5824,11 +5825,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5917,10 +5918,10 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -5977,11 +5978,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6038,11 +6039,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -6082,10 +6083,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6128,11 +6129,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startDate, endDate, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -6195,11 +6196,11 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6266,10 +6267,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6348,7 +6349,7 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNullRawData(exportResult);
    }
 
@@ -6419,10 +6420,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6568,11 +6569,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6696,11 +6697,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6805,11 +6806,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -6911,11 +6912,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false)); assertNotNull(exportResult);
+                  null)); assertNotNull(exportResult);
      
                   assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7003,10 +7004,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7131,10 +7132,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7246,10 +7247,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7362,10 +7363,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7390,7 +7391,7 @@ public class ArchiveTest
       Long exportProcess = oldIndex.getRootProcessToSubProcesses().keySet().iterator().next();
       oldIndex.addField(exportProcess, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
   
-      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", false);
+      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", null);
       
       for (Long oid : oldIndex.getRootProcessToSubProcesses().keySet())
       {
@@ -7493,10 +7494,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7648,10 +7649,10 @@ public class ArchiveTest
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, false));
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -7782,10 +7783,10 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -8121,11 +8122,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -8331,11 +8332,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
 
@@ -8437,11 +8438,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       
@@ -8515,10 +8516,10 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       @SuppressWarnings("unchecked")
@@ -8596,11 +8597,11 @@ public class ArchiveTest
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
-                  false));
+                  null));
       assertNotNullExportResult(exportResult);
 
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.ARCHIVE, exportResult, false);
+            ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
       @SuppressWarnings("unchecked")

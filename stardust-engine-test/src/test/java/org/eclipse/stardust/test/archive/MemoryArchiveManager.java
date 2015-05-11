@@ -54,7 +54,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
    }
 
    @Override
-   public Serializable open(Date indexDate)
+   public Serializable open(Date indexDate, ExportIndex exportIndex)
    {
       synchronized (indexDate)
       {

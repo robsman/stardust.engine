@@ -67,7 +67,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final Operation operation;
 
-   private final boolean dumpData;
+   private final String dumpLocation;
    
    private ArchiveFilter filter;
 
@@ -75,13 +75,13 @@ public class ExportProcessesCommand implements ServiceCommand
    
    private ExportProcessesCommand(Operation operation, ArchiveFilter filter, ExportMetaData exportMetaData,
          ExportResult exportResult,
-         boolean dumpData, ObjectMessage message)
+         String dumpLocation, ObjectMessage message)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
       this.filter = filter;
       this.exportResult = exportResult;
-      this.dumpData = dumpData;
+      this.dumpLocation = dumpLocation;
       this.message = message;
    }
 
@@ -90,9 +90,9 @@ public class ExportProcessesCommand implements ServiceCommand
     * @param filter criteria
     */
    public ExportProcessesCommand(Operation operation, ArchiveFilter filter,
-         boolean dumpData)
+         String dumpLocation)
    {
-      this(operation, filter, null, null, dumpData, null);
+      this(operation, filter, null, null, dumpLocation, null);
    }
    
    /**
@@ -101,10 +101,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * receiving a unique id
     */
    public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
-         boolean dumpData)
+         String dumpLocation)
    {
 
-      this(operation, null, exportMetaData, null, dumpData, null);
+      this(operation, null, exportMetaData, null, dumpLocation, null);
    }
 
    /**
@@ -112,10 +112,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * exportResults
     */
    public ExportProcessesCommand(Operation operation, ExportResult exportResult,
-         boolean dumpData)
+         String dumpLocation)
    {
 
-      this(operation, null, null, exportResult, dumpData, null);
+      this(operation, null, null, exportResult, dumpLocation, null);
    }
     
    /**
@@ -123,7 +123,7 @@ public class ExportProcessesCommand implements ServiceCommand
    */
    public ExportProcessesCommand(ObjectMessage message)
    {
-      this(Operation.ARCHIVE_MESSAGES, null, null, null, false, message);
+      this(Operation.ARCHIVE_MESSAGES, null, null, null, null, message);
    }
 
    
@@ -264,7 +264,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
             ExportIndex exportIndex = exportResult.getExportIndex(date);
                         
-            Serializable key = archiveManager.open(date);
+            Serializable key = archiveManager.open(date, exportIndex);
             if (key == null)
             {
                success = false;
@@ -306,7 +306,7 @@ public class ExportProcessesCommand implements ServiceCommand
                break;
             }
          }
-         if (!dumpData)
+         if (dumpLocation == null)
          {
             purge(session);
          }
@@ -316,7 +316,7 @@ public class ExportProcessesCommand implements ServiceCommand
    
    private void exportBatch(Session session)
    {
-      List<Long> allIds = exportMetaData.getAllProcessesForExport(dumpData);
+      List<Long> allIds = exportMetaData.getAllProcessesForExport(dumpLocation != null);
       if (CollectionUtils.isNotEmpty(allIds))
       {
          if (LOGGER.isDebugEnabled())
@@ -325,10 +325,10 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          if (exportResult == null)
          {
-            exportResult = new ExportResult(dumpData);
+            exportResult = new ExportResult(dumpLocation);
          }
          ProcessElementExporter exporter = new ProcessElementExporter(exportResult,
-               !dumpData);
+               dumpLocation == null);
          ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(exporter);
          // export processInstances
          processVisitor.visitProcessInstances(allIds, session);
@@ -345,7 +345,7 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          if (exportResult == null)
          {
-            exportResult = new ExportResult(dumpData);
+            exportResult = new ExportResult(dumpLocation);
          }
          exportResult.close();
       }
@@ -370,7 +370,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       if (exportResult == null)
       {
-         exportResult = new ExportResult(dumpData);
+         exportResult = new ExportResult(dumpLocation);
       }
       exportResult.setExportModel(exportModel);
    }
@@ -464,7 +464,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       else
       {
-         exportResult = new ExportResult(dumpData);
+         exportResult = new ExportResult(dumpLocation);
       }
       if (exportResult.hasExportModel())
       {
@@ -627,7 +627,7 @@ public class ExportProcessesCommand implements ServiceCommand
       if (filter.getFromDate() != null && filter.getToDate() != null)
       {
          AndTerm dateRestriction;
-         if (dumpData)
+         if (dumpLocation != null)
          {
             dateRestriction = Predicates.andTerm(Predicates.greaterOrEqual(
                ProcessInstanceBean.FR__START_TIME, this.filter.getFromDate().getTime()), Predicates
@@ -763,17 +763,17 @@ public class ExportProcessesCommand implements ServiceCommand
       }
 
       /**
-       * @param dumpData
+       * @param dumpLocation
        * @return Combined list of processInstanceOids for root processes and subprocesses
        */
-      public List<Long> getAllProcessesForExport(boolean dumpData)
+      public List<Long> getAllProcessesForExport(boolean isDump)
       {
          List<Long> allIds = new ArrayList<Long>();
          if (rootToSubProcesses != null)
          {
             for (Long key : rootToSubProcesses.keySet())
             {
-               if (oidsToUuids.get(key) == null || dumpData)
+               if (oidsToUuids.get(key) == null || isDump)
                {
                   allIds.add(key);
                   for (Long subProcess : rootToSubProcesses.get(key))

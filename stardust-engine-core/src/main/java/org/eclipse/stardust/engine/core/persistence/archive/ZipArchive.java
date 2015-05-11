@@ -262,9 +262,9 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public boolean isDump()
+   public String getDumpLocation()
    {
-      return getExportIndex().isDump();
+      return getExportIndex().getDumpLocation();
    }
 
 }

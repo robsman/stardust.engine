@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.console;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
@@ -84,7 +87,7 @@ public class ExportCommand extends BaseExportImportCommand
                   true);
 
       argTypes.register("-" + DUMP, "-d", DUMP,
-            "Backs up processes without generating a unique id, or deleting them ", false);
+            "Dump all process instances (terminated and active) to the specified archive location.", true);
            
       argTypes
             .register(
@@ -152,7 +155,7 @@ public class ExportCommand extends BaseExportImportCommand
 
    public int run(Map options)
    {
-      final boolean dumpData = options.containsKey(DUMP);
+      final String dumpLocation = getDumpLocation(options);
       final Date fromDate = getFromDate(options);
       final Date toDate = getToDate(options);
       final List<Long> processOids = getProcessOids(options);
@@ -179,16 +182,16 @@ public class ExportCommand extends BaseExportImportCommand
 //         }
 
          ExportMetaData exportMetaData = getExportOids(processDefinitionIds, modelIds, fromDate, toDate,
-               processOids, modelOids, serviceFactory, descriptors, dumpData);
+               processOids, modelOids, serviceFactory, descriptors, dumpLocation);
 
-         print("Found " + exportMetaData.getAllProcessesForExport(dumpData).size() + " processes to export");
+         print("Found " + exportMetaData.getAllProcessesForExport(dumpLocation != null).size() + " processes to export");
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
                batchSize);
          print("Found " + batches.size() + " batches to export");
          final ExportModel exportModel;
-         if (exportMetaData.getAllProcessesForExport(dumpData).size() > 0)
+         if (exportMetaData.getAllProcessesForExport(dumpLocation != null).size() > 0)
          {
-            exportModel = exportModel(partitionId, exportMetaData, serviceFactory, dumpData);
+            exportModel = exportModel(partitionId, exportMetaData, serviceFactory, dumpLocation);
          }
          else
          {
@@ -204,7 +207,7 @@ public class ExportCommand extends BaseExportImportCommand
                public ExportResult call() throws Exception
                {
                   ExportProcessesCommand command = new ExportProcessesCommand(
-                        ExportProcessesCommand.Operation.EXPORT_BATCH, batch, dumpData);
+                        ExportProcessesCommand.Operation.EXPORT_BATCH, batch, dumpLocation);
                   ExportResult result = (ExportResult) serviceFactory
                         .getWorkflowService().execute(command);
                   if (result == null)
@@ -234,7 +237,7 @@ public class ExportCommand extends BaseExportImportCommand
                e.printStackTrace();
             }
          }
-         String operation = dumpData ? "Dump" : "Archive";
+         String operation = dumpLocation != null ? "Dump" : "Archive";
          print(new Date() + " Export Done for Partition: " + partitionId);
          ExportResult mergedResult = ExportImportSupport.merge(exportResults, exportModel);
          if (mergedResult != null)
@@ -245,7 +248,7 @@ public class ExportCommand extends BaseExportImportCommand
                ExportIndex exportIndex = mergedResult.getExportIndex(date);
                archiveCount += exportIndex.getOidsToUuids().size();
             }
-            if (dumpData)
+            if (dumpLocation != null)
             {
                print(new Date() + " Processes to " + operation + ": " + archiveCount);
             }
@@ -256,7 +259,7 @@ public class ExportCommand extends BaseExportImportCommand
          }
          else
          {
-            if (dumpData)
+            if (dumpLocation != null)
             {
                print(new Date() + " Processes to " + operation + ": 0");
             }
@@ -265,7 +268,7 @@ public class ExportCommand extends BaseExportImportCommand
                print(new Date() + " Processes to " + operation + ": 0; Processes to delete: 0");
             }
          }
-         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpData);
+         ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.ARCHIVE, mergedResult, dumpLocation);
          Boolean success = (Boolean) serviceFactory.getWorkflowService().execute(command);
          if (success)
          {
@@ -288,6 +291,30 @@ public class ExportCommand extends BaseExportImportCommand
       return 0;
    }
     
+   private String getDumpLocation(Map options)
+   {
+      String location;
+      if (options.containsKey(DUMP))
+      {
+         location = (String) options.get(DUMP);
+         if (!StringUtils.isEmpty(location) && !location.endsWith(File.separator))
+         {
+            location += File.separator;
+         }
+         if ((StringUtils.isEmpty(location)) || !(new File(location).exists()))
+         {
+            throw new PublicException(
+                  BpmRuntimeError.CLI_INVALID_OPTION_DUMP
+                        .raise(options.get(DUMP)));
+         }
+      }
+      else
+      {
+         location = null;
+      }
+      return location;
+   }
+
    private int getBatchSize(Map options)
    {
       Long batchSize = Options.getLongValue(options, BATCH_SIZE);
@@ -319,20 +346,20 @@ public class ExportCommand extends BaseExportImportCommand
    private ExportMetaData getExportOids(final Collection<String> processDefinitionIds,
          final Collection<String> modelIds, final Date fromDate,
          final Date toDate, final List<Long> processOids, final List<Integer> modelOids,
-         final ServiceFactory serviceFactory, HashMap<String, Object> descriptors, boolean dumpData)
+         final ServiceFactory serviceFactory, HashMap<String, Object> descriptors, String dumpLocation)
    {
       ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds, processOids, modelOids, fromDate, toDate, descriptors);
-      ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, filter, dumpData);
+      ExportProcessesCommand command = new ExportProcessesCommand(ExportProcessesCommand.Operation.QUERY, filter, dumpLocation);
       ExportMetaData exportMetaData = (ExportMetaData) serviceFactory
             .getWorkflowService().execute(command);
       return exportMetaData;
    }
 
    private ExportModel exportModel(final String partitionId,
-         final ExportMetaData exportMetaData, final ServiceFactory serviceFactory, boolean dump)
+         final ExportMetaData exportMetaData, final ServiceFactory serviceFactory, String dumpLocation)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
-            ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, dump);
+            ExportProcessesCommand.Operation.EXPORT_MODEL, exportMetaData, dumpLocation);
       ExportResult exportResult = (ExportResult) serviceFactory.getWorkflowService()
             .execute(command);
       if (exportResult == null)

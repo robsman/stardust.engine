@@ -608,11 +608,20 @@ public class ExportProcessesCommand implements ServiceCommand
       ComparisonTerm processDefinitionRestriction = Predicates.greaterThan(
             ProcessInstanceBean.FR__PROCESS_DEFINITION, 0);
 
-      // TODO Improve by adding restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
-      // (not like currentArchiveId_processId_starttime in long) or is null
-      // currently dont know how to add such complex like condition
-      AndTerm whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction,
+      AndTerm whereTerm;
+      if (dumpLocation != null)
+      {
+         // TODO Improve by adding restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
+         // (not like currentArchiveId_processId_starttime in long) or is null
+         // currently dont know how to add such complex like condition
+         whereTerm = Predicates.andTerm(modelRestriction,
             processDefinitionRestriction);
+      }
+      else
+      {
+         whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction,
+            processDefinitionRestriction);
+      }
 
       if (CollectionUtils.isNotEmpty(filter.getProcessInstanceOids()))
       {

@@ -88,15 +88,19 @@ public class ZipArchiveManager extends BaseArchiveManager
    }
    
    @Override
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, Object> descriptors)
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives,
+         Date fromDate, Date toDate, Map<String, Object> descriptors)
    {
       Date fromIndex = ExportImportSupport.getIndexDateTime(fromDate);
       Date toIndex = ExportImportSupport.getIndexDateTime(toDate);
       final DateFormat dateFormat = new SimpleDateFormat(folderFormat);
+      if (unfilteredArchives == null)
+      {
+         unfilteredArchives = findAllArchives();
+      }
 
       String partitionFolderName = getPartitionFolderName();
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       try
       {
          for (IArchive archive : unfilteredArchives)

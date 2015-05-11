@@ -651,7 +651,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_DATEDESCRIPTOR = newArgs1("CLI01021", BpmRuntimeErrorMessages.getString("CLI01021")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_FROMDATE = newArgs1("CLI01022", BpmRuntimeErrorMessages.getString("CLI01022")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TODATE = newArgs1("CLI01023", BpmRuntimeErrorMessages.getString("CLI01023")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+   public static final Args1 CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID = newArgs1("CLI01024", BpmRuntimeErrorMessages.getString("CLI01024")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Archiver related
    public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$

@@ -10,27 +10,60 @@ public abstract class BaseArchiveManager implements IArchiveManager
    @Override
    public ArrayList<IArchive> findArchives(ArchiveFilter filter)
    {
-      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      ArrayList<IArchive> archives = findAllArchives();
+      if (filter.getFromDate() != null && filter.getToDate() != null)
+      {
+         archives = findArchives(archives, filter.getFromDate(), filter.getToDate(), filter.getDescriptors());
+      }
       if (filter.getProcessInstanceOids() != null)
       {
-         archives = findArchives(filter.getProcessInstanceOids(), filter.getDescriptors());
+         archives = findArchives(archives, filter.getProcessInstanceOids(), filter.getDescriptors());
       }
-      else if (filter.getFromDate() != null && filter.getToDate() != null)
+      if (filter.getDescriptors() != null)
       {
-         archives = findArchives(filter.getFromDate(), filter.getToDate(), filter.getDescriptors());
+         archives = findArchives(archives, filter.getDescriptors());
       }
-      else
+      if (filter.getModelIds() != null)
       {
-         archives = findArchives(filter.getDescriptors());
+         archives = findArchives(archives, ExportIndex.FIELD_MODEL_ID, filter.getModelIds(), true);
+      }
+      if (filter.getProcessDefinitionIds() != null)
+      {
+         archives = findArchives(archives, ExportIndex.FIELD_PROCESS_DEFINITION_ID, filter.getProcessDefinitionIds(), true);
+      }
+      return archives;
+   }
+
+   @Override
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, String key, Collection<? extends Object> values, boolean onlyMatchOnRoots)
+   {
+      if (unfilteredArchives == null)
+      {
+         unfilteredArchives = findAllArchives();
+      }
+      ArrayList<IArchive> archives = new ArrayList<IArchive>();
+      for (IArchive archive : unfilteredArchives)
+      {
+         if (archive.getExportIndex().contains(key, values, onlyMatchOnRoots))
+         {
+            if (!archives.contains(archive))
+            {
+               archives.add(archive);
+            }
+         }
       }
       return archives;
    }
    
    @Override
-   public ArrayList<IArchive> findArchives(Collection<Long> processInstanceOids, Map<String, Object> descriptors)
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, 
+         Collection<Long> processInstanceOids, Map<String, Object> descriptors)
    {
+      if (unfilteredArchives == null)
+      {
+         unfilteredArchives = findAllArchives();
+      }
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       Set<Long> searchItems = new HashSet<Long>();
       searchItems.addAll(processInstanceOids);
       Set<Long> found = new HashSet<Long>();
@@ -66,10 +99,14 @@ public abstract class BaseArchiveManager implements IArchiveManager
    }
 
    @Override
-   public ArrayList<IArchive> findArchives(Map<String, Object> descriptors)
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives,
+         Map<String, Object> descriptors)
    {
+      if (unfilteredArchives == null)
+      {
+         unfilteredArchives = findAllArchives();
+      }
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       for (IArchive archive : unfilteredArchives)
       {
          if (archive.getExportIndex().contains(descriptors))

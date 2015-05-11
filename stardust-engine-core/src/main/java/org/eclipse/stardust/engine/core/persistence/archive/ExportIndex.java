@@ -84,6 +84,42 @@ public class ExportIndex implements Serializable
       }
       return false;
    }
+
+   public boolean contains(String key, Collection<? extends Object> values, boolean onlyRoots)
+   {
+      if (key == null || values.isEmpty())
+      {
+         return true;
+      }
+      Set<Long> result = new HashSet<Long>();
+      for (Object value : values)
+      {
+         List<Long> oids = descriptorMatch(key, value);
+         for (Long oid : oids)
+         {
+            addProcessAndSubs(result, oid, onlyRoots);
+            if (!result.isEmpty())
+            {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   private Set<Long> descriptorMatch(String key, Collection<? extends Object> values, boolean onlyRoots)
+   {
+      Set<Long> result = new HashSet<Long>();
+      for (Object value : values)
+      {
+         List<Long> oids = descriptorMatch(key, value);
+         for (Long oid : oids)
+         {
+            addProcessAndSubs(result, oid, onlyRoots);
+         }
+      }
+      return result;
+   }
    
    private List<Long> descriptorMatch(String key, Object value)
    {
@@ -132,42 +168,84 @@ public class ExportIndex implements Serializable
       {
          return oidsToUuids.keySet();
       }
-      Set<Long> result = new HashSet<Long>();
+      Set<Long> result = null;
+      Set<Long> descriptorMatch = null;
+      Set<Long> modelMatch = null;
+      Set<Long> procDefMatch = null;
+      Set<Long> oidMatch = null;
+      Set<Long> dateMatch = null;
       DateFormat df = new SimpleDateFormat(dateFormat);
       
       if (filter.getDescriptors() != null)
       {
+         descriptorMatch = new HashSet<Long>();
          for (String key : filter.getDescriptors().keySet())
          {
-            result.addAll(descriptorMatch(key, Arrays.asList(filter.getDescriptors().get(key)), false));
+            descriptorMatch.addAll(descriptorMatch(key, Arrays.asList(filter.getDescriptors().get(key)), false));
          }
       }
-      if (CollectionUtils.isNotEmpty(filter.getModelIds()))
+      result = intersect(result, descriptorMatch);
+      if (isResultPossible(result) && CollectionUtils.isNotEmpty(filter.getModelIds()))
       {
-         result.addAll(descriptorMatch(FIELD_MODEL_ID, filter.getModelIds(), true));
+         modelMatch = new HashSet<Long>();
+         modelMatch.addAll(descriptorMatch(FIELD_MODEL_ID, filter.getModelIds(), true));
       }
-      if (CollectionUtils.isNotEmpty(filter.getProcessDefinitionIds()))
+      result =  intersect(result, modelMatch);
+      if (isResultPossible(result) && CollectionUtils.isNotEmpty(filter.getProcessDefinitionIds()))
       {
-         result.addAll(descriptorMatch(FIELD_PROCESS_DEFINITION_ID, filter.getProcessDefinitionIds(), true));
+         procDefMatch = new HashSet<Long>();
+         procDefMatch.addAll(descriptorMatch(FIELD_PROCESS_DEFINITION_ID, filter.getProcessDefinitionIds(), true));
       }
-      result.addAll(processInstanceOidMatch(filter.getProcessInstanceOids()));
-      result.addAll(dateMatch(df, filter.getFromDate(), filter.getToDate()));
-      
+      result = intersect(result, procDefMatch); 
+      if (isResultPossible(result) && CollectionUtils.isNotEmpty(filter.getProcessInstanceOids()))
+      {
+         oidMatch = new HashSet<Long>();
+         oidMatch.addAll(processInstanceOidMatch(filter.getProcessInstanceOids()));
+      }
+      result = intersect(result, oidMatch);
+      if (isResultPossible(result) && filter.getFromDate() != null)
+      {
+         dateMatch = new HashSet<Long>();
+         dateMatch.addAll(dateMatch(df, filter.getFromDate(), filter.getToDate()));
+      }
+      result = intersect(result, dateMatch);
       return result;
    }
    
-   private Set<Long> descriptorMatch(String key, Collection<? extends Object> values, boolean onlyRoots)
+   private boolean isResultPossible(Set<Long> result)
    {
-      Set<Long> result = new HashSet<Long>();
-      for (Object value : values)
+      return result == null || !result.isEmpty();
+   }
+
+   private Set<Long> intersect(Set<Long> result, Set<Long> match)
+   {
+      Set<Long> intersection;
+      // match is null if no criteria was provided, return existing result
+      if (match == null)
       {
-         List<Long> oids = descriptorMatch(key, value);
-         for (Long oid : oids)
+         intersection = result;
+      }
+      // no match was made, return the empty set
+      else if (match.isEmpty())
+      {
+         intersection = match;
+      }
+      else
+      {
+         // no intersect was done before so current match is current result
+         if (result == null)
          {
-            addProcessAndSubs(result, oid, onlyRoots);
+            intersection = match;
+         }
+         else 
+         {
+            // we had a match before and we have a current match, 
+            // since we use AND conjunction out result is the intersection of the two
+            result.retainAll(match);
+            intersection = result;
          }
       }
-      return result;
+      return intersection;
    }
 
    private List<Long> dateMatch(DateFormat df, Date startDate, Date endDate)

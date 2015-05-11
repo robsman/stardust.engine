@@ -43,11 +43,13 @@ public interface IArchiveManager
     */
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
-   public ArrayList<IArchive> findArchives(Collection<Long> processInstanceOids, Map<String, Object> descriptors);
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Collection<Long> processInstanceOids, Map<String, Object> descriptors);
 
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, Object> descriptors);
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Date fromDate, Date toDate, Map<String, Object> descriptors);
 
-   public ArrayList<IArchive> findArchives(Map<String, Object> descriptors);
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Map<String, Object> descriptors);
+   
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, String key, Collection<? extends Object> values, boolean onlyMatchOnRoots);
 
    public boolean addIndex(Serializable key, String indexData);
 

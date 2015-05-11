@@ -18,8 +18,6 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    private static final int DEFAULT_CONCURRENT_BATCHES = 10;
    protected static final String PARTITION = "partition";
    protected static final String PROCESSES_BY_OID = "processOids";
-   protected static final String PROCESS_MIN_OID = "processMin";
-   protected static final String PROCESS_MAX_OID = "processMax";
    protected static final String FROM_DATE = "fromDate";
    protected static final String TO_DATE = "toDate";
    protected static final String CONCURRENT_BATCHES = "concurrentBatches";
@@ -125,17 +123,37 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
       if (options.containsKey(PROCESSES_BY_OID))
       {
          String processInstanceIds = (String) options.get(PROCESSES_BY_OID);
-         processOids = new ArrayList<Long>();
-         splitListLong(processInstanceIds, processOids);
-      }
-      else if (options.containsKey(PROCESS_MIN_OID) && options.containsKey(PROCESS_MAX_OID))
-      {
-         processOids = new ArrayList<Long>();
-         long min  = Options.getLongValue(options, PROCESS_MIN_OID);
-         long max = Options.getLongValue(options, PROCESS_MAX_OID);
-         for (long i = min; i <= max; i++)
+         
+         if (processInstanceIds.contains(","))
          {
-            processOids.add(i);
+            processOids = new ArrayList<Long>();
+            splitListLong(processInstanceIds, processOids);
+         } 
+         else if (processInstanceIds.contains("-"))
+         {
+            processOids = new ArrayList<Long>();
+            String[] split = processInstanceIds.split("-", 2);
+            if (split.length == 2 && StringUtils.isNotEmpty(split[0]) && StringUtils.isNotEmpty(split[1]))
+            {
+               long min = new Long(split[0]);
+               long max = new Long(split[1]);
+               for (long i = min; i <= max; i++)
+               {
+                  processOids.add(i);
+               }
+            }
+            else
+            {
+               throw new PublicException(
+                  BpmRuntimeError.CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID
+                  .raise(processInstanceIds));
+            }
+         }
+         else
+         {
+            throw new PublicException(
+            BpmRuntimeError.CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID.raise(options
+                  .get(processInstanceIds)));
          }
       }
       else

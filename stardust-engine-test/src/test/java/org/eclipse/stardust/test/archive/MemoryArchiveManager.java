@@ -142,10 +142,15 @@ public class MemoryArchiveManager extends BaseArchiveManager
    }
 
    @Override
-   public ArrayList<IArchive> findArchives(Date fromDate, Date toDate, Map<String, Object> descriptors)
+   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives,
+         Date fromDate, Date toDate, Map<String, Object> descriptors)
    {
+
+      if (unfilteredArchives == null)
+      {
+         unfilteredArchives = findAllArchives();
+      }
       ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      ArrayList<IArchive> unfilteredArchives = findAllArchives();
       for (IArchive archive : unfilteredArchives)
       {
          Date date = dateArchiveKey.get(SecurityProperties.getPartition().getId()).get(archive.getArchiveKey());

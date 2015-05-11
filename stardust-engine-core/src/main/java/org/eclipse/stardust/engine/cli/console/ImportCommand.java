@@ -48,7 +48,7 @@ public class ImportCommand extends BaseExportImportCommand
                   true);
 
       argTypes.register("-" + PROCESSES_BY_OID, null, PROCESSES_BY_OID,
-            "Imports specified process instances (comma separated list of\n" + "OIDs).",
+            "Imports specified process instances (comma separated list of\n" + "OIDs or a range eg: 1-1000).",
             true);
 
       argTypes.register("-" + PROCESS_DEFINITION_IDS, "-procDef", PROCESS_DEFINITION_IDS,
@@ -58,14 +58,6 @@ public class ImportCommand extends BaseExportImportCommand
       argTypes.register("-" + MODEL_IDS, "-model", MODEL_IDS,
             "Imports process instances for specified list of model IDs(comma separated list of\n"
                   + "IDs).", true);
-    
-      
-      argTypes.register("-" + PROCESS_MIN_OID, null, PROCESS_MIN_OID,
-            "Imports all processes with OID great or equal to this number and less or equal to processMax.", true);
-
-
-      argTypes.register("-" + PROCESS_MAX_OID, null, PROCESS_MAX_OID,
-            "Imports all processes with OID great or equal to processMin and less or equal to this number.", true);
 
       argTypes
             .register(
@@ -119,27 +111,7 @@ public class ImportCommand extends BaseExportImportCommand
             "Restricts any operation to process instances that has the descriptor values. Use this option to specify all non-date descriptors.",
             true);
 
-      argTypes.addExclusionRule(new String[] {DESCRIPTORS}, false);
-      argTypes.addExclusionRule(new String[] {DATE_DESCRIPTORS}, false);
-      argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_DEFINITION_IDS}, false);
-      argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, FROM_DATE}, false);
-      argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, TO_DATE}, false);
-      argTypes.addExclusionRule(new String[] {MODEL_IDS}, false);
-      argTypes.addExclusionRule(new String[] {MODEL_IDS, FROM_DATE}, false);
-      argTypes.addExclusionRule(new String[] {MODEL_IDS, TO_DATE}, false);
-      argTypes.addExclusionRule(new String[] {PARTITION}, false);
-      argTypes.addExclusionRule(new String[] {FROM_DATE}, false);
-      argTypes.addExclusionRule(new String[] {TO_DATE}, false);
-      argTypes.addExclusionRule(new String[] {CONCURRENT_BATCHES}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, PROCESSES_BY_OID}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, PROCESSES_BY_OID}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, FROM_DATE}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MIN_OID, TO_DATE}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, FROM_DATE}, false);
-      argTypes.addExclusionRule(new String[] {PROCESS_MAX_OID, TO_DATE}, false);
-      argTypes.addInclusionRule(PROCESS_MIN_OID, PROCESS_MAX_OID);
-      argTypes.addInclusionRule(PROCESS_MAX_OID, PROCESS_MIN_OID);
+      argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, MODEL_IDS}, false);
    }
 
    public int run(Map options)

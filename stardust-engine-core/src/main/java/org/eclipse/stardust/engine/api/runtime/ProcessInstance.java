@@ -200,4 +200,8 @@ public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#mergeCases(long, long[], String)
     */
    boolean isCaseProcessInstance();
+   
+   int getBenchmarkValue();
+   
+   long getBenchmark();
 }

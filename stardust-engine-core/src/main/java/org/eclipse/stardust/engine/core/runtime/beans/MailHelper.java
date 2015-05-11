@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -107,12 +106,12 @@ public class MailHelper
       Session session = null;
 
       boolean smtpAuth = Parameters.instance().getBoolean(PROP_MAIL_SMTP_AUTH_ENABLED,
-            true);
-
-      addSmtpProperties(properties);
+            false);
 
       if (smtpAuth)
       {
+         addSmtpProperties(properties);
+         
          trace.info("SMTP Auth is set to :" + smtpAuth);
          final String smtpUsername = Parameters.instance().getString(PROP_MAIL_SMTP_USER);
          final String smtpPassword = Parameters.instance().getString(
@@ -209,7 +208,7 @@ public class MailHelper
       String socketFactoryClass = Parameters.instance().getString(
             PROP_MAIL_SMTP_SOCKETFACTORY_CLASS, "javax.net.ssl.SSLSocketFactory");
       String smtpAuth = Parameters.instance().getString(PROP_MAIL_SMTP_AUTH_ENABLED,
-            "true");
+            "false");
       String smtpPort = Parameters.instance().getString(PROP_MAIL_SMTP_PORT, "465");
       // properties.put("mail.smtp.starttls.enable","true");
 

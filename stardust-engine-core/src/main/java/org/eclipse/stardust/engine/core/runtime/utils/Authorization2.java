@@ -922,5 +922,11 @@ public class Authorization2
 
       @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
       Permission getSpawnSubProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.deployRuntimeArtifact)
+      Permission getDeployRuntimeArtifactPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+      Permission getReadRuntimeArtifactPermission();
    }
 }

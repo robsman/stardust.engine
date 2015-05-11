@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -43,7 +43,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets all versions of the document by document ID (of any of its version).
      *
@@ -67,7 +67,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets multiple documents by ID or path.
      *
@@ -91,7 +91,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.util.List documentIds,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets documents based on the name pattern search.
      *
@@ -115,7 +115,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String namePattern,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets documents based on the XPath query.
      *
@@ -139,7 +139,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String xpathQuery,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -158,7 +158,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the content of the document identified by <code>documentId</code>.
      * <p>
@@ -188,7 +188,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Initiates document content download via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -213,7 +213,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a folder and lists its members.
      *
@@ -238,7 +238,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String folderId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a folder. Level of detail of information returned is controlled by
      * levelOfDetail.
@@ -267,7 +267,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String folderId, int levelOfDetail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets multiple folders by ID or path.
      *
@@ -294,7 +294,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.util.List folderIds, int levelOfDetail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets folders based on the name pattern search.
      *
@@ -321,7 +321,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String namePattern, int levelOfDetail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Gets folders based on the name XPath query.
      *
@@ -348,7 +348,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String xpathQuery, int levelOfDetail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -377,7 +377,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          document, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates document in a folder described by the document info.
      * <p>
@@ -385,7 +385,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
      * The encoding can take any value and can be used to decode the content
      * <code>byte[]</code>
      * after retrieving it via {@link #retrieveDocumentContent(String)}.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -419,7 +419,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          document, byte[] content, java.lang.String encoding,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -447,7 +447,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId, java.lang.String versionLabel,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -475,7 +475,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          versionLabel, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes a version of a document. At least one version has to remain.<br>
      * A call to remove the last remaining version leads to a
@@ -503,7 +503,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId, java.lang.String documentRevisionId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Moves the document to the target path.
      * <p>
@@ -531,7 +531,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId, java.lang.String targetPath,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -564,7 +564,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          createNewRevision, java.lang.String versionLabel, boolean keepLocked,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -596,10 +596,10 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          versionLabel, boolean keepLocked,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -641,10 +641,10 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          versionLabel, boolean keepLocked,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -683,7 +683,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          versionComment, java.lang.String versionLabel, boolean keepLocked,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Initiates document content upload via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -708,7 +708,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes document.
      *
@@ -729,7 +729,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String documentId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -758,7 +758,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          org.eclipse.stardust.engine.api.runtime.FolderInfo folder,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Updates folder.
      *
@@ -782,7 +782,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          org.eclipse.stardust.engine.api.runtime.Folder folder,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Removes folder.
      *
@@ -805,14 +805,14 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String folderId, boolean recursive,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the privileges the session has for the resource denoted by
      * resourceId, which must exist.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -825,17 +825,17 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String resourceId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that currently are in effect on
      * the resource denoted by resourceId (cumulated).
-     *
+     * 
      * Returned objects can not be modified, they represent a read-only view of
      * effective policies.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -849,17 +849,17 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String resourceId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that are currently set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, changes take effect after calling
      * setPolicy()
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -873,17 +873,17 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String resourceId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that can be set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, and used as arguments to
      * setPolicy() in order to add a new policy.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -897,14 +897,14 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String resourceId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds the policy to the resource denoted by resourceId (overwrites the old
      * version of the policy)
-     *
+     * 
      * If the policy does not contain any IAccessControlEntry then this policy is
      * removed from the resource.
-     *
+     * 
      * If the policy was obtained using getApplicablePolicies(), the policy will
      * be added, if it was obtained using getPolicies(), the policy will replace
      * its old version.
@@ -924,7 +924,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Migrates resources in the repository. This migration process works sequential from
      * the current version to the next higher version. The count of resources migrated in
@@ -980,7 +980,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          int batchSize, boolean evaluateTotalCount,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the XSD schema for the specified schema location from the Document
      * Repository serialized into a byte[].
@@ -1005,7 +1005,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String schemaLocation,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Binds a new repository instance.
      * <p>
@@ -1033,7 +1033,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Unbinds a previously bound repository.
      *
@@ -1049,7 +1049,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String repositoryId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Provides information about all bound repositories.
      *
@@ -1066,7 +1066,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          getRepositoryInstanceInfos(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Provides information about all available repository providers.
      * <p>
@@ -1087,7 +1087,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          getRepositoryProviderInfos(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Allows to set a bound repository as default repository.
      * <p>
@@ -1109,7 +1109,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          java.lang.String repositoryId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Allows to identify the currently set default repository.
      *
@@ -1125,7 +1125,7 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
          getDefaultRepository(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions

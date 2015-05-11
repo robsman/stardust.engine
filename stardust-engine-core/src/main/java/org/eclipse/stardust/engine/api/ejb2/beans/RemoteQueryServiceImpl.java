@@ -1852,6 +1852,58 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
       }
     }
 
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getRuntimeArtifact(oid);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
+     *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+     */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getRuntimeArtifacts(query);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
     public void ejbCreate() throws javax.ejb.CreateException
     {
       super.init(org.eclipse.stardust.engine.api.runtime.QueryService.class,

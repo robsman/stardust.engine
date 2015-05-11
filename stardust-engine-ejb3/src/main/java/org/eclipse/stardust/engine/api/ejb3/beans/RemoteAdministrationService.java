@@ -1,9 +1,8 @@
 /*
- * Generated from Revision: 68817 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 /**
@@ -20,11 +19,16 @@ import javax.ejb.Remote;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 68817
+ * @version $Revision
  */
 @Remote
 public interface RemoteAdministrationService extends AdministrationService
 {
+
+
+
+
+
 
 
 

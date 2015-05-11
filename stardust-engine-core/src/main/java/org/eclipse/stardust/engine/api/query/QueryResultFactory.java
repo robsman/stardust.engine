@@ -12,11 +12,7 @@ package org.eclipse.stardust.engine.api.query;
 
 import java.util.List;
 
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.LogEntry;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
+import org.eclipse.stardust.engine.api.runtime.*;
 
 
 /**
@@ -40,26 +36,33 @@ public abstract class QueryResultFactory
    {
       return new UserGroups(query, result);
    }
-   
+
    public static final ActivityInstances createActivityInstancesQueryResult(ActivityInstanceQuery query, RawQueryResult<ActivityInstance> result)
    {
       return new ActivityInstances(query, result);
    }
-   
+
    public static final ProcessInstances createProcessInstancesQueryResult(ProcessInstanceQuery query, RawQueryResult<ProcessInstance> result)
    {
       return new ProcessInstances(query, result);
    }
-   
+
    public static final UserWorklist createUserWorklistQueryResult(User owner, WorklistQuery query, SubsetPolicy subset, List<ActivityInstance> items,
          boolean moreAvailable, List<ParticipantWorklist> subDetails, Long totalCount)
    {
       return new UserWorklist(owner, query, subset, items, moreAvailable, subDetails, totalCount);
    }
-   
+
    public static final ParticipantWorklist createParticipantWorklistQueryResult(String ownerId, WorklistQuery query, SubsetPolicy subset,
          List<ActivityInstance> items, boolean moreAvailable, Long totalCount)
    {
       return new ParticipantWorklist(ownerId, query, subset, items, moreAvailable, totalCount);
+   }
+
+   public static DeployedRuntimeArtifacts createDeployedArtifactQueryResult(
+         DeployedRuntimeArtifactQuery query,
+         RawQueryResult<DeployedRuntimeArtifact> result)
+   {
+      return new DeployedRuntimeArtifacts(query, result);
    }
 }

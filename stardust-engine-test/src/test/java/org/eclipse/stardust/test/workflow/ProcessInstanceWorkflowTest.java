@@ -28,10 +28,14 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributesImpl;
 import org.eclipse.stardust.engine.api.dto.Note;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
@@ -44,7 +48,6 @@ import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -353,6 +356,32 @@ public class ProcessInstanceWorkflowTest
       final ProcessInstanceAttributes attributes = pi.getAttributes();
       attributes.addNote(testText);
       userSf.getWorkflowService().setProcessInstanceAttributes(attributes);
+   }
+   
+   @Test
+   public void testSetActivityInstanceAttributes()
+   {
+      final String testText = "This is a test.";
+      
+      userSf.getWorkflowService().startProcess(PD_4_ID, null, true);
+      final ProcessInstance pi = adminSf.getQueryService().findFirstProcessInstance(
+            ProcessInstanceQuery.findForProcess(PD_1_ID));
+      final ActivityInstance ai = adminSf.getQueryService().findFirstActivityInstance(
+            ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+      final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(
+            ai.getOID());
+      attributes.addNote(testText);
+      userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
+      
+      
+      final ProcessInstance retrievedPi = adminSf.getQueryService().findFirstProcessInstance(
+            ProcessInstanceQuery.findForProcess(PD_1_ID)).getScopeProcessInstance();      
+      final ProcessInstanceAttributes retrievedAttributes = retrievedPi.getAttributes();
+      final List<Note> notes = retrievedAttributes.getNotes();
+      assertThat(notes.size(), is(1));
+      final Note note = notes.get(0);
+      assertThat(note.getText(), equalTo(testText));
+      
    }
 
    /**

@@ -158,16 +158,24 @@ public abstract class SchedulingRecurrence
    public List<Date> calculateScheduleDates(JsonObject json, String startDate, String endDate)
    {
       String executionTime = getExecutionTime(json);
+      JsonObject recurrenceRange = json.get("recurrenceRange").getAsJsonObject();
+      String startDateStr = recurrenceRange.get("startDate").getAsString();
+      Date startDate1 = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+      startDate1.setSeconds(0);
+
       this.startDate = SchedulingUtils.getParsedDate(startDate + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
-
-      setStartTimeString(false);
-
-      // Set Current time to compare with Scheduled Execution time.
-      this.startDate.setHours(0);
-      this.startDate.setMinutes(0);
       this.startDate.setSeconds(0);
 
+      if (this.startDate.before(startDate1))
+      {
+         this.startDate = startDate1;
+      }
+
       trace.info("Start Date: " + this.startDate);
+
+      setStartTimeString(false);
+      this.startDate.setHours(0);
+      this.startDate.setMinutes(0);
 
       Date endDateObj = SchedulingUtils.getParsedDate(endDate,
             SchedulingUtils.CLIENT_DATE_FORMAT);
@@ -273,8 +281,18 @@ public abstract class SchedulingRecurrence
          }
          else if (startDate.after(currentDate))
          {
+            // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+            Date compareDate = (Date) startDate.clone();
+            compareDate.setHours(currentDate.getHours());
+            compareDate.setMinutes(currentDate.getMinutes());
+            
+            // from here next execution date             
+            Date startDateClone = (Date) startDate.clone();
+            startDateClone.setHours(0);
+            startDateClone.setMinutes(0);
+            startDateClone.setSeconds(0);            
             // Future Date Scenario
-            return getNextExecutionDate(cronExpression, startDate, endDate);
+            return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, endDate);
          }
       }
       return null;
@@ -316,7 +334,17 @@ public abstract class SchedulingRecurrence
       Date currentDate = getTimeStamp();
 
       trace.info("No End Date is selected");
-      return getNextExecutionDate(cronExpression, startDate.after(currentDate) ? startDate : currentDate, null);
+      // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+      Date compareDate = (Date) startDate.clone();
+      compareDate.setHours(currentDate.getHours());
+      compareDate.setMinutes(currentDate.getMinutes());
+
+      // from here next execution date 
+      Date startDateClone = (Date) startDate.clone();
+      startDateClone.setHours(0);
+      startDateClone.setMinutes(0);
+      startDateClone.setSeconds(0);
+      return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, null);
    }
 
    /**

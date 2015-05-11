@@ -1,9 +1,8 @@
 /*
- * Generated from Revision: 56243 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 /**
@@ -18,11 +17,19 @@ import javax.ejb.Remote;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version $Revision
  */
 @Remote
 public interface RemoteDocumentManagementService extends DocumentManagementService
 {
+
+
+
+
+
+
+
+
 
 
 

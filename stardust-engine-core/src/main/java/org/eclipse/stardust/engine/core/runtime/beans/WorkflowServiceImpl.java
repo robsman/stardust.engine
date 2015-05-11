@@ -55,13 +55,32 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ProcessInstance startProcess(String id, Map<String, ? > inputData,
          boolean synchronously)
    {
+      StartOptions options = new StartOptions(inputData, synchronously, 0);      
+      
       IProcessDefinition processDefinition = getIProcessDefinition(id);
-      return startProcess(processDefinition, inputData, synchronously);
+      return startProcess(processDefinition, options);
+   }
+   
+   public ProcessInstance startProcess(IProcessDefinition processDefinition, Map<String, ? > inputData,
+         boolean synchronously)
+   {
+      StartOptions options = new StartOptions(inputData, synchronously, 0);      
+      
+      return startProcess(processDefinition, options);
+   }   
+   
+   public ProcessInstance startProcess(String id, StartOptions options)
+   {
+      IProcessDefinition processDefinition = getIProcessDefinition(id);
+      return startProcess(processDefinition, options);
    }
 
    public ProcessInstance startProcess(IProcessDefinition processDefinition,
-         Map<String, ? > inputData, boolean synchronously)
+         StartOptions options)
    {
+      Map<String, ?> inputData = options.getData();
+      boolean synchronously = options.isSynchronously();
+      
       Map<String, Object> values = (Map<String, Object>) inputData;
       if (processDefinition.getDeclaresInterface())
       {
@@ -82,6 +101,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, SecurityProperties.getUser(), values);
 
+      if (options.getBenchmarkReference() > 0)
+      {
+         processInstance.setBenchmark(options.getBenchmarkReference());
+      }
+            
       if (trace.isInfoEnabled())
       {
          trace.info("Starting process '" + processDefinition.getId() + "', oid = "
@@ -122,6 +146,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, parentProcessInstance, SecurityProperties.getUser(),
             data);
+      
+      if (BenchmarkUtils.isBenchmarkedPI(parentProcessInstance))
+      {
+         processInstance.setBenchmark(parentProcessInstance.getBenchmark());
+      }
 
       if (copyData)
       {
@@ -2320,7 +2349,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       List<Note> addedNotes = attributes.getAddedNotes();
       if(addedNotes != null && !addedNotes.isEmpty())
       {
-         writeNotes(activityInstance.getProcessInstance(), addedNotes);
+         writeNotes(activityInstance.getProcessInstance().getScopeProcessInstance(),
+               addedNotes);
       }
 
       ActivityInstanceAttributes preparedAttributes =

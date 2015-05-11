@@ -110,6 +110,13 @@ public class PermissionUtils
             Authorization2.ALL);
       defaultPermissions.put(ExecutionPermission.Id.joinProcessInstance.name(),
             Authorization2.ALL);
+
+      defaultPermissions.put(
+            ExecutionPermission.Id.deployRuntimeArtifact.name(),
+            PredefinedConstants.ADMINISTRATOR_ROLE);
+      defaultPermissions.put(ExecutionPermission.Id.readRuntimeArtifact.name(),
+            PredefinedConstants.ADMINISTRATOR_ROLE);
+
    }
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)

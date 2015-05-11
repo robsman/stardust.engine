@@ -4,6 +4,7 @@ public abstract class RouteContext
 {
 
    protected String partitionId;
+
    protected String camelContextId;
 
    public abstract String getRouteId();

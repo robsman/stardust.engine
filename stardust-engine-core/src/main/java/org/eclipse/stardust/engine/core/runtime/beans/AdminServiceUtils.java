@@ -489,4 +489,12 @@ public class AdminServiceUtils
       session.delete(PreferencesBean.class, null, prfJoinPartition//
             , false);
    }
+
+   public static void deletePartitionRuntimeArtifacts(short partitionOid, Session session)
+   {
+      // PreferencesBean Partition Preferences
+      PredicateTerm partitionArtifacts = Predicates.isEqual(RuntimeArtifactBean.FR__PARTITION, partitionOid);
+
+      session.delete(RuntimeArtifactBean.class, partitionArtifacts, false);
+   }
 }

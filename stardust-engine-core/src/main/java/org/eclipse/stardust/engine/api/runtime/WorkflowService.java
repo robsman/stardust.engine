@@ -700,6 +700,9 @@ public interface WorkflowService extends Service
    ProcessInstance startProcess(String id, Map<String, ?> data, boolean synchronously)
          throws ObjectNotFoundException;
 
+   
+   ProcessInstance startProcess(String id, StartOptions options);
+   
    /**
     * Spawns a process as subprocess of the specified process instance. The spawned
     * process executes asynchronously but has to be completed before the parent process is

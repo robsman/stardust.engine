@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
 {
@@ -42,7 +42,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getDocument(java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets all versions of the document by document ID (of any of its version).
      *
@@ -65,7 +65,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getDocumentVersions(java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets multiple documents by ID or path.
      *
@@ -88,7 +88,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getDocuments(java.util.List documentIds)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets documents based on the name pattern search.
      *
@@ -111,7 +111,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          findDocumentsByName(java.lang.String namePattern)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets documents based on the XPath query.
      *
@@ -134,7 +134,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          findDocuments(java.lang.String xpathQuery)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -152,7 +152,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the content of the document identified by <code>documentId</code>.
      * <p>
@@ -181,7 +181,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public byte[] retrieveDocumentContent(java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Initiates document content download via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -206,7 +206,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a folder and lists its members.
      *
@@ -230,7 +230,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getFolder(java.lang.String folderId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a folder. Level of detail of information returned is controlled by
      * levelOfDetail.
@@ -258,7 +258,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getFolder(java.lang.String folderId, int levelOfDetail)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets multiple folders by ID or path.
      *
@@ -284,7 +284,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getFolders(java.util.List folderIds, int levelOfDetail)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets folders based on the name pattern search.
      *
@@ -310,7 +310,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          findFoldersByName(java.lang.String namePattern, int levelOfDetail)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets folders based on the name XPath query.
      *
@@ -336,7 +336,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          findFolders(java.lang.String xpathQuery, int levelOfDetail)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -365,7 +365,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          document)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info.
      * <p>
@@ -373,7 +373,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
      * The encoding can take any value and can be used to decode the content
      * <code>byte[]</code>
      * after retrieving it via {@link #retrieveDocumentContent(String)}.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -407,7 +407,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          document, byte[] content, java.lang.String encoding)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -434,7 +434,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionDocument(java.lang.String documentId, java.lang.String versionLabel)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -462,7 +462,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionLabel)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes a version of a document. At least one version has to remain.<br>
      * A call to remove the last remaining version leads to a
@@ -490,7 +490,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          java.lang.String documentId, java.lang.String documentRevisionId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Moves the document to the target path.
      * <p>
@@ -517,7 +517,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          moveDocument(java.lang.String documentId, java.lang.String targetPath)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -550,7 +550,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          createNewRevision, java.lang.String versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -582,10 +582,10 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -627,10 +627,10 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -669,7 +669,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          versionComment, java.lang.String versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Initiates document content upload via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -694,7 +694,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes document.
      *
@@ -714,7 +714,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void removeDocument(java.lang.String documentId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -743,7 +743,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.FolderInfo folder)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates folder.
      *
@@ -766,7 +766,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          updateFolder(org.eclipse.stardust.engine.api.runtime.Folder folder)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes folder.
      *
@@ -788,14 +788,14 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void removeFolder(java.lang.String folderId, boolean recursive)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the privileges the session has for the resource denoted by
      * resourceId, which must exist.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -807,17 +807,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getPrivileges(java.lang.String resourceId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that currently are in effect on
      * the resource denoted by resourceId (cumulated).
-     *
+     * 
      * Returned objects can not be modified, they represent a read-only view of
      * effective policies.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -830,17 +830,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getEffectivePolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that are currently set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, changes take effect after calling
      * setPolicy()
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -853,17 +853,17 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getPolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that can be set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, and used as arguments to
      * setPolicy() in order to add a new policy.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -876,14 +876,14 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getApplicablePolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds the policy to the resource denoted by resourceId (overwrites the old
      * version of the policy)
-     *
+     * 
      * If the policy does not contain any IAccessControlEntry then this policy is
      * removed from the resource.
-     *
+     * 
      * If the policy was obtained using getApplicablePolicies(), the policy will
      * be added, if it was obtained using getPolicies(), the policy will replace
      * its old version.
@@ -903,7 +903,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Migrates resources in the repository. This migration process works sequential from
      * the current version to the next higher version. The count of resources migrated in
@@ -958,7 +958,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          migrateRepository(int batchSize, boolean evaluateTotalCount)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the XSD schema for the specified schema location from the Document
      * Repository serialized into a byte[].
@@ -982,7 +982,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public byte[] getSchemaDefinition(java.lang.String schemaLocation)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds a new repository instance.
      * <p>
@@ -1010,7 +1010,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Unbinds a previously bound repository.
      *
@@ -1025,7 +1025,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void unbindRepository(java.lang.String repositoryId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Provides information about all bound repositories.
      *
@@ -1042,7 +1042,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getRepositoryInstanceInfos()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Provides information about all available repository providers.
      * <p>
@@ -1063,7 +1063,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          getRepositoryProviderInfos()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Allows to set a bound repository as default repository.
      * <p>
@@ -1084,7 +1084,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public void setDefaultRepository(java.lang.String repositoryId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Allows to identify the currently set default repository.
      *
@@ -1099,7 +1099,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public java.lang.String getDefaultRepository()
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1112,7 +1112,7 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
          int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException, java.rmi.RemoteException;
 

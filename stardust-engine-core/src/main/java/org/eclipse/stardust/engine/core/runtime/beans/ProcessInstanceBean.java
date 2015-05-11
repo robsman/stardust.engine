@@ -109,6 +109,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String FIELD__SCOPE_PROCESS_INSTANCE = "scopeProcessInstance";
    public static final String FIELD__STARTING_USER = "startingUser";
    public static final String FIELD__STARTING_ACTIVITY_INSTANCE = "startingActivityInstance";
+   public static final String FIELD__BENCHMARK_OID = "benchmark";
+   public static final String FIELD__BENCHMARK_VALUE = "benchmarkValue";
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -127,6 +129,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final FieldRef FR__SCOPE_PROCESS_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__SCOPE_PROCESS_INSTANCE);
    public static final FieldRef FR__STARTING_USER = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_USER);
    public static final FieldRef FR__STARTING_ACTIVITY_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_ACTIVITY_INSTANCE);
+   public static final FieldRef FR__BENCHMARK_OID = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_OID);
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_VALUE);
+   
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -164,6 +169,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private long processDefinition;
    private int priority;
    private long deployment;
+   private long benchmark;
+   private int benchmarkValue;
 
    private ProcessInstanceBean rootProcessInstance;
    private static final String rootProcessInstance_EAGER_FETCH = Boolean.FALSE.toString();
@@ -441,10 +448,26 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public String toString()
    {
-      ModelBean model = (ModelBean) getProcessDefinition().getModel();
+      IModel model = null;
 
-      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ") "
-            + ModelUtils.getExtendedVersionString(model);
+      StringBuilder sb = new StringBuilder();
+      sb.append("Process instance = ");
+      sb.append(getOID());
+      if (processDefinition == -1)
+      {
+         model = ModelManagerFactory.getCurrent().findModel(getModelOID());
+         sb.append(' ');
+      }
+      else
+      {
+         IProcessDefinition pd = getProcessDefinition();
+         model = (IModel) pd.getModel();
+         sb.append(" (");
+         sb.append(pd);
+         sb.append(") ");
+      }
+      sb.append(ModelUtils.getExtendedVersionString(model));
+      return sb.toString();
    }
 
    public Date getStartTime()
@@ -591,6 +614,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       fetch();
 
       return model;
+   }
+
+   public long getProcessDefinitionRuntimeOID()
+   {
+      fetch();
+
+      return processDefinition;
    }
 
    /**
@@ -1291,17 +1321,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       OutDataMappingValueProvider dvProvider = new OutDataMappingValueProvider(data, path, value, context);
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
-      
+
       IDataValue dataValue = null;
       if(evaluator instanceof IHandleGetDataValue)
       {
-         dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);               
+         dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);
       }
       else
       {
-         dataValue = getDataValue(data, dvProvider);         
+         dataValue = getDataValue(data, dvProvider);
       }
-      
+
       Assert.isNotNull(dataValue);
 
       if ( !dvProvider.isUsedForInitialization())
@@ -1372,12 +1402,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
-            
+
       if(!(evaluator instanceof IHandleGetDataValue))
       {
-         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);         
+         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);
       }
-      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);      
+      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
    }
 
    void lockDataValue(IData data) throws PhantomException
@@ -2238,4 +2268,29 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       getStartingActivityInstance();
       getStartingUser();
    }
+   
+   public void setBenchmark(long benchmarkOid)
+   {
+      markModified(FIELD__BENCHMARK_OID);
+      this.benchmark = benchmarkOid;
+   }
+   
+   public long getBenchmark()
+   {
+      fetch();
+      return this.benchmark;
+   }
+   
+   public void setBenchmarkValue(int benchmarkValue)
+   {
+      markModified(FIELD__BENCHMARK_VALUE);
+      this.benchmarkValue = benchmarkValue;
+   }
+   
+   public int getBenchmarkValue()   
+   {
+      fetch();
+      return this.benchmarkValue;
+   }   
+   
 }

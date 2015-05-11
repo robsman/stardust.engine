@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
@@ -584,7 +584,7 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
      * The encoding can take any value and can be used to decode the content
      * <code>byte[]</code>
      * after retrieving it via {@link #retrieveDocumentContent(String)}.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -901,7 +901,7 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
 
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -962,7 +962,7 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
 
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -1217,7 +1217,7 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1248,13 +1248,13 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
     /**
      * Returns the IAccessControlPolicy objects that currently are in effect on
      * the resource denoted by resourceId (cumulated).
-     *
+     * 
      * Returned objects can not be modified, they represent a read-only view of
      * effective policies.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1286,13 +1286,13 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
     /**
      * Returns the IAccessControlPolicy objects that are currently set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, changes take effect after calling
      * setPolicy()
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1324,13 +1324,13 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
     /**
      * Returns the IAccessControlPolicy objects that can be set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, and used as arguments to
      * setPolicy() in order to add a new policy.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1362,10 +1362,10 @@ public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.en
     /**
      * Binds the policy to the resource denoted by resourceId (overwrites the old
      * version of the policy)
-     *
+     * 
      * If the policy does not contain any IAccessControlEntry then this policy is
      * removed from the resource.
-     *
+     * 
      * If the policy was obtained using getApplicablePolicies(), the policy will
      * be added, if it was obtained using getPolicies(), the policy will replace
      * its old version.

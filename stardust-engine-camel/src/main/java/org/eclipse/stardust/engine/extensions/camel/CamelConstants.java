@@ -72,7 +72,6 @@ public final class CamelConstants
    public static final String CAT_BODY_IN_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"inBodyAccessPoint";
    public static final String CAT_BODY_OUT_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"outBodyAccessPoint";
    public static final String CAT_HEADERS_OUT_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"outputHeadersAccessPoint";
-   
 
    public static final String METHOD_PARAMETER_PREFIX = "Param"; 
    public static final String GENERIC_ENDPOINT_KEY = "Generic Endpoint";
@@ -97,6 +96,13 @@ public final class CamelConstants
    public static final String MAIL_TEMPLATE_CONFIGURATION_ATT = "stardust:emailOverlay::templateConfigurations";
    public static final String DOCUMENT_REQUEST_AP_ID= "DOCUMENT_REQUEST";
 
+   public static final String SCRIPTING_OVERLAY= "scriptingIntegrationOverlay";
+   public static final String SCRIPTING_LANGUAGE_EA_KEY="stardust:scriptingOverlay::language";
+   public static final String SCRIPT_CODE_CONTENT="stardust:scriptingOverlay::scriptCode";
+   public static final String JAVASCRIPT="JavaScript";
+   public static final String GROOVY="Groovy";
+   public static final String PYTHON="Python";
+   
    private CamelConstants()
    {}
    

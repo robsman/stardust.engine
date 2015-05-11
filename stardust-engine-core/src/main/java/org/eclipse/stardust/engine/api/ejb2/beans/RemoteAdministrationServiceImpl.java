@@ -1,7 +1,11 @@
 /*
- * Generated from  Revision: 72686 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
+
+import java.util.List;
+
+import org.eclipse.stardust.engine.api.runtime.ArtifactType;
 
 /**
  * Provides administration services for the CARNOT runtime environment.
@@ -17,7 +21,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 72686
+ * @version $Revision
  */
 public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
@@ -313,7 +317,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
 
     /**
      * Deploys a group of models.
-     * 
+     *
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
@@ -378,12 +382,12 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     * 
+     *
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     * 
+     *
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -656,9 +660,9 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     * 
+     *
      * <em>This method also aborts all super process instances.</em>
-     * 
+     *
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -1079,7 +1083,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     * 
+     *
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -1132,7 +1136,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1207,7 +1211,7 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     * 
+     *
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -2058,6 +2062,141 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
       {
          ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             service).setGlobalPermissions(permissions);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
+     *     )
+     */
+    public List<ArtifactType> getSupportedRuntimeArtifactTypes()
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).getSupportedRuntimeArtifactTypes();
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(
+     *     org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).deployRuntimeArtifact(runtimeArtifact);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(
+     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+     *     runtimeArtifact)
+     */
+    public
+         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).overwriteRuntimeArtifact(oid, runtimeArtifact);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(
+     *     long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).getRuntimeArtifact(oid);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
+     *     long oid)
+     */
+    public void deleteRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).deleteRuntimeArtifact(oid);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

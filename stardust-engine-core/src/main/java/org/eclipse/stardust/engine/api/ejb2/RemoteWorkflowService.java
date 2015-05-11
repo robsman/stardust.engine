@@ -2668,6 +2668,9 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *
      * @return the newly created business object instance.
      *
+     * @throws ObjectExistsException if BO already exists.
+     *     <em>Instances of {@link ObjectExistsException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

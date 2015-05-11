@@ -294,6 +294,18 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#startProcess(java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
+         java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions
+         options)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            serviceProxy).startProcess(id, options);
+   }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#spawnSubprocessInstance(long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData, java.util.Map data)
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance

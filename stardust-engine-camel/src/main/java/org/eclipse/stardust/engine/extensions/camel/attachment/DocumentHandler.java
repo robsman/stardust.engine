@@ -313,8 +313,7 @@ public class DocumentHandler
             {
                if(dynamicTemplateConfigurations.size() == 1)
                {
-                  templateConfigurations = (List<TemplateConfiguration>) dynamicTemplateConfigurations
-                        .get(dynamicTemplateConfigurations.keySet().iterator().next());
+                  templateConfigurations =toTemplateConfigurations((List<Map<String,Object>>)(dynamicTemplateConfigurations.values().iterator().next()));
                   processTemplateConfigurations(exchange, camelContext, producer, templateConfigurations);
                }
             } else if(documentRequest != null)

@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public class ArtifactSanityTest
    private RuntimeArtifact getRuntimeArtifact1(String artifactId)
    {
       return new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID,
-            artifactId, ARTIFACT_NAME1, ARTIFACT_CONTENT1.getBytes(), new Date());
+            artifactId, ARTIFACT_NAME1, ARTIFACT_CONTENT1.getBytes(), new Date(1));
    }
 
    @Test
@@ -108,7 +108,7 @@ public class ArtifactSanityTest
    }
 
    @Test
-   public void testQueryBenchmark()
+   public void testQueryAllBenchmark()
    {
       QueryService qs = sf.getQueryService();
 
@@ -123,34 +123,6 @@ public class ArtifactSanityTest
       Assert.assertEquals(ARTIFACT_NAME1, deployedRuntimeArtifact.getArtifactName());
       Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact.getArtifactTypeId());
-   }
-
-   @Test
-   public void testQueryActiveNowBenchmark()
-   {
-      QueryService qs = sf.getQueryService();
-
-      DeployedRuntimeArtifacts runtimeArtifacts = qs
-            .getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findActiveBefore(BENCHMARK_ARTIFACT_TYPE_ID, new Date()));
-      Assert.assertEquals(1, runtimeArtifacts.getSize());
-
-      DeployedRuntimeArtifact deployedRuntimeArtifact = runtimeArtifacts.get(0);
-
-      Assert.assertEquals(1, deployedRuntimeArtifact.getOid());
-      Assert.assertEquals(ARTIFACT_ID1, deployedRuntimeArtifact.getArtifactId());
-      Assert.assertEquals(ARTIFACT_NAME1, deployedRuntimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
-            deployedRuntimeArtifact.getArtifactTypeId());
-   }
-
-   @Test
-   public void testQueryNotActiveInPastBenchmark()
-   {
-      QueryService qs = sf.getQueryService();
-
-      DeployedRuntimeArtifacts runtimeArtifacts = qs
-            .getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findActiveBefore(BENCHMARK_ARTIFACT_TYPE_ID, new Date(0)));
-      Assert.assertEquals(0, runtimeArtifacts.getSize());
    }
 
    @Test

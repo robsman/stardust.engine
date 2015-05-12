@@ -497,7 +497,8 @@ public class ExportProcessesCommand implements ServiceCommand
             Date startDate = new Date(rs.getBigDecimal(
                   ProcessInstanceBean.FIELD__START_TIME).longValue());
             String uuid = rs.getString(ProcessInstanceProperty.FIELD__STRING_VALUE);
-            boolean exported = ExportImportSupport.getUUID(oid, startDate).equals(uuid);
+            IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
+            boolean exported = ExportImportSupport.getUUID(processInstance).equals(uuid);
             boolean isInFilter = false;
             if (filter.getDescriptors() != null && filter.getDescriptors().size() > 0)
             {
@@ -507,7 +508,6 @@ public class ExportProcessesCommand implements ServiceCommand
                }
                else
                {
-                  IProcessInstance processInstance = ProcessInstanceBean.findByOID(oid);
                   IProcessDefinition processDefinition = processInstance
                         .getProcessDefinition();
                   Map<String, Object> pathValues = ExportImportSupport
@@ -600,8 +600,6 @@ public class ExportProcessesCommand implements ServiceCommand
 
       QueryDescriptor query = getBaseQuery();
 
-      ComparisonTerm processStateRestriction = Predicates.inList(
-            ProcessInstanceBean.FR__STATE, EXPORT_STATES);
       
       ComparisonTerm modelRestriction = Predicates.inList(ProcessInstanceBean.FR__MODEL,
             filter.getModelOids());
@@ -619,7 +617,19 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       else
       {
-         whereTerm = Predicates.andTerm(processStateRestriction, modelRestriction,
+         QueryDescriptor subQuery = QueryDescriptor.from(ProcessInstanceBean.class).select(
+               new Column[] {ProcessInstanceBean.FR__OID});
+         ComparisonTerm processStateRestriction = Predicates.inList(
+               ProcessInstanceBean.FR__STATE, EXPORT_STATES);
+         ComparisonTerm rootRestriction = Predicates.isEqual(
+               ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FR__OID);
+         AndTerm subWhere = Predicates.andTerm(rootRestriction, processStateRestriction);
+         subQuery.where(subWhere);
+         
+         ComparisonTerm rootProcessRestriction = Predicates.inList(
+               ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, subQuery);
+         
+         whereTerm = Predicates.andTerm(rootProcessRestriction, modelRestriction,
             processDefinitionRestriction);
       }
 

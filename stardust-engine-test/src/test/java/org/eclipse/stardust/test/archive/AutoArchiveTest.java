@@ -219,7 +219,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      ArchiveTest.assertProcessInstancesEquals(queryService, oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       assertQueueEmpty();
    }
@@ -377,9 +377,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
@@ -549,9 +549,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
@@ -721,9 +721,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
-      ArchiveTest.assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
       ArchiveTest.assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
@@ -891,7 +891,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
 
       ArchiveTest.assertDataExists(scriptProcess.getOID(), writeActivity.getOID(),
@@ -1161,7 +1161,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
       assertQueueEmpty();
    }
@@ -1248,7 +1248,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQueryRoot);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
             
       ArchiveTest.assertDataExists(pi.getOID(), oldActivities.get(0).getOID(),
@@ -1331,7 +1331,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQueryRoot);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
             
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
@@ -1533,7 +1533,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       assertQueueEmpty();
    }
@@ -1616,7 +1616,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQueryRoot);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
             
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
@@ -1708,7 +1708,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       assertQueueEmpty();
    }
@@ -1782,7 +1782,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       assertQueueEmpty();
    }
@@ -1880,7 +1880,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      ArchiveTest.assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true, true);
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true, true);
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
       assertQueueEmpty();
    }

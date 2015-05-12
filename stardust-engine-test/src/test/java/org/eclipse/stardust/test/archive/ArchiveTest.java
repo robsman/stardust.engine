@@ -244,9 +244,9 @@ public class ArchiveTest
       ActivityInstances newActivitiesA = qsA.getAllActivityInstances(aQuery);
       ProcessInstances newInstancesB = qsB.getAllProcessInstances(pQuery);
       ActivityInstances newActivitiesB = qsB.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstancesA, newInstancesA);
+      assertProcessInstancesEquals(qsA, oldInstancesA, newInstancesA);
       assertActivityInstancesEquals(oldActivitiesA, newActivitiesA);
-      assertProcessInstancesEquals(oldInstancesB, newInstancesB);
+      assertProcessInstancesEquals(qsB, oldInstancesB, newInstancesB);
       assertActivityInstancesEquals(oldActivitiesB, newActivitiesB);
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_B, "sysop");
@@ -434,7 +434,7 @@ public class ArchiveTest
       assertEquals(2, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -594,7 +594,7 @@ public class ArchiveTest
       assertEquals(1, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(piOtherModel));
       assertActivityInstancesEquals(oldActivities, newActivities);
 
@@ -681,7 +681,7 @@ public class ArchiveTest
       assertNotNull(newActivities);
       assertEquals(1, newInstances.size());
       assertEquals(4, newActivities.size());
-      assertExportIds(newInstances, newInstances, true);
+      assertExportIds(queryService, newInstances, newInstances, true);
    }
 
    @Test
@@ -844,7 +844,7 @@ public class ArchiveTest
       assertEquals(1, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(piOtherModel));
       assertActivityInstancesEquals(oldActivities, newActivities);
 
@@ -998,7 +998,7 @@ public class ArchiveTest
       assertEquals(1, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances, Arrays.asList(piModel));
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, Arrays.asList(piModel));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -1047,7 +1047,7 @@ public class ArchiveTest
       assertNotNull(clearedInstances);
       assertNotNull(clearedActivities);
 
-      assertProcessInstancesEquals(oldInstances, clearedInstances, clearedInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, clearedInstances, clearedInstances,
             false, false);
       assertActivityInstancesEquals(oldActivities, clearedActivities, false);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
@@ -1134,7 +1134,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
       assertActivityInstancesEquals(oldActivities, newActivities, false);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
@@ -1235,6 +1235,117 @@ public class ArchiveTest
       ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
       assertNotNull(oldInstances);
       assertEquals(1, oldInstances.size());
+   }
+   
+   @Test
+   public void testArchiveSubProcessCompleted() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      String dataInput1 = "aaaa";
+      String dataInput2 = "bbb";
+      
+      // start subprocesses process and do everything except completing it
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL, null, true);
+
+      final ActivityInstance writeActivityOuter = completeNextActivity(pi,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService,
+            workflowService);
+
+      ProcessInstanceQuery querySubSimple = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLE);
+      querySubSimple.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      assertNotNull(subProcessInstancesSimple);
+      assertEquals(1, subProcessInstancesSimple.size());
+      ProcessInstance subSimple = subProcessInstancesSimple.iterator().next();
+      completeNextActivity(subSimple, null, null, queryService, workflowService);
+
+      ProcessInstanceQuery querySubManual = ProcessInstanceQuery
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL);
+      querySubManual.where(ProcessInstanceHierarchyFilter.SUB_PROCESS);
+      ProcessInstances subProcessInstancesManual = queryService
+            .getAllProcessInstances(querySubManual);
+      assertNotNull(subProcessInstancesManual);
+      assertEquals(1, subProcessInstancesManual.size());
+      ProcessInstance subSimpleManual = subProcessInstancesManual.iterator().next();
+      ActivityInstance writeActivitySub = completeNextActivity(subSimpleManual,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1, queryService,
+            workflowService);
+      completeNextActivity(subSimpleManual, null, null, queryService, workflowService);
+
+      assertDataExists(subSimpleManual.getOID(), writeActivitySub.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA, dataInput1, queryService);
+
+      assertDataExists(pi.getOID(), writeActivityOuter.getOID(),
+            ArchiveModelConstants.PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL,
+            ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService);
+
+      ProcessInstanceQuery pQueryRoot = new ProcessInstanceQuery();
+      pQueryRoot.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuerySubSimple = new ActivityInstanceQuery();
+      aQuerySubSimple.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(subSimple
+            .getOID()));
+      ActivityInstanceQuery aQuerySubSimpleManual = new ActivityInstanceQuery();
+      aQuerySubSimpleManual.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID
+            .isEqual(subSimpleManual.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQueryRoot);
+      ProcessInstances oldInstancesSubSimple = queryService
+            .getAllProcessInstances(querySubSimple);
+      ProcessInstances oldInstancesSubManual = queryService
+            .getAllProcessInstances(querySubManual);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      ActivityInstances oldActivitiesSubSimple = queryService
+            .getAllActivityInstances(aQuerySubSimple);
+      ActivityInstances oldActivitiesSubSimpleManual = queryService
+            .getAllActivityInstances(aQuerySubSimpleManual);
+      assertNotNull(oldInstances);
+      assertNotNull(oldInstancesSubSimple);
+      assertNotNull(oldInstancesSubManual);
+      assertNotNull(oldActivities);
+      assertNotNull(oldActivitiesSubSimple);
+      assertNotNull(oldActivitiesSubSimpleManual);
+      assertEquals(1, oldInstances.size());
+      assertEquals(4, oldActivities.size());
+      assertEquals(2, oldActivitiesSubSimple.size());
+      assertEquals(3, oldActivitiesSubSimpleManual.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+      for (ActivityInstance activity : oldActivities)
+      {
+         createActivityInstanceProperty(activity);
+      }
+      for (ActivityInstance activity : oldActivitiesSubSimple)
+      {
+         createActivityInstanceProperty(activity);
+      }
+      for (ActivityInstance activity : oldActivities)
+      {
+         assertTrue(hasEntryInDbForObject(ActivityInstanceProperty.TABLE_NAME,
+               ActivityInstanceProperty.FIELD__OBJECT_OID, activity.getOID()));
+      }
+      for (ActivityInstance activity : oldActivitiesSubSimple)
+      {
+         assertTrue(hasEntryInDbForObject(ActivityInstanceProperty.TABLE_NAME,
+               ActivityInstanceProperty.FIELD__OBJECT_OID, activity.getOID()));
+      }
+
+      // dump the process that is still active
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  null));
+      assertNullRawData(exportResult);
    }
    
    @Test
@@ -1450,10 +1561,10 @@ public class ArchiveTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, oldInstances, true, false);
-      assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, oldInstances, true, false);
+      assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple,
             oldInstancesSubSimple, true, false);
-      assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual,
+      assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual,
             oldInstancesSubManual, true, false);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
@@ -1572,7 +1683,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -1674,7 +1785,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(simpleManualB, simpleA, simpleB));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -1767,7 +1878,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, Arrays.asList(pi), false);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, Arrays.asList(pi), false);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -1966,7 +2077,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances,
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances,
             Arrays.asList(simpleA, simpleManualB));
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
@@ -2214,7 +2325,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
      
-      assertProcessInstancesEquals(expectedInstances, newInstances,
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances,
             Arrays.asList(scriptProcess, simpleA, simpleB));
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
@@ -2340,7 +2451,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances,
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
@@ -2591,7 +2702,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(scriptProcess, simpleA, simpleB));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -2698,7 +2809,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -3011,7 +3122,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -3167,7 +3278,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -3306,7 +3417,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
    
@@ -3631,7 +3742,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
    
@@ -3782,7 +3893,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
    
@@ -4689,7 +4800,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -4826,7 +4937,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
 
@@ -4970,7 +5081,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
 
    }
@@ -5066,7 +5177,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(simpleA, simpleB, simpleManualB, simpleManualA));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -5161,7 +5272,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, Arrays.asList(simpleA,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, Arrays.asList(simpleA,
             simpleB, simpleManualB, subSimple, subManual, subProcessesInModel));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -5278,8 +5389,8 @@ public class ArchiveTest
       assertEquals(8, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertExportIds(newInstances, newInstances, true);
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      assertExportIds(queryService, newInstances, newInstances, true);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
       assertActivityInstancesEquals(oldActivities, newActivities, false);
 
       assertDataExists(scriptProcess.getOID(), writeActivity.getOID(),
@@ -5344,7 +5455,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -5386,7 +5497,7 @@ public class ArchiveTest
       assertEquals(8, clearedInstances.size());
       assertEquals(28, clearedActivities.size());
 
-      assertExportIds(oldInstances, oldInstances, false);
+      assertExportIds(queryService, oldInstances, oldInstances, false);
    }
   
    @SuppressWarnings("unchecked")
@@ -5462,7 +5573,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, exported, true, true);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, exported, true, true);
       assertActivityInstancesEquals(oldActivities, newActivities);
       
       // archive the same processes again
@@ -5668,7 +5779,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -5790,7 +5901,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
    
@@ -5911,7 +6022,7 @@ public class ArchiveTest
       ActivityInstances newActivities = queryService
             .getAllActivityInstances(aExpectedQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances);
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances);
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
 
@@ -6185,7 +6296,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(simpleA, simpleManualA));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -6247,7 +6358,7 @@ public class ArchiveTest
 
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
 
@@ -6467,7 +6578,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
@@ -6537,7 +6648,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
@@ -6701,7 +6812,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, Arrays.asList(pi2,pi3), true);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, Arrays.asList(pi2,pi3), true);
       assertActivityInstancesEquals(oldActivities, newActivities);
 
       assertTrue(hasStructuredDateField(pi1.getOID(),
@@ -6842,7 +6953,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances,
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
@@ -6970,7 +7081,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(expectedInstances, newInstances,
+      assertProcessInstancesEquals(queryService,expectedInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(expectedActivities, newActivities);
    }
@@ -7076,7 +7187,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -7182,7 +7293,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(subProcessesInModel, subManual, subSimple));
       assertActivityInstancesEquals(oldActivities, newActivities);
    }
@@ -7298,7 +7409,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
 
       assertTrue(hasStructuredDateField(pi1.getOID(),
@@ -7545,7 +7656,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
 
       assertTrue(hasStructuredDateField(pi1.getOID(),
@@ -7663,7 +7774,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true);
       assertActivityInstancesEquals(oldActivities, newActivities);
 
       assertTrue(hasStructuredDateField(pi1.getOID(),
@@ -7775,7 +7886,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true);
       assertActivityInstancesEquals(oldActivities, newActivities);
 
       assertTrue(hasStructuredDateField(pi1.getOID(),
@@ -7927,7 +8038,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
@@ -8061,7 +8172,7 @@ public class ArchiveTest
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertDataExists(pi.getOID(), writeActivity.getOID(),
             ArchiveModelConstants.PROCESS_DEF_CALL_SCRIPTPROCESS,
@@ -8421,9 +8532,9 @@ public class ArchiveTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
-      assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
-      assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple);
+      assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
       assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
@@ -8631,9 +8742,9 @@ public class ArchiveTest
       ActivityInstances newActivitiesSubSimpleManual = queryService
             .getAllActivityInstances(aQuerySubSimpleManual);
 
-      assertProcessInstancesEquals(oldInstances, newInstances);
-      assertProcessInstancesEquals(oldInstancesSubSimple, newInstancesSubSimple);
-      assertProcessInstancesEquals(oldInstancesSubManual, newInstancesSubManual);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances);
+      assertProcessInstancesEquals(queryService,oldInstancesSubSimple, newInstancesSubSimple);
+      assertProcessInstancesEquals(queryService,oldInstancesSubManual, newInstancesSubManual);
       assertActivityInstancesEquals(oldActivities, newActivities);
       assertActivityInstancesEquals(oldActivitiesSubSimple, newActivitiesSubSimple);
       assertActivityInstancesEquals(oldActivitiesSubSimpleManual,
@@ -8875,7 +8986,7 @@ public class ArchiveTest
       assertEquals(1, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, false);
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
       assertActivityInstancesEquals(oldActivities, newActivities, false);
 
    }
@@ -9007,26 +9118,28 @@ public class ArchiveTest
       return result;
    }
 
-   private static void assertExportIds(List<ProcessInstance> instances,
+   private static void assertExportIds(QueryService queryService, List<ProcessInstance> instances,
          List<ProcessInstance> exportedInstances, boolean mustHave) throws Exception
    {
       int count = 0;
       for (ProcessInstance pi : instances)
       {
+         int modelOID = pi.getModelOID();
+         DeployedModel model = queryService.getModel(modelOID);
          if (mustHave && exportedInstances.contains(pi))
          {
             count++;
             assertTrue(hasEntryInDbForObject(ProcessInstanceProperty.TABLE_NAME,
                   ProcessInstanceProperty.FIELD__OBJECT_OID, pi.getOID(),
                   ProcessInstanceProperty.FIELD__STRING_VALUE,
-                  ExportImportSupport.getUUID(pi)));
+                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute("ModelUUID"))));
          }
          else
          {
             assertFalse(hasEntryInDbForObject(ProcessInstanceProperty.TABLE_NAME,
                   ProcessInstanceProperty.FIELD__OBJECT_OID, pi.getOID(),
                   ProcessInstanceProperty.FIELD__STRING_VALUE,
-                  ExportImportSupport.getUUID(pi)));
+                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute("ModelUUID"))));
          }
       }
       if (mustHave)
@@ -9125,35 +9238,35 @@ public class ArchiveTest
       }
    }
 
-   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(QueryService queryService,ProcessInstances oldInstances,
          ProcessInstances newInstances) throws Exception
    {
-      assertProcessInstancesEquals(oldInstances, newInstances, newInstances, true);
+      assertProcessInstancesEquals(queryService, oldInstances, newInstances, newInstances, true);
    }
 
-   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(QueryService queryService,ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances)
          throws Exception
    {
-      assertProcessInstancesEquals(oldInstances, newInstances, exportedInstances, true);
+      assertProcessInstancesEquals(queryService, oldInstances, newInstances, exportedInstances, true);
    }
 
-   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(QueryService queryService, ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances,
          boolean compareRTOids) throws Exception
    {
-      assertProcessInstancesEquals(oldInstances, newInstances, exportedInstances,
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, exportedInstances,
             compareRTOids, true);
    }
 
-   protected static void assertProcessInstancesEquals(ProcessInstances oldInstances,
+   protected static void assertProcessInstancesEquals(QueryService queryService, ProcessInstances oldInstances,
          ProcessInstances newInstances, List<ProcessInstance> exportedInstances,
          boolean compareRTOids, boolean mustHaveExportIds) throws Exception
    {
       int countCompared = 0;
       assertNotNull(newInstances);
       assertEquals(oldInstances.size(), newInstances.size());
-      assertExportIds(newInstances, exportedInstances, mustHaveExportIds);
+      assertExportIds(queryService, newInstances, exportedInstances, mustHaveExportIds);
       for (ProcessInstance process : oldInstances)
       {
          assertThat(

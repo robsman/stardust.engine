@@ -4,16 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
+import org.springframework.util.StringUtils;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class MemoryArchiveManager extends BaseArchiveManager
 {
-
+   private static volatile ConcurrentHashMap<String,MemoryArchiveManager> MANAGERS = CollectionUtils.newConcurrentHashMap();
+   
    private static HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
 
    private static HashMap<String, HashMap<String, byte[]>> repoData;
@@ -28,7 +32,32 @@ public class MemoryArchiveManager extends BaseArchiveManager
    
    private static int keyCounter = 0;
 
-   public MemoryArchiveManager()
+   public static MemoryArchiveManager getInstance(Map<String, String> preferences)
+   {
+      String id = ArchiveManagerFactory.getPreferenceValue(preferences,
+            ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID, null);
+
+      if (StringUtils.isEmpty(id))
+      {
+         throw new IllegalArgumentException(
+               ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
+                     + " must be provided for MemoryArchiveManger archive type");
+      }
+      if (!MANAGERS.containsKey(id))
+      {
+         synchronized (MemoryArchiveManager.class)
+         {
+            if (!MANAGERS.containsKey(id))
+            {
+               MemoryArchiveManager manager = new MemoryArchiveManager(id);
+               MANAGERS.put(id, manager);
+            }
+         }
+      }
+      return MANAGERS.get(id);
+   }
+   
+   private MemoryArchiveManager(String archiveManagerId)
    {
       if (repo == null)
       {

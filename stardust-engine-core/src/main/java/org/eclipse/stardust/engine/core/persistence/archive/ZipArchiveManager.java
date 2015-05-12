@@ -5,10 +5,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.springframework.util.StringUtils;
+
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -35,7 +39,7 @@ public class ZipArchiveManager extends BaseArchiveManager
 
    private static final String FILENAME_ZIP_PREFIX = "export_";
 
-   private static volatile ZipArchiveManager manager;
+   private static volatile ConcurrentHashMap<String,ZipArchiveManager> MANAGERS = CollectionUtils.newConcurrentHashMap();
    
    private final String archiveManagerId;
 
@@ -54,31 +58,59 @@ public class ZipArchiveManager extends BaseArchiveManager
    private ZipArchiveManager(String archiveManagerId, String rootFolder, String folderFormat, long zipFileSize)
    {
       this.archiveManagerId = archiveManagerId;
+      if (!rootFolder.endsWith(File.separator))
+      {
+         rootFolder += File.separator;
+      }
       this.rootFolder = rootFolder;
       this.folderFormat = folderFormat;
       this.zipFileSize = zipFileSize;
    }
-
-   public static ZipArchiveManager getInstance(String id, String rootFolder,
-         String folderFormat, long zipFileSize)
+   
+   public static ZipArchiveManager getInstance(Map<String, String> preferences)
    {
-      if (manager == null)
+      String rootFolder = ArchiveManagerFactory.getPreferenceValue(preferences,
+            ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER, "");
+      if (StringUtils.isEmpty(rootFolder.trim()))
+      {
+         throw new IllegalArgumentException(
+               ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER
+                     + " must be provided for ZIP archive type");
+      }
+      String id = ArchiveManagerFactory.getPreferenceValue(preferences,
+            ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID, null);
+
+      if (StringUtils.isEmpty(id))
+      {
+         throw new IllegalArgumentException(
+               ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
+                     + " must be provided for ZIP archive type");
+      }
+      String key = id + rootFolder;
+      if (!MANAGERS.containsKey(key))
       {
          synchronized (ZipArchiveManager.class)
          {
-            if (manager == null)
+            if (!MANAGERS.containsKey(key))
             {
-
+               String folderFormat = ArchiveManagerFactory.getPreferenceValue(preferences,
+                     ArchiveManagerFactory.CARNOT_ARCHIVE_FOLDER_FORMAT,
+                     ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+               int zipFileSize = ArchiveManagerFactory.getPreferenceValueInt(preferences,
+                     ArchiveManagerFactory.ARCHIVE_ZIP_FILE_SIZE_MB,
+                     ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
                if (zipFileSize <= 0)
                {
                   zipFileSize = ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB;
                }
                zipFileSize *= 1024 * 1024;
-               manager = new ZipArchiveManager(id, rootFolder, folderFormat, zipFileSize);
+               ZipArchiveManager manager = new ZipArchiveManager(id, rootFolder,
+                     folderFormat, zipFileSize);
+               MANAGERS.put(key, manager);
             }
          }
       }
-      return manager;
+      return MANAGERS.get(key);
    }
 
    @Override
@@ -378,7 +410,7 @@ public class ZipArchiveManager extends BaseArchiveManager
       String partition = SecurityProperties.getPartition().getId();
       if (dumpLocation == null)
       {
-      return rootFolder + partition;
+         return rootFolder + partition;
       }
       else
       {

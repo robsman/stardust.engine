@@ -44,16 +44,18 @@ public class ImportProcessesCommand implements ServiceCommand
    private ImportMetaData importMetaData;
 
    private final Operation operation;
-
+   
+   private final Map<String, String> preferences;
 
    public ImportProcessesCommand(Operation operation, IArchive archive, 
-         ArchiveFilter filter, ImportMetaData importMetaData)
+         ArchiveFilter filter, ImportMetaData importMetaData, Map<String, String> preferences)
    {
       super();
       this.operation = operation;
       this.filter = filter;
       this.archive = archive;
       this.importMetaData = importMetaData;
+      this.preferences = preferences;
    }
 
    /**
@@ -61,9 +63,9 @@ public class ImportProcessesCommand implements ServiceCommand
     * 
     * @param processOids
     */
-   public ImportProcessesCommand(ArchiveFilter filter)
+   public ImportProcessesCommand(ArchiveFilter filter, Map<String, String> preferences)
    {
-      this(Operation.QUERY, null, filter, null);
+      this(Operation.QUERY, null, filter, null, preferences);
    }
 
    @Override
@@ -103,7 +105,7 @@ public class ImportProcessesCommand implements ServiceCommand
    private ArrayList<IArchive> query(ServiceFactory sf)
    {
       filter.validateDates();
-      IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
+      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManagerFactory(preferences);
       ArrayList<IArchive> archives = archiveManager.findArchives(filter);
       return archives;
    }

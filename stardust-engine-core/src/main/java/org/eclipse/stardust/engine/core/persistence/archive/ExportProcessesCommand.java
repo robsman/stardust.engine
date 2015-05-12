@@ -255,7 +255,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private Boolean archive(Session session)
    {
-      IArchiveManager archiveManager = ArchiveManagerFactory.getCurrent();
+      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManagerFactory(null);
       boolean success = true;
       if (exportResult != null)
       {

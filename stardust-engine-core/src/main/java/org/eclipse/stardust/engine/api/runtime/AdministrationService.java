@@ -825,23 +825,27 @@ public interface AdministrationService extends Service
     * @param oid The oid of the artifact.
     * @param runtimeArtifact The new artifact.
     * @return The updated artifact.
+    *
+    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
-   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact);
+   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact) throws ObjectNotFoundException;
 
    /**
     * Deleted a deployed artifact by oid.
     *
     * @param oid The oid of the artifact
+    *
+    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
-   public void deleteRuntimeArtifact(long oid);
+   public void deleteRuntimeArtifact(long oid) throws ObjectNotFoundException;
 
    /**
     * Retrieves the artifact by the unique oid.
     *
     * @param oid The oid of the artifact.
-    * @return The artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
    public RuntimeArtifact getRuntimeArtifact(long oid);

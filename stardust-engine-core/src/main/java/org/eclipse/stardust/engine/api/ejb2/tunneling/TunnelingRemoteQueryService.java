@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -29,7 +29,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of user groups satisfying the criteria specified in the provided
      * query.
@@ -50,7 +50,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of process instances satisfying the criteria specified in the
      * provided query.
@@ -92,7 +92,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of activity instances satisfying the criteria specified in the
      * provided query.
@@ -134,7 +134,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Counts the number of log entries satisfying the criteria specified in the
      * provided query.
@@ -155,7 +155,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all users satisfying the criteria specified in the provided query.
      *
@@ -175,7 +175,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all user groups satisfying the criteria specified in the provided query.
      *
@@ -195,7 +195,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all process instances satisfying the criteria specified in the
      * provided query.
@@ -237,7 +237,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all activity instances satisfying the criteria specified in the
      * provided query.
@@ -279,7 +279,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all log entries satisfying the criteria specified in the
      * provided query.
@@ -300,7 +300,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first User satisfying the criteria specified in the
      * provided query.
@@ -326,7 +326,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first UserGroup satisfying the criteria specified in the
      * provided query.
@@ -352,7 +352,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first ProcessInstance satisfying the criteria specified in the
      * provided query.
@@ -399,7 +399,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first ActivityInstance satisfying the criteria specified in the
      * provided query.
@@ -447,7 +447,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first LogEntry satisfying the criteria specified in the
      * provided query.
@@ -473,7 +473,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns all performed activity instances for the specified process instance.
      *
@@ -500,7 +500,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the business objects satisfying the query.
      *
@@ -520,7 +520,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
@@ -540,7 +540,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the list of model descriptions for all alive models. Whereby alive models
      * are models with non-completed and non-aborted processes plus the
@@ -563,7 +563,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the current active model description.
      *
@@ -588,7 +588,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the model descriptions satisfying the criteria specified in the provided
      * query.
@@ -609,7 +609,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the description of the specified model.
      *
@@ -634,7 +634,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Determines if the model was redeployed, i.e. if a more recent revision than the
      * provided one is available.
@@ -656,7 +656,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -679,7 +679,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -704,7 +704,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the current active model.
      *
@@ -729,7 +729,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the XML representation of the specified model.
      *
@@ -752,7 +752,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the process definitions contained in the specified model.
      *
@@ -778,7 +778,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a process definition from the specified model.
      *
@@ -805,7 +805,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all process definitions for the active model.
      *
@@ -826,7 +826,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the specified process definition from the active model.
      *
@@ -852,7 +852,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -866,7 +866,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all data satisfying the criteria specified in the
      * provided query.
@@ -887,7 +887,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all participants defined in the specified model.
      *
@@ -911,7 +911,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a participant from a specified model.
      *
@@ -937,7 +937,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the participants from the active model.
      *
@@ -957,7 +957,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a specific participant from the active model.
      *
@@ -983,7 +983,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -999,7 +999,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves XSD schema of the specified type declaration serialized
      * into a byte[].
@@ -1026,7 +1026,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all the departments satisfying the search criteria. The search is
      * performed as following:
@@ -1074,7 +1074,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Searches for a department having the specified id in the scope defined by the parent
      * department. On synchronization with external repository the specified department
@@ -1113,7 +1113,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the first document satisfying the criteria specified in the
      * provided query.
@@ -1142,7 +1142,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -1164,7 +1164,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1191,7 +1191,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves preferences satisfying the criteria specified in the provided query.
      *
@@ -1222,7 +1222,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the information about the deployed runtime environment (
      * e.g. version information).
@@ -1239,7 +1239,7 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a resource bundle from a specified moduleId.
      *
@@ -1261,8 +1261,14 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1274,8 +1280,15 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
+     * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the
+     * provided query.
+     *
+     * @param query the deployed runtime artifact query.
+     *
+     * @return The deployed runtime artifacts matching the specified criteria.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

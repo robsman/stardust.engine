@@ -179,6 +179,14 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 ATDB_NO_MATCHING_WORK_ITEM = newArgs0("ATDB01131", BpmRuntimeErrorMessages.getString("ATDB01131")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_WORK_ITEM_OID = newArgs1("ATDB01132", BpmRuntimeErrorMessages.getString("ATDB01132")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 ATDB_UNKNOWN_RUNTIME_ARTIFACT_OID = newArgs1("ATDB01141", BpmRuntimeErrorMessages.getString("ATDB01141")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+   //// Runtime Artifact related
+
+   public static final Args1 ARTI_ARTIFACT_TYPE_UNKNOWN = newArgs1("ARTI01001", BpmRuntimeErrorMessages.getString("ARTI01001")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
    //// DMS related
 
    public static final Args0 DMS_GENERIC_ERROR = newArgs0("DMS00000", BpmRuntimeErrorMessages.getString("DMS00000")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -553,8 +561,6 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 PREF_PREFERENCESSCOPE_DEFAULT_IS_READ_ONLY = newArgs0("PREF01009", BpmRuntimeErrorMessages.getString("PREF01009")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 PREF_NOT_A_VALID_PREFERENCES_PATH = newArgs1("PREF01010", BpmRuntimeErrorMessages.getString("PREF01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 PREF_UNKNOWN_VALUE_FOR_PROPERTY_INFINITY_PREFERENCE_STORE = newArgs0("PREF01011", BpmRuntimeErrorMessages.getString("PREF01011")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
 
    //// Query related
 

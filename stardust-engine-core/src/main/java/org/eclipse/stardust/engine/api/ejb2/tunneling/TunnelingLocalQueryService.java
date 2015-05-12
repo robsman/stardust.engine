@@ -1,5 +1,5 @@
 /*
- * Generated from
+ * Generated from  
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -28,7 +28,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of user groups satisfying the criteria specified in the provided
      * query.
@@ -48,7 +48,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of process instances satisfying the criteria specified in the
      * provided query.
@@ -89,7 +89,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of activity instances satisfying the criteria specified in the
      * provided query.
@@ -130,7 +130,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Counts the number of log entries satisfying the criteria specified in the
      * provided query.
@@ -150,7 +150,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all users satisfying the criteria specified in the provided query.
      *
@@ -169,7 +169,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all user groups satisfying the criteria specified in the provided query.
      *
@@ -188,7 +188,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all process instances satisfying the criteria specified in the
      * provided query.
@@ -229,7 +229,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all activity instances satisfying the criteria specified in the
      * provided query.
@@ -270,7 +270,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all log entries satisfying the criteria specified in the
      * provided query.
@@ -290,7 +290,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first User satisfying the criteria specified in the
      * provided query.
@@ -315,7 +315,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first UserGroup satisfying the criteria specified in the
      * provided query.
@@ -340,7 +340,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.UserGroupQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first ProcessInstance satisfying the criteria specified in the
      * provided query.
@@ -386,7 +386,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first ActivityInstance satisfying the criteria specified in the
      * provided query.
@@ -433,7 +433,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first LogEntry satisfying the criteria specified in the
      * provided query.
@@ -458,7 +458,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.LogEntryQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns all performed activity instances for the specified process instance.
      *
@@ -484,7 +484,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long processInstanceOID,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Returns the business objects satisfying the query.
      *
@@ -503,7 +503,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.BusinessObjectQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
@@ -522,7 +522,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getAllModelDescriptions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the list of model descriptions for all alive models. Whereby alive models
      * are models with non-completed and non-aborted processes plus the
@@ -544,7 +544,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getAllAliveModelDescriptions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the current active model description.
      *
@@ -568,7 +568,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getActiveModelDescription(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the model descriptions satisfying the criteria specified in the provided
      * query.
@@ -588,7 +588,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.DeployedModelQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the description of the specified model.
      *
@@ -612,7 +612,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Determines if the model was redeployed, i.e. if a more recent revision than the
      * provided one is available.
@@ -633,7 +633,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOid, int revision,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -655,7 +655,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified model.
      *
@@ -679,7 +679,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, boolean computeAliveness,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the current active model.
      *
@@ -703,7 +703,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getActiveModel(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the XML representation of the specified model.
      *
@@ -725,7 +725,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the process definitions contained in the specified model.
      *
@@ -750,7 +750,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a process definition from the specified model.
      *
@@ -776,7 +776,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, java.lang.String id,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all process definitions for the active model.
      *
@@ -796,7 +796,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getAllProcessDefinitions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the specified process definition from the active model.
      *
@@ -821,7 +821,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -834,7 +834,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all data satisfying the criteria specified in the
      * provided query.
@@ -854,7 +854,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.DataQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all participants defined in the specified model.
      *
@@ -877,7 +877,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a participant from a specified model.
      *
@@ -902,7 +902,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, java.lang.String id,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the participants from the active model.
      *
@@ -921,7 +921,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getAllParticipants(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a specific participant from the active model.
      *
@@ -946,7 +946,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all permissions the current user has on this service.
      *
@@ -961,7 +961,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getPermissions(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves XSD schema of the specified type declaration serialized
      * into a byte[].
@@ -987,7 +987,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long modelOID, java.lang.String typeDeclarationId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all the departments satisfying the search criteria. The search is
      * performed as following:
@@ -1034,7 +1034,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Searches for a department having the specified id in the scope defined by the parent
      * department. On synchronization with external repository the specified department
@@ -1072,7 +1072,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          id, org.eclipse.stardust.engine.api.model.OrganizationInfo info,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the first document satisfying the criteria specified in the
      * provided query.
@@ -1100,7 +1100,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -1121,7 +1121,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.DocumentQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves preferences from the given scope.
      *
@@ -1147,7 +1147,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          java.lang.String moduleId, java.lang.String preferencesId,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves preferences satisfying the criteria specified in the provided query.
      *
@@ -1177,7 +1177,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves the information about the deployed runtime environment (
      * e.g. version information).
@@ -1193,7 +1193,7 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          getRuntimeEnvironmentInfo(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
      * Retrieves a resource bundle from a specified moduleId.
      *
@@ -1214,8 +1214,14 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1226,8 +1232,15 @@ public interface TunnelingLocalQueryService extends javax.ejb.EJBLocalObject, or
          long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
     /**
+     * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the
+     * provided query.
+     *
+     * @param query the deployed runtime artifact query.
+     *
+     * @return The deployed runtime artifacts matching the specified criteria.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

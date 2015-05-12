@@ -826,7 +826,7 @@ public interface QueryService extends Service
     * Retrieves the artifact by the unique oid.
     *
     * @param oid The oid of the artifact.
-    * @return The artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public RuntimeArtifact getRuntimeArtifact(long oid);

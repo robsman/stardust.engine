@@ -14,6 +14,8 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeArtifact;
@@ -115,7 +117,7 @@ public class ArtifactManager
 
       if (runtimeArtifactBean == null)
       {
-         throw new RuntimeException("RuntimeArtifact with oid '"+ oid +"' not found.");
+         throw new ObjectNotFoundException(BpmRuntimeError.ATDB_UNKNOWN_RUNTIME_ARTIFACT_OID.raise(oid));
       }
 
       // pre process
@@ -135,7 +137,7 @@ public class ArtifactManager
     * Retrieves the artifact by the unique oid.
     *
     * @param oid The oid of the artifact.
-    * @return The artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
     */
    public RuntimeArtifact getArtifact(long oid)
    {
@@ -191,7 +193,7 @@ public class ArtifactManager
 
       if (runtimeArtifactBean == null)
       {
-         throw new RuntimeException("RuntimeArtifact with oid '"+ oid +"' not found.");
+         throw new ObjectNotFoundException(BpmRuntimeError.ATDB_UNKNOWN_RUNTIME_ARTIFACT_OID.raise(oid));
       }
 
       IArtifactHandler handler = getHandler(runtimeArtifactBean.getArtifactTypeId());
@@ -206,12 +208,12 @@ public class ArtifactManager
       runtimeArtifactBean.delete();
    }
 
-   private IArtifactHandler getHandler(String artifactType)
+   private IArtifactHandler getHandler(String artifactTypeId)
    {
-      IArtifactHandler artifacthandler = handlers.get(artifactType);
+      IArtifactHandler artifacthandler = handlers.get(artifactTypeId);
       if (artifacthandler == null)
       {
-         throw new RuntimeException("ArtifactType not supported.");
+         throw new PublicException(BpmRuntimeError.ARTI_ARTIFACT_TYPE_UNKNOWN.raise(artifactTypeId));
       }
       return artifacthandler;
    }

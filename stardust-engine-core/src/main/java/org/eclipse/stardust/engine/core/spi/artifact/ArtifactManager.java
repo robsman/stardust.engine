@@ -14,6 +14,8 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -86,6 +88,16 @@ public class ArtifactManager
 
       // pre process
       RuntimeArtifact processedRuntimeArtifact = handler.preProcess(runtimeArtifact);
+
+      if (StringUtils.isEmpty(processedRuntimeArtifact.getArtifactTypeId()))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("RuntimeArtifact#artifactTypeId", "null"));
+      }
+
+      if (StringUtils.isEmpty(processedRuntimeArtifact.getArtifactId()))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("RuntimeArtifact#artifactId", "null"));
+      }
 
       RuntimeArtifactBean runtimeArtifactBean = new RuntimeArtifactBean(
             processedRuntimeArtifact);

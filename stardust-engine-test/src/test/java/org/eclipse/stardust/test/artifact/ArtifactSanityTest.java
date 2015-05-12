@@ -19,6 +19,9 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery;
 import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -94,6 +97,26 @@ public class ArtifactSanityTest
             deployedRuntimeArtifact.getArtifactTypeId());
    }
 
+   @Test(expected=InvalidArgumentException.class)
+   public void testDeployBenchmarkNullArguments()
+   {
+      AdministrationService as = sf.getAdministrationService();
+
+      as.deployRuntimeArtifact(new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID, null, null, null, null));
+
+      Assert.fail("Should throw exception");
+   }
+
+   @Test(expected=PublicException.class)
+   public void testDeployUnknownArtifactType()
+   {
+      AdministrationService as = sf.getAdministrationService();
+
+      as.deployRuntimeArtifact(new RuntimeArtifact("unknown-type", null, null, null, null));
+
+      Assert.fail("Should throw exception");
+   }
+
    @Test
    public void testGetBenchmark()
    {
@@ -153,6 +176,20 @@ public class ArtifactSanityTest
             deployedRuntimeArtifact.getArtifactTypeId());
    }
 
+   @Test(expected=ObjectNotFoundException.class)
+   public void testOverwriteNonExistingBenchmark()
+   {
+      AdministrationService as = sf.getAdministrationService();
+
+      RuntimeArtifact runtimeArtifact = as.getRuntimeArtifact(1);
+
+      runtimeArtifact.setContent(ARTIFACT_NEW_CONTENT1.getBytes());
+
+      as.overwriteRuntimeArtifact(0, runtimeArtifact);
+
+      Assert.fail("Should throw exception");
+   }
+
    @Test
    public void testDeleteBenchmark()
    {
@@ -163,5 +200,14 @@ public class ArtifactSanityTest
       as.deleteRuntimeArtifact(1);
 
       Assert.assertNull(as.getRuntimeArtifact(1));
+   }
+
+   @Test(expected=ObjectNotFoundException.class)
+   public void testDeleteNonExistingBenchmark()
+   {
+      AdministrationService as = sf.getAdministrationService();
+
+      as.deleteRuntimeArtifact(0);
+      Assert.fail("Should throw exception");
    }
 }

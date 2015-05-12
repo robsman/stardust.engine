@@ -16,11 +16,18 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.CaseDescriptorRef;
+import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 
 
 /**
@@ -31,6 +38,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
  */
 public class DataPathDetails extends ModelElementDetails implements DataPath
 {
+   private static final String FALLBACK_TYPE_NAME = Object.class.getName();
+	  
    private static final long serialVersionUID = -1198825507540508071L;
 
    private static final Logger trace = LogManager.getLogger(DataPathDetails.class);
@@ -68,25 +77,30 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
          final boolean isArchiveAuditTrail = ParametersFacade.instance().getBoolean(
                Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
 
-         if ( !isArchiveAuditTrail && !StringUtils.isEmpty(validatorClass))
+         if (!StringUtils.isEmpty(validatorClass))
          {
             ExtendedDataValidator validator = SpiUtils
                   .createExtendedDataValidator(validatorClass);
-            type = validator.getBridgeObject(
-                  path.getData(),
-                  path.getAccessPath(),
-                  Direction.OUT.equals(path.getDirection()) ? Direction.IN
-                        : Direction.OUT, null).getEndClass().getName();
+
+            type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
+                  ? FALLBACK_TYPE_NAME
+                  : validator
+                        .getBridgeObject(
+                              path.getData(),
+                              path.getAccessPath(),
+                              Direction.OUT.equals(path.getDirection())
+                                    ? Direction.IN
+                                    : Direction.OUT, null).getEndClass().getName();
          }
          else
          {
-            type = Object.class.getName();
+            type = FALLBACK_TYPE_NAME;
          }
       }
       catch (Exception e)
       {
          trace.warn("", e);
-         this.type = null;
+         this.type = FALLBACK_TYPE_NAME;
       }
 
       direction = path.getDirection();
@@ -99,6 +113,12 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
       this.processDefinitionId = (parent instanceof IProcessDefinition)
             ? ((IProcessDefinition) parent).getId()
             : null;
+   }
+   
+   private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)
+   {
+      return validator instanceof PrimitiveValidator
+            || validator instanceof StructuredDataXMLValidator;
    }
 
    public Class getMappedType()

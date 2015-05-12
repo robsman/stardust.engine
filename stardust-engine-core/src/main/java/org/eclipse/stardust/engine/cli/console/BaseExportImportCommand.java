@@ -25,6 +25,8 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    protected static final String DATE_DESCRIPTORS = "dateDescriptors";
    protected static final String MODEL_IDS = "models";
    protected static final String PROCESS_DEFINITION_IDS = "processes";
+   protected static final String PREFERENCES = "preferences";
+   
 
    public BaseExportImportCommand()
    {

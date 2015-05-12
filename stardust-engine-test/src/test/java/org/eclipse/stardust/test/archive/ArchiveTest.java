@@ -9132,14 +9132,14 @@ public class ArchiveTest
             assertTrue(hasEntryInDbForObject(ProcessInstanceProperty.TABLE_NAME,
                   ProcessInstanceProperty.FIELD__OBJECT_OID, pi.getOID(),
                   ProcessInstanceProperty.FIELD__STRING_VALUE,
-                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute("ModelUUID"))));
+                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute(PredefinedConstants.MODEL_UUID))));
          }
          else
          {
             assertFalse(hasEntryInDbForObject(ProcessInstanceProperty.TABLE_NAME,
                   ProcessInstanceProperty.FIELD__OBJECT_OID, pi.getOID(),
                   ProcessInstanceProperty.FIELD__STRING_VALUE,
-                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute("ModelUUID"))));
+                  ExportImportSupport.getUUID(pi.getOID(), (String)model.getAttribute(PredefinedConstants.MODEL_UUID))));
          }
       }
       if (mustHave)

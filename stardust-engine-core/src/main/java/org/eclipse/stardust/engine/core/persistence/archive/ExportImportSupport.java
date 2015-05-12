@@ -27,7 +27,6 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
@@ -105,21 +104,17 @@ public class ExportImportSupport
       ExportQueueSender sender = new ExportQueueSender();
       sender.sendMessage(exportResult);
    }
-   
+
    public static String getUUID(IProcessInstance processInstance)
    {
-      return getUUID(processInstance.getOID(), processInstance.getStartTime());
+      String modelUUID = (String)processInstance.getProcessDefinition().getModel().getAttribute(PredefinedConstants.MODEL_UUID);
+      return getUUID(processInstance.getOID(), modelUUID);
    }
 
-   public static String getUUID(ProcessInstance processInstance)
-   {
-      return getUUID(processInstance.getOID(), processInstance.getStartTime());
-   }
-
-   public static String getUUID(Long oid, Date startDate)
+   public static String getUUID(Long oid, String modelUUID)
    {
       String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid + "_"
-            + startDate.getTime();
+            + modelUUID;
       return uuid;
    }
 

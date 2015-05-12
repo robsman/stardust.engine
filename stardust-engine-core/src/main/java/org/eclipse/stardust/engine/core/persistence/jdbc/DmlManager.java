@@ -30,10 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.TimeMeasure;
-import org.eclipse.stardust.common.Unknown;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InternalException;
@@ -43,6 +40,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.CasePolicy;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Function;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor.CompositeKey;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
@@ -779,10 +777,7 @@ public class DmlManager
 
       if (value instanceof QueryDescriptor)
       {
-         QueryDescriptor subQuery = (QueryDescriptor) value;
-         buffer.append("(")
-               .append(prepareSelectStatement(subQuery, false, bindValueList, useLiteralsWhereAppropriate))
-               .append(")");
+         appendSubQuery(value, bindValueList, useLiteralsWhereAppropriate, buffer);
       }
       else
       {
@@ -895,6 +890,15 @@ public class DmlManager
       }
 
       return buffer;
+   }
+
+   private void appendSubQuery(Object value, List<Pair<Class< ? >, ? >> bindValueList,
+         boolean useLiteralsWhereAppropriate, StringBuffer buffer)
+   {
+      QueryDescriptor subQuery = (QueryDescriptor) value;
+      buffer.append("(")
+            .append(prepareSelectStatement(subQuery, false, bindValueList, useLiteralsWhereAppropriate))
+            .append(")");
    }
 
    /**
@@ -1120,7 +1124,21 @@ public class DmlManager
                fromClause.append(" LEFT OUTER JOIN ");
             }
 
-            sqlUtils.appendTableRef(fromClause, join);
+            ITableDescriptor subQuery = join.getRhsTableDescriptor();
+            if (subQuery instanceof QueryDescriptor)
+            {
+               appendSubQuery(subQuery, bindValues, useLiteralsWhereAppropriate,
+                     fromClause);
+
+               if (!StringUtils.isEmpty(subQuery.getTableAlias()))
+               {
+                  fromClause.append(" ").append(subQuery.getTableAlias());
+               }
+            }
+            else
+            {
+               sqlUtils.appendTableRef(fromClause, join);
+            }
 
             fromClause.append(" ON (");
 

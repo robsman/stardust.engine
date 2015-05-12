@@ -218,7 +218,7 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
             countAll ? totalCount : null);
    }
 
-   private GenericQueryEvaluator(Query query, Class type, EvaluationContext context)
+   GenericQueryEvaluator(Query query, Class type, EvaluationContext context)
    {
       this.query = query;
 

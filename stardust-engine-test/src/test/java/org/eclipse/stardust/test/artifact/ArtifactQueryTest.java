@@ -117,6 +117,32 @@ public class ArtifactQueryTest
 
 
    @Test
+   public void testQueryAllActive()
+   {
+      QueryService qs = sf.getQueryService();
+
+      DeployedRuntimeArtifacts runtimeArtifacts = qs
+            .getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findAllActive(new Date()));
+
+      Assert.assertEquals(2, runtimeArtifacts.getSize());
+
+      DeployedRuntimeArtifact deployedRuntimeArtifact1 = runtimeArtifacts.get(0);
+      Assert.assertTrue(0 < deployedRuntimeArtifact1.getOid());
+      Assert.assertEquals("2", deployedRuntimeArtifact1.getArtifactName());
+      Assert.assertEquals(ARTIFACT_ID_1, deployedRuntimeArtifact1.getArtifactId());
+      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+            deployedRuntimeArtifact1.getArtifactTypeId());
+
+      DeployedRuntimeArtifact deployedRuntimeArtifact2 = runtimeArtifacts.get(1);
+      Assert.assertTrue(0 < deployedRuntimeArtifact2.getOid());
+      Assert.assertEquals("4", deployedRuntimeArtifact2.getArtifactName());
+      Assert.assertEquals(ARTIFACT_ID_2, deployedRuntimeArtifact2.getArtifactId());
+      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+            deployedRuntimeArtifact2.getArtifactTypeId());
+   }
+
+
+   @Test
    public void testQueryActiveNow()
    {
       QueryService qs = sf.getQueryService();
@@ -127,15 +153,15 @@ public class ArtifactQueryTest
 
       DeployedRuntimeArtifact deployedRuntimeArtifact1 = runtimeArtifacts.get(0);
       Assert.assertTrue(0 < deployedRuntimeArtifact1.getOid());
-      Assert.assertEquals("4", deployedRuntimeArtifact1.getArtifactName());
-      Assert.assertEquals(ARTIFACT_ID_2, deployedRuntimeArtifact1.getArtifactId());
+      Assert.assertEquals("2", deployedRuntimeArtifact1.getArtifactName());
+      Assert.assertEquals(ARTIFACT_ID_1, deployedRuntimeArtifact1.getArtifactId());
       Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact1.getArtifactTypeId());
 
       DeployedRuntimeArtifact deployedRuntimeArtifact2 = runtimeArtifacts.get(1);
       Assert.assertTrue(0 < deployedRuntimeArtifact2.getOid());
-      Assert.assertEquals("2", deployedRuntimeArtifact2.getArtifactName());
-      Assert.assertEquals(ARTIFACT_ID_1, deployedRuntimeArtifact2.getArtifactId());
+      Assert.assertEquals("4", deployedRuntimeArtifact2.getArtifactName());
+      Assert.assertEquals(ARTIFACT_ID_2, deployedRuntimeArtifact2.getArtifactId());
       Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact2.getArtifactTypeId());
    }

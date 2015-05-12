@@ -12,14 +12,17 @@
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 
 import com.google.gson.Gson;
 
 public class BusinessObjectRelationship
 {
-   private static BusinessObjectRelationship[] EMPTY = {};
+   public static final String BUSINESS_OBJECT_RELATIONSHIPS = PredefinedConstants.ENGINE_SCOPE + "businessObjectRelationships";
 
-   private static Gson gson = new Gson();
+   private static final BusinessObjectRelationship[] EMPTY = {};
+
+   private static final Gson gson = new Gson();
 
    public static class BusinessObjectReference
    {

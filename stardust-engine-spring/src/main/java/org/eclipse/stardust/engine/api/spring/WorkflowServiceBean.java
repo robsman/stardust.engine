@@ -819,6 +819,21 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean complete)
+    */
+   public org.eclipse.stardust.engine.api.runtime.TransitionReport
+         performAdHocTransition(
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete)
+         throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException,
+         org.eclipse.stardust.common.error.ObjectNotFoundException,
+         org.eclipse.stardust.common.error.AccessForbiddenException
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            serviceProxy).performAdHocTransition(target, complete);
+   }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getStartableProcessDefinitions()
     */
    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>

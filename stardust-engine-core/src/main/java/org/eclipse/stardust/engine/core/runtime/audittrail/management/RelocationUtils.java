@@ -305,7 +305,7 @@ public final class RelocationUtils
       return activities;
    }
 
-   public static void performTransition(ActivityInstanceBean activityInstance, TransitionTarget transitionTarget,
+   public static IActivityInstance performTransition(IActivityInstance sourceActivityInstance, TransitionTarget transitionTarget,
          boolean complete)
    {
       ExecutionPlan plan = new ExecutionPlan(transitionTarget);
@@ -326,17 +326,18 @@ public final class RelocationUtils
          rtEnv.setExecutionPlan(plan);
          if (complete)
          {
-            ActivityInstanceUtils.complete(activityInstance, null, null, true);
+            ActivityInstanceUtils.complete(sourceActivityInstance, null, null, true);
          }
          else
          {
             long rootOid = plan.getRootActivityInstanceOid();
-            if (rootOid != activityInstance.getOID())
+            if (rootOid != sourceActivityInstance.getOID())
             {
-               activityInstance = ActivityInstanceUtils.lock(rootOid);
+               sourceActivityInstance = ActivityInstanceUtils.lock(rootOid);
             }
-            ActivityInstanceUtils.abortActivityInstance(activityInstance);
+            ActivityInstanceUtils.abortActivityInstance(sourceActivityInstance);
          }
+         return plan.getTargetActivityInstance();
       }
       finally
       {

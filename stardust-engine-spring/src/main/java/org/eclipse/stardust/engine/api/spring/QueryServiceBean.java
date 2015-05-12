@@ -542,7 +542,7 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+   public org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts
          getRuntimeArtifacts(
          org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
    {

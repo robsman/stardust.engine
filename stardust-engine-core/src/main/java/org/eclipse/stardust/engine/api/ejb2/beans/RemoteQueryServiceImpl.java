@@ -1,5 +1,5 @@
 /*
- * Generated from  
+ * Generated from
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -1884,7 +1884,7 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
      *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
      */
-    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+    public org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts
          getRuntimeArtifacts(
          org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException

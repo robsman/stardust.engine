@@ -1,5 +1,5 @@
 /*
- * Generated from  
+ * Generated from
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -2243,7 +2243,7 @@ public class TunnelingQueryServiceImpl extends org.eclipse.stardust.engine.api.e
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
      *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
      */
-    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+    public org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts
          getRuntimeArtifacts(
          org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)

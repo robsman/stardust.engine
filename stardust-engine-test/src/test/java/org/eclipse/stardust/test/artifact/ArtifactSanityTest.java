@@ -20,6 +20,7 @@ import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
 import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery;
+import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;

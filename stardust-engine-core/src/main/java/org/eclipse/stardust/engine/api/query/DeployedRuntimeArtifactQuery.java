@@ -12,9 +12,17 @@ package org.eclipse.stardust.engine.api.query;
 
 import java.util.Date;
 
+import org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 
 /**
+ * Query to search for {@link DeployedRuntimeArtifact} matching specified attributes.
+ * <p>
+ * To restrict the query to currently active artifacts use the findActive factory methods.
+ *
+ * @see #findAllActive(Date)
+ * @see #findActive(String, Date)
+ * @see #findActive(String, String, Date)
  *
  * @author Roland.Stamm
  */

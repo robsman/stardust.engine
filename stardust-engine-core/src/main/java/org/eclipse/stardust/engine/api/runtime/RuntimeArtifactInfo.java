@@ -13,6 +13,11 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Abstract base type containing common fields for runtime artifacts.
+ *
+ * @author Roland.Stamm
+ */
 public abstract class RuntimeArtifactInfo implements Serializable
 {
    private static final long serialVersionUID = -6123498431762201931L;
@@ -39,21 +44,35 @@ public abstract class RuntimeArtifactInfo implements Serializable
       this.validFrom = validFrom;
    }
 
+   /**
+    * @return Identifies the {@link ArtifactType}.
+    *
+    * @see ArtifactType#getId()
+    */
    public String getArtifactTypeId()
    {
       return artifactTypeId;
    }
 
+   /**
+    * @return Identifies the artifact.
+    */
    public String getArtifactId()
    {
       return artifactId;
    }
 
+   /**
+    * @return A human readable name for the artifact.
+    */
    public String getArtifactName()
    {
       return artifactName;
    }
 
+   /**
+    * @return Specifies the point in time the artifact should start to be valid and therefore become active.
+    */
    public Date getValidFrom()
    {
       return validFrom;

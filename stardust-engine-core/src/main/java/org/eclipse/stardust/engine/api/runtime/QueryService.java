@@ -822,9 +822,21 @@ public interface QueryService extends Service
     */
    ResourceBundle getResourceBundle(String moduleId, String bundleName, Locale locale);
 
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact.
+    */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
+   /**
+    * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the provided query.
+    *
+    * @param query the deployed runtime artifact query.
+    * @return The deployed runtime artifacts matching the specified criteria.
+    */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
 }

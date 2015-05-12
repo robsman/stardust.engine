@@ -12,6 +12,13 @@ package org.eclipse.stardust.engine.core.spi.artifact;
 
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 
+/**
+ * Abstracts the storage location for runtime artifacts content.
+ *
+ * Internally used only.
+ *
+ * @author Roland.Stamm
+ */
 public interface IArtifactStore
 {
 

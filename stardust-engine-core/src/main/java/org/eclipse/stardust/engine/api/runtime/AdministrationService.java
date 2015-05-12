@@ -63,7 +63,7 @@ public interface AdministrationService extends Service
     * The predefined criticality daemon type.
     */
    String CRITICALITY_DAEMON = "criticality.daemon";
-   
+
    /**
     * The predefined benchmark daemon type-
     */
@@ -806,18 +806,55 @@ public interface AdministrationService extends Service
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    public void setGlobalPermissions(RuntimePermissions permissions) throws AccessForbiddenException;
 
+   /**
+    * Deploys a new artifact with a new oid.
+    * <p>
+    * If an artifact with the same validFrom date already exists,
+    * the newly deployed artifact takes priority when querying for active artifacts.
+    *
+    * @param runtimeArtifact The new artifact.
+    * @return The deployed artifact including an assigned oid.
+    */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
    public DeployedRuntimeArtifact deployRuntimeArtifact(RuntimeArtifact runtimeArtifact);
 
+   /**
+    * Overwrites only content of a specified already deployed artifact.
+    * Other fields cannot be changed.
+    *
+    * @param oid The oid of the artifact.
+    * @param runtimeArtifact The new artifact.
+    * @return The updated artifact.
+    */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
    public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact);
 
+   /**
+    * Deleted a deployed artifact by oid.
+    *
+    * @param oid The oid of the artifact
+    */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
    public void deleteRuntimeArtifact(long oid);
 
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact.
+    */
    @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
+   /**
+    * Returns a list of supported artifact types.
+    * <p>
+    *
+    * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
+    * {@link RuntimeArtifact}.
+    *
+    * @return The supported artifact types.
+    */
    @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
    public List<ArtifactType> getSupportedRuntimeArtifactTypes();
 

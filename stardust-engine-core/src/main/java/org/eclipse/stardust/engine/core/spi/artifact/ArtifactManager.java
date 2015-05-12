@@ -21,6 +21,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
+ * Manages everything around {@link RuntimeArtifact} deploying, overwriting, retrieving
+ * and deleting.
+ * <p>
+ * New {@link ArtifactType} can be supported by implementing the SPI {@link IArtifactHandler}.
+ *
  * @author Roland.Stamm
  */
 public class ArtifactManager
@@ -50,11 +55,29 @@ public class ArtifactManager
       }
    }
 
+   /**
+    * Returns a list of supported artifact types.
+    * <p>
+    *
+    * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
+    * {@link RuntimeArtifact}.
+    *
+    * @return The supported artifact types.
+    */
    public List<ArtifactType> getSupportedArtifactTypes()
    {
       return Collections.unmodifiableList(artifactTypes);
    }
 
+   /**
+    * Deploys a new artifact with a new oid.
+    * <p>
+    * If an artifact with the same validFrom date already exists,
+    * the newly deployed artifact takes priority when querying for active artifacts.
+    *
+    * @param runtimeArtifact The new artifact.
+    * @return The deployed artifact including an assigned oid.
+    */
    public DeployedRuntimeArtifact deployArtifact(RuntimeArtifact runtimeArtifact)
    {
       IArtifactHandler handler = getHandler(runtimeArtifact.getArtifactTypeId());
@@ -75,6 +98,14 @@ public class ArtifactManager
       return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
    }
 
+   /**
+    * Overwrites only content of a specified already deployed artifact.
+    * Other fields cannot be changed.
+    *
+    * @param oid The oid of the artifact.
+    * @param runtimeArtifact The new artifact.
+    * @return The updated artifact.
+    */
    public DeployedRuntimeArtifact overwriteArtifact(long oid,
          RuntimeArtifact runtimeArtifact)
    {
@@ -100,6 +131,12 @@ public class ArtifactManager
       return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
    }
 
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact.
+    */
    public RuntimeArtifact getArtifact(long oid)
    {
       // retrieve by oid
@@ -108,24 +145,44 @@ public class ArtifactManager
       return getArtifactWithContent(runtimeArtifactBean);
    }
 
-   public RuntimeArtifact getActiveArtifact(String artifactType, String artifactId)
+   /**
+    * Retrieves the artifact that is currently active.
+    *
+    * @param artifactTypeId The type of the artifact.
+    * @param artifactId The id of the artifact.
+    * @return The artifact that is currently active.
+    */
+   public RuntimeArtifact getActiveArtifact(String artifactTypeId, String artifactId)
    {
       // retrieve currently valid
       IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
-            artifactType, artifactId, TimestampProviderUtils.getTimeStampValue());
+            artifactTypeId, artifactId, TimestampProviderUtils.getTimeStampValue());
 
       return getArtifactWithContent(runtimeArtifactBean);
    }
 
-   public RuntimeArtifact getActiveArtifactAt(String artifactType, String artifactId, Date date)
+   /**
+    * Retrieves the artifact that is active at the specified point in time.
+    *
+    * @param artifactTypeId The type of the artifact.
+    * @param artifactId The id of the artifact.
+    * @param date The point in time where the artifact is active at.
+    * @return The artifact that is active at the specified point in time.
+    */
+   public RuntimeArtifact getActiveArtifactAt(String artifactTypeId, String artifactId, Date date)
    {
       // retrieve valid at date
       IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
-            artifactType, artifactId, date.getTime());
+            artifactTypeId, artifactId, date.getTime());
 
       return getArtifactWithContent(runtimeArtifactBean);
    }
 
+   /**
+    * Deleted a deployed artifact by oid.
+    *
+    * @param oid The oid of the artifact
+    */
    public void deleteArtifact(long oid)
    {
 

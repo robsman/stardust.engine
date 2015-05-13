@@ -777,6 +777,7 @@
                   <include>api/runtime/SubprocessSpawnInfo.java</include>
                   <include>api/runtime/TransitionInfo.java</include>
                   <include>api/runtime/TransitionOptions.java</include>
+                  <include>api/runtime/TransitionReport.java</include>
                   <include>api/runtime/TransitionTarget.java</include>
                   <include>api/runtime/User.java</include>
                   <include>api/runtime/UserExistsException.java</include>

@@ -704,6 +704,7 @@
                   <include>api/runtime/ActivityInstance.java</include>
                   <include>api/runtime/ActivityInstanceState.java</include>
                   <include>api/runtime/AdministrationService.java</include>
+                  <include>api/runtime/ArtifactType.java</include>
                   <include>api/runtime/AuditTrailHealthReport.java</include>
                   <include>api/runtime/BindingException.java</include>
                   <include>api/runtime/BpmRuntimeError.java</include>

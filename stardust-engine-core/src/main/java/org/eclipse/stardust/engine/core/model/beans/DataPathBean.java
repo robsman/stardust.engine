@@ -19,11 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.XPathAnnotations;
-
+import org.eclipse.stardust.engine.core.struct.*;
 
 /**
  * @author ubirkemeyer
@@ -156,6 +152,27 @@ public class DataPathBean extends IdentifiableElementBean
          {
             BpmValidationError error = BpmValidationError.DATA_DATAPATH_IS_NOT_A_DESCRIPTOR.raise();
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+         }
+      }
+      else
+      {         
+         String dataTypeId = data.getType().getId();         
+         if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
+         {         
+            IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
+            if (xPathMap != null)
+            {
+               if(!StringUtils.isEmpty(accessPath))
+               {
+                  String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(accessPath);
+                  TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                  if (xPath == null)
+                  {
+                     BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                     
+                  }
+               }
+            }
          }
       }
    }

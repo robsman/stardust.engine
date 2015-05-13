@@ -216,6 +216,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT = new Args("DATA01024");
    public static final Args DATA_DATAPATH_IS_NOT_A_DESCRIPTOR = new Args("DATA01025");
    public static final Args DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA = new Args("DATA01026");
+   public static final Args DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_DATA = new Args("DATA01027");
+   public static final Args ACCESSPATH_INVALID_FOR_DATAPATH = new Args("DATA01028");
 
    //Event related
    public static final Args EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = new Args("EVEN01000");

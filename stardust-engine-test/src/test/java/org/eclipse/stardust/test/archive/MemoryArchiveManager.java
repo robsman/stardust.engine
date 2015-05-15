@@ -23,6 +23,8 @@ public class MemoryArchiveManager extends BaseArchiveManager
    private static HashMap<String, HashMap<String, byte[]>> repoData;
 
    private static HashMap<String, HashMap<String, String>> dateModel;
+   
+   private static HashMap<String, HashMap<String, HashMap<String, String>>> dateXpdl;
 
    private static HashMap<String, HashMap<String, String>> dateIndex;
 
@@ -68,6 +70,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
                repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
                repoData = new HashMap<String, HashMap<String, byte[]>>();
                dateModel = new HashMap<String, HashMap<String, String>>();
+               dateXpdl = new HashMap<String, HashMap<String, HashMap<String, String>>>();
                dateIndex = new HashMap<String, HashMap<String, String>>();
                dateArchiveKey = new HashMap<String, HashMap<String, Date>>();
                archiveManagerId = ArchiveManagerFactory.getCurrentId();
@@ -97,6 +100,8 @@ public class MemoryArchiveManager extends BaseArchiveManager
                   new HashMap<String, byte[]>());
             dateModel.put(SecurityProperties.getPartition().getId(),
                   new HashMap<String, String>());
+            dateXpdl.put(SecurityProperties.getPartition().getId(),
+                  new HashMap<String, HashMap<String, String>>());
             dateIndex.put(SecurityProperties.getPartition().getId(),
                   new HashMap<String, String>());
             dateArchiveKey.put(SecurityProperties.getPartition().getId(),
@@ -121,6 +126,24 @@ public class MemoryArchiveManager extends BaseArchiveManager
       return true;
    }
 
+
+   @Override
+   public boolean addXpdl(Serializable key, String uuid, String xpdl)
+   {
+      synchronized (key)
+      {
+         HashMap<String, HashMap<String, String>> keyXpdls = dateXpdl.get(SecurityProperties.getPartition().getId());
+         HashMap<String, String> xpdls = keyXpdls.get(key);
+         if (xpdls == null)
+         {
+            xpdls = new HashMap<String, String>();
+            keyXpdls.put((String)key, xpdls);
+         }
+         xpdls.put(uuid, xpdl);
+      }
+      return true;
+   }
+   
    @Override
    public boolean addModel(Serializable key, String model)
    {

@@ -25,6 +25,10 @@ public class ArchiveModelConstants
     * the ID of the model comprising the transient process definitions
     */
    public static final String MODEL_ID = "ArchiveModel";
+   
+   public static final String MODELV2_ID = "ArchiveModelv2";
+
+   public static final String MODELV3_ID = "ArchiveModelv3";
 
    public static final String MODEL_ID_OTHER = "ArchiveModelOther";
 
@@ -34,12 +38,14 @@ public class ArchiveModelConstants
     * the process definition model ID prefix for model {@link #MODEL_ID}
     */
    static final String MODEL_ID_PREFIX = "{" + MODEL_ID + "}";
-
+   
    static final String MODEL_ID_OTHER_PREFIX = "{" + MODEL_ID_OTHER + "}";
 
    static final String PROCESS_DEF_SIMPLEMANUAL = MODEL_ID_PREFIX + "SimpleManual";
 
    static final String PROCESS_DEF_SIMPLE = MODEL_ID_PREFIX + "Simple";
+   
+   static final String PROCESS_DEF_TEST = MODEL_ID_PREFIX + "Test";
 
    static final String PROCESS_DEF_CALL_SUBPROCESSES_IN_MODEL = MODEL_ID_PREFIX
          + "CallSubProcessesInModel";
@@ -47,7 +53,6 @@ public class ArchiveModelConstants
    static final String PROCESS_DEF_CALL_SCRIPTPROCESS = MODEL_ID_PREFIX + "ScriptProcess";
 
    static final String PROCESS_DEF_OTHER = MODEL_ID_OTHER_PREFIX + "Other";
-   
 
    static final String PROCESS_DEF_TRANSIENT = MODEL_ID_PREFIX + "TransientProcess";
    

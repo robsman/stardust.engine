@@ -1020,27 +1020,23 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       IArchive archive2 = null;
       for (IArchive archive : archives)
       {
-         if (modelOID1 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID))
+         if (archive.getExportModel().getModelOidToUuid().containsKey(modelOID1))
          {
             archive1 = archive;
          }
-         if (modelOID12 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID))
+         if (archive.getExportModel().getModelOidToUuid().containsKey(modelOID12))
          {
             archive2 = archive;
          }
       }
       assertNotNull(archive1);
       assertNotNull(archive2);
-      assertEquals(2, archive1.getExportModel().getModelIdToOid().size());
-      assertEquals(2, archive2.getExportModel().getModelIdToOid().size());
-      assertTrue(archive1.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
-      assertTrue(archive1.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
-      assertTrue(modelOID1 == archive1.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
-      assertTrue(modelOID2 == archive1.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
-      assertTrue(archive2.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
-      assertTrue(archive2.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
-      assertTrue(modelOID12 == archive2.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
-      assertTrue(modelOID22 == archive2.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertEquals(2, archive1.getExportModel().getModelOidToUuid().size());
+      assertEquals(2, archive2.getExportModel().getModelOidToUuid().size());
+      assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID1));
+      assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID2));
+      assertTrue(archive2.getExportModel().getModelOidToUuid().containsKey(modelOID12));
+      assertTrue(archive2.getExportModel().getModelOidToUuid().containsKey(modelOID22));
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -1143,11 +1139,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
             
       IArchive archive = archives.get(0);
-      assertEquals(2, archive.getExportModel().getModelIdToOid().size());
-      assertTrue(archive.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID));
-      assertTrue(archive.getExportModel().getModelIdToOid().containsKey(ArchiveModelConstants.MODEL_ID_OTHER));
-      assertTrue(modelOID1 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID));
-      assertTrue(modelOID2 == archive.getExportModel().getModelIdToOid().get(ArchiveModelConstants.MODEL_ID_OTHER));
+      assertEquals(2, archive.getExportModel().getModelOidToUuid().size());
+      assertTrue(archive.getExportModel().getModelOidToUuid().containsKey(modelOID1));
+      assertTrue(archive.getExportModel().getModelOidToUuid().containsKey(modelOID2));
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(

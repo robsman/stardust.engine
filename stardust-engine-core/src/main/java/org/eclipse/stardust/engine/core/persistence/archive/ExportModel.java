@@ -3,6 +3,8 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.google.gson.annotations.Expose;
+
 public class ExportModel implements Serializable
 {
 
@@ -10,28 +12,37 @@ public class ExportModel implements Serializable
     * 
     */
    private static final long serialVersionUID = 1L;
+   @Expose
    private String partition;
-   private Map<String, Long> modelIdToOid;
+   @Expose
+   private Map<Integer, String> modelOIdToUuid;
+   @Expose
    private Map<String, Long> fqIdToRtOid;
+   private Map<String, String> uuidToXpdl;
    
    public ExportModel()
    {
    }
-   public ExportModel(Map<String, Long> fqIdToRtOid, Map<String, Long> modelIdToOid,
-         String partition)
+   public ExportModel(Map<String, Long> fqIdToRtOid, 
+         Map<Integer, String> modelOIdToUuid,Map<String, String> uuidToXpdl, String partition)
    {
       super();
       this.fqIdToRtOid = fqIdToRtOid;
-      this.modelIdToOid = modelIdToOid;
+      this.modelOIdToUuid = modelOIdToUuid;
+      this.uuidToXpdl = uuidToXpdl;
       this.partition = partition;
    }
    public Map<String, Long> getFqIdToRtOid()
    {
       return fqIdToRtOid;
    }
-   public Map<String, Long> getModelIdToOid()
+   public Map<Integer, String> getModelOidToUuid()
    {
-      return modelIdToOid;
+      return modelOIdToUuid;
+   }
+   public Map<String, String> getUuiIdToXpdl()
+   {
+      return uuidToXpdl;
    }
    public String getPartition()
    {
@@ -43,11 +54,11 @@ public class ExportModel implements Serializable
       final int prime = 31;
       int result = 1;
       result = prime * result + partition.hashCode();
-      if (modelIdToOid != null)
+      if (modelOIdToUuid != null)
       {
-         for (String key : modelIdToOid.keySet())
+         for (Integer key : modelOIdToUuid.keySet())
          {
-            result = prime * result + key.hashCode() + modelIdToOid.get(key).hashCode();
+            result = prime * result + key.hashCode() + modelOIdToUuid.get(key).hashCode();
          }
       }
       if (fqIdToRtOid != null)
@@ -106,27 +117,28 @@ public class ExportModel implements Serializable
             }
          }
       }
-      if (modelIdToOid == null)
+
+      if (modelOIdToUuid == null)
       {
-         if (other.getModelIdToOid() != null)
+         if (other.getModelOidToUuid() != null)
          {
             return false;
          }
       }
       else
       {
-         if (other.getModelIdToOid() == null)
+         if (other.getModelOidToUuid() == null)
          {
             return false;
          }
-         if (!modelIdToOid.keySet().equals(other.getModelIdToOid().keySet()))
+         if (!modelOIdToUuid.keySet().equals(other.getModelOidToUuid().keySet()))
          {
             return false;
          }
-         for (String key : modelIdToOid.keySet())
+         for (Integer key : modelOIdToUuid.keySet())
          {
-            Long otherId = other.getModelIdToOid().get(key);
-            if (!modelIdToOid.get(key).equals(otherId))
+            String otherId = other.getModelOidToUuid().get(key);
+            if (!modelOIdToUuid.get(key).equals(otherId))
             {
                return false;
             }

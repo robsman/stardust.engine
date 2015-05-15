@@ -8,6 +8,8 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.gson.annotations.Expose;
+
 public class ExportIndex implements Serializable
 {
 
@@ -21,20 +23,26 @@ public class ExportIndex implements Serializable
     */
    private static final long serialVersionUID = 1L;
 
+   @Expose
    private String archiveManagerId;
 
+   @Expose
    private String dateFormat;
-   
+
+   @Expose
    private String dumpLocation;
 
    // map of root oid to subprocess process oids.
    // if a root process has no subprocesses the sublist will be empty, it will not be null
+   @Expose
    private Map<Long, List<Long>> rootProcessToSubProcesses;
-   
+
+   @Expose
    private Map<Long, String> oidsToUuids;
 
    // map of fields to values. values is map of values to processInstanceOids that contains them
    // e.g. fields.get("name").get("John") returns oids of all processes that has a field "name" with value "John"
+   @Expose
    private Map<String, Map<String, List<Long>>> fields;
 
    public ExportIndex()

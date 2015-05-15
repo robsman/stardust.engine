@@ -31,6 +31,10 @@ public class ZipArchiveManager extends BaseArchiveManager
 
    private static final String EXT_JSON = ".json";
 
+   private static final String EXT_XPDL = ".xpdl";
+
+   private static final String FILENAME_XPDL_PREFIX = "xpdl_";
+   
    private static final String FILENAME_MODEL_PREFIX = "model_";
 
    private static final String FILENAME_PREFIX = "exportdata_";
@@ -300,6 +304,34 @@ public class ZipArchiveManager extends BaseArchiveManager
       }
       return success;
    }
+   
+   @Override
+   public boolean addXpdl(Serializable key, String uuid, String xpdl)
+   {
+      boolean success;
+      try
+      {
+         if (key != null && !StringUtils.isEmpty(xpdl) && !StringUtils.isEmpty(uuid))
+         {
+            File dataFile = (File) key;
+            String name = FILENAME_XPDL_PREFIX + getIndex(key) + "_" + uuid + EXT_XPDL;
+            File xpdlFile = new File(dataFile.getParentFile(), name);
+            writeByteArrayToFile(xpdlFile, xpdl.getBytes());
+            success = true;
+         }
+         else
+         {
+            success = false;
+            LOGGER.error("Key or UUID or XPDL is Null. Key: " + key + ", uuid:" + uuid + ", xpdl:" + xpdl);
+         }
+      }
+      catch (IOException e)
+      {
+         success = false;
+         LOGGER.error("Failed adding xpdl to archive.", e);
+      }
+      return success;
+   }
 
    @Override
    public boolean addModel(Serializable key, String model)
@@ -447,7 +479,15 @@ public class ZipArchiveManager extends BaseArchiveManager
       int lastIndex = fileName.lastIndexOf('.');
       String[] parts = fileName.split("_");
       String ext = fileName.substring(lastIndex);
-      return parts[0] + ext;
+      if (EXT_XPDL.equals(ext))
+      {
+         return parts[2];   
+      }
+      else
+      {
+         return parts[0] + ext;   
+      }
+      
    }
 
    private boolean zip(String filesToZip[], String parentFoder,
@@ -482,7 +522,8 @@ public class ZipArchiveManager extends BaseArchiveManager
                String baseFileName = getBaseFileName(fileToZip);
                String fileAbsolutePath = parentFoder + File.separatorChar + fileToZip;
                if (ZipArchive.FILENAME_MODEL.equals(baseFileName)
-                     || ZipArchive.FILENAME_INDEX.equals(baseFileName))
+                     || ZipArchive.FILENAME_INDEX.equals(baseFileName)
+                     || baseFileName.endsWith(EXT_XPDL))
                {
                   long entrySize = writeComplete(out, fileAbsolutePath, buffer,
                         baseFileName);
@@ -853,6 +894,7 @@ public class ZipArchiveManager extends BaseArchiveManager
             String fileName = name.substring(0, lastIndex);
             String pattern = FILENAME_PREFIX;
             String modelPattern = FILENAME_MODEL_PREFIX;
+            String xpdlPattern = FILENAME_XPDL_PREFIX;
             String zipPattern = FILENAME_ZIP_PREFIX;
             String indexPattern = FILENAME_INDEX_PREFIX;
             if (index > -1)
@@ -860,6 +902,7 @@ public class ZipArchiveManager extends BaseArchiveManager
                pattern += index;
                modelPattern += index;
                indexPattern += index;
+               xpdlPattern += index;
             }
 
             // match path name extension
@@ -870,6 +913,10 @@ public class ZipArchiveManager extends BaseArchiveManager
             }
             else if (ext.equals(EXT_JSON) && (fileName.startsWith(indexPattern)
                   || fileName.startsWith(modelPattern)))
+            {
+               return true;
+            }
+            else if (ext.equals(EXT_XPDL) && fileName.startsWith(xpdlPattern))
             {
                return true;
             }

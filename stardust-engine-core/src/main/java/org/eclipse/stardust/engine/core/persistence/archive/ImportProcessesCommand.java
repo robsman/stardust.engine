@@ -189,7 +189,7 @@ public class ImportProcessesCommand implements ServiceCommand
       try
       {
          ExportModel exportModel = archive.getExportModel();
-         ExportImportSupport.validateModel(exportModel, importMetaData);
+         ExportImportSupport.validateModel(sf.getQueryService(), exportModel, importMetaData);
       }
       catch (Exception e)
       {

@@ -56,4 +56,6 @@ public interface IArchiveManager
    public String getArchiveManagerId();
 
    public ArrayList<IArchive> findArchives(ArchiveFilter filter);
+
+   public boolean addXpdl(Serializable key, String uuid, String xpdl);
 }

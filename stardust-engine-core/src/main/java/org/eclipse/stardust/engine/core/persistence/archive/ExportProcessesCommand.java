@@ -9,6 +9,7 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.google.gson.Gson;
 
@@ -16,6 +17,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
@@ -125,7 +127,6 @@ public class ExportProcessesCommand implements ServiceCommand
    {
       this(Operation.ARCHIVE_MESSAGES, null, null, null, null, message);
    }
-
    
    @Override
    public Serializable execute(ServiceFactory sf)
@@ -140,11 +141,11 @@ public class ExportProcessesCommand implements ServiceCommand
       switch (operation)
       {
          case QUERY_AND_EXPORT:
-            queryAndExport(session);
+            queryAndExport(sf.getQueryService(), session);
             result = exportResult;
             break;
          case QUERY:
-            query(session);
+            query(sf.getQueryService(), session);
             result = exportMetaData;
             break;
          case EXPORT_MODEL:
@@ -282,6 +283,12 @@ public class ExportProcessesCommand implements ServiceCommand
                if (success)
                {
                   success = archiveManager.addModel(key, gson.toJson(exportResult.getExportModel()));
+                  for (Integer oid : exportResult.getExportModel().getModelOidToUuid().keySet())
+                  {
+                     String uuid = exportResult.getExportModel().getModelOidToUuid().get(oid);
+                     String xpdl = exportResult.getExportModel().getUuiIdToXpdl().get(uuid);
+                     success = archiveManager.addXpdl(key, uuid, xpdl);
+                  }
                   if (!success)
                   {
                      break dateloop;
@@ -359,15 +366,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void exportModels(Session session)
    {
-      ExportModel exportModel;
-      if (CollectionUtils.isNotEmpty(exportMetaData.getModelOids()))
-      {
-         exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids());
-      }
-      else
-      {
-         exportModel = ExportImportSupport.exportModels();
-      }
+      ExportModel exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids());
       if (exportResult == null)
       {
          exportResult = new ExportResult(dumpLocation);
@@ -375,20 +374,21 @@ public class ExportProcessesCommand implements ServiceCommand
       exportResult.setExportModel(exportModel);
    }
 
-   private void query(Session session)
+   private void query(QueryService queryService, Session session)
    {
       filter.validateDates();
 
       exportMetaData = new ExportMetaData();
       if (CollectionUtils.isNotEmpty(filter.getModelIds()))
       {
-         List<Integer> modelOids = ExportImportSupport.findModelOids(filter.getModelIds());
+         List<Integer> modelOids = ExportImportSupport.findModelOids(queryService,
+               filter.getModelIds());
          filter.getModelOids().clear();
          filter.getModelOids().addAll(modelOids);
       }
       else if (CollectionUtils.isEmpty(filter.getModelOids()))
       {
-         filter.getModelOids().addAll(ExportImportSupport.getActiveModelOids());
+         filter.getModelOids().addAll(ExportImportSupport.getPartitionModelOids());
       }
       if (CollectionUtils.isNotEmpty(filter.getModelOids()))
       {
@@ -455,9 +455,9 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
    
-   private void queryAndExport(Session session)
+   private void queryAndExport(QueryService queryService, Session session)
    {
-      query(session);
+      query(queryService, session);
       if (exportMetaData.hasExportOids())
       {
          exportModels(session);
@@ -895,7 +895,12 @@ public class ExportProcessesCommand implements ServiceCommand
             modelOids = new ArrayList<Integer>();
             dateToModelOids.put(indexDateTime, modelOids);
          }
-         modelOids.add(modelOid);
+         // these are the models that needs to be exported so we only need to export
+         // models for processes that are not exported yet
+         if (StringUtils.isEmpty(uuid))
+         {
+            modelOids.add(modelOid);
+         }
       }
 
    }

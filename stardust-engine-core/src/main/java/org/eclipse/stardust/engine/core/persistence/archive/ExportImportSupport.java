@@ -26,11 +26,16 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesCommand.ExportMetaData;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
@@ -44,6 +49,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
 
 /**
  * <p>
@@ -107,12 +113,17 @@ public class ExportImportSupport
 
    public static String getUUID(IProcessInstance processInstance)
    {
-      String modelUUID = (String)processInstance.getProcessDefinition().getModel().getAttribute(PredefinedConstants.MODEL_UUID);
+      setModelUUID((IModel)processInstance.getProcessDefinition().getModel());
+      String modelUUID = (String)processInstance.getProcessDefinition().getModel().getRuntimeAttribute(PredefinedConstants.MODEL_UUID);
       return getUUID(processInstance.getOID(), modelUUID);
    }
-
-   public static String getUUID(Long oid, String modelUUID)
+   
+   private static String getUUID(Long oid, String modelUUID)
    {
+      if (StringUtils.isEmpty(modelUUID))
+      {
+         throw new IllegalArgumentException("modelUUID can not be empty");
+      }
       String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid + "_"
             + modelUUID;
       return uuid;
@@ -122,6 +133,7 @@ public class ExportImportSupport
    {
       GsonBuilder gsonBuilder = new GsonBuilder();
       gsonBuilder.setPrettyPrinting();
+      gsonBuilder.excludeFieldsWithoutExposeAnnotation();
       Gson gson = gsonBuilder.create();
       return gson;
    }
@@ -305,14 +317,17 @@ public class ExportImportSupport
       {
          if (!hasModelConflict(modelA, modelB))
          {
-            Map<String, Long> modelIdToOid = new HashMap<String, Long>();
+            Map<Integer, String> modelOidToUuid = new HashMap<Integer, String>();
+            Map<String, String> uuidToXpdl = new HashMap<String, String>();
             Map<String, Long> fqIdToRtOid = new HashMap<String, Long>();
             
-            modelIdToOid.putAll(modelA.getModelIdToOid());
-            modelIdToOid.putAll(modelB.getModelIdToOid());
+            modelOidToUuid.putAll(modelA.getModelOidToUuid());
+            modelOidToUuid.putAll(modelB.getModelOidToUuid());
+            uuidToXpdl.putAll(modelA.getUuiIdToXpdl());
+            uuidToXpdl.putAll(modelB.getUuiIdToXpdl());
             fqIdToRtOid.putAll(modelA.getFqIdToRtOid());
             fqIdToRtOid.putAll(modelB.getFqIdToRtOid());
-            result = new ExportModel(fqIdToRtOid, modelIdToOid, modelB.getPartition());
+            result = new ExportModel(fqIdToRtOid, modelOidToUuid, uuidToXpdl, modelB.getPartition());
          }
          else
          {
@@ -327,14 +342,14 @@ public class ExportImportSupport
       boolean hasConflict = !modelA.equals(modelB);
       if (hasConflict)
       {
-         for (String key : modelA.getModelIdToOid().keySet())
+         for (Integer key : modelA.getModelOidToUuid().keySet())
          {
-            Long idA = modelA.getModelIdToOid().get(key);
-            Long idB = modelB.getModelIdToOid().get(key);
-            // if idB is null ExportModel B is not in conflict, it just doesn't have that model in it
-            if (idB != null)
+            String uuidA = modelA.getModelOidToUuid().get(key);
+            String uuidB = modelB.getModelOidToUuid().get(key);
+            // if uuidB is null ExportModel B is not in conflict, it just doesn't have that model in it
+            if (uuidB != null)
             {
-               hasConflict = !idA.equals(idB);
+               hasConflict = !uuidA.equals(uuidB);
                if (hasConflict)
                {
                   break;
@@ -754,7 +769,7 @@ public class ExportImportSupport
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
     */
-   public static void validateModel(ExportModel exportModel, ImportMetaData importMetaData)
+   public static void validateModel(QueryService queryService, ExportModel exportModel, ImportMetaData importMetaData)
    {
       if (importMetaData == null)
       {
@@ -772,19 +787,30 @@ public class ExportImportSupport
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
 
-      List<IModel> activeModels = modelManager.findActiveModels();
-      Map<String, Long> activeModelMap = new HashMap<String, Long>();
+      List<IModel> allModels = modelManager.getModels();
+      Map<String, Long> modelUuidToOid = new HashMap<String, Long>();
       Map<String, IdentifiableElement> allFqIds = new HashMap<String, IdentifiableElement>();
-      if (CollectionUtils.isEmpty(activeModels))
+      if (CollectionUtils.isEmpty(allModels))
       {
          throw new IllegalStateException(
-               "Invalid environment to import into. Current environment does not have an active model.");
+               "Invalid environment to import into. Current environment does not have a model.");
       }
       else
       {
-         for (IModel model : activeModels)
+         Map<String, Integer> uuidToModel = new HashMap<String, Integer>();
+         for (IModel model : allModels)
          {
-            activeModelMap.put(model.getId(), Long.valueOf(model.getModelOID()));
+            setModelUUID(model);
+            String uuid = (String)model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID);
+            if (uuidToModel.containsKey(uuid))
+            {
+               uuidToModel.put(uuid, findLastCompatibleModelOid(queryService, model.getId(), uuid));
+            }
+            else
+            {
+               uuidToModel.put(uuid, model.getModelOID());
+            }
+            modelUuidToOid.put(uuid, Long.valueOf(uuidToModel.get(uuid)));
             allFqIds.putAll(ModelManagerBean.getAllFqIds(modelManager, model));
          }
       }
@@ -798,23 +824,23 @@ public class ExportImportSupport
             TransitionTokenBean.START_TRANSITION_RT_OID,
             TransitionTokenBean.START_TRANSITION_RT_OID);
 
-      // model doesnt have an fqId so we explicitly write model id here
+      // model doesnt have an fqId so we compare uuid
       // we have two start markers: 1 at start of id printing, and another before fqIds
-      for (String modelId : exportModel.getModelIdToOid().keySet())
+      for (Integer exportModelOid : exportModel.getModelOidToUuid().keySet())
       {
         
-         Long exportModelId = exportModel.getModelIdToOid().get(modelId);
-         Long importModelId = activeModelMap.get(modelId);
+         String exportUuid = exportModel.getModelOidToUuid().get(exportModelOid);
+         Long importModelId = modelUuidToOid.get(exportUuid);
          if (importModelId != null)
          {
-            importMetaData.addMappingForClass(ModelBean.class, exportModelId,
+            importMetaData.addMappingForClass(ModelBean.class, new Long(exportModelOid),
                   importModelId);
          }
          else
          {
             throw new IllegalStateException(
                   "Invalid environment to import into. Current environment does "
-                        + "not have an active model with id:" + modelId);
+                        + "not have a model with uuid:" + exportUuid);
          }
       }
 
@@ -837,6 +863,30 @@ public class ExportImportSupport
          importMetaData.addMappingForClass(identifiableElement.getClass(), oldId,
                modelManager.getRuntimeOid(identifiableElement));
       }
+   }
+
+   private static Integer findLastCompatibleModelOid(QueryService queryService, String id,
+         String uuid)
+   {
+      int result = 0;
+      Models models = queryService.getModels(DeployedModelQuery.findForId(id));
+      if (models != null)
+      {
+         Date lastDate = null;
+         for (DeployedModelDescription model : models)
+         {
+            Date deploymentTime = model.getDeploymentTime();
+            if (lastDate == null || lastDate.before(deploymentTime))
+            {
+               if (getModelUUID((long)model.getModelOID()).equals(uuid))
+               {
+                  lastDate = deploymentTime;
+                  result = model.getModelOID();
+               }
+            }
+         }
+      }
+      return result;
    }
 
    public static Map<String, List<byte[]>> getDataByTable(byte[] rawData)
@@ -955,47 +1005,63 @@ public class ExportImportSupport
       return result;
    }
 
-   public static List<Integer> findModelOids(Collection<String> modelIds)
+   public static List<Integer> getPartitionModelOids()
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
 
+      List<IModel> allModels = modelManager.getModels();
       List<Integer> result = new ArrayList<Integer>();
-      for (String id : modelIds)
+      for (IModel model : allModels)
       {
-         IModel model = modelManager.findActiveModel(id);
-         if (model != null)
-         {
-            result.add((int)model.getModelOID());
-         }
+         result.add(model.getModelOID());
       }
       return result;
    }
    
-   public static ExportModel exportModels()
+   public static List<Integer> findModelOids(QueryService queryService,
+         Collection<String> modelIds)
    {
-      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
-            .getCurrent();
-
-      List<IModel> activeModels = modelManager.findActiveModels();
-      return exportModels(modelManager, activeModels);
-   }
-
-   public static Collection<Integer> getActiveModelOids()
-   {
-      List<Integer> results = new ArrayList<Integer>();
-      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
-            .getCurrent();
-
-      List<IModel> activeModels = modelManager.findActiveModels();
-      for (IModel model : activeModels)
+      List<Integer> result = new ArrayList<Integer>();
+      for (String id : modelIds)
       {
-         if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+         Models models = queryService.getModels(DeployedModelQuery.findForId(id));
+         
+         if (models != null)
          {
-            results.add(model.getModelOID());
+            for (DeployedModelDescription model : models)
+            {
+               result.add((int)model.getModelOID());
+            }
          }
       }
-      return results;
+      return result;
+   }
+
+   public static String getXpdl(int modelOId)
+   {
+      String content = LargeStringHolder.getLargeString(modelOId, ModelPersistorBean.class);
+      String xpdl = XpdlUtils.convertCarnot2Xpdl(content);
+      return xpdl;
+   }
+
+   public static String getModelUUID(Long modelOId)
+   {
+      ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
+            .getCurrent();
+      IModel model = modelManager.findModel(modelOId);
+      setModelUUID(model);
+      return  model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID);
+   }
+      
+   private static void setModelUUID(IModel model)
+   {
+      if (StringUtils.isEmpty(model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID)))
+      {
+         String content = LargeStringHolder.getLargeString(model.getModelOID(), ModelPersistorBean.class);
+         String xpdl = XpdlUtils.convertCarnot2Xpdl(content);
+         model.setRuntimeAttribute(PredefinedConstants.MODEL_UUID, Text.md5(xpdl));
+      }
    }
 
    private static ExportModel exportModels(ModelManagerPartition modelManager,
@@ -1003,7 +1069,8 @@ public class ExportImportSupport
    {
       
       String partition = SecurityProperties.getPartition().getId();
-      Map<String, Long> modelIdToOid = new HashMap<String, Long>();
+      Map<Integer, String> modelOidToUuid = new HashMap<Integer, String>();
+      Map<String, String> uuidToXpdl = new HashMap<String, String>();
       // models doesn't have fqIds so we explicitly write model ids here
       // need to write all modelids, we don't know in which version models processes were
       // started
@@ -1011,7 +1078,9 @@ public class ExportImportSupport
       {
          if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
          {
-            modelIdToOid.put(model.getId(), new Long(model.getModelOID()));
+            setModelUUID(model);
+            modelOidToUuid.put(model.getModelOID(), (String) model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID));
+            uuidToXpdl.put((String) model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID), getXpdl(model.getModelOID()));
          }
       }
 
@@ -1025,7 +1094,7 @@ public class ExportImportSupport
             fqIdToRtOid.put(key, modelManager.getRuntimeOid(allFqIds.get(key)));
          }
       }
-      return new ExportModel(fqIdToRtOid, modelIdToOid, partition);
+      return new ExportModel(fqIdToRtOid, modelOidToUuid, uuidToXpdl, partition);
    }
 
    private static Map<String, List<byte[]>> splitArrayByTables(

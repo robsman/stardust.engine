@@ -186,18 +186,8 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
          DefaultXMLReader reader = new DefaultXMLReader(false, getConfigurationVariablesProvider(), getModelOID());
          model = reader.importFromXML(new StringReader(xmlString));
          injectTo(model);
-         setMd5(model, xmlString);
       }
       return model;
-   }
-   
-   private void setMd5(IModel model, String xmlString)
-   {
-      if (StringUtils.isNotEmpty(xmlString))
-      {
-         String md5 = Text.md5(xmlString);
-         model.setAttribute(PredefinedConstants.MODEL_UUID, md5);
-      }
    }
    
    public IConfigurationVariablesProvider getConfigurationVariablesProvider()
@@ -264,7 +254,6 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
          // model is assumed to be in ISO8859-1 encoding, so it can be safely stored in
          // most databases
          LargeStringHolder.setLargeString(getOID(), ModelPersistorBean.class, modelXml);
-         setMd5(model, modelXml);
       }
    }
 

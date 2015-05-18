@@ -52,4 +52,6 @@ public interface IWorkItem
    public long getCurrentUserPerformerOID();
    
    public double getCriticality();
+   
+   public int getBenchmarkValue();
 }

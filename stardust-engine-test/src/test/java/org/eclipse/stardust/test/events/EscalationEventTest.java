@@ -90,6 +90,7 @@ public class EscalationEventTest
       aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "OneLevelEscalationState");
 
       // continue normal flow (which is hibernated in order to keep the sub-process alive)
+      aiStateChangeBarrier.awaitForId(escalatingProcessOne.getOID(), "NormalFlow");
       ActivityInstanceQuery aiq = ActivityInstanceQuery.findForProcessInstance(rootProcess.getOID());
       aiq.where(ActivityFilter.forProcess("NormalFlow", THROWING_SUBPROCESS));
       ActivityInstance normalFlowInSubprocess = sf.getQueryService().findFirstActivityInstance(aiq);

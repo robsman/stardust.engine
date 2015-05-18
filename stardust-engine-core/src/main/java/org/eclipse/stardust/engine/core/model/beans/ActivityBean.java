@@ -29,7 +29,31 @@ import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContext;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.ILoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IMultiInstanceLoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.IStandardLoopCharacteristics;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.model.LoopType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
@@ -501,7 +525,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    }
 
-   public ModelElementList getOutDataMappings()
+   public ModelElementList<IDataMapping> getOutDataMappings()
    {
       return outDataMappings;
    }
@@ -1050,6 +1074,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          return interfaceContext;
       }
 
+      if (contextId != null && contextId.startsWith(PredefinedConstants.EVENT_CONTEXT))
+      {
+         return new MyEventContext(contextId);
+      }
+
       IApplication app = getApplication();
       if (app != null && isInteractive())
       {
@@ -1343,6 +1372,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       private MyDefaultContext()
       {
          super(PredefinedConstants.DEFAULT_CONTEXT, true);
+      }
+
+      public RootElement getModel()
+      {
+         return ActivityBean.this.getModel();
+      }
+   }
+
+   private class MyEventContext extends ApplicationContextBean
+   {
+      private static final long serialVersionUID = 1L;
+
+      private MyEventContext(String id)
+      {
+         super(id, true);
       }
 
       public RootElement getModel()

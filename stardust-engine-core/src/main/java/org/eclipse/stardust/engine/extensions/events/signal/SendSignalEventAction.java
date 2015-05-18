@@ -4,16 +4,21 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
-import javax.jms.TextMessage;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -54,11 +59,25 @@ public class SendSignalEventAction implements EventActionInstance
       {
          QueueConnection queueConnection = bpmrt.retrieveQueueConnection(connectionFactory);
          QueueSession session = bpmrt.retrieveQueueSession(queueConnection);
-         final QueueSender sender = bpmrt.retrieveUnidentifiedQueueSender(session);
+         QueueSender sender = bpmrt.retrieveUnidentifiedQueueSender(session);
 
-         TextMessage message = session.createTextMessage();
+         MapMessage message = session.createMapMessage();
          message.setStringProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY, signalCode);
          message.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, partitionId);
+
+         ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
+         String eventHandlerId = determineActiveEventHandlerId(ai.getActivity(), event.getHandlerModelElementOID());
+         ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
+         for (IDataMapping mapping : inDataMappings)
+         {
+            if ( !mapping.getContext().equals(PredefinedConstants.EVENT_CONTEXT + eventHandlerId))
+            {
+               continue;
+            }
+
+            Object dataValue = ai.getProcessInstance().getInDataValue(mapping.getData(), mapping.getDataPath());
+            message.setObject(mapping.getActivityAccessPointId(), dataValue);
+         }
 
          sender.send(queue, message);
       }
@@ -69,5 +88,18 @@ public class SendSignalEventAction implements EventActionInstance
       }
 
       return null;
+   }
+
+   private String determineActiveEventHandlerId(IActivity ai, long handlerOid)
+   {
+      for (IEventHandler e : ai.getEventHandlers())
+      {
+         if (e.getOID() == handlerOid)
+         {
+            return e.getId();
+         }
+      }
+
+      throw new IllegalStateException("Active Event Handler with OID '" + handlerOid + "' could not be determined:");
    }
 }

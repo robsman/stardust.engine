@@ -179,6 +179,103 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="Data_1" Name="Data #1" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Value Of Data #1</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="501" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Value Of Data #1"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="Data_2" Name="Data #2" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Value Of Data #2</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="503" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Value Of Data #2"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="Data_3" Name="Data #3" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Value Of Data #3</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="505" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Value Of Data #3"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="PredicateData_1" Name="Predicate Data #1" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="822" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="PredicateData_2" Name="Predicate Data #2" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="826" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="OutputData" Name="Output Data" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="830" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="TwoSignalsParallel" Name="Two Signals Parallel" AccessLevel="PRIVATE">
@@ -233,12 +330,9 @@
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Activity Oid="59" IsHibernatedOnCreation="true">
                         <carnot:EventHandlers>
-                           <carnot:EventHandler Oid="77" Id="Signal1" Name="Signal1" Type="exception">
-                              <carnot:EventActions>
-                                 <carnot:EventAction Oid="78" Id="proceed" Name="proceed" Type="completeActivity" Kind="EVENT"/>
-                              </carnot:EventActions>
+                           <carnot:EventHandler Oid="77" Id="Signal1" Name="Signal1" Type="signal">
+                              <carnot:EventActions />
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:exceptionName" Value="java.lang.Exception"/>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -276,12 +370,9 @@
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Activity Oid="61" IsHibernatedOnCreation="true">
                         <carnot:EventHandlers>
-                           <carnot:EventHandler Oid="79" Id="Signal1" Name="Signal1" Type="exception">
-                              <carnot:EventActions>
-                                 <carnot:EventAction Oid="80" Id="proceed" Name="proceed" Type="completeActivity" Kind="EVENT"/>
-                              </carnot:EventActions>
+                           <carnot:EventHandler Oid="79" Id="Signal1" Name="Signal1" Type="signal">
+                              <carnot:EventActions />
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:exceptionName" Value="java.lang.Exception"/>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -451,7 +542,20 @@
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="507" Id="SignalData_1" Name="Signal Data #1" Direction="IN" Context="event-OnCompletion">
+                              <carnot:DataRef Id="Data_1"/>
+                              <carnot:AccessPointRef Id="SignalData_1"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="509" Id="SignalData_2" Name="Signal Data #2" Direction="IN" Context="event-OnCompletion">
+                              <carnot:DataRef Id="Data_2"/>
+                              <carnot:AccessPointRef Id="SignalData_2"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="511" Id="Ordinary_Data" Name="Ordinary Data" Direction="IN" Context="default">
+                              <carnot:DataRef Id="Data_3"/>
+                              <carnot:AccessPointRef Id="Ordinary_Data"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
@@ -468,22 +572,269 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
+            <Activity Id="StartActivity" Name="Start Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="805" IsHibernatedOnCreation="true">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
          </Activities>
-         <Transitions/>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="StartActivity" To="SendSignal">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="807"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="83">
                   <carnot:Triggers/>
-                  <carnot:DataPaths/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="801" Id="Data_1Path" Name="Data #1 Path" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="Data_1" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="802" Id="Data_2Path" Name="Data #2 Path" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="Data_2" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
                   <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="82" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
                         <carnot:Symbols>
                            <carnot:Symbol Kind="POOL" Oid="81" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="85" X="300" Y="140" Width="181" Height="51" ModelElement="SendSignal"/>
+                                 <carnot:Symbol Kind="DATA" Oid="502" X="190" Y="225" Width="100" Height="70" ModelElement="Data_1"/>
+                                 <carnot:Symbol Kind="DATA" Oid="504" X="340" Y="310" Width="100" Height="70" ModelElement="Data_2"/>
+                                 <carnot:Symbol Kind="DATA" Oid="506" X="515" Y="230" Width="100" Height="70" ModelElement="Data_3"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="806" X="300" Y="40" Width="181" Height="51" ModelElement="StartActivity"/>
                               </carnot:Symbols>
-                              <carnot:Connections/>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="508" SourceSymbol="502" TargetSymbol="85"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="510" SourceSymbol="504" TargetSymbol="85"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="512" SourceSymbol="506" TargetSymbol="85"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="808" ModelElement="Transition1" SourceSymbol="806" TargetSymbol="85" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="SignalWithPredicateData" Name="Signal With Predicate Data" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="StartActivity" Name="Start Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="812">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SignalAcceptorActivity" Name="Signal Acceptor Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="814" IsHibernatedOnCreation="true">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="700" Id="Signal1" Name="Signal1" Type="signal">
+                              <carnot:EventActions />
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="824" Id="PrimitiveData1" Name="PrimitiveData1" Direction="IN" Context="event-Signal1">
+                              <carnot:DataRef Id="PredicateData_1"/>
+                              <carnot:AccessPointRef Id="SignalData_1"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="828" Id="PrimitiveData2" Name="PrimitiveData2" Direction="IN" Context="event-Signal1">
+                              <carnot:DataRef Id="PredicateData_2"/>
+                              <carnot:AccessPointRef Id="SignalData_2"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="832" Id="OutputData" Name="OutputData" Direction="OUT" Context="event-Signal1">
+                              <carnot:DataRef Id="OutputData"/>
+                              <carnot:AccessPointRef Id="SignalData_2"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="EndActivity" Name="End Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="816">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="StartActivity" To="SignalAcceptorActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="818"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="SignalAcceptorActivity" To="EndActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="820"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="811">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="834" Id="PredicateData_1Path" Name="Predicate Data #1 Path" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="PredicateData_1" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="835" Id="PredicateData_2Path" Name="Predicate Data #2 Path" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="PredicateData_2" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="836" Id="OutputDataPath" Name="Output Data Path" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="OutputData" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="810" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="809" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="813" X="295" Y="80" Width="181" Height="51" ModelElement="StartActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="815" X="295" Y="210" Width="181" Height="51" ModelElement="SignalAcceptorActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="817" X="295" Y="345" Width="181" Height="51" ModelElement="EndActivity"/>
+                                 <carnot:Symbol Kind="DATA" Oid="823" X="70" Y="150" Width="110" Height="70" ModelElement="PredicateData_1"/>
+                                 <carnot:Symbol Kind="DATA" Oid="827" X="70" Y="260" Width="110" Height="70" ModelElement="PredicateData_2"/>
+                                 <carnot:Symbol Kind="DATA" Oid="831" X="585" Y="200" Width="100" Height="70" ModelElement="OutputData"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="819" ModelElement="Transition1" SourceSymbol="813" TargetSymbol="815" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="821" ModelElement="Transition2" SourceSymbol="815" TargetSymbol="817" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="825" SourceSymbol="823" TargetSymbol="815"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="829" SourceSymbol="827" TargetSymbol="815"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="833" SourceSymbol="831" TargetSymbol="815"/>
+                              </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
                         <carnot:Connections/>
@@ -634,6 +985,8 @@
                   </carnot:ApplicationContextType>
                   <carnot:ApplicationContextType Oid="20" Id="processInterface" Name="Process Interface Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="21" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true"/>
+                  <carnot:ApplicationContextType Oid="799" Id="event-OnCompletion" Name="Context for Event Handler 'OnCompletion'" IsPredefined="true" HasApplicationPath="false" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="800" Id="event-Signal1" Name="Context for Event Handler 'Signal1'" IsPredefined="true" HasApplicationPath="false" HasMappingId="false"/>
                </carnot:ApplicationContextTypes>
                <carnot:TriggerTypes>
                   <carnot:TriggerType Oid="22" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">
@@ -711,6 +1064,11 @@
                         <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/assignment/icon.gif"/>
                         <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.core.extensions.conditions.assignment.AssignmentConditionPropertiesPanel"/>
                         <carnot:Attribute Name="carnot:engine:condition" Value="org.eclipse.stardust.engine.core.extensions.conditions.assignment.AssignmentCondition"/>
+                     </carnot:Attributes>
+                  </carnot:EventConditionType>
+                  <carnot:EventConditionType Oid="900" Id="signal" Name="Catch Signal" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:condition" Value="org.eclipse.stardust.engine.core.extensions.conditions.NoOpCondition"/>
                      </carnot:Attributes>
                   </carnot:EventConditionType>
                </carnot:EventConditionTypes>

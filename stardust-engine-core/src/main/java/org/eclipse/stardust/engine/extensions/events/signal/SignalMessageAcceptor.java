@@ -1,6 +1,7 @@
 package org.eclipse.stardust.engine.extensions.events.signal;
 
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
@@ -14,9 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringKey;
@@ -25,6 +27,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
@@ -33,11 +36,12 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.OrTerm;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
+import org.eclipse.stardust.engine.core.pojo.data.JavaAccessPoint;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
@@ -49,7 +53,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
-import org.eclipse.stardust.engine.extensions.jms.app.JMSLocation;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageType;
 import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
@@ -94,8 +97,8 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          if (message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY))
          {
             String signalName = message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
-            trace.info("Accept message " + SendSignalEventAction.SIGNAL_EVENT_TYPE
-                     + " for signal name " + signalName + ".");
+            trace.info("Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE
+                     + "' for signal name '" + signalName + "'.");
 
             OrTerm activityFilter = new OrTerm();
 
@@ -116,17 +119,21 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             }
 
             Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-            ResultIterator iterator = session.getIterator(ActivityInstanceBean.class,
+            ResultIterator<ActivityInstanceBean> iterator = session.getIterator(ActivityInstanceBean.class,
                                 where(andTerm(isEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.HIBERNATED), activityFilter)));
 
             List<IActivityInstance> activities = newArrayList();
+            String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
             while(iterator.hasNext()) {
 
-               IActivityInstance activityInstance = (IActivityInstance) iterator.next();
-               trace.info("Found signal target: " + activityInstance);
-               activities.add(activityInstance);
-            }
+               IActivityInstance ai = iterator.next();
 
+               if (matchPredicateData(ai, eventContextName, message))
+               {
+                  trace.info("Found signal target: " + ai);
+                  activities.add(ai);
+               }
+            }
             iterator.close();
 
             return activities.iterator();
@@ -155,18 +162,33 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    }
 
    @Override
-   public Map<String, Object> getData(Message message, StringKey id, Iterator accessPoints)
+   public Map<String, Object> getData(Message message, StringKey id, final Iterator accessPoints)
    {
-      try
+      if ( !(message instanceof MapMessage))
       {
-         Object text = ((TextMessage) message).getText();
-         return Collections.singletonMap(BPMN_SIGNAL_CODE, text);
+         throw new UnsupportedOperationException("Only MapMessages are supported so far.");
       }
-      catch (JMSException e)
+      final MapMessage mapMsg = (MapMessage) message;
+
+
+      Map<String, Object> data = processMessage(new MessageProcessor<Map<String, Object>>()
       {
-         // TODO - bpmn-2-events - review exception handling
-         throw new PublicException(e);
-      }
+         @Override
+         public Map<String, Object> process() throws JMSException
+         {
+            Map<String, Object> result = newHashMap();
+
+            while (accessPoints.hasNext())
+            {
+               AccessPoint ap = (AccessPoint) accessPoints.next();
+               result.put(ap.getId(), mapMsg.getObject(ap.getId()));
+            }
+
+            return result;
+         }
+      });
+
+      return data;
    }
 
    @Override
@@ -184,24 +206,53 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    @Override
    public Collection<AccessPoint> getAccessPoints(StringKey messageType)
    {
-      List<AccessPoint> intrinsicAccessPoints = null;
-
-      if (messageType.equals(MessageType.TEXT))
-      {
-         intrinsicAccessPoints = newArrayList();
-         AccessPoint ap = JavaDataTypeUtils.createIntrinsicAccessPoint(BPMN_SIGNAL_CODE, BPMN_SIGNAL_CODE,
-               String.class.getName(), Direction.OUT, false, null);
-         ap.setAttribute(PredefinedConstants.JMS_LOCATION_PROPERTY, JMSLocation.BODY);
-
-         intrinsicAccessPoints.add(ap);
-      }
-      return intrinsicAccessPoints;
+      /* this one's never called */
+      return Collections.emptySet();
    }
 
    @Override
    public Collection<MessageType> getMessageTypes()
    {
       return Collections.singleton(MessageType.TEXT);
+   }
+
+   private boolean matchPredicateData(IActivityInstance ai, String eventContextName, Message message)
+   {
+      ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
+      Set<IDataMapping> eventMappings = newHashSet();
+      Set<AccessPoint> accessPoints = newHashSet();
+      for (IDataMapping dm : inDataMappings)
+      {
+         if (eventContextName.equals(dm.getContext()))
+         {
+            eventMappings.add(dm);
+            accessPoints.add(new JavaAccessPoint(dm.getActivityAccessPointId(), dm.getActivityAccessPointId(), Direction.IN));
+         }
+      }
+
+      Map<String, Object> data = getData(message, null, accessPoints.iterator());
+      if (accessPoints.size() > data.size())
+      {
+         return false;
+      }
+
+      for (IDataMapping dm : eventMappings)
+      {
+         Object aiDataValue = ai.getProcessInstance().getInDataValue(dm.getData(), dm.getDataPath());
+         Object msgDataValue = data.get(dm.getActivityAccessPointId());
+
+         if (aiDataValue == null)
+         {
+            continue;
+         }
+
+         if ( !aiDataValue.equals(msgDataValue))
+         {
+            return false;
+         }
+      }
+
+      return true;
    }
 
    private static class SignalMessageMatch implements Match
@@ -216,16 +267,19 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          this.activityInstance = activityInstance;
       }
 
-      public void process(AdministrationServiceImpl session, Message message)
+      public void process(AdministrationServiceImpl session, final Message message)
       {
          IProcessInstance subProcessInstance = ProcessInstanceBean.findForStartingActivityInstance(activityInstance
                .getOID());
 
-         Map<String, Object> data = acceptor.getData(message, null, null);
-
-         String escalationCode = null != data.get(BPMN_SIGNAL_CODE)
-               ? data.get(BPMN_SIGNAL_CODE).toString()
-               : "";
+         String escalationCode = processMessage(new MessageProcessor<String>()
+         {
+            @Override
+            public String process() throws JMSException
+            {
+               return message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
+            }
+         });
 
          IEventHandler matchingHandler = getMatchingHandler(escalationCode, activityInstance);
          if (null == matchingHandler)
@@ -254,14 +308,16 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             trace.info("Trigger NonInterrupting escalation flow due to event message; " + "activity instance = " + activityInstance.getOID());
             try
             {
+               String eventContextName = PredefinedConstants.EVENT_CONTEXT + escalationCode;
+               Map<String, ?> outData = retrieveOutData(message, eventContextName);
+
                // TODO - bpmn-2-events - get rid of copy/paste
                /**
                 * copied from CompleteActivityEventAction.execute()
                 */
                try
                {
-                  new WorkflowServiceImpl().activateAndComplete(activityInstance.getOID(), null,
-                        Collections.EMPTY_MAP, true);
+                  new WorkflowServiceImpl().activateAndComplete(activityInstance.getOID(), eventContextName, outData, true);
                }
                catch (IllegalStateChangeException e)
                {
@@ -297,6 +353,31 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       private boolean isInterrupting(IEventHandler handler)
       {
          return "Interrupting".equals(handler.getStringAttribute("carnot:engine:event:boundaryEventType"));
+      }
+
+      private Map<String, ?> retrieveOutData(Message message, String eventContextName)
+      {
+         Map<String, Object> result = CollectionUtils.newHashMap();
+
+         ModelElementList<IDataMapping> outDataMappings = activityInstance.getActivity().getOutDataMappings();
+         Set<IDataMapping> eventMappings = newHashSet();
+         Set<AccessPoint> accessPoints = newHashSet();
+         for (IDataMapping dm : outDataMappings)
+         {
+            if (eventContextName.equals(dm.getContext()))
+            {
+               eventMappings.add(dm);
+               accessPoints.add(new JavaAccessPoint(dm.getActivityAccessPointId(), dm.getActivityAccessPointId(), Direction.OUT));
+            }
+         }
+
+         Map<String, Object> data = acceptor.getData(message, null, accessPoints.iterator());
+         for (IDataMapping dm : eventMappings)
+         {
+            result.put(dm.getId(), data.get(dm.getActivityAccessPointId()));
+         }
+
+         return result;
       }
    }
 
@@ -377,4 +458,21 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       return null;
    }
 
+   private static <T> T processMessage(MessageProcessor<T> processor)
+   {
+      try
+      {
+         return processor.process();
+      }
+      catch (JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e);
+      }
+   }
+
+   private static interface MessageProcessor<T>
+   {
+      public T process() throws JMSException;
+   }
 }

@@ -205,10 +205,8 @@ public class ExportImportSupport
                   }
                }
                Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
-               Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
                dateToRootPiOids.put(date, rootOids);
-               dateToModelOids.put(date, exportMetaData.getModelOids(date));
-               result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
+               result.add(new ExportMetaData(exportMetaData.getModelOids(), processesToSubprocesses,
                      dateToRootPiOids, oidsToUuids));
             }
          }
@@ -227,139 +225,15 @@ public class ExportImportSupport
                }
             }
             Map<Date, List<Long>> dateToRootPiOids = new HashMap<Date, List<Long>>();
-            Map<Date, List<Integer>> dateToModelOids = new HashMap<Date, List<Integer>>();
             dateToRootPiOids.put(date, processesForDate);
-            dateToModelOids.put(date, exportMetaData.getModelOids(date));
-            result.add(new ExportMetaData(dateToModelOids, processesToSubprocesses,
+            result.add(new ExportMetaData(exportMetaData.getModelOids(), processesToSubprocesses,
                   dateToRootPiOids, oidsToUuids));
          }
       }
 
       return result;
    }
-
-   public static List<ExportResult> groupByExportModel(List<ExportResult> exportResults)
-   {
-      List<ExportResult> results;
-      if (CollectionUtils.isNotEmpty(exportResults))
-      {  
-         results = new ArrayList<ExportResult>();
-         Map<ExportModel, List<ExportResult>> modelToResults = new HashMap<ExportModel, List<ExportResult>>();
-         String partition = null;
-         for (ExportResult result : exportResults)
-         {
-            ExportModel model = result.getExportModel();
-            if (partition == null)
-            {
-               partition = model.getPartition();
-            }
-            else
-            {
-               if (!partition.equals(model.getPartition()))
-               {
-                  throw new IllegalArgumentException("All export models must be for the same partition");
-               }
-            }
-            
-            List<ExportResult> exports = modelToResults.get(model);
-            // we do not yet have results for this exportmodel
-            if (exports == null)
-            {
-               // see if there is an existing exportModel that we can combine with this model. IE they do not have conflicting IPP models in them
-               for (ExportModel temp : modelToResults.keySet())
-               {
-                  ExportModel combinedModel = addModel(temp, model);
-                  if (combinedModel != null)
-                  {
-                     exports = modelToResults.get(temp);
-                     modelToResults.remove(temp);
-                     model = combinedModel;
-                     break;
-                  }
-               }
-               if (exports == null)
-               {
-                  exports = new ArrayList<ExportResult>();
-               }
-               modelToResults.put(model, exports);
-            }
-            exports.add(result);
-         }
-         for (ExportModel model : modelToResults.keySet())
-         {
-            ExportResult exportResult = merge(modelToResults.get(model), model);
-            results.add(exportResult);
-         }
-      }
-      else
-      {
-         results = null;
-      }
-      return results;
-   }
-   
-   /**
-    * adds modelB to modelA if possible.
-    * if modelA is equal to modelB modelB is returned
-    * if modelA and modelB has no conflict their content is combined and returned as a new Object, else NULL is returned 
-    * @param modelA
-    * @param modelB
-    * @return
-    */
-   private static ExportModel addModel(ExportModel modelA, ExportModel modelB)
-   {
-      ExportModel result;
-      if (modelA.equals(modelB))
-      {
-         result = modelB;
-      }
-      else
-      {
-         if (!hasModelConflict(modelA, modelB))
-         {
-            Map<Integer, String> modelOidToUuid = new HashMap<Integer, String>();
-            Map<String, String> uuidToXpdl = new HashMap<String, String>();
-            Map<String, Long> fqIdToRtOid = new HashMap<String, Long>();
-            
-            modelOidToUuid.putAll(modelA.getModelOidToUuid());
-            modelOidToUuid.putAll(modelB.getModelOidToUuid());
-            uuidToXpdl.putAll(modelA.getUuiIdToXpdl());
-            uuidToXpdl.putAll(modelB.getUuiIdToXpdl());
-            fqIdToRtOid.putAll(modelA.getFqIdToRtOid());
-            fqIdToRtOid.putAll(modelB.getFqIdToRtOid());
-            result = new ExportModel(fqIdToRtOid, modelOidToUuid, uuidToXpdl, modelB.getPartition());
-         }
-         else
-         {
-            result = null;
-         }
-      }
-      return result;
-   }
-   
-   private static boolean hasModelConflict(ExportModel modelA, ExportModel modelB)
-   {
-      boolean hasConflict = !modelA.equals(modelB);
-      if (hasConflict)
-      {
-         for (Integer key : modelA.getModelOidToUuid().keySet())
-         {
-            String uuidA = modelA.getModelOidToUuid().get(key);
-            String uuidB = modelB.getModelOidToUuid().get(key);
-            // if uuidB is null ExportModel B is not in conflict, it just doesn't have that model in it
-            if (uuidB != null)
-            {
-               hasConflict = !uuidA.equals(uuidB);
-               if (hasConflict)
-               {
-                  break;
-               }
-            }
-         }
-      }
-      return hasConflict;
-   }
-   
+      
    /**
     * Formats a date with the given dateFormat, if dateFormat is empty
     * ArchiveManagerFactory.getDateFormat() is used
@@ -388,7 +262,7 @@ public class ExportImportSupport
       }
    }
    
-   public static ExportResult merge(List<ExportResult> exportResults, ExportModel exportModel)
+   public static ExportResult merge(List<ExportResult> exportResults, Map<Date,ExportModel> exportModelByDate)
    {
       ExportResult exportResult;
       if (CollectionUtils.isNotEmpty(exportResults))
@@ -409,6 +283,10 @@ public class ExportImportSupport
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
+         if (exportModelByDate == null)
+         {
+            exportModelByDate = new HashMap<Date, ExportModel>();
+         }
          String archiveManagerId = null;
          String dateFormat = null;
          String dumpLocation = null;
@@ -467,14 +345,25 @@ public class ExportImportSupport
                   
                   mergeFields(index, result.getExportIndex(date));
                   index.getOidsToUuids().putAll(result.getExportIndex(date).getOidsToUuids());
-                  if (exportModel == null)
+                  ExportModel fromModel = result.getExportModel(date);
+                  if (fromModel != null)
                   {
-                     exportModel = result.getExportModel();
+                     ExportModel exportModel = exportModelByDate.get(date);
+                     if (exportModel == null)
+                     {
+                        exportModelByDate.put(date, fromModel);
+                     }
+                     else
+                     {
+                        exportModel.getFqIdToRtOid().putAll(fromModel.getFqIdToRtOid());
+                        exportModel.getModelOidToUuid().putAll(fromModel.getModelOidToUuid());
+                        exportModel.getUuiIdToXpdl().putAll(fromModel.getUuiIdToXpdl());
+                     }
                   }
                }
             }
          }
-         exportResult = new ExportResult(exportModel, resultsByDate, indexByDate,
+         exportResult = new ExportResult(exportModelByDate, resultsByDate, indexByDate,
                processInstanceOidsByDate, processLengthsByDate, dumpLocation, purgeProcessIds);
       }
       else
@@ -508,7 +397,11 @@ public class ExportImportSupport
          }
       }
    }
-
+   /**
+    * This rounds a date off to the hour (floor)
+    * @param date
+    * @return
+    */
    public static Date getIndexDateTime(Date date)
    {
       if (date == null)
@@ -520,36 +413,6 @@ public class ExportImportSupport
       c.set(Calendar.MINUTE, 0);
       c.set(Calendar.SECOND, 0);
       c.set(Calendar.MILLISECOND, 0);
-      return c.getTime();
-   }
-
-   public static Date getStartOfDay(Date date)
-   {
-      if (date == null)
-      {
-         return null;
-      }
-      Calendar c = Calendar.getInstance();
-      c.setTime(date);
-      c.set(Calendar.HOUR_OF_DAY, 0);
-      c.set(Calendar.MINUTE, 0);
-      c.set(Calendar.SECOND, 0);
-      c.set(Calendar.MILLISECOND, 0);
-      return c.getTime();
-   }
-
-   public static Date getEndOfDay(Date date)
-   {
-      if (date == null)
-      {
-         return null;
-      }
-      Calendar c = Calendar.getInstance();
-      c.setTime(date);
-      c.set(Calendar.HOUR_OF_DAY, 23);
-      c.set(Calendar.MINUTE, 59);
-      c.set(Calendar.SECOND, 59);
-      c.set(Calendar.MILLISECOND, 999);
       return c.getTime();
    }
 

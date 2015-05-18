@@ -30,6 +30,8 @@ public class ExportResult implements Serializable
    private transient final Map<Long, Date> piOidsToDate = new HashMap<Long, Date>();
 
    private final Map<Date, ExportIndex> exportIndexByDate;
+   
+   private Map<Date, ExportModel> exportModelByDate;
 
    private final Map<Date, List<Long>> processInstanceOidsByDate;
 
@@ -37,19 +39,17 @@ public class ExportResult implements Serializable
 
    private boolean open = true;
 
-   private ExportModel exportModel;
-
    private final Set<Long> purgeProcessIds;
 
    private String dumpLocation;
 
-   public ExportResult(ExportModel exportModel, HashMap<Date, byte[]> resultsByDate,
+   public ExportResult(Map<Date, ExportModel> exportModelByDate, HashMap<Date, byte[]> resultsByDate,
          HashMap<Date, ExportIndex> exportIndexByDate,
          Map<Date, List<Long>> processInstanceOidsByDate,
          Map<Date, List<Integer>> processLengthsByDate, String dumpLocation,
          Set<Long> purgeProcessIds)
    {
-      this.exportModel = exportModel;
+      this.exportModelByDate = exportModelByDate;
       this.resultsByDate = resultsByDate;
       this.exportIndexByDate = exportIndexByDate;
       this.processInstanceOidsByDate = processInstanceOidsByDate;
@@ -67,6 +67,7 @@ public class ExportResult implements Serializable
       this.processLengthsByDate = new HashMap<Date, List<Integer>>();
       this.purgeProcessIds = new HashSet<Long>();
       this.dumpLocation = dumpLocation;
+      this.exportModelByDate = new HashMap<Date, ExportModel>();
    }
 
    private static void addExportProcess(ExportIndex exportIndex, IProcessInstance rootProcess,
@@ -270,7 +271,7 @@ public class ExportResult implements Serializable
          List<Persistent> subs = new ArrayList<Persistent>();
          List<Persistent> other = new ArrayList<Persistent>();
 
-         Set<Integer> modelOids = new HashSet<Integer>();
+         Map<Date, Set<Integer>> modelOidsByDate = new HashMap<Date, Set<Integer>>();
          for (Persistent persistent : persistents)
          {
             if (persistent instanceof ProcessInstanceBean)
@@ -280,6 +281,13 @@ public class ExportResult implements Serializable
                if (process.getRootProcessInstanceOID() == process.getOID())
                {
                   addResult(session, process);
+                  Date indexDate = ExportImportSupport.getIndexDateTime(process.getStartTime());
+                  Set<Integer> modelOids = modelOidsByDate.get(indexDate);
+                  if (modelOids == null)
+                  {
+                     modelOids = new HashSet<Integer>();
+                     modelOidsByDate.put(indexDate, modelOids);
+                  }
                   modelOids.add(process.getProcessDefinition().getModel().getModelOID());
                }
                else
@@ -293,7 +301,10 @@ public class ExportResult implements Serializable
             }
             
          }
-         exportModel = ExportImportSupport.exportModels(modelOids);
+         for (Date indexDate : modelOidsByDate.keySet())
+         {
+            exportModelByDate.put(indexDate, ExportImportSupport.exportModels(modelOidsByDate.get(indexDate)));
+         }
          for (Persistent persistent : subs)
          {
             addResult(session, persistent);
@@ -385,7 +396,7 @@ public class ExportResult implements Serializable
 
    public boolean hasExportModel()
    {
-      return exportModel != null;
+      return CollectionUtils.isNotEmpty(exportModelByDate.keySet());
    }
 
    public boolean hasExportData()
@@ -393,14 +404,20 @@ public class ExportResult implements Serializable
       return CollectionUtils.isNotEmpty(resultsByDate.keySet());
    }
 
-   public void setExportModel(ExportModel exportModel)
+   public void setExportModelByDate(Map<Date, ExportModel> exportModelByDate)
    {
-      this.exportModel = exportModel;
+      this.exportModelByDate = exportModelByDate;
    }
 
-   public ExportModel getExportModel()
+   public ExportModel getExportModel(Date startDate)
    {
-      return exportModel;
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      return exportModelByDate.get(indexDate);
+   }
+   
+   public Map<Date, ExportModel> getExportModelsByDate()
+   {
+      return exportModelByDate;
    }
 
    public Set<Long> getPurgeProcessIds()

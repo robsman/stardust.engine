@@ -188,7 +188,7 @@ public class ExportCommand extends BaseExportImportCommand
          List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
                batchSize);
          print("Found " + batches.size() + " batches to export");
-         final ExportModel exportModel;
+         final Map<Date, ExportModel> exportModel;
          if (exportMetaData.getAllProcessesForExport(dumpLocation != null).size() > 0)
          {
             exportModel = exportModel(partitionId, exportMetaData, serviceFactory, dumpLocation);
@@ -355,7 +355,7 @@ public class ExportCommand extends BaseExportImportCommand
       return exportMetaData;
    }
 
-   private ExportModel exportModel(final String partitionId,
+   private Map<Date, ExportModel> exportModel(final String partitionId,
          final ExportMetaData exportMetaData, final ServiceFactory serviceFactory, String dumpLocation)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
@@ -370,7 +370,7 @@ public class ExportCommand extends BaseExportImportCommand
       else
       {
          print("Model exported");
-         return exportResult.getExportModel();
+         return exportResult.getExportModelsByDate();
       }
    }
 

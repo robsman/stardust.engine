@@ -908,6 +908,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertQueueEmpty();
    }
    
+   @SuppressWarnings("unchecked")
    @Test
    public void testModelRedeployBeforeArchive() throws Exception
    {
@@ -946,24 +947,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel.getOID()));
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piDeferred.getOID()));
 
-      // we have completed three processes from two different models
-      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
-      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
-      assertNotNull(oldInstances);
-      assertNotNull(oldActivities);
-      assertEquals(3, oldInstances.size());
-      assertEquals(10, oldActivities.size());
-
-      // clear the completed processes without archive queue cleared yet
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      ExportResult exportResult = (ExportResult) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
-      ArchiveTest.assertNotNullExportResult(exportResult);
-      
-      // delete all the models, then redeploy them so they have different ids
-      adminService.deleteModel(modelOID2);
-      adminService.deleteModel(modelOID1);
+      // redeploy models so they have different ids
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER2);
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
@@ -994,57 +978,34 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piOtherModel2.getOID()));
       orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(piDeferred2.getOID()));
       
-      // clear the completed processes without archive queue cleared yet
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      exportResult = (ExportResult) workflowService
-            .execute(new ExportProcessesCommand(
-                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null));
-      ArchiveTest.assertNotNullExportResult(exportResult);
-
-      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
-      assertNotNull(clearedInstances);
-      assertEquals(3, clearedInstances.size());
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(6, oldInstances.size());
+      assertEquals(20, oldActivities.size());
       
       archiveQueue();
 
-      clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
       assertNotNull(clearedInstances);
       assertEquals(0, clearedInstances.size());
       
-      @SuppressWarnings("unchecked")
+      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
-      assertEquals(2, archives.size());
+      assertEquals(1, archives.size());
 
-      IArchive archive1 = null;
-      IArchive archive2 = null;
-      for (IArchive archive : archives)
-      {
-         if (archive.getExportModel().getModelOidToUuid().containsKey(modelOID1))
-         {
-            archive1 = archive;
-         }
-         if (archive.getExportModel().getModelOidToUuid().containsKey(modelOID12))
-         {
-            archive2 = archive;
-         }
-      }
-      assertNotNull(archive1);
-      assertNotNull(archive2);
-      assertEquals(2, archive1.getExportModel().getModelOidToUuid().size());
-      assertEquals(2, archive2.getExportModel().getModelOidToUuid().size());
+      IArchive archive1 = archives.get(0);
+      assertEquals(4, archive1.getExportModel().getModelOidToUuid().size());
       assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID1));
       assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID2));
-      assertTrue(archive2.getExportModel().getModelOidToUuid().containsKey(modelOID12));
-      assertTrue(archive2.getExportModel().getModelOidToUuid().containsKey(modelOID22));
+      assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID12));
+      assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID22));
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null));
-      assertEquals(3, count);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
-         count += (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive2, filter, null, null));
       Models models = queryService.getModels(DeployedModelQuery
             .findForId(ArchiveModelConstants.MODEL_ID_OTHER2));
       DeployedModelDescription model = models.get(0);
@@ -1053,8 +1014,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(6, count);
       ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
-      assertEquals(6, newInstances.size());
-      assertEquals(20, newActivities.size());
+
+      ArchiveTest.assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, false);
+      ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities, false);
       assertQueueEmpty();
    }
    
@@ -1077,7 +1039,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.completeOther(piOtherModel, 5, queryService, workflowService);
       int modelOID2 = piOtherModel.getModelOID();
 
-
       ProcessInstanceStateBarrier.instance().await(piOtherModel.getOID(),
             ProcessInstanceState.Completed);
       
@@ -1090,7 +1051,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       ProcessInstanceStateBarrier.instance().await(piDeferred.getOID(),
             ProcessInstanceState.Completed);
-      
     
       ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
       FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();

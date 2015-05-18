@@ -201,12 +201,8 @@ public class ExportProcessesCommand implements ServiceCommand
       
       if (!exportResults.isEmpty())
       {
-         List<ExportResult> groupedResults = ExportImportSupport.groupByExportModel(exportResults);
-         for (ExportResult result : groupedResults)
-         {
-            exportResult = result;
-            archive(session);
-         }
+         exportResult = ExportImportSupport.merge(exportResults, null);
+         archive(session);
       }
       return true;
    }
@@ -282,11 +278,12 @@ public class ExportProcessesCommand implements ServiceCommand
                Gson gson = ExportImportSupport.getGson();
                if (success)
                {
-                  success = archiveManager.addModel(key, gson.toJson(exportResult.getExportModel()));
-                  for (Integer oid : exportResult.getExportModel().getModelOidToUuid().keySet())
+                  
+                  success = archiveManager.addModel(key, gson.toJson(exportResult.getExportModel(date)));
+                  for (Integer oid : exportResult.getExportModel(date).getModelOidToUuid().keySet())
                   {
-                     String uuid = exportResult.getExportModel().getModelOidToUuid().get(oid);
-                     String xpdl = exportResult.getExportModel().getUuiIdToXpdl().get(uuid);
+                     String uuid = exportResult.getExportModel(date).getModelOidToUuid().get(oid);
+                     String xpdl = exportResult.getExportModel(date).getUuiIdToXpdl().get(uuid);
                      success = archiveManager.addXpdl(key, uuid, xpdl);
                   }
                   if (!success)
@@ -366,12 +363,18 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private void exportModels(Session session)
    {
-      ExportModel exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids());
+      Map<Date, ExportModel> exportModelByDate = new HashMap<Date, ExportModel>();
+      
+      for (Date date : exportMetaData.getModelOids().keySet())
+      {
+         ExportModel exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids().get(date));
+         exportModelByDate.put(date, exportModel);
+      }
       if (exportResult == null)
       {
          exportResult = new ExportResult(dumpLocation);
       }
-      exportResult.setExportModel(exportModel);
+      exportResult.setExportModelByDate(exportModelByDate);
    }
 
    private void query(QueryService queryService, Session session)
@@ -712,19 +715,19 @@ public class ExportProcessesCommand implements ServiceCommand
 
       private final Map<Date, List<Long>> dateToRootPIOids;
 
-      private final Map<Date, List<Integer>> dateToModelOids;
+      private final Map<Date, Set<Integer>> dateToModelOids;
       
       private final Map<Long, String> oidsToUuids;
 
       public ExportMetaData()
       {
-         this.dateToModelOids = new HashMap<Date, List<Integer>>();
+         this.dateToModelOids = new HashMap<Date, Set<Integer>>();
          this.rootToSubProcesses = new HashMap<Long, ArrayList<Long>>();
          this.dateToRootPIOids = new HashMap<Date, List<Long>>();
          this.oidsToUuids = new HashMap<Long, String>();
       }
 
-      public ExportMetaData(Map<Date, List<Integer>> dateToModelOids,
+      public ExportMetaData(Map<Date, Set<Integer>> dateToModelOids,
             HashMap<Long, ArrayList<Long>> rootToSubProcesses,
             Map<Date, List<Long>> dateToRootProcessInstanceOids, 
             Map<Long, String> oidsToUuids)
@@ -751,24 +754,11 @@ public class ExportProcessesCommand implements ServiceCommand
        * 
        * @return
        */
-      public List<Integer> getModelOids(Date date)
+      public Map<Date, Set<Integer>> getModelOids()
       {
-         if (date == null)
-         {
-            throw new IllegalArgumentException("Invalid date provided");
-         }
-         return dateToModelOids.get(date);
+         return dateToModelOids;
       }
 
-      public Set<Integer> getModelOids()
-      {
-         HashSet<Integer> result = new HashSet<Integer>();
-         for (Date date : dateToModelOids.keySet())
-         {
-            result.addAll(dateToModelOids.get(date));
-         }
-         return result;
-      }
 
       public Map<Long, String> getOidsToUuids()
       {
@@ -889,10 +879,10 @@ public class ExportProcessesCommand implements ServiceCommand
                siblingList.add(oid);
             }
          }
-         List<Integer> modelOids = dateToModelOids.get(indexDateTime);
+         Set<Integer> modelOids = dateToModelOids.get(indexDateTime);
          if (modelOids == null)
          {
-            modelOids = new ArrayList<Integer>();
+            modelOids = new HashSet<Integer>();
             dateToModelOids.put(indexDateTime, modelOids);
          }
          // these are the models that needs to be exported so we only need to export

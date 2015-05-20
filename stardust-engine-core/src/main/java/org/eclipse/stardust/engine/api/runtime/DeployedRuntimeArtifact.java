@@ -14,11 +14,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * The {@link DeployedRuntimeArtifact} is including a unique identifier.<br>
+ * A deployed runtime artifact is including a unique oid.<br>
  * It does not contain binary content like the {@link RuntimeArtifact}.
  * <p>
- * To retrieve the {@link RuntimeArtifact} which contains the content the oid can be used
- * on the service methods.
+ * The {@link RuntimeArtifact} including the content can be retrieved by oid
+ * using other service methods.
  *
  * @author Roland.Stamm
  *

@@ -15,8 +15,7 @@ import java.util.Date;
 import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery;
 
 /**
- * An {@link RuntimeArtifact} is an artifact which is deployable and then valid at
- * runtime.
+ * An artifact which can be deployed and is valid from a specified date at runtime.
  * <p>
  * Each runtime artifact consists of:
  * <pre>

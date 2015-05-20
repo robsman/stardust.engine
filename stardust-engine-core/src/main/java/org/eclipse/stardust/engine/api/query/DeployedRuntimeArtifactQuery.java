@@ -106,7 +106,7 @@ public class DeployedRuntimeArtifactQuery extends Query
       this(false);
    }
 
-   protected DeployedRuntimeArtifactQuery(boolean includeOnlyActive)
+   public DeployedRuntimeArtifactQuery(boolean includeOnlyActive)
    {
       super(FILTER_VERIFIER);
       this.includeOnlyActive = includeOnlyActive;

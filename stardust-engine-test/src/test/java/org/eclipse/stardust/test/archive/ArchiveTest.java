@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,6 +51,7 @@ import org.eclipse.stardust.engine.core.persistence.archive.ExportProcessesComma
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -90,7 +92,28 @@ public class ArchiveTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
-   @Before
+   @BeforeClass
+   public static void clearManagers()
+   {
+      ArchiveManagerFactory.resetArchiveManagers();
+   }
+   
+   @Before 
+   public void init() throws Exception
+   {
+      setUp();
+      ArchiveTest.deletePreferences();
+      int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
+      createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
+            "testid");
+      createPreference(id, ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "false");
+   }
+   
    public void setUp() throws Exception
    { 
       testTimestampProvider = new TestTimestampProvider();
@@ -100,39 +123,36 @@ public class ArchiveTest
       GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
             3);
 
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            "testid");
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "false");
-      ((MemoryArchiveManager) ArchiveManagerFactory.getArchiveManagerFactory(null)).clear();
    }
 
    @After
-   public void tearDown()
+   public void tearDown() throws Exception
    {
+      clearArchiveManager("default");
+      clearArchiveManager(PARTION_A);
+      clearArchiveManager(PARTION_B);
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
       GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
             null);
-
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER, null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
-            null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            null);
    }
-   
-   @Test
-   public void testGenerateArchiveManagerId() throws Exception
+
+   protected static void clearArchiveManager(String partition)
    {
-      WorkflowService workflowService = sf.getWorkflowService();
-      QueryService queryService = sf.getQueryService();
+      try
+      {
+         IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManager(partition);
+         ((MemoryArchiveManager) archiveManager).clear();
+      }
+      catch (Exception e)
+      {
+         //ignoring incase default archivemanager doesnt exist
+      }
+   }
+       
+   @Test
+   public void testArchiveManagerId() throws Exception
+   {
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_B, "sysop");
 
@@ -140,15 +160,49 @@ public class ArchiveTest
       Map<String, Object> propertiesB = new HashMap<String, Object>();
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            null);
-      startAndCompleteSimple(workflowService, queryService);
+      
+      ServiceFactory factoryA = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
+            ADMIN_USER_PWD_PAIR.password(), propertiesA);
+      ServiceFactory factoryB = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
+            ADMIN_USER_PWD_PAIR.password(), propertiesB);
+
+      WorkflowService wsA = factoryA.getWorkflowService();
+      QueryService qsA = factoryA.getQueryService();
+      AdministrationService asA = factoryA.getAdministrationService();
+
+      WorkflowService wsB = factoryB.getWorkflowService();
+      QueryService qsB = factoryB.getQueryService();
+      AdministrationService asB = factoryB.getAdministrationService();
+
+      RtEnvHome.deployModel(asA, null, ArchiveModelConstants.MODEL_ID);
+      RtEnvHome.deployModel(asB, null, ArchiveModelConstants.MODEL_ID);
+      setUp();
+      
+      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
+      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
+      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+     
+      startAndCompleteSimple(wsA, qsA);
+      startAndCompleteSimple(wsB, qsB);
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      exportAndArchive(workflowService, filter);      
+      exportAndArchive(wsA, filter);      
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      List<IArchive> archives = findArchives(workflowService, filter, 1);
+      exportAndArchive(wsB, filter);      
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = findArchives(wsA, filter, 1);
       IArchive archive = archives.get(0);
-      assertEquals("bob", archive.getArchiveManagerId());
+      assertEquals(PARTION_A, archive.getArchiveManagerId());
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      archives = findArchives(wsB, filter, 1);
+      archive = archives.get(0);
+      assertEquals(PARTION_B, archive.getArchiveManagerId());
 
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_B, "sysop");
@@ -164,6 +218,17 @@ public class ArchiveTest
       Map<String, Object> propertiesB = new HashMap<String, Object>();
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
+      
+      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
+      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
+      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
 
       ServiceFactory factoryA = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
             ADMIN_USER_PWD_PAIR.password(), propertiesA);
@@ -288,6 +353,17 @@ public class ArchiveTest
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
 
+      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
+      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
+      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      
       ServiceFactory factoryA = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
             ADMIN_USER_PWD_PAIR.password(), propertiesA);
       ServiceFactory factoryB = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
@@ -892,7 +968,6 @@ public class ArchiveTest
       Boolean success = (Boolean) workflowService.execute(command);
       assertTrue(success);
    }
-   
    
    @Test
    public void testMultiModelExportFilterByModelWithNoDep() throws Exception
@@ -3265,7 +3340,7 @@ public class ArchiveTest
       assertNotNullModel(exportResult);
       HashMap<Long, byte[]> data = new HashMap<Long, byte[]>();
       data.put(1L, new byte[] {1});
-      String json = getExportIndexJSON();
+      String json = getExportIndexJSON(workflowService);
 
       MemoryArchive archive = new MemoryArchive("key", testTimestampProvider.getTimestamp(),
             data, getJSON(exportResult.getExportModel(testTimestampProvider.getTimestamp())), json);
@@ -3280,15 +3355,20 @@ public class ArchiveTest
 
    }
 
-   private String getExportIndexJSON()
+   private String getExportIndexJSON(WorkflowService workflowService)
    {
+      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  null));
       Map<Long, List<Long>> oids = new HashMap<Long, List<Long>>();
-      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + 1 + "_"
+      String uuid = getArchiveManagerId("default") + "_" + 1 + "_"
             + testTimestampProvider.getTimestamp().getTime();
       String start = "2015/03/05 00:00:00:000";
       String end = "2015/03/05 13:00:00:000";
       oids.put(1L, new ArrayList<Long>());
-      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), ArchiveManagerFactory.getDateFormat(), "c");
+      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), getDateFormat("default"), "c");
       List<Long> subProcesses = new ArrayList<Long>();
       exportIndex.getRootProcessToSubProcesses().put(1L, subProcesses);
       exportIndex.setUuid(1L, uuid);
@@ -3296,6 +3376,16 @@ public class ArchiveTest
       exportIndex.addField(1L, ExportIndex.FIELD_END_DATE, end);
       String json = getJSON(exportIndex);
       return json;
+   }
+
+   private String getDateFormat(String partition)
+   {
+      return ArchiveManagerFactory.getDateFormat(partition);
+   }
+
+   private String getArchiveManagerId(String partition)
+   {
+      return ArchiveManagerFactory.getCurrentId(partition);
    }
 
    private String getJSON(ExportIndex index)
@@ -3357,7 +3447,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {5});
-      String json = getExportIndexJSON();
+      String json = getExportIndexJSON(workflowService);
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), new HashMap<String, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -3374,7 +3464,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_EOF});
-      String json = getExportIndexJSON();
+      String json = getExportIndexJSON(workflowService);
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
            new HashMap<Integer, String>(), new HashMap<String, String>(), "");
       
@@ -3392,7 +3482,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES});
-      String json = getExportIndexJSON();
+      String json = getExportIndexJSON(workflowService);
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), new HashMap<String, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -3409,7 +3499,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES, 5});
-      String json = getExportIndexJSON();
+      String json = getExportIndexJSON(workflowService);
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), new HashMap<String, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -7004,7 +7094,7 @@ public class ArchiveTest
       Long exportProcess = oldIndex.getRootProcessToSubProcesses().keySet().iterator().next();
       oldIndex.addField(exportProcess, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
   
-      ExportIndex exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), "yyyy-dd-MM HH:mm", null);
+      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), "yyyy-dd-MM HH:mm", null);
       
       for (Long oid : oldIndex.getRootProcessToSubProcesses().keySet())
       {
@@ -7801,6 +7891,69 @@ public class ArchiveTest
          }
       }
 
+   }
+   
+   protected static void createPreference(Integer partitionOid, String name, String value)
+         throws Exception
+   {
+      final DataSource ds = testClassSetup.dataSource();
+
+      String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+      "<preferences id=\"" + name + "\" module=\"stardust-archiving\">" +
+        "<preference name=\"" + name + "\">" + value + "</preference>" +
+      "</preferences>";
+
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = ds.getConnection();
+         stmt = connection.createStatement();
+         int count = stmt
+               .executeUpdate("INSERT INTO PUBLIC."
+                     + PreferencesBean.TABLE_NAME
+                     + " (OWNERID, OWNERTYPE, MODULEID, PREFERENCESID, PARTITION, STRINGVALUE) "
+                     + " VALUES (" + partitionOid + ", 'PARTITION', '" 
+                     + ArchiveManagerFactory.MODULE_ID_STARDUST_ARCHIVING + "', '" + name + "', " + partitionOid + ", '" + xml + "')");
+         assertEquals(1, count);
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+
+   }
+   
+   protected static void deletePreferences() throws Exception
+   {
+      final DataSource ds = testClassSetup.dataSource();
+
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = ds.getConnection();
+         stmt = connection.createStatement();
+         stmt.executeUpdate("DELETE FROM PUBLIC." + PreferencesBean.TABLE_NAME);
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
    }
 
    @Test
@@ -8736,6 +8889,45 @@ public class ArchiveTest
 
       return result;
    }
+   
+   protected static Object getEntryInDbForObject(final String tableName, String fieldName,
+         final String value, String selectField) throws SQLException
+   {
+      final DataSource ds = testClassSetup.dataSource();
+      final Object result;
+
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = ds.getConnection();
+         stmt = connection.createStatement();
+         final ResultSet rs = stmt.executeQuery("SELECT " + selectField + " FROM PUBLIC."
+               + tableName + " WHERE " + fieldName + " = '" + value + "'");
+         if (rs.next())
+         {
+            result = rs.getObject(selectField);
+         }
+         else
+         {
+            result = null;
+         }
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+
+      return result;
+   }
+   
    
    protected static void assertDataExists(long processInstanceOid, long activityOid,
          String processName, String dataId, Serializable expectedValue,

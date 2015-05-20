@@ -5,14 +5,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.util.StringUtils;
 
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -43,8 +41,6 @@ public class ZipArchiveManager extends BaseArchiveManager
 
    private static final String FILENAME_ZIP_PREFIX = "export_";
 
-   private static volatile ConcurrentHashMap<String,ZipArchiveManager> MANAGERS = CollectionUtils.newConcurrentHashMap();
-   
    private final String archiveManagerId;
 
    private final String rootFolder;
@@ -53,76 +49,74 @@ public class ZipArchiveManager extends BaseArchiveManager
 
    private final String folderFormat;
 
+   private final String dateFormat;
+   
+   private final boolean autoArchive;
+
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
    private final ZipFileFilter zipFileFilter = new ZipFileFilter();
 
    public static final int BUFFER_SIZE = 1024 * 16;
 
-   private ZipArchiveManager(String archiveManagerId, String rootFolder, String folderFormat, long zipFileSize)
+   public ZipArchiveManager(Map<String, String> preferences)
    {
-      this.archiveManagerId = archiveManagerId;
-      if (!rootFolder.endsWith(File.separator))
-      {
-         rootFolder += File.separator;
-      }
-      this.rootFolder = rootFolder;
-      this.folderFormat = folderFormat;
-      this.zipFileSize = zipFileSize;
-   }
-   
-   public static ZipArchiveManager getInstance(Map<String, String> preferences)
-   {
-      String rootFolder = ArchiveManagerFactory.getPreferenceValue(preferences,
-            ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER, "");
+      String rootFolder = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER);
       if (StringUtils.isEmpty(rootFolder.trim()))
       {
          throw new IllegalArgumentException(
                ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER
                      + " must be provided for ZIP archive type");
       }
-      String id = ArchiveManagerFactory.getPreferenceValue(preferences,
-            ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID, null);
+      String id = preferences.get(
+            ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID);
 
       if (StringUtils.isEmpty(id))
-      {
+      {     
          throw new IllegalArgumentException(
-               ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
-                     + " must be provided for ZIP archive type");
+                  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
+                        + " must be provided for ZIP archive type");
       }
-      String key = id + rootFolder;
-      if (!MANAGERS.containsKey(key))
+      this.archiveManagerId = id;
+      if (!rootFolder.endsWith(File.separator))
       {
-         synchronized (ZipArchiveManager.class)
-         {
-            if (!MANAGERS.containsKey(key))
-            {
-               String folderFormat = ArchiveManagerFactory.getPreferenceValue(preferences,
-                     ArchiveManagerFactory.CARNOT_ARCHIVE_FOLDER_FORMAT,
-                     ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
-               int zipFileSize = ArchiveManagerFactory.getPreferenceValueInt(preferences,
-                     ArchiveManagerFactory.ARCHIVE_ZIP_FILE_SIZE_MB,
-                     ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
-               if (zipFileSize <= 0)
-               {
-                  zipFileSize = ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB;
-               }
-               zipFileSize *= 1024 * 1024;
-               ZipArchiveManager manager = new ZipArchiveManager(id, rootFolder,
-                     folderFormat, zipFileSize);
-               MANAGERS.put(key, manager);
-            }
-         }
+         rootFolder += File.separator;
       }
-      return MANAGERS.get(key);
+      String folderFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_FOLDER_FORMAT);
+      int zipFileSize = Integer.valueOf(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_ZIP_FILE_SIZE_MB));
+      String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_DATE_FORMAT);
+      boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE));
+      
+      if (zipFileSize <= 0)
+      {
+         zipFileSize = new Integer(ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
+      }
+      zipFileSize *= 1024 * 1024;
+      this.rootFolder = rootFolder;
+      this.folderFormat = folderFormat;
+      this.dateFormat = dateFormat;
+      this.zipFileSize = zipFileSize;
+      this.autoArchive = auto;
    }
-
+   
    @Override
    public String getArchiveManagerId()
    {
       return archiveManagerId;
    }
    
+   @Override
+   public String getDateFormat()
+   {
+      return dateFormat;
+   }
+
+   @Override
+   public boolean isAutoArchive()
+   {
+      return autoArchive;
+   }
+
    @Override
    public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives,
          Date fromDate, Date toDate, Map<String, Object> descriptors)

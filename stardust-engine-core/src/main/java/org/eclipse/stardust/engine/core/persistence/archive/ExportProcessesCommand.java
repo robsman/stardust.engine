@@ -131,9 +131,14 @@ public class ExportProcessesCommand implements ServiceCommand
    @Override
    public Serializable execute(ServiceFactory sf)
    {
+      if (ArchiveManagerFactory.getArchiveManager() == null)
+      {
+         throw new IllegalStateException("A valid Archive Manager could not be found or created");
+      }
       if (LOGGER.isDebugEnabled())
       {
-         LOGGER.debug("START Export Operation: " + this.operation.name());
+         LOGGER.debug("START Export Operation: " + this.operation.name() + " for " + 
+               ArchiveManagerFactory.getArchiveManager().getArchiveManagerId());
       }
       final Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
@@ -252,7 +257,7 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private Boolean archive(Session session)
    {
-      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManagerFactory(null);
+      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManager();
       boolean success = true;
       if (exportResult != null)
       {

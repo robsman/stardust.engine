@@ -4,40 +4,39 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StringUtils;
 
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class MemoryArchiveManager extends BaseArchiveManager
 {
-   private static volatile ConcurrentHashMap<String,MemoryArchiveManager> MANAGERS = CollectionUtils.newConcurrentHashMap();
+   private HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
+
+   private HashMap<String, HashMap<String, byte[]>> repoData;
+
+   private HashMap<String, HashMap<String, String>> dateModel;
    
-   private static HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
+   private HashMap<String, HashMap<String, HashMap<String, String>>> dateXpdl;
 
-   private static HashMap<String, HashMap<String, byte[]>> repoData;
+   private HashMap<String, HashMap<String, String>> dateIndex;
 
-   private static HashMap<String, HashMap<String, String>> dateModel;
-   
-   private static HashMap<String, HashMap<String, HashMap<String, String>>> dateXpdl;
-
-   private static HashMap<String, HashMap<String, String>> dateIndex;
-
-   private static HashMap<String, HashMap<String, Date>> dateArchiveKey;
+   private HashMap<String, HashMap<String, Date>> dateArchiveKey;
    
    private String archiveManagerId;
+
+   private String dateFormat;
+   
+   private boolean auto;
    
    private static int keyCounter = 0;
-
-   public static MemoryArchiveManager getInstance(Map<String, String> preferences)
+   
+   public MemoryArchiveManager(Map<String, String> preferences)
    {
-      String id = ArchiveManagerFactory.getPreferenceValue(preferences,
-            ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID, null);
+      String id = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID);
 
       if (StringUtils.isEmpty(id))
       {
@@ -45,44 +44,36 @@ public class MemoryArchiveManager extends BaseArchiveManager
                ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
                      + " must be provided for MemoryArchiveManger archive type");
       }
-      if (!MANAGERS.containsKey(id))
-      {
-         synchronized (MemoryArchiveManager.class)
-         {
-            if (!MANAGERS.containsKey(id))
-            {
-               MemoryArchiveManager manager = new MemoryArchiveManager(id);
-               MANAGERS.put(id, manager);
-            }
-         }
-      }
-      return MANAGERS.get(id);
-   }
-   
-   private MemoryArchiveManager(String archiveManagerId)
-   {
-      if (repo == null)
-      {
-         synchronized (MemoryArchiveManager.class)
-         {
-            if (repo == null)
-            {
-               repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
-               repoData = new HashMap<String, HashMap<String, byte[]>>();
-               dateModel = new HashMap<String, HashMap<String, String>>();
-               dateXpdl = new HashMap<String, HashMap<String, HashMap<String, String>>>();
-               dateIndex = new HashMap<String, HashMap<String, String>>();
-               dateArchiveKey = new HashMap<String, HashMap<String, Date>>();
-               archiveManagerId = ArchiveManagerFactory.getCurrentId();
-            }
-         }
-      }
+      String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_DATE_FORMAT);
+      boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE));
+      repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
+      repoData = new HashMap<String, HashMap<String, byte[]>>();
+      dateModel = new HashMap<String, HashMap<String, String>>();
+      dateXpdl = new HashMap<String, HashMap<String, HashMap<String, String>>>();
+      dateIndex = new HashMap<String, HashMap<String, String>>();
+      dateArchiveKey = new HashMap<String, HashMap<String, Date>>();
+      this.archiveManagerId = id;
+      this.dateFormat = dateFormat;
+      this.auto = auto;
+           
    }
    
    @Override
    public String getArchiveManagerId()
    {
       return archiveManagerId;
+   }
+   
+   @Override
+   public String getDateFormat()
+   {
+      return dateFormat;
+   }
+
+   @Override
+   public boolean isAutoArchive()
+   {
+      return auto;
    }
 
    @Override

@@ -58,4 +58,8 @@ public interface IArchiveManager
    public ArrayList<IArchive> findArchives(ArchiveFilter filter);
 
    public boolean addXpdl(Serializable key, String uuid, String xpdl);
+
+   public String getDateFormat();
+
+   public boolean isAutoArchive();
 }

@@ -67,14 +67,23 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       this(Operation.QUERY, null, filter, null, preferences);
    }
+   
+   public ImportProcessesCommand(Operation operation, Map<String, String> preferences)
+   {
+      this(operation, null, null, null, preferences);
+   }
 
    @Override
    public Serializable execute(ServiceFactory sf)
    {
+      if (ArchiveManagerFactory.getArchiveManager(preferences) == null)
+      {
+         throw new IllegalStateException("A valid Archive Manager could not be found or created");
+      }
       Serializable result;
       if (LOGGER.isDebugEnabled())
       {
-         LOGGER.debug("START Import Operation " + operation.name());
+         LOGGER.debug("START Import Operation " + operation.name() + " for " + ArchiveManagerFactory.getArchiveManager(preferences).getArchiveManagerId());
       }
       switch (operation)
       {
@@ -91,6 +100,10 @@ public class ImportProcessesCommand implements ServiceCommand
          case VALIDATE_AND_IMPORT:
             result = validateAndImport(sf);
             break;
+         case REMOVE_MANAGER:
+            ArchiveManagerFactory.removeArchiveManager(preferences);
+            result = true;
+            break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
       }
@@ -105,7 +118,7 @@ public class ImportProcessesCommand implements ServiceCommand
    private ArrayList<IArchive> query(ServiceFactory sf)
    {
       filter.validateDates();
-      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManagerFactory(preferences);
+      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManager(preferences);
       ArrayList<IArchive> archives = archiveManager.findArchives(filter);
       return archives;
    }
@@ -220,7 +233,12 @@ public class ImportProcessesCommand implements ServiceCommand
       /**
        * Find archives to load
        */
-      QUERY;
+      QUERY, 
+      /**
+       * In case custom preferences was used we may want to remove the custom
+       * archivemanger created for this purpose
+       */
+      REMOVE_MANAGER;
    };
 
    public static class ImportMetaData implements Serializable

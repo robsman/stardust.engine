@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -69,6 +70,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    public static void setUpOnce()
    {
       System.setProperty(HAZELCAST_LOGGING_TYPE_KEY, HAZELCAST_LOGGING_TYPE_VALUE);
+      ArchiveManagerFactory.resetArchiveManagers();
    }
 
    @AfterClass
@@ -85,10 +87,19 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    @Before 
    public void init() throws Exception
    {
+      ArchiveTest.deletePreferences();
+      int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
+            "testid");
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+            "true");
       setUp();
       // clear any messages from queue
       clearQueue();
-      ((MemoryArchiveManager) ArchiveManagerFactory.getArchiveManagerFactory(null)).clear();
    }
    
    
@@ -103,13 +114,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             testTimestampProvider);
       GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
             3);
-
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            "testid");
       
       final GlobalParameters params = GlobalParameters.globals();
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
@@ -127,20 +131,14 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    
 
    @After
-   public void tearDown()
+   public void tearDown() throws Exception
    {
+      ArchiveTest.clearArchiveManager("default");
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
       GlobalParameters.globals().set(KernelTweakingProperties.DELETE_PI_STMT_BATCH_SIZE,
             null);
 
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER, null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
-            null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            null);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            null);
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, null);
       GlobalParameters.globals().set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, null);
 

@@ -1,136 +1,246 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
-import java.lang.reflect.Method;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
+import org.springframework.util.StringUtils;
+
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
+import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class ArchiveManagerFactory
 {
+   public static final String MODULE_ID_STARDUST_ARCHIVING = "stardust-archiving";
+
    private static final String DEFAULT_ARCHIVE_MANAGER = "FILESYSTEM";
-   
+
    public static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm";
 
-   public static final int DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = 100;
+   public static final String DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = "100";
 
    public static final String DEFAULT_ARCHIVE_FOLDER_FORMAT = "\\yyyy\\MM\\dd\\HH";
+
+   public static final String DEFAULT_AUTO_ARCHIVE = "false";
+
+
+   public static final String CARNOT_ARCHIVE_ROOTFOLDER = "stardust-archiving.archive.filesystem.root";
+
+   public static final String CARNOT_ARCHIVE_FOLDER_FORMAT = "stardust-archiving.archive.filesystem.folderFormat";
+
+   public static final String CARNOT_ARCHIVE_DATE_FORMAT = "stardust-archiving.archive.filesystem.dateFormat";
+
+   public static final String CARNOT_ARCHIVE_ZIP_FILE_SIZE_MB = "stardust-archiving.archive.filesystem.zipFileSize";
+
+   public static final String CARNOT_ARCHIVE_MANAGER_ID = "stardust-archiving.archive.ID";
+
+   public static final String CARNOT_AUTO_ARCHIVE = "stardust-archiving.archive.auto";
+
+   public static final String CARNOT_AUTO_ARCHIVE_DOCUMENTS = "stardust-archiving.archive.auto.documents";
    
-   public static final boolean DEFAULT_AUTO_ARCHIVE = false;
+   public static final String CARNOT_ARCHIVE_MANAGER_TYPE = "stardust-archiving.archive.type";
    
-   public static final String CARNOT_ARCHIVE_MANAGER = "stardust-archiving.export.archive.type";
-
-   public static final String CARNOT_ARCHIVE_ROOTFOLDER = "stardust-archiving.export.archive.filesystem.root";
-
-   public static final String CARNOT_ARCHIVE_FOLDER_FORMAT = "stardust-archiving.export.archive.filesystem.folderFormat";
-
-   public static final String CARNOT_ARCHIVE_DATE_FORMAT = "stardust-archiving.export.archive.filesystem.dateFormat";
-   
-   public static final String ARCHIVE_ZIP_FILE_SIZE_MB = "stardust-archiving.export.archive.filesystem.zipFileSize";
-
    public static final String CARNOT_ARCHIVE_MANAGER_CUSTOM = "Archive.Manager.Type.Class";
-   
-   public static final String CARNOT_ARCHIVE_MANAGER_ID = "stardust-archiving.export.archive.ID";
 
-   public static final String CARNOT_AUTO_ARCHIVE = "stardust-archiving.export.archive.auto";
-   
-   public static final String CARNOT_AUTO_ARCHIVE_DOCUMENTS = "stardust-archiving.export.archive.auto.documents";
+   private static volatile ConcurrentHashMap<String, IArchiveManager> PARTITION_MANAGERS = CollectionUtils
+         .newConcurrentHashMap();
 
-
-   public static IArchiveManager getArchiveManagerFactory(Map<String, String> preferences)
+   public static void resetArchiveManagers()
    {
-      String archiveManagerType = getPreferenceValue(preferences, CARNOT_ARCHIVE_MANAGER,
-            DEFAULT_ARCHIVE_MANAGER);
+      PARTITION_MANAGERS.clear();
+   }
 
-      ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType);
+   public static IArchiveManager getArchiveManager()
+   {
+      return getArchiveManager(SecurityProperties.getPartition().getId());
+   }
+   
+   public static void removeArchiveManager(Map<String, String> preferences)
+   {
+      String uuid = preferences.get(CARNOT_ARCHIVE_MANAGER_ID);
+      if (StringUtils.isEmpty(uuid))
+      {
+         throw new IllegalArgumentException(
+               "When providing custom/temporary preferences for an ArchiveManager a uuid must be provided.");
+      }
+      if (PARTITION_MANAGERS.containsKey(uuid))
+      {
+         synchronized (ArchiveManagerFactory.class)
+         {
+            if (PARTITION_MANAGERS.containsKey(uuid))
+            {
+               PARTITION_MANAGERS.remove(uuid);
+            }
+         }
+      }
+   }
+
+   public static IArchiveManager getArchiveManager(String partition)
+   {
+      if (!PARTITION_MANAGERS.containsKey(partition))
+      {
+         synchronized (ArchiveManagerFactory.class)
+         {
+            if (!PARTITION_MANAGERS.containsKey(partition))
+            {
+               Map<String, String> preferences = aggregatePreferences(null);
+               getCurrentId(preferences);
+               IArchiveManager manager = createArchiveManager(preferences);
+               PARTITION_MANAGERS.put(partition, manager);
+            }
+         }
+      }
+      return PARTITION_MANAGERS.get(partition);
+   }
+
+   /**
+    * Constructor used when importing from a temporary archive manager
+    * 
+    * @param preferences
+    * @return
+    */
+   public static IArchiveManager getArchiveManager(Map<String, String> preferences)
+   {
+      if (preferences == null)
+      {
+         return getArchiveManager();
+      }
+      else
+      {
+         String uuid = preferences.get(CARNOT_ARCHIVE_MANAGER_ID);
+         if (StringUtils.isEmpty(uuid))
+         {
+            throw new IllegalArgumentException(
+                  "When providing custom/temporary preferences for an ArchiveManager a uuid must be provided.");
+         }
+
+         if (!PARTITION_MANAGERS.containsKey(uuid))
+         {
+            synchronized (ArchiveManagerFactory.class)
+            {
+               if (!PARTITION_MANAGERS.containsKey(uuid))
+               {
+                  preferences = aggregatePreferences(preferences);
+                  IArchiveManager manager = createArchiveManager(preferences);
+                  PARTITION_MANAGERS.put(uuid, manager);
+               }
+            }
+         }
+         return PARTITION_MANAGERS.get(uuid);
+      }
+   }
+
+   private static IArchiveManager createArchiveManager(Map<String, String> preferences)
+   {
+      String archiveManagerType = preferences.get(CARNOT_ARCHIVE_MANAGER_TYPE);
+
+      ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
 
       IArchiveManager archiveManager;
       switch (type)
       {
-         case FILESYSTEM: archiveManager = getZipArchiveManager(preferences);
+         case FILESYSTEM:
+            archiveManager = getZipArchiveManager(preferences);
             break;
-         case CUSTOM: archiveManager = getCustomArchiveManager(preferences);
+         case CUSTOM:
+            archiveManager = getCustomArchiveManager(preferences);
             break;
          default:
             throw new IllegalArgumentException("Unknown ArchiveManager");
       }
       return archiveManager;
    }
-   
-   public static String getPreferenceValue(Map<String, String> preferences, String key, String defaultValue)
-   {
-      String value;
-      if (preferences == null || !preferences.containsKey(key))
-      {
-         value = Parameters.instance().getString(key, defaultValue);
-      }
-      else
-      {
-         value = preferences.get(key);
-      }
-      
-      return value;
-   }
-   
 
-   public static int getPreferenceValueInt(Map<String, String> preferences, String key, int defaultValue)
+   private static Map<String, String> aggregatePreferences(Map<String, String> preferences)
    {
-      int value;
-      if (preferences == null || !preferences.containsKey(key))
+      if (preferences == null)
       {
-         value = Parameters.instance().getInteger(key, defaultValue);
+         preferences = new HashMap<String, String>();
+      }
+
+      setPreference(preferences, CARNOT_ARCHIVE_MANAGER_TYPE, DEFAULT_ARCHIVE_MANAGER);
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_ROOTFOLDER, "");
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_FOLDER_FORMAT,
+            ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+      setPreference(preferences, CARNOT_ARCHIVE_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_ZIP_FILE_SIZE_MB,
+            ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
+      setPreference(preferences, CARNOT_ARCHIVE_MANAGER_CUSTOM, "");
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID, null);
+      setPreference(preferences, CARNOT_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
+      setPreference(preferences, CARNOT_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE);
+      return preferences;
+   }
+
+   private static void setPreference(Map<String, String> preferences, String preference,
+         String defaultValue)
+   {
+      if (!preferences.containsKey(preference))
+      {
+         preferences.put(preference, getPreference(preference, defaultValue));
+      }
+   }
+
+   private static String getCurrentId(Map<String, String> preferences)
+   {
+      String partition = SecurityProperties.getPartition().getId();
+      String uuid = preferences.get(CARNOT_ARCHIVE_MANAGER_ID);
+      if (StringUtils.isEmpty(uuid))
+      {
+         uuid = partition;
+         saveArchiveManagerId(uuid);
+      }
+      preferences.put(CARNOT_ARCHIVE_MANAGER_ID, uuid);
+      return uuid;
+   }
+
+   private static String getPreference(String preferenceName, String defaultValue)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      Preferences preferences = preferenceStore.getPreferences(PreferenceScope.PARTITION,
+            MODULE_ID_STARDUST_ARCHIVING, preferenceName);
+      if (preferences.getPreferences().containsKey(preferenceName))
+      {
+         return (String) preferences.getPreferences().get(preferenceName);
       }
       else
       {
-         value = new Integer(preferences.get(key));
+         return defaultValue;
       }
-      
-      return value;
    }
-   
-   
-   public static String getCurrentId() 
+
+   private static void saveArchiveManagerId(String archiveManagerId)
    {
-      String id = Parameters.instance().getString(CARNOT_ARCHIVE_MANAGER_ID,"");
-      if (StringUtils.isEmpty(id.trim()))
-      {
-         throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_ID + " must be provided for an Archive");
-      }
-      return id;
-   }
-   
-   /**
-    * Returns archive date format, used in export. 
-    * Note that archives being imported may have a different date format to be obtained from the archive's ExportIndex.
-    * @return
-    */
-   public static String getDateFormat() 
-   {
-      return Parameters.instance().getString(CARNOT_ARCHIVE_DATE_FORMAT,DEFAULT_DATE_FORMAT);
-   }
-   
-   /**
-    * Returns archive date format, used in export. 
-    * Note that archives being imported may have a different date format to be obtained from the archive's ExportIndex.
-    * @return
-    */
-   public static boolean autoArchive() 
-   {
-      return Parameters.instance().getBoolean(CARNOT_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      preferenceStore.savePreferences(
+            new Preferences(PreferenceScope.PARTITION, MODULE_ID_STARDUST_ARCHIVING,
+                  CARNOT_ARCHIVE_MANAGER_ID, Collections.singletonMap(
+                        CARNOT_ARCHIVE_MANAGER_ID, (Serializable) archiveManagerId)),
+            false);
    }
 
    private static IArchiveManager getCustomArchiveManager(Map<String, String> preferences)
    {
-      String custom = getPreferenceValue(preferences, CARNOT_ARCHIVE_MANAGER_CUSTOM,"");
+      String custom = preferences.get(CARNOT_ARCHIVE_MANAGER_CUSTOM);
       if (StringUtils.isEmpty(custom.trim()))
       {
-         throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_CUSTOM + " must be provided for Custom archive type");
+         throw new IllegalArgumentException(CARNOT_ARCHIVE_MANAGER_CUSTOM
+               + " must be provided for Custom archive type");
       }
       try
       {
          Class type = Class.forName(custom);
-         Method method = type.getMethod("getInstance", Map.class);
-         IArchiveManager instance = (IArchiveManager) method.invoke(null, preferences);
+         Constructor method = type.getConstructor(Map.class);
+         IArchiveManager instance = (IArchiveManager) method.newInstance(preferences);
          return instance;
       }
       catch (ClassNotFoundException e)
@@ -139,27 +249,54 @@ public class ArchiveManagerFactory
       }
       catch (ClassCastException e)
       {
-         throw new IllegalArgumentException(custom + " is not an IArchiveManager." + e.getMessage());
+         throw new IllegalArgumentException(custom + " is not an IArchiveManager."
+               + e.getMessage());
       }
       catch (NoSuchMethodException e)
       {
-         throw new IllegalArgumentException(custom + " is not an IArchiveManager." + e.getMessage());
+         throw new IllegalArgumentException(custom + " is not an IArchiveManager."
+               + e.getMessage());
       }
       catch (Exception e)
       {
-         throw new IllegalArgumentException(custom + " class could not be instantiated " + e.getMessage());
+         throw new IllegalArgumentException(custom + " class could not be instantiated "
+               + e.getMessage());
       }
    }
 
    private static IArchiveManager getZipArchiveManager(Map<String, String> preferences)
    {
-      IArchiveManager archiveManager = ZipArchiveManager.getInstance(preferences);
+      IArchiveManager archiveManager = new ZipArchiveManager(preferences);
       return archiveManager;
    }
 
    public enum ArchiveManagerType
    {
-      FILESYSTEM,
-      CUSTOM;
+      FILESYSTEM, CUSTOM;
+   }
+
+   public static String getDateFormat(String partition)
+   {
+      return getArchiveManager(partition).getDateFormat();
+   }
+
+   public static String getCurrentId(String partition)
+   {
+      return getArchiveManager(partition).getArchiveManagerId();
+   }
+
+   public static String getDateFormat()
+   {
+      return getDateFormat(SecurityProperties.getPartition().getId());
+   }
+
+   public static String getCurrentId()
+   {
+      return getCurrentId(SecurityProperties.getPartition().getId());
+   }
+
+   public static boolean autoArchive()
+   {
+      return getArchiveManager(SecurityProperties.getPartition().getId()).isAutoArchive();
    }
 }

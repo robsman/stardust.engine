@@ -26,13 +26,13 @@ import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.storeDocumentIntoDms;
 import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
@@ -47,6 +47,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
@@ -69,10 +70,12 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto.InteractionContextsXto;
+import org.eclipse.stardust.engine.api.ws.DeployedRuntimeArtifactQueryResultXto.DeployedRuntimeArtifactsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.ErrorsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.WarningsXto;
 import org.eclipse.stardust.engine.api.ws.DocumentTypeResultsXto.DocumentTypeResultXto;
 import org.eclipse.stardust.engine.api.ws.DocumentXto.VersionLabelsXto;
+import org.eclipse.stardust.engine.api.ws.GetSupportedRuntimeArtifactTypesResponse.ArtifactTypesXto;
 import org.eclipse.stardust.engine.api.ws.GetUserRealmsResponse.UserRealmsXto;
 import org.eclipse.stardust.engine.api.ws.GrantsXto.GrantXto;
 import org.eclipse.stardust.engine.api.ws.ModelXto.GlobalVariablesXto;
@@ -5815,7 +5818,7 @@ public class XmlAdapterUtils
       }
       return xto;
    }
-   
+
    public static QualityAssuranceState unmarshalQualityAssuranceState(QualityAssuranceStateXto xto)
    {
       QualityAssuranceState ret = null;
@@ -5836,7 +5839,7 @@ public class XmlAdapterUtils
          else if (QualityAssuranceStateXto.QUALITY_ASSURANCE_TRIGGERED.equals(xto))
          {
             ret = QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED;
-         }         
+         }
          else
          {
             throw new UnsupportedOperationException(
@@ -5844,7 +5847,105 @@ public class XmlAdapterUtils
                         + xto.name());
          }
       }
-      return ret;      
+      return ret;
    }
-  
+
+   public static RuntimeArtifactXto toWs(RuntimeArtifact runtimeArtifact)
+   {
+      RuntimeArtifactXto xto = null;
+      if (runtimeArtifact != null)
+      {
+         xto = new RuntimeArtifactXto();
+
+         xto.setArtifactTypeId(runtimeArtifact.getArtifactTypeId());
+         xto.setArtifactId(runtimeArtifact.getArtifactId());
+         xto.setArtifactName(runtimeArtifact.getArtifactName());
+         xto.setValidFrom(runtimeArtifact.getValidFrom());
+         xto.setContent(new DataHandler(wrapContentBytes(runtimeArtifact.getArtifactId(), runtimeArtifact.getContent())));
+      }
+      return xto;
+   }
+
+   public static RuntimeArtifact fromWs(RuntimeArtifactXto xto)
+   {
+      RuntimeArtifact runtimeArtifact = null;
+      if (xto != null)
+      {
+         runtimeArtifact = new RuntimeArtifact(xto.getArtifactTypeId(),
+               xto.getArtifactId(), xto.getArtifactName(),
+               DmsAdapterUtils.extractContentByteArray(xto.getContent()),
+               xto.getValidFrom());
+      }
+      return runtimeArtifact;
+   }
+
+   private static DataSource wrapContentBytes(final String name, final byte[] content)
+   {
+      return new ByteContentDataSource(name, content);
+   }
+
+   public static DeployedRuntimeArtifactXto toWs(
+         DeployedRuntimeArtifact deployedRuntimeArtifact)
+   {
+      DeployedRuntimeArtifactXto xto = null;
+      if (deployedRuntimeArtifact != null)
+      {
+         xto = new DeployedRuntimeArtifactXto();
+
+         xto.setOid(deployedRuntimeArtifact.getOid());
+         xto.setArtifactTypeId(deployedRuntimeArtifact.getArtifactTypeId());
+         xto.setArtifactId(deployedRuntimeArtifact.getArtifactId());
+         xto.setArtifactName(deployedRuntimeArtifact.getArtifactName());
+         xto.setValidFrom(deployedRuntimeArtifact.getValidFrom());
+      }
+      return xto;
+   }
+
+   public static ArtifactTypesXto marshalArtifactTypes(List<ArtifactType> artifactTypeList)
+   {
+      ArtifactTypesXto xto = null;
+      if (artifactTypeList != null)
+      {
+         xto = new ArtifactTypesXto();
+
+         for (ArtifactType artifactType : artifactTypeList)
+         {
+            xto.getArtifactType().add(toWs(artifactType));
+         }
+      }
+      return xto;
+   }
+
+   public static ArtifactTypeXto toWs(ArtifactType artifactType)
+   {
+      ArtifactTypeXto xto = null;
+
+      if (artifactType != null)
+      {
+         xto = new ArtifactTypeXto();
+         xto.setId(artifactType.getId());
+      }
+      return xto;
+   }
+
+   public static DeployedRuntimeArtifactQueryResultXto toWs(DeployedRuntimeArtifacts ra)
+   {
+      DeployedRuntimeArtifactQueryResultXto ret = new DeployedRuntimeArtifactQueryResultXto();
+
+      ret.setTotalCount(mapTotalCount(ra));
+      ret.setHasMore(ra.hasMore());
+      ret.setTotalCountThreshold(ra.getTotalCountThreshold());
+
+      DeployedRuntimeArtifactsXto deployedRuntimeArtifactsXto = new DeployedRuntimeArtifactsXto();
+
+      for (DeployedRuntimeArtifact deployedRuntimeArtifact : ra)
+      {
+         deployedRuntimeArtifactsXto.getDeployedRuntimeArtifact().add(toWs(deployedRuntimeArtifact));
+      }
+
+      ret.setDeployedRuntimeArtifacts(deployedRuntimeArtifactsXto);
+
+      return ret;
+   }
+
 }

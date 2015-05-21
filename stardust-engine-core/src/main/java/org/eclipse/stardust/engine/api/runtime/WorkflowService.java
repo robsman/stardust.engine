@@ -700,9 +700,9 @@ public interface WorkflowService extends Service
    ProcessInstance startProcess(String id, Map<String, ?> data, boolean synchronously)
          throws ObjectNotFoundException;
 
-   
+
    ProcessInstance startProcess(String id, StartOptions options);
-   
+
    /**
     * Spawns a process as subprocess of the specified process instance. The spawned
     * process executes asynchronously but has to be completed before the parent process is
@@ -1685,12 +1685,33 @@ public interface WorkflowService extends Service
     *         or the process instance containing the activity instance has more than one active activity instance.
     * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    * @deprecated replaced with {@link #performAdHocTransition(TransitionTarget, boolean)}
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.OWNER})
    ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget target, boolean complete)
+         throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException;
+
+   /**
+    * Performs the transition from the specified activity instance to the specified target.
+    *
+    * @param target the transition target.
+    * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
+    * @return a pair of activity instances, where the first is the activity instance from which the transition was performed
+    *         and the second is the activity instance that was created for the target activity.
+    * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
+    *         did not originate from the specified activity instance, or the activity instance was already terminated
+    *         or the process instance containing the activity instance has more than one active activity instance.
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
+    * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.performActivity,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.OWNER})
+   TransitionReport performAdHocTransition(TransitionTarget target, boolean complete)
          throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException;
 
    /**

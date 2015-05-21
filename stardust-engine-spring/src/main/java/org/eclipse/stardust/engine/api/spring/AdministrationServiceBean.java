@@ -596,6 +596,7 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
          overwriteRuntimeArtifact(
          long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
          runtimeArtifact)
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).overwriteRuntimeArtifact(oid, runtimeArtifact);
@@ -605,6 +606,7 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(long oid)
     */
    public void deleteRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).deleteRuntimeArtifact(oid);

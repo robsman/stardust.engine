@@ -8,14 +8,14 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.runtime;
+package org.eclipse.stardust.engine.api.query;
 
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact;
 
 
 /**
 * Result of an {@link DeployedRuntimeArtifactQuery} execution. Retrieved items are instances of
-* {@link DeployedRuntimeArtifactDetails}.
+* {@link DeployedRuntimeArtifact}.
 *
 */
 public class DeployedRuntimeArtifacts extends AbstractQueryResult<DeployedRuntimeArtifact>

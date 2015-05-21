@@ -112,6 +112,8 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
    
    public double getCriticality();
    
+   public int getBenchmarkValue();
+   
    public long getCurrentDepartmentOid();
 
    public boolean isCompleted();

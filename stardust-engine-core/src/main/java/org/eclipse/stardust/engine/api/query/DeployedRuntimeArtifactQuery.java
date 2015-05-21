@@ -12,9 +12,17 @@ package org.eclipse.stardust.engine.api.query;
 
 import java.util.Date;
 
+import org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 
 /**
+ * Query to search for {@link DeployedRuntimeArtifact} matching specified attributes.
+ * <p>
+ * To restrict the query to currently active artifacts use the findActive factory methods.
+ *
+ * @see #findAllActive(Date)
+ * @see #findActive(String, Date)
+ * @see #findActive(String, String, Date)
  *
  * @author Roland.Stamm
  */
@@ -22,7 +30,7 @@ public class DeployedRuntimeArtifactQuery extends Query
 {
    private static final long serialVersionUID = 399762422480557626L;
    public static final Attribute OID = new Attribute(RuntimeArtifactBean.FIELD__OID);
-   public static final Attribute ARTIFACT_TYPE = new Attribute(RuntimeArtifactBean.FIELD__ARTIFACT_TYPE_ID);
+   public static final Attribute ARTIFACT_TYPE_ID = new Attribute(RuntimeArtifactBean.FIELD__ARTIFACT_TYPE_ID);
    public static final Attribute ARTIFACT_ID = new Attribute(RuntimeArtifactBean.FIELD__ARTIFACT_ID);
    public static final Attribute ARTIFACT_NAME = new Attribute(RuntimeArtifactBean.FIELD__ARTIFACT_NAME);
    public static final Attribute VALID_FROM = new Attribute(RuntimeArtifactBean.FIELD__VALID_FROM);
@@ -37,6 +45,7 @@ public class DeployedRuntimeArtifactQuery extends Query
             CurrentPartitionFilter.class
          }),
          DeployedRuntimeArtifactQuery.class);
+   private boolean includeOnlyActive;
 
    /**
     * Creates a query for finding all runtime artifacts
@@ -51,34 +60,41 @@ public class DeployedRuntimeArtifactQuery extends Query
    }
 
    /**
-    * Creates a query for finding runtime artifacts of a specified type ordered descending by a given date.
-    * The first occurrence for an artifactId is the valid artifact at the specified date,
-    * further occurrences of the same artifactId are the predecessor artifacts that are active before.
+    * Creates a query for finding all currently active runtime artifacts ordered descending by a given date.
     *
     * @return The readily configured query.
     */
-   public static DeployedRuntimeArtifactQuery findActiveBefore(String artifactType, Date activeAt)
+   public static DeployedRuntimeArtifactQuery findAllActive(Date activeAt)
    {
-      DeployedRuntimeArtifactQuery query = new DeployedRuntimeArtifactQuery();
+      DeployedRuntimeArtifactQuery query = new DeployedRuntimeArtifactQuery(true);
 
-      query.where(ARTIFACT_TYPE.isEqual(artifactType)).and(VALID_FROM.lessOrEqual(activeAt.getTime()));
-
-      query.orderBy(VALID_FROM, false);
-      query.orderBy(OID, false);
+      query.where(VALID_FROM.lessOrEqual(activeAt.getTime()));
 
       return query;
    }
 
    /**
-    * Creates a query for finding runtime artifacts of a specified type ordered descending by a given date.
-    * The first occurrence for an artifactId is the valid artifact at the specified date,
-    * further occurrences of the same artifactId are the predecessor artifacts that are active before.
+    * Creates a query for finding active runtime artifacts of a specified type ordered descending by a given date.
     *
     * @return The readily configured query.
     */
-   public static DeployedRuntimeArtifactQuery findActiveBefore(String artifactType, String artifactId, Date activeAt)
+   public static DeployedRuntimeArtifactQuery findActive(String artifactType, Date activeAt)
    {
-      DeployedRuntimeArtifactQuery query = findActiveBefore(artifactType, activeAt);
+      DeployedRuntimeArtifactQuery query = findAllActive(activeAt);
+
+      query.where(ARTIFACT_TYPE_ID.isEqual(artifactType));
+
+      return query;
+   }
+
+   /**
+    * Creates a query for finding the active runtime artifact specified by artifact id and of the specified type.
+    *
+    * @return The readily configured query.
+    */
+   public static DeployedRuntimeArtifactQuery findActive(String artifactId, String artifactType, Date activeAt)
+   {
+      DeployedRuntimeArtifactQuery query = findActive(artifactType, activeAt);
 
       query.where(ARTIFACT_ID.isEqual(artifactId));
 
@@ -87,8 +103,20 @@ public class DeployedRuntimeArtifactQuery extends Query
 
    public DeployedRuntimeArtifactQuery()
    {
+      this(false);
+   }
+
+   public DeployedRuntimeArtifactQuery(boolean includeOnlyActive)
+   {
       super(FILTER_VERIFIER);
+      this.includeOnlyActive = includeOnlyActive;
       setPolicy(new ModelVersionPolicy(false));
+
+   }
+
+   public boolean isIncludeOnlyActive()
+   {
+      return includeOnlyActive;
    }
 
    /**

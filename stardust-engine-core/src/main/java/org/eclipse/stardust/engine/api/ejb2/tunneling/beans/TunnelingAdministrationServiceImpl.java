@@ -3,10 +3,6 @@
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
-import java.util.List;
-
-import org.eclipse.stardust.engine.api.runtime.ArtifactType;
-
 /**
  * Provides administration services for the CARNOT runtime environment.
  * <p>The functionality includes the following tasks:</p>
@@ -369,7 +365,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
 
     /**
      * Deploys a group of models.
-     *
+     * 
      * The deployment operation is transactional, that means either all models in the group
      * are deployed or none of them.
      * Model references will be resolved first within the group, and only if there is no
@@ -441,12 +437,12 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * the primary implementation of the process interface declared by a specific process
      * definition
      * (identified by <i>interfaceModelOid</i> and <i>processId</i>).
-     *
+     * 
      * <p>Precondition:
      * <ul><li>There needs to be at least one model having the ID <i>implementingModelId</i>
      * that contains a process
      * definition which implements the specified process interface.</li></ul></p>
-     *
+     * 
      * <p>If <i>implementationModelId</i> is <code>null</code> the default implementation
      * will be reset
      * to the process definition declaring the process interface (
@@ -773,9 +769,9 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * for some reason ( e.g. by abort process event)
      * then the abort operation is optimized to happen completely synchronously.
      * In that case the returned ProcessInstance will already be in state ABORTED.
-     *
+     * 
      * <em>This method also aborts all super process instances.</em>
-     *
+     * 
      * <p>State changes:
      * <ul><li>Process state before: active, interrupted</li>
      * <li>State after: The state of root process, all sub-processes and activities that are
@@ -1275,7 +1271,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
-     *
+     * 
      * <p>State changes:
      * <ul>
      * <li>Process state after: active</li>
@@ -1335,7 +1331,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -1418,7 +1414,7 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
-     *
+     * 
      * <p>State changes:
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
@@ -2439,51 +2435,25 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     }
 
     /**
-     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
-     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     * Deploys a new artifact with a new oid.
+     * <p>
+     * If an artifact with the same validFrom date already exists,
+     * the newly deployed artifact takes priority when querying for active artifacts.
      *
-     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
-     *     )
-     */
-    public List<ArtifactType>
-         getSupportedRuntimeArtifactTypes(
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
-         throws org.eclipse.stardust.common.error.WorkflowException
-    {
-      java.util.Map __invocationContextBackup = null;
-      try
-      {
-         __invocationContextBackup = initInvocationContext(__tunneledContext);
-         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
-            service).getSupportedRuntimeArtifactTypes();
-      }
-      catch(org.eclipse.stardust.common.error.PublicException e)
-      {
-         throw new org.eclipse.stardust.common.error.WorkflowException(e);
-      }
-      catch(org.eclipse.stardust.common.error.ResourceException e)
-      {
-         throw new org.eclipse.stardust.common.error.WorkflowException(e);
-      }
-      finally
-      {
-         clearInvocationContext(__tunneledContext, __invocationContextBackup);
-      }
-    }
-
-    /**
+     * @param runtimeArtifact The new artifact.
+     *
+     * @return The deployed artifact including an assigned oid.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(
      *     org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
      */
-    public
-         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
          deployRuntimeArtifact(
-         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
-         runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
@@ -2508,15 +2478,26 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     }
 
     /**
+     * Overwrites only content of a specified already deployed artifact.
+     * Other fields cannot be changed.
+     *
+     * @param oid The oid of the artifact.
+     * @param runtimeArtifact The new artifact.
+     *
+     * @return The updated artifact.
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime
+     *     artifact with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(
-     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
-     *     runtimeArtifact)
+     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
      */
-    public
-         org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
          overwriteRuntimeArtifact(
          long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
          runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
@@ -2545,6 +2526,54 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     }
 
     /**
+     * Deleted a deployed artifact by oid.
+     *
+     * @param oid The oid of the artifact
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime
+     *     artifact with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
+     *     long oid)
+     */
+    public void deleteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).deleteRuntimeArtifact(oid);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -2579,23 +2608,31 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
     }
 
     /**
+     * Returns a list of supported artifact types.
+     * <p>
+     * 
+     * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
+     * {@link RuntimeArtifact}.
+     *
+     * @return The supported artifact types.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
-     *     long oid)
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
+     *     )
      */
-    public void deleteRuntimeArtifact(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.ArtifactType>
+         getSupportedRuntimeArtifactTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException
     {
       java.util.Map __invocationContextBackup = null;
       try
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
-         ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
-            service).deleteRuntimeArtifact(oid);
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).getSupportedRuntimeArtifactTypes();
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

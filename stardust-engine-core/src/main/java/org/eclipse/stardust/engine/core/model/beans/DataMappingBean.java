@@ -15,16 +15,7 @@ import java.util.List;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
@@ -33,6 +24,10 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 
 
 /**
@@ -131,6 +126,28 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   BpmValidationError error = BpmValidationError.DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION.raise(
                         getErrorName(), getDirection().toString());
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+               }
+            }
+            IData data = dataMapping.getData();
+            if(data != null)
+            {
+               String dataTypeId = data.getType().getId();         
+               if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
+               {         
+                  IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
+                  if (xPathMap != null)
+                  {
+                     if(!StringUtils.isEmpty(dataMapping.getDataPath()))
+                     {
+                        String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(dataMapping.getDataPath());
+                        TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                        if (xPath == null)
+                        {
+                           BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(dataMapping.getId());
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                     
+                        }
+                     }
+                  }
                }
             }
          }

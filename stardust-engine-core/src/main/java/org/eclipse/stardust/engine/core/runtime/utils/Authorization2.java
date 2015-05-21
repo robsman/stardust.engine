@@ -35,19 +35,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityScope;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.ModelScope;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.ProcessScope;
-import org.eclipse.stardust.engine.api.runtime.Scope;
-import org.eclipse.stardust.engine.api.runtime.Service;
-import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
-import org.eclipse.stardust.engine.api.runtime.TransitionTarget;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -100,7 +88,7 @@ public class Authorization2
             }
             else
             {
-               long aiOid = ((Long) args[0]).longValue();
+               long aiOid = getActivityInstanceOid(args[0]);
                if (ExecutionPermission.Id.abortActivityInstances == permission.id() &&
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
@@ -116,7 +104,9 @@ public class Authorization2
                }
                else
                {
-                  if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
+                  // (fh) for performAdHocTransition methods, the last argument is boolean complete
+                  // and requires additional permission check if false.
+                  if (method.getName().equals("performAdHocTransition") && !(Boolean) args[args.length - 1])
                   {
                      permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
@@ -342,6 +332,20 @@ public class Authorization2
                   user.getOID(), String.valueOf(permission), user.getAccount()));
          }
       }
+   }
+
+   protected static long getActivityInstanceOid(Object arg)
+   {
+      if (arg instanceof Long)
+      {
+         return ((Long) arg).longValue();
+      }
+      else if (arg instanceof ActivityInstanceContextAware)
+      {
+         return ((ActivityInstanceContextAware) arg).getActivityInstanceOid();
+      }
+      throw new ObjectNotFoundException(
+            BpmRuntimeError.ATDB_UNKNOWN_ACTIVITY_INSTANCE_OID.raise(arg));
    }
 
    public static boolean hasPermission(AuthorizationContext context)

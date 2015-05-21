@@ -38,12 +38,12 @@ import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.DeleteProcesses.OidsXto;
+import org.eclipse.stardust.engine.api.ws.GetSupportedRuntimeArtifactTypesResponse.ArtifactTypesXto;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 
@@ -726,16 +726,13 @@ public class AdministrationServiceFacade implements IAdministrationService
 	public PreferencesXto getPreferences(PreferenceScopeXto scope,
 			String moduleId, String preferencesId) throws BpmFault
 	{
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-
-		AdministrationService as = wsEnv.getServiceFactory()
-				.getAdministrationService();
-		try
-		{
-			Preferences preferences = as.getPreferences(
-					XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId,
-					preferencesId);
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+         Preferences preferences = as.getPreferences(
+               XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId, preferencesId);
 
 			return XmlAdapterUtils.toWs(preferences);
 		}
@@ -771,13 +768,12 @@ public class AdministrationServiceFacade implements IAdministrationService
 	public ConfigurationVariablesListXto getConfigurationVariables(
 			StringListXto modelIds, XmlValueXto modelXml) throws BpmFault
 	{
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
 
-		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
-
-		try
-		{
 			List<ConfigurationVariables> configList = CollectionUtils.newList();
 
 			if (modelIds != null)
@@ -808,14 +804,13 @@ public class AdministrationServiceFacade implements IAdministrationService
 			ConfigurationVariablesXto configurationVariables, boolean force)
 			throws BpmFault
 	{
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+	   try
+	   {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		try
-		{
-			List<ModelReconfigurationInfo> modelReconfigInfoList = CollectionUtils
-					.newList();
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+         List<ModelReconfigurationInfo> modelReconfigInfoList = CollectionUtils.newList();
 
 			modelReconfigInfoList = as
 					.saveConfigurationVariables(
@@ -835,15 +830,14 @@ public class AdministrationServiceFacade implements IAdministrationService
 
 	public RuntimePermissionsXto getGlobalPermissions() throws BpmFault
 	{
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+	   try
+	   {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
 
-		try
-		{
-			return XmlAdapterUtils
-					.marshalRuntimePermissions((RuntimePermissionsDetails) as
-							.getGlobalPermissions());
+         return XmlAdapterUtils.marshalRuntimePermissions((RuntimePermissionsDetails) as
+               .getGlobalPermissions());
 		}
 		catch (ApplicationException e)
 		{
@@ -856,14 +850,14 @@ public class AdministrationServiceFacade implements IAdministrationService
 	public void setGlobalPermissions(RuntimePermissionsXto runtimePermissions)
 			throws BpmFault
 	{
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+	   try
+	   {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
 
-		try
-		{
-			as.setGlobalPermissions(XmlAdapterUtils
-					.unmarshalRuntimePermissions(runtimePermissions));
+         as.setGlobalPermissions(XmlAdapterUtils
+               .unmarshalRuntimePermissions(runtimePermissions));
 		}
 		catch (ApplicationException e)
 		{
@@ -871,5 +865,96 @@ public class AdministrationServiceFacade implements IAdministrationService
 		}
 
 	}
+
+   @Override
+   public RuntimeArtifactXto getRuntimeArtifact(long oid) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
+         return toWs(as.getRuntimeArtifact(oid));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public DeployedRuntimeArtifactXto deployRuntimeArtifact(
+         RuntimeArtifactXto runtimeArtifact) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
+         return toWs(as.deployRuntimeArtifact(fromWs(runtimeArtifact)));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public DeployedRuntimeArtifactXto overwriteRuntimeArtifact(long oid,
+         RuntimeArtifactXto runtimeArtifact) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
+         return toWs(as.overwriteRuntimeArtifact(oid, fromWs(runtimeArtifact)));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public void deleteRuntimeArtifact(long oid) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
+         as.deleteRuntimeArtifact(oid);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+   }
+
+   @Override
+   public ArtifactTypesXto getSupportedRuntimeArtifactTypes() throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         AdministrationService as = wsEnv.getServiceFactory().getAdministrationService();
+
+         return XmlAdapterUtils.marshalArtifactTypes(as.getSupportedRuntimeArtifactTypes());
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
 
 }

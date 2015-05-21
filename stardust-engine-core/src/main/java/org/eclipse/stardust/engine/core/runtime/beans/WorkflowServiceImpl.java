@@ -17,10 +17,7 @@ import java.util.*;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
@@ -55,20 +52,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ProcessInstance startProcess(String id, Map<String, ? > inputData,
          boolean synchronously)
    {
-      StartOptions options = new StartOptions(inputData, synchronously, 0);      
-      
+      StartOptions options = new StartOptions(inputData, synchronously, 0);
+
       IProcessDefinition processDefinition = getIProcessDefinition(id);
       return startProcess(processDefinition, options);
    }
-   
+
    public ProcessInstance startProcess(IProcessDefinition processDefinition, Map<String, ? > inputData,
          boolean synchronously)
    {
-      StartOptions options = new StartOptions(inputData, synchronously, 0);      
-      
+      StartOptions options = new StartOptions(inputData, synchronously, 0);
+
       return startProcess(processDefinition, options);
-   }   
-   
+   }
+
    public ProcessInstance startProcess(String id, StartOptions options)
    {
       IProcessDefinition processDefinition = getIProcessDefinition(id);
@@ -80,7 +77,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       Map<String, ?> inputData = options.getData();
       boolean synchronously = options.isSynchronously();
-      
+
       Map<String, Object> values = (Map<String, Object>) inputData;
       if (processDefinition.getDeclaresInterface())
       {
@@ -105,7 +102,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          processInstance.setBenchmark(options.getBenchmarkReference());
       }
-            
+
       if (trace.isInfoEnabled())
       {
          trace.info("Starting process '" + processDefinition.getId() + "', oid = "
@@ -146,7 +143,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, parentProcessInstance, SecurityProperties.getUser(),
             data);
-      
+
       if (BenchmarkUtils.isBenchmarkedPI(parentProcessInstance))
       {
          processInstance.setBenchmark(parentProcessInstance.getBenchmark());
@@ -2370,8 +2367,14 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          throw new IllegalOperationException(BpmRuntimeError.BPMRT_AI_NOT_ADHOC_TRANSITION_SOURCE.raise(activityInstanceOid));
       }
+      return performAdHocTransition(transitionTarget, complete).getSourceActivityInstance();
+   }
 
-      ActivityInstanceBean activityInstance = ActivityInstanceUtils.lock(activityInstanceOid);
+   public TransitionReport performAdHocTransition(TransitionTarget transitionTarget, boolean complete)
+         throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException
+   {
+      IActivityInstance activityInstance = ActivityInstanceUtils.lock(transitionTarget.getActivityInstanceOid());
+      IActivityInstance targetActivityInstance = null;
 
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
@@ -2410,7 +2413,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                EventUtils.recoverEvent(activityInstance);
             }
          }
-         RelocationUtils.performTransition(activityInstance, transitionTarget, complete);
+         targetActivityInstance = RelocationUtils.performTransition(activityInstance, transitionTarget, complete);
       }
       else
       {
@@ -2418,7 +2421,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                complete ? ActivityInstanceState.Completed : ActivityInstanceState.Aborted,
                state);
       }
-      return DetailsFactory.create(activityInstance, IActivityInstance.class, ActivityInstanceDetails.class);
+      return new TransitionReportDetails(DetailsFactory.create(activityInstance, IActivityInstance.class, ActivityInstanceDetails.class),
+            DetailsFactory.create(targetActivityInstance, IActivityInstance.class, ActivityInstanceDetails.class));
    }
 
    @Override

@@ -5,7 +5,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -545,7 +545,7 @@
          <optional>true</optional>
       </dependency>
    </dependencies>
-   
+
    <build>
       <resources>
          <resource>
@@ -704,6 +704,7 @@
                   <include>api/runtime/ActivityInstance.java</include>
                   <include>api/runtime/ActivityInstanceState.java</include>
                   <include>api/runtime/AdministrationService.java</include>
+                  <include>api/runtime/ArtifactType.java</include>
                   <include>api/runtime/AuditTrailHealthReport.java</include>
                   <include>api/runtime/BindingException.java</include>
                   <include>api/runtime/BpmRuntimeError.java</include>
@@ -715,6 +716,7 @@
                   <include>api/runtime/DepartmentInfo.java</include>
                   <include>api/runtime/DeployedModel.java</include>
                   <include>api/runtime/DeployedModelDescription.java</include>
+                  <include>api/runtime/DeployedRuntimeArtifact.java</include>
                   <include>api/runtime/DeploymentElement.java</include>
                   <include>api/runtime/DeploymentException.java</include>
                   <include>api/runtime/DeploymentInfo.java</include>
@@ -761,6 +763,8 @@
                   <include>api/runtime/Resource.java</include>
                   <include>api/runtime/ResourceBundle.java</include>
                   <include>api/runtime/ResourceInfo.java</include>
+                  <include>api/runtime/RuntimeArtifact.java</include>
+                  <include>api/runtime/RuntimeArtifactInfo.java</include>
                   <include>api/runtime/RuntimeEnvironmentInfo.java</include>
                   <include>api/runtime/RuntimeObject.java</include>
                   <include>api/runtime/RuntimePermissions.java</include>
@@ -773,6 +777,7 @@
                   <include>api/runtime/SubprocessSpawnInfo.java</include>
                   <include>api/runtime/TransitionInfo.java</include>
                   <include>api/runtime/TransitionOptions.java</include>
+                  <include>api/runtime/TransitionReport.java</include>
                   <include>api/runtime/TransitionTarget.java</include>
                   <include>api/runtime/User.java</include>
                   <include>api/runtime/UserExistsException.java</include>
@@ -833,6 +838,8 @@
                   <include>api/query/DocumentQuery.java</include>
                   <include>api/query/DataOrder.java</include>
                   <include>api/query/DeployedModelQuery.java</include>
+                  <include>api/query/DeployedRuntimeArtifactsQuery.java</include>
+                  <include>api/query/DeployedRuntimeArtifacts.java</include>
                   <include>api/query/EvaluateByWorkitemsPolicy.java</include>
                   <include>api/query/ExcludeUserPolicy.java</include>
                   <include>api/query/EvaluationPolicy.java</include>
@@ -891,7 +898,7 @@
                   <include>api/query/Worklist.java</include>
                   <include>api/query/WorklistLayoutPolicy.java</include>
                   <include>api/query/WorklistQuery.java</include>
-                  
+
                   <!-- org/eclipse/stardust/engine/core/query -->
                   <include>core/query/statistics/api/CriticalExecutionTimePolicy.java</include>
                   <include>core/query/statistics/api/CriticalCostPerExecutionPolicy.java</include>
@@ -899,6 +906,8 @@
                   <include>core/query/statistics/api/StatisticsDateRangePolicy.java</include>
                   <include>core/query/statistics/api/PerformanceCriticalityPolicy.java</include>
                   <include>core/query/statistics/api/ProcessCumulationPolicy.java</include>
+
+                  <include>core/spi/artifact/IArtifactHandler.java</include>
 
                   <include>core/spi/dms/IRepositoryCapabilities.java</include>
                   <include>core/spi/dms/IRepositoryConfiguration.java</include>
@@ -990,7 +999,7 @@
          </plugin>
       </plugins>
    </build>
-   
+
    <profiles>
       <profile>
          <id>codegen</id>
@@ -1011,8 +1020,8 @@
                   <executions>
                      <execution>
                         <id>compile-codegen</id>
-                        <!-- generate-sources would be better as process-sources but then 
-                              compile-codegen is invoked twice (IMO maven-source-plugin is 
+                        <!-- generate-sources would be better as process-sources but then
+                              compile-codegen is invoked twice (IMO maven-source-plugin is
                               triggering the second compile-codegen execution)-->
                         <phase>process-sources</phase>
                         <goals>

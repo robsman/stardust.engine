@@ -605,6 +605,36 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
     }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#startProcess(java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
+         java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            service).startProcess(id, options);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#spawnSubprocessInstance(long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData, java.util.Map data)
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
@@ -1769,6 +1799,36 @@ public class WorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb3.be
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             service).performAdHocTransition(activityInstanceOid, target, complete);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean complete)
+    */
+   public org.eclipse.stardust.engine.api.runtime.TransitionReport
+         performAdHocTransition(
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            service).performAdHocTransition(target, complete);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

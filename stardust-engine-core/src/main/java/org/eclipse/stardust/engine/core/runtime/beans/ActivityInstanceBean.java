@@ -96,6 +96,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String FIELD__CRITICALITY = "criticality";
 
    public static final String FIELD__PROPERTIES_AVAILABLE = "propertiesAvailable";
+   
+   public static final String FIELD__BENCHMAKRK_VALUE = "benchmarkValue";
+      
 
    public static final FieldRef FR__OID = new FieldRef(ActivityInstanceBean.class,
          FIELD__OID);
@@ -137,6 +140,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public static final FieldRef FR__PROPERTIES_AVAILABLE = new FieldRef(
          ActivityInstanceBean.class, FIELD__PROPERTIES_AVAILABLE);
 
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(
+         ActivityInstanceBean.class, FIELD__BENCHMAKRK_VALUE);
+   
    public static final String TABLE_NAME = "activity_instance";
 
    public static final String DEFAULT_ALIAS = "ai";
@@ -234,6 +240,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
     * Contains the Double for the criticality of this instance
     */
    private double criticality;
+
+   /**
+    * Contains the integer value for the benchmark of this instance
+    */
+   private int benchmarkValue;
 
    /**
     * the user to which should be delegate when this instance is new created
@@ -604,6 +615,17 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       this.criticality = criticality;
    }
 
+   public int getBenchmarkValue()
+   {
+      fetch();
+      return benchmarkValue;
+   }
+
+   public void setBenchmarkValue(int benchmarkValue)
+   {
+      markModified(FIELD__BENCHMAKRK_VALUE);
+      this.benchmarkValue = benchmarkValue;
+   }   
    public boolean isDefaultCaseActivityInstance()
    {
       fetch();

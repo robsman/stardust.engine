@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.artifact;
 
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
@@ -21,6 +23,8 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 
 public class DmsArtifactStore implements IArtifactStore
 {
+   private static final Logger trace = LogManager.getLogger(DmsArtifactStore.class);
+
    protected static final String BASE_PATH = "/artifacts/runtime/";
 
    public String storeContent(RuntimeArtifactBean runtimeArtifactBean, byte[] content, String contentType)
@@ -57,6 +61,13 @@ public class DmsArtifactStore implements IArtifactStore
    public byte[] retrieveContent(String referenceId)
    {
       DocumentManagementService dms = getDms();
+
+      Document document = dms.getDocument(referenceId);
+      if (document == null)
+      {
+         trace.error("Error retrieving content. No document found for id '" + referenceId + "'. ");
+      }
+
       byte[] content = dms.retrieveDocumentContent(referenceId);
       return content;
    }

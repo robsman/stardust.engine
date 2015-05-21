@@ -57,6 +57,7 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    public static final String FIELD__PERFORMER = "performer";
    public static final String FIELD__DEPARTMENT = "department";
    public static final String FIELD__CRITICALITY = "criticality";
+   public static final String FIELD__BENCHMARK_VALUE = "benchmarkValue";
 
    public static final FieldRef FR__ACTIVITY_INSTANCE = new FieldRef(WorkItemBean.class, FIELD__ACTIVITY_INSTANCE);
    public static final FieldRef FR__PROCESS_INSTANCE = new FieldRef(WorkItemBean.class, FIELD__PROCESS_INSTANCE);
@@ -72,6 +73,7 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    public static final FieldRef FR__PERFORMER = new FieldRef(WorkItemBean.class, FIELD__PERFORMER);
    public static final FieldRef FR__DEPARTMENT = new FieldRef(WorkItemBean.class, FIELD__DEPARTMENT);
    public static final FieldRef FR__CRITICALITY = new FieldRef(WorkItemBean.class, FIELD__CRITICALITY);
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(WorkItemBean.class, FIELD__BENCHMARK_VALUE);
 
    public static final String TABLE_NAME = "workitem";
    public static final String DEFAULT_ALIAS = "wi";
@@ -121,6 +123,8 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    private long domain;
 
    private double criticality;
+   
+   private int benchmarkValue;
 
 
    /**
@@ -188,7 +192,8 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
       this.startTime = activityInstance.getStartTime().getTime();
 
       this.criticality = activityInstance.getCriticality();
-
+      this.benchmarkValue = activityInstance.getBenchmarkValue();
+      
       update(activityInstance);
 
       // TODO performers
@@ -464,6 +469,12 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
       return criticality;
    }
 
+   public int getBenchmarkValue()
+   {
+      fetch();
+      return benchmarkValue;
+   }
+   
    @Override
    public IProcessInstance getProcessInstance()
    {

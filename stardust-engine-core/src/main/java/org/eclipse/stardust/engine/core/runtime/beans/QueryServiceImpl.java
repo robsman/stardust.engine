@@ -12,10 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -44,9 +41,10 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ResourceBundle;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -958,9 +956,23 @@ public class QueryServiceImpl implements QueryService, Serializable
    @Override
    public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query)
    {
-      RawQueryResult<DeployedRuntimeArtifact> result = GenericQueryEvaluator.<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails>evaluate(
-            query, RuntimeArtifactBean.class, IRuntimeArtifact.class, DeployedRuntimeArtifactDetails.class,
-            getDefaultEvaluationContext());
+
+      RawQueryResult<DeployedRuntimeArtifact> result = null;
+
+      if (query.isIncludeOnlyActive())
+      {
+         result = DeployedRuntimeArtifactQueryEvaluator
+               .<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails> evaluateActive(
+                     query, RuntimeArtifactBean.class, IRuntimeArtifact.class,
+                     DeployedRuntimeArtifactDetails.class, getDefaultEvaluationContext());
+      }
+      else
+      {
+         result = GenericQueryEvaluator
+               .<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails> evaluate(query,
+                     RuntimeArtifactBean.class, IRuntimeArtifact.class,
+                     DeployedRuntimeArtifactDetails.class, getDefaultEvaluationContext());
+      }
 
       return QueryResultFactory.createDeployedArtifactQueryResult(query, result);
    }

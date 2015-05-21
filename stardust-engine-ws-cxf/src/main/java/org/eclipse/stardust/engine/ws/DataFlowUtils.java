@@ -78,9 +78,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.DataDetails;
 import org.eclipse.stardust.engine.api.dto.DataMappingDetails;
-import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.dto.Note;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
@@ -90,8 +88,6 @@ import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
@@ -118,9 +114,6 @@ import org.eclipse.stardust.engine.api.ws.XmlValueXto;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
@@ -753,7 +746,7 @@ public class DataFlowUtils
 
       return res;
    }
-   
+
 
 
    public static Map<String, ? extends Serializable> unmarshalProcessInstanceProperties(
@@ -900,7 +893,7 @@ public class DataFlowUtils
       return unmarshalDataValue(model, data, dm.getDataPath(), dm.getMappedType(), param, resolver);
    }
 
-   
+
    public static Serializable unmarshalBusinessObjectDataValue(Model model, String qualifiedBusinessObjectId, ParameterXto param)
    {
       QName qname = QName.valueOf(qualifiedBusinessObjectId);
@@ -908,21 +901,21 @@ public class DataFlowUtils
       String businessObjectId = qname.getLocalPart();
 
       ModelResolver env = currentWebServiceEnvironment();
-      
+
       if (model == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
       }
-      
+
       Data data = model.getData(businessObjectId);
       if (data == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(businessObjectId));
       }
-      
+
       return unmarshalDataValue(model, data, null, null, param, env);
    }
-   
+
    public static Serializable unmarshalDataValue(Model model, Data data,
          String rootXPath, Class< ? > mappedType, ParameterXto param, ModelResolver resolver)
    {
@@ -1751,21 +1744,28 @@ public class DataFlowUtils
 
       TypedXPath xPath = null;
 
-      // TODO review xPathMap.getRootXPath() vs
-      // xPathMap.getXPath(getXPathWithoutIndexes(derefPath));
       if (derefPath == null)
       {
          xPath = xPathMap.getRootXPath();
+         if (xPath != null)
+         {
+            if (!isEmpty(xPath.getXsdElementName()))
+            {
+               return new QName(xPath.getXsdElementNs(), xPath.getXsdElementName());
+            }
+            else
+            {
+               return new QName(xPath.getXsdTypeNs(), xPath.getXsdTypeName());
+            }
+         }
       }
       else
       {
          xPath = xPathMap.getXPath(getXPathWithoutIndexes(derefPath));
-      }
-      if (null != xPath)
-      {
-         return !isEmpty(xPath.getXsdElementName()) ? new QName(xPath.getXsdElementNs(),
-               xPath.getXsdElementName()) : new QName(xPath.getXsdTypeNs(),
-               xPath.getXsdTypeName());
+         if (xPath != null)
+         {
+            return new QName(xPath.getXsdTypeNs(), xPath.getXsdTypeName());
+         }
       }
       return null;
    }

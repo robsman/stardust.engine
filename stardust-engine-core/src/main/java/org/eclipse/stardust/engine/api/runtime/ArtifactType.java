@@ -13,11 +13,17 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 
 /**
+ * Defines the type of an artifact.
+ *
  * @author roland.stamm
  */
 public interface ArtifactType extends Serializable
 {
 
+   /**
+    * The identifier for the artifact
+    * @return the artifact type id.
+    */
    public String getId();
 
 }

@@ -359,6 +359,11 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
    {
       return workItem.getCriticality();
    }
+   
+   public int getBenchmarkValue()
+   {
+      return workItem.getBenchmarkValue();
+   }
 
    public boolean isDefaultCaseActivityInstance()
    {

@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public abstract class TransitionInfo implements Serializable
+public abstract class TransitionInfo implements Serializable, ActivityInstanceContextAware
 {
    private static final long serialVersionUID = 1L;
 
@@ -63,6 +63,7 @@ public abstract class TransitionInfo implements Serializable
     *
     * @return a long representing the OID of the activity instance or -1 if there is no corresponding activity instance.
     */
+   @Override
    public long getActivityInstanceOid()
    {
       return activityInstanceOid;

@@ -5,8 +5,8 @@ import java.util.Map;
 public interface IBenchmarkEvaluator
 {
 
-   public int getBenchmarkForProcessInstance();
+   public int getBenchmarkForProcessInstance(long piOid);
    
-   public Map getBenchmarkForActivityInstances();
+   public int getBenchmarkForActivityInstance(long aiOid, String activityId);
    
 }

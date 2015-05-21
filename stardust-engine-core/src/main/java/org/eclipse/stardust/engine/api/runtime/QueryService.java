@@ -24,10 +24,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeArtifactBean;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
-import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 
 
@@ -822,9 +820,21 @@ public interface QueryService extends Service
     */
    ResourceBundle getResourceBundle(String moduleId, String bundleName, Locale locale);
 
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
+    */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
+   /**
+    * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the provided query.
+    *
+    * @param query the deployed runtime artifact query.
+    * @return The deployed runtime artifacts matching the specified criteria.
+    */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
 }

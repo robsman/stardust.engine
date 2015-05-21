@@ -1194,6 +1194,12 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.rmi.RemoteException;
          
     /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -1205,13 +1211,20 @@ public interface RemoteQueryService extends javax.ejb.EJBObject
          java.rmi.RemoteException;
          
     /**
+     * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the
+     * provided query.
+     *
+     * @param query the deployed runtime artifact query.
+     *
+     * @return The deployed runtime artifacts matching the specified criteria.
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
      *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
      */
-    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifacts
+    public org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts
          getRuntimeArtifacts(
          org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
          throws org.eclipse.stardust.common.error.WorkflowException,

@@ -31,13 +31,13 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
+import org.eclipse.stardust.engine.api.query.QueryUtils;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
@@ -83,7 +83,7 @@ public class BusinessObjectUtils
       }
 
       final Map<IData, List<BusinessObject.Value>> values = withValues
-            ? fetchValues(allData, queryEvaluator.getPkValue(), query.getFilter()) : null;
+            ? fetchValues(allData, queryEvaluator.getPkValue(), query.getFilter(), query) : null;
       if (values != null)
       {
          allData = values.keySet();
@@ -198,7 +198,7 @@ public class BusinessObjectUtils
       }
    }
 
-   private static Map<IData, List<Value>> fetchValues(Set<IData> allData, Object pkValue, FilterAndTerm term)
+   private static Map<IData, List<Value>> fetchValues(Set<IData> allData, Object pkValue, FilterAndTerm term, Query query)
    {
       Map<IData, List<BusinessObject.Value>> values = CollectionUtils.newMap();
       for (IData data : allData)
@@ -216,7 +216,7 @@ public class BusinessObjectUtils
          PredicateTerm parsedTerm = filter(parsedQuery.getPredicateTerm());
 
          QueryDescriptor queryDescriptor = createFetchQuery(data, pkValue, predicateJoins, parsedTerm);
-         fetchValues(values, data, queryDescriptor);
+         fetchValues(values, data, queryDescriptor, query);
       }
       return values;
    }
@@ -266,32 +266,56 @@ public class BusinessObjectUtils
       return desc;
    }
 
-   protected static void fetchValues(Map<IData, List<BusinessObject.Value>> values,
-         IData data, QueryDescriptor queryDescriptor)
+   protected static int fetchValues(Map<IData, List<BusinessObject.Value>> values,
+         IData data, QueryDescriptor queryDescriptor, Query query)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(queryDescriptor);
+      ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
+      SubsetPolicy subsetPolicy = QueryUtils.getSubset(query);
       try
       {
+         int skipped = 0;
+         int count = 0;
+         int total = 0;
          while (resultSet.next())
          {
-            long piOid = resultSet.getLong(1);
-            Clob clob = resultSet.getClob(2);
-
-            Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
-            boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
-            final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-            StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
-
-            List<BusinessObject.Value> list = values.get(data);
-            if (list == null)
+            total++;
+            if (skipped < subsetPolicy.getSkippedEntries())
             {
-               list = CollectionUtils.newList();
-               values.put(data, list);
+               skipped++;
             }
-            Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-            list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+            else
+            {
+               if (count < subsetPolicy.getMaxSize())
+               {
+                  count++;
+                  long piOid = resultSet.getLong(1);
+                  Clob clob = resultSet.getClob(2);
+
+                  Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
+                  boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
+                  final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+                  StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+
+                  List<BusinessObject.Value> list = values.get(data);
+                  if (list == null)
+                  {
+                     list = CollectionUtils.newList();
+                     values.put(data, list);
+                  }
+                  Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
+                  list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+               }
+               else
+               {
+                  if (!subsetPolicy.isEvaluatingTotalCount())
+                  {
+                     break;
+                  }
+               }
+            }
          }
+         return subsetPolicy.isEvaluatingTotalCount() ? total : 0;
       }
       catch (Exception e)
       {
@@ -299,7 +323,7 @@ public class BusinessObjectUtils
       }
       finally
       {
-         QueryUtils.closeResultSet(resultSet);
+         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet(resultSet);
       }
    }
 

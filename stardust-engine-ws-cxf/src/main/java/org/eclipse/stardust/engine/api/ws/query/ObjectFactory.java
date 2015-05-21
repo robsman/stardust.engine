@@ -530,62 +530,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link LogEntryQueryXto }
-     * 
-     */
-    public LogEntryQueryXto createLogEntryQueryXto() {
-        return new LogEntryQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link UserQueryXto }
-     * 
-     */
-    public UserQueryXto createUserQueryXto() {
-        return new UserQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link PreferenceQueryXto }
-     * 
-     */
-    public PreferenceQueryXto createPreferenceQueryXto() {
-        return new PreferenceQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link UserGroupQueryXto }
-     * 
-     */
-    public UserGroupQueryXto createUserGroupQueryXto() {
-        return new UserGroupQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ParticipantContributionsXto }
-     * 
-     */
-    public ParticipantContributionsXto createParticipantContributionsXto() {
-        return new ParticipantContributionsXto();
-    }
-
-    /**
-     * Create an instance of {@link DeployedModelQueryXto }
-     * 
-     */
-    public DeployedModelQueryXto createDeployedModelQueryXto() {
-        return new DeployedModelQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ValuesLiteralXto }
-     * 
-     */
-    public ValuesLiteralXto createValuesLiteralXto() {
-        return new ValuesLiteralXto();
-    }
-
-    /**
      * Create an instance of {@link ProcessDefinitionQueryXto }
      * 
      */
@@ -618,6 +562,94 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link DeployedRuntimeArtifactQueryXto }
+     * 
+     */
+    public DeployedRuntimeArtifactQueryXto createDeployedRuntimeArtifactQueryXto() {
+        return new DeployedRuntimeArtifactQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link VariableDefinitionQueryXto }
+     * 
+     */
+    public VariableDefinitionQueryXto createVariableDefinitionQueryXto() {
+        return new VariableDefinitionQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link WorklistQueryXto }
+     * 
+     */
+    public WorklistQueryXto createWorklistQueryXto() {
+        return new WorklistQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link ValueLiteralXto }
+     * 
+     */
+    public ValueLiteralXto createValueLiteralXto() {
+        return new ValueLiteralXto();
+    }
+
+    /**
+     * Create an instance of {@link UserQueryXto }
+     * 
+     */
+    public UserQueryXto createUserQueryXto() {
+        return new UserQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link LogEntryQueryXto }
+     * 
+     */
+    public LogEntryQueryXto createLogEntryQueryXto() {
+        return new LogEntryQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link PreferenceQueryXto }
+     * 
+     */
+    public PreferenceQueryXto createPreferenceQueryXto() {
+        return new PreferenceQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link UserGroupQueryXto }
+     * 
+     */
+    public UserGroupQueryXto createUserGroupQueryXto() {
+        return new UserGroupQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link DeployedModelQueryXto }
+     * 
+     */
+    public DeployedModelQueryXto createDeployedModelQueryXto() {
+        return new DeployedModelQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link ParticipantContributionsXto }
+     * 
+     */
+    public ParticipantContributionsXto createParticipantContributionsXto() {
+        return new ParticipantContributionsXto();
+    }
+
+    /**
+     * Create an instance of {@link ValuesLiteralXto }
+     * 
+     */
+    public ValuesLiteralXto createValuesLiteralXto() {
+        return new ValuesLiteralXto();
+    }
+
+    /**
      * Create an instance of {@link ProcessQueryXto }
      * 
      */
@@ -631,14 +663,6 @@ public class ObjectFactory {
      */
     public QueryXto createQueryXto() {
         return new QueryXto();
-    }
-
-    /**
-     * Create an instance of {@link VariableDefinitionQueryXto }
-     * 
-     */
-    public VariableDefinitionQueryXto createVariableDefinitionQueryXto() {
-        return new VariableDefinitionQueryXto();
     }
 
     /**
@@ -658,14 +682,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link WorklistQueryXto }
-     * 
-     */
-    public WorklistQueryXto createWorklistQueryXto() {
-        return new WorklistQueryXto();
-    }
-
-    /**
      * Create an instance of {@link UserContributionXto }
      * 
      */
@@ -679,14 +695,6 @@ public class ObjectFactory {
      */
     public ActivityQueryXto createActivityQueryXto() {
         return new ActivityQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ValueLiteralXto }
-     * 
-     */
-    public ValueLiteralXto createValueLiteralXto() {
-        return new ValueLiteralXto();
     }
 
     /**

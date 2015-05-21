@@ -973,6 +973,20 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          throws org.eclipse.stardust.common.error.WorkflowException;
          
     /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#startProcess(
+     *     java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions options)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
+         java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
      * Spawns a process as subprocess of the specified process instance. The spawned
      * process executes asynchronously but has to be completed before the parent process is
      * able to complete.
@@ -2485,6 +2499,9 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated replaced with {@link #performAdHocTransition(TransitionTarget, boolean)}
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -2495,6 +2512,50 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          performAdHocTransition(
          long activityInstanceOid,
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Performs the transition from the specified activity instance to the specified target.
+     *
+     * @param target the transition target.
+     * @param complete true if the activity instance specified should be completed, false if the
+     *     activity should be aborted.
+     *
+     * @return a pair of activity instances, where the first is the activity instance from which the
+     *     transition was performed
+     *     and the second is the activity instance that was created for the target
+     *      target activity.
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the transition
+     *     could not be performed because the specified TransitionTarget
+     *     did not originate from the specified activity instance, or the activity instance was
+     *     nce was already terminated
+     *     or the process instance containing the activity instance has more than one active
+     *      active activity instance.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     allowed to perform the ad-hoc transition.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(
+     *     org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean complete)
+     */
+    public org.eclipse.stardust.engine.api.runtime.TransitionReport
+         performAdHocTransition(
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
          complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)

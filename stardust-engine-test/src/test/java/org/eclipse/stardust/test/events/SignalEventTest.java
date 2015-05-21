@@ -168,6 +168,38 @@ public class SignalEventTest
       assertThat((String) outputData, Matchers.equalTo("Horst"));
    }
 
+   @Test
+   public void testSignalEventSentByProcessInstanceIsReceivedBySignalAcceptorHavingOnePredicate() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // start signal acceptor process and initialize with predicate data
+      ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}SignalWithPredicateDate", null, true);
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "SignalAcceptorActivity");
+      ActivityInstance signalAcceptorAi = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(rootProcess.getOID(), "SignalAcceptorActivity"));
+      assertThat(signalAcceptorAi.getState(), equalTo(ActivityInstanceState.Hibernated));
+      wfs.setOutDataPath(rootProcess.getOID(), "PredicateData_1Path", "Klaus");
+
+      // fire a signal signal acceptor is waiting for
+      ProcessInstance pi2 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
+      aiStateChangeBarrier.awaitForId(pi2.getOID(), "StartActivity");
+      wfs.setOutDataPath(pi2.getOID(), "Data_1Path", "Klaus");
+      wfs.setOutDataPath(pi2.getOID(), "Data_2Path", "Horst");
+      ActivityInstance ai2 = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi2.getOID(), "StartActivity"));
+      wfs.activateAndComplete(ai2.getOID(), null, null);
+      piStateChangeBarrier.await(pi2.getOID(), ProcessInstanceState.Completed);
+
+      // signal has been accepted, assert that output data is correct
+      piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+      Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
+      assertThat(outputData, Matchers.instanceOf(String.class));
+      assertThat((String) outputData, Matchers.equalTo("Horst"));
+   }
+
    // TODO - bpmn-2-events - test case for interrupting signal event
 
    private void sendSignalEvent(final String signalName) throws JMSException

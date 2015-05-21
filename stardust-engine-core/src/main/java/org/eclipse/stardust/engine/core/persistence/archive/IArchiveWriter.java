@@ -1,12 +1,9 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
-public interface IArchiveManager
+public interface IArchiveWriter
 {
    /**
     * Opens archive for writing results. Typically this is to reserve a unique place in the archive repository for results with specified index date.
@@ -43,19 +40,9 @@ public interface IArchiveManager
     */
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
-   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Collection<Long> processInstanceOids, Map<String, Object> descriptors);
-
-   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Date fromDate, Date toDate, Map<String, Object> descriptors);
-
-   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Map<String, Object> descriptors);
-   
-   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, String key, Collection<? extends Object> values, boolean onlyMatchOnRoots);
-
    public boolean addIndex(Serializable key, String indexData);
 
    public String getArchiveManagerId();
-
-   public ArrayList<IArchive> findArchives(ArchiveFilter filter);
 
    public boolean addXpdl(Serializable key, String uuid, String xpdl);
 

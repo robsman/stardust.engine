@@ -46,6 +46,8 @@ public class ImportProcessesCommand implements ServiceCommand
    private final Operation operation;
    
    private final Map<String, String> preferences;
+   
+   private IArchiveReader reader;
 
    public ImportProcessesCommand(Operation operation, IArchive archive, 
          ArchiveFilter filter, ImportMetaData importMetaData, Map<String, String> preferences)
@@ -67,23 +69,19 @@ public class ImportProcessesCommand implements ServiceCommand
    {
       this(Operation.QUERY, null, filter, null, preferences);
    }
-   
-   public ImportProcessesCommand(Operation operation, Map<String, String> preferences)
-   {
-      this(operation, null, null, null, preferences);
-   }
-
+  
    @Override
    public Serializable execute(ServiceFactory sf)
    {
-      if (ArchiveManagerFactory.getArchiveManager(preferences) == null)
+      this.reader = ArchiveManagerFactory.getArchiveReader(preferences);
+      if (reader == null)
       {
-         throw new IllegalStateException("A valid Archive Manager could not be found or created");
+         throw new IllegalStateException("A valid Archive Reader could not be created");
       }
       Serializable result;
       if (LOGGER.isDebugEnabled())
       {
-         LOGGER.debug("START Import Operation " + operation.name() + " for " + ArchiveManagerFactory.getArchiveManager(preferences).getArchiveManagerId());
+         LOGGER.debug("START Import Operation " + operation.name());
       }
       switch (operation)
       {
@@ -100,10 +98,6 @@ public class ImportProcessesCommand implements ServiceCommand
          case VALIDATE_AND_IMPORT:
             result = validateAndImport(sf);
             break;
-         case REMOVE_MANAGER:
-            ArchiveManagerFactory.removeArchiveManager(preferences);
-            result = true;
-            break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
       }
@@ -118,8 +112,7 @@ public class ImportProcessesCommand implements ServiceCommand
    private ArrayList<IArchive> query(ServiceFactory sf)
    {
       filter.validateDates();
-      IArchiveManager archiveManager = ArchiveManagerFactory.getArchiveManager(preferences);
-      ArrayList<IArchive> archives = archiveManager.findArchives(filter);
+      ArrayList<IArchive> archives = reader.findArchives(filter);
       return archives;
    }
 
@@ -233,12 +226,7 @@ public class ImportProcessesCommand implements ServiceCommand
       /**
        * Find archives to load
        */
-      QUERY, 
-      /**
-       * In case custom preferences was used we may want to remove the custom
-       * archivemanger created for this purpose
-       */
-      REMOVE_MANAGER;
+      QUERY;
    };
 
    public static class ImportMetaData implements Serializable

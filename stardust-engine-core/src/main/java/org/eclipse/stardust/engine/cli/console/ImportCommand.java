@@ -212,22 +212,11 @@ public class ImportCommand extends BaseExportImportCommand
                   + " process instances into partition " + partitionId + ". Time taken: "
                   + duration);
          }
-         if (preferences != null)
-         {
-            removeArchiveManager(workflowService, preferences);
-         }
       }
       print("Import of all partitions complete");
       return 0;
    }
    
-   private void removeArchiveManager(WorkflowService workflowService, Map<String, String> preferences)
-   {
-      ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.REMOVE_MANAGER, preferences);
-      workflowService.execute(importCommand);
-   }
-
    private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService,
          HashMap<String, Object> descriptors, Map<String, String> preferences)
    {

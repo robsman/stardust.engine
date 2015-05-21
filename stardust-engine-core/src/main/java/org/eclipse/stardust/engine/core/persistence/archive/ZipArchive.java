@@ -65,9 +65,9 @@ public class ZipArchive implements IArchive, Serializable
       {
          if (getExportIndex().contains(processInstanceOid))
          {
-            String path = getPartWithEntry(processInstanceOid + ZipArchiveManager.EXT_DAT);
+            String path = getPartWithEntry(processInstanceOid + ZipArchiveWriter.EXT_DAT);
             byte[] data = uncompressZipEntry(path, processInstanceOid
-                  + ZipArchiveManager.EXT_DAT);
+                  + ZipArchiveWriter.EXT_DAT);
             result = ExportImportSupport.addAll(result, data);
          }
       }

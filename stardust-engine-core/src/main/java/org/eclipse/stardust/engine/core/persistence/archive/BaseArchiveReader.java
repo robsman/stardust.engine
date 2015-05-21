@@ -2,7 +2,7 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.util.*;
 
-public abstract class BaseArchiveManager implements IArchiveManager
+public abstract class BaseArchiveReader implements IArchiveReader
 {
 
    protected abstract ArrayList<IArchive> findAllArchives();

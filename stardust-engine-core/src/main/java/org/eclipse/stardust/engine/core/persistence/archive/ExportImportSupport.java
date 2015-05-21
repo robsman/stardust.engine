@@ -124,7 +124,7 @@ public class ExportImportSupport
       {
          throw new IllegalArgumentException("modelUUID can not be empty");
       }
-      String uuid = ArchiveManagerFactory.getCurrentId() + "_" + oid + "_"
+      String uuid = ArchiveManagerFactory.getCurrentId() + ":" + oid + "@"
             + modelUUID;
       return uuid;
    }

@@ -12,40 +12,43 @@ import org.springframework.util.StringUtils;
 import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
-public class MemoryArchiveManager extends BaseArchiveManager
+public class MemoryArchiveWriter implements IArchiveWriter
 {
-   private HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
+   protected HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
 
-   private HashMap<String, HashMap<String, byte[]>> repoData;
+   protected HashMap<String, HashMap<String, byte[]>> repoData;
 
-   private HashMap<String, HashMap<String, String>> dateModel;
+   protected HashMap<String, HashMap<String, String>> dateModel;
    
-   private HashMap<String, HashMap<String, HashMap<String, String>>> dateXpdl;
+   protected HashMap<String, HashMap<String, HashMap<String, String>>> dateXpdl;
 
-   private HashMap<String, HashMap<String, String>> dateIndex;
+   protected HashMap<String, HashMap<String, String>> dateIndex;
 
-   private HashMap<String, HashMap<String, Date>> dateArchiveKey;
+   protected HashMap<String, HashMap<String, Date>> dateArchiveKey;
    
    private String archiveManagerId;
 
    private String dateFormat;
    
    private boolean auto;
+
+   private boolean autoDocs;
    
    private static int keyCounter = 0;
    
-   public MemoryArchiveManager(Map<String, String> preferences)
+   public MemoryArchiveWriter(Map<String, String> preferences)
    {
-      String id = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID);
+      String id = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID);
 
       if (StringUtils.isEmpty(id))
       {
          throw new IllegalArgumentException(
-               ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID
+               ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID
                      + " must be provided for MemoryArchiveManger archive type");
       }
-      String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_DATE_FORMAT);
-      boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE));
+      String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_DATE_FORMAT);
+      boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE));
+      boolean autoDocs = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
       repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
       repoData = new HashMap<String, HashMap<String, byte[]>>();
       dateModel = new HashMap<String, HashMap<String, String>>();
@@ -55,7 +58,7 @@ public class MemoryArchiveManager extends BaseArchiveManager
       this.archiveManagerId = id;
       this.dateFormat = dateFormat;
       this.auto = auto;
-           
+      this.autoDocs = autoDocs;
    }
    
    @Override
@@ -182,58 +185,6 @@ public class MemoryArchiveManager extends BaseArchiveManager
          }
       }
       return true;
-   }
-
-   @Override
-   public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives,
-         Date fromDate, Date toDate, Map<String, Object> descriptors)
-   {
-
-      if (unfilteredArchives == null)
-      {
-         unfilteredArchives = findAllArchives();
-      }
-      ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      for (IArchive archive : unfilteredArchives)
-      {
-         Date date = dateArchiveKey.get(SecurityProperties.getPartition().getId()).get(archive.getArchiveKey());
-         if ((fromDate.compareTo(date) < 1) && (toDate.compareTo(date) > -1))
-         {
-            archives.add(archive);
-         }
-         //we did not find a match based on processInstanceOid so search by descriptors
-         if (!archives.contains(archive) && descriptors != null)
-         {
-            if (archive.getExportIndex().contains(descriptors))
-            {
-               archives.add(archive);
-            }
-         }
-      }
-      return archives;
-   }
-
-   @Override
-   protected ArrayList<IArchive> findAllArchives()
-   {
-      ArrayList<IArchive> archives = new ArrayList<IArchive>();
-      HashMap<String, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
-            .getPartition().getId());
-      if (partitionRepo != null)
-      {
-         HashMap<String, String> partitionDateModel = dateModel.get(SecurityProperties
-               .getPartition().getId());
-         HashMap<String, String> partitionDateIndex = dateIndex.get(SecurityProperties
-               .getPartition().getId());
-         HashMap<String, Date> keyDate = dateArchiveKey.get(SecurityProperties
-               .getPartition().getId());
-         for (String key : partitionRepo.keySet())
-         {
-            archives.add(new MemoryArchive(key, keyDate.get(key), partitionRepo.get(key), partitionDateModel
-                  .get(key), partitionDateIndex.get(key)));
-         }
-      }
-      return archives;
    }
    
    @Override

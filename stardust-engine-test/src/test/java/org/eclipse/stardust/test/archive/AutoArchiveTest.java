@@ -89,13 +89,15 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    {
       ArchiveTest.deletePreferences();
       int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_TYPE,
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
             ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveManager");
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_MANAGER_ID,
-            "testid");
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
+            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
+      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
+      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
+            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE,
             "true");
       setUp();
       // clear any messages from queue
@@ -106,8 +108,6 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    public void setUp() throws Exception
    { 
       aggregator = SpringUtils.getApplicationContext().getBean("ArchiveQueueAggregator", ArchiveQueueAggregator.class);
-      GlobalParameters.globals().set(ArchiveManagerFactory.CARNOT_AUTO_ARCHIVE,
-            "true");
       testTimestampProvider = new TestTimestampProvider();
       GlobalParameters.globals().set(
             TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE,

@@ -76,7 +76,7 @@ public class SendSignalEventAction implements EventActionInstance
             }
 
             Object dataValue = ai.getProcessInstance().getInDataValue(mapping.getData(), mapping.getDataPath());
-            message.setObject(mapping.getActivityAccessPointId(), dataValue);
+            message.setObject(mapping.getId(), dataValue);
          }
 
          sender.send(queue, message);

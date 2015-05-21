@@ -226,7 +226,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          if (eventContextName.equals(dm.getContext()))
          {
             eventMappings.add(dm);
-            accessPoints.add(new JavaAccessPoint(dm.getActivityAccessPointId(), dm.getActivityAccessPointId(), Direction.IN));
+            accessPoints.add(new JavaAccessPoint(dm.getId(), dm.getName(), Direction.IN));
          }
       }
 
@@ -239,7 +239,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       for (IDataMapping dm : eventMappings)
       {
          Object aiDataValue = ai.getProcessInstance().getInDataValue(dm.getData(), dm.getDataPath());
-         Object msgDataValue = data.get(dm.getActivityAccessPointId());
+         Object msgDataValue = data.get(dm.getId());
 
          if (aiDataValue == null)
          {
@@ -367,14 +367,14 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             if (eventContextName.equals(dm.getContext()))
             {
                eventMappings.add(dm);
-               accessPoints.add(new JavaAccessPoint(dm.getActivityAccessPointId(), dm.getActivityAccessPointId(), Direction.OUT));
+               accessPoints.add(new JavaAccessPoint(dm.getId(), dm.getName(), Direction.OUT));
             }
          }
 
          Map<String, Object> data = acceptor.getData(message, null, accessPoints.iterator());
          for (IDataMapping dm : eventMappings)
          {
-            result.put(dm.getId(), data.get(dm.getActivityAccessPointId()));
+            result.put(dm.getId(), data.get(dm.getId()));
          }
 
          return result;

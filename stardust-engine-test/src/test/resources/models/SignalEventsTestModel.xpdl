@@ -545,15 +545,15 @@
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="507" Id="SignalData_1" Name="Signal Data #1" Direction="IN" Context="event-OnCompletion">
                               <carnot:DataRef Id="Data_1"/>
-                              <carnot:AccessPointRef Id="SignalData_1"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="509" Id="SignalData_2" Name="Signal Data #2" Direction="IN" Context="event-OnCompletion">
                               <carnot:DataRef Id="Data_2"/>
-                              <carnot:AccessPointRef Id="SignalData_2"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="511" Id="Ordinary_Data" Name="Ordinary Data" Direction="IN" Context="default">
                               <carnot:DataRef Id="Data_3"/>
-                              <carnot:AccessPointRef Id="Ordinary_Data"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -717,17 +717,17 @@
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows>
-                           <carnot:DataFlow Oid="824" Id="PrimitiveData1" Name="PrimitiveData1" Direction="IN" Context="event-Signal1">
+                           <carnot:DataFlow Oid="824" Id="SignalData_1" Name="Signal Data 1" Direction="IN" Context="event-Signal1">
                               <carnot:DataRef Id="PredicateData_1"/>
-                              <carnot:AccessPointRef Id="SignalData_1"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
-                           <carnot:DataFlow Oid="828" Id="PrimitiveData2" Name="PrimitiveData2" Direction="IN" Context="event-Signal1">
+                           <carnot:DataFlow Oid="828" Id="SignalData_2" Name="Signal Data 2" Direction="IN" Context="event-Signal1">
                               <carnot:DataRef Id="PredicateData_2"/>
-                              <carnot:AccessPointRef Id="SignalData_2"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
-                           <carnot:DataFlow Oid="832" Id="OutputData" Name="OutputData" Direction="OUT" Context="event-Signal1">
+                           <carnot:DataFlow Oid="832" Id="SignalData_2" Name="Signal Data 2" Direction="OUT" Context="event-Signal1">
                               <carnot:DataRef Id="OutputData"/>
-                              <carnot:AccessPointRef Id="SignalData_2"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
@@ -895,13 +895,13 @@
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows>
-                           <carnot:DataFlow Oid="951" Id="PrimitiveData1" Name="PrimitiveData1" Direction="IN" Context="event-Signal1">
+                           <carnot:DataFlow Oid="951" Id="SignalData_1" Name="Signal Data 1" Direction="IN" Context="event-Signal1">
                               <carnot:DataRef Id="PredicateData_1"/>
-                              <carnot:AccessPointRef Id="SignalData_1"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
-                           <carnot:DataFlow Oid="952" Id="OutputData" Name="OutputData" Direction="OUT" Context="event-Signal1">
+                           <carnot:DataFlow Oid="952" Id="SignalData_2" Name="Signal Data 2" Direction="OUT" Context="event-Signal1">
                               <carnot:DataRef Id="OutputData"/>
-                              <carnot:AccessPointRef Id="SignalData_2"/>
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>

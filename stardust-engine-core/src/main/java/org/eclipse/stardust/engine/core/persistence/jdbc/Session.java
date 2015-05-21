@@ -1685,7 +1685,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             isNotTransient = transientPiSupport.persistentsNeedToBeWrittenToBlob();
          }
-         boolean isAutoArchiveEnabled = ArchiveManagerFactory.autoArchive();
          // take a snapshot of the key set to avoid ConcurrentModificationExceptions
          for (Class<?> type : newList(objCacheRegistry.keySet()))
          {
@@ -1708,16 +1707,19 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             for (PersistenceController dpc : (Collection<PersistenceController>) cache.values())
             {
                Persistent persistent = dpc.getPersistent();
-               if (isNotTransient && type == ProcessInstanceBean.class && isAutoArchiveEnabled)
+               if (isNotTransient && type == ProcessInstanceBean.class)
                {
-                  ProcessInstanceBean pi = (ProcessInstanceBean) persistent;
-                  if (mustProcessBeArchived(pi))
+                  if (ArchiveManagerFactory.autoArchive())
                   {
-                     if (processesToArchive == null)
+                     ProcessInstanceBean pi = (ProcessInstanceBean) persistent;
+                     if (mustProcessBeArchived(pi))
                      {
-                        processesToArchive = CollectionUtils.newArrayList(25);
+                        if (processesToArchive == null)
+                        {
+                           processesToArchive = CollectionUtils.newArrayList(25);
+                        }
+                        processesToArchive.add(pi);
                      }
-                     processesToArchive.add(pi);
                   }
                }
                

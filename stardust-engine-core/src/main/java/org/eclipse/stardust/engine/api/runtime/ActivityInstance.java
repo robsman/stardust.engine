@@ -275,4 +275,11 @@ public interface ActivityInstance extends RuntimeObject, IDescriptorProvider
     * @return the value if the criticality
     */
    double getCriticality();
+   
+   /**
+    * Returns the current benchmark value of the activity instance
+    * 
+    * @return the value of the benchmark
+    */
+   int getBenchmarkValue();
 }

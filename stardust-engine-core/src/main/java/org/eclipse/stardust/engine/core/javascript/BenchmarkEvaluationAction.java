@@ -33,7 +33,7 @@ public class BenchmarkEvaluationAction implements ContextAction
 
    // ********** Global default benchmark formula **********
    private static final String DEFAULT_GLOBAL_BENCHMARK_FORMULA = "var benchmark=processInstance.getOID(); benchmark;";
-   private static final String DEFAULT_GLOBAL_AI_BENCHMARK_FORMULA = "var benchmar=activityInstance.getOID(); benchmark;";
+   private static final String DEFAULT_GLOBAL_AI_BENCHMARK_FORMULA = "var benchmark=processInstance.getBenchmark(); benchmark;";
 
    private static final String KEY_MODEL_SCOPE = BenchmarkEvaluator.class.getName()
          + ".ModelScope";

@@ -520,6 +520,7 @@ public final class PredefinedConstants
    public static final String EXCLUDED_PERFORMER_DATA = ENGINE_SCOPE + "excludedPerformerData";
    public static final String EXCLUDED_PERFORMER_DATAPATH = ENGINE_SCOPE + "excludedPerformerDataPath";;
    public static final String ACTIVITY_INSTANCE_ACCESSPOINT = "activityInstance";
+   public static final String PROCESS_INSTANCE_ACCESSPOINT = "processInstance";
 
    public static final String SOURCE_USER_ATT = ENGINE_SCOPE + "sourceUser";
    public static final String TARGET_USER_ATT = ENGINE_SCOPE + "targetUser";

@@ -17,6 +17,7 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 /**
  *
@@ -160,4 +161,8 @@ public interface IProcessDefinition
    String getMappedDataId(String parameterId);
    
    IReference getExternalReference();
+   
+   public AccessPoint getAccessPoint(String contextId, String id);
+   
+   public AccessPoint getAccessPoint(String contextId, String id, Direction direction);   
 }

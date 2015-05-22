@@ -106,6 +106,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    private ProcessInstance processInstance;
    private boolean scopeProcessInstanceNoteAvailable;
    private double criticality;
+   private int benchmarkValue;
 
    private Activity activityDetails;
 
@@ -164,6 +165,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       processInstanceOID = processInstance.getOID();
       scopeProcessInstanceNoteAvailable = ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance());
       criticality = activityInstance.getCriticality();
+      benchmarkValue = activityInstance.getBenchmarkValue();
 
       performer = initPerformer(activityInstance);
 
@@ -782,6 +784,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    public double getCriticality()
    {
       return criticality;
+   }
+   
+   public int getBenchmarkValue()
+   {
+      return benchmarkValue;
    }
 
    public QualityAssuranceState getQualityAssuranceState()

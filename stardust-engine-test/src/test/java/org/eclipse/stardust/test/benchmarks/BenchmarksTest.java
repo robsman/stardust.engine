@@ -49,45 +49,59 @@ public class BenchmarksTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(
          serviceFactory);
-   
+
    private StartOptions startOptions_withBenchmark;
+
    private StartOptions startOptions_withoutBenchmark;
-   
+
    private static final long BENCHMARK_TEST_REF = 123;
-   
+
    private static final String BENCHMARK_PROCESS = "BenchmarkedProcess";
+
    private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
-   
+
    @Before
    public void setup()
    {
-       
-      startOptions_withBenchmark = new StartOptions(null,true,BENCHMARK_TEST_REF);
-      startOptions_withoutBenchmark = new StartOptions(null,true);
-   }   
-   
+
+      startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_TEST_REF);
+      startOptions_withoutBenchmark = new StartOptions(null, true);
+   }
+
    @Test
    public void startProcessInstanceWithBenchmarkTest()
    {
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
-      
-      
-      assertEquals(BENCHMARK_TEST_REF,pi.getBenchmark());
+
+      assertEquals(BENCHMARK_TEST_REF, pi.getBenchmark());
+
+   }
+
+   @Test
+   public void recalculateBenchmarkOnActivityStateChangeTest()
+   {
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withBenchmark);
+
+      ActivityInstance instance = serviceFactory.getQueryService()
+            .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
+
+      System.out.println("#### Benchmark Value " + instance.getBenchmarkValue());
       
    }
-   
+
    @Test
    public void startSubProcessInstanceWithBenchmarkTest()
    {
       ProcessInstance parentPi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS_W_SUB, startOptions_withBenchmark);
-      
+
       ActivityInstances instances = serviceFactory.getQueryService()
             .getAllActivityInstances(
                   ActivityInstanceQuery.findAlive("BenchmarkedSubProcess",
                         "BenchmarkedActivity"));
-      
+
       if (instances.size() > 0)
       {
          ActivityInstance ai = instances.get(0);
@@ -97,35 +111,34 @@ public class BenchmarksTest
       {
          fail("Expected AI in Subprocess not found");
       }
-      
-      
+
    }
-   
+
    @Test
    public void runBenchmarkDaemonTest()
    {
-      
+
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, startOptions_withBenchmark);      
-      serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, startOptions_withoutBenchmark);
-      serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, startOptions_withBenchmark);          
-      
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withoutBenchmark);
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+
       serviceFactory.getAdministrationService().startDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
-      
+
       DaemonExecutionState state = serviceFactory.getAdministrationService()
             .getDaemon(AdministrationService.BENCHMARK_DAEMON, false)
             .getDaemonExecutionState();
 
-      assertEquals(DaemonExecutionState.OK,state);
-      
-      serviceFactory.getAdministrationService().stopDaemon(AdministrationService.BENCHMARK_DAEMON, true);
+      assertEquals(DaemonExecutionState.OK, state);
+
+      serviceFactory.getAdministrationService().stopDaemon(
+            AdministrationService.BENCHMARK_DAEMON, true);
 
    }
-   
-   
+
 }

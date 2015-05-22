@@ -1280,6 +1280,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT,
                      PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT,
             "org.eclipse.stardust.engine.api.runtime.ActivityInstance", Direction.OUT, false, null));
+         accessPoints.put(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+               JavaDataTypeUtils.createIntrinsicAccessPoint(this,
+            PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+                     PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+            "org.eclipse.stardust.engine.api.runtime.ProcessInstance", Direction.OUT, false, null));         
       }
 
       public RootElement getModel()

@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
@@ -2266,6 +2267,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       fetch();
       return this.benchmarkValue;
+   }   
+   
+   public boolean isIntrinsicOutAccessPoint(String id)
+   {
+      return PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(id);
+   }
+
+   public Map getIntrinsicOutAccessPointValues()
+   {
+      return Collections.singletonMap(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+            DetailsFactory.create(this));
    }   
    
 }

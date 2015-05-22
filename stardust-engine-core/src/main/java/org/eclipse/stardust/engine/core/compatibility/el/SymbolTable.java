@@ -67,11 +67,40 @@ public interface SymbolTable
 
             public AccessPoint lookupSymbolType(String name)
             {
+               if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+               {
+                  return pi.getProcessDefinition().getAccessPoint(PredefinedConstants.ENGINE_CONTEXT,
+                        PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
+               }
                return getModel().findData(name);
             }
 
             public Object lookupSymbol(String name)
             {
+               if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+               {
+                  PropertyLayer layer = null;
+                  Object object = null;
+
+                  try
+                  {
+                     Map<String, Object> props = new HashMap<String, Object>();
+                     props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+                     layer = ParametersFacade.pushLayer(props);
+
+                     object = pi.getIntrinsicOutAccessPointValues().get(
+                           PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
+                  }
+                  finally
+                  {
+                     if (null != layer)
+                     {
+                        ParametersFacade.popLayer();
+                     }
+                  }
+                  return object;
+               }               
+               
                return pi.lookupSymbol(name);
             }
 
@@ -109,6 +138,8 @@ public interface SymbolTable
             private IModel model;
 
             private IActivity a = activity;
+            
+            private IProcessDefinition pd;
 
             public AccessPoint lookupSymbolType(String name)
             {
@@ -116,6 +147,11 @@ public interface SymbolTable
                {
                   return getActivity().getAccessPoint(PredefinedConstants.ENGINE_CONTEXT,
                         PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
+               }
+               else if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+               {
+                  return getProcess().getAccessPoint(PredefinedConstants.ENGINE_CONTEXT,
+                        PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
                }
                return getModel().findData(name);
             }
@@ -145,6 +181,29 @@ public interface SymbolTable
                   }
                   return object;
                }
+               else if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+               {
+                  PropertyLayer layer = null;
+                  Object object = null;
+
+                  try
+                  {
+                     Map<String, Object> props = new HashMap<String, Object>();
+                     props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+                     layer = ParametersFacade.pushLayer(props);
+
+                     object = pi.getIntrinsicOutAccessPointValues().get(
+                           PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
+                  }
+                  finally
+                  {
+                     if (null != layer)
+                     {
+                        ParametersFacade.popLayer();
+                     }
+                  }
+                  return object;
+               }               
                return getProcessInstance().lookupSymbol(name);
             }
 
@@ -155,6 +214,15 @@ public interface SymbolTable
                   a = ai.getActivity();
                }
                return a;
+            }
+            
+            public IProcessDefinition getProcess()
+            {
+               if (pd == null)
+               {
+                  pd = ai.getProcessInstance().getProcessDefinition();
+               }
+               return pd;
             }
 
             public IProcessInstance getProcessInstance()

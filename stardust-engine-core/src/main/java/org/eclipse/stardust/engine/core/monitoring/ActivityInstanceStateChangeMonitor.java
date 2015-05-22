@@ -25,8 +25,11 @@ import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
+import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkEvaluator;
+import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.spi.monitoring.IActivityInstanceMonitor;
 
 
@@ -55,6 +58,7 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
       if ( !ActivityInstanceUtils.isTransientExecutionScenario(activity))
       {
          recalculateCriticalityIfDesired(activity, newState);
+         recalculateBenchmark(activity, newState);
       }
    }
 
@@ -102,6 +106,36 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
       }
    }
 
+   private void recalculateBenchmark(IActivityInstance ai, int newState)
+   {
+      if (BenchmarkUtils.isBenchmarkedPI(ai.getProcessInstance())
+            && (ai.getState() == ActivityInstanceState.Application && newState == ActivityInstanceState.SUSPENDED)
+            || (ai.getState() == ActivityInstanceState.Created && newState == ActivityInstanceState.CREATED))
+      {
+         try
+         {
+            IBenchmarkEvaluator evaluator = new BenchmarkEvaluator(
+                  ai.getProcessInstance().getBenchmark());
+            ((ActivityInstanceBean) ai).setBenchmarkValue(evaluator.getBenchmarkForActivityInstance(
+                  ai.getOID(), ai.getActivity().getId()));
+
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Benchmark value for suspended activity instance <"
+                     + ai.getOID() + "> has been calculated as <"
+                     + ai.getBenchmarkValue() + ">.");
+            }
+         }
+         catch (Exception e)
+         {
+            AuditTrailLogger.getInstance(LogCode.ENGINE)
+                  .warn(MessageFormat.format(
+                        "Failed to write benchmark value for activity instance {0}, no benchmark has been set.",
+                        new Object[] {ai.getOID()}, e));
+         }         
+      }
+   }
+   
    private Map retrievePreferences()
    {
 

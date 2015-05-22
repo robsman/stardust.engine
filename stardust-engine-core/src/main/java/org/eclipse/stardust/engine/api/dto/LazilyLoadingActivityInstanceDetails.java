@@ -585,4 +585,14 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    {
       throw new UnsupportedOperationException();
    }
+
+   @Override
+   public int getBenchmarkValue()
+   {
+      if (useFullBlownAiDetailsObjects)
+      {
+         return getActivityInstanceDetails().getBenchmarkValue();
+      }
+      return activityInstance.getBenchmarkValue();
+   }
 }

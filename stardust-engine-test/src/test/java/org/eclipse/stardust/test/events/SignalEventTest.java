@@ -20,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
+import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.log4j.Level;
@@ -40,6 +41,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMod
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.JmsConstants;
 import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -184,20 +186,51 @@ public class SignalEventTest
       assertThat(signalAcceptorAi.getState(), equalTo(ActivityInstanceState.Hibernated));
       wfs.setOutDataPath(rootProcess.getOID(), "PredicateData_1Path", "Klaus");
 
-      // fire a signal signal acceptor is waiting for
-      ProcessInstance pi2 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
-      aiStateChangeBarrier.awaitForId(pi2.getOID(), "StartActivity");
-      wfs.setOutDataPath(pi2.getOID(), "Data_1Path", "Klaus");
-      wfs.setOutDataPath(pi2.getOID(), "Data_2Path", "Horst");
-      ActivityInstance ai2 = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi2.getOID(), "StartActivity"));
-      wfs.activateAndComplete(ai2.getOID(), null, null);
-      piStateChangeBarrier.await(pi2.getOID(), ProcessInstanceState.Completed);
+      // fire a signal the signal acceptor is waiting for
+      ProcessInstance pi = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
+      aiStateChangeBarrier.awaitForId(pi.getOID(), "StartActivity");
+      wfs.setOutDataPath(pi.getOID(), "Data_1Path", "Klaus");
+      wfs.setOutDataPath(pi.getOID(), "Data_2Path", "Horst");
+      ActivityInstance ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getOID(), "StartActivity"));
+      wfs.activateAndComplete(ai.getOID(), null, null);
+      piStateChangeBarrier.await(pi.getOID(), ProcessInstanceState.Completed);
 
       // signal has been accepted, assert that output data is correct
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
       Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
       assertThat(outputData, Matchers.instanceOf(String.class));
       assertThat((String) outputData, Matchers.equalTo("Horst"));
+   }
+
+   @Test
+   public void testSignalTriggerParameterMappings() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // fire a signal the signal trigger is waiting for
+      ProcessInstance pi = wfs.startProcess("{SignalEventsTestModel}SendTriggerSignal", null, true);
+      aiStateChangeBarrier.awaitForId(pi.getOID(), "StartActivity");
+      wfs.setOutDataPath(pi.getOID(), "Data_1Path", "Klaus");
+      wfs.setOutDataPath(pi.getOID(), "Data_2Path", "Horst");
+      ActivityInstance ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getOID(), "StartActivity"));
+      wfs.activateAndComplete(ai.getOID(), null, null);
+      piStateChangeBarrier.await(pi.getOID(), ProcessInstanceState.Completed);
+
+      // await trigger process completion
+      long triggerPiOid = receiveProcessInstanceCompletedMessage("SignalJMSTrigger");
+
+      // assert message parameters
+      Object obj1 = wfs.getInDataPath(triggerPiOid, "TriggerData_1Path");
+      assertThat(obj1, Matchers.instanceOf(String.class));
+      assertThat((String) obj1, Matchers.equalTo("Klaus"));
+
+      Object obj2 = wfs.getInDataPath(triggerPiOid, "TriggerData_2Path");
+      assertThat(obj2, Matchers.instanceOf(String.class));
+      assertThat((String) obj2, Matchers.equalTo("Horst"));
    }
 
    // TODO - bpmn-2-events - test case for interrupting signal event
@@ -216,5 +249,23 @@ public class SignalEventTest
                return message;
             }
          });
+   }
+
+   private long receiveProcessInstanceCompletedMessage(String processId) throws JMSException
+   {
+      final Queue queue = testClassSetup.queue(JmsConstants.TEST_QUEUE_NAME_PROPERTY);
+      JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setReceiveTimeout(10000L);
+
+      final Message message = jmsTemplate.receive(queue);
+      if (message == null)
+      {
+         throw new JMSException("Timeout while receiving.");
+      }
+      long piOid = message.getLongProperty(DefaultMessageHelper.PROCESS_INSTANCE_OID_HEADER);
+      assertThat(sf.getWorkflowService().getProcessInstance(piOid).getProcessID(), equalTo(processId));
+
+      return piOid;
    }
 }

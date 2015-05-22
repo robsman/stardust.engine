@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.extensions.jms.app;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.jms.Message;
@@ -42,6 +43,8 @@ public interface MessageAcceptor
     * @return
     */
    Iterator<IActivityInstance> getMatchingActivityInstances(Message message);
+
+   List<Match> getTriggerMatches(Message message);
 
    /**
     * Extracts the data

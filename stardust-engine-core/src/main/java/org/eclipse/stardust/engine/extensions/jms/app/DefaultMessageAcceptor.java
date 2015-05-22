@@ -169,9 +169,9 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
 
       return Collections.EMPTY_LIST.iterator();
    }
-   
+
    /**
-    * 
+    *
     * @param processID
     * @param activityID
     * @param dataID
@@ -186,7 +186,7 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
       ActivityInstanceQuery query = ActivityInstanceQuery.findInState(activityState);
       query.where(ActivityFilter.forProcess(activityID, processID));
       query.where(DataFilter.isEqual(dataID, dataValue));
-      
+
       return query;
    }
 
@@ -242,8 +242,14 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
    public Match finalizeMatch(IActivityInstance activityInstance)
    {
       if (activityInstance.isHibernated()) {
-         return new ResponseMatch(this, activityInstance);         
+         return new ResponseMatch(this, activityInstance);
       }
       return null;
+   }
+
+   @Override
+   public List<Match> getTriggerMatches(Message message)
+   {
+      return Collections.emptyList();
    }
 }

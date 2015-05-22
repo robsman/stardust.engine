@@ -160,6 +160,12 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
       return Collections.singleton(MessageType.TEXT);
    }
 
+   @Override
+   public List<Match> getTriggerMatches(Message message)
+   {
+      return Collections.emptyList();
+   }
+
    private class EscalationMessageMatch implements Match
    {
       private final MessageAcceptor acceptor;

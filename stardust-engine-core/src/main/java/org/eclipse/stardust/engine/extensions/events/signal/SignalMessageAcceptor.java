@@ -20,6 +20,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringKey;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -50,6 +51,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
@@ -102,7 +104,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
             OrTerm activityFilter = new OrTerm();
 
-            List<IEventHandler> signalEventHandlers = initializeFromModel();
+            List<IEventHandler> signalEventHandlers = initializeFromModel().getFirst();
             for (IEventHandler signalEventHandler : signalEventHandlers)
             {
                if (signalEventHandler.getName().equals(signalName)) {
@@ -156,7 +158,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    {
       if (!activityInstance.isTerminated())
       {
-         return new SignalMessageMatch(this, activityInstance);
+         return new SignalMessageActivityInstanceMatch(this, activityInstance);
       }
       return null;
    }
@@ -216,6 +218,38 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       return Collections.singleton(MessageType.TEXT);
    }
 
+   @Override
+   public List<Match> getTriggerMatches(final Message message)
+   {
+      return processMessage(new MessageProcessor<List<Match>>()
+      {
+         @Override
+         public List<Match> process() throws JMSException
+         {
+            List<Match> result = CollectionUtils.newArrayList();
+
+            if ( !message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY))
+            {
+               return result;
+            }
+
+            String signalName = message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
+            trace.info("Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE + "' for signal name '" + signalName + "'.");
+
+            List<ITrigger> triggers = initializeFromModel().getSecond();
+            for (ITrigger trigger : triggers)
+            {
+               if (trigger.getId().equals(signalName))
+               {
+                  result.add(new SignalMessageTriggerMatch(SignalMessageAcceptor.this, trigger));
+               }
+            }
+
+            return result;
+         }
+      });
+   }
+
    private boolean matchPredicateData(IActivityInstance ai, String eventContextName, Message message)
    {
       ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
@@ -255,13 +289,89 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       return true;
    }
 
-   private static class SignalMessageMatch implements Match
+   /**
+    * Collect triggers and activity-event handlers with a signal declaration.
+    */
+   private Pair<List<IEventHandler>,List<ITrigger>> initializeFromModel() {
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Bootstrapping signal acceptors");
+      }
+
+      List<ITrigger> allSignalTriggers = newArrayList();
+      List<IEventHandler> allSignalEvents = newArrayList();
+
+      // TODO - bpmn-2-events - for activities we have to consider all versions having running processInstances; For triggers we consider only the active/latest model version
+      List<IModel> activeModels = ModelManagerFactory.getCurrent().getModels();
+      for (IModel model : activeModels) {
+         Object cachedSignalTriggers = model.getRuntimeAttribute(CACHED_SIGNAL_TRIGGERS);
+         Object cachedSignalEvents = model.getRuntimeAttribute(CACHED_SIGNAL_EVENTS);
+
+         if (null == cachedSignalTriggers) {
+            List<ITrigger> signalTriggersPerModel = newArrayList();
+            for (IProcessDefinition processDef : model.getProcessDefinitions()) {
+               for (ITrigger trigger : processDef.getTriggers())
+               {
+                  if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType().getId()))
+                  {
+                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
+                        signalTriggersPerModel.add(trigger);
+                     }
+                  }
+               }
+            }
+            model.setRuntimeAttribute(CACHED_SIGNAL_TRIGGERS, signalTriggersPerModel);
+            allSignalTriggers.addAll((List<ITrigger>) signalTriggersPerModel);
+         } else {
+            allSignalTriggers.addAll((List<ITrigger>) cachedSignalTriggers);
+         }
+
+         if (null == cachedSignalEvents) {
+            List<IEventHandler> signalEventsPerModel = newArrayList();
+            for (IProcessDefinition processDef : model.getProcessDefinitions()) {
+               for (IActivity activity : processDef.getActivities()) {
+                  for (IEventHandler event : activity.getEventHandlers()) {
+                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
+                        signalEventsPerModel.add(event);
+                     }
+                  }
+               }
+            }
+            model.setRuntimeAttribute(CACHED_SIGNAL_EVENTS, signalEventsPerModel);
+            allSignalEvents.addAll((List<IEventHandler>) signalEventsPerModel);
+         } else {
+            allSignalEvents.addAll((List<IEventHandler>) cachedSignalEvents);
+         }
+      }
+
+      return new Pair<List<IEventHandler>,List<ITrigger>>(allSignalEvents, allSignalTriggers);
+   }
+
+   private static <T> T processMessage(MessageProcessor<T> processor)
+   {
+      try
+      {
+         return processor.process();
+      }
+      catch (JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e);
+      }
+   }
+
+   private static interface MessageProcessor<T>
+   {
+      public T process() throws JMSException;
+   }
+
+   private static class SignalMessageActivityInstanceMatch implements Match
    {
       private final MessageAcceptor acceptor;
 
       private final IActivityInstance activityInstance;
 
-      private SignalMessageMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
+      private SignalMessageActivityInstanceMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
       {
          this.acceptor = acceptor;
          this.activityInstance = activityInstance;
@@ -381,98 +491,28 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       }
    }
 
-   /**
-    * Collect triggers and activity-event handlers with a signal declaration.
-    */
-   private List<IEventHandler> initializeFromModel() {
-      if (trace.isDebugEnabled())
-      {
-         trace.debug("Bootstrapping signal acceptors");
-      }
-
-      List<ITrigger> allSignalTriggers = newArrayList();
-      List<IEventHandler> allSignalEvents = newArrayList();
-
-      // TODO - bpmn-2-events - for activities we have to consider all versions having running processInstances; For triggers we consider only the active/latest model version
-      List<IModel> activeModels = ModelManagerFactory.getCurrent().getModels();
-      for (IModel model : activeModels) {
-         Object cachedSignalTriggers = model.getRuntimeAttribute(CACHED_SIGNAL_TRIGGERS);
-         Object cachedSignalEvents = model.getRuntimeAttribute(CACHED_SIGNAL_EVENTS);
-
-         if (null == cachedSignalTriggers) {
-            List<ITrigger> signalTriggersPerModel = newArrayList();
-            for (IProcessDefinition processDef : model.getProcessDefinitions()) {
-               for (ITrigger trigger : processDef.getTriggers())
-               {
-                  if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType()))
-                  {
-                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
-                        signalTriggersPerModel.add(trigger);
-                     }
-                  }
-               }
-            }
-            model.setRuntimeAttribute(CACHED_SIGNAL_TRIGGERS, signalTriggersPerModel);
-            allSignalTriggers.addAll((List<ITrigger>) signalTriggersPerModel);
-         } else {
-            allSignalTriggers.addAll((List<ITrigger>) cachedSignalTriggers);
-         }
-
-         if (null == cachedSignalEvents) {
-            List<IEventHandler> signalEventsPerModel = newArrayList();
-            for (IProcessDefinition processDef : model.getProcessDefinitions()) {
-               for (IActivity activity : processDef.getActivities()) {
-                  for (IEventHandler event : activity.getEventHandlers()) {
-                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
-                        signalEventsPerModel.add(event);
-                     }
-                  }
-               }
-            }
-            model.setRuntimeAttribute(CACHED_SIGNAL_EVENTS, signalEventsPerModel);
-            allSignalEvents.addAll((List<IEventHandler>) signalEventsPerModel);
-         } else {
-            allSignalEvents.addAll((List<IEventHandler>) cachedSignalEvents);
-         }
-      }
-
-      return allSignalEvents;
-   }
-
-   private Set<Match> findSignalAcceptors(String signal) {
-      Set<Match> acceptors = newHashSet();
-
-      acceptors.addAll(findTriggersForSignal(signal));
-      acceptors.addAll(findActivitiesForSignal(signal));
-
-      return acceptors;
-   }
-
-   private Collection<? extends Match> findActivitiesForSignal(String signal) {
-      // TODO - bpmn-2-events - create matches for eventHandlers of activities (as found in model definitions) in active models
-      return null;
-   }
-
-   private Collection<? extends Match> findTriggersForSignal(String signal) {
-      // TODO - bpmn-2-events - create matches for startTriggers
-      return null;
-   }
-
-   private static <T> T processMessage(MessageProcessor<T> processor)
+   private static class SignalMessageTriggerMatch implements Match
    {
-      try
-      {
-         return processor.process();
-      }
-      catch (JMSException e)
-      {
-         // TODO - bpmn-2-events - review exception handling
-         throw new PublicException(e);
-      }
-   }
+      private final MessageAcceptor acceptor;
 
-   private static interface MessageProcessor<T>
-   {
-      public T process() throws JMSException;
+      private final ITrigger trigger;
+
+      private SignalMessageTriggerMatch(MessageAcceptor acceptor, ITrigger trigger)
+      {
+         this.acceptor = acceptor;
+         this.trigger = trigger;
+      }
+
+      @Override
+      public void process(AdministrationServiceImpl session, Message message)
+      {
+         WorkflowServiceImpl wfs = new WorkflowServiceImpl();
+
+         IProcessDefinition processDef = (IProcessDefinition) trigger.getParent();
+         Map<String, ?> msgData = acceptor.getData(message, null, trigger.getAllOutAccessPoints());
+         Map<String, ?> data = TriggerDaemon.performParameterMapping(trigger, msgData);
+
+         wfs.startProcess(processDef, data, trigger.isSynchronous());
+      }
    }
 }

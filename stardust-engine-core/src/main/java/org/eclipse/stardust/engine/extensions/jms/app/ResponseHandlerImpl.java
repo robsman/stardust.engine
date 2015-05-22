@@ -285,6 +285,19 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
    {
       List<Match> matches = newArrayList();
 
+      matches.addAll(findAiMatchesForMessage(message, acceptor));
+      if (acceptor instanceof MultiMatchCapable && ((MultiMatchCapable) acceptor).findMoreMatches(matches))
+      {
+         matches.addAll(findTriggerMatchesForMessage(message, acceptor));
+      }
+
+      return matches;
+   }
+
+   private List<Match> findAiMatchesForMessage(Message message, MessageAcceptor acceptor)
+   {
+      List<Match> matches = newArrayList();
+
       try
       {
          for (Iterator<IActivityInstance> activityItr = acceptor.getMatchingActivityInstances(message); activityItr.hasNext();)
@@ -353,6 +366,11 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       }
 
       return matches;
+   }
+
+   private List<Match> findTriggerMatchesForMessage(Message message, MessageAcceptor acceptor)
+   {
+      return acceptor.getTriggerMatches(message);
    }
 
    private List<Match> findMatchForTriggerMessage(Message message, Trigger trigger)

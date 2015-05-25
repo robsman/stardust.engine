@@ -303,7 +303,7 @@ public class ExportResult implements Serializable
          }
          for (Date indexDate : modelOidsByDate.keySet())
          {
-            exportModelByDate.put(indexDate, ExportImportSupport.exportModels(modelOidsByDate.get(indexDate)));
+            exportModelByDate.put(indexDate, ExportImportSupport.exportModels(null, modelOidsByDate.get(indexDate)));
          }
          for (Persistent persistent : subs)
          {

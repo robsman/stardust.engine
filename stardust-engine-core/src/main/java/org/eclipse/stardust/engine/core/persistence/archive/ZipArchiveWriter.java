@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class ZipArchiveWriter implements IArchiveWriter
@@ -29,7 +30,7 @@ public class ZipArchiveWriter implements IArchiveWriter
    private static final String EXT_JSON = ".json";
 
    private static final String EXT_XPDL = ".xpdl";
-
+   
    private static final String FILENAME_XPDL_PREFIX = "xpdl_";
    
    private static final String FILENAME_MODEL_PREFIX = "model_";
@@ -39,6 +40,10 @@ public class ZipArchiveWriter implements IArchiveWriter
    private static final String FILENAME_INDEX_PREFIX = "index_";
 
    private static final String FILENAME_ZIP_PREFIX = "export_";
+   
+   private static final String FILENAME_DOCUMENT_PREFIX = "doc_";
+   
+   private static final String FILENAME_DOCUMENT_META_SUFFIX = "_meta";
 
    private final String archiveManagerId;
 
@@ -57,6 +62,8 @@ public class ZipArchiveWriter implements IArchiveWriter
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
    public static final int BUFFER_SIZE = 1024 * 16;
+   
+   private static final String FOLDER_MODELS = "models";
 
    public ZipArchiveWriter(Map<String, String> preferences)
    {
@@ -243,31 +250,70 @@ public class ZipArchiveWriter implements IArchiveWriter
    }
    
    @Override
-   public boolean addXpdl(Serializable key, String uuid, String xpdl)
+   public boolean addModelXpdl(Serializable dumpLocation, String uuid, String xpdl)
    {
       boolean success;
-      try
+      File lock = null;
+      synchronized (uuid)
       {
-         if (key != null && !StringUtils.isEmpty(xpdl) && !StringUtils.isEmpty(uuid))
+         if (!isModelExported(dumpLocation, uuid))
          {
-            File dataFile = (File) key;
-            String name = FILENAME_XPDL_PREFIX + getIndex(key) + "_" + uuid + EXT_XPDL;
-            File xpdlFile = new File(dataFile.getParentFile(), name);
-            writeByteArrayToFile(xpdlFile, xpdl.getBytes());
-            success = true;
+            try
+            {
+               if (!StringUtils.isEmpty(xpdl) && !StringUtils.isEmpty(uuid))
+               {
+                  File dataFolder = new File(getPartitionFolderName(dumpLocation) + File.separatorChar + FOLDER_MODELS);
+                  if(!dataFolder.exists())
+                  {
+                     dataFolder.mkdirs();
+                  }
+                  lock = getLockFile(dataFolder);
+                  if (lock != null)
+                  {
+                     String name = uuid + EXT_XPDL;
+                     File xpdlFile = new File(dataFolder, name);
+                     writeByteArrayToFile(xpdlFile, xpdl.getBytes());
+                     success = true;
+                  }
+                  else
+                  {
+                     success = false;
+                     LOGGER.error("Failed creating lock file for models folder.");
+                  }
+               }
+               else
+               {
+                  success = false;
+                  LOGGER.error("UUID or XPDL is Null. uuid:" + uuid + ", xpdl:" + xpdl);
+               }
+            }
+            catch (IOException e)
+            {
+               success = false;
+               LOGGER.error("Failed adding model xpdl to archive.", e);
+            }
+            finally
+            {
+               if (lock != null)
+               {
+                  lock.delete();
+               }
+            }
          }
          else
          {
-            success = false;
-            LOGGER.error("Key or UUID or XPDL is Null. Key: " + key + ", uuid:" + uuid + ", xpdl:" + xpdl);
+            success = true;
          }
       }
-      catch (IOException e)
-      {
-         success = false;
-         LOGGER.error("Failed adding xpdl to archive.", e);
-      }
       return success;
+   }
+   
+   public boolean isModelExported(Serializable dumpLocation, String uuid)
+   {
+      String name = uuid + EXT_XPDL;
+      File dataFolder = new File(getPartitionFolderName(dumpLocation) + File.separatorChar + FOLDER_MODELS);
+      File xpdlFile = new File(dataFolder, name);
+      return xpdlFile.exists();
    }
 
    @Override
@@ -326,6 +372,44 @@ public class ZipArchiveWriter implements IArchiveWriter
       return success;
    }
 
+
+   public boolean addDocument(Serializable key, long piOid, Document doc, byte[] content,
+         String metaData)
+   {
+      boolean success;
+      try
+      {
+         if (key != null && content != null)
+         {
+            File dataFile = (File) key;
+            
+            int lastIndex = doc.getName().lastIndexOf('.');
+            String ext = doc.getName().substring(lastIndex);
+            String docName = doc.getName().substring(0, lastIndex);
+            
+            String name = FILENAME_DOCUMENT_PREFIX + getIndex(key) + "_" + piOid + "_" + docName + "_" + doc.getRevisionName() + ext;
+            String jsonNname = FILENAME_DOCUMENT_PREFIX + getIndex(key) + "_" + piOid + "_" + docName + "_" + doc.getRevisionName() + FILENAME_DOCUMENT_META_SUFFIX + EXT_JSON;
+            File indexFile = new File(dataFile.getParentFile(), name);
+            writeByteArrayToFile(indexFile, content);
+            File metaFile = new File(dataFile.getParentFile(), jsonNname);
+            writeByteArrayToFile(metaFile, metaData.getBytes());
+            success = true;
+         }
+         else
+         {
+            success = false;
+            LOGGER.error("Key or Document is Null. Key: " + key + ", Document:" + doc);
+         }
+      }
+      catch (IOException e)
+      {
+         success = false;
+         LOGGER.error("Failed adding document to archive.", e);
+      }
+      return success;
+   }
+   
+   
    @Override
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult)
    {
@@ -374,7 +458,7 @@ public class ZipArchiveWriter implements IArchiveWriter
       return file;
    }
 
-   private String getPartitionFolderName(String dumpLocation)
+   private String getPartitionFolderName(Serializable dumpLocation)
    {
       String partition = SecurityProperties.getPartition().getId();
       if (dumpLocation == null)
@@ -386,7 +470,7 @@ public class ZipArchiveWriter implements IArchiveWriter
          return dumpLocation + partition;
       }
    }
-
+   
    private String getUniqueFileName(File dataFolder)
    {
       File[] allfiles = dataFolder.listFiles(filter);
@@ -419,6 +503,11 @@ public class ZipArchiveWriter implements IArchiveWriter
       if (EXT_XPDL.equals(ext))
       {
          return parts[2];   
+      }
+      else if(fileName.startsWith(FILENAME_DOCUMENT_PREFIX))
+      {
+         String prefix = parts[0] + "_" + parts[1] + "_";  
+         return fileName.substring(prefix.length());
       }
       else
       {
@@ -460,7 +549,8 @@ public class ZipArchiveWriter implements IArchiveWriter
                String fileAbsolutePath = parentFoder + File.separatorChar + fileToZip;
                if (ZipArchive.FILENAME_MODEL.equals(baseFileName)
                      || ZipArchive.FILENAME_INDEX.equals(baseFileName)
-                     || baseFileName.endsWith(EXT_XPDL))
+                     || baseFileName.endsWith(EXT_XPDL)
+                     || fileToZip.startsWith(FILENAME_DOCUMENT_PREFIX))
                {
                   long entrySize = writeComplete(out, fileAbsolutePath, buffer,
                         baseFileName);
@@ -747,12 +837,14 @@ public class ZipArchiveWriter implements IArchiveWriter
             String xpdlPattern = FILENAME_XPDL_PREFIX;
             String zipPattern = FILENAME_ZIP_PREFIX;
             String indexPattern = FILENAME_INDEX_PREFIX;
+            String docPattern = FILENAME_DOCUMENT_PREFIX;
             if (index > -1)
             {
                pattern += index;
                modelPattern += index;
                indexPattern += index;
                xpdlPattern += index;
+               docPattern += index;
             }
 
             // match path name extension
@@ -767,6 +859,10 @@ public class ZipArchiveWriter implements IArchiveWriter
                return true;
             }
             else if (ext.equals(EXT_XPDL) && fileName.startsWith(xpdlPattern))
+            {
+               return true;
+            }
+            else if (fileName.startsWith(docPattern))
             {
                return true;
             }

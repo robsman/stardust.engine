@@ -25,12 +25,11 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.DataDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Models;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.model.beans.DataBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
@@ -50,6 +49,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelMana
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
  * <p>
@@ -62,6 +62,61 @@ import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
+   
+   
+   private static IDataPath existsProcessAttachmentsDataPath(IProcessInstance processInstance)
+   {
+      IProcessDefinition process = processInstance.getProcessDefinition();
+      IDataPath documentDataPath = process.findDataPath(DmsConstants.PATH_ID_ATTACHMENTS, Direction.IN);
+      return documentDataPath;
+   }
+   
+   public static List<Document> fetchProcessAttachments(WorkflowService ws, Long piOid)
+   {
+      List<Document> attachments;
+      IProcessInstance processInstance = ProcessInstanceBean.findByOID(piOid);
+      if (processInstance != null)
+      {
+         IDataPath dataPath = existsProcessAttachmentsDataPath(processInstance);
+         if (dataPath != null)
+         {
+            Object o = ws.getInDataPath(processInstance.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+            if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(((DataBean) dataPath.getData()).getType().getId()))
+            {
+               attachments = (List<Document>) o;
+            }
+            else
+            {
+               attachments = null;
+            }
+         }
+         else
+         {
+            attachments = null;
+         }
+      }
+      else
+      {
+         attachments = null;
+      }
+      return attachments;
+   }
+      
+   /**
+    * @param pi
+    */
+   public static String getProcessAttachmentsFolderPath(IProcessInstance pi)
+   {
+      if(pi == null)
+      {
+         throw new IllegalArgumentException("pi can not be null for getProcessAttachmentsFolderPath()");
+      }
+         
+      String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
+      String s = defaultPath + "/process-attachments";
+      
+      return s;
+   }
    
    public static void archive(List<IProcessInstance> pis)
    {
@@ -357,7 +412,6 @@ public class ExportImportSupport
                      {
                         exportModel.getFqIdToRtOid().putAll(fromModel.getFqIdToRtOid());
                         exportModel.getModelOidToUuid().putAll(fromModel.getModelOidToUuid());
-                        exportModel.getUuiIdToXpdl().putAll(fromModel.getUuiIdToXpdl());
                      }
                   }
                }
@@ -815,7 +869,7 @@ public class ExportImportSupport
       return count;
    }
 
-   public static ExportModel exportModels(Set<Integer> modelOids)
+   public static ExportModel exportModels(String dumpLocation, Set<Integer> modelOids)
    {
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
@@ -832,7 +886,7 @@ public class ExportImportSupport
 
          allModels.add(model);
       }
-      return exportModels(modelManager, allModels);
+      return exportModels(dumpLocation, modelManager, allModels);
    }
 
 
@@ -927,13 +981,13 @@ public class ExportImportSupport
       }
    }
 
-   private static ExportModel exportModels(ModelManagerPartition modelManager,
-         List<IModel> models)
+   private static ExportModel exportModels(String dumpLocation, 
+         ModelManagerPartition modelManager, List<IModel> models)
    {
       
       String partition = SecurityProperties.getPartition().getId();
       Map<Integer, String> modelOidToUuid = new HashMap<Integer, String>();
-      Map<String, String> uuidToXpdl = new HashMap<String, String>();
+      IArchiveWriter archiveWriter = ArchiveManagerFactory.getArchiveWriter();
       // models doesn't have fqIds so we explicitly write model ids here
       // need to write all modelids, we don't know in which version models processes were
       // started
@@ -943,7 +997,12 @@ public class ExportImportSupport
          {
             setModelUUID(model);
             modelOidToUuid.put(model.getModelOID(), (String) model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID));
-            uuidToXpdl.put((String) model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID), getXpdl(model.getModelOID()));
+            
+            String uuid = (String) model.getRuntimeAttribute(PredefinedConstants.MODEL_UUID);
+            if (!archiveWriter.isModelExported(dumpLocation, uuid))
+            {
+               archiveWriter.addModelXpdl(dumpLocation, uuid, getXpdl(model.getModelOID()));
+            }
          }
       }
 
@@ -957,7 +1016,7 @@ public class ExportImportSupport
             fqIdToRtOid.put(key, modelManager.getRuntimeOid(allFqIds.get(key)));
          }
       }
-      return new ExportModel(fqIdToRtOid, modelOidToUuid, uuidToXpdl, partition);
+      return new ExportModel(fqIdToRtOid, modelOidToUuid, partition);
    }
 
    private static Map<String, List<byte[]>> splitArrayByTables(

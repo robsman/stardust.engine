@@ -16,9 +16,7 @@ import com.google.gson.Gson;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -146,11 +144,11 @@ public class ExportProcessesCommand implements ServiceCommand
       switch (operation)
       {
          case QUERY_AND_EXPORT:
-            queryAndExport(sf.getQueryService(), session);
+            queryAndExport(sf.getWorkflowService(), sf.getQueryService(), session);
             result = exportResult;
             break;
          case QUERY:
-            query(sf.getQueryService(), session);
+            query(sf.getWorkflowService(), sf.getQueryService(), session);
             result = exportMetaData;
             break;
          case EXPORT_MODEL:
@@ -162,10 +160,10 @@ public class ExportProcessesCommand implements ServiceCommand
             result = exportResult;
             break;
          case ARCHIVE:
-            result = archive(session);
+            result = archive(sf.getWorkflowService(), sf.getDocumentManagementService(), session);
             break;
          case ARCHIVE_MESSAGES:
-            result = archiveMessages(session);
+            result = archiveMessages(sf.getWorkflowService(), sf.getDocumentManagementService(), session);
             break;
          default:
             throw new IllegalArgumentException("No valid operation provided");
@@ -177,7 +175,7 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
-   private boolean archiveMessages(Session session)
+   private boolean archiveMessages(WorkflowService ws, DocumentManagementService dms, Session session)
    {
       if (LOGGER.isDebugEnabled())
       {
@@ -207,7 +205,7 @@ public class ExportProcessesCommand implements ServiceCommand
       if (!exportResults.isEmpty())
       {
          exportResult = ExportImportSupport.merge(exportResults, null);
-         archive(session);
+         archive(ws, dms, session);
       }
       return true;
    }
@@ -225,7 +223,6 @@ public class ExportProcessesCommand implements ServiceCommand
                      + " processInstances");
             }
             ProcessElementPurger purger = new ProcessElementPurger();
-            ;
             ProcessElementsVisitor processVisitor = new ProcessElementsVisitor(purger);
             // purge processInstances
             result = processVisitor.visitProcessInstances(
@@ -255,7 +252,20 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
 
-   private Boolean archive(Session session)
+   
+   private void x()
+   {
+//      IArchiveWriter archiveManager = ArchiveManagerFactory.getArchiveWriter();
+//      boolean success = true;
+//      for (Integer oid : exportResult.getExportModel(date).getModelOidToUuid().keySet())
+//      {
+//         String uuid = exportResult.getExportModel(date).getModelOidToUuid().get(oid);
+//         String xpdl = exportResult.getExportModel(date).getUuiIdToXpdl().get(uuid);
+//         success = archiveManager.addModelXpdl(exportIndex, uuid, xpdl);
+//      }
+      
+   }
+   private Boolean archive(WorkflowService ws, DocumentManagementService dms, Session session)
    {
       IArchiveWriter archiveManager = ArchiveManagerFactory.getArchiveWriter();
       boolean success = true;
@@ -263,9 +273,7 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          dateloop: for (Date date : exportResult.getDates())
          {
-
             ExportIndex exportIndex = exportResult.getExportIndex(date);
-                        
             Serializable key = archiveManager.open(date, exportIndex);
             if (key == null)
             {
@@ -283,14 +291,7 @@ public class ExportProcessesCommand implements ServiceCommand
                Gson gson = ExportImportSupport.getGson();
                if (success)
                {
-                  
                   success = archiveManager.addModel(key, gson.toJson(exportResult.getExportModel(date)));
-                  for (Integer oid : exportResult.getExportModel(date).getModelOidToUuid().keySet())
-                  {
-                     String uuid = exportResult.getExportModel(date).getModelOidToUuid().get(oid);
-                     String xpdl = exportResult.getExportModel(date).getUuiIdToXpdl().get(uuid);
-                     success = archiveManager.addXpdl(key, uuid, xpdl);
-                  }
                   if (!success)
                   {
                      break dateloop;
@@ -307,6 +308,31 @@ public class ExportProcessesCommand implements ServiceCommand
                }
                if (success)
                {
+                  for (long piOid : exportIndex.getOidsToUuids().keySet())
+                  {
+                     List<Document> attachments = ExportImportSupport.fetchProcessAttachments(ws, piOid);
+                     if (attachments != null)
+                     {
+                        for (Document doc : attachments)
+                        {
+                           List<Document> versions = dms.getDocumentVersions(doc.getId());
+                           for (Document version : versions)
+                           {
+                              byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+                              Map metaData = version.getProperties();
+                              success = archiveManager.addDocument(key, piOid, version, content,
+                                    gson.toJson(metaData));
+                              if (!success)
+                              {
+                                 break dateloop;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               if (success)
+               {
                   success = archiveManager.close(key, date, exportResult);
                }
             }
@@ -317,10 +343,29 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          if (dumpLocation == null)
          {
+            purgeDocuments(ws, dms);
             purge(session);
          }
       }
       return success;
+   }
+   
+   private void purgeDocuments(WorkflowService ws, DocumentManagementService dms)
+   {
+      if (exportResult != null)
+      {
+         if (CollectionUtils.isNotEmpty(exportResult.getPurgeProcessIds()))
+         {
+            for (Long piOid : exportResult.getPurgeProcessIds())
+            {
+               ProcessInstanceBean pi = ProcessInstanceBean.findByOID(piOid);
+               String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
+               defaultPath += "/process-attachments";
+               
+               dms.removeFolder(defaultPath, true);
+            }
+         }
+      }
    }
    
    private void exportBatch(Session session)
@@ -372,7 +417,7 @@ public class ExportProcessesCommand implements ServiceCommand
       
       for (Date date : exportMetaData.getModelOids().keySet())
       {
-         ExportModel exportModel = ExportImportSupport.exportModels(exportMetaData.getModelOids().get(date));
+         ExportModel exportModel = ExportImportSupport.exportModels(dumpLocation, exportMetaData.getModelOids().get(date));
          exportModelByDate.put(date, exportModel);
       }
       if (exportResult == null)
@@ -382,7 +427,7 @@ public class ExportProcessesCommand implements ServiceCommand
       exportResult.setExportModelByDate(exportModelByDate);
    }
 
-   private void query(QueryService queryService, Session session)
+   private void query(WorkflowService ws, QueryService queryService, Session session)
    {
       filter.validateDates();
 
@@ -463,9 +508,9 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
    
-   private void queryAndExport(QueryService queryService, Session session)
+   private void queryAndExport(WorkflowService ws, QueryService queryService, Session session)
    {
-      query(queryService, session);
+      query(ws, queryService, session);
       if (exportMetaData.hasExportOids())
       {
          exportModels(session);

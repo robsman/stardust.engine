@@ -3,6 +3,8 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.eclipse.stardust.engine.api.runtime.Document;
+
 public interface IArchiveWriter
 {
    /**
@@ -44,9 +46,13 @@ public interface IArchiveWriter
 
    public String getArchiveManagerId();
 
-   public boolean addXpdl(Serializable key, String uuid, String xpdl);
+   public boolean addModelXpdl(Serializable dumpLocation, String uuid, String xpdl);
 
    public String getDateFormat();
 
    public boolean isAutoArchive();
+
+   public boolean addDocument(Serializable key, long piOid, Document doc, byte[] content, String metaData);
+   
+   public boolean isModelExported(Serializable dumpLocation, String uuid);
 }

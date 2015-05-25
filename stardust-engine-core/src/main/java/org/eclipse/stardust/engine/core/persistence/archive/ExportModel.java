@@ -18,32 +18,29 @@ public class ExportModel implements Serializable
    private Map<Integer, String> modelOIdToUuid;
    @Expose
    private Map<String, Long> fqIdToRtOid;
-   private Map<String, String> uuidToXpdl;
    
    public ExportModel()
    {
    }
    public ExportModel(Map<String, Long> fqIdToRtOid, 
-         Map<Integer, String> modelOIdToUuid,Map<String, String> uuidToXpdl, String partition)
+         Map<Integer, String> modelOIdToUuid, String partition)
    {
       super();
       this.fqIdToRtOid = fqIdToRtOid;
       this.modelOIdToUuid = modelOIdToUuid;
-      this.uuidToXpdl = uuidToXpdl;
       this.partition = partition;
    }
+   
    public Map<String, Long> getFqIdToRtOid()
    {
       return fqIdToRtOid;
    }
+   
    public Map<Integer, String> getModelOidToUuid()
    {
       return modelOIdToUuid;
    }
-   public Map<String, String> getUuiIdToXpdl()
-   {
-      return uuidToXpdl;
-   }
+
    public String getPartition()
    {
       return partition;

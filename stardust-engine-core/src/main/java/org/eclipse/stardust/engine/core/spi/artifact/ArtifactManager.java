@@ -161,6 +161,7 @@ public class ArtifactManager
 
    /**
     * Retrieves the artifact that is currently active.
+    * Including content.
     *
     * @param artifactTypeId The type of the artifact.
     * @param artifactId The id of the artifact.
@@ -177,6 +178,7 @@ public class ArtifactManager
 
    /**
     * Retrieves the artifact that is active at the specified point in time.
+    * Including content.
     *
     * @param artifactTypeId The type of the artifact.
     * @param artifactId The id of the artifact.
@@ -190,6 +192,41 @@ public class ArtifactManager
             artifactTypeId, artifactId, date.getTime());
 
       return getArtifactWithContent(runtimeArtifactBean);
+   }
+
+   /**
+    * Retrieves the artifact that is currently active.
+    * Including the oid.
+    *
+    * @param artifactTypeId The type of the artifact.
+    * @param artifactId The id of the artifact.
+    * @return The artifact that is currently active.
+    */
+   public DeployedRuntimeArtifact getActiveDeployedArtifact(String artifactTypeId, String artifactId)
+   {
+      // retrieve currently valid
+      IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
+            artifactTypeId, artifactId, TimestampProviderUtils.getTimeStampValue());
+
+      return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
+   }
+
+   /**
+    * Retrieves the deployed artifact that is active at the specified point in time.
+    * Including the oid.
+    *
+    * @param artifactTypeId The type of the artifact.
+    * @param artifactId The id of the artifact.
+    * @param date The point in time where the artifact is active at.
+    * @return The artifact that is active at the specified point in time.
+    */
+   public DeployedRuntimeArtifact getActiveDeployedArtifactAt(String artifactTypeId, String artifactId, Date date)
+   {
+      // retrieve valid at date
+      IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
+            artifactTypeId, artifactId, date.getTime());
+
+      return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
    }
 
    /**

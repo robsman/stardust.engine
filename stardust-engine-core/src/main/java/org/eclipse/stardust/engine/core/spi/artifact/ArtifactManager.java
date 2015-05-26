@@ -208,7 +208,7 @@ public class ArtifactManager
       IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
             artifactTypeId, artifactId, TimestampProviderUtils.getTimeStampValue());
 
-      return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
+      return runtimeArtifactBean == null ? null : new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
    }
 
    /**
@@ -226,7 +226,7 @@ public class ArtifactManager
       IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
             artifactTypeId, artifactId, date.getTime());
 
-      return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
+      return runtimeArtifactBean == null ? null : new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
    }
 
    /**

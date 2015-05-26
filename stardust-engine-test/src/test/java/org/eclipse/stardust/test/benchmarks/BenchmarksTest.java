@@ -4,13 +4,18 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Date;
+
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
 import org.eclipse.stardust.engine.api.runtime.StartOptions;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
+import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -54,15 +59,24 @@ public class BenchmarksTest
 
    private StartOptions startOptions_withoutBenchmark;
 
-   private static final long BENCHMARK_TEST_REF = 123;
+   private static final String BENCHMARK_TEST_REF = "bench1.benchmark";
 
    private static final String BENCHMARK_PROCESS = "BenchmarkedProcess";
 
    private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
+   
+   private static final String BENCHMARK_ARTIFACT_TYPE_ID = BenchmarkDefinitionArtifactType.TYPE_ID;
+   
+   private static final String ARTIFACT_ID = "bench1.benchmark";
+   
+   private static final String ARTIFACT_NAME = "Benchmark One";   
+   
+   private static final String ARTIFACT_CONTENT = "true;";   
 
    @Before
    public void setup()
    {
+      serviceFactory.getAdministrationService().deployRuntimeArtifact(getRuntimeArtifact(ARTIFACT_ID));
 
       startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_TEST_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
@@ -71,6 +85,7 @@ public class BenchmarksTest
    @Test
    public void startProcessInstanceWithBenchmarkTest()
    {
+      
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
 
@@ -141,4 +156,11 @@ public class BenchmarksTest
 
    }
 
+   
+   private RuntimeArtifact getRuntimeArtifact(String artifactId)
+   {
+      return new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID, artifactId, ARTIFACT_NAME,
+            ARTIFACT_CONTENT.getBytes(), new Date(1));
+   }
+   
 }

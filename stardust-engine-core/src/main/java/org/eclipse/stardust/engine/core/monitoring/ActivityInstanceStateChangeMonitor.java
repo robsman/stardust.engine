@@ -18,6 +18,8 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkEvaluator;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -25,8 +27,6 @@ import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
-import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkEvaluator;
-import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
@@ -131,8 +131,8 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
             AuditTrailLogger.getInstance(LogCode.ENGINE)
                   .warn(MessageFormat.format(
                         "Failed to write benchmark value for activity instance {0}, no benchmark has been set.",
-                        new Object[] {ai.getOID()}, e));
-         }         
+                        ai.getOID(), e));
+         }
       }
    }
    

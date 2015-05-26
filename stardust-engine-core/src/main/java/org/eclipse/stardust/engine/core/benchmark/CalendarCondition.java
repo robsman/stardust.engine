@@ -22,9 +22,9 @@ public class CalendarCondition extends DateCondition
    protected String calendarDocumentId;
 
    @Override
-   public boolean evaluate(ActivityInstanceBean ai)
+   public Boolean evaluate(ActivityInstanceBean ai)
    {
-      boolean result = super.evaluate(ai);
+      Boolean result = super.evaluate(ai);
 
       result &= !isBlockedDay();
 
@@ -32,9 +32,9 @@ public class CalendarCondition extends DateCondition
    }
 
    @Override
-   public boolean evaluate(ProcessInstanceBean pi)
+   public Boolean evaluate(ProcessInstanceBean pi)
    {
-      boolean result = super.evaluate(pi);
+      Boolean result = super.evaluate(pi);
 
       result &= !isBlockedDay();
 

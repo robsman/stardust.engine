@@ -16,8 +16,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 public interface ConditionEvaluator
 {
 
-   boolean evaluate(ActivityInstanceBean ai);
+   Boolean evaluate(ActivityInstanceBean ai);
 
-   boolean evaluate(ProcessInstanceBean pi);
+   Boolean evaluate(ProcessInstanceBean pi);
 
 }

@@ -1,4 +1,6 @@
-package org.eclipse.stardust.engine.core.runtime.beans;
+package org.eclipse.stardust.engine.core.benchmark;
+
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 public class BenchmarkUtils
 {

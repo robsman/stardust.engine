@@ -33,14 +33,14 @@ public class CriticalityCondition implements ConditionEvaluator
    }
 
    @Override
-   public boolean evaluate(ActivityInstanceBean ai)
+   public Boolean evaluate(ActivityInstanceBean ai)
    {
       double criticality = ai.getCriticality();
       return (from <= criticality && to >= criticality);
    }
 
    @Override
-   public boolean evaluate(ProcessInstanceBean pi)
+   public Boolean evaluate(ProcessInstanceBean pi)
    {
       throw new UnsupportedOperationException("Criticality is only defined on ActivityInstances.");
    }

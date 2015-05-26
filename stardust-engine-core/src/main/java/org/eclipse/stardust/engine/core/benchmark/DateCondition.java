@@ -22,7 +22,7 @@ public class DateCondition implements ConditionEvaluator
    protected Comperator comperator;
 
    @Override
-   public boolean evaluate(ActivityInstanceBean ai)
+   public Boolean evaluate(ActivityInstanceBean ai)
    {
       Date date = getDateDateValue((ProcessInstanceBean) ai.getProcessInstance(), qualifiedDataId);
 
@@ -30,7 +30,7 @@ public class DateCondition implements ConditionEvaluator
    }
 
    @Override
-   public boolean evaluate(ProcessInstanceBean pi)
+   public Boolean evaluate(ProcessInstanceBean pi)
    {
       Date date = getDateDateValue(pi, qualifiedDataId);
 

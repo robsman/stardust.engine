@@ -99,8 +99,6 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryCapabilities;
@@ -5772,30 +5770,26 @@ public class XmlAdapterUtils
       if (value != null)
       {
          xto = new BusinessObjectValueXto();
+         WebServiceEnv env = currentWebServiceEnvironment();
 
-         ModelResolver env = currentWebServiceEnvironment();
-         final ModelManager modelManager = ModelManagerFactory.getCurrent();
-
-         IModel model = modelManager.findActiveModel(modelId);
-
+         Model model = env.getActiveModel(modelId);
          if (model == null)
          {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
          }
-         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);
 
-         IData data = model.findData(dataId);
+         Data data = model.getData(dataId);
          if (data == null)
          {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
          }
-         Data dataDetails = (Data) DetailsFactory.create(data,
-               IData.class, DataDetails.class);
 
          xto.setProcessInstanceOid(value.getProcessInstanceOid());
 
-         ParameterXto paramXto = DataFlowUtils.marshalStructValue(modelDetails,
-               dataDetails, dataDetails.getId(), null, (Serializable) value.getValue(), env);
+         ParameterXto paramXto = DataFlowUtils.marshalStructValue(model, data,
+               data.getId(), null, (Serializable) value.getValue(), env);
          xto.setValue(paramXto);
       }
 

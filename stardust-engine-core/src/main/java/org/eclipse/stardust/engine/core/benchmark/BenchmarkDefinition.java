@@ -18,7 +18,7 @@ import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 /**
- * 
+ *
  * @author Thomas.Wolfram
  *
  */
@@ -36,23 +36,25 @@ public class BenchmarkDefinition
    Map<String, TreeMap<Integer,ConditionEvaluator>> activityConditions;
 
    public BenchmarkDefinition(long benchmarkOid)
-   {           
+   {
       this.oid = benchmarkOid;
-      
+      this.globalProcessConditions = CollectionUtils.newTreeMap();
+      this.globalActivityConditions = CollectionUtils.newTreeMap();
+      this.activityConditions = CollectionUtils.newMap();
+      this.processConditions = CollectionUtils.newMap();
+
       RuntimeArtifact ra = ArtifactManagerFactory.getCurrent().getArtifact(benchmarkOid);
-      ra.getContent(); // Parse this
-      
-     this.globalProcessConditions = CollectionUtils.newTreeMap();
+      BenchmarkDefinitionParser.parse(this, ra.getContent());
+
+
+      // Test Constants
       this.globalProcessConditions.put(1,
             new FreeFormCondition(new String(ra.getContent())));
-      
-      this.globalActivityConditions = CollectionUtils.newTreeMap();
+
       this.globalActivityConditions.put(3,
-            new FreeFormCondition(new String(ra.getContent())));      
-      
-      this.activityConditions = CollectionUtils.newMap();
+            new FreeFormCondition(new String(ra.getContent())));
+
       TreeMap<Integer,ConditionEvaluator> aiColumns = CollectionUtils.newTreeMap();
-      
       aiColumns.put(1, new DefaultCondition());
       aiColumns.put(3, new FreeFormCondition("false;"));
       this.activityConditions.put("BenchmarkedActivity", aiColumns);

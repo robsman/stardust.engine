@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -80,7 +79,7 @@ public class SignalEventTest
    }
 
    @Test
-   public void testManuallySentSignalEventIsReceivedByTwoParallelSignalAcceptors() throws InterruptedException, TimeoutException, JMSException
+   public void testManuallySentSignalEventIsReceivedByTwoParallelSignalAcceptors() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -99,7 +98,7 @@ public class SignalEventTest
    }
 
    @Test
-   public void testSignalEventSentByProcessInstanceIsReceivedByTwoParallelSignalAcceptors() throws InterruptedException, TimeoutException, JMSException
+   public void testSignalEventSentByProcessInstanceIsReceivedByTwoParallelSignalAcceptors() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -232,8 +231,6 @@ public class SignalEventTest
       assertThat(obj2, Matchers.instanceOf(String.class));
       assertThat((String) obj2, Matchers.equalTo("Horst"));
    }
-
-   // TODO - bpmn-2-events - test case for interrupting signal event
 
    private void sendSignalEvent(final String signalName) throws JMSException
    {

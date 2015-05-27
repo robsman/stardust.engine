@@ -29,6 +29,12 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstan
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExecutionException;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 
+/**
+ * @author Simon Nikles
+ * @author Stéphane Ruffieux
+ * @author rsauer
+ *
+ */
 public class SendSignalEventAction implements EventActionInstance
 {
    public static final String SIGNAL_EVENT_TYPE = "signalEvent";

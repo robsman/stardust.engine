@@ -43,14 +43,11 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.pojo.data.JavaAccessPoint;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -107,7 +104,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             List<IEventHandler> signalEventHandlers = initializeFromModel().getFirst();
             for (IEventHandler signalEventHandler : signalEventHandlers)
             {
-               if (signalEventHandler.getName().equals(signalName)) {
+               if (signalEventHandler.getId().equals(signalName)) {
                   IActivity parentActivity = (IActivity) signalEventHandler.getParent();
                   activityFilter.add(
                         andTerm(
@@ -379,10 +376,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
       public void process(AdministrationServiceImpl session, final Message message)
       {
-         IProcessInstance subProcessInstance = ProcessInstanceBean.findForStartingActivityInstance(activityInstance
-               .getOID());
-
-         String escalationCode = processMessage(new MessageProcessor<String>()
+         String signalName = processMessage(new MessageProcessor<String>()
          {
             @Override
             public String process() throws JMSException
@@ -391,52 +385,30 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             }
          });
 
-         IEventHandler matchingHandler = getMatchingHandler(escalationCode, activityInstance);
+         IEventHandler matchingHandler = getMatchingHandler(signalName, activityInstance);
          if (null == matchingHandler)
          {
             trace.warn("No matching escalation handler found for activity instance with oid: "
-                  + activityInstance.getOID() + " and escalationCode: " + escalationCode);
+                  + activityInstance.getOID() + " and escalationCode: " + signalName);
             return;
          }
 
-         if (isInterrupting(matchingHandler))
+         trace.info("Catching signal event message: signal name = '" + signalName + "', activity instance OID = '" + activityInstance.getOID() + "'.");
+         try
          {
-            trace.info("Abort Process Instance " + subProcessInstance.getOID() + " due to Escalation Message");
+            String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
+            Map<String, ?> outData = retrieveOutData(message, eventContextName);
 
-            // TODO - bpmn-2-events - handle concurrency exception / trigger retry
-            ProcessInstanceUtils.abortProcessInstance(subProcessInstance);
-
-            trace.debug("Activate boundary path for " + "activity instance = " + activityInstance.getOID());
-
-            activityInstance.lock();
-            activityInstance.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY,
-                  escalationCode);
-            activityInstance.activate();
-         }
-         else
-         {
-            trace.info("Trigger NonInterrupting escalation flow due to event message; " + "activity instance = " + activityInstance.getOID());
             try
             {
-               String eventContextName = PredefinedConstants.EVENT_CONTEXT + escalationCode;
-               Map<String, ?> outData = retrieveOutData(message, eventContextName);
-
-               // TODO - bpmn-2-events - get rid of copy/paste
-               /**
-                * copied from CompleteActivityEventAction.execute()
-                */
-               try
-               {
-                  new WorkflowServiceImpl().activateAndComplete(activityInstance.getOID(), eventContextName, outData, true);
-               }
-               catch (IllegalStateChangeException e)
-               {
-                  AuditTrailLogger.getInstance(LogCode.EVENT, activityInstance).error(
-                        "Unable to complete activity.", e);
-               }
-            } catch (Exception e) {
-               trace.error("Failed processing non interrupting escalation.", e);
+               new WorkflowServiceImpl().activateAndComplete(activityInstance.getOID(), eventContextName, outData, true);
             }
+            catch (IllegalStateChangeException e)
+            {
+               AuditTrailLogger.getInstance(LogCode.EVENT, activityInstance).error("Unable to complete activity.", e);
+            }
+         } catch (Exception e) {
+            trace.error("Failed processing non interrupting escalation.", e);
          }
       }
 
@@ -446,11 +418,13 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          {
             try
             {
-               if (handler.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
-                  return handler;
+               if (handler.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY))
+               {
+                  if (handler.getId().equals(signalName))
+                  {
+                     return handler;
+                  }
                }
-
-               // TODO - bpmn-2-events - signalName
             }
             catch (Exception e)
             {
@@ -458,11 +432,6 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             }
          }
          return null;
-      }
-
-      private boolean isInterrupting(IEventHandler handler)
-      {
-         return "Interrupting".equals(handler.getStringAttribute("carnot:engine:event:boundaryEventType"));
       }
 
       private Map<String, ?> retrieveOutData(Message message, String eventContextName)

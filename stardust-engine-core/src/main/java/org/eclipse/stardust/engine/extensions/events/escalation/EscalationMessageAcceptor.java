@@ -13,7 +13,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
-import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringKey;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -24,9 +23,7 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
-import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
@@ -38,7 +35,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.extensions.events.AbstractThrowEventAction;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
-import org.eclipse.stardust.engine.extensions.jms.app.JMSLocation;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageType;
 import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
@@ -140,18 +136,8 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
    @Override
    public Collection<AccessPoint> getAccessPoints(StringKey messageType)
    {
-      List<AccessPoint> intrinsicAccessPoints = null;
-
-      if (messageType.equals(MessageType.TEXT))
-      {
-         intrinsicAccessPoints = newArrayList();
-         AccessPoint ap = JavaDataTypeUtils.createIntrinsicAccessPoint(BPMN_ESCALATION_CODE, BPMN_ESCALATION_CODE,
-               String.class.getName(), Direction.OUT, false, null);
-         ap.setAttribute(PredefinedConstants.JMS_LOCATION_PROPERTY, JMSLocation.BODY);
-
-         intrinsicAccessPoints.add(ap);
-      }
-      return intrinsicAccessPoints;
+      /* this one's never called */
+      return Collections.emptySet();
    }
 
    @Override

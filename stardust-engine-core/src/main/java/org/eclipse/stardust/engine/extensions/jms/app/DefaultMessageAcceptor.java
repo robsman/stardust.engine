@@ -56,16 +56,19 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
    {
    }
 
+   @Override
    public boolean isStateless()
    {
       return true;
    }
 
+   @Override
    public Collection getAccessPoints(StringKey key)
    {
       return DefaultMessageHelper.getIntrinsicAccessPoints(key, Direction.OUT);
    }
 
+   @Override
    public Iterator<IActivityInstance> getMatchingActivityInstances(Message message)
    {
       try
@@ -115,7 +118,7 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
                   DefaultMessageHelper.ACTIVITY_ID_HEADER);
 
             ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(processInstanceOID);
-            query.where(new ActivityFilter(activityID));
+            query.where(ActivityFilter.forAnyProcess(activityID));
             return executeRawQuery(query);
          }
          else if (message.propertyExists(DefaultMessageHelper.PROCESS_ID_HEADER)
@@ -213,6 +216,7 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
       }
    }
 
+   @Override
    public Map<String, Object> getData(Message message, StringKey id, Iterator accessPoints)
    {
       if (trace.isDebugEnabled())
@@ -223,16 +227,19 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
       return DefaultMessageHelper.getData(message, accessPoints);
    }
 
+   @Override
    public String getName()
    {
       return "Default acceptor";
    }
 
+   @Override
    public boolean hasPredefinedAccessPoints(StringKey id)
    {
       return DefaultMessageHelper.hasPredefinedAccessPoints(id);
    }
 
+   @Override
    public Collection getMessageTypes()
    {
       return DefaultMessageHelper.getMessageIds();

@@ -10,13 +10,49 @@
 *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class BenchmarkDefinitionParser
 {
 
-   public static void parse(BenchmarkDefinition benchmarkDefinition, byte[] content)
+   public static void parse(BenchmarkDefinition benchmarkDefinition, byte[] contentBytes)
    {
-      // TODO Auto-generated method stub
+      JsonObject json = getDocumentJson(contentBytes);
+      if (json != null)
+      {
 
+         JsonElement jsonColumns = json.get("columns");
+         JsonElement jsonConditions = json.get("conditions");
+      }
+   }
+
+
+   protected static JsonObject getDocumentJson(byte[] contentBytes)
+   {
+      String content;
+      try
+      {
+         content = new String(contentBytes, "UTF-8");
+      }
+      catch (Exception e)
+      {
+         content = new String(contentBytes);
+      }
+
+      JsonObject jsonObject;
+      try
+      {
+         JsonParser jsonParser = new JsonParser();
+         jsonObject = jsonParser.parse(content).getAsJsonObject();
+      }
+      catch (Exception e)
+      {
+         jsonObject = null;
+      }
+
+      return jsonObject;
    }
 
 }

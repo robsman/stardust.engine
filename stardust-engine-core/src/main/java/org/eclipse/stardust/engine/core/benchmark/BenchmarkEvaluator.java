@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,16 +21,15 @@ import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.javascript.BenchmarkEvaluationAction;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 
 /**
- * 
+ *
  * @author Thomas.Wolfram
  *
  */
@@ -39,7 +38,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private static final Logger trace = LogManager.getLogger(BenchmarkEvaluator.class);
 
-   private static final int BENCHMARKK_FAULT_VALUE = 0;
+   private static final int BENCHMARKK_FAULT_VALUE = -1;
 
    private static final String KEY_BENCHMARK_CACHE = BenchmarkEvaluator.class.getName()
          + ".BenchmarkCache";
@@ -92,77 +91,113 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private int evaluateBenchmarkForAi(ActivityInstanceBean bean)
    {
-
-      TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark.getActivityConditions(bean.getActivity()
-            .getId());
-      ArrayList<Integer> columns = new ArrayList<Integer>(activityConditions.keySet());
-
-      Collections.reverse(columns);
-
-      for (Integer column : columns)
+      try
       {
-         ConditionEvaluator eval = activityConditions.get(column);
+         TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark
+               .getActivityConditions(bean.getActivity().getId());
+         ArrayList<Integer> columns = new ArrayList<Integer>(activityConditions.keySet());
 
-         Boolean result = eval.evaluate(bean);
+         Collections.reverse(columns);
 
-         if (result == null)
+         for (Integer column : columns)
          {
-            ConditionEvaluator globalEvaluator = benchmark.getGlobalActivityConditions()
-                  .get(column);
-            result = globalEvaluator.evaluate(bean);
-            if (result)
+            ConditionEvaluator eval = activityConditions.get(column);
+
+            Boolean result = eval.evaluate(bean);
+
+            if (result == null)
+            {
+               ConditionEvaluator globalEvaluator = benchmark
+                     .getGlobalActivityConditions().get(column);
+               if (globalEvaluator == null)
+               {
+                  // no global condition set, continue evaluation with next column.
+                  result = false;
+               }
+               else
+               {
+                  result = globalEvaluator.evaluate(bean);
+                  if (result)
+                  {
+                     return column;
+                  }
+               }
+            }
+            else if (result)
             {
                return column;
             }
          }
-         else if (result)
-         {
-            return column;
-         }
+         return 0;
       }
-      return 0;
-
+      catch (Exception e)
+      {
+         AuditTrailLogger.getInstance(LogCode.ENGINE)
+         .warn(MessageFormat.format(
+               "Failed to evaluate benchmark for activity instance {0}, benchmark value has been set to invalid (-1).",
+               bean.getOID(), e));
+         return BENCHMARKK_FAULT_VALUE;
+      }
    }
 
    private int evaluateBenchmarkForPi(ProcessInstanceBean bean)
    {
-
-      TreeMap<Integer, ConditionEvaluator> processConditions = benchmark.getActivityConditions(bean.getProcessDefinition()
-            .getId());
-      ArrayList<Integer> columns = new ArrayList<Integer>(processConditions.keySet());
-
-      Collections.reverse(columns);
-
-      for (Integer column : columns)
+      try
       {
-         ConditionEvaluator eval = processConditions.get(column);
+         TreeMap<Integer, ConditionEvaluator> processConditions = benchmark
+               .getActivityConditions(bean.getProcessDefinition().getId());
+         ArrayList<Integer> columns = new ArrayList<Integer>(processConditions.keySet());
 
-         Boolean result = eval.evaluate(bean);
+         Collections.reverse(columns);
 
-         if (result == null)
+         for (Integer column : columns)
          {
-            ConditionEvaluator globalEvaluator = benchmark.getGlobalProcessConditions()
-                  .get(column);
-            result = globalEvaluator.evaluate(bean);
-            if (result)
+            ConditionEvaluator eval = processConditions.get(column);
+
+            Boolean result = eval.evaluate(bean);
+
+            if (result == null)
+            {
+               ConditionEvaluator globalEvaluator = benchmark
+                     .getGlobalProcessConditions().get(column);
+
+               if (globalEvaluator == null)
+               {
+                  // no global condition set, continue evaluation with next column.
+                  result = false;
+               }
+               else
+               {
+                  result = globalEvaluator.evaluate(bean);
+                  if (result)
+                  {
+                     return column;
+                  }
+               }
+            }
+            else if (result)
             {
                return column;
             }
          }
-         else if (result)
-         {
-            return column;
-         }
+         return 0;
       }
-      return 0;
-
+      catch (Exception e)
+      {
+         AuditTrailLogger.getInstance(LogCode.ENGINE)
+         .warn(MessageFormat.format(
+               "Failed to evaluate benchmark for process instance {0}, benchmark has been set to invalid (-1).",
+               bean.getOID(), e));
+         return BENCHMARKK_FAULT_VALUE;
+      }
    }
 
    protected Map<Long, BenchmarkDefinition> getBenchmarkCache(String partitionId)
    {
       final GlobalParameters globals = GlobalParameters.globals();
 
-      ConcurrentHashMap<String, Map> benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals.get(KEY_BENCHMARK_CACHE);
+      ConcurrentHashMap<String, Map> benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals
+            .get(KEY_BENCHMARK_CACHE);
       if (null == benchmarkPartitionCache)
       {
          globals.getOrInitialize(KEY_BENCHMARK_CACHE, new ValueProvider()
@@ -174,7 +209,8 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
             }
 
          });
-         benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals.get(KEY_BENCHMARK_CACHE);
+         benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals
+               .get(KEY_BENCHMARK_CACHE);
       }
 
       Map benchmarkCache = benchmarkPartitionCache.get(partitionId);
@@ -182,7 +218,8 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       {
          benchmarkPartitionCache.put(partitionId,
                new ConcurrentHashMap<Long, BenchmarkDefinition>());
-         benchmarkCache = (Map<Long, BenchmarkDefinition>) benchmarkPartitionCache.get(partitionId);
+         benchmarkCache = (Map<Long, BenchmarkDefinition>) benchmarkPartitionCache
+               .get(partitionId);
       }
 
       return benchmarkCache;

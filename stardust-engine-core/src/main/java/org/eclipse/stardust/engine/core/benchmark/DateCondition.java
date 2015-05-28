@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.benchmark;
 
 import java.util.Date;
 
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
@@ -21,10 +22,31 @@ public class DateCondition implements ConditionEvaluator
 
    protected Comperator comperator;
 
+   public DateCondition(Comperator comperator, String qualifiedDataId)
+   {
+      this.comperator = comperator;
+      this.qualifiedDataId = qualifiedDataId;
+   }
+
    @Override
    public Boolean evaluate(ActivityInstanceBean ai)
    {
-      Date date = getDateDateValue((ProcessInstanceBean) ai.getProcessInstance(), qualifiedDataId);
+      Date date;
+      try
+      {
+         date = getDateDateValue((ProcessInstanceBean) ai.getProcessInstance(),
+               qualifiedDataId);
+      }
+      catch (ObjectNotFoundException e)
+      {
+         date = null;
+      }
+
+
+      if (date == null)
+      {
+         date = ai.getProcessInstance().getStartTime();
+      }
 
       return evaluate(date);
    }
@@ -32,8 +54,20 @@ public class DateCondition implements ConditionEvaluator
    @Override
    public Boolean evaluate(ProcessInstanceBean pi)
    {
-      Date date = getDateDateValue(pi, qualifiedDataId);
+      Date date;
+      try
+      {
+         date = getDateDateValue(pi, qualifiedDataId);
+      }
+      catch (ObjectNotFoundException e)
+      {
+         date = null;
+      }
 
+      if (date == null)
+      {
+         date = pi.getStartTime();
+      }
       return evaluate(date);
    }
 

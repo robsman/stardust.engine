@@ -10,16 +10,21 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
+import org.eclipse.stardust.engine.core.benchmark.calendar.CalendarUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 public class CalendarCondition extends DateCondition
 {
    protected String calendarDocumentId;
+
+   public CalendarCondition(String calendarDocumentId, Comperator comperator, String qualifiedDataId)
+   {
+      super(comperator, qualifiedDataId);
+      this.calendarDocumentId = calendarDocumentId;
+   }
 
    @Override
    public Boolean evaluate(ActivityInstanceBean ai)
@@ -43,33 +48,6 @@ public class CalendarCondition extends DateCondition
 
    private boolean isBlockedDay()
    {
-      Calendar currentTime = Calendar.getInstance();
-      currentTime.setTime(new Date());
-
-      Calendar blockedTime = Calendar.getInstance();
-      for (Date date : getBlockedDays())
-      {
-         blockedTime.setTime(date);
-
-         boolean sameDay = currentTime.get(Calendar.DAY_OF_YEAR) == blockedTime
-               .get(Calendar.DAY_OF_YEAR)
-               && currentTime.get(Calendar.YEAR) == blockedTime.get(Calendar.YEAR);
-
-         if (sameDay)
-         {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   private List<Date> getBlockedDays()
-   {
-      // TODO cache for a time.
-      List<Date> blockedDays = CalendarUtils.getBlockedDays(calendarDocumentId);
-
-      return blockedDays;
-
+      return CalendarUtils.isBlocked(new Date(), calendarDocumentId);
    }
 }

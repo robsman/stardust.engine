@@ -8,36 +8,26 @@
  * Contributors:
  *    Roland.Stamm (SunGard CSA LLC) - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.core.benchmark;
+package org.eclipse.stardust.engine.core.benchmark.calendar;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 
 public class CalendarUtils
 {
-
-   private static final Logger trace = LogManager.getLogger(CalendarUtils.class);
 
    private CalendarUtils()
    {
       // Utility class.
    }
 
-   public static List<Date> getBlockedDays(String calendarDocumentId)
+   public static boolean isBlocked(Date date, String calendarDocumentId)
    {
-      List<Date> blockedDays = Collections.emptyList();
+      TimeOffCalendarFinder timeOffCalendarFinder = new TimeOffCalendarFinder(date,
+            calendarDocumentId);
 
+      // TODO caching
 
-      // TODO
-
-
-      return blockedDays;
+      return timeOffCalendarFinder.isBlocked();
    }
-
-
 
 }

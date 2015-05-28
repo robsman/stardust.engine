@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
+import org.eclipse.stardust.engine.core.benchmark.DateCondition.Comperator;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 /**
@@ -50,13 +51,26 @@ public class BenchmarkDefinition
       // Test Constants
       this.globalProcessConditions.put(1,
             new FreeFormCondition(new String(ra.getContent())));
+//      this.globalProcessConditions
+//      .put(2,
+//            new DefaultCondition());
 
       this.globalActivityConditions.put(3,
             new FreeFormCondition(new String(ra.getContent())));
+      this.globalActivityConditions
+      .put(4,
+            new DateCondition(
+                  Comperator.LATER_THAN, "{BenchmarksModel}processStartedTime"));
+      this.globalActivityConditions
+            .put(5,
+                  new CalendarCondition(
+                        "/business-calendars/timeOffCalendar/timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json",
+                        Comperator.LATER_THAN, "{BenchmarksModel}processStartedTime"));
+
 
       TreeMap<Integer,ConditionEvaluator> aiColumns = CollectionUtils.newTreeMap();
-      aiColumns.put(1, new DefaultCondition());
       aiColumns.put(3, new FreeFormCondition("false;"));
+      aiColumns.put(4, new DefaultCondition());
       this.activityConditions.put("BenchmarkedActivity", aiColumns);
    }
 

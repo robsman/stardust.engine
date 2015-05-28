@@ -35,9 +35,9 @@ import org.eclipse.stardust.engine.core.spi.monitoring.IActivityInstanceMonitor;
 
 
 /**
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMonitor
 {
@@ -135,7 +135,7 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
          }
       }
    }
-   
+
    private Map retrievePreferences()
    {
 

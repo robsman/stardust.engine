@@ -1,13 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2015 SunGard CSA LLC and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    roland.stamm (SunGard CSA LLC) - initial API and implementation and/or initial documentation
-*******************************************************************************/
+ * Copyright (c) 2015 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    roland.stamm (SunGard CSA LLC) - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -16,12 +16,22 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 
 public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
 
-   private static final Logger trace = LogManager
-         .getLogger(R9_0_0from7_3_0RuntimeJob.class);
+   private static final Logger trace = LogManager.getLogger(R9_0_0from7_3_0RuntimeJob.class);
+
+   private static final String PI_TABLE_NAME = "process_instance";
+
+   private static final String AI_TABLE_NAME = "activity_instance";
+
+   private static final String PI_FIELD_BENCHMARK_VALUE = "benchmarkValue";
+
+   private static final String PI_FIELD_BENCHMARK = "benchmark";
+
+   private static final String AI_FIELD_BENCHMARK_VALUE = "benchmarkValue";
 
    private static final String RUNTIME_ARTIFACT_TABLE_NAME = "runtime_artifact";
 
@@ -63,18 +73,19 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initUpgradeTasks()
    {
-      upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R9_0_0from7_3_0RuntimeJob", Parameters.instance()
-            .getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
+      upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R9_0_0from7_3_0RuntimeJob",
+            Parameters.instance().getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
          public void execute()
          {
-            DatabaseHelper.createTable(item, new CreateTableInfo(RUNTIME_ARTIFACT_TABLE_NAME)
+            DatabaseHelper.createTable(item, new CreateTableInfo(
+                  RUNTIME_ARTIFACT_TABLE_NAME)
             {
-               private final FieldInfo oid = new FieldInfo(
-                     RUNTIME_ARTIFACT_FIELD_OID, Long.TYPE, 0, true);
+               private final FieldInfo oid = new FieldInfo(RUNTIME_ARTIFACT_FIELD_OID,
+                     Long.TYPE, 0, true);
 
                private final FieldInfo artifactTypeId = new FieldInfo(
                      RUNTIME_ARTIFACT_FIELD_ARTIFACT_TYPE_ID, String.class, 255, false);
@@ -94,16 +105,18 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                private final FieldInfo partition = new FieldInfo(
                      RUNTIME_ARTIFACT_FIELD_PARTITION, Long.TYPE, 0, false);
 
-               private final IndexInfo IDX1 = new IndexInfo(RUNTIME_ARTIFACT_IDX1,
-                     true, new FieldInfo[] {oid});
+               private final IndexInfo IDX1 = new IndexInfo(RUNTIME_ARTIFACT_IDX1, true,
+                     new FieldInfo[] {oid});
 
-               private final IndexInfo IDX2 = new IndexInfo(RUNTIME_ARTIFACT_IDX2,
-                     false, new FieldInfo[] {artifactTypeId, artifactId, validFrom, partition});
+               private final IndexInfo IDX2 = new IndexInfo(RUNTIME_ARTIFACT_IDX2, false,
+                     new FieldInfo[] {artifactTypeId, artifactId, validFrom, partition});
 
                @Override
                public FieldInfo[] getFields()
                {
-                  return new FieldInfo[] {oid, artifactTypeId, artifactId, artifactName, referenceId, validFrom, partition};
+                  return new FieldInfo[] {
+                        oid, artifactTypeId, artifactId, artifactName, referenceId,
+                        validFrom, partition};
                }
 
                @Override
@@ -138,6 +151,35 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
       upgradeTaskExecutor.executeUpgradeSchemaTasks();
+
+      DatabaseHelper.alterTable(item, new AlterTableInfo(PI_TABLE_NAME)
+      {
+         private final FieldInfo BENCHMARK = new FieldInfo(PI_FIELD_BENCHMARK, Long.TYPE);
+
+         private final FieldInfo BENCHMARK_VALUE = new FieldInfo(
+               PI_FIELD_BENCHMARK_VALUE, Integer.TYPE);
+
+         @Override
+         public FieldInfo[] getAddedFields()
+         {
+            return new FieldInfo[] {BENCHMARK, BENCHMARK_VALUE};
+         }
+
+      }, this);
+      
+      DatabaseHelper.alterTable(item, new AlterTableInfo(AI_TABLE_NAME)
+      {
+
+         private final FieldInfo BENCHMARK_VALUE = new FieldInfo(
+               AI_FIELD_BENCHMARK_VALUE, Integer.TYPE);
+
+         @Override
+         public FieldInfo[] getAddedFields()
+         {
+            return new FieldInfo[] { BENCHMARK_VALUE };
+         }
+
+      }, this);      
    }
 
    @Override

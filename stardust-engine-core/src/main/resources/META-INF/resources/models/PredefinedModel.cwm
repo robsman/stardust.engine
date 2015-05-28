@@ -399,6 +399,9 @@
   <role oid="10044" id="Administrator" name="Administrator">
     <description>In charge of all workflow administration activities.</description>
   </role>
+  <role oid="10063" id="Auditor" name="Auditor">
+    <description>TODO</description>
+  </role>
   <organization oid="10057" id="CasePerformer" name="Case Performer"/>
   <processDefinition oid="10045" id="CaseProcess" name="Case Process">
     <attribute name="authorization:processDefinition.abortProcessInstances[0]" value="Administrator"/>

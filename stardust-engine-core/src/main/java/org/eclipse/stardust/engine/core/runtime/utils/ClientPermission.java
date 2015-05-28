@@ -11,10 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -160,6 +157,9 @@ public final class ClientPermission
 
    private final String uniqueKey;
 
+   private List<String> allowedIds;
+   private List<String> deniedIds;
+
    public ClientPermission(ExecutionPermission permission)
    {
       this(permission.id(), permission.scope(), permission.defaults(), permission.fixed(),
@@ -183,6 +183,38 @@ public final class ClientPermission
       this.implied = implied;
       this.defer = defer;
       this.uniqueKey = createUniqueKey();
+
+      String[] allowedIds = new String[1 + implied.length];
+      allowedIds[0] = createId(this.id);
+      for (int i = 1; i < allowedIds.length; i++)
+      {
+         allowedIds[i] = createId(this.implied[i - 1]);
+      }
+      this.allowedIds = Collections.unmodifiableList(Arrays.asList(allowedIds));
+
+      String[] deniedIds = new String[allowedIds.length];
+      for (int i = 0; i < allowedIds.length; i++)
+      {
+         deniedIds[i] = "deny:" + allowedIds[i];
+      }
+      this.deniedIds = Collections.unmodifiableList(Arrays.asList(deniedIds));
+   }
+
+   protected String createId(Id id)
+   {
+      if (id == null)
+      {
+         return "";
+      }
+      switch (scope)
+      {
+      case model:
+         return id.name();
+      case workitem:
+         return Scope.activity.name() + '.' + id.name();
+      default:
+         return scope.name() + '.' + id.name();
+      }
    }
 
    private String createUniqueKey()
@@ -270,16 +302,21 @@ public final class ClientPermission
       return scope.name() + '.' + id;
    }
 
+   protected List<String> getAllowedIds()
+   {
+      return allowedIds;
+   }
+
+   protected List<String> getDeniedIds()
+   {
+      return deniedIds;
+   }
+
    protected static ClientPermission getPermission(Method method)
    {
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
-         /*
-         ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-         cp = permission == null ? NULL : new ClientPermission(permission);
-         permissionCache.put(method, cp);
-         */
          if (trace.isDebugEnabled())
          {
             trace.debug("Missing permission for: " + method);

@@ -696,11 +696,16 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no process with the specified ID in the
     *         active model or an invalid data id was specified.
     */
-   // TODO discuss...
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    ProcessInstance startProcess(String id, Map<String, ?> data, boolean synchronously)
          throws ObjectNotFoundException;
 
 
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    ProcessInstance startProcess(String id, StartOptions options);
 
    /**
@@ -1027,10 +1032,6 @@ public interface WorkflowService extends Service
     *            if the join target is a subprocess of the source process instance.<br>
     *            if the source or target is a case process instance.
     */
-//   @ExecutionPermission(
-//         id=ExecutionPermission.Id.abortProcessInstances,
-//         scope=ExecutionPermission.Scope.processDefinition,
-//         defer=true)
    @ExecutionPermission(
          id=ExecutionPermission.Id.joinProcessInstance,
          scope=ExecutionPermission.Scope.model,
@@ -1670,6 +1671,7 @@ public interface WorkflowService extends Service
     * @return A list of possible transition targets.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
+   // TODO: figure out some permission
    List<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
          throws ObjectNotFoundException;
 
@@ -1763,6 +1765,7 @@ public interface WorkflowService extends Service
     * @throws PublicException if the process instance is no scope process instance.
     * @throws InvalidArgumentException if attributes is null.
     */
+   // TODO: check if permission is correct
    @ExecutionPermission(
          id=ExecutionPermission.Id.readProcessInstanceData,
          scope=ExecutionPermission.Scope.processDefinition,
@@ -1783,6 +1786,7 @@ public interface WorkflowService extends Service
     * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied
     *
     */
+   // TODO: needs permission
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException, InvalidArgumentException;
 
@@ -1796,7 +1800,7 @@ public interface WorkflowService extends Service
     *
     * @exception ObjectNotFoundException if there is no runtime object with the specified OID
     */
-   // TODO discuss...
+   // TODO requires permission
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
          String message, Throwable throwable) throws ObjectNotFoundException;
 

@@ -49,6 +49,15 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Participant>
+      <Participant Id="Auditor" Name="Auditor">
+         <ParticipantType Type="ROLE"/>
+         <Description>TODO</Description>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="10063"/>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
       <Participant Id="CasePerformer" Name="Case Performer">
          <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
          <ExtendedAttributes>

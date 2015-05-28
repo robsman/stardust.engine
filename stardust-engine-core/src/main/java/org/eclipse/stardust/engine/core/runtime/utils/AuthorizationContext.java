@@ -44,8 +44,9 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
 public class AuthorizationContext
 {
+   static final String[] EMPTY = {};
+
    private static final String[] ALL_PERMISSIONS = {Authorization2.ALL};
-   private static final String[] EMPTY = {};
    private static final Id[] IMPLIED = {};
 
    private ClientPermission permission;
@@ -278,6 +279,51 @@ public class AuthorizationContext
    public boolean isAdminOverride()
    {
       return administratorOverride;
+   }
+
+   public boolean isGlobalDenied()
+   {
+      for (String id : permission.getDeniedIds())
+      {
+         if (hasPermission(id))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public boolean isGlobalAllowed()
+   {
+      for (String id : permission.getAllowedIds())
+      {
+         if (hasPermission(id))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private boolean hasPermission(String permissionId)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+      if (preferenceStore != null)
+      {
+         List<String> values = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
+         if (!values.isEmpty())
+         {
+            for (String grant : values)
+            {
+               IModelParticipant participant = getParticipant(grant);
+               if (checkRole(participant))
+               {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    public boolean checkRole(IModelParticipant role)
@@ -592,7 +638,8 @@ public class AuthorizationContext
             return model;
          }
       }
-      return null;
+      ModelManager mm = getModelManager();
+      return mm.findActiveModel(namespaceURI);
    }
 
    public List<IModel> getModels()

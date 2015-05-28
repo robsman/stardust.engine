@@ -40,7 +40,7 @@ public interface RuntimePermissions extends Serializable
 
    /**
     * Retrieves the currently set grants for the Permission.
-    * If the all-grant is set this list is empty.
+    * If the all-grant is set this set is empty.
     *
     * @param permissionId the id of the permission from <code>GlobalPermissionConstants</code>
     * @return the currently set grants.
@@ -48,6 +48,17 @@ public interface RuntimePermissions extends Serializable
     * @see RuntimePermissions#hasAllGrant(String)
     */
    public Set<ModelParticipantInfo> getGrants(String permissionId);
+
+   /**
+    * Retrieves the currently set of denied grants for the Permission.
+    * If the all-grant is set this set is empty.
+    *
+    * @param permissionId the id of the permission from <code>GlobalPermissionConstants</code>
+    * @return the currently denied grants.
+    * @see GlobalPermissionConstants
+    * @see RuntimePermissions#hasAllGrant(String)
+    */
+   public Set<ModelParticipantInfo> getDeniedGrants(String permissionId);
 
    /**
     * Allows setting a set of <code>ModelParticipantInfo</code>. This can be used to
@@ -62,8 +73,20 @@ public interface RuntimePermissions extends Serializable
    public void setGrants(String permissionId, Set<ModelParticipantInfo> grants);
 
    /**
+    * Allows setting a set of <code>ModelParticipantInfo</code> corresponding to a denied
+    * grant to the specified Permission for certain Roles or Organizations.
+    * The <code>ModelParticipantInfo</code> must not be scoped with a department.
+    *
+    * @param permissionId the id of the permission from <code>GlobalPermissionConstants</code>
+    * @param grants a set of denied grants which will replace the existing ones.
+    * @see GlobalPermissionConstants
+    * @throws IllegalArgumentException If the <code>ModelParticipantInfo</code> is department scoped.
+    */
+   public void setDeniedGrants(String permissionId, Set<ModelParticipantInfo> grants);
+
+   /**
     * Sets the all-grant to the specified Permission.
-    * By doing this all other grants will be removed.
+    * By doing this all other grants and denied grants will be removed.
     *
     * @param permissionId the id of the permission from <code>GlobalPermissionConstants</code>
     * @see GlobalPermissionConstants

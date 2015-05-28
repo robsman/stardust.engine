@@ -36,8 +36,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
-
-
 public class PermissionUtils
 {
    /**
@@ -173,12 +171,40 @@ public class PermissionUtils
       return values;
    }
 
+   public static List<String> getScopedGlobalPermissionValues(
+         IPreferenceStorageManager preferenceStore, String internalPermissionId,
+         boolean includeDefaultPermissions)
+   {
+      final Map<String, Serializable> permissions = getPreferences(preferenceStore);
+      List<String> values = (List<String>) permissions.get(internalPermissionId);
+
+      if (includeDefaultPermissions)
+      {
+         if (values == null || values.isEmpty())
+         {
+            String defaultPermission = getModelDefaultPermissions().get(
+                  internalPermissionId);
+            if ( !StringUtils.isEmpty(defaultPermission))
+            {
+               values = new LinkedList<String>();
+               values.add(defaultPermission);
+            }
+         }
+      }
+      if (values == null)
+      {
+         values = Collections.EMPTY_LIST;
+      }
+
+      return values;
+   }
+
    public static void setGlobalPermissions(IPreferenceStorageManager preferenceStore,
-         Map<String, List<String>> permissions) throws ValidationException
+         Map<String, List<String>> permissions, Map<String, List<String>> deniedPermissionsMap) throws ValidationException
    {
       Map<String, Serializable> preferencesMap = getPreferences(preferenceStore);
 
-      mergePermissions(preferencesMap, permissions);
+      mergePermissions(preferencesMap, permissions, deniedPermissionsMap);
 
       savePreferences(preferenceStore, preferencesMap);
    }
@@ -196,12 +222,17 @@ public class PermissionUtils
 
    private static String stripPrefix(String permissionId)
    {
-      if ( !StringUtils.isEmpty(permissionId))
+      if (!StringUtils.isEmpty(permissionId))
       {
-         int idx = permissionId.lastIndexOf('.');
+         int idx = permissionId.lastIndexOf(':');
          if (idx > -1)
          {
-            return permissionId.substring(idx + 1);
+            permissionId = permissionId.substring(idx + 1);
+         }
+         idx = permissionId.lastIndexOf('.');
+         if (idx > -1 && "model".equals(permissionId.substring(0, idx)))
+         {
+            permissionId = permissionId.substring(idx + 1);
          }
       }
       return permissionId;
@@ -268,18 +299,18 @@ public class PermissionUtils
    }
 
    private static void mergePermissions(Map<String, Serializable> preferencesMap,
-         Map<String, List<String>> permissions) throws ValidationException
+         Map<String, List<String>> permissions, Map<String, List<String>> deniedPermissionsMap) throws ValidationException
    {
       Map<String, Serializable> toAdd = new HashMap<String, Serializable>();
-      for (java.util.Map.Entry<String, List<String>> entry : permissions.entrySet())
+      for (Map.Entry<String, List<String>> entry : permissions.entrySet())
       {
          if (entry.getValue() != null && !entry.getValue().isEmpty())
          {
             List<String> srcList = (List<String>) preferencesMap.get(entry.getKey());
             List<String> targetList = entry.getValue();
             TreeSet<String> srcSet = null;
-            if (srcList!= null){
-
+            if (srcList != null)
+            {
                srcSet = new TreeSet<String>(srcList);
             }
             TreeSet<String> targetSet = new TreeSet<String>(targetList);
@@ -291,7 +322,29 @@ public class PermissionUtils
             {
                toAdd.put(entry.getKey(), (Serializable) entry.getValue());
             }
+         }
+      }
+      for (Map.Entry<String, List<String>> entry : deniedPermissionsMap.entrySet())
+      {
+         if (entry.getValue() != null && !entry.getValue().isEmpty())
+         {
+            List<String> srcList = (List<String>) preferencesMap.get(entry.getKey());
+            List<String> targetList = entry.getValue();
+            TreeSet<String> srcSet = null;
+            if (srcList != null)
+            {
+               srcSet = new TreeSet<String>(srcList);
+            }
+            TreeSet<String> targetSet = new TreeSet<String>(targetList);
 
+            // checkValidParticipants throws ValidationException if a grant is not
+            // valid for the active model.
+            if (srcSet != null && srcSet.equals(targetSet)
+                  || checkValidParticipants(targetList))
+            {
+               toAdd.remove(entry.getKey());
+               toAdd.put("deny:" + entry.getKey(), (Serializable) entry.getValue());
+            }
          }
       }
       preferencesMap.clear();
@@ -303,7 +356,7 @@ public class PermissionUtils
    {
       for (String qualifiedModelParticipantId : grants)
       {
-         if ( !PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
+         if (!PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
                && !Authorization2.ALL.equals(qualifiedModelParticipantId))
          {
             QName qualifier = QName.valueOf(qualifiedModelParticipantId);

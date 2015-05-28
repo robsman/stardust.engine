@@ -57,7 +57,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       StartOptions options = new StartOptions(inputData, synchronously, null);
 
-      IProcessDefinition processDefinition = getIProcessDefinition(id);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(id);
       return startProcess(processDefinition, options);
    }
 
@@ -71,7 +71,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    public ProcessInstance startProcess(String id, StartOptions options)
    {
-      IProcessDefinition processDefinition = getIProcessDefinition(id);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(id);
       return startProcess(processDefinition, options);
    }
 
@@ -141,7 +141,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          String spawnProcessID, boolean copyData, Map<String, ? > data)
          throws IllegalOperationException, ObjectNotFoundException
    {
-      IProcessDefinition processDefinition = getIProcessDefinition(spawnProcessID);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(spawnProcessID);
 
       IProcessInstance parentProcessInstance = ProcessInstanceBean.findByOID(rootProcessInstanceOid);
       assertNotCaseProcessInstance(parentProcessInstance);
@@ -2075,40 +2075,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       return result;
    }
 
-   private IProcessDefinition getIProcessDefinition(String id)
-         throws ObjectNotFoundException
-   {
-      IProcessDefinition processDefinition = null;
-      String namespace = null;
-      if (id.startsWith("{"))
-      {
-         QName qname = QName.valueOf(id);
-         namespace = qname.getNamespaceURI();
-         id = qname.getLocalPart();
-      }
-
-      if (namespace != null)
-      {
-         IModel model = ModelManagerFactory.getCurrent().findActiveModel(namespace);
-         if (model != null)
-         {
-            processDefinition = model.findProcessDefinition(id);
-         }
-      }
-      else
-      {
-         processDefinition = getIModel().findProcessDefinition(id);
-      }
-
-      if (processDefinition == null)
-      {
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(id), id);
-      }
-
-      return processDefinition;
-   }
-
    private IEventHandler getIEventHandler(IActivityInstance activityInstance, String id)
          throws ObjectNotFoundException
    {
@@ -2135,7 +2101,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    public IModel getIModel() throws ObjectNotFoundException
    {
-      return getIModel(PredefinedConstants.ACTIVE_MODEL);
+      return ModelUtils.getModel(PredefinedConstants.ACTIVE_MODEL);
    }
 
    private List<IModel> getActiveIModels() throws ObjectNotFoundException
@@ -2144,24 +2110,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (result == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
-      }
-      return result;
-   }
-
-   private IModel getIModel(long modelOID) throws ObjectNotFoundException
-   {
-      IModel result = ModelManagerFactory.getCurrent().findModel(modelOID);
-      if (result == null)
-      {
-         if (PredefinedConstants.ACTIVE_MODEL == modelOID)
-         {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
-         }
-         else
-         {
-            throw new ObjectNotFoundException(
-                  BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOID), modelOID);
-         }
       }
       return result;
    }

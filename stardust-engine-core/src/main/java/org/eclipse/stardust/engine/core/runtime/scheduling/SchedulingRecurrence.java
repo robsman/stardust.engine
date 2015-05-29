@@ -99,14 +99,24 @@ public abstract class SchedulingRecurrence
       return processSchedule != null ? SchedulingUtils.CLIENT_DATE_FORMAT.format(processSchedule) : null;
    }
 
-   @SuppressWarnings("deprecation")
    public Date processSchedule(JsonObject json, boolean daemon)
+   {
+      return processSchedule(json, daemon, 0);
+   }
+
+   @SuppressWarnings("deprecation")
+   public Date processSchedule(JsonObject json, boolean daemon, int offsetDay)
    {
       JsonObject recurrenceRange = json.get("recurrenceRange").getAsJsonObject();
 
       String startDateStr = recurrenceRange.get("startDate").getAsString();
       String executionTime = getExecutionTime(json);
       startDate = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(startDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      startDate = instance.getTime();
 
       // Set Current time to compare with Scheduled Execution time.
       // startDate.setHours(0);
@@ -117,11 +127,11 @@ public abstract class SchedulingRecurrence
       switch (SchedulingUtils.EndMode.valueOf(recurrenceRange.get("endMode").getAsString()))
       {
       case noEnd:
-         return getNoEndNextExecutionDate(getCronExpression(json, daemon));
+         return getNoEndNextExecutionDate(getCronExpression(json, daemon), offsetDay);
       case endAfterNOcurrences:
-         return getNthExecutionDate(daemon, recurrenceRange, getCronExpression(json, false));
+         return getNthExecutionDate(daemon, recurrenceRange, getCronExpression(json, false), offsetDay);
       case endByDate:
-         return getByDateNextExecutionDate(recurrenceRange, getCronExpression(json, daemon));
+         return getByDateNextExecutionDate(recurrenceRange, getCronExpression(json, daemon), offsetDay);
       }
       return null;
    }
@@ -252,9 +262,14 @@ public abstract class SchedulingRecurrence
    }
 
    @SuppressWarnings("deprecation")
-   protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression)
+   protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
 
       String endDateStr = recurrenceRange.get("endDate").getAsString();
       Date endDate = SchedulingUtils.getParsedDate(endDateStr, SchedulingUtils.CLIENT_DATE_FORMAT);
@@ -285,12 +300,12 @@ public abstract class SchedulingRecurrence
             Date compareDate = (Date) startDate.clone();
             compareDate.setHours(currentDate.getHours());
             compareDate.setMinutes(currentDate.getMinutes());
-            
-            // from here next execution date             
+
+            // from here next execution date
             Date startDateClone = (Date) startDate.clone();
             startDateClone.setHours(0);
             startDateClone.setMinutes(0);
-            startDateClone.setSeconds(0);            
+            startDateClone.setSeconds(0);
             // Future Date Scenario
             return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, endDate);
          }
@@ -298,9 +313,14 @@ public abstract class SchedulingRecurrence
       return null;
    }
 
-   protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression)
+   protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
 
       // stop after n occurrences
       int occurences = recurrenceRange.get("occurences").getAsInt();
@@ -329,9 +349,15 @@ public abstract class SchedulingRecurrence
       return null;
    }
 
-   protected Date getNoEndNextExecutionDate(CronExpression cronExpression)
+   @SuppressWarnings("deprecation")
+   protected Date getNoEndNextExecutionDate(CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
 
       trace.info("No End Date is selected");
       // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
@@ -339,7 +365,7 @@ public abstract class SchedulingRecurrence
       compareDate.setHours(currentDate.getHours());
       compareDate.setMinutes(currentDate.getMinutes());
 
-      // from here next execution date 
+      // from here next execution date
       Date startDateClone = (Date) startDate.clone();
       startDateClone.setHours(0);
       startDateClone.setMinutes(0);

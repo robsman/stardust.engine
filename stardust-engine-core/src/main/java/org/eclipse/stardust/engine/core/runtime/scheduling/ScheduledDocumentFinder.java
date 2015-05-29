@@ -35,7 +35,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
    public static final String USER_DIR = "/users";
    public static final String DESIGNS_SUBFOLDER = "/designs";
 
-   private Date startingDate;
+   protected Date startingDate;
    protected Date executionDate;
    private DocumentManagementService dmService;
 

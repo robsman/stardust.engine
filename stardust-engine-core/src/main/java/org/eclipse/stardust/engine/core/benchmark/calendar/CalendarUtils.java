@@ -25,6 +25,8 @@ public class CalendarUtils
       TimeOffCalendarFinder timeOffCalendarFinder = new TimeOffCalendarFinder(date,
             calendarDocumentId);
 
+      timeOffCalendarFinder.readAllDefinitions();
+
       // TODO caching
 
       return timeOffCalendarFinder.isBlocked();

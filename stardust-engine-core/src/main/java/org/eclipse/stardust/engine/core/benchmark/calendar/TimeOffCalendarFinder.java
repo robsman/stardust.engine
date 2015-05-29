@@ -97,7 +97,9 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          now.set(Calendar.MINUTE, 0);
          now.set(Calendar.HOUR, 0);
          sc.setDate(now.getTime());
-         Date processSchedule = sc.processSchedule(scheduleJson, true);
+
+         // Get schedule for current day by searching next schedule from last day.
+         Date processSchedule = sc.processSchedule(scheduleJson, true, -1);
          if (processSchedule != null)
          {
             Date startDate = getTime(scheduleJson, "startTimeStamp", processSchedule);
@@ -128,6 +130,31 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       this.isBlocked = isBlocking;
 
       return isBlocking;
+   }
+
+   @Override
+   protected boolean executionTimeMatches(Date processSchedule)
+   {
+         Calendar targetCalendar = getCalendar(executionDate);
+         Calendar scheduleCalendar = getCalendar(processSchedule);
+         Calendar endOfTargetDayCalendar = getCalendar(executionDate);
+         endOfTargetDayCalendar.set(Calendar.HOUR, 23);
+         endOfTargetDayCalendar.set(Calendar.MINUTE, 59);
+         endOfTargetDayCalendar.set(Calendar.SECOND, 59);
+
+         // only accept found schedule of same day.
+         if (scheduleCalendar.getTimeInMillis() > endOfTargetDayCalendar.getTimeInMillis())
+         {
+            return false;
+         }
+
+         if (startingDate == null)
+         {
+            return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
+         }
+         Calendar startingCalendar = getCalendar(startingDate);
+         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
+               && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
    }
 
    private Date getTime(JsonObject scheduleJson, String name, Date when)

@@ -6,48 +6,27 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.*;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
-import org.eclipse.stardust.engine.api.runtime.StartOptions;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.core.model.utils.test.beans.Participant;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.monitoring.ActivityInstanceStateChangeMonitor;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
-import org.eclipse.stardust.test.api.setup.RtEnvHome;
-import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 /**
  * Class to test benchmark functionality
@@ -179,7 +158,7 @@ public class BenchmarksTest
       User user = serviceFactory.getUserService().getUser();
       user.addGrant(ParticipantInfoUtil.newModelParticipantInfo("{BenchmarksModel}Rolle1"));
       serviceFactory.getUserService().modifyUser(user);
-      
+
       Map<String, Serializable> pref = CollectionUtils.newMap();
       pref.put(ActivityInstanceStateChangeMonitor.BENCHMARK_PREF_RECALC_ONCREATE, false);
       pref.put(ActivityInstanceStateChangeMonitor.BENCHMARK_PREF_RECALC_ONSUSPEND, false);
@@ -214,11 +193,11 @@ public class BenchmarksTest
             PreferencesConstants.PREFERENCE_ID_BENCHMARKS, pref);
 
       serviceFactory.getAdministrationService().savePreferences(changedPrefs);
-      
+
       // Suspend AI again
       serviceFactory.getWorkflowService().activate(instance.getOID());
       serviceFactory.getWorkflowService().suspendToDefaultPerformer(instance.getOID());
-      
+
       instance = serviceFactory.getWorkflowService().getActivityInstance(
             instance.getOID());
       assertNotEquals(instance.getBenchmarkValue(), 0);

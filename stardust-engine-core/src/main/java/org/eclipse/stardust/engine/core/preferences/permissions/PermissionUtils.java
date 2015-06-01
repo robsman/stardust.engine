@@ -326,10 +326,12 @@ public class PermissionUtils
       }
       for (Map.Entry<String, List<String>> entry : deniedPermissionsMap.entrySet())
       {
-         if (entry.getValue() != null && !entry.getValue().isEmpty())
+         List<String> value = entry.getValue();
+         if (value != null && !value.isEmpty())
          {
-            List<String> srcList = (List<String>) preferencesMap.get(entry.getKey());
-            List<String> targetList = entry.getValue();
+            String key = entry.getKey();
+            List<String> srcList = (List<String>) preferencesMap.get(key);
+            List<String> targetList = value;
             TreeSet<String> srcSet = null;
             if (srcList != null)
             {
@@ -340,15 +342,31 @@ public class PermissionUtils
             // checkValidParticipants throws ValidationException if a grant is not
             // valid for the active model.
             if (srcSet != null && srcSet.equals(targetSet)
-                  || checkValidParticipants(targetList))
+                  || !isGlobalPermission(key) || checkValidParticipants(targetList))
             {
-               toAdd.remove(entry.getKey());
-               toAdd.put("deny:" + entry.getKey(), (Serializable) entry.getValue());
+               toAdd.remove(key);
+               toAdd.put("deny:" + key, (Serializable) value);
             }
          }
       }
       preferencesMap.clear();
       preferencesMap.putAll(toAdd);
+   }
+
+   private static boolean isGlobalPermission(String key)
+   {
+      int ix = key.lastIndexOf('.');
+      if (ix >= 0)
+      {
+         key = key.substring(0, ix);
+         ix = key.lastIndexOf(':');
+         if (ix >= 0)
+         {
+            key = key.substring(ix + 1);
+         }
+         return "model".equals(key);
+      }
+      return true;
    }
 
    private static boolean checkValidParticipants(List<String> grants)

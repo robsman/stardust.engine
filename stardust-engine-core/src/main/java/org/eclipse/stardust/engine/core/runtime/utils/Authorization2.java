@@ -29,9 +29,12 @@ import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
+import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -359,12 +362,14 @@ public class Authorization2
 
    private static String checkPermission(AuthorizationContext context)
    {
-      if (context.isGlobalDenied())
+      if (hasAnyOf(context.getPermission().getDeniedIds(), context))
       {
+         // globally denied
          return PredefinedConstants.ADMINISTRATOR_ROLE;
       }
-      if (context.isGlobalAllowed())
+      if (hasAnyOf(context.getPermission().getAllowedIds(), context))
       {
+         // globally allowed
          return null;
       }
       String[] grants = context.getGrants();
@@ -409,6 +414,38 @@ public class Authorization2
          }
       }
       return grants.length == 0 ? PredefinedConstants.ADMINISTRATOR_ROLE : grants[0];
+   }
+
+   private static boolean hasAnyOf(List<String> permissions, AuthorizationContext context)
+   {
+      for (String id : permissions)
+      {
+         if (hasPermission(id, context))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private static boolean hasPermission(String permissionId, AuthorizationContext context)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+      if (preferenceStore != null)
+      {
+         List<String> grants = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
+         if (!grants.isEmpty())
+         {
+            for (String grant : grants)
+            {
+               if (hasGrant(grant, context))
+               {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    private static boolean hasGrant(String grant, AuthorizationContext context)
@@ -498,16 +535,6 @@ public class Authorization2
                   }
                }
             }
-
-/*            old code
-            List<Long> subdepartments = department > 0
-               ? DepartmentHierarchyBean.findAllSubDepartments(department)
-               : Collections.singletonList(new Long(department));
-            long foundDepartment = UserParticipantLink.findFirstAssignedDepartment(context.getUser(), participant, subdepartments);
-            if (foundDepartment >= 0)
-            {
-               return true;
-            }*/
          }
       }
       return false;

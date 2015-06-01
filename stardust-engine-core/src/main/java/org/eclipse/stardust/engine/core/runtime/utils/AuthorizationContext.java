@@ -281,51 +281,6 @@ public class AuthorizationContext
       return administratorOverride;
    }
 
-   public boolean isGlobalDenied()
-   {
-      for (String id : permission.getDeniedIds())
-      {
-         if (hasPermission(id))
-         {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   public boolean isGlobalAllowed()
-   {
-      for (String id : permission.getAllowedIds())
-      {
-         if (hasPermission(id))
-         {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   private boolean hasPermission(String permissionId)
-   {
-      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
-      if (preferenceStore != null)
-      {
-         List<String> values = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
-         if (!values.isEmpty())
-         {
-            for (String grant : values)
-            {
-               IModelParticipant participant = getParticipant(grant);
-               if (checkRole(participant))
-               {
-                  return true;
-               }
-            }
-         }
-      }
-      return false;
-   }
-
    public boolean checkRole(IModelParticipant role)
    {
       if (role == null)

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
 import java.util.Map;
@@ -8,6 +18,11 @@ import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
+/**
+ * 
+ * @author Thomas.Wolfram
+ *
+ */
 public class BenchmarkUtils
 {
 
@@ -38,6 +53,16 @@ public class BenchmarkUtils
          benchmarkCache.put(definitionOid, benchmarkDefinition);
       }
       return benchmarkDefinition;
+   }
+   
+   public static void removeAllBenchmarksFromCache()
+   {
+      getBenchmarkCache(SecurityProperties.getPartition().getId()).clear();
+   }
+   
+   public static void removeBenchmarkFromCache(long definitionOid)
+   {
+      getBenchmarkCache(SecurityProperties.getPartition().getId()).remove(definitionOid);
    }
    
    private static Map<Long, BenchmarkDefinition> getBenchmarkCache(String partitionId)

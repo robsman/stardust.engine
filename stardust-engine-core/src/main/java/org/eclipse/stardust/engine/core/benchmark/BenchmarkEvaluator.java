@@ -42,18 +42,10 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private BenchmarkDefinition benchmark;
 
-   private Map<Long, BenchmarkDefinition> benchmarkCache;
-
    public BenchmarkEvaluator(long benchmarkOid)
    {
 
       benchmark = BenchmarkUtils.getBenchmarkDefinition(benchmarkOid);
-
-      if (benchmark == null)
-      {
-         benchmark = new BenchmarkDefinition(benchmarkOid);
-         benchmarkCache.put(benchmarkOid, benchmark);
-      }
 
    }
 

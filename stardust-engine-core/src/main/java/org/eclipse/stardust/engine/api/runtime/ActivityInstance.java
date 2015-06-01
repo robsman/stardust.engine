@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 
 
 /**
@@ -279,7 +280,7 @@ public interface ActivityInstance extends RuntimeObject, IDescriptorProvider
    /**
     * Returns the current benchmark value of the activity instance
     * 
-    * @return the value of the benchmark
+    * @return the result of the benchmark
     */
-   int getBenchmarkValue();
+   BenchmarkResult getBenchmarkResult();
 }

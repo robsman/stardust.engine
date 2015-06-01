@@ -47,6 +47,10 @@ import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkDefinition;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResultDetails;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
@@ -66,6 +70,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
@@ -95,26 +100,39 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    // this pattern does define a group which will contain a long value: the handler oid
    private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");
+
    private static final Pattern handlerModelElementOidPattern = Pattern.compile("handlerModelElementOID *= *([0-9]+)");
 
    private ActivityInstanceState state;
+
    private Date startTime;
+
    private Date lastModificationTime;
+
    private String processDefinitionName;
+
    private String processDefinitionId;
+
    private long processInstanceOID;
+
    private ProcessInstance processInstance;
+
    private boolean scopeProcessInstanceNoteAvailable;
+
    private double criticality;
-   private int benchmarkValue;
+
+   private BenchmarkResult benchmarkResult;
 
    private Activity activityDetails;
 
    private Map<String, PermissionState> permissions;
 
    private ParticipantInfo performer;
+
    private UserInfo performedBy;
+
    private UserInfo performedOnBehalfOf;
+
    private User userPerformer;
 
    private List<HistoricalState> historicalStates = Collections.emptyList();
@@ -122,7 +140,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    private final List<HistoricalEvent> historicalEvents = CollectionUtils.newList();
 
    private ActivityInstanceAttributes attributes;
+
    private QualityAssuranceState qualityAssuranceState = QualityAssuranceState.NO_QUALITY_ASSURANCE;
+
    private QualityAssuranceInfo qcInfo;
 
    public ActivityInstanceDetails(final IWorkItem workItem)
@@ -154,7 +174,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
       else
       {
-         activityDetails = (Activity) DetailsFactory.create(activity, IActivity.class, ActivityDetails.class);
+         activityDetails = (Activity) DetailsFactory.create(activity, IActivity.class,
+               ActivityDetails.class);
       }
 
       IProcessDefinition processDefinition = activity.getProcessDefinition();
@@ -165,7 +186,15 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       processInstanceOID = processInstance.getOID();
       scopeProcessInstanceNoteAvailable = ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance());
       criticality = activityInstance.getCriticality();
-      benchmarkValue = activityInstance.getBenchmarkValue();
+
+      if (processInstance.getBenchmark() > 0)
+      {
+         BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(processInstance.getBenchmark());
+
+         this.benchmarkResult = new BenchmarkResultDetails(
+               processInstance.getBenchmark(), activityInstance.getBenchmarkValue(),
+               benchmarkDefinition.getProperty(activityInstance.getBenchmarkValue()));
+      }
 
       performer = initPerformer(activityInstance);
 
@@ -179,8 +208,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       switch (historicalStatesPolicy)
       {
       case WITH_HIST_STATES:
-         Iterator<ActivityInstanceHistoryBean> histStatesIterator = ActivityInstanceHistoryBean
-               .getAllForActivityInstance(activityInstance, false);
+         Iterator<ActivityInstanceHistoryBean> histStatesIterator = ActivityInstanceHistoryBean.getAllForActivityInstance(
+               activityInstance, false);
          if (histStatesIterator.hasNext())
          {
             List<HistoricalStateDetails> states = DetailsFactory.createCollection(
@@ -199,20 +228,19 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          }
          break;
       case WITH_LAST_HIST_STATE:
-         Pair<ActivityInstanceHistoryBean, IUser> pair = ActivityInstanceHistoryBean
-               .getLastForActivityInstance(activityInstance);
+         Pair<ActivityInstanceHistoryBean, IUser> pair = ActivityInstanceHistoryBean.getLastForActivityInstance(activityInstance);
          performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
          ActivityInstanceHistoryBean last = pair.getFirst();
          if (last != null)
          {
-            historicalStates = Collections.<HistoricalState>singletonList(DetailsFactory.create(
+            historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(
                   pair, ActivityInstanceHistoryBean.class, HistoricalStateDetails.class));
          }
          break;
       case WITH_LAST_USER_PERFORMER:
          // Get from prefetch cache
          BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
-         Map<Long,ActivityInstanceHistoryBean> lastUserPerformerCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.HIST_STATE_AIH_CACHE);
+         Map<Long, ActivityInstanceHistoryBean> lastUserPerformerCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.HIST_STATE_AIH_CACHE);
 
          ActivityInstanceHistoryBean lastUserPerformer;
          if (lastUserPerformerCache != null)
@@ -238,7 +266,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       permissions = CollectionUtils.newHashMap();
       PermissionState ps = PermissionState.Denied;
       AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_ACTIVITY_INSTANCES);
-      if (!isTerminated())
+      if ( !isTerminated())
       {
          ctx.setActivityInstance(activityInstance);
          if (Authorization2.hasPermission(ctx))
@@ -253,7 +281,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       if (activity.isInteractive())
       {
          ctx.setActivityInstance(activityInstance);
-         if (!isTerminated() && Authorization2.hasPermission(ctx))
+         if ( !isTerminated() && Authorization2.hasPermission(ctx))
          {
             ps = PermissionState.Granted;
          }
@@ -263,14 +291,21 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       PropertyLayer layer = null;
       try
       {
-         // Skip process authorization check here, since it was already checked for the activity instance
-         // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI / PI / AI / ...
+         // Skip process authorization check here, since it was already checked for the
+         // activity instance
+         // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI /
+         // PI / AI / ...
          Map<String, Object> props = CollectionUtils.newMap();
-         props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Core);
+         props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
+               ProcessInstanceDetailsLevel.Core);
 
-         if (ProcessInstanceUtils.isLoadNotesEnabled() && ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance())) {
-            // will be fetching activity notes, so it does not harm to ship process notes as well
-            props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.WithProperties);
+         if (ProcessInstanceUtils.isLoadNotesEnabled()
+               && ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance()))
+         {
+            // will be fetching activity notes, so it does not harm to ship process notes
+            // as well
+            props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
+                  ProcessInstanceDetailsLevel.WithProperties);
          }
 
          if (parameters.get(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS) == null)
@@ -294,7 +329,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          // Do not overwrite level if explicitly set (not null!).
          if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
          {
-            Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            Map<String, ? > props = Collections.singletonMap(
+                  UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
             layer = ParametersFacade.pushLayer(props);
          }
 
@@ -312,26 +348,27 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          qualityAssuranceState = activityInstance.getQualityAssuranceState();
          attributes = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
-         //build info object regarding qa workflow
-         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE
+         // build info object regarding qa workflow
+         if (qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE
                || qualityAssuranceState == QualityAssuranceState.IS_REVISED)
          {
             qcInfo = QualityAssuranceUtils.getQualityAssuranceInfo(activityInstance);
          }
       }
 
-      //if note for the process instance exists, - potentially notes for this activity instance exists
-      //load and set these note
-      final IProcessInstance scopeProcessInstance
-         = activityInstance.getProcessInstance().getScopeProcessInstance();
-      if(ProcessInstanceUtils.isLoadNotesEnabled()
+      // if note for the process instance exists, - potentially notes for this activity
+      // instance exists
+      // load and set these note
+      final IProcessInstance scopeProcessInstance = activityInstance.getProcessInstance()
+            .getScopeProcessInstance();
+      if (ProcessInstanceUtils.isLoadNotesEnabled()
             && ProcessInstanceUtils.hasNotes(scopeProcessInstance))
       {
          List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
-         if(!aiNotes.isEmpty())
+         if ( !aiNotes.isEmpty())
          {
-            //create attributes object to present notes
-            if(attributes == null)
+            // create attributes object to present notes
+            if (attributes == null)
             {
                attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());
             }
@@ -364,13 +401,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
     */
    public String toString()
    {
-   StringBuffer sb = new StringBuffer();
-   sb.append(processDefinitionName);
-   sb.append(": ");
-   sb.append(getActivity().getName());
-   sb.append(" (");
-   sb.append(new SimpleDateFormat(DATE_FORMAT).format(getStartTime()));
-   sb.append(") ");
+      StringBuffer sb = new StringBuffer();
+      sb.append(processDefinitionName);
+      sb.append(": ");
+      sb.append(getActivity().getName());
+      sb.append(" (");
+      sb.append(new SimpleDateFormat(DATE_FORMAT).format(getStartTime()));
+      sb.append(") ");
 
       return sb.toString();
    }
@@ -417,7 +454,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    public String getParticipantPerformerID()
    {
-      return performer == null || performer instanceof UserInfo ? null : performer.getId();
+      return performer == null || performer instanceof UserInfo
+            ? null
+            : performer.getId();
    }
 
    public String getUserPerformerName()
@@ -445,7 +484,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    public String getParticipantPerformerName()
    {
-      return performer == null || performer instanceof UserInfo ? null : performer.getName();
+      return performer == null || performer instanceof UserInfo
+            ? null
+            : performer.getName();
    }
 
    public ParticipantInfo getCurrentPerformer()
@@ -490,12 +531,16 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    public Object getDescriptorValue(String id)
    {
-      return processInstance instanceof IDescriptorProvider ? ((IDescriptorProvider) processInstance).getDescriptorValue(id) : null;
+      return processInstance instanceof IDescriptorProvider
+            ? ((IDescriptorProvider) processInstance).getDescriptorValue(id)
+            : null;
    }
 
    public List<DataPath> getDescriptorDefinitions()
    {
-      return processInstance instanceof IDescriptorProvider ? ((IDescriptorProvider) processInstance).getDescriptorDefinitions(): Collections.EMPTY_LIST;
+      return processInstance instanceof IDescriptorProvider
+            ? ((IDescriptorProvider) processInstance).getDescriptorDefinitions()
+            : Collections.EMPTY_LIST;
    }
 
    public boolean equals(Object foreign)
@@ -527,7 +572,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       return historicalEvents;
    }
 
-   private void initHistoricalEvents(Parameters parameters, IActivityInstance activityInstance)
+   private void initHistoricalEvents(Parameters parameters,
+         IActivityInstance activityInstance)
    {
       int eventTypes = parameters.getInteger(
             HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
@@ -542,9 +588,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          HistoricalStateDetails prevHistState = null;
 
-         // Here the iteration is done in reverse order (oldest to newest historical state).
-         for (ListIterator<HistoricalState> iter = historicalStates.listIterator(historicalStates.size());
-               iter.hasPrevious();)
+         // Here the iteration is done in reverse order (oldest to newest historical
+         // state).
+         for (ListIterator<HistoricalState> iter = historicalStates.listIterator(historicalStates.size()); iter.hasPrevious();)
          {
             HistoricalStateDetails histState = (HistoricalStateDetails) iter.previous();
 
@@ -581,9 +627,10 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                               state, performedByDetails, //
                               histState.getOnBehalfOfParticipant());
                         historicalEvents.add(new HistoricalEventDetails(
-                              HistoricalEventType.StateChange, activityInstance
-                                    .getLastModificationTime(), HistoricalEventDetails
-                                    .getUser(histState), descriptionDetails));
+                              HistoricalEventType.StateChange,
+                              activityInstance.getLastModificationTime(),
+                              HistoricalEventDetails.getUser(histState),
+                              descriptionDetails));
                      }
                      else
                      {
@@ -599,14 +646,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
          // add state change event for states not covered by history table,
          // e.g completed, terminated.
-         if (null != prevHistState
-               && prevHistState.getState() != state
+         if (null != prevHistState && prevHistState.getState() != state
                && activityInstance.isTerminated()
                && isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
          {
             UserDetails performedByDetails = null;
             IUser performedBy = activityInstance.getPerformedBy();
-            if(performedBy != null)
+            if (performedBy != null)
             {
                performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
                      IUser.class, UserDetails.class);
@@ -629,11 +675,13 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          Iterator lIter = null;
 
-         // LogEntry has been already fetched in prefetch phase of query execution - take it from cache
+         // LogEntry has been already fetched in prefetch phase of query execution - take
+         // it from cache
          if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session)
-                  .getCache(LogEntryBean.class).iterator();
+            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
+                  LogEntryBean.class)
+                  .iterator();
          }
 
          ModelElementList<IEventHandler> eventHandlers = null;
@@ -648,14 +696,15 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                LogCode logCode = LogCode.getKey(logEntry.getCode());
 
                if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
-                     // exceptions are represented by log entries logged with WARN, ERROR or even higher level
+               // exceptions are represented by log entries logged with WARN, ERROR or
+               // even higher level
                      && !LogType.Debug.equals(logtype) && !LogType.Info.equals(logtype))
                {
                   historicalEvents.add(new HistoricalEventDetails(logEntry));
                }
 
                if (isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION)
-                     // event execution is currently logged at INFO level
+               // event execution is currently logged at INFO level
                      && LogType.Info.equals(logtype) && LogCode.EVENT.equals(logCode))
                {
                   eventHandlers = addHistoricalEventExecution(activityInstance,
@@ -668,10 +717,10 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       if (scopeProcessInstanceNoteAvailable
             && isEventTypeSet(eventTypes, HistoricalEventType.NOTE))
       {
-         final IProcessInstance scopeProcessInstance = activityInstance
-               .getProcessInstance().getScopeProcessInstance();
+         final IProcessInstance scopeProcessInstance = activityInstance.getProcessInstance()
+               .getScopeProcessInstance();
          List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
-         for (Note note: aiNotes)
+         for (Note note : aiNotes)
          {
             historicalEvents.add(new HistoricalEventDetails(note));
          }
@@ -690,15 +739,19 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    }
 
    /**
-    * @param activityInstance the AI for which event execution will be added
-    * @param eventHandlers this will contain a list of event handlers for the current activity.
-    *          If null it will be initialized in the method call, otherwise its content will be used.
-    * @param logEntry the LogEntry which currently is inspected
+    * @param activityInstance
+    *           the AI for which event execution will be added
+    * @param eventHandlers
+    *           this will contain a list of event handlers for the current activity. If
+    *           null it will be initialized in the method call, otherwise its content will
+    *           be used.
+    * @param logEntry
+    *           the LogEntry which currently is inspected
     * @return
     */
    private ModelElementList<IEventHandler> addHistoricalEventExecution(
-         IActivityInstance activityInstance, ModelElementList<IEventHandler> eventHandlers,
-         ILogEntry logEntry)
+         IActivityInstance activityInstance,
+         ModelElementList<IEventHandler> eventHandlers, ILogEntry logEntry)
    {
       // retrieve event handlers for current AI once in this loop
       if (eventHandlers == null)
@@ -713,14 +766,14 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       if (matcher.find())
       {
          long eventHandlerRuntimeOid = Long.valueOf(matcher.group(1));
-         if(eventHandlerRuntimeOid != Event.OID_UNDEFINED)
+         if (eventHandlerRuntimeOid != Event.OID_UNDEFINED)
          {
             long modelOid = activityInstance.getActivity().getModel().getModelOID();
             handler = EventUtils.getEventHandler(modelOid, eventHandlerRuntimeOid);
          }
       }
 
-      //try to fetch event handler by event handler model element oid
+      // try to fetch event handler by event handler model element oid
       if (handler == null)
       {
          matcher = handlerModelElementOidPattern.matcher(subject);
@@ -729,7 +782,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             long eventHandlerModelElementOid = Long.valueOf(matcher.group(1));
             if (eventHandlerModelElementOid != Event.OID_UNDEFINED)
             {
-               handler = EventUtils.getEventHandler(eventHandlers, eventHandlerModelElementOid);
+               handler = EventUtils.getEventHandler(eventHandlers,
+                     eventHandlerModelElementOid);
             }
          }
       }
@@ -739,8 +793,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          EventHandler eventHandlerDetails = new EventHandlerDetails(handler);
          HistoricalEvent histEvent = new HistoricalEventDetails(
                HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
-               HistoricalEventDetails.getUser(logEntry.getUserOID()),
-               eventHandlerDetails);
+               HistoricalEventDetails.getUser(logEntry.getUserOID()), eventHandlerDetails);
          historicalEvents.add(histEvent);
       }
 
@@ -756,8 +809,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          HistoricalState histState)
    {
       if (histState.getState() == ActivityInstanceState.Suspended
-            && histState.getParticipant() != null
-            && histState.getParticipant() != null && prevHistState.getParticipant() != null)
+            && histState.getParticipant() != null && histState.getParticipant() != null
+            && prevHistState.getParticipant() != null)
       {
 
          if ( !(histState.getParticipant()).equals(prevHistState.getParticipant())
@@ -773,8 +826,6 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       return false;
    }
 
-
-
    public PermissionState getPermission(String permissionId)
    {
       PermissionState ps = (PermissionState) permissions.get(permissionId);
@@ -785,10 +836,10 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    {
       return criticality;
    }
-   
-   public int getBenchmarkValue()
+
+   public BenchmarkResult getBenchmarkResult()
    {
-      return benchmarkValue;
+      return this.benchmarkResult;
    }
 
    public QualityAssuranceState getQualityAssuranceState()
@@ -806,7 +857,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       return qcInfo;
    }
 
-   public static User initUserPerformer(IActivityInstance activityInstance, Parameters parameters)
+   public static User initUserPerformer(IActivityInstance activityInstance,
+         Parameters parameters)
    {
       User result;
 
@@ -817,7 +869,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             // Do not overwrite level if explicitly set (not null!).
             if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
             {
-               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+               Map<String, ? > props = Collections.singletonMap(
+                     UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
                layer = ParametersFacade.pushLayer(props);
             }
 
@@ -846,27 +899,27 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          IParticipant currentPerformer = activityInstance.getCurrentPerformer();
          if (currentPerformer instanceof IModelParticipant)
          {
-            long runtimeOid = ModelManagerFactory.getCurrent().getRuntimeOid((IModelParticipant) currentPerformer);
+            long runtimeOid = ModelManagerFactory.getCurrent().getRuntimeOid(
+                  (IModelParticipant) currentPerformer);
             String qualifiedId = ((IModelParticipant) currentPerformer).getQualifiedId();
             String name = currentPerformer.getName();
-            boolean isDepartmentScoped = DepartmentUtils.getFirstScopedOrganization(
-                  (IModelParticipant) currentPerformer) != null;
-            boolean definesDepartmentScope = ((IModelParticipant) currentPerformer).getBooleanAttribute(
-                  PredefinedConstants.BINDING_ATT);
+            boolean isDepartmentScoped = DepartmentUtils.getFirstScopedOrganization((IModelParticipant) currentPerformer) != null;
+            boolean definesDepartmentScope = ((IModelParticipant) currentPerformer).getBooleanAttribute(PredefinedConstants.BINDING_ATT);
             DepartmentInfo department = DetailsFactory.create(activityInstance.getCurrentDepartment());
             if (currentPerformer instanceof IOrganization)
             {
-               result = new OrganizationInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
-                     definesDepartmentScope, department);
+               result = new OrganizationInfoDetails(runtimeOid, qualifiedId, name,
+                     isDepartmentScoped, definesDepartmentScope, department);
             }
             else if (currentPerformer instanceof IRole)
             {
-               result = new RoleInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
-                     definesDepartmentScope, department);
+               result = new RoleInfoDetails(runtimeOid, qualifiedId, name,
+                     isDepartmentScoped, definesDepartmentScope, department);
             }
             else if (currentPerformer instanceof IConditionalPerformer)
             {
-               result = new ConditionalPerformerInfoDetails(runtimeOid, qualifiedId, name, department);
+               result = new ConditionalPerformerInfoDetails(runtimeOid, qualifiedId,
+                     name, department);
             }
          }
          else if (currentPerformer instanceof IUserGroup)

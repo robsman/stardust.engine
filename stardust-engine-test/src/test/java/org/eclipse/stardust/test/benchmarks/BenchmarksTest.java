@@ -133,8 +133,9 @@ public class BenchmarksTest
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
 
+      
       assertTrue(0 < pi.getBenchmark());
-      assertTrue(0 == pi.getBenchmarkValue());
+      assertTrue(0 == pi.getBenchmarkResult().getCategory());
 
    }
 
@@ -148,8 +149,8 @@ public class BenchmarksTest
 
       ActivityInstance instance = serviceFactory.getQueryService()
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
-
-      assertNotEquals(instance.getBenchmarkValue(), 0);
+      
+      assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
    }
 
    @Test
@@ -175,7 +176,7 @@ public class BenchmarksTest
       ActivityInstance instance = serviceFactory.getQueryService()
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
 
-      assertEquals(instance.getBenchmarkValue(), 0);
+      assertEquals(instance.getBenchmarkResult().getCategory(), 0);
 
       // Suspend AI
       serviceFactory.getWorkflowService().suspendToDefaultPerformer(instance.getOID());
@@ -183,7 +184,7 @@ public class BenchmarksTest
       serviceFactory.getWorkflowService().activate(instance.getOID());
       instance = serviceFactory.getWorkflowService().getActivityInstance(
             instance.getOID());
-      assertEquals(instance.getBenchmarkValue(), 0);
+      assertEquals(instance.getBenchmarkResult().getCategory(), 0);
 
       // Switch Preference to recalulate on suspend
       pref.put(ActivityInstanceStateChangeMonitor.BENCHMARK_PREF_RECALC_ONSUSPEND, true);
@@ -200,7 +201,7 @@ public class BenchmarksTest
 
       instance = serviceFactory.getWorkflowService().getActivityInstance(
             instance.getOID());
-      assertNotEquals(instance.getBenchmarkValue(), 0);
+      assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
    }
 

@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -409,9 +410,9 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    }
 
    @Override
-   public int getBenchmarkValue()
+   public BenchmarkResult getBenchmarkResult()
    {
-      return getProcessInstanceDetails().getBenchmarkValue();
+      return getProcessInstanceDetails().getBenchmarkResult();
    }
 
    @Override

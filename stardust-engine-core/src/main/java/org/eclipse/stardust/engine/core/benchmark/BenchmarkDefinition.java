@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,6 +36,8 @@ public class BenchmarkDefinition
    Map<String, TreeMap<Integer,ConditionEvaluator>> processConditions;
 
    Map<String, TreeMap<Integer,ConditionEvaluator>> activityConditions;
+   
+   Map<Integer, Map<String,Serializable>> properties;
 
    public BenchmarkDefinition(long benchmarkOid)
    {
@@ -44,6 +47,8 @@ public class BenchmarkDefinition
       this.activityConditions = CollectionUtils.newMap();
       this.processConditions = CollectionUtils.newMap();
 
+      this.properties = CollectionUtils.newMap();
+      
       RuntimeArtifact ra = ArtifactManagerFactory.getCurrent().getArtifact(benchmarkOid);
       BenchmarkDefinitionParser.parse(this, ra.getContent());
 
@@ -72,6 +77,14 @@ public class BenchmarkDefinition
       aiColumns.put(3, new FreeFormCondition("false;"));
       aiColumns.put(4, new DefaultCondition());
       this.activityConditions.put("BenchmarkedActivity", aiColumns);
+      
+      Map<String,Serializable> uiProperties = CollectionUtils.newMap();
+      
+      
+      
+      uiProperties.put("UI_Color", "#333333");
+      uiProperties.put("UI_Label", "critical");
+      this.properties.put(4,uiProperties);
    }
 
    public long getOid()
@@ -97,6 +110,11 @@ public class BenchmarkDefinition
    public TreeMap<Integer, ConditionEvaluator> getActivityConditions(String activityId)
    {
       return activityConditions.get(activityId);
+   }
+   
+   public Map<String,Serializable> getProperty(int category)
+   {
+      return this.properties.get(category);
    }
 
 }

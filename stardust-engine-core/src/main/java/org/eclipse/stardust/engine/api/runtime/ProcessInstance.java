@@ -21,6 +21,7 @@ import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 
 
 /**
@@ -201,7 +202,15 @@ public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
     */
    boolean isCaseProcessInstance();
    
-   int getBenchmarkValue();
+   /**
+    * 
+    * @return the Benchmark Result
+    */
+   BenchmarkResult getBenchmarkResult();
    
+   /**
+    * 
+    * @return OID of the Benchmark
+    */
    long getBenchmark();
 }

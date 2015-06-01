@@ -26,12 +26,16 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String PI_TABLE_NAME = "process_instance";
 
    private static final String AI_TABLE_NAME = "activity_instance";
+   
+   private static final String WI_TABLE_NAME = "workitem";
 
    private static final String PI_FIELD_BENCHMARK_VALUE = "benchmarkValue";
 
    private static final String PI_FIELD_BENCHMARK = "benchmark";
 
    private static final String AI_FIELD_BENCHMARK_VALUE = "benchmarkValue";
+   
+   private static final String WI_FIELD_BENCHMARK_VALUE = "benchmarkValue";   
 
    private static final String RUNTIME_ARTIFACT_TABLE_NAME = "runtime_artifact";
 
@@ -180,6 +184,20 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       }, this);      
+      
+      DatabaseHelper.alterTable(item, new AlterTableInfo(WI_TABLE_NAME)
+      {
+
+         private final FieldInfo BENCHMARK_VALUE = new FieldInfo(
+               WI_FIELD_BENCHMARK_VALUE, Integer.TYPE);
+
+         @Override
+         public FieldInfo[] getAddedFields()
+         {
+            return new FieldInfo[] { BENCHMARK_VALUE };
+         }
+
+      }, this);        
    }
 
    @Override

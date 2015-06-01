@@ -38,10 +38,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private static final Logger trace = LogManager.getLogger(BenchmarkEvaluator.class);
 
-   private static final int BENCHMARKK_FAULT_VALUE = -1;
-
-   private static final String KEY_BENCHMARK_CACHE = BenchmarkEvaluator.class.getName()
-         + ".BenchmarkCache";
+   private static final int BENCHMARKK_FAULT_VALUE = -1;   
 
    private BenchmarkDefinition benchmark;
 
@@ -50,9 +47,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
    public BenchmarkEvaluator(long benchmarkOid)
    {
 
-      benchmarkCache = getBenchmarkCache(SecurityProperties.getPartition().getId());
-
-      benchmark = benchmarkCache.get(benchmarkOid);
+      benchmark = BenchmarkUtils.getBenchmarkDefinition(benchmarkOid);
 
       if (benchmark == null)
       {
@@ -192,37 +187,6 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       }
    }
 
-   protected Map<Long, BenchmarkDefinition> getBenchmarkCache(String partitionId)
-   {
-      final GlobalParameters globals = GlobalParameters.globals();
 
-      ConcurrentHashMap<String, Map> benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals
-            .get(KEY_BENCHMARK_CACHE);
-      if (null == benchmarkPartitionCache)
-      {
-         globals.getOrInitialize(KEY_BENCHMARK_CACHE, new ValueProvider()
-         {
-
-            public Object getValue()
-            {
-               return new ConcurrentHashMap<String, Map>();
-            }
-
-         });
-         benchmarkPartitionCache = (ConcurrentHashMap<String, Map>) globals
-               .get(KEY_BENCHMARK_CACHE);
-      }
-
-      Map benchmarkCache = benchmarkPartitionCache.get(partitionId);
-      if (null == benchmarkCache)
-      {
-         benchmarkPartitionCache.put(partitionId,
-               new ConcurrentHashMap<Long, BenchmarkDefinition>());
-         benchmarkCache = (Map<Long, BenchmarkDefinition>) benchmarkPartitionCache
-               .get(partitionId);
-      }
-
-      return benchmarkCache;
-   }
 
 }

@@ -48,6 +48,8 @@ public interface IArtifactHandler
    String getArtifactContentType(RuntimeArtifact runtimeArtifact);
 
    /**
+    * This method is called before deploy and overwrite.
+    * <p>
     * Handler can pre-process the artifact before it is deployed. E.g. compile, convert,
     * validate.
     * <p>
@@ -61,10 +63,24 @@ public interface IArtifactHandler
    RuntimeArtifact preProcess(RuntimeArtifact runtimeArtifact);
 
    /**
+    * Notifies after a runtime artifact is overwritten.
+    *
+    * @param deployedRuntimeArtifact
+    */
+   void afterOverwrite(DeployedRuntimeArtifact deployedRuntimeArtifact);
+
+   /**
     * With this the artifact handler can e.g. check referential integrity and prevent
     * delete if the artifact is still being required.
     *
     * @param deployedRuntimeArtifact
     */
    void beforeDelete(DeployedRuntimeArtifact deployedRuntimeArtifact);
+
+   /**
+    * With this the artifact handler can purge caches after the artifact was deleted.
+    *
+    * @param oid
+    */
+   void afterDelete(long oid);
 }

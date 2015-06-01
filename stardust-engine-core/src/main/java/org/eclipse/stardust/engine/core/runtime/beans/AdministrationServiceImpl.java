@@ -74,6 +74,7 @@ import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.query.RawQueryResult;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -1556,6 +1557,7 @@ public class AdministrationServiceImpl
       CacheHelper.flushCaches();
       getPreferenceStore().flushCaches();
       reloadModelManagerAfterModelOperation();
+      BenchmarkUtils.removeAllBenchmarksFromCache();
    }
 
    public List<Permission> getPermissions()

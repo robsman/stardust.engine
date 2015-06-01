@@ -142,7 +142,11 @@ public class ArtifactManager
 
       logArtifactOperation(DEPLOY_ARTIFACT_MESSAGE, runtimeArtifactBean);
 
-      return new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
+      DeployedRuntimeArtifactDetails deployedRuntimeArtifactDetails = new DeployedRuntimeArtifactDetails(runtimeArtifactBean);
+      // Notify artifact handler that existing artifact was overwritten.
+      handler.afterOverwrite(deployedRuntimeArtifactDetails);
+
+      return deployedRuntimeArtifactDetails;
    }
 
    /**
@@ -255,6 +259,9 @@ public class ArtifactManager
       logArtifactOperation(DELETE_ARTIFACT_MESSAGE, runtimeArtifactBean);
 
       runtimeArtifactBean.delete();
+
+      // deleted artifact
+      handler.afterDelete(oid);
    }
 
    private IArtifactHandler getHandler(String artifactTypeId)

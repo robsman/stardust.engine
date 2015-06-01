@@ -387,6 +387,18 @@
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
+                           <carnot:EventHandler Oid="1000" Id="OnHibernation" Name="On Hibernation" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="1001" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="7" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows/>
@@ -425,6 +437,18 @@
                               <carnot:EventActions/>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                           <carnot:EventHandler Oid="1002" Id="OnHibernation" Name="On Hibernation" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="1003" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="7" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -922,6 +946,18 @@
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
+                           <carnot:EventHandler Oid="1004" Id="OnHibernation" Name="On Hibernation" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="1005" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="7" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
                         </carnot:EventHandlers>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows>
@@ -1098,6 +1134,18 @@
                               <carnot:EventActions/>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                           <carnot:EventHandler Oid="1006" Id="OnHibernation" Name="On Hibernation" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="1007" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="7" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1706,6 +1754,12 @@
                      <carnot:Attributes>
                         <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/error/icon.gif"/>
                         <carnot:Attribute Name="carnot:engine:action" Value="org.eclipse.stardust.engine.extensions.events.signal.SendSignalEventAction"/>
+                     </carnot:Attributes>
+                  </carnot:EventActionType>
+                  <carnot:EventActionType Oid="999" Id="checkMessageStore" Name="Check Message Store" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="statechange">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/error/icon.gif"/>
+                        <carnot:Attribute Name="carnot:engine:action" Value="org.eclipse.stardust.engine.extensions.events.signal.CheckMessageStoreEventAction"/>
                      </carnot:Attributes>
                   </carnot:EventActionType>
                </carnot:EventActionTypes>

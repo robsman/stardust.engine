@@ -47,9 +47,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
@@ -93,10 +95,10 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       List<IActivityInstance> result = newArrayList();
       try
       {
-         if (message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY))
+         if (message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY) && message instanceof MapMessage)
          {
             String signalName = message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
-            trace.info("Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE
+            trace.info("[Activity Instances] Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE
                      + "' for signal name '" + signalName + "'.");
 
             OrTerm activityFilter = new OrTerm();
@@ -105,11 +107,11 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             for (IEventHandler signalEventHandler : signalEventHandlers)
             {
                if (signalEventHandler.getId().equals(signalName)) {
-                  IActivity parentActivity = (IActivity) signalEventHandler.getParent();
+                  IActivity activity = (IActivity) signalEventHandler.getParent();
                   activityFilter.add(
                         andTerm(
-                              isEqual(ActivityInstanceBean.FR__ACTIVITY, ModelManagerFactory.getCurrent().getRuntimeOid(parentActivity)),
-                              isEqual(ActivityInstanceBean.FR__MODEL,  parentActivity.getModel().getModelOID())));
+                              isEqual(ActivityInstanceBean.FR__ACTIVITY, ModelManagerFactory.getCurrent().getRuntimeOid(activity)),
+                              isEqual(ActivityInstanceBean.FR__MODEL,  activity.getModel().getModelOID())));
                }
             }
             if (activityFilter.getParts().isEmpty())
@@ -121,21 +123,20 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             ResultIterator<ActivityInstanceBean> iterator = session.getIterator(ActivityInstanceBean.class,
                                 where(andTerm(isEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.HIBERNATED), activityFilter)));
 
-            List<IActivityInstance> activities = newArrayList();
-            String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
+            List<IActivityInstance> ais = newArrayList();
             while(iterator.hasNext()) {
 
                IActivityInstance ai = iterator.next();
 
-               if (matchPredicateData(ai, eventContextName, message))
+               if (matchPredicateData(ai, signalName, message))
                {
                   trace.info("Found signal target: " + ai);
-                  activities.add(ai);
+                  ais.add(ai);
                }
             }
             iterator.close();
 
-            return activities.iterator();
+            return ais.iterator();
          }
       }
       catch (ObjectNotFoundException o)
@@ -231,7 +232,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             }
 
             String signalName = message.getStringProperty(BPMN_SIGNAL_PROPERTY_KEY);
-            trace.info("Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE + "' for signal name '" + signalName + "'.");
+            trace.info("[Signal Triggers] Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE + "' for signal name '" + signalName + "'.");
 
             List<ITrigger> triggers = initializeFromModel().getSecond();
             for (ITrigger trigger : triggers)
@@ -247,8 +248,15 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       });
    }
 
-   private boolean matchPredicateData(IActivityInstance ai, String eventContextName, Message message)
+   @Override
+   public List<Match> getMessageStoreMatches(Message message)
    {
+      return Collections.<Match>singletonList(new MessageStoreMatch());
+   }
+
+   /* package-private */ boolean matchPredicateData(IActivityInstance ai, String signalName, Message message)
+   {
+      String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
       ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
       Set<IDataMapping> eventMappings = newHashSet();
       Set<AccessPoint> accessPoints = newHashSet();
@@ -362,13 +370,13 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       public T process() throws JMSException;
    }
 
-   private static class SignalMessageActivityInstanceMatch implements Match
+   /* package-private */ static class SignalMessageActivityInstanceMatch implements Match
    {
       private final MessageAcceptor acceptor;
 
       private final IActivityInstance activityInstance;
 
-      private SignalMessageActivityInstanceMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
+      /* package-private */ SignalMessageActivityInstanceMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
       {
          this.acceptor = acceptor;
          this.activityInstance = activityInstance;
@@ -482,6 +490,19 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          Map<String, ?> data = TriggerDaemon.performParameterMapping(trigger, msgData);
 
          wfs.startProcess(processDef, data, trigger.isSynchronous());
+      }
+   }
+
+   private static class MessageStoreMatch implements Match
+   {
+      @Override
+      public void process(AdministrationServiceImpl session, Message message)
+      {
+         /* create message store entry */
+         new SignalMessageBean(SecurityProperties.getPartitionOid(), (MapMessage) message);
+
+         /* create message store index based on currently used predicate data */
+         // TODO - bpmn-2-events - create message store index based on currently used predicate data
       }
    }
 }

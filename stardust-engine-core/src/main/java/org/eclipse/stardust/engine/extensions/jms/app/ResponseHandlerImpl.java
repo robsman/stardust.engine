@@ -289,6 +289,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       if (acceptor instanceof MultiMatchCapable && ((MultiMatchCapable) acceptor).findMoreMatches(matches))
       {
          matches.addAll(findTriggerMatchesForMessage(message, acceptor));
+         matches.addAll(findMessageStoreMatchesForMessage(message, acceptor));
       }
 
       return matches;
@@ -371,6 +372,11 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
    private List<Match> findTriggerMatchesForMessage(Message message, MessageAcceptor acceptor)
    {
       return acceptor.getTriggerMatches(message);
+   }
+
+   private List<Match> findMessageStoreMatchesForMessage(Message message, MessageAcceptor acceptor)
+   {
+      return acceptor.getMessageStoreMatches(message);
    }
 
    private List<Match> findMatchForTriggerMessage(Message message, Trigger trigger)

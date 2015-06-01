@@ -13,8 +13,14 @@ package org.eclipse.stardust.test.events;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-import java.util.concurrent.TimeUnit;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -23,6 +29,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.log4j.Level;
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -44,9 +51,10 @@ import org.eclipse.stardust.test.api.util.JmsConstants;
 import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.api.util.WaitTimeout;
+import org.h2.api.Trigger;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,10 +80,18 @@ public class SignalEventTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
+   @BeforeClass
+   public static void setUpOnce() throws SQLException
+   {
+      initSignalMessageTrigger();
+   }
+
    @Before
    public void init()
    {
       Parameters.instance().set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
+
+      SignalMessageBeanTrigger.initLatch();
    }
 
    @Test
@@ -151,7 +167,12 @@ public class SignalEventTest
       piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
 
       // signal hasn't been accepted
-      logBarrier.waitForLogMessage("JMS01001 - No message acceptors found for the message:\n.*", new WaitTimeout(10, TimeUnit.SECONDS));
+      try
+      {
+         piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+         fail();
+      }
+      catch (final TimeoutException e) { /* expected */ }
 
       // fire signal the signal acceptor is waiting for
       ProcessInstance pi2 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
@@ -232,6 +253,96 @@ public class SignalEventTest
       assertThat((String) obj2, Matchers.equalTo("Horst"));
    }
 
+   @Test
+   public void testOutOfOrderSignal() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // send signal before process has been started
+      sendSignalEvent("Signal1");
+
+      // start process to receive signal
+      ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}TwoSignalsParallel", null, true);
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "LeftSignal");
+      aiStateChangeBarrier.awaitForId(rootProcess.getOID(), "RightSignal");
+
+      // await root process completion
+      piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+   }
+
+   @Test
+   public void testOutOfOrderSignalWithPredicateData() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // fire signal the signal acceptor will be waiting for
+      ProcessInstance pi1 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
+      aiStateChangeBarrier.awaitForId(pi1.getOID(), "StartActivity");
+      wfs.setOutDataPath(pi1.getOID(), "Data_1Path", "Klaus");
+      wfs.setOutDataPath(pi1.getOID(), "Data_2Path", "Horst");
+      ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi1.getOID(), "StartActivity"));
+      wfs.activateAndComplete(ai1.getOID(), null, null);
+      piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
+
+      // wait until signal has been persisted
+      SignalMessageBeanTrigger.countDownLatch().await();
+
+      // start signal acceptor process and initialize with predicate data
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put("PredicateData_1", "Klaus");
+      data.put("PredicateData_2", "Horst");
+      ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}SignalWithPredicateData", data, true);
+
+      // signal has been accepted, assert that output data is correct
+      piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+      Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
+      assertThat(outputData, Matchers.instanceOf(String.class));
+      assertThat((String) outputData, Matchers.equalTo("Horst"));
+   }
+
+   @Test
+   public void testOutOfOrderSignalWithNotMatchingPredicateData() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      // fire signal the signal acceptor will *not* be waiting for
+      ProcessInstance pi1 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
+      aiStateChangeBarrier.awaitForId(pi1.getOID(), "StartActivity");
+      wfs.setOutDataPath(pi1.getOID(), "Data_1Path", "Klaus");
+      wfs.setOutDataPath(pi1.getOID(), "Data_2Path", "Paul");
+      ActivityInstance ai1 = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi1.getOID(), "StartActivity"));
+      wfs.activateAndComplete(ai1.getOID(), null, null);
+      piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
+
+      // wait until signal has been persisted
+      SignalMessageBeanTrigger.countDownLatch().await();
+
+      // start signal acceptor process and initialize with predicate data
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put("PredicateData_1", "Klaus");
+      data.put("PredicateData_2", "Horst");
+      ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}SignalWithPredicateData", data, true);
+
+      // signal hasn't been accepted
+      try
+      {
+         piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
+         fail();
+      }
+      catch (final TimeoutException e) { /* expected */ }
+   }
+
    private void sendSignalEvent(final String signalName) throws JMSException
    {
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());
@@ -264,5 +375,67 @@ public class SignalEventTest
       assertThat(sf.getWorkflowService().getProcessInstance(piOid).getProcessID(), equalTo(processId));
 
       return piOid;
+   }
+
+   private static void initSignalMessageTrigger() throws SQLException
+   {
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = testClassSetup.dataSource().getConnection();
+         stmt = connection.createStatement();
+         stmt.execute("CREATE TRIGGER signal_message_trigger AFTER INSERT ON signal_message CALL \"org.eclipse.stardust.test.events.SignalEventTest$SignalMessageBeanTrigger\"");
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+   }
+
+   public static final class SignalMessageBeanTrigger implements Trigger
+   {
+      public static CountDownLatch COUNT_DOWN_LATCH;
+
+      public static void initLatch()
+      {
+         COUNT_DOWN_LATCH = new CountDownLatch(1);
+      }
+
+      public static CountDownLatch countDownLatch()
+      {
+         return COUNT_DOWN_LATCH;
+      }
+
+      @Override
+      public void fire(Connection conn, Object[] oldRow, Object[] newRow)
+      {
+         COUNT_DOWN_LATCH.countDown();
+      }
+
+      @Override
+      public void init(Connection conn, String schemaName, String triggerName, String tableName, boolean before, int type)
+      {
+         /* nothing to do */
+      }
+
+      @Override
+      public void close()
+      {
+         /* nothing to do */
+      }
+
+      @Override
+      public void remove()
+      {
+         /* nothing to do */
+      }
    }
 }

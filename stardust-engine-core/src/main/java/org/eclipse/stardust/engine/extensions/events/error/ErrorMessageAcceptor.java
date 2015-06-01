@@ -146,6 +146,12 @@ public class ErrorMessageAcceptor implements MessageAcceptor, Stateless
       return Collections.emptyList();
    }
 
+   @Override
+   public List<Match> getMessageStoreMatches(Message message)
+   {
+      return Collections.emptyList();
+   }
+
    private class ErrorMessageMatch implements Match
    {
       private final MessageAcceptor acceptor;

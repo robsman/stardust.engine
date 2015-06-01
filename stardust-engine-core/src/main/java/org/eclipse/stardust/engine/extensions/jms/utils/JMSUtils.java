@@ -10,9 +10,25 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.jms.utils;
 
-import java.util.*;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
-import javax.jms.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
+
+import org.eclipse.stardust.common.error.PublicException;
 
 /**
  *
@@ -134,5 +150,49 @@ public class JMSUtils
       }
 
       return map;
+   }
+
+   public static Map<String, Object> toMap(final MapMessage msg)
+   {
+      final Map<String, Object> result = newHashMap();
+
+      try
+      {
+         @SuppressWarnings("unchecked")
+         final Enumeration<String> mapNames = msg.getMapNames();
+         while (mapNames.hasMoreElements())
+         {
+            final String name = mapNames.nextElement();
+            result.put(name, msg.getObject(name));
+         }
+      }
+      catch (final JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e.getMessage(), e);
+      }
+
+      return result;
+   }
+
+   public static MapMessage toMapMessage(final Map<String, Object> map, final Session session)
+   {
+      final MapMessage result;
+
+      try
+      {
+         result = session.createMapMessage();
+         for (final Entry<String, Object> e : map.entrySet())
+         {
+            result.setObject(e.getKey(), e.getValue());
+         }
+      }
+      catch (final JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e.getMessage(), e);
+      }
+
+      return result;
    }
 }

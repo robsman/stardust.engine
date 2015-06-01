@@ -46,6 +46,8 @@ public interface MessageAcceptor
 
    List<Match> getTriggerMatches(Message message);
 
+   List<Match> getMessageStoreMatches(Message message);
+
    /**
     * Extracts the data
     *

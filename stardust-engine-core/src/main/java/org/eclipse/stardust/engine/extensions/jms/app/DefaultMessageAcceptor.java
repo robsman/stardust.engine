@@ -259,4 +259,10 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
    {
       return Collections.emptyList();
    }
+
+   @Override
+   public List<Match> getMessageStoreMatches(Message message)
+   {
+      return Collections.emptyList();
+   }
 }

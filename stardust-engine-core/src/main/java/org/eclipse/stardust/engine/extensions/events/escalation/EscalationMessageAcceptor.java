@@ -152,6 +152,12 @@ public class EscalationMessageAcceptor implements MessageAcceptor, Stateless
       return Collections.emptyList();
    }
 
+   @Override
+   public List<Match> getMessageStoreMatches(Message message)
+   {
+      return Collections.emptyList();
+   }
+
    private class EscalationMessageMatch implements Match
    {
       private final MessageAcceptor acceptor;

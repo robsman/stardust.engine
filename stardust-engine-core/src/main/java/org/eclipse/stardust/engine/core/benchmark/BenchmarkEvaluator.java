@@ -13,12 +13,8 @@ package org.eclipse.stardust.engine.core.benchmark;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
@@ -26,7 +22,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
  *
@@ -38,7 +33,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private static final Logger trace = LogManager.getLogger(BenchmarkEvaluator.class);
 
-   private static final int BENCHMARKK_FAULT_VALUE = -1;   
+   private static final int BENCHMARKK_FAULT_VALUE = -1;
 
    private BenchmarkDefinition benchmark;
 
@@ -82,47 +77,90 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       {
          TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark
                .getActivityConditions(bean.getActivity().getId());
+
+         if (activityConditions == null)
+         {
+            // evaluate only global scope;
+
+            TreeMap<Integer, ConditionEvaluator> globalActivityConditions = benchmark.getGlobalActivityConditions();
+            ArrayList<Integer> globalColumns = new ArrayList<Integer>(globalActivityConditions.keySet());
+
+            Collections.reverse(globalColumns);
+
+            for (Integer column: globalColumns)
+            {
+            // if no evaluator is present, default to global scope.
+               ConditionEvaluator globalEvaluator = benchmark.getGlobalActivityConditions().get(column);
+               if (globalEvaluator instanceof NoBenchmarkCondition
+                     || globalEvaluator == null)
+               {
+                  // no global condition set, continue evaluation with next column.
+                  continue;
+               }
+               else
+               {
+                  Boolean result = globalEvaluator.evaluate(bean);
+                  if (result != null && result)
+                  {
+                     return column;
+                  }
+               }
+            }
+         }
+
          ArrayList<Integer> columns = new ArrayList<Integer>(activityConditions.keySet());
 
          Collections.reverse(columns);
 
          for (Integer column : columns)
          {
-            ConditionEvaluator eval = activityConditions.get(column);
+            ConditionEvaluator evaluator = activityConditions.get(column);
 
-            Boolean result = eval.evaluate(bean);
-
-            if (result == null)
+            if (evaluator instanceof NoBenchmarkCondition)
             {
-               ConditionEvaluator globalEvaluator = benchmark
-                     .getGlobalActivityConditions().get(column);
-               if (globalEvaluator == null)
+               // no condition set, continue evaluation with next column.
+               continue;
+            }
+            else if (evaluator instanceof DefaultCondition || evaluator == null)
+            {
+               // if no evaluator is present, default to global scope.
+               ConditionEvaluator globalEvaluator = benchmark.getGlobalActivityConditions().get(column);
+
+               if (globalEvaluator instanceof NoBenchmarkCondition
+                     || globalEvaluator == null)
                {
                   // no global condition set, continue evaluation with next column.
-                  result = false;
+                  continue;
                }
                else
                {
-                  result = globalEvaluator.evaluate(bean);
-                  if (result)
+                  Boolean result = globalEvaluator.evaluate(bean);
+                  if (result != null && result)
                   {
                      return column;
                   }
                }
             }
-            else if (result)
+            else
             {
-               return column;
+               Boolean result = evaluator.evaluate(bean);
+               if (result != null && result)
+               {
+                  return column;
+               }
             }
          }
+         // no benchmark result everything was false.
          return 0;
       }
       catch (Exception e)
       {
-         AuditTrailLogger.getInstance(LogCode.ENGINE)
-         .warn(MessageFormat.format(
-               "Failed to evaluate benchmark for activity instance {0}, benchmark value has been set to invalid (-1).",
-               bean.getOID(), e));
+         AuditTrailLogger
+               .getInstance(LogCode.ENGINE)
+               .warn(MessageFormat
+                     .format(
+                           "Failed to evaluate benchmark for activity instance {0}, benchmark value has been set to invalid (-1).",
+                           bean.getOID(), e));
          return BENCHMARKK_FAULT_VALUE;
       }
    }
@@ -133,52 +171,90 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       {
          TreeMap<Integer, ConditionEvaluator> processConditions = benchmark
                .getActivityConditions(bean.getProcessDefinition().getId());
+
+         if (processConditions == null)
+         {
+            // evaluate only global scope;
+
+            TreeMap<Integer, ConditionEvaluator> globalProcessConditions = benchmark.getGlobalProcessConditions();
+            ArrayList<Integer> globalColumns = new ArrayList<Integer>(globalProcessConditions.keySet());
+
+            for (Integer column: globalColumns)
+            {
+            // if no evaluator is present, default to global scope.
+               ConditionEvaluator globalEvaluator = benchmark.getGlobalProcessConditions().get(column);
+               if (globalEvaluator instanceof NoBenchmarkCondition
+                     || globalEvaluator == null)
+               {
+                  // no global condition set, continue evaluation with next column.
+                  continue;
+               }
+               else
+               {
+                  Boolean result = globalEvaluator.evaluate(bean);
+                  if (result != null && result)
+                  {
+                     return column;
+                  }
+               }
+            }
+         }
+
          ArrayList<Integer> columns = new ArrayList<Integer>(processConditions.keySet());
 
          Collections.reverse(columns);
 
          for (Integer column : columns)
          {
-            ConditionEvaluator eval = processConditions.get(column);
+            ConditionEvaluator evaluator = processConditions.get(column);
 
-            Boolean result = eval.evaluate(bean);
-
-            if (result == null)
+            if (evaluator instanceof NoBenchmarkCondition)
             {
-               ConditionEvaluator globalEvaluator = benchmark
-                     .getGlobalProcessConditions().get(column);
+               // no condition set, continue evaluation with next column.
+               continue;
+            }
+            else if (evaluator instanceof DefaultCondition || evaluator == null)
+            {
+               // if no evaluator is present, default to global scope.
+               ConditionEvaluator globalEvaluator = benchmark.getGlobalProcessConditions().get(column);
 
-               if (globalEvaluator == null)
+               if (globalEvaluator instanceof NoBenchmarkCondition
+                     || globalEvaluator == null)
                {
                   // no global condition set, continue evaluation with next column.
-                  result = false;
+                  continue;
                }
                else
                {
-                  result = globalEvaluator.evaluate(bean);
-                  if (result)
+                  Boolean result = globalEvaluator.evaluate(bean);
+                  if (result != null && result)
                   {
                      return column;
                   }
                }
             }
-            else if (result)
+            else
             {
-               return column;
+               Boolean result = evaluator.evaluate(bean);
+               if (result != null && result)
+               {
+                  return column;
+               }
             }
          }
+         // no benchmark result everything was false.
          return 0;
       }
       catch (Exception e)
       {
-         AuditTrailLogger.getInstance(LogCode.ENGINE)
-         .warn(MessageFormat.format(
-               "Failed to evaluate benchmark for process instance {0}, benchmark has been set to invalid (-1).",
-               bean.getOID(), e));
+         AuditTrailLogger
+               .getInstance(LogCode.ENGINE)
+               .warn(MessageFormat
+                     .format(
+                           "Failed to evaluate benchmark for process instance {0}, benchmark has been set to invalid (-1).",
+                           bean.getOID(), e));
          return BENCHMARKK_FAULT_VALUE;
       }
    }
-
-
 
 }

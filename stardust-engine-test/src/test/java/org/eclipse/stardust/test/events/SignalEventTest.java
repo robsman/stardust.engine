@@ -402,7 +402,7 @@ public class SignalEventTest
 
    public static final class SignalMessageBeanTrigger implements Trigger
    {
-      public static CountDownLatch COUNT_DOWN_LATCH;
+      public static volatile CountDownLatch COUNT_DOWN_LATCH;
 
       public static void initLatch()
       {

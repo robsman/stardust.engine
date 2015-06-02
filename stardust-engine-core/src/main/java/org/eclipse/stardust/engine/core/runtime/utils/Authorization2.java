@@ -104,7 +104,7 @@ public class Authorization2
                   {
                      permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
-                     TransitionTarget target = (TransitionTarget) args[1];
+                     TransitionTarget target = (TransitionTarget) args[args.length - 2];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation
                      {
                         ExecutionPlan plan = new ExecutionPlan(target);

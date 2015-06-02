@@ -249,9 +249,23 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    }
 
    @Override
-   public List<Match> getMessageStoreMatches(Message message)
+   public List<Match> getMessageStoreMatches(final Message message)
    {
-      return Collections.<Match>singletonList(new MessageStoreMatch());
+      return processMessage(new MessageProcessor<List<Match>>()
+      {
+         @Override
+         public List<Match> process() throws JMSException
+         {
+            if (message.propertyExists(BPMN_SIGNAL_PROPERTY_KEY))
+            {
+               return Collections.<Match>singletonList(new MessageStoreMatch());
+            }
+            else
+            {
+               return Collections.emptyList();
+            }
+         }
+      });
    }
 
    /* package-private */ boolean matchPredicateData(IActivityInstance ai, String signalName, Message message)

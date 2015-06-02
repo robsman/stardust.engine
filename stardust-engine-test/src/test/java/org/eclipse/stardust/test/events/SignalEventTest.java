@@ -293,7 +293,7 @@ public class SignalEventTest
       piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
 
       // wait until signal has been persisted
-      SignalMessageBeanTrigger.countDownLatch().await(10, TimeUnit.SECONDS);
+      waitUntilSignalMessageHasBeenWrittenToDb();
 
       // start signal acceptor process and initialize with predicate data
       final Map<String, Object> data = CollectionUtils.newHashMap();
@@ -327,7 +327,7 @@ public class SignalEventTest
       piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
 
       // wait until signal has been persisted
-      SignalMessageBeanTrigger.countDownLatch().await(10, TimeUnit.SECONDS);
+      waitUntilSignalMessageHasBeenWrittenToDb();
 
       // start signal acceptor process and initialize with predicate data
       final Map<String, Object> data = CollectionUtils.newHashMap();
@@ -380,13 +380,31 @@ public class SignalEventTest
 
    private static void initSignalMessageTrigger() throws SQLException
    {
+      executeSqlStatement("CREATE TRIGGER signal_message_trigger AFTER INSERT ON signal_message CALL \"org.eclipse.stardust.test.events.SignalEventTest$SignalMessageBeanTrigger\"");
+   }
+
+   private static void waitUntilSignalMessageHasBeenWrittenToDb() throws SQLException, InterruptedException, TimeoutException
+   {
+      /* row has been inserted ... */
+      boolean success = SignalMessageBeanTrigger.countDownLatch().await(10, TimeUnit.SECONDS);
+      if ( !success)
+      {
+         throw new TimeoutException("Signal Message still hasn't been written to DB.");
+      }
+
+      /* ... now we need to wait for the tx to be committed (thread calling the trigger does no have a tx attached) */
+      executeSqlStatement("SELECT * FROM signal_message FOR UPDATE");
+   }
+
+   private static void executeSqlStatement(String sqlStmt) throws SQLException
+   {
       Connection connection = null;
       Statement stmt = null;
       try
       {
          connection = testClassSetup.dataSource().getConnection();
          stmt = connection.createStatement();
-         stmt.execute("CREATE TRIGGER signal_message_trigger AFTER INSERT ON signal_message CALL \"org.eclipse.stardust.test.events.SignalEventTest$SignalMessageBeanTrigger\"");
+         stmt.execute(sqlStmt);
       }
       finally
       {

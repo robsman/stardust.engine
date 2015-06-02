@@ -392,6 +392,7 @@
                                  <carnot:EventAction Oid="1001" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
                                     <carnot:Attributes>
                                        <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -444,6 +445,7 @@
                                  <carnot:EventAction Oid="1003" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
                                     <carnot:Attributes>
                                        <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -951,6 +953,7 @@
                                  <carnot:EventAction Oid="1005" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
                                     <carnot:Attributes>
                                        <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -1141,6 +1144,7 @@
                                  <carnot:EventAction Oid="1007" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
                                     <carnot:Attributes>
                                        <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -1445,6 +1449,157 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="970" SourceSymbol="969" TargetSymbol="967" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="985" ModelElement="Transition1" SourceSymbol="967" TargetSymbol="983" SourceAnchor="center" TargetAnchor="top"/>
                                  <carnot:Connection Kind="EXECUTED_BY" Oid="988" SourceSymbol="987" TargetSymbol="983"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="SignalAcceptorIgnoringPastSignals" Name="Signal Acceptor Ignoring Past Signals" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="StartActivity" Name="Start Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1841">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SignalAcceptorActivity" Name="Signal Acceptor Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1843" IsHibernatedOnCreation="true">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="2000" Id="Signal1" Name="Signal1" Type="signal">
+                              <carnot:EventActions/>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                           <carnot:EventHandler Oid="2001" Id="OnHibernation" Name="On Hibernation" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="2002" Id="CheckMessageStore" Name="Check Message Store" Type="checkMessageStore" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="0" Type="long"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="7" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="EndActivity" Name="End Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1845">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="StartActivity" To="SignalAcceptorActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="1847"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="SignalAcceptorActivity" To="EndActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="1849"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="1840">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="1839" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="1838" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="1842" X="295" Y="100" Width="181" Height="51" ModelElement="StartActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="1844" X="295" Y="200" Width="181" Height="51" ModelElement="SignalAcceptorActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="1846" X="295" Y="305" Width="181" Height="51" ModelElement="EndActivity"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1848" ModelElement="Transition1" SourceSymbol="1842" TargetSymbol="1844" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1850" ModelElement="Transition2" SourceSymbol="1844" TargetSymbol="1846" SourceAnchor="center" TargetAnchor="center"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

@@ -91,8 +91,6 @@ public class SignalEventTest
    public void init()
    {
       Parameters.instance().set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
-
-      SignalMessageBeanTrigger.initLatch();
    }
 
    @Test
@@ -284,6 +282,7 @@ public class SignalEventTest
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
 
       // fire signal the signal acceptor will be waiting for
+      SignalMessageBeanTrigger.initLatch();
       ProcessInstance pi1 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
       aiStateChangeBarrier.awaitForId(pi1.getOID(), "StartActivity");
       wfs.setOutDataPath(pi1.getOID(), "Data_1Path", "Klaus");
@@ -318,6 +317,7 @@ public class SignalEventTest
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
 
       // fire signal the signal acceptor will *not* be waiting for
+      SignalMessageBeanTrigger.initLatch();
       ProcessInstance pi1 = wfs.startProcess("{SignalEventsTestModel}SendSignal", null, true);
       aiStateChangeBarrier.awaitForId(pi1.getOID(), "StartActivity");
       wfs.setOutDataPath(pi1.getOID(), "Data_1Path", "Klaus");
@@ -344,8 +344,34 @@ public class SignalEventTest
       catch (final TimeoutException e) { /* expected */ }
    }
 
-   private void sendSignalEvent(final String signalName) throws JMSException
+   @Test
+   public void testPastSignalMayBeIgnored() throws Exception
    {
+      // fire signal 'Signal1'
+      sendSignalEvent("Signal1");
+
+      // start process waiting for signal
+      ProcessInstance pi = sf.getWorkflowService().startProcess("{SignalEventsTestModel}SignalAcceptorIgnoringPastSignals", null, true);
+
+      // past signal hasn't been accepted
+      try
+      {
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+         fail();
+      }
+      catch (final TimeoutException e) { /* expected */ }
+
+      // fire signal 'Signal1'
+      sendSignalEvent("Signal1");
+
+      // fresh signal has been accepted
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+   }
+
+   private void sendSignalEvent(final String signalName) throws JMSException, TimeoutException, InterruptedException, SQLException
+   {
+      SignalMessageBeanTrigger.initLatch();
+
       JmsTemplate jmsTemplate = new JmsTemplate(testClassSetup.queueConnectionFactory());
 
       jmsTemplate.send(testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY), new MessageCreator()
@@ -358,6 +384,8 @@ public class SignalEventTest
                return message;
             }
          });
+
+      waitUntilSignalMessageHasBeenWrittenToDb();
    }
 
    private long receiveProcessInstanceCompletedMessage(String processId) throws JMSException
@@ -436,7 +464,10 @@ public class SignalEventTest
       @Override
       public void fire(Connection conn, Object[] oldRow, Object[] newRow)
       {
-         COUNT_DOWN_LATCH.countDown();
+         if (COUNT_DOWN_LATCH != null)
+         {
+            COUNT_DOWN_LATCH.countDown();
+         }
       }
 
       @Override

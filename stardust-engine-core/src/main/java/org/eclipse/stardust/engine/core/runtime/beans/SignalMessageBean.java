@@ -11,11 +11,13 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.greaterOrEqual;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
 import static org.eclipse.stardust.engine.core.persistence.QueryExtension.where;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -35,6 +37,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.extensions.events.signal.SignalMessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.utils.JMSUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * <p>
@@ -59,11 +62,13 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    /* package-private */ static final String FIELD__PARTITION_OID = "partitionOid";
    /* package-private */ static final String FIELD__SIGNAL_NAME = "signalName";
    /* package-private */ static final String FIELD__MESSAGE_CONTENT = "messageContent";
+   /* package-private */ static final String FIELD__TIMESTAMP = "timestamp";
 
    /* package-private */ static final FieldRef FR__OID = new FieldRef(SignalMessageBean.class, FIELD__OID);
    /* package-private */ static final FieldRef FR__PARTITION_OID = new FieldRef(SignalMessageBean.class, FIELD__PARTITION_OID);
    /* package-private */ static final FieldRef FR__SIGNAL_NAME = new FieldRef(SignalMessageBean.class, FIELD__SIGNAL_NAME);
    /* package-private */ static final FieldRef FR__MESSAGE_CONTENT = new FieldRef(SignalMessageBean.class, FIELD__MESSAGE_CONTENT);
+   /* package-private */ static final FieldRef FR__TIMESTAMP = new FieldRef(SignalMessageBean.class, FIELD__TIMESTAMP);
 
    /* package-private */ static final String PK_FIELD = FIELD__OID;
    /* package-private */ static final String PK_SEQUENCE = "signal_message_seq";
@@ -84,6 +89,8 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    /* package-private */ static final int message_COLUMN_LENGTH = Integer.MAX_VALUE;
    private String messageContent;
 
+   private Date timestamp;
+
 
    public SignalMessageBean()
    {
@@ -95,6 +102,7 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
       this.partitionOid = partitionOid;
       this.signalName = getSignalNameFrom(message);
       this.messageContent = serialize(message);
+      this.timestamp = TimestampProviderUtils.getTimeStamp();
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
@@ -108,6 +116,14 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    }
 
    @Override
+   public String getSignalName()
+   {
+      fetch();
+
+      return signalName;
+   }
+
+   @Override
    public MapMessage getMessage()
    {
       fetch();
@@ -115,6 +131,14 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
       final MapMessage result = deserialize(messageContent);
       setSignalNameOn(result);
       return result;
+   }
+
+   @Override
+   public Date getTimestamp()
+   {
+      fetch();
+
+      return timestamp;
    }
 
    /* (non-Javadoc)
@@ -125,10 +149,11 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("Message Store Message { ");
+      sb.append("Signal Message { ");
       sb.append("OID = ").append(getOID()).append(", ");
       sb.append("partition OID = ").append(getOID()).append(", ");
-      sb.append("signal name = ").append(getSignalName());
+      sb.append("signal name = ").append(getSignalName()).append(", ");
+      sb.append("timestamp = ").append(getTimestamp());
       sb.append(" }");
 
       return sb.toString();
@@ -147,20 +172,14 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    /**
     * @param partitionOid the partition criterion
     * @param signalName the signal name criterion
+    * @param validFrom the timestamp criterion: signal message must have been fired after (or at) the given point in time
     *
     * @return an iterator containing all {@code SignalMessageBean}s satisfying the given criteria
     */
-   public static Iterator<SignalMessageBean> findFor(final long partitionOid, final String signalName)
+   public static Iterator<SignalMessageBean> findFor(final long partitionOid, final String signalName, final Date validFrom)
    {
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(SignalMessageBean.class,
-            where(andTerm(isEqual(FR__PARTITION_OID, partitionOid), isEqual(FR__SIGNAL_NAME, signalName))));
-   }
-
-   private String getSignalName()
-   {
-      fetch();
-
-      return signalName;
+            where(andTerm(isEqual(FR__PARTITION_OID, partitionOid), isEqual(FR__SIGNAL_NAME, signalName), greaterOrEqual(FR__TIMESTAMP, validFrom.getTime()))));
    }
 
    private String getSignalNameFrom(final MapMessage msg)

@@ -73,6 +73,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    private static final String CACHED_SIGNAL_EVENTS = SignalMessageAcceptor.class.getName() + ".SignalEvents";
 
    public static final String BPMN_SIGNAL_CODE = "carnot:engine:signalCode";
+   public static final String FIRED_SIGNAL_VALIDITY_DURATION = "carnot:engine:signalCode:firedSignalValidityDuration";
 
    public static final String BPMN_SIGNAL_PROPERTY_KEY = "stardust.bpmn.signal";
 

@@ -10,6 +10,8 @@
  ***********************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.util.Date;
+
 import javax.jms.MapMessage;
 
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
@@ -25,5 +27,9 @@ public interface ISignalMessage extends IdentifiablePersistent
 {
    public long getPartitionOid();
 
+   public String getSignalName();
+
    public MapMessage getMessage();
+
+   public Date getTimestamp();
 }

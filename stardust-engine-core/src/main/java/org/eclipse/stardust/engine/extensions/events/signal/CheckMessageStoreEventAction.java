@@ -10,6 +10,7 @@
  ***********************************************************************************/
 package org.eclipse.stardust.engine.extensions.events.signal;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * <p>
@@ -37,6 +39,8 @@ public class CheckMessageStoreEventAction implements EventActionInstance
 {
    private String signalName;
 
+   private Long firedSignalValidityDuration;
+
    private long partitionOid;
 
    @Override
@@ -45,15 +49,26 @@ public class CheckMessageStoreEventAction implements EventActionInstance
       final Object signalCode = actionAttributes.get(SignalMessageAcceptor.BPMN_SIGNAL_CODE);
       this.signalName = (signalCode != null) ? signalCode.toString() : "";
 
+      final Object firedSignalValidityDuration = actionAttributes.get(SignalMessageAcceptor.FIRED_SIGNAL_VALIDITY_DURATION);
+      this.firedSignalValidityDuration = (firedSignalValidityDuration != null) ? (Long) firedSignalValidityDuration : null;
+
       this.partitionOid = SecurityProperties.getPartitionOid();
    }
 
    @Override
    public Event execute(final Event event)
    {
+      if (firedSignalValidityDuration == null || firedSignalValidityDuration.longValue() <= 0)
+      {
+         return null;
+      }
+
       final ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
 
-      final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName);
+      final Date now = TimestampProviderUtils.getTimeStamp();
+      final Date validFrom = new Date(now.getTime() - firedSignalValidityDuration.longValue() * 1000);
+
+      final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
       final SignalMessageAcceptor signalMsgAcceptor = new SignalMessageAcceptor();
       while (messageStoreIter.hasNext())
       {

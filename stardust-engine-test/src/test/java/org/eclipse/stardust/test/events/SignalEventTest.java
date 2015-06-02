@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.jms.JMSException;
@@ -292,7 +293,7 @@ public class SignalEventTest
       piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
 
       // wait until signal has been persisted
-      SignalMessageBeanTrigger.countDownLatch().await();
+      SignalMessageBeanTrigger.countDownLatch().await(10, TimeUnit.SECONDS);
 
       // start signal acceptor process and initialize with predicate data
       final Map<String, Object> data = CollectionUtils.newHashMap();
@@ -326,7 +327,7 @@ public class SignalEventTest
       piStateChangeBarrier.await(pi1.getOID(), ProcessInstanceState.Completed);
 
       // wait until signal has been persisted
-      SignalMessageBeanTrigger.countDownLatch().await();
+      SignalMessageBeanTrigger.countDownLatch().await(10, TimeUnit.SECONDS);
 
       // start signal acceptor process and initialize with predicate data
       final Map<String, Object> data = CollectionUtils.newHashMap();

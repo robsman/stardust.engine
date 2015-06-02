@@ -1683,9 +1683,10 @@ public interface WorkflowService extends Service
     * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
     * @return the activity instance from which the transition was performed.
     * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
-    *         did not originate from the specified activity instance, or the activity instance was already terminated
-    *         or the process instance containing the activity instance has more than one active activity instance.
-    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
+    *         did not originate from the specified activity instance, or the process instance containing the activity
+    *         instance has more than one active activity instance.
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition, or the
+    *         activity instance was already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     * @deprecated replaced with {@link #performAdHocTransition(TransitionTarget, boolean)}
     */
@@ -1704,9 +1705,10 @@ public interface WorkflowService extends Service
     * @return a pair of activity instances, where the first is the activity instance from which the transition was performed
     *         and the second is the activity instance that was created for the target activity.
     * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
-    *         did not originate from the specified activity instance, or the activity instance was already terminated
-    *         or the process instance containing the activity instance has more than one active activity instance.
-    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
+    *         did not originate from the specified activity instance, or the process instance containing the activity
+    *         instance has more than one active activity instance.
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition, or the
+    *         activity instance was already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
    @ExecutionPermission(
@@ -1731,7 +1733,8 @@ public interface WorkflowService extends Service
     *
     * @return the current user.
     */
-   // no permission check here
+   // This method explicitly doesn't have any execution permissions,
+   // since anyone is allowed to ask for his own permissions.
    User getUser();
 
    /**
@@ -1739,12 +1742,8 @@ public interface WorkflowService extends Service
     *
     * @return a list of permission ids.
     */
-   /*@ExecutionPermission(
-         id="readModelData",
-         scope=ExecutionPermission.Scope.model,
-         changeable=false,
-         defaults={ExecutionPermission.Default.ALL})*/
-   // no permission check here
+   // This method explicitly doesn't have any execution permissions,
+   // since anyone is allowed to ask for his own permissions.
    List<Permission> getPermissions();
 
    /**
@@ -1817,6 +1816,8 @@ public interface WorkflowService extends Service
     * @return the result of the execution. May be <code>null</code> if the command has no result.
     * @throws ServiceCommandException that encapsulates any exception thrown during the execution of the command.
     */
+   // This method explicitly doesn't have any execution permissions, since they are inherited from the specific services
+   // exposed by the service factory passed to the ServiceCommand.execute method.
    Serializable execute(ServiceCommand serviceCmd) throws ServiceCommandException;
 
    /**

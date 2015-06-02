@@ -237,8 +237,7 @@ public interface AdministrationService extends Service
     * @throws IllegalOperationException Raised if non-root or non-terminated process
     *    instances are to be deleted.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
-         changeable=false)
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
    void deleteProcesses(List<Long> piOids) throws IllegalOperationException;
 
    /**
@@ -486,8 +485,7 @@ public interface AdministrationService extends Service
     * @throws ObjectNotFoundException if there is no process with the specified ID in the
     *         specified model or if the model does not exist.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
-         changeable=false)
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
    ProcessInstance startProcess(long modelOID, String id, Map<String, ?> data, boolean synchronously)
       throws ObjectNotFoundException;
 

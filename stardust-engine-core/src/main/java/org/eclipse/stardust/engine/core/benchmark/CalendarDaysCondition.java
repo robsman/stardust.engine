@@ -10,19 +10,28 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
-public class DateCondition implements ConditionEvaluator
+/**
+ * Condition evaluator for calendar days.
+ *
+ * @author Roland.Stamm
+ */
+public class CalendarDaysCondition implements ConditionEvaluator
 {
    protected String qualifiedDataId;
 
    protected Comperator comperator;
 
-   public DateCondition(Comperator comperator, String qualifiedDataId)
+   protected Offset offset;
+
+   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId, Offset offset)
    {
       this.comperator = comperator;
       this.qualifiedDataId = qualifiedDataId;
@@ -41,7 +50,6 @@ public class DateCondition implements ConditionEvaluator
       {
          date = null;
       }
-
 
       if (date == null)
       {
@@ -73,22 +81,50 @@ public class DateCondition implements ConditionEvaluator
 
    private Date getDateDateValue(ProcessInstanceBean pi, String qualifiedDataId)
    {
-        return (Date) pi.getDataValue(qualifiedDataId);
+      return (Date) pi.getDataValue(qualifiedDataId);
    }
 
    private boolean evaluate(Date date)
    {
+      Date offsetDate = applyOffset(date, offset);
+
       boolean result = false;
-      Date currentTime = new Date();
+      Date currentTime = TimestampProviderUtils.getTimeStamp();
       if (Comperator.LATER_THAN.equals(comperator))
       {
-         result = currentTime.after(date);
+         result = currentTime.after(offsetDate);
       }
       else if (Comperator.NOT_LATER_THAN.equals(comperator))
       {
-         result = currentTime.before(date);
+         result = currentTime.before(offsetDate);
       }
       return result;
+   }
+
+   protected Date applyOffset(Date date, Offset offset)
+   {
+      if (offset != null)
+      {
+         Calendar calendar = Calendar.getInstance();
+
+         calendar.setTime(date);
+
+         switch (offset.getUnit())
+         {
+            case DAYS:
+               calendar.add(Calendar.DAY_OF_YEAR, offset.getAmount());
+               break;
+            case WEEKS:
+               calendar.add(Calendar.WEEK_OF_YEAR, offset.getAmount());
+               break;
+            case MONTHS:
+               calendar.add(Calendar.MONTH, offset.getAmount());
+               break;
+         }
+
+         return calendar.getTime();
+      }
+      return date;
    }
 
    public enum Comperator

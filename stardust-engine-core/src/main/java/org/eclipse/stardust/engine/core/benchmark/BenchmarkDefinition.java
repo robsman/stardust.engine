@@ -54,11 +54,12 @@ public class BenchmarkDefinition
 
 
       // Test Constants
+      /*
       this.globalProcessConditions.put(1,
             new FreeFormCondition(new String(ra.getContent())));
-//      this.globalProcessConditions
-//      .put(2,
-//            new DefaultCondition());
+      this.globalProcessConditions
+      .put(2,
+            new DefaultCondition());
 
       this.globalActivityConditions.put(3,
             new FreeFormCondition(new String(ra.getContent())));
@@ -85,6 +86,7 @@ public class BenchmarkDefinition
       uiProperties.put("UI_Color", "#333333");
       uiProperties.put("UI_Label", "critical");
       this.properties.put(4,uiProperties);
+      */
    }
 
    public long getOid()

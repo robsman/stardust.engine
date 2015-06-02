@@ -6,25 +6,29 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.*;
-import java.util.Date;
+import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.monitoring.ActivityInstanceStateChangeMonitor;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
-import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
-import org.eclipse.stardust.test.api.setup.*;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
@@ -58,82 +62,29 @@ public class BenchmarksTest
 
    private StartOptions startOptions_withoutBenchmark;
 
-   private static final String BENCHMARK_TEST_REF = "bench1.benchmark";
-
    private static final String BENCHMARK_PROCESS = "BenchmarkedProcess";
 
    private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
-
-   private static final String BENCHMARK_ARTIFACT_TYPE_ID = BenchmarkDefinitionArtifactType.TYPE_ID;
-
-   private static final String ARTIFACT_ID = "bench1.benchmark";
-
-   private static final String ARTIFACT_NAME = "Benchmark One";
-
-   private static final String ARTIFACT_CONTENT = "true;";
+   
+   private static final String BENCHMARK_REF = "example.benchmark";
 
    @Before
    public void setup()
    {
-      deployCalendar("timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json");
-      serviceFactory.getAdministrationService().deployRuntimeArtifact(
-            getRuntimeArtifact(ARTIFACT_ID));
+      BenchmarkTestUtils.deployCalendar("timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json", serviceFactory);
 
-      startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_TEST_REF);
+      BenchmarkTestUtils.deployBenchmark("example.benchmark", serviceFactory);
+      
+      startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
-   }
-
-   private void deployCalendar(String calendarName)
-   {
-      DocumentManagementService dms = serviceFactory.getDocumentManagementService();
-
-      final String parentFolder = "/business-calendars/timeOffCalendar";
-
-      if (dms.getFolder(parentFolder) != null)
-      {
-         return;
-      }
-
-      final String calendarFilePath = "binaryFiles/" + calendarName;
-      final InputStream is = RtEnvHome.class.getClassLoader().getResourceAsStream(
-            calendarFilePath);
-      BufferedReader br = new BufferedReader(new InputStreamReader(is));
-      StringBuilder sb = new StringBuilder();
-      String read;
-      try
-      {
-         read = br.readLine();
-         while (read != null)
-         {
-            sb.append(read);
-            read = br.readLine();
-         }
-      }
-      catch (IOException e)
-      {
-         Assert.fail(e.getMessage());
-      }
-
-      DocumentInfo document = DmsUtils.createDocumentInfo(calendarName);
-      byte[] content = sb.toString().getBytes();
-
-      DmsUtils.ensureFolderHierarchyExists(parentFolder, dms);
-
-      Document calDoc = dms.createDocument(parentFolder, document, content, null);
-
-      byte[] checkContent = dms.retrieveDocumentContent(calDoc.getId());
-      Assert.assertNotNull(checkContent);
-      Assert.assertNotEquals(0, checkContent.length);
    }
 
    @Test
    public void startProcessInstanceWithBenchmarkTest()
    {
-
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
-
-      
+  
       assertTrue(0 < pi.getBenchmark());
       assertTrue(0 == pi.getBenchmarkResult().getCategory());
 
@@ -151,6 +102,9 @@ public class BenchmarksTest
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
+      
+      // Check if properties are available
+      assertEquals(instance.getBenchmarkResult().getProperties().get("name"), "Late");
    }
 
    @Test
@@ -204,6 +158,7 @@ public class BenchmarksTest
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
    }
+   
 
    @Test
    public void startSubProcessInstanceWithBenchmarkTest()
@@ -253,12 +208,6 @@ public class BenchmarksTest
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
 
-   }
-
-   private RuntimeArtifact getRuntimeArtifact(String artifactId)
-   {
-      return new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID, artifactId, ARTIFACT_NAME,
-            ARTIFACT_CONTENT.getBytes(), new Date(1));
    }
 
 }

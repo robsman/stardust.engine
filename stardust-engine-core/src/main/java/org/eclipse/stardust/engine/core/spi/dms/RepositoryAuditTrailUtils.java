@@ -209,13 +209,13 @@ public class RepositoryAuditTrailUtils
       return sb.toString();
    }
 
-   private static Map deserialize(String stringValue) throws IOException,
+   public static Map deserialize(String stringValue) throws IOException,
          ClassNotFoundException
    {
       return new Gson().fromJson(stringValue, StringMap.class).toMap();
    }
 
-   private static String serialize(Map map) throws IOException
+   public static String serialize(Map map) throws IOException
    {
       return new Gson().toJson(new StringMap(map));
    }

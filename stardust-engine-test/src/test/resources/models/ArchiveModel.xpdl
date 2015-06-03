@@ -28,6 +28,36 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="DataStructure2" Name="DataStructure2">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="947bbecb-2dfd-43e4-887a-06986f9849b1"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat2="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure2" targetNamespace="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure2">
+               <xsd:complexType name="DataStructure2">
+                  <xsd:sequence>
+                     <xsd:element name="a" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="DataStructure2" type="dat2:DataStructure2"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="DataStructure3" Name="DataStructure3">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="8c24077a-e8f1-46be-97b7-860b75ef1398"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat3="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure3" targetNamespace="http://www.infinity.com/bpm/model/ArchiveModel/DataStructure3">
+               <xsd:complexType name="DataStructure3">
+                  <xsd:sequence>
+                     <xsd:element name="b" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="DataStructure3" type="dat3:DataStructure3"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
    </TypeDeclarations>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -304,6 +334,72 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="PROCESS_ATTACHMENTS" Name="Process Attachments" IsArray="FALSE">
+         <DataType>
+            <ExternalReference location="java.util.List"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="773" Type="dmsDocumentList">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:className" Value="java.util.List"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="DocumentData1" Name="DocumentData1" IsArray="FALSE">
+         <DataType>
+            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="777" Type="dmsDocument">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="a40b88b8-59ad-4534-bdfd-0acc9081d6a8"/>
+                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="DataStructure"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="DocumentData2" Name="DocumentData2" IsArray="FALSE">
+         <DataType>
+            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="778" Type="dmsDocument">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="0b94726f-495e-48e2-aaac-6353c53f3cd7"/>
+                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="DataStructure2"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="DocumentData3" Name="DocumentData3" IsArray="FALSE">
+         <DataType>
+            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="779" Type="dmsDocument">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="dbca862e-9cd4-4725-99d5-32a97a3de5dd"/>
+                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="DataStructure3"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="SimpleManual" Name="SimpleManual" AccessLevel="PUBLIC">
@@ -518,7 +614,16 @@
                      <carnot:Activity Oid="62" Implementation="Manual">
                         <carnot:EventHandlers/>
                         <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="903" Id="DocumentData3" Name="DocumentData3" Direction="IN" Context="default">
+                              <carnot:DataRef Id="DocumentData3"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="904" Id="DocumentData3" Name="DocumentData3" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="DocumentData3"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:model:uuid" Value="5d7c3af5-0ab0-4d61-8eae-b06e8df49aab"/>
                            <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
@@ -552,8 +657,20 @@
                      </carnot:Trigger>
                   </carnot:Triggers>
                   <carnot:DataPaths>
-                     <carnot:DataPath Oid="768" Id="SimpleDescriptor" Name="SimpleDescriptor" Direction="IN" IsDescriptor="true" IsKey="false">
+                     <carnot:DataPath Oid="895" Id="SimpleDescriptor" Name="SimpleDescriptor" Direction="IN" IsDescriptor="true" IsKey="false">
                         <carnot:DataRef Id="PROCESS_ID" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="896" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="897" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="OUT" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="898" Id="DocumentData2Path" Name="DocumentData2Path" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData2" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="899" Id="DocumentData2Path" Name="DocumentData2Path" Direction="OUT" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData2" Expression=""/>
                      </carnot:DataPath>
                   </carnot:DataPaths>
                   <carnot:EventHandlers/>
@@ -563,13 +680,15 @@
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="57" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="56" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="409" Height="908" Orientation="Vertical">
+                           <carnot:Symbol Kind="POOL" Oid="56" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="460" Height="908" Orientation="Vertical">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="LANE" Oid="55" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="375" Height="838" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="56">
+                                 <carnot:Symbol Kind="LANE" Oid="55" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="426" Height="838" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="56">
                                     <carnot:Symbols>
-                                       <carnot:Symbol Kind="STARTEVENT" Oid="58" X="132" Y="48" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-                                       <carnot:Symbol Kind="ENDEVENT" Oid="60" X="174" Y="353" Width="26" Height="26"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="63" X="162" Y="172" Width="180" Height="50" ModelElement="SimpleActivity"/>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="58" X="152" Y="48" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="60" X="194" Y="353" Width="26" Height="26"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="63" X="117" Y="196" Width="180" Height="50" ModelElement="SimpleActivity"/>
+                                       <carnot:Symbol Kind="DATA" Oid="790" X="352" Y="92" Width="100" Height="70" ModelElement="DocumentData2"/>
+                                       <carnot:Symbol Kind="DATA" Oid="900" X="56" Y="95" Width="100" Height="70" ModelElement="DocumentData3"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
@@ -577,6 +696,7 @@
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="64" SourceSymbol="58" TargetSymbol="63" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="66" ModelElement="762f6819-9618-41e4-a820-2674285613c3" SourceSymbol="63" TargetSymbol="60" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="902" SourceSymbol="900" TargetSymbol="63" SourceAnchor="right" TargetAnchor="top"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -1931,7 +2051,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Thu May 07 14:29:55 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Tue Jun 02 11:59:30 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

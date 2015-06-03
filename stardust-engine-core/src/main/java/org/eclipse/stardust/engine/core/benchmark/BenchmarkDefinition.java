@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
-import org.eclipse.stardust.engine.core.benchmark.CalendarDaysCondition.Comperator;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 /**
@@ -35,7 +35,7 @@ public class BenchmarkDefinition
 
    Map<String, TreeMap<Integer,ConditionEvaluator>> processConditions;
 
-   Map<String, TreeMap<Integer,ConditionEvaluator>> activityConditions;
+   Map<Pair<String, String>, TreeMap<Integer,ConditionEvaluator>> activityConditions;
 
    Map<Integer, Map<String,Serializable>> properties;
 
@@ -52,41 +52,6 @@ public class BenchmarkDefinition
       RuntimeArtifact ra = ArtifactManagerFactory.getCurrent().getArtifact(benchmarkOid);
       BenchmarkDefinitionParser.parse(this, ra.getContent());
 
-
-      // Test Constants
-      /*
-      this.globalProcessConditions.put(1,
-            new FreeFormCondition(new String(ra.getContent())));
-      this.globalProcessConditions
-      .put(2,
-            new DefaultCondition());
-
-      this.globalActivityConditions.put(3,
-            new FreeFormCondition(new String(ra.getContent())));
-      this.globalActivityConditions
-      .put(4,
-            new CalendarDaysCondition(
-                  Comperator.LATER_THAN, "{BenchmarksModel}processStartedTime", null));
-      this.globalActivityConditions
-            .put(5,
-                  new BusinessDaysCondition(
-                        "/business-calendars/timeOffCalendar/timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json",
-                        Comperator.LATER_THAN, "{BenchmarksModel}processStartedTime", null));
-
-
-      TreeMap<Integer,ConditionEvaluator> aiColumns = CollectionUtils.newTreeMap();
-      aiColumns.put(3, new FreeFormCondition("false;"));
-      aiColumns.put(4, new DefaultCondition());
-      this.activityConditions.put("BenchmarkedActivity", aiColumns);
-
-      Map<String,Serializable> uiProperties = CollectionUtils.newMap();
-
-
-
-      uiProperties.put("UI_Color", "#333333");
-      uiProperties.put("UI_Label", "critical");
-      this.properties.put(4,uiProperties);
-      */
    }
 
    public long getOid()
@@ -109,7 +74,7 @@ public class BenchmarkDefinition
       return processConditions.get(processId);
    }
 
-   public TreeMap<Integer, ConditionEvaluator> getActivityConditions(String activityId)
+   public TreeMap<Integer, ConditionEvaluator> getActivityConditions(Pair<String,String> activityId)
    {
       return activityConditions.get(activityId);
    }

@@ -89,7 +89,7 @@
                   "operator": ">",
                   "rhs": "DUE_DATE"
                 },
-                "useBusinessDays": true,
+                "useBusinessDays": false,
                 "offset": {
                   "amount": 5,
                   "unit": "d",
@@ -104,7 +104,7 @@
             {
               "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
               "type": "freeform",
-              "freeformExpression": ""
+              "freeformExpression": "true;"
             }
           ],
           "activities": [

@@ -8,8 +8,6 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.google.gson.annotations.Expose;
-
 public class ExportIndex implements Serializable
 {
 
@@ -23,26 +21,20 @@ public class ExportIndex implements Serializable
     */
    private static final long serialVersionUID = 1L;
 
-   @Expose
    private String archiveManagerId;
 
-   @Expose
    private String dateFormat;
 
-   @Expose
    private String dumpLocation;
 
    // map of root oid to subprocess process oids.
    // if a root process has no subprocesses the sublist will be empty, it will not be null
-   @Expose
    private Map<Long, List<Long>> rootProcessToSubProcesses;
 
-   @Expose
    private Map<Long, String> oidsToUuids;
-
+   
    // map of fields to values. values is map of values to processInstanceOids that contains them
    // e.g. fields.get("name").get("John") returns oids of all processes that has a field "name" with value "John"
-   @Expose
    private Map<String, Map<String, List<Long>>> fields;
 
    public ExportIndex()
@@ -52,12 +44,14 @@ public class ExportIndex implements Serializable
    public ExportIndex(String archiveManagerId, String dateFormat, String dumpLocation)
    {
       this(archiveManagerId, dateFormat, new HashMap<Long, List<Long>>(), 
-            new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), dumpLocation);
+            new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), dumpLocation,
+            new HashMap<Long, List<String>>());
    }
 
    public ExportIndex(String archiveManagerId, String dateFormat, 
          Map<Long, List<Long>> processes,
-         Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, String dumpLocation)
+         Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, String dumpLocation,
+         Map<Long, List<String>> processDocuments)
    {
       this.archiveManagerId = archiveManagerId;
       this.rootProcessToSubProcesses = processes;
@@ -66,7 +60,7 @@ public class ExportIndex implements Serializable
       this.dateFormat = dateFormat;
       this.oidsToUuids = oidsToUuids;
    }
-
+   
    public boolean contains(Long processInstanceOid)
    {
       return oidsToUuids.get(processInstanceOid) != null;
@@ -254,6 +248,34 @@ public class ExportIndex implements Serializable
          }
       }
       return intersection;
+   }
+
+
+   public Date getProcessStartTime(Long piOid)
+   { 
+      Date startDate = null;
+      if (contains(piOid))
+      {
+         Map<String, List<Long>> startDates = fields.get(ExportIndex.FIELD_START_DATE);
+         DateFormat df = new SimpleDateFormat(dateFormat);
+         for (String startString : startDates.keySet())
+         {
+            if (startDates.get(startString).contains(piOid))
+            {
+               try
+               {
+                  startDate = df.parse(startString);
+                  break;
+               }
+               catch (ParseException e)
+               {
+                  throw new IllegalStateException("Failed to parse date in archive "
+                        + e.getMessage(), e);
+               }
+            }
+         }
+      }
+      return startDate;
    }
 
    private List<Long> dateMatch(DateFormat df, Date startDate, Date endDate)

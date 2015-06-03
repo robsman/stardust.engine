@@ -3,8 +3,6 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.google.gson.annotations.Expose;
-
 public class ExportModel implements Serializable
 {
 
@@ -12,11 +10,8 @@ public class ExportModel implements Serializable
     * 
     */
    private static final long serialVersionUID = 1L;
-   @Expose
    private String partition;
-   @Expose
    private Map<Integer, String> modelOIdToUuid;
-   @Expose
    private Map<String, Long> fqIdToRtOid;
    
    public ExportModel()

@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
@@ -32,8 +33,10 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    private static final Logger trace = LogManager.getLogger(TimeOffCalendarFinder.class);
 
    private static final String PATH_ATT = "path";
+
    private static final String EXTENSION = ".json";
-//   private static final String ROOT_PATH = "/business-calendars/timeOffCalendar";
+
+   // private static final String ROOT_PATH = "/business-calendars/timeOffCalendar";
 
    private Map<String, List<JsonObject>> eventsMap;
 
@@ -42,6 +45,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    private String calendarDocumentId;
 
    private Map<String, JsonObject> calendarJsonByPath;
+
+   private Map<Pair<Integer, Integer>, Boolean> isDayOfYearBlocked;
 
    public TimeOffCalendarFinder(String calendarDocumentId)
    {
@@ -54,21 +59,38 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       super(dms, null, null, EXTENSION, null);
       eventsMap = CollectionUtils.newMap();
       calendarJsonByPath = CollectionUtils.newMap();
+      isDayOfYearBlocked = CollectionUtils.newMap();
    }
 
    public void clearCache()
    {
       calendarJsonByPath.clear();
+      isDayOfYearBlocked.clear();
    }
 
-   public void setExecutionDate(Date executionDate)
+   public synchronized boolean isBlocked(Date date)
    {
-      this.executionDate = executionDate;
+      Pair<Integer, Integer> key = getKey(date);
+      Boolean dayBlocked = isDayOfYearBlocked.get(key);
+
+      if (dayBlocked == null)
+      {
+         this.executionDate = date;
+         this.readAllDefinitions();
+         dayBlocked = this.isBlocked;
+         isDayOfYearBlocked.put(key, dayBlocked);
+      }
+
+      return dayBlocked;
+
    }
 
-   public boolean isBlocked()
+   private Pair<Integer, Integer> getKey(Date date)
    {
-      return isBlocked;
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(date);
+
+      return new Pair(calendar.get(Calendar.YEAR), calendar.get(Calendar.DAY_OF_YEAR));
    }
 
    @Override
@@ -101,7 +123,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    protected boolean isBlocking(JsonObject json)
    {
       boolean isBlocking = false;
-      boolean blocking = CompareHelper.areEqual(SchedulingUtils.getAsString(json, "type"), "timeOff");
+      boolean blocking = CompareHelper.areEqual(
+            SchedulingUtils.getAsString(json, "type"), "timeOff");
       boolean allDay = json.get("allDay").getAsBoolean();
       if (blocking && allDay)
       {
@@ -133,7 +156,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
                }
                else
                {
-                  isBlocking = !executionDate.before(startDate) && !executionDate.after(endDate);
+                  isBlocking = !executionDate.before(startDate)
+                        && !executionDate.after(endDate);
                }
             }
             isBlocking = executionTimeMatches(timeOffSchedule);
@@ -149,27 +173,27 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    @Override
    protected boolean executionTimeMatches(Date processSchedule)
    {
-         Calendar targetCalendar = getCalendar(executionDate);
-         Calendar scheduleCalendar = getCalendar(processSchedule);
-         Calendar nextDayCalendar = getCalendar(executionDate);
-         nextDayCalendar.add(Calendar.DAY_OF_YEAR, 1);
-         nextDayCalendar.set(Calendar.HOUR, 0);
-         nextDayCalendar.set(Calendar.MINUTE, 0);
-         nextDayCalendar.set(Calendar.SECOND, 0);
+      Calendar targetCalendar = getCalendar(executionDate);
+      Calendar scheduleCalendar = getCalendar(processSchedule);
+      Calendar nextDayCalendar = getCalendar(executionDate);
+      nextDayCalendar.add(Calendar.DAY_OF_YEAR, 1);
+      nextDayCalendar.set(Calendar.HOUR, 0);
+      nextDayCalendar.set(Calendar.MINUTE, 0);
+      nextDayCalendar.set(Calendar.SECOND, 0);
 
-         // only accept found schedule of same day.
-         if (scheduleCalendar.getTimeInMillis() >= nextDayCalendar.getTimeInMillis())
-         {
-            return false;
-         }
+      // only accept found schedule of same day.
+      if (scheduleCalendar.getTimeInMillis() >= nextDayCalendar.getTimeInMillis())
+      {
+         return false;
+      }
 
-         if (startingDate == null)
-         {
-            return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
-         }
-         Calendar startingCalendar = getCalendar(startingDate);
-         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
-               && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
+      if (startingDate == null)
+      {
+         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
+      }
+      Calendar startingCalendar = getCalendar(startingDate);
+      return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
+            && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
    }
 
    private Date getTime(JsonObject scheduleJson, String name, Date when)
@@ -196,7 +220,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       return events;
    }
 
-   private void collectEvents(List<JsonObject> events, String path, JsonObject documentJson)
+   private void collectEvents(List<JsonObject> events, String path,
+         JsonObject documentJson)
    {
       List<JsonObject> vts = eventsMap.get(path);
       if (vts == null)
@@ -213,7 +238,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       {
          for (JsonElement importedCalendar : importedCalendars)
          {
-            collectImportedEvents(events, SchedulingUtils.getAsString(importedCalendar.getAsJsonObject(), PATH_ATT), path);
+            collectImportedEvents(events, SchedulingUtils.getAsString(
+                  importedCalendar.getAsJsonObject(), PATH_ATT), path);
          }
       }
    }
@@ -228,7 +254,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
             JsonObject documentJson = getDocumentJson(path);
             if (documentJson == null)
             {
-               trace.warn("'" + source + "': could not find imported document '" + path + "'.");
+               trace.warn("'" + source + "': could not find imported document '" + path
+                     + "'.");
             }
             else
             {

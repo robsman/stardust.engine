@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark.calendar;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,15 +18,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 public class CalendarUtils
 {
 
-   private static final String KEY_TIME_OFF_CALENDAR_CACHE = CalendarUtils.class.getName()
-         + ".TimeoffCalendarCache";
+   private static final String KEY_TIME_OFF_CALENDAR_CACHE = CalendarUtils.class
+         .getName() + ".TimeoffCalendarCache";
 
-   private static final String BUSINESS_DAY_CACHE = CalendarUtils.class.getName()
-         + ".BusinessDayCache";
+   private static final String KEY_TIME_OFF_CALENDAR_PURGE_DATE = CalendarUtils.class
+         .getName() + ".TimeoffCalendarPurgeDate";
 
    private CalendarUtils()
    {
@@ -35,21 +37,13 @@ public class CalendarUtils
    public static boolean isBusinessDay(Date date, String calendarDocumentId)
    {
       TimeOffCalendarFinder timeOffCalendarFinder = getTimeOffCalendar(calendarDocumentId);
-      synchronized (timeOffCalendarFinder)
-      {
 
-         timeOffCalendarFinder.setExecutionDate(date);
-         timeOffCalendarFinder.readAllDefinitions();
-
-         // TODO cache calculated blocked dates.
-         return timeOffCalendarFinder.isBlocked();
-      }
+      return timeOffCalendarFinder.isBlocked(date);
    }
 
    private static TimeOffCalendarFinder getTimeOffCalendar(String calendarDocumentId)
    {
-      Map<String, TimeOffCalendarFinder> benchmarkCache = getTimeOffCalendarCache(SecurityProperties.getPartition()
-            .getId());
+      Map<String, TimeOffCalendarFinder> benchmarkCache = getTimeOffCalendarCache();
 
       TimeOffCalendarFinder benchmarkDefinition = benchmarkCache.get(calendarDocumentId);
 
@@ -61,10 +55,11 @@ public class CalendarUtils
       return benchmarkDefinition;
    }
 
-
-   private static Map<String, TimeOffCalendarFinder> getTimeOffCalendarCache(String partitionId)
+   private synchronized static Map<String, TimeOffCalendarFinder> getTimeOffCalendarCache()
    {
+      final String partitionId = SecurityProperties.getPartition().getId();
       final GlobalParameters globals = GlobalParameters.globals();
+
 
       ConcurrentHashMap<String, Map> timeOffCalendarPartitionCache = (ConcurrentHashMap<String, Map>) globals
             .get(KEY_TIME_OFF_CALENDAR_CACHE);
@@ -83,6 +78,21 @@ public class CalendarUtils
                .get(KEY_TIME_OFF_CALENDAR_CACHE);
       }
 
+      // set next purge date.
+      Date purgeDate = (Date) globals.get(KEY_TIME_OFF_CALENDAR_PURGE_DATE);
+      if (purgeDate == null)
+      {
+         purgeDate = (Date) globals.getOrInitialize(KEY_TIME_OFF_CALENDAR_PURGE_DATE,
+               getNextPurgeDate());
+      }
+
+      if (purgeDate.before(TimestampProviderUtils.getTimeStamp()))
+      {
+         // purge cache for partition and allow next purge date on next call.
+         globals.set(KEY_TIME_OFF_CALENDAR_PURGE_DATE, null);
+         timeOffCalendarPartitionCache.remove(partitionId);
+      }
+
       Map timeOffCalendarCache = timeOffCalendarPartitionCache.get(partitionId);
       if (null == timeOffCalendarCache)
       {
@@ -93,5 +103,17 @@ public class CalendarUtils
       }
 
       return timeOffCalendarCache;
+   }
+
+   private static Date getNextPurgeDate()
+   {
+      Calendar calendar = TimestampProviderUtils.getCalendar();
+      calendar.add(Calendar.DAY_OF_YEAR, 1);
+      calendar.set(Calendar.HOUR, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+
+      return calendar.getTime();
    }
 }

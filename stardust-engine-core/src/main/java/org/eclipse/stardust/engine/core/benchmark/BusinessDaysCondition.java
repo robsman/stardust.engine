@@ -40,6 +40,7 @@ public class BusinessDaysCondition extends CalendarDaysCondition
    @Override
    protected Date applyOffset(Date date, Offset offset)
    {
+      long currentTimeMillis = System.currentTimeMillis();
       Calendar calendar = Calendar.getInstance();
       calendar.setTime(date);
       // 4,1 years
@@ -93,10 +94,15 @@ public class BusinessDaysCondition extends CalendarDaysCondition
 
       if (maxBlockedDays == 0)
       {
-         trace.warn("Advanced blocked days is greater than '" + MAX_BLOCKED_DAYS
-               + "', skipped blocked days calculation!");
+         trace.warn("Skipped blocked days is greater than '" + MAX_BLOCKED_DAYS
+               + "', ignoring further blocked days calculation!");
       }
 
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("BusinessDay offset calculation took: "
+               + (System.currentTimeMillis() - currentTimeMillis) + " ms");
+      }
       return calendar.getTime();
    }
 

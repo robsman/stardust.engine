@@ -154,9 +154,7 @@ public class BenchmarksTest
       serviceFactory.getWorkflowService().suspendToDefaultPerformer(instance.getOID());
 
       instance = serviceFactory.getWorkflowService().getActivityInstance(
-            instance.getOID());
-      
-      System.out.println("#### " + instance.getBenchmarkResult().getCategory());
+            instance.getOID());     
       
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 

@@ -11,7 +11,6 @@
 package org.eclipse.stardust.test.archive;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -39,13 +38,10 @@ import org.junit.rules.TestRule;
 
 import com.google.gson.Gson;
 
-import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.pojo.AuditTrailPartitionManager;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -60,8 +56,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -995,7 +989,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
    }
 
-   private void archive(WorkflowService workflowService, ExportResult exportResult)
+   private static void archive(WorkflowService workflowService, ExportResult exportResult)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.ARCHIVE, exportResult, null);
@@ -3199,7 +3193,7 @@ public class ArchiveTest
             oldActivities);
    }
 
-   private void assertProcessAndActivities(QueryService queryService,
+   protected static void assertProcessAndActivities(QueryService queryService,
          ProcessInstanceQuery pQuery, ActivityInstanceQuery aQuery,
          ProcessInstances oldInstances, ActivityInstances oldActivities) throws Exception
    {
@@ -3377,7 +3371,8 @@ public class ArchiveTest
       String json = getExportIndexJSON(workflowService);
 
       MemoryArchive archive = new MemoryArchive("key", testTimestampProvider.getTimestamp(),
-            data, getJSON(exportResult.getExportModel(testTimestampProvider.getTimestamp())), json);
+            data, getJSON(exportResult.getExportModel(testTimestampProvider.getTimestamp())), json,
+            new HashMap<String, byte[]>());
 
       ImportMetaData importMetaData = (ImportMetaData) workflowService
             .execute(new ImportProcessesCommand(
@@ -3485,7 +3480,7 @@ public class ArchiveTest
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
-            dataByProcess, getJSON(exportModel), json);
+            dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null));
@@ -3503,7 +3498,7 @@ public class ArchiveTest
            new HashMap<Integer, String>(), "");
       
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
-            dataByProcess, getJSON(exportModel), json);
+            dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null));
@@ -3520,7 +3515,7 @@ public class ArchiveTest
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
-            dataByProcess, getJSON(exportModel), json);
+            dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null));
@@ -3537,7 +3532,7 @@ public class ArchiveTest
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
-            dataByProcess, getJSON(exportModel), json);
+            dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null));
@@ -5862,18 +5857,7 @@ public class ArchiveTest
       ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
       aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
 
-      final String docName = "TestDoc.txt";
-      DocumentManagementService dms = sf.getDocumentManagementService();
-      byte[] content = "My File Content".getBytes();
-      String path = addDocumentToProcess(workflowService, dms, pi, docName, content);
-      Document document = getDocumentInDms(dms, path, docName);
-      assertNotNull(document);
-      assertEquals(new String(content), new String(dms.retrieveDocumentContent(document.getId())));
-      
-      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID());
-      assertNotNull(processAttachments);
-      assertEquals(1, processAttachments.size());
-    
+     
       ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
       assertNotNull(oldInstances);
@@ -5894,80 +5878,23 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
-      document = getDocumentInDms(dms, path, docName);
-      assertNull(document);
-      
+                 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
       assertEquals(1, count);
 
       assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
             oldActivities);
-      processAttachments = fetchProcessAttachments(workflowService, pi.getOID());
-      assertNotNull(processAttachments);
-      assertEquals(1, processAttachments.size());
-      document = getDocumentInDms(dms, path, docName);
-      assertNotNull(document);
-      assertEquals(content, dms.retrieveDocumentContent(document.getId()));
+      
    }
    
-   /**
-    * @param pi
-    * @return
-    */
-   @SuppressWarnings("rawtypes")
-   private List<Document> fetchProcessAttachments(WorkflowService ws, Long piOid)
-   {
-      List<Document> processAttachments = new ArrayList<Document>();
-
-      Object object = ws.getInDataPath(piOid,  DmsConstants.PATH_ID_ATTACHMENTS);
-
-      if (object != null)
-      {
-         processAttachments.addAll((Collection) object);
-      }
-        
-      return processAttachments;
-   }
-   
-   private Document getDocumentInDms(DocumentManagementService dms, String path, String name)
-   {
-      Document document = dms.getDocument(path + "/" + name);
-      return document;
-   }
-   
-   private String addDocumentToProcess(WorkflowService ws, DocumentManagementService dms, ProcessInstance pi, String docName, byte[] content)
-   {
-      String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
-      defaultPath += "/process-attachments";
-     
-      DmsUtils.ensureFolderHierarchyExists(defaultPath, dms);
-
-      Document document = dms.getDocument(defaultPath + "/" + docName);
-
-      if (document == null)
-      {
-         DocumentInfo docInfo = new DmsDocumentBean();
-
-         docInfo.setName(docName);
-         docInfo.setContentType("text/plain");
-         document = dms.createDocument(defaultPath, docInfo, content, "utf-8");
-         
-
-         List<Document> processAttachments = fetchProcessAttachments(ws, pi.getOID());
-         
-         processAttachments.add(document);
-         ws.setOutDataPath(pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS, processAttachments);
-      }
-      return defaultPath;
-   }
-
    @Test
    public void testExportSimpleOid() throws Exception
    {
@@ -7214,7 +7141,9 @@ public class ArchiveTest
       exportIndex.setFields(oldIndex.getFields());
       
       String json = getJSON(exportIndex);
-      MemoryArchive archive1 = new MemoryArchive((String)archive.getArchiveKey(), archive.getDate(), archive.getDataByProcess(), getJSON(archive.getExportModel()), json);
+      MemoryArchive archive1 = new MemoryArchive((String)archive.getArchiveKey(), archive.getDate(), 
+            archive.getDataByProcess(), getJSON(archive.getExportModel()), json,
+            new HashMap<String, byte[]>());
       
       HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //key primitive
@@ -8060,6 +7989,41 @@ public class ArchiveTest
          }
       }
    }
+   
+   protected static int countRows(String tableName) throws Exception
+   {
+      final DataSource ds = testClassSetup.dataSource();
+
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         connection = ds.getConnection();
+         stmt = connection.createStatement();
+         final ResultSet rs = stmt.executeQuery("select count(*) from PUBLIC." + tableName);
+         int result;
+         if (rs.next())
+         {
+            result = rs.getBigDecimal(1).intValue();
+         }
+         else
+         {
+            result = 0;
+         }
+         return result;
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+   }
 
    @Test
    public void testExportImportSubProcessesInModelExplicitRequestForSubProcesses()
@@ -8767,18 +8731,16 @@ public class ArchiveTest
       return piv2;
    }
 
-   private ProcessInstance startAndCompleteSimple(WorkflowService workflowService,
+   protected static ProcessInstance startAndCompleteSimple(WorkflowService workflowService,
          QueryService queryService) throws TimeoutException, InterruptedException
    {
       final ProcessInstance pi = workflowService.startProcess(
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
-      final String docName = "JoDoc.txt";
-     
       completeSimple(pi, queryService, workflowService);
       return pi;
    }
 
-   private void exportAndArchive(WorkflowService workflowService, ArchiveFilter filter)
+   protected static void exportAndArchive(WorkflowService workflowService, ArchiveFilter filter)
          throws Exception
    {
       ExportResult exportResult = (ExportResult) workflowService
@@ -9220,7 +9182,7 @@ public class ArchiveTest
       assertEquals(oldActivities.size(), countCompared);
    }
 
-   private static void assertObjectEquals(Object a, Object b, Object from, boolean compareRTOids)
+   protected static void assertObjectEquals(Object a, Object b, Object from, boolean compareRTOids)
          throws Exception
    {
       if (a == null && b == null)
@@ -9242,6 +9204,10 @@ public class ArchiveTest
       for (PropertyDescriptor property : beanInfo.getPropertyDescriptors())
       {
          if (a.getClass() == UserDetails.class) {
+            continue;
+         }
+         if (property.getReadMethod() == null)
+         {
             continue;
          }
          Object valueA = property.getReadMethod().invoke(a);

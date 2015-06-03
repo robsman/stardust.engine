@@ -55,6 +55,40 @@ public class ZipArchive implements IArchive, Serializable
       }
       return exportIndex;
    }
+   
+   @Override
+   public byte[] getDocumentContent(String documentName)
+   {
+      byte[] result;
+      String path = getPartWithEntry(documentName);
+      if (path != null)
+      {
+         result = uncompressZipEntry(path, documentName);
+      }
+      else
+      {
+         result = null;
+      }
+      return result;
+   }
+
+   @Override
+   public DocumentMetaData getDocumentProperties(String documentName)
+   {
+      String metaName = ExportImportSupport.getDocumentMetaDataName(documentName);
+      String path = getPartWithEntry(documentName);
+      DocumentMetaData result;
+      if (path != null)
+      {
+         byte[] raw = uncompressZipEntry(path, metaName);
+         result = ExportImportSupport.getGson().fromJson(new String(raw), DocumentMetaData.class);
+      }
+      else
+      {
+         result = null;
+      }
+      return result;
+   }
 
    @Override
    public byte[] getData(List<Long> processInstanceOids)

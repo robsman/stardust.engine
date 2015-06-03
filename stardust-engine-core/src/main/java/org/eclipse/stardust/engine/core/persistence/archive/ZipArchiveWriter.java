@@ -14,7 +14,6 @@ import org.springframework.util.StringUtils;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class ZipArchiveWriter implements IArchiveWriter
@@ -26,8 +25,6 @@ public class ZipArchiveWriter implements IArchiveWriter
    private static final Logger LOGGER = LogManager.getLogger(ZipArchiveWriter.class);
    
    public static final String EXT_DAT = ".dat";
-
-   private static final String EXT_JSON = ".json";
 
    private static final String EXT_XPDL = ".xpdl";
    
@@ -42,8 +39,8 @@ public class ZipArchiveWriter implements IArchiveWriter
    private static final String FILENAME_ZIP_PREFIX = "export_";
    
    private static final String FILENAME_DOCUMENT_PREFIX = "doc_";
-   
-   private static final String FILENAME_DOCUMENT_META_SUFFIX = "_meta";
+
+   private static final String FILENAME_DOC = "doc.dat";
 
    private final String archiveManagerId;
 
@@ -238,7 +235,7 @@ public class ZipArchiveWriter implements IArchiveWriter
          else
          {
             success = false;
-            LOGGER.error("Key or Results is Null. Key: " + key + ", results:" + results);
+            LOGGER.error("Add Data: Key or Results is Null. Key: " + key + ", results:" + results);
          }
       }
       catch (IOException e)
@@ -373,32 +370,24 @@ public class ZipArchiveWriter implements IArchiveWriter
    }
 
 
-   public boolean addDocument(Serializable key, long piOid, Document doc, byte[] content,
-         String metaData)
+   @Override
+   public boolean addDocuments(Serializable key, byte[] results)
    {
       boolean success;
       try
       {
-         if (key != null && content != null)
+         if (key != null && results != null)
          {
             File dataFile = (File) key;
-            
-            int lastIndex = doc.getName().lastIndexOf('.');
-            String ext = doc.getName().substring(lastIndex);
-            String docName = doc.getName().substring(0, lastIndex);
-            
-            String name = FILENAME_DOCUMENT_PREFIX + getIndex(key) + "_" + piOid + "_" + docName + "_" + doc.getRevisionName() + ext;
-            String jsonNname = FILENAME_DOCUMENT_PREFIX + getIndex(key) + "_" + piOid + "_" + docName + "_" + doc.getRevisionName() + FILENAME_DOCUMENT_META_SUFFIX + EXT_JSON;
-            File indexFile = new File(dataFile.getParentFile(), name);
-            writeByteArrayToFile(indexFile, content);
-            File metaFile = new File(dataFile.getParentFile(), jsonNname);
-            writeByteArrayToFile(metaFile, metaData.getBytes());
+            String name = FILENAME_DOCUMENT_PREFIX + getIndex(key) + EXT_DAT;
+            File documentFile = new File(dataFile.getParentFile(), name);
+            writeByteArrayToFile(documentFile, results);
             success = true;
          }
          else
          {
             success = false;
-            LOGGER.error("Key or Document is Null. Key: " + key + ", Document:" + doc);
+            LOGGER.error("Add Documents: Key or Results is Null. Key: " + key + ", results:" + results);
          }
       }
       catch (IOException e)
@@ -423,7 +412,10 @@ public class ZipArchiveWriter implements IArchiveWriter
       String zipFileNameWithoutExtension = FILENAME_ZIP_PREFIX + index;
       success = zip(filesToZip, dataFolder.getAbsolutePath(),
             zipFileNameWithoutExtension, exportResult.getProcessInstanceOids(indexDate),
-            exportResult.getProcessLengths(indexDate), exportResult.getExportIndex(indexDate).getDumpLocation());
+            exportResult.getProcessLengths(indexDate), 
+            exportResult.getExportIndex(indexDate).getDumpLocation(),
+            exportResult.getDocumentLengths(indexDate), 
+            exportResult.getDocumentNames(indexDate));
       if (!success)
       {
          LOGGER.error("Error creating Zipped archive for export: " + dataFolder.getPath()
@@ -504,11 +496,6 @@ public class ZipArchiveWriter implements IArchiveWriter
       {
          return parts[2];   
       }
-      else if(fileName.startsWith(FILENAME_DOCUMENT_PREFIX))
-      {
-         String prefix = parts[0] + "_" + parts[1] + "_";  
-         return fileName.substring(prefix.length());
-      }
       else
       {
          return parts[0] + ext;   
@@ -518,7 +505,7 @@ public class ZipArchiveWriter implements IArchiveWriter
 
    private boolean zip(String filesToZip[], String parentFoder,
          String zipFileNameWithoutExtension, List<Long> processIds, List<Integer> lengths,
-         String dumpLocation)
+         String dumpLocation, List<Integer> documentLenghts, List<String> documentNames)
    {
       boolean success = true;
       String part0Name;
@@ -533,8 +520,10 @@ public class ZipArchiveWriter implements IArchiveWriter
             LOGGER.debug("Zip file being created: " + zippedFileName);
          }
          ZipOutputStream out = null;
-         BufferedInputStream in = null;
+         BufferedInputStream inData = null;
+         BufferedInputStream inDoc = null;
          String dataFile = null;
+         String docFile = null;
          byte[] buffer = new byte[BUFFER_SIZE];
          try
          {
@@ -549,8 +538,7 @@ public class ZipArchiveWriter implements IArchiveWriter
                String fileAbsolutePath = parentFoder + File.separatorChar + fileToZip;
                if (ZipArchive.FILENAME_MODEL.equals(baseFileName)
                      || ZipArchive.FILENAME_INDEX.equals(baseFileName)
-                     || baseFileName.endsWith(EXT_XPDL)
-                     || fileToZip.startsWith(FILENAME_DOCUMENT_PREFIX))
+                     || baseFileName.endsWith(EXT_XPDL))
                {
                   long entrySize = writeComplete(out, fileAbsolutePath, buffer,
                         baseFileName);
@@ -563,6 +551,10 @@ public class ZipArchiveWriter implements IArchiveWriter
                      success = false;
                      break;
                   }
+               }
+               else if (baseFileName.equals(FILENAME_DOC))
+               {
+                  docFile = fileAbsolutePath;
                }
                else
                {
@@ -582,7 +574,7 @@ public class ZipArchiveWriter implements IArchiveWriter
             // limit
             if (dataFile != null && success)
             {
-               in = new BufferedInputStream(new FileInputStream(dataFile));
+               inData = new BufferedInputStream(new FileInputStream(dataFile));
                for (Long processId : processIds)
                {
                   Integer length = lengths.get(processIds.indexOf(processId));
@@ -609,7 +601,7 @@ public class ZipArchiveWriter implements IArchiveWriter
                         LOGGER.debug("Zip file being created: " + zippedFileName);
                      }
                   }
-                  entrySize = writeChunck(length, out, in, processId);
+                  entrySize = writeChunck(length, out, inData, processId);
                   if (entrySize > -1)
                   {
                      size += entrySize;
@@ -620,7 +612,49 @@ public class ZipArchiveWriter implements IArchiveWriter
                      break;
                   }
                }
-
+               // add document entries to zip, create more zip files if size grows beyond
+               // limit
+               if (docFile != null && success)
+               {
+                  inDoc = new BufferedInputStream(new FileInputStream(docFile));
+                  for (String docName : documentNames)
+                  {
+                     Integer length = documentLenghts.get(documentNames.indexOf(docName));
+                     if ((size + length) >= zipFileSize)
+                     {
+                        out.close();
+                        ++part;
+                        zippedFileName = getZipFileName(parentFoder, part,
+                              zipFileNameWithoutExtension);
+                        out = new ZipOutputStream(new BufferedOutputStream(
+                              new FileOutputStream(zippedFileName)));
+                        entrySize = writeKey(out, part0Name, dumpLocation);
+                        if (entrySize > -1)
+                        {
+                           size = entrySize;
+                        }
+                        else
+                        {
+                           success = false;
+                           break;
+                        }
+                        if (LOGGER.isDebugEnabled())
+                        {
+                           LOGGER.debug("Zip file being created: " + zippedFileName);
+                        }
+                     }
+                     entrySize = writeDocFile(length, out, inDoc, docName);
+                     if (entrySize > -1)
+                     {
+                        size += entrySize;
+                     }
+                     else
+                     {
+                        success = false;
+                        break;
+                     }
+                  }
+               }
             }
          }
          catch (Exception e)
@@ -632,12 +666,20 @@ public class ZipArchiveWriter implements IArchiveWriter
          {
             try
             {
-               if (in != null)
+               if (inData != null)
                {
-                  in.close();
+                  inData.close();
                   if (success)
                   {
                      new File(dataFile).delete();
+                  }
+               }
+               if (inDoc != null)
+               {
+                  inDoc.close();
+                  if (success)
+                  {
+                     new File(docFile).delete();
                   }
                }
             }
@@ -684,6 +726,28 @@ public class ZipArchiveWriter implements IArchiveWriter
       {
          size = -1;
          LOGGER.error("Error adding process to Zipped content. Process: " + processId, e);
+      }
+      return size;
+   }
+   
+   private long writeDocFile(int chunkSize, ZipOutputStream out, BufferedInputStream in,
+         String name)
+   {
+      long size = -1L;
+      try
+      {
+         ZipEntry entry = new ZipEntry(name);
+         out.putNextEntry(entry);
+         byte[] process = new byte[chunkSize];
+         in.read(process);
+         out.write(process);
+         out.closeEntry();
+         size = entry.getCompressedSize();
+      }
+      catch (Exception e)
+      {
+         size = -1;
+         LOGGER.error("Error adding process to Zipped content. Document: " + name, e);
       }
       return size;
    }
@@ -862,7 +926,7 @@ public class ZipArchiveWriter implements IArchiveWriter
             {
                return true;
             }
-            else if (fileName.startsWith(docPattern))
+            else if (ext.equals(EXT_DAT) && fileName.startsWith(docPattern))
             {
                return true;
             }

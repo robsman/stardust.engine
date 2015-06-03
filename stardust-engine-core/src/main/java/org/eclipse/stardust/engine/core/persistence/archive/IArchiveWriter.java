@@ -3,10 +3,13 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.eclipse.stardust.engine.api.runtime.Document;
-
 public interface IArchiveWriter
 {
+
+   public static final String FILENAME_DOCUMENT_META_SUFFIX = "_meta";
+   
+   public static final String EXT_JSON = ".json";
+   
    /**
     * Opens archive for writing results. Typically this is to reserve a unique place in the archive repository for results with specified index date.
     * Returns a handle to the place in the repository where the data must be written to
@@ -52,7 +55,7 @@ public interface IArchiveWriter
 
    public boolean isAutoArchive();
 
-   public boolean addDocument(Serializable key, long piOid, Document doc, byte[] content, String metaData);
+   public boolean addDocuments(Serializable key, byte[] data);
    
    public boolean isModelExported(Serializable dumpLocation, String uuid);
 }

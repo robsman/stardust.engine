@@ -5,6 +5,9 @@ import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.google.gson.Gson;
+
+import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -13,6 +16,7 @@ import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 /**
  * 
@@ -24,6 +28,8 @@ public class ExportResult implements Serializable
    private static final long serialVersionUID = 1L;
 
    private final HashMap<Date, byte[]> resultsByDate;
+   
+   private final HashMap<Date, byte[]> documentsByDate;
 
    private transient final HashMap<Date, Map<Long, Map<Class, List<Persistent>>>> dateToPersistents = new HashMap<Date, Map<Long, Map<Class, List<Persistent>>>>();
 
@@ -34,8 +40,12 @@ public class ExportResult implements Serializable
    private Map<Date, ExportModel> exportModelByDate;
 
    private final Map<Date, List<Long>> processInstanceOidsByDate;
-
+   
    private final Map<Date, List<Integer>> processLengthsByDate;
+
+   private final Map<Date, List<Integer>> documentLengthsByDate;
+
+   private final Map<Date, List<String>> documentNamesByDate;
 
    private boolean open = true;
 
@@ -47,7 +57,9 @@ public class ExportResult implements Serializable
          HashMap<Date, ExportIndex> exportIndexByDate,
          Map<Date, List<Long>> processInstanceOidsByDate,
          Map<Date, List<Integer>> processLengthsByDate, String dumpLocation,
-         Set<Long> purgeProcessIds)
+         Set<Long> purgeProcessIds,  HashMap<Date, byte[]> documentsByDate,
+         Map<Date, List<Integer>> documentLengthsByDate,
+         Map<Date, List<String>> documentNamesByDate)
    {
       this.exportModelByDate = exportModelByDate;
       this.resultsByDate = resultsByDate;
@@ -57,6 +69,9 @@ public class ExportResult implements Serializable
       this.purgeProcessIds = purgeProcessIds;
       this.open = false;
       this.dumpLocation = dumpLocation;
+      this.documentsByDate = documentsByDate;
+      this.documentLengthsByDate = documentLengthsByDate;
+      this.documentNamesByDate = documentNamesByDate;
    }
 
    public ExportResult(String dumpLocation)
@@ -68,6 +83,9 @@ public class ExportResult implements Serializable
       this.purgeProcessIds = new HashSet<Long>();
       this.dumpLocation = dumpLocation;
       this.exportModelByDate = new HashMap<Date, ExportModel>();
+      this.documentsByDate = new HashMap<Date, byte[]>();
+      this.documentLengthsByDate =new HashMap<Date, List<Integer>>();
+      this.documentNamesByDate = new HashMap<Date, List<String>>();
    }
 
    private static void addExportProcess(ExportIndex exportIndex, IProcessInstance rootProcess,
@@ -262,6 +280,51 @@ public class ExportResult implements Serializable
          addResult(persistent, processInstanceOid);
       }
    }
+   
+   public void addDocument(Long piOid, Date indexDate, Document document, byte[] content,
+         List<String> revisions, String dataPathId)
+   {
+      if (document != null && content != null)
+      {
+         ExportIndex exportIndex = exportIndexByDate.get(indexDate);
+         if (exportIndex == null)
+         {
+            throw new IllegalStateException(
+                  "Document is linked to processInstanceOid "
+                        + piOid
+                        + " but that process is not in this batch. Document: " + document.getName());
+         }
+
+         String name = ExportImportSupport.getDocumentNameInArchive(piOid, document);
+         String metaName = ExportImportSupport.getDocumentMetaDataName(name);
+         DocumentMetaData metaData = new DocumentMetaData();
+         metaData.setRevisions(revisions);
+         metaData.setDataPathId(dataPathId);
+         metaData.setVfsResource(((DmsDocumentBean)document).vfsResource());
+               
+         List<Integer> lengths = documentLengthsByDate.get(indexDate);
+         List<String> names = documentNamesByDate.get(indexDate);
+         byte[] documents = documentsByDate.get(indexDate);
+         if (lengths == null)
+         {
+            lengths = new ArrayList<Integer>();
+            names = new ArrayList<String>();
+            documents = new byte[]{};
+            documentsByDate.put(indexDate, documents);
+            documentLengthsByDate.put(indexDate, lengths);
+            documentNamesByDate.put(indexDate, names);
+         }
+         lengths.add(content.length);
+         names.add(name);
+         Gson gson = ExportImportSupport.getGson();
+         byte[] meta = gson.toJson(metaData, DocumentMetaData.class).getBytes();
+         lengths.add(meta.length);
+         names.add(metaName);
+         documents = ExportImportSupport.addAll(documents, content);
+         documents = ExportImportSupport.addAll(documents, meta);
+         documentsByDate.put(indexDate, documents);
+      }
+   }
       
    public void close(Set<Persistent> persistents, Session session)
    {
@@ -328,7 +391,6 @@ public class ExportResult implements Serializable
       {
          for (Date indexDate : dateToPersistents.keySet())
          {
-
             Map<Long, Map<Class, List<Persistent>>> processPersistentByTypeMap = dateToPersistents
                   .get(indexDate);
             byte[] result = new byte[] {};
@@ -381,6 +443,17 @@ public class ExportResult implements Serializable
       }
       Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
       byte[] results = resultsByDate.get(indexDate);
+      return results;
+   }
+   
+   public byte[] getDocuments(Date startDate)
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      byte[] results = documentsByDate.get(indexDate);
       return results;
    }
 
@@ -443,5 +516,25 @@ public class ExportResult implements Serializable
       }
       Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
       return processLengthsByDate.get(indexDate);
+   }
+
+   public List<Integer> getDocumentLengths(Date startDate)
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      return documentLengthsByDate.get(indexDate);
+   }
+
+   public List<String> getDocumentNames(Date startDate)
+   {
+      if (open)
+      {
+         throw new IllegalStateException("ExportResult is open. Close it first.");
+      }
+      Date indexDate = ExportImportSupport.getIndexDateTime(startDate);
+      return documentNamesByDate.get(indexDate);
    }
 }

@@ -12,7 +12,6 @@ import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StringUtils;
 
-import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportIndex;
 import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
@@ -21,13 +20,13 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 
 public class MemoryArchiveWriter implements IArchiveWriter
 {
-   private static final String EXT_JSON = ".json";
-   
-   private static final String FILENAME_DOCUMENT_META_SUFFIX = "_meta";
-   
    protected HashMap<String, HashMap<String, HashMap<Long, byte[]>>> repo;
 
-   protected HashMap<String, HashMap<String, byte[]>> repoData;
+   protected HashMap<String, HashMap<String, HashMap<String, byte[]>>> repoDoc;
+
+   private HashMap<String, HashMap<String, byte[]>> allData;
+
+   private HashMap<String, HashMap<String, byte[]>> allDocs;
 
    protected HashMap<String, HashMap<String, String>> dateModel;
    
@@ -37,7 +36,6 @@ public class MemoryArchiveWriter implements IArchiveWriter
 
    protected HashMap<String, HashMap<String, Date>> dateArchiveKey;
    
-   protected HashMap<String,HashMap<Long, HashMap<String, byte[]>>> docRepo;
    
    private String archiveManagerId;
 
@@ -63,13 +61,14 @@ public class MemoryArchiveWriter implements IArchiveWriter
       boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE));
       boolean autoDocs = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
       repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
-      repoData = new HashMap<String, HashMap<String, byte[]>>();
+      repoDoc = new HashMap<String, HashMap<String, HashMap<String, byte[]>>>();
+      allDocs = new HashMap<String, HashMap<String, byte[]>>();
+      allData = new HashMap<String, HashMap<String, byte[]>>();
       dateModel = new HashMap<String, HashMap<String, String>>();
       modelXpdl = new HashMap<String, HashMap<String, String>>();
       dateIndex = new HashMap<String, HashMap<String, String>>();
       dateArchiveKey = new HashMap<String, HashMap<String, Date>>();
-      docRepo = new HashMap<String, HashMap<Long,HashMap<String,byte[]>>>();
-      
+
       this.archiveManagerId = id;
       this.dateFormat = dateFormat;
       this.auto = auto;
@@ -104,6 +103,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
          String key = "key" + keyCounter++;
          keyDateMap.put(key, indexDate);
          partitionRepo.put(key, new HashMap<Long, byte[]>());
+         repoDoc.get(SecurityProperties.getPartition().getId()).put(key, new HashMap<String, byte[]>());
          return key;
       }
    }
@@ -116,7 +116,10 @@ public class MemoryArchiveWriter implements IArchiveWriter
       {
          partitionRepo = new HashMap<String, HashMap<Long, byte[]>>();
          repo.put(SecurityProperties.getPartition().getId(), partitionRepo);
-         repoData.put(SecurityProperties.getPartition().getId(),
+         repoDoc.put(SecurityProperties.getPartition().getId(), new HashMap<String, HashMap<String, byte[]>>());
+         allData.put(SecurityProperties.getPartition().getId(),
+               new HashMap<String, byte[]>());
+         allDocs.put(SecurityProperties.getPartition().getId(),
                new HashMap<String, byte[]>());
          dateModel.put(SecurityProperties.getPartition().getId(),
                new HashMap<String, String>());
@@ -124,7 +127,6 @@ public class MemoryArchiveWriter implements IArchiveWriter
                new HashMap<String, String>());
          dateIndex.put(SecurityProperties.getPartition().getId(),
                new HashMap<String, String>());
-         docRepo.put(SecurityProperties.getPartition().getId(), new HashMap<Long, HashMap<String,byte[]>>());
          dateArchiveKey.put(SecurityProperties.getPartition().getId(),
                new HashMap<String, Date>());
       }
@@ -137,11 +139,20 @@ public class MemoryArchiveWriter implements IArchiveWriter
    {
       synchronized (key)
       {
-         repoData.get(SecurityProperties.getPartition().getId()).put((String) key, results);
+         allData.get(SecurityProperties.getPartition().getId()).put((String) key, results);
       }
       return true;
    }
-
+   
+   @Override
+   public boolean addDocuments(Serializable key, byte[] results)
+   {
+      synchronized (key)
+      {
+         allDocs.get(SecurityProperties.getPartition().getId()).put((String) key, results);
+      }
+      return true;
+   }
 
    @Override
    public boolean addModelXpdl(Serializable dumpLocation, String uuid, String xpdl)
@@ -185,11 +196,15 @@ public class MemoryArchiveWriter implements IArchiveWriter
          List<Long> processInstanceOids = exportResult.getProcessInstanceOids(indexDate);
          HashMap<String, HashMap<Long, byte[]>> partitionRepo = repo.get(SecurityProperties
                .getPartition().getId());
-         HashMap<String, byte[]> partitionRepoData = repoData.get(SecurityProperties
+         HashMap<String, byte[]> processes = allData.get(SecurityProperties
                .getPartition().getId());
-
-         HashMap<Long, byte[]> hashMap = partitionRepo.get((String) key);
-         byte[] data = partitionRepoData.get((String) key);
+         HashMap<String, HashMap<String, byte[]>> partitionRepoDoc = repoDoc.get(SecurityProperties
+               .getPartition().getId());
+         HashMap<String, byte[]> documents = allDocs.get(SecurityProperties
+               .getPartition().getId());
+         
+         HashMap<Long, byte[]> processesForDate = partitionRepo.get((String) key);
+         byte[] data = processes.get((String) key);
          BufferedInputStream in = new BufferedInputStream(new ByteArrayInputStream(data));
 
          try
@@ -199,7 +214,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
                byte[] process = new byte[exportResult.getProcessLengths(indexDate).get(i)];
                in.read(process);
 
-               hashMap.put(processInstanceOids.get(i), process);
+               processesForDate.put(processInstanceOids.get(i), process);
             }
          }
          catch (IOException e)
@@ -209,6 +224,33 @@ public class MemoryArchiveWriter implements IArchiveWriter
          finally
          {
             IOUtils.closeQuietly(in);
+         }
+
+         HashMap<String, byte[]> docsForDate = partitionRepoDoc.get((String) key);
+         byte[] docs = documents.get((String) key);
+         if (docs != null)
+         {
+            in = new BufferedInputStream(new ByteArrayInputStream(docs));
+            List<Integer> documentLengths = exportResult.getDocumentLengths(indexDate);
+            List<String> documentNames = exportResult.getDocumentNames(indexDate);
+            try
+            {
+               for (int i = 0; i < documentNames.size(); i++)
+               {
+                  byte[] doc = new byte[documentLengths.get(i)];
+                  in.read(doc);
+   
+                  docsForDate.put(documentNames.get(i), doc);
+               }
+            }
+            catch (IOException e)
+            {
+               e.printStackTrace();
+            }
+            finally
+            {
+               IOUtils.closeQuietly(in);
+            }
          }
       }
       return true;
@@ -224,50 +266,15 @@ public class MemoryArchiveWriter implements IArchiveWriter
       }
       return true;
    }
-   
-
-   @Override
-   public boolean addDocument(Serializable key, long piOid, Document doc, byte[] content,
-         String metaData)
-   {
-      boolean success;
-      synchronized (key)
-      {
-         if (key != null && content != null)
-         {
-            HashMap<Long, HashMap<String, byte[]>> partitionDocs = docRepo.get(SecurityProperties.getPartition().getId());
-            HashMap<String, byte[]> processDocs = partitionDocs.get(piOid);
-            if (processDocs == null)
-            {
-               processDocs = new HashMap<String, byte[]>();
-               partitionDocs.put(piOid, processDocs);
-            }
-            
-            int lastIndex = doc.getName().lastIndexOf('.');
-            String ext = doc.getName().substring(lastIndex);
-            String docName = doc.getName().substring(0, lastIndex);
-            
-            String name = docName + "_" + doc.getRevisionName() + ext;
-            String jsonNname = docName + "_" + doc.getRevisionName() + FILENAME_DOCUMENT_META_SUFFIX + EXT_JSON;
-            processDocs.put(name, content);
-            processDocs.put(jsonNname, metaData.getBytes());
-            success = true;
-         }
-         else
-         {
-            success = false;
-         }
-      }
-      return success;
-   }
 
    public void clear()
    {
       repo.clear();
-      repoData.clear();
+      repoDoc.clear();
+      allData.clear();
+      allDocs.clear();
       dateModel.clear();
       dateIndex.clear();
-      docRepo.clear();
       dateArchiveKey.clear();
       modelXpdl.clear();
       keyCounter = 0;

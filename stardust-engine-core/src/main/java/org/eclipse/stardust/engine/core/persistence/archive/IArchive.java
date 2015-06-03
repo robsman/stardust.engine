@@ -40,5 +40,9 @@ public interface IArchive
    public String getArchiveManagerId();
 
    public String getDumpLocation();
+   
+   public byte[] getDocumentContent(String documentName);
+   
+   public DocumentMetaData getDocumentProperties(String documentName);
 
 }

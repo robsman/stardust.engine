@@ -68,6 +68,9 @@ public class MemoryArchiveReader extends BaseArchiveReader
             .getPartition().getId());
       if (partitionRepo != null)
       {
+         HashMap<String, HashMap<String, byte[]>> partitionDocRepo = writer.repoDoc.get(SecurityProperties
+               .getPartition().getId());
+         
          HashMap<String, String> partitionDateModel = writer.dateModel.get(SecurityProperties
                .getPartition().getId());
          HashMap<String, String> partitionDateIndex = writer.dateIndex.get(SecurityProperties
@@ -77,7 +80,7 @@ public class MemoryArchiveReader extends BaseArchiveReader
          for (String key : partitionRepo.keySet())
          {
             archives.add(new MemoryArchive(key, keyDate.get(key), partitionRepo.get(key), partitionDateModel
-                  .get(key), partitionDateIndex.get(key)));
+                  .get(key), partitionDateIndex.get(key), partitionDocRepo.get(key)));
          }
       }
       return archives;

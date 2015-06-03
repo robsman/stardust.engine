@@ -75,6 +75,8 @@ public class ArchiveModelConstants
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDB = "MyFieldB";
 
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDA = "MyFieldA";
+   
+   static final String DATA_ID_DOCUMENTDATA2_PATH = "DocumentData2Path";
 
    static final String DESCR_CUSTOMERNAME = "CustomerName"; // TextData
 
@@ -93,5 +95,6 @@ public class ArchiveModelConstants
    static final String DESCR_SIMPLE = "SimpleDescriptor"; // process instance oid
    
    static final String DEFAULT_DATE = "2015/03/05 00:00:00:000";
+
 
 }

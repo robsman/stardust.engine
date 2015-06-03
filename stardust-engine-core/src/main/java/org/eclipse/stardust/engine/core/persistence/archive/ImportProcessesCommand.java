@@ -3,14 +3,20 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 /**
  * This class allows a request to import archived processes instances. The processes are
@@ -170,6 +176,10 @@ public class ImportProcessesCommand implements ServiceCommand
                      ProcessElementExporter.EXPORT_PROCESS_ID, archive.getExportIndex().getUuid(oid));
             }
          }
+         for (Long oid : exportProcesses)
+         {
+            addDocumentsToProcess(sf.getDocumentManagementService(), oid);
+         }
       }
       catch (IllegalStateException e)
       {
@@ -187,6 +197,105 @@ public class ImportProcessesCommand implements ServiceCommand
       }
       return importCount;
 
+   }
+   
+
+   private void setDocumentProperties(DocumentMetaData documentMetaData, DmsDocumentBean document)
+   {
+      DmsDocumentBean temp = new DmsDocumentBean(documentMetaData.getVfsResource());
+      document.setDocumentAnnotations(temp.getDocumentAnnotations());
+      document.setProperties(temp.getProperties());
+      document.setOwner(temp.getOwner());
+      document.setContentType(temp.getContentType());
+      document.setDocumentType(temp.getDocumentType());
+      document.setDescription(temp.getDescription());
+      document.setEncoding(temp.getEncoding());
+      document.setRevisionComment(temp.getRevisionComment());
+      document.setRevisionName(temp.getRevisionName());
+      document.setSize(temp.getSize());
+      document.setVersionLabels(temp.getVersionLabels());
+      document.setPath(temp.getPath());
+   }
+   
+   private void addDocumentsToProcess(DocumentManagementService dms, Long piOid)
+   {
+     
+      Map<Document, String> attachments = ExportImportSupport.fetchProcessAttachments(piOid);
+      if (attachments != null)
+      {
+         ProcessInstanceBean pi = ProcessInstanceBean.findByOID(piOid);;
+         for (Document doc : attachments.keySet())
+         {
+            DmsDocumentBean document = (DmsDocumentBean)doc;
+            String docName = ExportImportSupport.getDocumentNameInArchive(piOid, doc);
+            DocumentMetaData documentMetaData =  archive.getDocumentProperties(docName);
+            byte[] content = archive.getDocumentContent(docName);
+            if (content != null)
+            {
+               Document existingDoc = dms.getDocument(document.getId());
+               if (existingDoc == null)
+               {
+                  String latestRevComment = document.getRevisionComment();
+                  String latestRevName = document.getRevisionName();
+                  if (CollectionUtils.isNotEmpty(documentMetaData.getRevisions()))
+                  {
+                     boolean firstDoc = true;
+                     for (String revision : documentMetaData.getRevisions())
+                     {
+                        String revisionName = ExportImportSupport.getDocumentNameInArchive(docName, revision);
+                        byte[] prevContent = archive.getDocumentContent(revisionName);
+
+                        if (prevContent != null)
+                        {
+                           DocumentMetaData props = archive.getDocumentProperties(revisionName);
+                           setDocumentProperties(props, document);
+                           String revisionComment = document.getRevisionComment();
+                           if (firstDoc)
+                           {
+                              document = (DmsDocumentBean) dms.createDocument(getFolderName(dms, document), document, prevContent,
+                                    document.getEncoding());
+                              document = (DmsDocumentBean) dms.versionDocument(document.getId(),
+                                    revisionComment, revision);
+                              firstDoc = false;
+                           }
+                           else
+                           {
+                              document = (DmsDocumentBean) dms.updateDocument(document, prevContent, document.getEncoding(), true, revisionComment, revision, false);
+                           }
+                        }
+                     }
+                     setDocumentProperties(documentMetaData, document);
+                     document = (DmsDocumentBean) dms.updateDocument(document, content, document.getEncoding(), true, latestRevComment, latestRevName, false);
+                     if (documentMetaData.getDataPathId() != null)
+                     {
+                        ExportImportSupport.updateAttachment(pi, document, documentMetaData.getDataPathId());
+                     }
+                  } 
+                  else // create the one and only version
+                  {
+                     setDocumentProperties(documentMetaData, document);
+                     document = (DmsDocumentBean)dms.createDocument(getFolderName(dms, document), document, content, document.getEncoding());
+                     document =(DmsDocumentBean)dms.versionDocument(document.getId(), latestRevComment, latestRevName);
+                     if (documentMetaData.getDataPathId() != null)
+                     {
+                        ExportImportSupport.updateAttachment(pi, document, documentMetaData.getDataPathId());
+                     }
+                  }
+               }
+            }
+            else
+            {
+               LOGGER.warn("Document " + docName + " not found in archive");
+            }
+         }
+      }
+   }
+   
+   private String getFolderName(DocumentManagementService dms, Document document)
+   {
+      String path = document.getPath().substring(0, document.getPath().length() - document.getName().length() - 1);
+      DmsUtils.ensureFolderHierarchyExists(path, dms);
+      return path;
    }
 
    private void validate(ServiceFactory sf)

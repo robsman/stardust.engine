@@ -24,6 +24,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.archive.ArchiveModelConstants;
 import org.eclipse.stardust.test.archive.ArchiveTest;
 import org.eclipse.stardust.test.archive.AutoArchiveTest;
+import org.eclipse.stardust.test.archive.DocumentArchiveTest;
 
 /**
  * <p>
@@ -35,7 +36,7 @@ import org.eclipse.stardust.test.archive.AutoArchiveTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-   ArchiveTest.class, AutoArchiveTest.class
+   ArchiveTest.class, AutoArchiveTest.class, DocumentArchiveTest.class
               })
 @ApplicationContextConfiguration(locations = "classpath:app-ctxs/archive.app-ctx.xml")
 public class ArchiveTestSuite

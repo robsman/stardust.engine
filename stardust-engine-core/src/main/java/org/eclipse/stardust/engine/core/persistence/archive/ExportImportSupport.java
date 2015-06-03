@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.archive;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,7 +26,6 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.DataDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -62,60 +62,157 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
-   
-   
-   private static IDataPath existsProcessAttachmentsDataPath(IProcessInstance processInstance)
+      
+   private static List<IDataPath> getDocumentDataPaths(IProcessInstance processInstance)
    {
       IProcessDefinition process = processInstance.getProcessDefinition();
-      IDataPath documentDataPath = process.findDataPath(DmsConstants.PATH_ID_ATTACHMENTS, Direction.IN);
-      return documentDataPath;
+      Iterator allInDataPaths = process.getAllInDataPaths();
+      List<IDataPath> result = new ArrayList<IDataPath>();
+      while (allInDataPaths.hasNext())
+      {
+         IDataPath dataPath = (IDataPath)allInDataPaths.next();
+         String typeId = ((DataBean) dataPath.getData()).getType().getId();
+         if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(typeId)
+               || DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(typeId)
+               || DmsConstants.DATA_TYPE_DMS_FOLDER.equals(typeId)
+               || DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(typeId))
+         {
+            result.add(dataPath);
+         }
+      }
+      return result;
    }
    
-   public static List<Document> fetchProcessAttachments(WorkflowService ws, Long piOid)
+   public static String getDocumentMetaDataName(String documentName)
    {
-      List<Document> attachments;
-      IProcessInstance processInstance = ProcessInstanceBean.findByOID(piOid);
+      int lastIndex = documentName.lastIndexOf('.');
+      String docName = documentName.substring(0, lastIndex);
+      String metaName = docName + IArchiveWriter.FILENAME_DOCUMENT_META_SUFFIX + IArchiveWriter.EXT_JSON;
+      return metaName;
+   }
+   
+   public static void updateAttachment(IProcessInstance processInstance,
+         Document document, String dataPathId)
+   {
       if (processInstance != null)
       {
-         IDataPath dataPath = existsProcessAttachmentsDataPath(processInstance);
-         if (dataPath != null)
+         IDataPath dataPath = getDataPath(processInstance, dataPathId);
+         IData data = dataPath.getData();
+         if (data == null)
          {
-            Object o = ws.getInDataPath(processInstance.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
-            if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(((DataBean) dataPath.getData()).getType().getId()))
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_DANGLING_OUT_DATA_PATH.raise(dataPath));
+         }
+         Object o = getDataPathValue(processInstance, dataPath);
+         String typeId = ((DataBean) dataPath.getData()).getType().getId();
+         if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(typeId))
+         {
+            List<Document> processAttachments = (List<Document>) o;
+            int oldDocIndex = -1;
+            for (Document temp : processAttachments)
             {
-               attachments = (List<Document>) o;
+               if (temp.getName().equals(document.getName())
+                     && temp.getRevisionName().equals(document.getRevisionName()))
+               {
+                  oldDocIndex = processAttachments.indexOf(temp);
+               }
+            }
+            if (oldDocIndex != -1)
+            {
+               processAttachments.remove(oldDocIndex);
+               processAttachments.add(document);
+               processInstance.setOutDataValue(data, dataPath.getAccessPath(),
+                     processAttachments);
             }
             else
             {
-               attachments = null;
+               LOGGER.warn("Failed to find old document attachement to update for pi: "
+                     + processInstance.getOID() + " doc:" + document.getName());
             }
          }
-         else
+         if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(typeId))
          {
-            attachments = null;
+            processInstance.getDataValue(data).setValue(document, false);
+         }
+         if (DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(typeId))
+         {
+            throw new RuntimeException("todo");
+         }
+         if (DmsConstants.DATA_TYPE_DMS_FOLDER.equals(typeId))
+         {
+            throw new RuntimeException("todo");
          }
       }
-      else
+
+   }
+
+   public static Map<Document, String> fetchProcessAttachments(Long piOid)
+   {
+      Map<Document, String> attachments = new HashMap<Document, String>();
+      IProcessInstance processInstance = ProcessInstanceBean.findByOID(piOid);
+      if (processInstance != null)
       {
-         attachments = null;
+         List<IDataPath> dataPaths = getDocumentDataPaths(processInstance);
+         for (IDataPath dataPath : dataPaths)
+         {
+            Object o = getDataPathValue(processInstance, dataPath);
+            if (o != null)
+            {
+               String typeId = ((DataBean) dataPath.getData()).getType().getId();
+               if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(typeId))
+               {
+                  List<Document> documents = (List<Document>) o;
+                  for (Document doc : documents)
+                  {
+                     attachments.put(doc, dataPath.getId());
+                  }
+               }
+               else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(typeId))
+               {
+                  attachments.put((Document) o, dataPath.getId());
+               }
+               else if (DmsConstants.DATA_TYPE_DMS_FOLDER_LIST.equals(typeId))
+               {
+                  throw new RuntimeException("todo");
+               }
+               else if (DmsConstants.DATA_TYPE_DMS_FOLDER.equals(typeId))
+               {
+                  throw new RuntimeException("todo");
+               }
+            }
+         }
       }
       return attachments;
    }
-      
-   /**
-    * @param pi
-    */
-   public static String getProcessAttachmentsFolderPath(IProcessInstance pi)
+   
+   private static Serializable getDataPathValue(IProcessInstance processInstance, IDataPath path)
    {
-      if(pi == null)
+      IData data = path.getData();
+      if (data == null)
       {
-         throw new IllegalArgumentException("pi can not be null for getProcessAttachmentsFolderPath()");
+         return null;
       }
-         
-      String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
-      String s = defaultPath + "/process-attachments";
-      
-      return s;
+      Object value = processInstance.getInDataValue(data, path.getAccessPath());
+
+      return (Serializable) value;
+   }
+   
+   private static IDataPath getDataPath(IProcessInstance processInstance,
+         String dataPathId)
+   {
+      IProcessDefinition process = processInstance.getProcessDefinition();
+      Iterator allInDataPaths = process.getAllInDataPaths();
+      IDataPath result = null;
+      while (allInDataPaths.hasNext())
+      {
+         IDataPath dataPath = (IDataPath) allInDataPaths.next();
+         if (dataPath.getId().equals(dataPathId))
+         {
+            result = dataPath;
+            break;
+         }
+      }
+      return result;
    }
    
    public static void archive(List<IProcessInstance> pis)
@@ -184,11 +281,42 @@ public class ExportImportSupport
       return uuid;
    }
 
+   public static String getDocumentNameInArchive(Long piOid, Document document)
+   {
+      int extIndex = document.getName().lastIndexOf(".");
+      String ext;
+      String name;
+      if (extIndex > -1)
+      {
+         ext = document.getName().substring(extIndex);
+         name = document.getName().substring(0,extIndex);
+      }
+      else
+      {
+         ext = "";
+         name = document.getName();
+      }
+      String docName = piOid + "_" + name + "_" + document.getRevisionName() + ext;
+      return docName;
+   }
+   
+   public static String getDocumentNameInArchive(String documentName, String revisionId)
+   {
+      int extIndex = documentName.lastIndexOf(".");
+      String ext = documentName.substring(extIndex);
+      String name = documentName.substring(0,documentName.lastIndexOf("_"));
+      String docName = name + "_" + revisionId + ext;
+      return docName;
+   }
+   
    public static Gson getGson()
    {
+//      TypeToken<Map<Object, Serializable>> type = new TypeToken<Map<Object, Serializable>>(){};
+//      return getGson().fromJson(json, type.getType());
+      
       GsonBuilder gsonBuilder = new GsonBuilder();
       gsonBuilder.setPrettyPrinting();
-      gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+      gsonBuilder.registerTypeAdapter(DocumentMetaData.class, new DocumentMetaDataSerializer());
       Gson gson = gsonBuilder.create();
       return gson;
    }
@@ -317,6 +445,34 @@ public class ExportImportSupport
       }
    }
    
+   /**
+    * Parses a date string using the given dateFormat, if dateFormat is empty
+    * ArchiveManagerFactory.getDateFormat() is used
+    * @param date
+    * @param dateFormat
+    * @return
+    */
+   public static Date parseDate(String dateString, String dateFormat)
+   {
+      try
+      {
+         if (StringUtils.isEmpty(dateFormat))
+         {
+            dateFormat = ArchiveManagerFactory.getDateFormat();  
+         }
+         DateFormat df = new SimpleDateFormat(dateFormat);
+         if (dateString != null)
+         {
+            return df.parse(dateString);
+         }
+         return null;
+      }
+      catch (Exception e)
+      {
+         throw new IllegalArgumentException("Failed to parse date string " + dateString + " with date pattern: " + dateFormat);
+      }
+   }
+   
    public static ExportResult merge(List<ExportResult> exportResults, Map<Date,ExportModel> exportModelByDate)
    {
       ExportResult exportResult;
@@ -335,9 +491,12 @@ public class ExportImportSupport
             purgeProcessIds.addAll(result.getPurgeProcessIds());
          }
          HashMap<Date, byte[]> resultsByDate = new HashMap<Date, byte[]>();
+         HashMap<Date, byte[]> documentsByDate = new HashMap<Date, byte[]>();
          HashMap<Date, ExportIndex> indexByDate = new HashMap<Date, ExportIndex>();
          HashMap<Date, List<Long>> processInstanceOidsByDate = new HashMap<Date, List<Long>>();
          HashMap<Date, List<Integer>> processLengthsByDate = new HashMap<Date, List<Integer>>();
+         HashMap<Date, List<Integer>> documentLengthsByDate = new HashMap<Date, List<Integer>>();
+         HashMap<Date, List<String>> documentNamesByDate = new HashMap<Date, List<String>>();
          if (exportModelByDate == null)
          {
             exportModelByDate = new HashMap<Date, ExportModel>();
@@ -362,10 +521,12 @@ public class ExportImportSupport
          for (Date date : uniqueDates)
          {
             byte[] allData = resultsByDate.get(date);
+            byte[] allDocuments = documentsByDate.get(date);
             ExportIndex index = indexByDate.get(date);
             if (allData == null)
             {
                allData = new byte[] {};
+               allDocuments = new byte[] {};
                index = new ExportIndex(archiveManagerId, dateFormat, dumpLocation);
                indexByDate.put(date, index);
             }
@@ -376,12 +537,30 @@ public class ExportImportSupport
                   continue;
                }
                byte[] data = result.getResults(date);
+               byte[] documents = result.getDocuments(date);
                // does this specific exportResult have data for this date
                if (data != null)
                {
                   allData = addAll(allData, data);
                   // new reference every time, re-put everytime
                   resultsByDate.put(date, allData);
+                  
+                  if (documents != null)
+                  {
+                     allDocuments = addAll(allDocuments, documents);
+                     documentsByDate.put(date, allDocuments);
+                     List<Integer> documentLengths = documentLengthsByDate.get(date);
+                     List<String> documentNames = documentNamesByDate.get(date);
+                     if (documentLengths == null)
+                     {
+                        documentLengths = new ArrayList<Integer>();
+                        documentNames = new ArrayList<String>();
+                        documentLengthsByDate.put(date, documentLengths);
+                        documentNamesByDate.put(date, documentNames);
+                     }
+                     documentLengths.addAll(result.getDocumentLengths(date));
+                     documentNames.addAll(result.getDocumentNames(date));
+                  }
 
                   List<Long> processInstanceOids = processInstanceOidsByDate.get(date);
                   List<Integer> processLengths = processLengthsByDate.get(date);
@@ -418,7 +597,8 @@ public class ExportImportSupport
             }
          }
          exportResult = new ExportResult(exportModelByDate, resultsByDate, indexByDate,
-               processInstanceOidsByDate, processLengthsByDate, dumpLocation, purgeProcessIds);
+               processInstanceOidsByDate, processLengthsByDate, dumpLocation, 
+               purgeProcessIds, documentsByDate, documentLengthsByDate, documentNamesByDate);
       }
       else
       {

@@ -144,11 +144,11 @@ public class ExportProcessesCommand implements ServiceCommand
       switch (operation)
       {
          case QUERY_AND_EXPORT:
-            queryAndExport(sf.getWorkflowService(), sf.getQueryService(), session);
+            queryAndExport(sf.getDocumentManagementService(), sf.getQueryService(), session);
             result = exportResult;
             break;
          case QUERY:
-            query(sf.getWorkflowService(), sf.getQueryService(), session);
+            query(sf.getQueryService(), session);
             result = exportMetaData;
             break;
          case EXPORT_MODEL:
@@ -156,11 +156,11 @@ public class ExportProcessesCommand implements ServiceCommand
             result = exportResult;
             break;
          case EXPORT_BATCH:
-            exportBatch(session);
+            exportBatch(sf.getDocumentManagementService(), session);
             result = exportResult;
             break;
          case ARCHIVE:
-            result = archive(sf.getWorkflowService(), sf.getDocumentManagementService(), session);
+            result = archive(sf.getDocumentManagementService(), session);
             break;
          case ARCHIVE_MESSAGES:
             result = archiveMessages(sf.getWorkflowService(), sf.getDocumentManagementService(), session);
@@ -205,7 +205,7 @@ public class ExportProcessesCommand implements ServiceCommand
       if (!exportResults.isEmpty())
       {
          exportResult = ExportImportSupport.merge(exportResults, null);
-         archive(ws, dms, session);
+         archive(dms, session);
       }
       return true;
    }
@@ -251,21 +251,8 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       return result;
    }
-
    
-   private void x()
-   {
-//      IArchiveWriter archiveManager = ArchiveManagerFactory.getArchiveWriter();
-//      boolean success = true;
-//      for (Integer oid : exportResult.getExportModel(date).getModelOidToUuid().keySet())
-//      {
-//         String uuid = exportResult.getExportModel(date).getModelOidToUuid().get(oid);
-//         String xpdl = exportResult.getExportModel(date).getUuiIdToXpdl().get(uuid);
-//         success = archiveManager.addModelXpdl(exportIndex, uuid, xpdl);
-//      }
-      
-   }
-   private Boolean archive(WorkflowService ws, DocumentManagementService dms, Session session)
+   private Boolean archive(DocumentManagementService dms, Session session)
    {
       IArchiveWriter archiveManager = ArchiveManagerFactory.getArchiveWriter();
       boolean success = true;
@@ -308,26 +295,13 @@ public class ExportProcessesCommand implements ServiceCommand
                }
                if (success)
                {
-                  for (long piOid : exportIndex.getOidsToUuids().keySet())
+                  byte[] documents = exportResult.getDocuments(date);
+                  if (documents != null)
                   {
-                     List<Document> attachments = ExportImportSupport.fetchProcessAttachments(ws, piOid);
-                     if (attachments != null)
+                     success = archiveManager.addDocuments(key, documents);
+                     if (!success)
                      {
-                        for (Document doc : attachments)
-                        {
-                           List<Document> versions = dms.getDocumentVersions(doc.getId());
-                           for (Document version : versions)
-                           {
-                              byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
-                              Map metaData = version.getProperties();
-                              success = archiveManager.addDocument(key, piOid, version, content,
-                                    gson.toJson(metaData));
-                              if (!success)
-                              {
-                                 break dateloop;
-                              }
-                           }
-                        }
+                        break dateloop;
                      }
                   }
                }
@@ -343,14 +317,14 @@ public class ExportProcessesCommand implements ServiceCommand
          }
          if (dumpLocation == null)
          {
-            purgeDocuments(ws, dms);
+            purgeDocuments(session, dms);
             purge(session);
          }
       }
       return success;
    }
    
-   private void purgeDocuments(WorkflowService ws, DocumentManagementService dms)
+   private void purgeDocuments(Session session, DocumentManagementService dms)
    {
       if (exportResult != null)
       {
@@ -358,17 +332,46 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             for (Long piOid : exportResult.getPurgeProcessIds())
             {
-               ProcessInstanceBean pi = ProcessInstanceBean.findByOID(piOid);
-               String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());
-               defaultPath += "/process-attachments";
-               
-               dms.removeFolder(defaultPath, true);
+               ProcessInstanceBean pi = (ProcessInstanceBean) session.findByOID(
+                     ProcessInstanceBean.class, piOid);
+               Date startTime = null;
+               // pi is already deleted for some reason, try and find it's start time from archive
+               // this will work if it wasn't a process for purge only
+               if (pi == null)
+               {
+                  for (Date date : exportResult.getDates())
+                  {
+                     ExportIndex exportIndex = exportResult.getExportIndex(date);
+                     if (exportIndex.contains(piOid))
+                     {
+                        startTime = exportIndex.getProcessStartTime(piOid);
+                        break;
+                     }
+                  }
+               }
+               else
+               {
+                  startTime = pi.getStartTime();
+               }
+               // it could be null if somehow process was already deleted and was marked for purge only
+               if (startTime != null)
+               {
+                  String defaultPath = DmsUtils.composeDefaultPath(piOid, startTime);
+                  try
+                  {
+                     dms.removeFolder(defaultPath, true);
+                  }
+                  catch (DocumentManagementServiceException e)
+                  {
+                     LOGGER.error("Failed deleting documents for process instance " + piOid, e);
+                  }
+               }
             }
          }
       }
    }
    
-   private void exportBatch(Session session)
+   private void exportBatch(DocumentManagementService dms, Session session)
    {
       List<Long> allIds = exportMetaData.getAllProcessesForExport(dumpLocation != null);
       if (CollectionUtils.isNotEmpty(allIds))
@@ -389,6 +392,45 @@ public class ExportProcessesCommand implements ServiceCommand
          if (LOGGER.isDebugEnabled())
          {
             LOGGER.debug("Exporting complete.");
+         }
+         for (Date date : exportResult.getDates())
+         {
+            ExportIndex exportIndex = exportResult.getExportIndex(date);
+            for (long piOid :exportIndex.getProcessInstanceOids())
+            {
+               Map<Document, String> attachments = ExportImportSupport.fetchProcessAttachments(piOid);
+               if (attachments != null)
+               {
+                  for (Document doc : attachments.keySet())
+                  {
+                     List<Document> versions = dms.getDocumentVersions(doc.getId());
+                     Comparator<Document> docComparator = new Comparator<Document>()
+                     {
+                        @Override
+                        public int compare(Document o1, Document o2)
+                        {
+                           return o1.getDateLastModified().compareTo(o2.getDateLastModified());
+                        }
+                     };
+                     Collections.sort(versions, docComparator);
+                     List<String> revisions = new ArrayList<String>();
+                     for (Document version : versions)
+                     {
+                        byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+                        // we will only add the revision names to the latest revision
+                        if (version.getRevisionName().equals(doc.getRevisionName()))
+                        {
+                           exportResult.addDocument(piOid, date, version, content, revisions, attachments.get(doc));
+                        }
+                        else
+                        {
+                           revisions.add(version.getRevisionName());
+                           exportResult.addDocument(piOid, date, version, content, null, attachments.get(doc));
+                        }
+                     }
+                  }
+               }
+            }
          }
       }
       else
@@ -427,7 +469,7 @@ public class ExportProcessesCommand implements ServiceCommand
       exportResult.setExportModelByDate(exportModelByDate);
    }
 
-   private void query(WorkflowService ws, QueryService queryService, Session session)
+   private void query(QueryService queryService, Session session)
    {
       filter.validateDates();
 
@@ -508,9 +550,9 @@ public class ExportProcessesCommand implements ServiceCommand
       return result;
    }
    
-   private void queryAndExport(WorkflowService ws, QueryService queryService, Session session)
+   private void queryAndExport(DocumentManagementService dms, QueryService queryService, Session session)
    {
-      query(ws, queryService, session);
+      query(queryService, session);
       if (exportMetaData.hasExportOids())
       {
          exportModels(session);
@@ -521,7 +563,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
       if (exportResult.hasExportModel())
       {
-         exportBatch(session);
+         exportBatch(dms, session);
       }
    }
 

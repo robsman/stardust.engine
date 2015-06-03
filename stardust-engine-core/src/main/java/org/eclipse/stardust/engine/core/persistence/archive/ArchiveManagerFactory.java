@@ -20,7 +20,7 @@ public class ArchiveManagerFactory
 
    private static final String DEFAULT_ARCHIVE_MANAGER = "FILESYSTEM";
 
-   public static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm";
+   public static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
    public static final String DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = "100";
 

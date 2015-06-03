@@ -696,14 +696,14 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no process with the specified ID in the
     *         active model or an invalid data id was specified.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
+   @ExecutionPermission(id=ExecutionPermission.Id.startProcesses,
          scope=ExecutionPermission.Scope.processDefinition,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance startProcess(String id, Map<String, ?> data, boolean synchronously)
          throws ObjectNotFoundException;
 
 
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
+   @ExecutionPermission(id=ExecutionPermission.Id.startProcesses,
          scope=ExecutionPermission.Scope.processDefinition,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance startProcess(String id, StartOptions options);

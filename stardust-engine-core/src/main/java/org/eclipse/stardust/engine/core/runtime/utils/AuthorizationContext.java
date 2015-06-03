@@ -411,14 +411,14 @@ public class AuthorizationContext
          }
          if (ALL_PERMISSIONS != permissions)
          {
+            Set<String> set = newSet();
+            if (permissions.length > 0)
+            {
+               set.addAll(Arrays.asList(permissions));
+            }
             Default[] fixed = this.permission.fixed();
             if (fixed.length > 0)
             {
-               Set<String> set = newSet();
-               if (permissions.length > 0)
-               {
-                  set.addAll(Arrays.asList(permissions));
-               }
                for (int i = 0; i < fixed.length; i++)
                {
                   switch (fixed[i])
@@ -434,10 +434,23 @@ public class AuthorizationContext
                      break;
                   }
                }
-               if (ALL_PERMISSIONS != permissions)
+            }
+            if ((modelElement instanceof IProcessDefinition)
+                  && (permission.scope() == ExecutionPermission.Scope.processDefinition)
+                  && permissionIds[0].endsWith(ExecutionPermission.Id.startProcesses.name()))
+            {
+               for (ITrigger trigger : ((IProcessDefinition) modelElement).getTriggers())
                {
-                  permissions = set.isEmpty() ? EMPTY : set.toArray(new String[set.size()]);
+                  String grant = trigger.getStringAttribute(PredefinedConstants.PARTICIPANT_ATT);
+                  if (grant != null && !grant.isEmpty())
+                  {
+                     set.add(grant);
+                  }
                }
+            }
+            if (ALL_PERMISSIONS != permissions)
+            {
+               permissions = set.isEmpty() ? EMPTY : set.toArray(new String[set.size()]);
             }
          }
       }
@@ -964,7 +977,6 @@ public class AuthorizationContext
                   if (!subs.contains(dptmt))
                   {
                      subs.add(dptmt);
-
                   }
                }
             }

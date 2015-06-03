@@ -43,8 +43,9 @@ public class BusinessDaysCondition extends CalendarDaysCondition
       long currentTimeMillis = System.currentTimeMillis();
       Calendar calendar = Calendar.getInstance();
       calendar.setTime(date);
-      // 4,1 years
-      int maxBlockedDays = MAX_BLOCKED_DAYS;
+      // 4,1 years worth of blocked days stop calculation to prevent
+      // endless loop for endless calendar events.
+      int maxBlockedDaysCounter = MAX_BLOCKED_DAYS;
 
       if (offset != null)
       {
@@ -70,7 +71,7 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count < amount)
             {
-               maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, 1);
+               maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, 1);
 
                calendar.add(Calendar.DAY_OF_YEAR, 1);
                count++;
@@ -80,7 +81,7 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count > amount)
             {
-               maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, -1);
+               maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, -1);
 
                calendar.add(Calendar.DAY_OF_YEAR, -1);
                count--;
@@ -89,13 +90,23 @@ public class BusinessDaysCondition extends CalendarDaysCondition
       }
       else
       {
-         maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, 1);
+         // The offset is null: only skip business days.
+         maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, 1);
       }
 
-      if (maxBlockedDays == 0)
+      // apply offset time
+      if (offset.getHour() != null && offset.getMinute() != null)
       {
-         trace.warn("Skipped blocked days is greater than '" + MAX_BLOCKED_DAYS
-               + "', ignoring further blocked days calculation!");
+         calendar.set(Calendar.HOUR_OF_DAY, offset.getHour());
+         calendar.set(Calendar.MINUTE, offset.getMinute());
+         calendar.set(Calendar.SECOND, 0);
+         calendar.set(Calendar.MILLISECOND, 0);
+      }
+
+      if (maxBlockedDaysCounter == 0)
+      {
+         trace.warn("Skipped '" + MAX_BLOCKED_DAYS
+               + "' non-business days, ignoring further blocked days calculation!");
       }
 
       if (trace.isDebugEnabled())

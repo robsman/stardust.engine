@@ -35,6 +35,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
    {
       this.comperator = comperator;
       this.qualifiedDataId = qualifiedDataId;
+      this.offset = offset;
    }
 
    @Override
@@ -120,6 +121,15 @@ public class CalendarDaysCondition implements ConditionEvaluator
             case MONTHS:
                calendar.add(Calendar.MONTH, offset.getAmount());
                break;
+         }
+
+         // apply offset time
+         if (offset.getHour() != null && offset.getMinute() != null)
+         {
+            calendar.set(Calendar.HOUR_OF_DAY, offset.getHour());
+            calendar.set(Calendar.MINUTE, offset.getMinute());
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
          }
 
          return calendar.getTime();

@@ -10,17 +10,46 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.springframework.util.StringUtils;
+
 public class Offset
 {
    private int amount;
 
    private CalendarUnit unit;
 
-   public Offset(int amount, CalendarUnit unit)
+   private Integer hour;
+
+   private Integer minute;
+
+   public Offset(int amount, CalendarUnit unit, String timeOfDay)
    {
       super();
       this.amount = amount;
       this.unit = unit;
+
+      if (!StringUtils.isEmpty(timeOfDay))
+      {
+         try
+         {
+            Date date = new SimpleDateFormat("hh:mm aa").parse(timeOfDay);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            this.minute = calendar.get(Calendar.MINUTE);
+            this.hour = calendar.get(Calendar.HOUR_OF_DAY);
+         }
+         catch (ParseException e)
+         {
+            // do nothing
+         }
+      }
    }
 
    public int getAmount()
@@ -31,6 +60,19 @@ public class Offset
    public CalendarUnit getUnit()
    {
       return unit;
+   }
+
+   /**
+    * @return 24h format hour of day
+    */
+   public Integer getHour()
+   {
+      return hour;
+   }
+
+   public Integer getMinute()
+   {
+      return minute;
    }
 
    public enum CalendarUnit

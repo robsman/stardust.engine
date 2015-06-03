@@ -41,16 +41,29 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
 
    private String calendarDocumentId;
 
-   public TimeOffCalendarFinder(Date executionDate, String calendarDocumentId)
+   private Map<String, JsonObject> calendarJsonByPath;
+
+   public TimeOffCalendarFinder(String calendarDocumentId)
    {
-      this(executionDate, new DocumentManagementServiceImpl());
+      this(new DocumentManagementServiceImpl());
       this.calendarDocumentId = calendarDocumentId;
    }
 
-   private TimeOffCalendarFinder(Date executionDate, DocumentManagementService dms)
+   private TimeOffCalendarFinder(DocumentManagementService dms)
    {
-      super(dms, null, executionDate, EXTENSION, null);
+      super(dms, null, null, EXTENSION, null);
       eventsMap = CollectionUtils.newMap();
+      calendarJsonByPath = CollectionUtils.newMap();
+   }
+
+   public void clearCache()
+   {
+      calendarJsonByPath.clear();
+   }
+
+   public void setExecutionDate(Date executionDate)
+   {
+      this.executionDate = executionDate;
    }
 
    public boolean isBlocked()
@@ -89,7 +102,8 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    {
       boolean isBlocking = false;
       boolean blocking = CompareHelper.areEqual(SchedulingUtils.getAsString(json, "type"), "timeOff");
-      if (blocking)
+      boolean allDay = json.get("allDay").getAsBoolean();
+      if (blocking && allDay)
       {
          JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(json, "scheduling");
          SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
@@ -99,11 +113,11 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          sc.setDate(now.getTime());
 
          // Get schedule for current day by searching next schedule from last day.
-         Date processSchedule = sc.processSchedule(scheduleJson, true, -1);
-         if (processSchedule != null)
+         Date timeOffSchedule = sc.processSchedule(scheduleJson, true, -1);
+         if (timeOffSchedule != null)
          {
-            Date startDate = getTime(scheduleJson, "startTimeStamp", processSchedule);
-            Date endDate = getTime(scheduleJson, "endTimeStamp", processSchedule);
+            Date startDate = getTime(scheduleJson, "startTimeStamp", timeOffSchedule);
+            Date endDate = getTime(scheduleJson, "endTimeStamp", timeOffSchedule);
             if (startDate == null)
             {
                if (endDate != null)
@@ -122,7 +136,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
                   isBlocking = !executionDate.before(startDate) && !executionDate.after(endDate);
                }
             }
-            isBlocking = executionTimeMatches(processSchedule);
+            isBlocking = executionTimeMatches(timeOffSchedule);
          }
       }
 
@@ -137,13 +151,14 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
    {
          Calendar targetCalendar = getCalendar(executionDate);
          Calendar scheduleCalendar = getCalendar(processSchedule);
-         Calendar endOfTargetDayCalendar = getCalendar(executionDate);
-         endOfTargetDayCalendar.set(Calendar.HOUR, 23);
-         endOfTargetDayCalendar.set(Calendar.MINUTE, 59);
-         endOfTargetDayCalendar.set(Calendar.SECOND, 59);
+         Calendar nextDayCalendar = getCalendar(executionDate);
+         nextDayCalendar.add(Calendar.DAY_OF_YEAR, 1);
+         nextDayCalendar.set(Calendar.HOUR, 0);
+         nextDayCalendar.set(Calendar.MINUTE, 0);
+         nextDayCalendar.set(Calendar.SECOND, 0);
 
          // only accept found schedule of same day.
-         if (scheduleCalendar.getTimeInMillis() > endOfTargetDayCalendar.getTimeInMillis())
+         if (scheduleCalendar.getTimeInMillis() >= nextDayCalendar.getTimeInMillis())
          {
             return false;
          }
@@ -221,6 +236,36 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
             }
          }
       }
+   }
+
+   @Override
+   protected JsonObject getDocumentJson(String path)
+   {
+      JsonObject jsonObject = this.calendarJsonByPath.get(path);
+      if (jsonObject == null)
+      {
+         jsonObject = super.getDocumentJson(path);
+         if (jsonObject != null)
+         {
+            this.calendarJsonByPath.put(path, jsonObject);
+         }
+      }
+      return jsonObject;
+   }
+
+   @Override
+   protected JsonObject getDocumentJson(Document document)
+   {
+      JsonObject jsonObject = this.calendarJsonByPath.get(document.getPath());
+      if (jsonObject == null)
+      {
+         jsonObject = super.getDocumentJson(document);
+         if (jsonObject != null)
+         {
+            this.calendarJsonByPath.put(document.getPath(), jsonObject);
+         }
+      }
+      return jsonObject;
    }
 
    private void addEvents(List<JsonObject> events, JsonArray eventsArray)

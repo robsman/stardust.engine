@@ -24,6 +24,8 @@ import org.eclipse.stardust.engine.core.benchmark.calendar.CalendarUtils;
  */
 public class BusinessDaysCondition extends CalendarDaysCondition
 {
+   private static final int MAX_BLOCKED_DAYS = 1500;
+
    private Logger trace = LogManager.getLogger(BusinessDaysCondition.class);
 
    protected String calendarDocumentId;
@@ -41,33 +43,35 @@ public class BusinessDaysCondition extends CalendarDaysCondition
       Calendar calendar = Calendar.getInstance();
       calendar.setTime(date);
       // 4,1 years
-      int maxBlockedDays = 1500;
+      int maxBlockedDays = MAX_BLOCKED_DAYS;
 
       if (offset != null)
       {
          int count = 0;
          int amount = offset.getAmount();
+
+         switch (offset.getUnit())
+         {
+            case MONTHS:
+               // TODO exact month?
+               amount = amount *30;
+               break;
+
+            case WEEKS:
+               amount = amount *7;
+               break;
+
+            default:
+               break;
+         }
+
          if (amount > 0)
          {
             while (count < amount)
             {
-               while (isBlockedDay(calendar.getTime()) && maxBlockedDays > 0)
-               {
-                  calendar.add(Calendar.DAY_OF_YEAR, 1);
-                  maxBlockedDays--;
-               }
-               switch (offset.getUnit())
-               {
-                  case DAYS:
-                     calendar.add(Calendar.DAY_OF_YEAR, 1);
-                     break;
-                  case WEEKS:
-                     calendar.add(Calendar.WEEK_OF_YEAR, 1);
-                     break;
-                  case MONTHS:
-                     calendar.add(Calendar.MONTH, 1);
-                     break;
-               }
+               maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, 1);
+
+               calendar.add(Calendar.DAY_OF_YEAR, 1);
                count++;
             }
          }
@@ -75,47 +79,39 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count > amount)
             {
-               while (isBlockedDay(calendar.getTime()) && maxBlockedDays > 0)
-               {
-                  calendar.add(Calendar.DAY_OF_YEAR, -1);
-                  maxBlockedDays--;
-               }
-               switch (offset.getUnit())
-               {
-                  case DAYS:
-                     calendar.add(Calendar.DAY_OF_YEAR, -1);
-                     break;
-                  case WEEKS:
-                     calendar.add(Calendar.WEEK_OF_YEAR, -1);
-                     break;
-                  case MONTHS:
-                     calendar.add(Calendar.MONTH, -1);
-                     break;
-               }
+               maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, -1);
+
+               calendar.add(Calendar.DAY_OF_YEAR, -1);
                count--;
             }
          }
       }
       else
       {
-         while (isBlockedDay(calendar.getTime()) && maxBlockedDays > 0)
-         {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-            maxBlockedDays--;
-         }
+         maxBlockedDays = skipBusinessDay(calendar, maxBlockedDays, 1);
       }
 
       if (maxBlockedDays == 0)
       {
-         trace.warn("Advanced blocked days is greater than '" + maxBlockedDays
+         trace.warn("Advanced blocked days is greater than '" + MAX_BLOCKED_DAYS
                + "', skipped blocked days calculation!");
       }
 
       return calendar.getTime();
    }
 
-   private boolean isBlockedDay(Date date)
+   private int skipBusinessDay(Calendar calendar, int maxBlockedDays, int skipAmount)
    {
-      return CalendarUtils.isBlocked(date, calendarDocumentId);
+      while (isBusinessDay(calendar.getTime()) && maxBlockedDays > 0)
+      {
+         calendar.add(Calendar.DAY_OF_YEAR, skipAmount);
+         maxBlockedDays--;
+      }
+      return maxBlockedDays;
+   }
+
+   private boolean isBusinessDay(Date date)
+   {
+      return CalendarUtils.isBusinessDay(date, calendarDocumentId);
    }
 }

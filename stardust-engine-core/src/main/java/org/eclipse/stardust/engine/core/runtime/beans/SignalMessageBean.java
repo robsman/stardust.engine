@@ -75,7 +75,7 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
 
    /* package-private */ static final boolean TRY_DEFERRED_INSERT = true;
 
-   /* package-private */ static final String[] msg_store_idx1_UNIQUE_INDEX = new String[] { FIELD__OID };
+   /* package-private */ static final String[] signal_message_idx1_UNIQUE_INDEX = new String[] { FIELD__OID };
 
 
    /* ****************************** */

@@ -66,14 +66,14 @@ public class BenchmarksTest
 
    private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
    
-   private static final String BENCHMARK_REF = "example.benchmark";
+   private static final String BENCHMARK_REF = "benchmarksTest.benchmark";
 
    @Before
    public void setup()
    {
       BenchmarkTestUtils.deployCalendar("timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json", serviceFactory);
 
-      BenchmarkTestUtils.deployBenchmark("example.benchmark", serviceFactory);
+      BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
       
       startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
@@ -104,7 +104,7 @@ public class BenchmarksTest
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
       
       // Check if properties are available
-      assertEquals(instance.getBenchmarkResult().getProperties().get("name"), "Late");
+      assertEquals("Late",instance.getBenchmarkResult().getProperties().get("name"));
    }
 
    @Test
@@ -155,6 +155,9 @@ public class BenchmarksTest
 
       instance = serviceFactory.getWorkflowService().getActivityInstance(
             instance.getOID());
+      
+      System.out.println("#### " + instance.getBenchmarkResult().getCategory());
+      
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
    }

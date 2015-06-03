@@ -177,6 +177,8 @@ public class BenchmarkDefinitionParser
                if (categoryConditions != null)
                {
 
+                  TreeMap<Integer,ConditionEvaluator> pdConditionMap = CollectionUtils.newTreeMap();
+                  
                   for (JsonElement categoryCondition : categoryConditions)
                   {
                      JsonObject conditionObject = categoryCondition.getAsJsonObject();
@@ -184,11 +186,10 @@ public class BenchmarkDefinitionParser
                      String categoryId = conditionObject.get(CONDITION_CATEGORY_ID)
                            .getAsString();
 
-                     benchmarkDefinition.processConditions.put(
-                           pdId.toString(),
-                           createConditionMap(categoryIndexMap, conditionObject,
-                                 categoryId));
+                     pdConditionMap.putAll(createConditionMap(categoryIndexMap,
+                           conditionObject, categoryId));
                   }
+                  benchmarkDefinition.processConditions.put(pdId.toString(), pdConditionMap);
                }
 
                // Read actvityCondidions
@@ -204,6 +205,7 @@ public class BenchmarkDefinitionParser
 
                   if (activityCategoryConditions != null)
                   {
+                     TreeMap<Integer,ConditionEvaluator> aConditionMap = CollectionUtils.newTreeMap();
 
                      for (JsonElement categoryCondition : activityCategoryConditions)
                      {
@@ -212,11 +214,13 @@ public class BenchmarkDefinitionParser
                         String categoryId = conditionObject.get(CONDITION_CATEGORY_ID)
                               .getAsString();
 
-                        benchmarkDefinition.activityConditions.put(
-                              new Pair<String, String>(pdId.toString(), aId),
-                              createConditionMap(categoryIndexMap, conditionObject,
-                                    categoryId));
+                        aConditionMap.putAll(createConditionMap(categoryIndexMap, conditionObject,
+                              categoryId));
+                        
+
                      }
+                     benchmarkDefinition.activityConditions.put(new Pair<String, String>(
+                           pdId.toString(), aId), aConditionMap);
 
                   }
                }

@@ -76,6 +76,10 @@ public @interface ExecutionPermission {
        */
       deployProcessModel,
       /**
+       * permission to deploy and manage a runtime artifact.
+       */
+      deployRuntimeArtifact,
+      /**
        * permission to suspend an activity of another user
        */
       forceSuspend,
@@ -152,6 +156,10 @@ public @interface ExecutionPermission {
        */
       readProcessInstanceData,
       /**
+       * permission to read a deployed runtime artifact.
+       */
+      readRuntimeArtifact,
+      /**
        * readUserData - permission to access user data such as email, account, etc.
        */
       readUserData,
@@ -186,15 +194,7 @@ public @interface ExecutionPermission {
       /**
        * permission to start a new process instance
        */
-      startProcesses,
-      /**
-       * permission to deploy and manage a runtime artifact.
-       */
-      deployRuntimeArtifact,
-      /**
-       * permission to read a deployed runtime artifact.
-       */
-      readRuntimeArtifact
+      startProcesses
    }
 
    /**
@@ -210,7 +210,7 @@ public @interface ExecutionPermission {
     * <li>model - permission applies to the active model.</li>
     * <li>process - permission applies to the accessed process instance(s).</li>
     * <li>activity - permission applies to the accessed activity instance(s).</li>
-    * <li>activity - permission applies to the accessed data object(s).</li>
+    * <li>data - permission applies to the accessed data object(s).</li>
     * </ul>
     *
     * @return the scope of the permission.

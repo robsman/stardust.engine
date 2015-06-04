@@ -362,15 +362,19 @@ public class Authorization2
 
    private static String checkPermission(AuthorizationContext context)
    {
-      if (hasAnyOf(context.getPermission().getDeniedIds(), context))
+      // global override only for changeable permissions
+      if (context.getPermission().changeable())
       {
-         // globally denied
-         return PredefinedConstants.ADMINISTRATOR_ROLE;
-      }
-      if (hasAnyOf(context.getPermission().getAllowedIds(), context))
-      {
-         // globally allowed
-         return null;
+         if (hasAnyOf(context.getPermission().getDeniedIds(), context))
+         {
+            // globally denied
+            return PredefinedConstants.ADMINISTRATOR_ROLE;
+         }
+         if (hasAnyOf(context.getPermission().getAllowedIds(), context))
+         {
+            // globally allowed
+            return null;
+         }
       }
       String[] grants = context.getGrants();
       boolean ownerPresent = false;

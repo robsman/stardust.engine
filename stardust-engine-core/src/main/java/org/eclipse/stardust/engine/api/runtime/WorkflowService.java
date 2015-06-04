@@ -738,7 +738,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnSubProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance spawnSubprocessInstance(long parentProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
@@ -768,7 +767,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnSubProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    List<ProcessInstance> spawnSubprocessInstances(long parentProcessInstanceOid,
          List<SubprocessSpawnInfo> subprocessSpawnInfo) throws IllegalOperationException,
@@ -815,7 +813,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
@@ -854,7 +851,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, SpawnOptions options) throws IllegalOperationException,
@@ -886,7 +882,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.createCase,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance createCase(String name, String description, long[] memberOids)
          throws ObjectNotFoundException, IllegalOperationException, InvalidArgumentException, ConcurrencyException;
@@ -1034,7 +1029,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.joinProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance joinProcessInstance(long processInstanceOid,
          long targetProcessInstanceOid, String comment) throws ObjectNotFoundException, IllegalOperationException;

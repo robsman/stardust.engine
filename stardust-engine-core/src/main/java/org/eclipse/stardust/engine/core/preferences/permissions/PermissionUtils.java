@@ -11,13 +11,8 @@
 package org.eclipse.stardust.engine.core.preferences.permissions;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -33,8 +28,8 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
 public class PermissionUtils
 {
@@ -52,70 +47,7 @@ public class PermissionUtils
     * The static defaults for the permissions.
     * Please Note: Changing a default here does not automatically update saved preferences.
     */
-   private final static Map<String, String> defaultPermissions;
-
-   static
-   {
-      defaultPermissions = new HashMap<String, String>();
-
-      defaultPermissions.put(ExecutionPermission.Id.controlProcessEngine.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.deployProcessModel.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.forceSuspend.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageDaemons.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyAuditTrail.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyDepartments.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyUserData.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.readAuditTrailStatistics.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-      defaultPermissions.put(ExecutionPermission.Id.createCase.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.readDepartments.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.readModelData.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.readUserData.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.resetUserPassword.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.runRecovery.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageAuthorization.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageDeputies.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-      defaultPermissions.put(
-            ExecutionPermission.Id.saveOwnPartitionScopePreferences.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.saveOwnRealmScopePreferences.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.saveOwnUserScopePreferences.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.spawnSubProcessInstance.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.spawnPeerProcessInstance.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.joinProcessInstance.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(
-            ExecutionPermission.Id.deployRuntimeArtifact.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.readRuntimeArtifact.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-   }
+   private final static Map<String, String> defaultPermissions = ClientPermission.getDefaults();
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)
    {
@@ -375,7 +307,8 @@ public class PermissionUtils
       for (String qualifiedModelParticipantId : grants)
       {
          if (!PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
-               && !Authorization2.ALL.equals(qualifiedModelParticipantId))
+               && !Authorization2.ALL.equals(qualifiedModelParticipantId)
+               && !Authorization2.OWNER.equals(qualifiedModelParticipantId))
          {
             QName qualifier = QName.valueOf(qualifiedModelParticipantId);
 

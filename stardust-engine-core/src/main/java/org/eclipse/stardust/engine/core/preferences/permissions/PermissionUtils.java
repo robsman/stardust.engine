@@ -238,7 +238,8 @@ public class PermissionUtils
       {
          if (entry.getValue() != null && !entry.getValue().isEmpty())
          {
-            List<String> srcList = (List<String>) preferencesMap.get(entry.getKey());
+            String key = entry.getKey();
+            List<String> srcList = (List<String>) preferencesMap.get(key);
             List<String> targetList = entry.getValue();
             TreeSet<String> srcSet = null;
             if (srcList != null)
@@ -250,7 +251,7 @@ public class PermissionUtils
             // checkValidParticipants throws ValidationException if a grant is not
             // valid for the active model.
             if (srcSet != null && srcSet.equals(targetSet)
-                  || checkValidParticipants(targetList))
+                  || checkValidParticipants(targetList, isGlobalPermission(key)))
             {
                toAdd.put(entry.getKey(), (Serializable) entry.getValue());
             }
@@ -274,7 +275,7 @@ public class PermissionUtils
             // checkValidParticipants throws ValidationException if a grant is not
             // valid for the active model.
             if (srcSet != null && srcSet.equals(targetSet)
-                  || !isGlobalPermission(key) || checkValidParticipants(targetList))
+                  || checkValidParticipants(targetList, isGlobalPermission(key)))
             {
                toAdd.remove(key);
                toAdd.put("deny:" + key, (Serializable) value);
@@ -301,7 +302,7 @@ public class PermissionUtils
       return true;
    }
 
-   private static boolean checkValidParticipants(List<String> grants)
+   private static boolean checkValidParticipants(List<String> grants, boolean isGlobal)
          throws ValidationException
    {
       for (String qualifiedModelParticipantId : grants)
@@ -342,12 +343,15 @@ public class PermissionUtils
                      "Setting permissions failed. Participant does not exist in active model: "
                            + qualifiedModelParticipantId, false);
             }
-            IOrganization firstScopedOrganization = DepartmentUtils.getFirstScopedOrganization(participant);
-            if (firstScopedOrganization != null)
+            if (isGlobal)
             {
-               throw new ValidationException(
-                     "Setting permissions failed. Setting grants to scoped model participants is not allowed: "
-                           + qualifiedModelParticipantId, false);
+               IOrganization firstScopedOrganization = DepartmentUtils.getFirstScopedOrganization(participant);
+               if (firstScopedOrganization != null)
+               {
+                  throw new ValidationException(
+                        "Setting permissions failed. Setting grants to scoped model participants is not allowed: "
+                              + qualifiedModelParticipantId, false);
+               }
             }
          }
       }

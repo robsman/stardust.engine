@@ -387,7 +387,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -430,7 +430,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -588,7 +588,7 @@
                               <carnot:EventActions>
                                  <carnot:EventAction Oid="87" Id="SendSignal" Name="Send Signal" Type="sendSignal" Kind="EVENT">
                                     <carnot:Attributes>
-                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal1"/>
+                                       <carnot:Attribute Name="stardust:bpmn:signal:name" Value="Signal1"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -745,7 +745,7 @@
                               <carnot:EventActions>
                                  <carnot:EventAction Oid="1087" Id="SendSignal" Name="Send Signal" Type="sendSignal" Kind="EVENT">
                                     <carnot:Attributes>
-                                       <carnot:Attribute Name="carnot:engine:signalCode" Value="Signal2"/>
+                                       <carnot:Attribute Name="stardust:bpmn:signal:name" Value="Signal2"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>
@@ -928,7 +928,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1109,7 +1109,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1467,7 +1467,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="carnot:engine:signalCode:firedSignalValidityDuration" Value="0" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="0" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>

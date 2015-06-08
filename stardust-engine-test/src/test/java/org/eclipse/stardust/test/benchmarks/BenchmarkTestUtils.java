@@ -50,11 +50,6 @@ public class BenchmarkTestUtils
 
       final String parentFolder = "/business-calendars/timeOffCalendar";
 
-      if (dms.getFolder(parentFolder) != null)
-      {
-         return;
-      }
-
       String content = getCalendarJson(calendarName);
 
       DocumentInfo document = DmsUtils.createDocumentInfo(calendarName);

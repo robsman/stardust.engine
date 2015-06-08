@@ -153,9 +153,19 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
          }
          else
          {
-            throw new PublicException(
-            BpmRuntimeError.CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID.raise(options
-                  .get(processInstanceIds)));
+            try
+            { 
+               processOids = new ArrayList<Long>();
+               Long id = Long.valueOf(processInstanceIds);
+               processOids.add(id);
+            }
+            catch (NumberFormatException e)
+            {
+               throw new PublicException(
+                     BpmRuntimeError.CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID.raise(options
+                           .get(processInstanceIds)));
+            }
+          
          }
       }
       else

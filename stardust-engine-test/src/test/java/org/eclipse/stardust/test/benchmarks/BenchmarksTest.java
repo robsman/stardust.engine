@@ -65,16 +65,14 @@ public class BenchmarksTest
    private static final String BENCHMARK_PROCESS = "BenchmarkedProcess";
 
    private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
-   
+
    private static final String BENCHMARK_REF = "benchmarksTest.benchmark";
 
    @Before
    public void setup()
    {
-      BenchmarkTestUtils.deployCalendar("timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json", serviceFactory);
-
       BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
-      
+
       startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
    }
@@ -84,7 +82,7 @@ public class BenchmarksTest
    {
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
-  
+
       assertTrue(0 < pi.getBenchmark());
       assertTrue(0 == pi.getBenchmarkResult().getCategory());
 
@@ -100,9 +98,9 @@ public class BenchmarksTest
 
       ActivityInstance instance = serviceFactory.getQueryService()
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
-      
+
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
-      
+
       // Check if properties are available
       assertEquals("Late",instance.getBenchmarkResult().getProperties().get("name"));
    }
@@ -154,12 +152,12 @@ public class BenchmarksTest
       serviceFactory.getWorkflowService().suspendToDefaultPerformer(instance.getOID());
 
       instance = serviceFactory.getWorkflowService().getActivityInstance(
-            instance.getOID());     
-      
+            instance.getOID());
+
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
    }
-   
+
 
    @Test
    public void startSubProcessInstanceWithBenchmarkTest()

@@ -347,8 +347,10 @@ public class AdminServiceUtils
       session.delete(LogEntryBean.class, Predicates.isEqual(LogEntryBean.FR__PARTITION,
             partitionOid), false);
 
-      // SignalMessage
+      // SignalMessage (incl. lookup table)
       session.delete(SignalMessageBean.class, Predicates.isEqual(SignalMessageBean.FR__PARTITION_OID,
+            partitionOid), false);
+      session.delete(SignalMessageLookupBean.class, Predicates.isEqual(SignalMessageLookupBean.FR__PARTITION_OID,
             partitionOid), false);
 
       // PropertyPersistor

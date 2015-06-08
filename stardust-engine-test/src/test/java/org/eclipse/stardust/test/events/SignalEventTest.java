@@ -12,6 +12,7 @@ package org.eclipse.stardust.test.events;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -185,8 +186,8 @@ public class SignalEventTest
       // signal has been accepted, assert that output data is correct
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
       Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
-      assertThat(outputData, Matchers.instanceOf(String.class));
-      assertThat((String) outputData, Matchers.equalTo("Horst"));
+      assertThat(outputData, instanceOf(String.class));
+      assertThat((String) outputData, equalTo("Horst"));
    }
 
    @Test

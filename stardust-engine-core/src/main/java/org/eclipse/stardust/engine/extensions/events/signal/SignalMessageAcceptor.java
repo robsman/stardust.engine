@@ -10,8 +10,10 @@ import static org.eclipse.stardust.engine.core.persistence.QueryExtension.where;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.jms.JMSException;
@@ -47,8 +49,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
+import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageLookupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -129,7 +132,9 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
 
                IActivityInstance ai = iterator.next();
 
-               if (matchPredicateData(ai, signalName, message))
+               Map<String, Object> aiData = getAiData(ai, signalName);
+               Map<String, Object> msgData = getMessageData(ai, signalName, message);
+               if (matchPredicateData(aiData, msgData))
                {
                   trace.info("Found signal target: " + ai);
                   ais.add(ai);
@@ -269,38 +274,55 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       });
    }
 
-   /* package-private */ boolean matchPredicateData(IActivityInstance ai, String signalName, Message message)
+   /* package-private */ LinkedHashMap<String, Object> getAiData(IActivityInstance ai, String signalName)
+   {
+      LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
+
+      String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
+      ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
+      for (IDataMapping dm : inDataMappings)
+      {
+         if (eventContextName.equals(dm.getContext()))
+         {
+            Object aiDataValue = ai.getProcessInstance().getInDataValue(dm.getData(), dm.getDataPath());
+            result.put(dm.getId(), aiDataValue);
+         }
+      }
+
+      return result;
+   }
+
+   /* package-private */ Map<String, Object> getMessageData(IActivityInstance ai, String signalName, Message message)
    {
       String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
       ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
-      Set<IDataMapping> eventMappings = newHashSet();
       Set<AccessPoint> accessPoints = newHashSet();
       for (IDataMapping dm : inDataMappings)
       {
          if (eventContextName.equals(dm.getContext()))
          {
-            eventMappings.add(dm);
             accessPoints.add(new JavaAccessPoint(dm.getId(), dm.getName(), Direction.IN));
          }
       }
 
-      Map<String, Object> data = getData(message, null, accessPoints.iterator());
-      if (accessPoints.size() > data.size())
+      return getData(message, null, accessPoints.iterator());
+   }
+
+   /* package-private */ boolean matchPredicateData(Map<String, Object> aiData, Map<String, Object> msgData)
+   {
+      if (aiData.size() > msgData.size())
       {
          return false;
       }
 
-      for (IDataMapping dm : eventMappings)
+      for (Entry<String, Object> e : aiData.entrySet())
       {
-         Object aiDataValue = ai.getProcessInstance().getInDataValue(dm.getData(), dm.getDataPath());
-         Object msgDataValue = data.get(dm.getId());
-
-         if (aiDataValue == null)
+         if (e.getValue() == null)
          {
             continue;
          }
 
-         if ( !aiDataValue.equals(msgDataValue))
+         if ( !e.getValue().equals(msgData.get(e.getKey())))
          {
             return false;
          }
@@ -312,7 +334,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    /**
     * Collect triggers and activity-event handlers with a signal declaration.
     */
-   private Pair<List<IEventHandler>,List<ITrigger>> initializeFromModel() {
+   private static Pair<List<IEventHandler>,List<ITrigger>> initializeFromModel() {
       if (trace.isDebugEnabled())
       {
          trace.debug("Bootstrapping signal acceptors");
@@ -513,11 +535,42 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
       @Override
       public void process(AdministrationServiceImpl session, Message message)
       {
+         MapMessage mapMsg = (MapMessage) message;
+         short partitionOid = SecurityProperties.getPartitionOid();
+
          /* create message store entry */
-         new SignalMessageBean(SecurityProperties.getPartitionOid(), (MapMessage) message);
+         SignalMessageBean signalMessageBean = new SignalMessageBean(partitionOid, mapMsg);
 
          /* create message store index based on currently used predicate data */
-         // TODO - bpmn-2-events - create message store index based on currently used predicate data
+         List<IEventHandler> eventHandlers = initializeFromModel().getFirst();
+         String signalName = SignalMessageUtils.getSignalNameFrom(mapMsg);
+         String eventContextName = PredefinedConstants.EVENT_CONTEXT + signalName;
+         Set<List<String>> dataIdsSet = CollectionUtils.newHashSet();
+         for (IEventHandler e : eventHandlers)
+         {
+            if ( !e.getId().equals(signalName))
+            {
+               continue;
+            }
+
+            List<String> dataIds = CollectionUtils.newArrayList();
+            IActivity activity = (IActivity) e.getParent();
+            for (IDataMapping dm : activity.getInDataMappings())
+            {
+               if (eventContextName.equals(dm.getContext()))
+               {
+                  dataIds.add(dm.getId());
+               }
+            }
+
+            dataIdsSet.add(dataIds);
+         }
+
+         for (List<String> dataIds : dataIdsSet)
+         {
+            String signalDataHash = SignalMessageUtils.createSignalDataHash(mapMsg, signalName, dataIds);
+            new SignalMessageLookupBean(partitionOid, signalDataHash, signalMessageBean.getOID());
+         }
       }
    }
 }

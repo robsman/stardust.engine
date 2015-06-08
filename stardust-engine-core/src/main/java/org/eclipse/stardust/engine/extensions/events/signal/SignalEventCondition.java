@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.extensions.events.signal;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -26,6 +27,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ISignalMessage;
 import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
+import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageLookupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
@@ -82,12 +84,20 @@ public class SignalEventCondition implements EventHandlerInstance
                final Date now = TimestampProviderUtils.getTimeStamp();
                final Date validFrom = new Date(now.getTime() - pastSignalsGracePeriod.longValue() * 1000);
 
-               final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
                final SignalMessageAcceptor signalMsgAcceptor = new SignalMessageAcceptor();
+               final LinkedHashMap<String, Object> aiData = signalMsgAcceptor.getAiData(ai, signalName);
+               final String signalDataHash = SignalMessageUtils.createSignalDataHash(signalName, aiData);
+               Iterator<SignalMessageBean> messageStoreIter = SignalMessageLookupBean.findFor(partitionOid, signalDataHash, validFrom);
+               if ( !messageStoreIter.hasNext())
+               {
+                  messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
+               }
+
                while (messageStoreIter.hasNext())
                {
                   final SignalMessageBean signalMsg = messageStoreIter.next();
-                  if (signalMsgAcceptor.matchPredicateData(ai, signalName, signalMsg.getMessage()))
+                  final Map<String, Object> messageData = signalMsgAcceptor.getMessageData(ai, signalName, signalMsg.getMessage());
+                  if (signalMsgAcceptor.matchPredicateData(aiData, messageData))
                   {
                      scheduleSignalMessageProcessing(ai, signalMsg);
 

@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
-import org.eclipse.stardust.engine.extensions.events.signal.SignalMessageAcceptor;
+import org.eclipse.stardust.engine.extensions.events.signal.SignalMessageUtils;
 import org.eclipse.stardust.engine.extensions.jms.utils.JMSUtils;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -100,7 +100,7 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    public SignalMessageBean(final long partitionOid, final MapMessage message)
    {
       this.partitionOid = partitionOid;
-      this.signalName = getSignalNameFrom(message);
+      this.signalName = SignalMessageUtils.getSignalNameFrom(message);
       this.messageContent = serialize(message);
       this.timestamp = TimestampProviderUtils.getTimeStamp();
 
@@ -129,7 +129,7 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
       fetch();
 
       final MapMessage result = deserialize(messageContent);
-      setSignalNameOn(result);
+      SignalMessageUtils.setSignalNameOn(result, getSignalName());
       return result;
    }
 
@@ -180,32 +180,6 @@ public class SignalMessageBean extends IdentifiablePersistentBean implements ISi
    {
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(SignalMessageBean.class,
             where(andTerm(isEqual(FR__PARTITION_OID, partitionOid), isEqual(FR__SIGNAL_NAME, signalName), greaterOrEqual(FR__TIMESTAMP, validFrom.getTime()))));
-   }
-
-   private String getSignalNameFrom(final MapMessage msg)
-   {
-      try
-      {
-         return msg.getStringProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY);
-      }
-      catch (final JMSException e)
-      {
-         // TODO - bpmn-2-events - review exception handling
-         throw new PublicException(e.getMessage(), e);
-      }
-   }
-
-   private void setSignalNameOn(final MapMessage msg)
-   {
-      try
-      {
-         msg.setStringProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY, getSignalName());
-      }
-      catch (final JMSException e)
-      {
-         // TODO - bpmn-2-events - review exception handling
-         throw new PublicException(e.getMessage(), e);
-      }
    }
 
    // TODO - bpmn-2-events - review serialization

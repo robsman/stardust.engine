@@ -104,6 +104,7 @@ public final class PredefinedConstants
    public static final String EXTERNAL_EVENT_CONDITION = "external";
    public static final String OBSERVER_EVENT_CONDITION = "observer";
    public static final String SUBPROCESS_EXCEPTION = "subprocessException";
+   public static final String SIGNAL_CONDITION = "signal";
 
    // predefined data
    public static final String LAST_ACTIVITY_PERFORMER = "LAST_ACTIVITY_PERFORMER";

@@ -575,6 +575,21 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          EventUtils.processAutomaticEvent(getActivity(),
                PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION, event);
       }
+
+      if ((ActivityInstanceState.HIBERNATED == state)
+            && getActivity().hasEventHandlers(PredefinedConstants.SIGNAL_CONDITION))
+      {
+         // TODO cleanup event
+         Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED,
+               Event.OID_UNDEFINED, Event.ENGINE_EVENT);
+         event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT,
+               ActivityInstanceState.getState(oldState));
+         event.setAttribute(PredefinedConstants.TARGET_STATE_ATT,
+               ActivityInstanceState.getState(state));
+
+         EventUtils.processAutomaticEvent(getActivity(),
+               PredefinedConstants.SIGNAL_CONDITION, event);
+      }
    }
 
    public Date getStartTime()

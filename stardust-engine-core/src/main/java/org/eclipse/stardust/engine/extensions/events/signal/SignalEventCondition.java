@@ -15,7 +15,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.AttributedIdentifiablePersistent;
+import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
@@ -24,63 +29,72 @@ import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
-/**
- * <p>
- * Checks whether the signal the <i>Activity Instance</i> is waiting for has already been fired
- * and persisted in the <i>Audit Trail Database</i>'s <i>Message Store</i> (see {@code SignalMessageBean}).
- * </p>
- *
- * @author Nicolas.Werlein
- */
-public class CheckMessageStoreEventAction implements EventActionInstance
+public class SignalEventCondition implements EventHandlerInstance
 {
-   private String signalName;
+   static final Logger trace = LogManager.getLogger(SignalEventCondition.class);
 
    private Long firedSignalValidityDuration;
 
-   private long partitionOid;
+   private short partitionOid;
 
    @Override
-   public void bootstrap(final Map actionAttributes, final Iterator ignored)
+   public void bootstrap(Map actionAttributes)
    {
-      final Object signalCode = actionAttributes.get(SignalMessageAcceptor.BPMN_SIGNAL_CODE);
-      this.signalName = (signalCode != null) ? signalCode.toString() : "";
-
-      final Object firedSignalValidityDuration = actionAttributes.get(SignalMessageAcceptor.FIRED_SIGNAL_VALIDITY_DURATION);
-      this.firedSignalValidityDuration = (firedSignalValidityDuration != null) ? (Long) firedSignalValidityDuration : null;
+      final Object firedSignalValidityDuration = actionAttributes
+            .get(SignalMessageAcceptor.FIRED_SIGNAL_VALIDITY_DURATION);
+      this.firedSignalValidityDuration = (firedSignalValidityDuration != null)
+            ? (Long) firedSignalValidityDuration
+            : null;
 
       this.partitionOid = SecurityProperties.getPartitionOid();
    }
 
    @Override
-   public Event execute(final Event event)
+   public boolean accept(Event event)
    {
       if (firedSignalValidityDuration == null || firedSignalValidityDuration.longValue() <= 0)
       {
-         return null;
+         return false;
       }
 
-      final ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
-
-      final Date now = TimestampProviderUtils.getTimeStamp();
-      final Date validFrom = new Date(now.getTime() - firedSignalValidityDuration.longValue() * 1000);
-
-      final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
-      final SignalMessageAcceptor signalMsgAcceptor = new SignalMessageAcceptor();
-      while (messageStoreIter.hasNext())
+      AttributedIdentifiablePersistent eventSource = EventUtils.getEventSourceInstance(event);
+      if (eventSource instanceof IActivityInstance)
       {
-         final SignalMessageBean signalMsg = messageStoreIter.next();
-         if (signalMsgAcceptor.matchPredicateData(ai, signalName, signalMsg.getMessage()))
+         IActivityInstance ai = (IActivityInstance) eventSource;
+
+         IActivity activity = ai.getActivity();
+         for(IEventHandler handler : activity.getEventHandlers())
          {
-            scheduleSignalMessageProcessing(ai, signalMsg);
-            break;
+            if (handler.getOID() == event.getHandlerModelElementOID())
+            {
+               // found the context we're invoked in
+               String signalName = handler.getName();
+
+               final Date now = TimestampProviderUtils.getTimeStamp();
+               final Date validFrom = new Date(now.getTime() - firedSignalValidityDuration.longValue() * 1000);
+
+               final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
+               final SignalMessageAcceptor signalMsgAcceptor = new SignalMessageAcceptor();
+               while (messageStoreIter.hasNext())
+               {
+                  final SignalMessageBean signalMsg = messageStoreIter.next();
+                  if (signalMsgAcceptor.matchPredicateData(ai, signalName, signalMsg.getMessage()))
+                  {
+                     scheduleSignalMessageProcessing(ai, signalMsg);
+
+                     return true;
+                  }
+               }
+
+               break;
+            }
          }
       }
 
-      return null;
+      return false;
    }
 
    private void scheduleSignalMessageProcessing(final IActivityInstance ai, final ISignalMessage signalMsg)

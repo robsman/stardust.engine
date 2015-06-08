@@ -446,11 +446,14 @@ public class ExportProcessesCommand implements ServiceCommand
          exportResult.close();
       }
       exportResult.getPurgeProcessIds().clear();
-      if (allIds != null)
+      if (dumpLocation == null)
       {
-         exportResult.getPurgeProcessIds().addAll(allIds);
+         if (allIds != null)
+         {
+            exportResult.getPurgeProcessIds().addAll(allIds);
+         }
+         exportResult.getPurgeProcessIds().addAll(exportMetaData.getBackedUpProcesses());
       }
-      exportResult.getPurgeProcessIds().addAll(exportMetaData.getBackedUpProcesses());
    }
 
    private void exportModels(Session session)
@@ -643,11 +646,11 @@ public class ExportProcessesCommand implements ServiceCommand
             {
                if (exported)
                {
-                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, uuid);
+                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, uuid, dumpLocation != null);
                }
                else
                {
-                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, null);
+                  exportMetaData.addProcess(oid, startDate, rootOid, modelOid, null, dumpLocation != null);
                }
             }
          }
@@ -923,7 +926,7 @@ public class ExportProcessesCommand implements ServiceCommand
       }
 
       private void addProcess(Long oid, Date startTime, Long rootProcessOid,
-            Integer modelOid, String uuid)
+            Integer modelOid, String uuid, boolean isDump)
       {
          Date indexDateTime = ExportImportSupport.getIndexDateTime(startTime);
          if (uuid != null)
@@ -978,8 +981,8 @@ public class ExportProcessesCommand implements ServiceCommand
             dateToModelOids.put(indexDateTime, modelOids);
          }
          // these are the models that needs to be exported so we only need to export
-         // models for processes that are not exported yet
-         if (StringUtils.isEmpty(uuid))
+         // models for processes that are not exported yet, or if we are doing a dump operation
+         if (StringUtils.isEmpty(uuid) || isDump)
          {
             modelOids.add(modelOid);
          }

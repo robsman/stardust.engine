@@ -36,6 +36,8 @@ public class BenchmarkDefinitionParser
 
    private static final String JSON_CATEGORIES = "categories";
 
+   private static final String BUSINESS_CALENDAR = "businessCalendar";
+
    // Benchmark Definition Category Elements
    private static final String CATEGORY_KEY_COLOR = "color";
 
@@ -61,11 +63,19 @@ public class BenchmarkDefinitionParser
 
    private static final String CONDITION_CATEGORY_ID = "categoryId";
 
+
    public static void parse(BenchmarkDefinition benchmarkDefinition, byte[] contentBytes)
    {
       JsonObject json = getDocumentJson(contentBytes);
       if (json != null)
       {
+
+         // Parse business calendar reference.
+         JsonElement businessCalendarObject = json.get(BUSINESS_CALENDAR);
+         if (businessCalendarObject != null)
+         {
+            benchmarkDefinition.businessCalendarId = businessCalendarObject.getAsString();
+         }
 
          Map<String, Integer> categoryIndexMap = CollectionUtils.newMap();
 
@@ -178,7 +188,7 @@ public class BenchmarkDefinitionParser
                {
 
                   TreeMap<Integer,ConditionEvaluator> pdConditionMap = CollectionUtils.newTreeMap();
-                  
+
                   for (JsonElement categoryCondition : categoryConditions)
                   {
                      JsonObject conditionObject = categoryCondition.getAsJsonObject();
@@ -187,7 +197,7 @@ public class BenchmarkDefinitionParser
                            .getAsString();
 
                      pdConditionMap.putAll(createConditionMap(categoryIndexMap,
-                           conditionObject, categoryId));
+                           conditionObject, categoryId, benchmarkDefinition));
                   }
                   benchmarkDefinition.processConditions.put(pdId.toString(), pdConditionMap);
                }
@@ -215,8 +225,8 @@ public class BenchmarkDefinitionParser
                               .getAsString();
 
                         aConditionMap.putAll(createConditionMap(categoryIndexMap, conditionObject,
-                              categoryId));
-                        
+                              categoryId, benchmarkDefinition));
+
 
                      }
                      benchmarkDefinition.activityConditions.put(new Pair<String, String>(
@@ -228,20 +238,21 @@ public class BenchmarkDefinitionParser
             }
          }
       }
- 
+
    }
 
 
    /**
-    * 
+    *
     * @param categoryIndexMap
     * @param conditionObject
     * @param categoryId
+    * @param benchmarkDefinition
     * @return
     */
    private static TreeMap<Integer, ConditionEvaluator> createConditionMap(
          Map<String, Integer> categoryIndexMap, JsonObject conditionObject,
-         String categoryId)
+         String categoryId, BenchmarkDefinition benchmarkDefinition)
    {
       TreeMap<Integer, ConditionEvaluator> conditionMap = CollectionUtils.newTreeMap();
 
@@ -259,7 +270,7 @@ public class BenchmarkDefinitionParser
          else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("currentTime"))
          {
             conditionMap.put(categoryIndexMap.get(categoryId),
-                  createCalendarCondition(conditionObject));
+                  createCalendarCondition(conditionObject, benchmarkDefinition));
          }
          else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("default"))
          {
@@ -277,7 +288,7 @@ public class BenchmarkDefinitionParser
     * @param conditionObject
     * @return
     */
-   private static ConditionEvaluator createCalendarCondition(JsonObject conditionObject)
+   private static ConditionEvaluator createCalendarCondition(JsonObject conditionObject, BenchmarkDefinition benchmarkDefinition)
    {
       ConditionEvaluator evaluator;
 
@@ -292,7 +303,6 @@ public class BenchmarkDefinitionParser
 
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
-      String calendarDocumentId = "";
       String qualifiedDataId = calendarCondition.get("lhs").getAsString();
 
       String stringComperator = calendarCondition.get("operator").getAsString();
@@ -309,7 +319,7 @@ public class BenchmarkDefinitionParser
 
       if (isBusinessCalendar)
       {
-         evaluator = new BusinessDaysCondition(calendarDocumentId, comperator,
+         evaluator = new BusinessDaysCondition(benchmarkDefinition.getBusinessCalendarId(), comperator,
                qualifiedDataId, offset);
       }
       else

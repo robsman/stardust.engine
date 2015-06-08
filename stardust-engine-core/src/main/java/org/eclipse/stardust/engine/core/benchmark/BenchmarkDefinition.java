@@ -39,6 +39,8 @@ public class BenchmarkDefinition
 
    Map<Integer, Map<String,Serializable>> properties;
 
+   String businessCalendarId;
+
    public BenchmarkDefinition(long benchmarkOid)
    {
       this.oid = benchmarkOid;
@@ -51,7 +53,6 @@ public class BenchmarkDefinition
 
       RuntimeArtifact ra = ArtifactManagerFactory.getCurrent().getArtifact(benchmarkOid);
       BenchmarkDefinitionParser.parse(this, ra.getContent());
-
    }
 
    public long getOid()
@@ -82,6 +83,11 @@ public class BenchmarkDefinition
    public Map<String,Serializable> getProperty(int category)
    {
       return this.properties.get(category);
+   }
+
+   public String getBusinessCalendarId()
+   {
+      return businessCalendarId;
    }
 
 }

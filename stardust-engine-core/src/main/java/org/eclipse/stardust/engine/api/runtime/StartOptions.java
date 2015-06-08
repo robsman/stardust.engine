@@ -29,7 +29,7 @@ public class StartOptions implements Serializable
 
    private boolean synchronously;
 
-   private long benchmarkReference;
+   private String benchmarkId;
 
    public Map<String, ? > getData()
    {
@@ -41,22 +41,22 @@ public class StartOptions implements Serializable
       return synchronously;
    }
 
-   public long getBenchmarkReference()
+   public String getBenchmarkId()
    {
-      return benchmarkReference;
+      return benchmarkId;
    }
 
    public StartOptions(Map<String, ? > data, boolean synchronously)
    {
-      this(data, synchronously, 0);
+      this(data, synchronously, null);
    }   
    
    public StartOptions(Map<String, ? > data, boolean synchronously,
-         long benchmarkReference)
+         String benchmarkId)
    {
       this.data = data;
       this.synchronously = synchronously;
-      this.benchmarkReference = benchmarkReference;
+      this.benchmarkId = benchmarkId;
    }
 
 }

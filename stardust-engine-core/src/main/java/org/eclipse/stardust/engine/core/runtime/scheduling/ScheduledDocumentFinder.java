@@ -35,7 +35,7 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
    public static final String USER_DIR = "/users";
    public static final String DESIGNS_SUBFOLDER = "/designs";
 
-   private Date startingDate;
+   protected Date startingDate;
    protected Date executionDate;
    private DocumentManagementService dmService;
 
@@ -136,9 +136,13 @@ public abstract class ScheduledDocumentFinder<T extends ScheduledDocument>
 
             if (matches)
             {
-               scheduledDocuments.add(createScheduledDocument(documentJson,
+               T createdScheduledDocument = createScheduledDocument(documentJson,
                      owner == null ? new QName("") : QName.valueOf(owner),
-                     documentName, document.getPath(), matchingEvents));
+                     documentName, document.getPath(), matchingEvents);
+               if (createdScheduledDocument != null)
+               {
+               scheduledDocuments.add(createdScheduledDocument);
+               }
             }
          }
       }

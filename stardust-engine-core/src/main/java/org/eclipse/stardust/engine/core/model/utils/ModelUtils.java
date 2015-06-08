@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.StringUtils;
@@ -41,6 +43,58 @@ public class ModelUtils
       new ModelElementListAdapter(Collections.emptyList());
 
    private static final String PREDEFINED_MODEL_PATH = "/META-INF/resources/models/PredefinedModel.xpdl";
+
+   public static IModel getModel(long modelOID) throws ObjectNotFoundException
+   {
+      IModel result = ModelManagerFactory.getCurrent().findModel(modelOID);
+      if (result == null)
+      {
+         if (PredefinedConstants.ACTIVE_MODEL == modelOID)
+         {
+            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
+         }
+         else
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOID), modelOID);
+         }
+      }
+      return result;
+   }
+
+   public static IProcessDefinition getProcessDefinition(String id)
+         throws ObjectNotFoundException
+   {
+      IProcessDefinition processDefinition = null;
+      String namespace = null;
+      if (id.startsWith("{"))
+      {
+         QName qname = QName.valueOf(id);
+         namespace = qname.getNamespaceURI();
+         id = qname.getLocalPart();
+      }
+
+      if (namespace != null)
+      {
+         IModel model = ModelManagerFactory.getCurrent().findActiveModel(namespace);
+         if (model != null)
+         {
+            processDefinition = model.findProcessDefinition(id);
+         }
+      }
+      else
+      {
+         processDefinition = getModel(PredefinedConstants.ACTIVE_MODEL).findProcessDefinition(id);
+      }
+
+      if (processDefinition == null)
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(id), id);
+      }
+
+      return processDefinition;
+   }
 
    public static <T extends ModelElement> ModelElementList<T> getModelElementList(List<T> modelElements)
    {

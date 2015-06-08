@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -38,6 +39,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
+import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
 
 /**
  * @author mgille
@@ -52,23 +55,23 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ProcessInstance startProcess(String id, Map<String, ? > inputData,
          boolean synchronously)
    {
-      StartOptions options = new StartOptions(inputData, synchronously, 0);
+      StartOptions options = new StartOptions(inputData, synchronously, null);
 
-      IProcessDefinition processDefinition = getIProcessDefinition(id);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(id);
       return startProcess(processDefinition, options);
    }
 
    public ProcessInstance startProcess(IProcessDefinition processDefinition, Map<String, ? > inputData,
          boolean synchronously)
    {
-      StartOptions options = new StartOptions(inputData, synchronously, 0);
+      StartOptions options = new StartOptions(inputData, synchronously, null);
 
       return startProcess(processDefinition, options);
    }
 
    public ProcessInstance startProcess(String id, StartOptions options)
    {
-      IProcessDefinition processDefinition = getIProcessDefinition(id);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(id);
       return startProcess(processDefinition, options);
    }
 
@@ -98,9 +101,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, SecurityProperties.getUser(), values);
 
-      if (options.getBenchmarkReference() > 0)
+      if (options.getBenchmarkId() != null)
       {
-         processInstance.setBenchmark(options.getBenchmarkReference());
+          DeployedRuntimeArtifact artifact = ArtifactManagerFactory.getCurrent()
+               .getActiveDeployedArtifact(BenchmarkDefinitionArtifactType.TYPE_ID,
+                     options.getBenchmarkId());
+         if (artifact != null)
+         {
+            processInstance.setBenchmark(artifact.getOid());
+         }
+         else
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options.getBenchmarkId()));
+         }
       }
 
       if (trace.isInfoEnabled())
@@ -127,7 +141,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          String spawnProcessID, boolean copyData, Map<String, ? > data)
          throws IllegalOperationException, ObjectNotFoundException
    {
-      IProcessDefinition processDefinition = getIProcessDefinition(spawnProcessID);
+      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(spawnProcessID);
 
       IProcessInstance parentProcessInstance = ProcessInstanceBean.findByOID(rootProcessInstanceOid);
       assertNotCaseProcessInstance(parentProcessInstance);
@@ -2061,40 +2075,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       return result;
    }
 
-   private IProcessDefinition getIProcessDefinition(String id)
-         throws ObjectNotFoundException
-   {
-      IProcessDefinition processDefinition = null;
-      String namespace = null;
-      if (id.startsWith("{"))
-      {
-         QName qname = QName.valueOf(id);
-         namespace = qname.getNamespaceURI();
-         id = qname.getLocalPart();
-      }
-
-      if (namespace != null)
-      {
-         IModel model = ModelManagerFactory.getCurrent().findActiveModel(namespace);
-         if (model != null)
-         {
-            processDefinition = model.findProcessDefinition(id);
-         }
-      }
-      else
-      {
-         processDefinition = getIModel().findProcessDefinition(id);
-      }
-
-      if (processDefinition == null)
-      {
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(id), id);
-      }
-
-      return processDefinition;
-   }
-
    private IEventHandler getIEventHandler(IActivityInstance activityInstance, String id)
          throws ObjectNotFoundException
    {
@@ -2121,7 +2101,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    public IModel getIModel() throws ObjectNotFoundException
    {
-      return getIModel(PredefinedConstants.ACTIVE_MODEL);
+      return ModelUtils.getModel(PredefinedConstants.ACTIVE_MODEL);
    }
 
    private List<IModel> getActiveIModels() throws ObjectNotFoundException
@@ -2130,24 +2110,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (result == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
-      }
-      return result;
-   }
-
-   private IModel getIModel(long modelOID) throws ObjectNotFoundException
-   {
-      IModel result = ModelManagerFactory.getCurrent().findModel(modelOID);
-      if (result == null)
-      {
-         if (PredefinedConstants.ACTIVE_MODEL == modelOID)
-         {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
-         }
-         else
-         {
-            throw new ObjectNotFoundException(
-                  BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOID), modelOID);
-         }
       }
       return result;
    }

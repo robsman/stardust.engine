@@ -14,9 +14,9 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -33,7 +33,7 @@ public class BenchmarkEvaluationAction implements ContextAction
 
    // ********** Global default benchmark formula **********
    private static final String DEFAULT_GLOBAL_BENCHMARK_FORMULA = "var benchmark=processInstance.getOID(); benchmark;";
-   private static final String DEFAULT_GLOBAL_AI_BENCHMARK_FORMULA = "var benchmar=activityInstance.getOID(); benchmark;";
+   private static final String DEFAULT_GLOBAL_AI_BENCHMARK_FORMULA = "var benchmark=processInstance.getBenchmark(); benchmark;";
 
    private static final String KEY_MODEL_SCOPE = BenchmarkEvaluator.class.getName()
          + ".ModelScope";
@@ -44,14 +44,20 @@ public class BenchmarkEvaluationAction implements ContextAction
 
    private ProcessInstanceBean piBean;
 
-   public BenchmarkEvaluationAction(ActivityInstanceBean aiBean)
+   private String javaScript;
+
+   public BenchmarkEvaluationAction(ActivityInstanceBean aiBean, String javaScript)
    {
       this.aiBean = aiBean;
+      this.javaScript = javaScript;
    }
 
-   public BenchmarkEvaluationAction(ProcessInstanceBean piBean)
+
+
+   public BenchmarkEvaluationAction(ProcessInstanceBean pi, String javaScript)
    {
-      this.piBean = piBean;
+      this.piBean = pi;
+      this.javaScript = javaScript;
    }
 
    public Object run(Context cx)
@@ -65,7 +71,7 @@ public class BenchmarkEvaluationAction implements ContextAction
          {
             modelScope = getModelScopeForActivityInstance(aiBean, cx);
             modelScope.bindThreadLocalSymbolTable(SymbolTableFactory.create(aiBean));
-            compiledFormula = cx.compileString(DEFAULT_GLOBAL_AI_BENCHMARK_FORMULA,
+            compiledFormula = cx.compileString(this.javaScript,
                   "Benchmark", 1, null);            
          }
          else if (this.piBean != null)
@@ -73,7 +79,7 @@ public class BenchmarkEvaluationAction implements ContextAction
             modelScope = getModelScopeForProcessInstance(piBean, cx);
             modelScope.bindThreadLocalSymbolTable(SymbolTableFactory.create(piBean, null));
             cx.setOptimizationLevel( -1);
-            compiledFormula = cx.compileString(DEFAULT_GLOBAL_BENCHMARK_FORMULA,
+            compiledFormula = cx.compileString(this.javaScript,
                   "Benchmark", 1, null);
          }
          else

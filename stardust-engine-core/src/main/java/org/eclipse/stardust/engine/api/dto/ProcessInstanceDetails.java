@@ -31,6 +31,10 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkDefinition;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResultDetails;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
@@ -38,22 +42,22 @@ import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 
 /**
  * <p/>
- * Many methods of the CARNOT EJBs return detail objects. Detail objects are
- * serializable helper objects passed by value to the client. They can, for
- * instance, pass the necessary information from the audit trail to the
- * embedding application in a dynamic way to guarantee an optimum of
- * performance.
+ * Many methods of the CARNOT EJBs return detail objects. Detail objects are serializable
+ * helper objects passed by value to the client. They can, for instance, pass the
+ * necessary information from the audit trail to the embedding application in a dynamic
+ * way to guarantee an optimum of performance.
  * </p>
  * <p/>
- * Instances of the class ProcessInstanceDetails are always referring to
- * runtime objects - process instances - and contain data of these runtime
- * objects (e.g. their OID, ID or start timestamp).
+ * Instances of the class ProcessInstanceDetails are always referring to runtime objects -
+ * process instances - and contain data of these runtime objects (e.g. their OID, ID or
+ * start timestamp).
  * </p>
  *
  * @version $Revision$
@@ -64,29 +68,43 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private static final long serialVersionUID = 2L;
 
    public static final String PRP_PI_DETAILS_OPTIONS = "PROCESS_INSTANCE_DETAILS_OPTIONS";
-   /* package-private */ final static String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
+
+   /* package-private */final static String DATE_FORMAT = "yy/MM/dd HH:mm:ss";
 
    private static final Logger trace = LogManager.getLogger(ProcessInstanceDetails.class);
+
    private ProcessInstanceDetailsLevel detailsLevel;
+
    private EnumSet<ProcessInstanceDetailsOptions> detailsOptions;
 
    private final String processName;
+
    private final long rootProcessOID;
+
    private final long scopeProcessOID;
+
    private final int priority;
+
    private final User startingUserDetails;
+
    private final ProcessInstanceState state;
+
    private final Date startingTime;
+
    private final Date terminationTime;
+
    private final long benchmark;
-   private final int benchmarkValue;
+
+   private final BenchmarkResult benchmarkResult;
 
    private ProcessInstance scopeprocessInstance = null;
 
    private long startingActivityInstanceOid;
+
    private long parentProcessInstanceOid;
 
    private Map<String, Object> descriptors = CollectionUtils.newHashMap();
+
    private Map<String, PermissionState> permissions;
 
    private ProcessInstanceAttributes attributes;
@@ -106,12 +124,15 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       super(processInstance, processInstance.getProcessDefinition());
 
       Parameters parameters = Parameters.instance();
-      detailsLevel = parameters.getObject(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Default);
-      detailsOptions = parameters.getObject(PRP_PI_DETAILS_OPTIONS, EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
+      detailsLevel = parameters.getObject(
+            ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
+            ProcessInstanceDetailsLevel.Default);
+      detailsOptions = parameters.getObject(PRP_PI_DETAILS_OPTIONS,
+            EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
 
       this.processName = processInstance.getProcessDefinition().getName();
 
-      //<fix>
+      // <fix>
       long rootPIOID = UNKNOWN_OID;
       try
       {
@@ -121,9 +142,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
       }
       this.rootProcessOID = rootPIOID;
-      //</fix>
+      // </fix>
 
-      //<fix>
+      // <fix>
       long scopePIOID = UNKNOWN_OID;
       try
       {
@@ -133,7 +154,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
       }
       this.scopeProcessOID = scopePIOID;
-      //</fix>
+      // </fix>
 
       initializeScopePi(processInstance, parameters);
 
@@ -142,8 +163,21 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       this.startingTime = processInstance.getStartTime();
       this.terminationTime = processInstance.getTerminationTime();
       this.state = processInstance.getState();
-      this.benchmarkValue = processInstance.getBenchmarkValue();
+ 
       this.benchmark = processInstance.getBenchmark();
+      
+      if (benchmark > 0)
+      {
+      BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(benchmark);
+      
+      this.benchmarkResult = new BenchmarkResultDetails(benchmark,
+            processInstance.getBenchmarkValue(),
+            benchmarkDefinition.getProperty(processInstance.getBenchmarkValue()));
+      }
+      else
+      {
+         this.benchmarkResult = null;
+      }
 
       final UserDetailsLevel userDetailsLevel;
       if (ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
@@ -155,8 +189,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
          userDetailsLevel = UserDetailsLevel.Core;
       }
-      
-      startingUserDetails = initStartingUser(processInstance, parameters, userDetailsLevel);
+
+      startingUserDetails = initStartingUser(processInstance, parameters,
+            userDetailsLevel);
 
       // get the starting AI oid
       startingActivityInstanceOid = UNKNOWN_OID;
@@ -233,20 +268,24 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       permissions = CollectionUtils.newHashMap();
       AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
+      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
+            ? PermissionState.Granted
+            : PermissionState.Denied);
 
       ctx = AuthorizationContext.create(ClientPermission.MODIFY_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      permissions.put(ctx.getPermissionId(),
-            Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
+      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
+            ? PermissionState.Granted
+            : PermissionState.Denied);
 
       boolean isCase = processInstance.isCaseProcessInstance();
       if (isCase)
       {
          ctx = AuthorizationContext.create(ClientPermission.MODIFY_CASE);
          ctx.setProcessInstance(processInstance);
-         permissions.put(ctx.getPermissionId(),
-               Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
+         permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
+               ? PermissionState.Granted
+               : PermissionState.Denied);
       }
 
       PropertyLayer layer = null;
@@ -255,7 +294,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          // Do not overwrite level if explicitly set (not null!).
          if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
          {
-            Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+            Map<String, ? > props = Collections.singletonMap(
+                  UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
             layer = ParametersFacade.pushLayer(props);
          }
 
@@ -347,11 +387,13 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       return descriptorDefinitions;
    }
 
-   public static void initDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
+   public static void initDescriptors(IProcessInstance processInstance,
+         List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
    {
       boolean isCase = processInstance.isCaseProcessInstance();
       Parameters parameters = Parameters.instance();
-      if (isCase || parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
+      if (isCase
+            || parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
       {
          loadDescriptors(processInstance, descriptorDefinitions, descriptors);
          // add dynamic descriptors for process instance groups
@@ -362,17 +404,20 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       }
    }
 
-   private static void addGroupDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
+   private static void addGroupDescriptors(IProcessInstance processInstance,
+         List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
    {
       // load from struct data.
-      Map<String, Object> primitiveDescriptors = ProcessInstanceGroupUtils.getPrimitiveDescriptors(processInstance, null);
+      Map<String, Object> primitiveDescriptors = ProcessInstanceGroupUtils.getPrimitiveDescriptors(
+            processInstance, null);
       descriptors.putAll(primitiveDescriptors);
 
       // create descriptor definitions
       descriptorDefinitions.addAll(ProcessInstanceGroupUtils.getDescriptorDefinitions(processInstance));
    }
 
-   private static void loadDescriptors(IProcessInstance processInstance, List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
+   private static void loadDescriptors(IProcessInstance processInstance,
+         List<DataPath> descriptorDefinitions, Map<String, Object> descriptors)
    {
       final IProcessDefinition processDefinition = processInstance.getProcessDefinition();
       ModelElementList dataPaths = processDefinition.getDataPaths();
@@ -409,12 +454,12 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             {
                if ( !limitDescriptors || descriptorIds.contains(dataPath.getId()))
                {
-                     descriptors.put(
-                           dataPath.getId(),
-                           processInstance.getInDataValue(dataPath.getData(),
-                                 dataPath.getAccessPath()));
+                  descriptors.put(
+                        dataPath.getId(),
+                        processInstance.getInDataValue(dataPath.getData(),
+                              dataPath.getAccessPath()));
 
-                     descriptorDefinitions.add(DetailsFactory.create(dataPath));
+                  descriptorDefinitions.add(DetailsFactory.create(dataPath));
                }
             }
             catch (Exception x)
@@ -431,7 +476,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       }
    }
 
-   public static User initStartingUser(IProcessInstance processInstance, Parameters parameters, UserDetailsLevel userDetailsLevel)
+   public static User initStartingUser(IProcessInstance processInstance,
+         Parameters parameters, UserDetailsLevel userDetailsLevel)
    {
       User result;
 
@@ -446,13 +492,15 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                // Do not overwrite level if explicitly set (not null!).
                if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
                {
-                  Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+                  Map<String, ? > props = Collections.singletonMap(
+                        UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
                   layer = ParametersFacade.pushLayer(props);
                }
             }
             else
             {
-               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+               Map<String, ? > props = Collections.singletonMap(
+                     UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
                layer = ParametersFacade.pushLayer(props);
             }
 
@@ -460,7 +508,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          }
          finally
          {
-            if(layer != null)
+            if (layer != null)
             {
                ParametersFacade.popLayer();
             }
@@ -536,9 +584,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          try
          {
             Map<String, Object> props = ScopeProcessInstanceDetailsOptions.getOptions(
-                  // notes shall be retrieved for scopePI if requested
-                  requestedNotes(parameters),
-                  parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false));
+            // notes shall be retrieved for scopePI if requested
+                  requestedNotes(parameters), parameters.getBoolean(
+                        IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false));
 
             layer = ParametersFacade.pushLayer(props);
 
@@ -578,7 +626,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             || addEventNotes;
    }
 
-   private void initHistoricalEvents(Parameters parameters, IProcessInstance processInstance)
+   private void initHistoricalEvents(Parameters parameters,
+         IProcessInstance processInstance)
    {
       int eventTypes = parameters.getInteger(
             HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
@@ -587,8 +636,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
          ProcessInstanceAttributesDetails details = new ProcessInstanceAttributesDetails(
                this);
-         if (processInstance
-               .isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_NOTE))
+         if (processInstance.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_NOTE))
          {
             List<Note> piNotes = ProcessInstanceUtils.getNotes(processInstance, this);
             details.initNotes(piNotes);
@@ -615,7 +663,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          Iterator lIter = null;
          if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(LogEntryBean.class)
+            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
+                  LogEntryBean.class)
                   .iterator();
          }
          while (lIter != null && lIter.hasNext())
@@ -668,50 +717,54 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    {
       final Map<String, Object> rtAttributes = newHashMap();
 
-      rtAttributes.put(AuditTrailPersistence.class.getName(), pi.getAuditTrailPersistence());
+      rtAttributes.put(AuditTrailPersistence.class.getName(),
+            pi.getAuditTrailPersistence());
 
       return rtAttributes;
    }
 
-   private static enum ScopeProcessInstanceDetailsOptions
-   {
-      DEFAULT(false, false),
-      WITH_NOTES(true, false),
-      WITH_DESCRIPTORS(false, true),
-      WITH_NOTES_AND_DESCRIPTORS(true, true);
+   private static enum ScopeProcessInstanceDetailsOptions {
+      DEFAULT (false, false), WITH_NOTES (true, false), WITH_DESCRIPTORS (false, true),
+      WITH_NOTES_AND_DESCRIPTORS (true, true);
 
       private final Map<String, Object> props;
 
-      private ScopeProcessInstanceDetailsOptions(boolean withNotes, boolean withDescriptors)
+      private ScopeProcessInstanceDetailsOptions(boolean withNotes,
+            boolean withDescriptors)
       {
          Map<String, Object> props = CollectionUtils.newHashMap();
-         props.put(PRP_PI_DETAILS_OPTIONS, withNotes
-                  ? EnumSet.of(ProcessInstanceDetailsOptions.WITH_NOTES)
-                  : EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
-         props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Core);
+         props.put(
+               PRP_PI_DETAILS_OPTIONS,
+               withNotes
+                     ? EnumSet.of(ProcessInstanceDetailsOptions.WITH_NOTES)
+                     : EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
+         props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
+               ProcessInstanceDetailsLevel.Core);
          props.put(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
          props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, withDescriptors);
-         props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, HistoricalStatesPolicy.NO_HIST_STATES);
+         props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
+               HistoricalStatesPolicy.NO_HIST_STATES);
          this.props = Collections.unmodifiableMap(props);
       }
 
-      private static Map<String, Object> getOptions(boolean withNotes, boolean withDescriptors)
+      private static Map<String, Object> getOptions(boolean withNotes,
+            boolean withDescriptors)
       {
-         ScopeProcessInstanceDetailsOptions options = withNotes
-               ? withDescriptors ? WITH_NOTES_AND_DESCRIPTORS : WITH_NOTES
-               : withDescriptors ? WITH_DESCRIPTORS : DEFAULT;
+         ScopeProcessInstanceDetailsOptions options = withNotes ? withDescriptors
+               ? WITH_NOTES_AND_DESCRIPTORS
+               : WITH_NOTES : withDescriptors ? WITH_DESCRIPTORS : DEFAULT;
          return options.props;
       }
    }
-   
+
    public long getBenchmark()
    {
       return this.benchmark;
    }
-   
-   public int getBenchmarkValue()
+
+   public BenchmarkResult getBenchmarkResult()
    {
-      return this.benchmarkValue;
+      return this.benchmarkResult;
    }
-   
+
 }

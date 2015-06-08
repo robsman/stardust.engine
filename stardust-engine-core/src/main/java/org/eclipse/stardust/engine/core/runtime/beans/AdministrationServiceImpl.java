@@ -74,6 +74,7 @@ import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.query.RawQueryResult;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -1556,6 +1557,7 @@ public class AdministrationServiceImpl
       CacheHelper.flushCaches();
       getPreferenceStore().flushCaches();
       reloadModelManagerAfterModelOperation();
+      BenchmarkUtils.removeAllBenchmarksFromCache();
    }
 
    public List<Permission> getPermissions()
@@ -2106,7 +2108,7 @@ public class AdministrationServiceImpl
 
    public void setGlobalPermissions(RuntimePermissions permissions) throws ValidationException
    {
-      if(permissions == null)
+      if (permissions == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("permissions"));
       }
@@ -2114,46 +2116,55 @@ public class AdministrationServiceImpl
       try
       {
          Map<String, List<String>> permissionsMap;
+         Map<String, List<String>> deniedPermissionsMap;
          if (permissions instanceof RuntimePermissionsDetails)
          {
             permissionsMap = ((RuntimePermissionsDetails) permissions).getPermissionMap();
+            deniedPermissionsMap = ((RuntimePermissionsDetails) permissions).getDeniedPermissionsMap();
          }
          else
          {
             permissionsMap = CollectionUtils.newMap();
+            deniedPermissionsMap = CollectionUtils.newMap();
             for (String permissionId : permissions.getAllPermissionIds())
             {
-               Set<ModelParticipantInfo> grants = permissions.getGrants(permissionId);
-               if (grants != null)
-               {
-                  List<String> grantIds = new LinkedList<String>();
-
-                  for (ModelParticipantInfo modelParticipantInfo : grants)
-                  {
-                     if (modelParticipantInfo.getDepartment() != null)
-                     {
-                        throw new ValidationException(new IllegalArgumentException(
-                              Department.class.getName()).getLocalizedMessage(), false);
-                     }
-                     if (modelParticipantInfo instanceof QualifiedModelParticipantInfo)
-                     {
-                        grantIds.add(((QualifiedModelParticipantInfo) modelParticipantInfo).getQualifiedId());
-                     }
-                     else
-                     {
-                        grantIds.add(modelParticipantInfo.getId());
-                     }
-                  }
-
-                  permissionsMap.put(permissionId, grantIds);
-               }
+               collectGrants(permissionsMap, permissionId, permissions.getGrants(permissionId));
+               collectGrants(deniedPermissionsMap, permissionId, permissions.getDeniedGrants(permissionId));
             }
          }
-         PermissionUtils.setGlobalPermissions(getPreferenceStore(), permissionsMap);
+         PermissionUtils.setGlobalPermissions(getPreferenceStore(), permissionsMap, deniedPermissionsMap);
       }
       finally
       {
          reloadModelManagerAfterModelOperation();
+      }
+   }
+
+   protected void collectGrants(Map<String, List<String>> permissionsMap,
+         String permissionId, Set<ModelParticipantInfo> grants)
+   {
+      if (grants != null)
+      {
+         List<String> grantIds = new LinkedList<String>();
+
+         for (ModelParticipantInfo modelParticipantInfo : grants)
+         {
+            if (modelParticipantInfo.getDepartment() != null)
+            {
+               throw new ValidationException(new IllegalArgumentException(
+                     Department.class.getName()).getLocalizedMessage(), false);
+            }
+            if (modelParticipantInfo instanceof QualifiedModelParticipantInfo)
+            {
+               grantIds.add(((QualifiedModelParticipantInfo) modelParticipantInfo).getQualifiedId());
+            }
+            else
+            {
+               grantIds.add(modelParticipantInfo.getId());
+            }
+         }
+
+         permissionsMap.put(permissionId, grantIds);
       }
    }
 

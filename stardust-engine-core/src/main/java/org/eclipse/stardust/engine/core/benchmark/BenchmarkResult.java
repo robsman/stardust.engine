@@ -8,32 +8,21 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.core.runtime.beans;
+package org.eclipse.stardust.engine.core.benchmark;
 
+import java.io.Serializable;
 import java.util.Map;
 
-/**
+/*
  * 
- * @author Thomas.Wolfram
- *
  */
-public class BenchmarkDefinition
+public interface BenchmarkResult
 {
 
-   long oid;
-   
-   Map benchmarkRules;
-   
-   public BenchmarkDefinition(long benchmarkOid)
-   {
-      this.oid = benchmarkOid;
-   }
+   long getBenchmark();
 
-   public long getOid()
-   {
-      return oid;
-   }
-   
-   
-     
+   int getCategory();
+
+   Map<String, Serializable> getProperties();
+
 }

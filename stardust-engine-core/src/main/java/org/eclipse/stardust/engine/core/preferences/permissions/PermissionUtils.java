@@ -11,13 +11,8 @@
 package org.eclipse.stardust.engine.core.preferences.permissions;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -33,10 +28,8 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
-
-
 
 public class PermissionUtils
 {
@@ -54,70 +47,7 @@ public class PermissionUtils
     * The static defaults for the permissions.
     * Please Note: Changing a default here does not automatically update saved preferences.
     */
-   private final static Map<String, String> defaultPermissions;
-
-   static
-   {
-      defaultPermissions = new HashMap<String, String>();
-
-      defaultPermissions.put(ExecutionPermission.Id.controlProcessEngine.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.deployProcessModel.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.forceSuspend.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageDaemons.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyAuditTrail.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyDepartments.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.modifyUserData.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.readAuditTrailStatistics.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-      defaultPermissions.put(ExecutionPermission.Id.createCase.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.readDepartments.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.readModelData.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.readUserData.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.resetUserPassword.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.runRecovery.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageAuthorization.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.manageDeputies.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-      defaultPermissions.put(
-            ExecutionPermission.Id.saveOwnPartitionScopePreferences.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.saveOwnRealmScopePreferences.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.saveOwnUserScopePreferences.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(ExecutionPermission.Id.spawnSubProcessInstance.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.spawnPeerProcessInstance.name(),
-            Authorization2.ALL);
-      defaultPermissions.put(ExecutionPermission.Id.joinProcessInstance.name(),
-            Authorization2.ALL);
-
-      defaultPermissions.put(
-            ExecutionPermission.Id.deployRuntimeArtifact.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-      defaultPermissions.put(ExecutionPermission.Id.readRuntimeArtifact.name(),
-            PredefinedConstants.ADMINISTRATOR_ROLE);
-
-   }
+   private final static Map<String, String> defaultPermissions = ClientPermission.getDefaults();
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)
    {
@@ -173,12 +103,40 @@ public class PermissionUtils
       return values;
    }
 
+   public static List<String> getScopedGlobalPermissionValues(
+         IPreferenceStorageManager preferenceStore, String internalPermissionId,
+         boolean includeDefaultPermissions)
+   {
+      final Map<String, Serializable> permissions = getPreferences(preferenceStore);
+      List<String> values = (List<String>) permissions.get(internalPermissionId);
+
+      if (includeDefaultPermissions)
+      {
+         if (values == null || values.isEmpty())
+         {
+            String defaultPermission = getModelDefaultPermissions().get(
+                  internalPermissionId);
+            if ( !StringUtils.isEmpty(defaultPermission))
+            {
+               values = new LinkedList<String>();
+               values.add(defaultPermission);
+            }
+         }
+      }
+      if (values == null)
+      {
+         values = Collections.EMPTY_LIST;
+      }
+
+      return values;
+   }
+
    public static void setGlobalPermissions(IPreferenceStorageManager preferenceStore,
-         Map<String, List<String>> permissions) throws ValidationException
+         Map<String, List<String>> permissions, Map<String, List<String>> deniedPermissionsMap) throws ValidationException
    {
       Map<String, Serializable> preferencesMap = getPreferences(preferenceStore);
 
-      mergePermissions(preferencesMap, permissions);
+      mergePermissions(preferencesMap, permissions, deniedPermissionsMap);
 
       savePreferences(preferenceStore, preferencesMap);
    }
@@ -196,12 +154,17 @@ public class PermissionUtils
 
    private static String stripPrefix(String permissionId)
    {
-      if ( !StringUtils.isEmpty(permissionId))
+      if (!StringUtils.isEmpty(permissionId))
       {
-         int idx = permissionId.lastIndexOf('.');
+         int idx = permissionId.lastIndexOf(':');
          if (idx > -1)
          {
-            return permissionId.substring(idx + 1);
+            permissionId = permissionId.substring(idx + 1);
+         }
+         idx = permissionId.lastIndexOf('.');
+         if (idx > -1 && "model".equals(permissionId.substring(0, idx)))
+         {
+            permissionId = permissionId.substring(idx + 1);
          }
       }
       return permissionId;
@@ -268,18 +231,19 @@ public class PermissionUtils
    }
 
    private static void mergePermissions(Map<String, Serializable> preferencesMap,
-         Map<String, List<String>> permissions) throws ValidationException
+         Map<String, List<String>> permissions, Map<String, List<String>> deniedPermissionsMap) throws ValidationException
    {
       Map<String, Serializable> toAdd = new HashMap<String, Serializable>();
-      for (java.util.Map.Entry<String, List<String>> entry : permissions.entrySet())
+      for (Map.Entry<String, List<String>> entry : permissions.entrySet())
       {
          if (entry.getValue() != null && !entry.getValue().isEmpty())
          {
-            List<String> srcList = (List<String>) preferencesMap.get(entry.getKey());
+            String key = entry.getKey();
+            List<String> srcList = (List<String>) preferencesMap.get(key);
             List<String> targetList = entry.getValue();
             TreeSet<String> srcSet = null;
-            if (srcList!= null){
-
+            if (srcList != null)
+            {
                srcSet = new TreeSet<String>(srcList);
             }
             TreeSet<String> targetSet = new TreeSet<String>(targetList);
@@ -287,24 +251,65 @@ public class PermissionUtils
             // checkValidParticipants throws ValidationException if a grant is not
             // valid for the active model.
             if (srcSet != null && srcSet.equals(targetSet)
-                  || checkValidParticipants(targetList))
+                  || checkValidParticipants(targetList, isGlobalPermission(key)))
             {
                toAdd.put(entry.getKey(), (Serializable) entry.getValue());
             }
+         }
+      }
+      for (Map.Entry<String, List<String>> entry : deniedPermissionsMap.entrySet())
+      {
+         List<String> value = entry.getValue();
+         if (value != null && !value.isEmpty())
+         {
+            String key = entry.getKey();
+            List<String> srcList = (List<String>) preferencesMap.get(key);
+            List<String> targetList = value;
+            TreeSet<String> srcSet = null;
+            if (srcList != null)
+            {
+               srcSet = new TreeSet<String>(srcList);
+            }
+            TreeSet<String> targetSet = new TreeSet<String>(targetList);
 
+            // checkValidParticipants throws ValidationException if a grant is not
+            // valid for the active model.
+            if (srcSet != null && srcSet.equals(targetSet)
+                  || checkValidParticipants(targetList, isGlobalPermission(key)))
+            {
+               toAdd.remove(key);
+               toAdd.put("deny:" + key, (Serializable) value);
+            }
          }
       }
       preferencesMap.clear();
       preferencesMap.putAll(toAdd);
    }
 
-   private static boolean checkValidParticipants(List<String> grants)
+   private static boolean isGlobalPermission(String key)
+   {
+      int ix = key.lastIndexOf('.');
+      if (ix >= 0)
+      {
+         key = key.substring(0, ix);
+         ix = key.lastIndexOf(':');
+         if (ix >= 0)
+         {
+            key = key.substring(ix + 1);
+         }
+         return "model".equals(key);
+      }
+      return true;
+   }
+
+   private static boolean checkValidParticipants(List<String> grants, boolean isGlobal)
          throws ValidationException
    {
       for (String qualifiedModelParticipantId : grants)
       {
-         if ( !PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
-               && !Authorization2.ALL.equals(qualifiedModelParticipantId))
+         if (!PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
+               && !Authorization2.ALL.equals(qualifiedModelParticipantId)
+               && !Authorization2.OWNER.equals(qualifiedModelParticipantId))
          {
             QName qualifier = QName.valueOf(qualifiedModelParticipantId);
 
@@ -338,12 +343,15 @@ public class PermissionUtils
                      "Setting permissions failed. Participant does not exist in active model: "
                            + qualifiedModelParticipantId, false);
             }
-            IOrganization firstScopedOrganization = DepartmentUtils.getFirstScopedOrganization(participant);
-            if (firstScopedOrganization != null)
+            if (isGlobal)
             {
-               throw new ValidationException(
-                     "Setting permissions failed. Setting grants to scoped model participants is not allowed: "
-                           + qualifiedModelParticipantId, false);
+               IOrganization firstScopedOrganization = DepartmentUtils.getFirstScopedOrganization(participant);
+               if (firstScopedOrganization != null)
+               {
+                  throw new ValidationException(
+                        "Setting permissions failed. Setting grants to scoped model participants is not allowed: "
+                              + qualifiedModelParticipantId, false);
+               }
             }
          }
       }

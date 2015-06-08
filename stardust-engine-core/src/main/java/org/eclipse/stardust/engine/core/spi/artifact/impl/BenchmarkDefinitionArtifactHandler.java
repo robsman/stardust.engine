@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.spi.artifact.impl;
 import org.eclipse.stardust.engine.api.runtime.ArtifactType;
 import org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact;
 import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.spi.artifact.IArtifactHandler;
 
 public class BenchmarkDefinitionArtifactHandler implements IArtifactHandler, IArtifactHandler.Factory
@@ -50,9 +51,21 @@ public class BenchmarkDefinitionArtifactHandler implements IArtifactHandler, IAr
    }
 
    @Override
+   public void afterOverwrite(DeployedRuntimeArtifact deployedRuntimeArtifact)
+   {
+      BenchmarkUtils.removeBenchmarkFromCache(deployedRuntimeArtifact.getOid());
+   }
+
+   @Override
    public void beforeDelete(DeployedRuntimeArtifact deployedRuntimeArtifact)
    {
       // TODO check referential integrity?
+   }
+
+   @Override
+   public void afterDelete(long oid)
+   {
+      BenchmarkUtils.removeBenchmarkFromCache(oid);
    }
 
 }

@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 
 
 /** */

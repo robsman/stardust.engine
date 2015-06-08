@@ -185,8 +185,7 @@ public class BpmRuntimeError extends ErrorCase
    //// Runtime Artifact related
 
    public static final Args1 ARTI_ARTIFACT_TYPE_UNKNOWN = newArgs1("ARTI01001", BpmRuntimeErrorMessages.getString("ARTI01001")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
+  
    //// DMS related
 
    public static final Args0 DMS_GENERIC_ERROR = newArgs0("DMS00000", BpmRuntimeErrorMessages.getString("DMS00000")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -529,7 +528,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 BPMRT_ERROR_DURING_XML_SERIALIZATION = newArgs0("BPMRT07034", BpmRuntimeErrorMessages.getString("BPMRT07034")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_ERROR_READING_XML = newArgs0("BPMRT07035", BpmRuntimeErrorMessages.getString("BPMRT07035")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_FILE_NOT_FOUND = newArgs1("BPMRT07036", BpmRuntimeErrorMessages.getString("BPMRT07036")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   
+   public static final Args1 BPMRT_BENCHMARK_NOT_FOUND = newArgs1("BPMRT07037", BpmRuntimeErrorMessages.getString("BPMRT07037")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 

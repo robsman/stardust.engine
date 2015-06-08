@@ -288,6 +288,11 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
          markModified(FIELD__CRITICALITY);
          this.criticality = activityInstance.getCriticality();
       }
+      if (this.benchmarkValue != activityInstance.getBenchmarkValue())
+      {
+         markModified(FIELD__BENCHMARK_VALUE);
+         this.benchmarkValue = activityInstance.getBenchmarkValue();
+      }      
    }
 
    private void markModifiedPerformerFields()

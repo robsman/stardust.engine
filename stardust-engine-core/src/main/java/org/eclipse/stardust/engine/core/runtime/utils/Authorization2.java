@@ -11,12 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -28,20 +23,18 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
+import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -59,6 +52,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 public class Authorization2
 {
    public static final String PREFIX = "authorization:";
+   public static final String DENY_PREFIX = "authorization:deny:";
    public static final String ALL = "__carnot_internal_all_permissions__";
    public static final String OWNER = "__carnot_internal_owner_permission__";
 
@@ -110,7 +104,7 @@ public class Authorization2
                   {
                      permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
-                     TransitionTarget target = (TransitionTarget) args[1];
+                     TransitionTarget target = (TransitionTarget) args[args.length - 2];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation
                      {
                         ExecutionPlan plan = new ExecutionPlan(target);
@@ -289,23 +283,31 @@ public class Authorization2
             }
             else
             {
-               IProcessInstance pi = null;
-               if (args[0] instanceof ProcessInstanceAttributes)
+               if (args[0] instanceof String)
                {
-                  ProcessInstanceAttributes pib = (ProcessInstanceAttributes) args[0];
-                  pi = ProcessInstanceBean.findByOID(pib.getProcessInstanceOid());
+                  IProcessDefinition pd = ModelUtils.getProcessDefinition((String) args[0]);
+                  context.setModelElementData(pd);
                }
                else
                {
-                  pi = ProcessInstanceBean.findByOID((Long) args[0]);
-                  if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
-                        AbortScope.RootHierarchy.equals(args[args.length - 1]))
+                  IProcessInstance pi = null;
+                  if (args[0] instanceof ProcessInstanceAttributes)
                   {
-                     // change to root process instance if you want to abort the complete process hierarchy
-                     pi = pi.getRootProcessInstance();
+                     ProcessInstanceAttributes pib = (ProcessInstanceAttributes) args[0];
+                     pi = ProcessInstanceBean.findByOID(pib.getProcessInstanceOid());
                   }
+                  else
+                  {
+                     pi = ProcessInstanceBean.findByOID((Long) args[0]);
+                     if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
+                           AbortScope.RootHierarchy.equals(args[args.length - 1]))
+                     {
+                        // change to root process instance if you want to abort the complete process hierarchy
+                        pi = pi.getRootProcessInstance();
+                     }
+                  }
+                  context.setProcessInstance(pi);
                }
-               context.setProcessInstance(pi);
                requiredGrant = checkPermission(context);
             }
             break;
@@ -360,6 +362,20 @@ public class Authorization2
 
    private static String checkPermission(AuthorizationContext context)
    {
+      // global override only for changeable permissions
+      if (context.getPermission().changeable())
+      {
+         if (hasAnyOf(context.getPermission().getDeniedIds(), context))
+         {
+            // globally denied
+            return PredefinedConstants.ADMINISTRATOR_ROLE;
+         }
+         if (hasAnyOf(context.getPermission().getAllowedIds(), context))
+         {
+            // globally allowed
+            return null;
+         }
+      }
       String[] grants = context.getGrants();
       boolean ownerPresent = false;
       boolean allPresent = false;
@@ -402,6 +418,38 @@ public class Authorization2
          }
       }
       return grants.length == 0 ? PredefinedConstants.ADMINISTRATOR_ROLE : grants[0];
+   }
+
+   private static boolean hasAnyOf(List<String> permissions, AuthorizationContext context)
+   {
+      for (String id : permissions)
+      {
+         if (hasPermission(id, context))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private static boolean hasPermission(String permissionId, AuthorizationContext context)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+      if (preferenceStore != null)
+      {
+         List<String> grants = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
+         if (!grants.isEmpty())
+         {
+            for (String grant : grants)
+            {
+               if (hasGrant(grant, context))
+               {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    private static boolean hasGrant(String grant, AuthorizationContext context)
@@ -491,16 +539,6 @@ public class Authorization2
                   }
                }
             }
-
-/*            old code
-            List<Long> subdepartments = department > 0
-               ? DepartmentHierarchyBean.findAllSubDepartments(department)
-               : Collections.singletonList(new Long(department));
-            long foundDepartment = UserParticipantLink.findFirstAssignedDepartment(context.getUser(), participant, subdepartments);
-            if (foundDepartment >= 0)
-            {
-               return true;
-            }*/
          }
       }
       return false;

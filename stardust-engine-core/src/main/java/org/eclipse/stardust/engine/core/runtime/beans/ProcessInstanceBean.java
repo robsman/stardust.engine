@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
@@ -2291,6 +2292,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       fetch();
       return this.benchmarkValue;
+   }   
+   
+   public boolean isIntrinsicOutAccessPoint(String id)
+   {
+      return PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(id);
+   }
+
+   public Map getIntrinsicOutAccessPointValues()
+   {
+      return Collections.singletonMap(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+            DetailsFactory.create(this));
    }   
    
 }

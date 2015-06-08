@@ -133,7 +133,7 @@ public class DefaultDataFilterExtension implements DataFilterExtension
    {
       if (dataIds.isEmpty())
       {
-         andTerm.add(Predicates.isNull(dvJoin.fieldRef(DataValueBean.FIELD__DATA)));
+         andTerm.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), -1));
       }
       else
       {

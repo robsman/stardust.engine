@@ -11,14 +11,12 @@
 package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
@@ -74,8 +72,8 @@ public final class ClientPermission
       HashMap<ExecutionPermission, ClientPermission> map = new HashMap<ExecutionPermission, ClientPermission>();
 
       // cache permissions for all public methods.
-      Class[] classes = new Class[] {AdministrationService.class, DocumentManagementService.class,
-            GlobalPermissionSpecificService.class, QueryService.class, UserService.class, WorkflowService.class};
+      Class[] classes = new Class[] {WorkflowService.class, QueryService.class, UserService.class,
+            DocumentManagementService.class, AdministrationService.class, GlobalPermissionSpecificService.class};
       for (Class<?> cls : classes)
       {
          for (Method method : cls.getMethods())
@@ -111,9 +109,9 @@ public final class ClientPermission
       RUN_RECOVERY = initializePermission(map, AdministrationService.class, "recoverRuntimeEnvironment");
       SAVE_OWN_PARTITION_SCOPE_PREFERENCES = initializePermission(map, AdministrationService.class, "setGlobalPermissions", RuntimePermissions.class);
 
-      // named permissions without corresponding annotation
-      MANAGE_AUTHORIZATION = NULL.clone(Id.manageAuthorization);
-      SAVE_OWN_REALM_SCOPE_PREFERENCES = NULL.clone(Id.saveOwnRealmScopePreferences);
+      // named permissions without corresponding method annotation
+      MANAGE_AUTHORIZATION = initializePermission(map, GlobalPermissionSpecificService.class, "getManageAuthorizationPermission");
+      SAVE_OWN_REALM_SCOPE_PREFERENCES = initializePermission(map, GlobalPermissionSpecificService.class, "getSaveOwnRealmScopePreferencesPermission");
    }
 
    private static ClientPermission initializePermission(HashMap<ExecutionPermission, ClientPermission> map, Class<?> cls, String name, Class<?>... args)
@@ -160,6 +158,9 @@ public final class ClientPermission
 
    private final String uniqueKey;
 
+   private List<String> allowedIds;
+   private List<String> deniedIds;
+
    public ClientPermission(ExecutionPermission permission)
    {
       this(permission.id(), permission.scope(), permission.defaults(), permission.fixed(),
@@ -183,6 +184,38 @@ public final class ClientPermission
       this.implied = implied;
       this.defer = defer;
       this.uniqueKey = createUniqueKey();
+
+      String[] allowedIds = new String[1 + implied.length];
+      allowedIds[0] = createId(this.id);
+      for (int i = 1; i < allowedIds.length; i++)
+      {
+         allowedIds[i] = createId(this.implied[i - 1]);
+      }
+      this.allowedIds = Collections.unmodifiableList(Arrays.asList(allowedIds));
+
+      String[] deniedIds = new String[allowedIds.length];
+      for (int i = 0; i < allowedIds.length; i++)
+      {
+         deniedIds[i] = "deny:" + allowedIds[i];
+      }
+      this.deniedIds = Collections.unmodifiableList(Arrays.asList(deniedIds));
+   }
+
+   protected String createId(Id id)
+   {
+      if (id == null)
+      {
+         return "";
+      }
+      switch (scope)
+      {
+      case model:
+         return id.name();
+      case workitem:
+         return Scope.activity.name() + '.' + id.name();
+      default:
+         return scope.name() + '.' + id.name();
+      }
    }
 
    private String createUniqueKey()
@@ -270,21 +303,67 @@ public final class ClientPermission
       return scope.name() + '.' + id;
    }
 
+   protected List<String> getAllowedIds()
+   {
+      return allowedIds;
+   }
+
+   protected List<String> getDeniedIds()
+   {
+      return deniedIds;
+   }
+
    protected static ClientPermission getPermission(Method method)
    {
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
-         /*
-         ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-         cp = permission == null ? NULL : new ClientPermission(permission);
-         permissionCache.put(method, cp);
-         */
          if (trace.isDebugEnabled())
          {
             trace.debug("Missing permission for: " + method);
          }
       }
       return cp == NULL ? null : cp;
+   }
+
+   public static Map<String, String> getDefaults()
+   {
+      HashMap<String, String> defaultPermissions = new HashMap<String, String>();
+      for (ClientPermission permission : permissionCache.values())
+      {
+         addDefaultPermission(defaultPermissions, permission);
+      }
+      addDefaultPermission(defaultPermissions, MANAGE_AUTHORIZATION);
+      addDefaultPermission(defaultPermissions, SAVE_OWN_REALM_SCOPE_PREFERENCES);
+      return defaultPermissions;
+   }
+
+   protected static void addDefaultPermission(HashMap<String, String> defaultPermissions,
+         ClientPermission permission)
+   {
+      if (permission != NULL && permission.changeable())
+      {
+         String id = permission.allowedIds.get(0);
+         String existing = defaultPermissions.get(id);
+         if (existing == null || PredefinedConstants.ADMINISTRATOR_ROLE.equals(existing))
+         {
+            Default[] defaults = permission.defaults();
+            String name = getName(defaults == null || defaults.length == 0 ? null : defaults[0]);
+            defaultPermissions.put(id, name);
+         }
+      }
+   }
+
+   private static String getName(Default def)
+   {
+      if (def != null)
+      {
+         switch (def)
+         {
+         case ALL: return Authorization2.ALL;
+         case OWNER: return Authorization2.OWNER;
+         }
+      }
+      return PredefinedConstants.ADMINISTRATOR_ROLE;
    }
 }

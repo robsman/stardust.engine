@@ -21,8 +21,10 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 
 
@@ -232,4 +234,8 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    long getBenchmark();
    
    int getBenchmarkValue();
+   
+   public boolean isIntrinsicOutAccessPoint(String id);
+
+   Map getIntrinsicOutAccessPointValues();
 }

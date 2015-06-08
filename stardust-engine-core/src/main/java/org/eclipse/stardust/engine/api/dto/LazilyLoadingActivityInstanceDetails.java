@@ -40,11 +40,14 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResultDetails;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
-public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails implements ActivityInstance
+public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails
+      implements ActivityInstance
 {
    private static final long serialVersionUID = -7276968269040239704L;
 
@@ -55,7 +58,6 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
 
    /** hold the parameters relevant for deferred {@link ActivityInstanceDetails} creation */
    private final Map<String, Object> aiDetailsParameters;
-
 
    /** lazily created {@link IActivity} object */
    private IActivity activity;
@@ -70,22 +72,25 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
    private ProcessInstance processInstanceDetails;
 
    private boolean userPerformerInitialized = false;
+
    /** lazily created object */
    private User userPerformer;
 
    private boolean performerInitialized = false;
+
    /** lazily created object */
    private ParticipantInfo performer;
 
    private boolean performedByUserInitialized = false;
+
    /** lazily created object */
    private UserInfo performedByUser;
-
 
    /** lazily created object */
    private String toStringInfo;
 
    private boolean useFullBlownActivityDetailsObjects = false;
+
    private boolean useFullBlownAiDetailsObjects = false;
 
    public LazilyLoadingActivityInstanceDetails(final IActivityInstance activityInstance)
@@ -94,11 +99,13 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
 
       this.activityInstance = activityInstance;
 
-      Map<String, Object> tmpAiDetailsParameters = (Map<String, Object>) PropertyLayerProviderInterceptor.getCurrent().get(AI_DETAILS_PROPERTIES_KEY);
+      Map<String, Object> tmpAiDetailsParameters = (Map<String, Object>) PropertyLayerProviderInterceptor.getCurrent()
+            .get(AI_DETAILS_PROPERTIES_KEY);
       if (tmpAiDetailsParameters == null)
       {
          tmpAiDetailsParameters = initAiDetailsParameters(Parameters.instance());
-         PropertyLayerProviderInterceptor.getCurrent().setProperty(AI_DETAILS_PROPERTIES_KEY, tmpAiDetailsParameters);
+         PropertyLayerProviderInterceptor.getCurrent().setProperty(
+               AI_DETAILS_PROPERTIES_KEY, tmpAiDetailsParameters);
       }
       aiDetailsParameters = tmpAiDetailsParameters;
 
@@ -252,7 +259,9 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          performer = initPerformer();
       }
 
-      return (performer == null || performer instanceof UserInfo) ? null : performer.getId();
+      return (performer == null || performer instanceof UserInfo)
+            ? null
+            : performer.getId();
    }
 
    @Override
@@ -263,7 +272,9 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          performer = initPerformer();
       }
 
-      return (performer == null || performer instanceof UserInfo) ? null : performer.getName();
+      return (performer == null || performer instanceof UserInfo)
+            ? null
+            : performer.getName();
    }
 
    @Override
@@ -452,7 +463,8 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          }
          else
          {
-            activityDetails = DetailsFactory.create(getIActivity(), IActivity.class, ActivityDetails.class);
+            activityDetails = DetailsFactory.create(getIActivity(), IActivity.class,
+                  ActivityDetails.class);
          }
 
          /* initialize stuff that depends on the fields to be nulled out */
@@ -496,7 +508,8 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
          ParametersFacade.pushLayer(aiDetailsParameters);
          try
          {
-            processInstanceDetails = new LazilyLoadingProcessInstanceDetails(activityInstance.getProcessInstance());
+            processInstanceDetails = new LazilyLoadingProcessInstanceDetails(
+                  activityInstance.getProcessInstance());
          }
          finally
          {
@@ -513,7 +526,8 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
       ParametersFacade.pushLayer(aiDetailsParameters);
       try
       {
-         result = ActivityInstanceDetails.initUserPerformer(activityInstance, Parameters.instance());
+         result = ActivityInstanceDetails.initUserPerformer(activityInstance,
+               Parameters.instance());
          userPerformerInitialized = true;
       }
       finally
@@ -576,13 +590,25 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails i
       return toStringInfo;
    }
 
-   /* prevent objects of this class from being serialized: they can only used on the server-side */
+   /*
+    * prevent objects of this class from being serialized: they can only used on the
+    * server-side
+    */
    private void writeObject(ObjectOutputStream out) throws IOException
    {
       throw new UnsupportedOperationException();
    }
-   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+
+   private void readObject(ObjectInputStream in) throws IOException,
+         ClassNotFoundException
    {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public BenchmarkResult getBenchmarkResult()
+   {
+      return getActivityInstanceDetails().getBenchmarkResult();
+
    }
 }

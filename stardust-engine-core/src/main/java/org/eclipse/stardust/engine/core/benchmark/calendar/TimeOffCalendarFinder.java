@@ -129,7 +129,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       boolean isBlocking = false;
       boolean blocking = CompareHelper.areEqual(
             SchedulingUtils.getAsString(json, "type"), "timeOff");
-      boolean allDay = json.get("allDay").getAsBoolean();
+      boolean allDay = isAllDay(json);
       if (blocking && allDay)
       {
          JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(json, "scheduling");
@@ -172,6 +172,26 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       this.isBlocked = isBlocking;
 
       return isBlocking;
+   }
+
+   private boolean isAllDay(JsonObject json)
+   {
+      boolean allDay = json.get("allDay").getAsBoolean();
+
+      Calendar start = getCalendar(new Date (json.get("start").getAsLong()));
+      Calendar end = getCalendar(new Date (json.get("end").getAsLong()));
+
+      if (!allDay && start.get(Calendar.DAY_OF_YEAR) == end.get(Calendar.DAY_OF_YEAR)
+          && start.get(Calendar.YEAR) == end.get(Calendar.YEAR)
+          && start.get(Calendar.HOUR_OF_DAY) == 0
+          && start.get(Calendar.MINUTE) == 0
+          && end.get(Calendar.HOUR_OF_DAY) == 23
+          && end.get(Calendar.MINUTE) == 59
+          )
+      {
+         allDay = true;
+      }
+      return allDay;
    }
 
    @Override

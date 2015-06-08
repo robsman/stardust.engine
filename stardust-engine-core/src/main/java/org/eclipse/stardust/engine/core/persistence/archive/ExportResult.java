@@ -282,7 +282,7 @@ public class ExportResult implements Serializable
    }
    
    public void addDocument(Long piOid, Date indexDate, Document document, byte[] content,
-         List<String> revisions, String dataPathId)
+         List<String> revisions, String dataId)
    {
       if (document != null && content != null)
       {
@@ -299,7 +299,7 @@ public class ExportResult implements Serializable
          String metaName = ExportImportSupport.getDocumentMetaDataName(name);
          DocumentMetaData metaData = new DocumentMetaData();
          metaData.setRevisions(revisions);
-         metaData.setDataPathId(dataPathId);
+         metaData.setDataId(dataId);
          metaData.setVfsResource(((DmsDocumentBean)document).vfsResource());
                
          List<Integer> lengths = documentLengthsByDate.get(indexDate);

@@ -14,7 +14,7 @@ public class DocumentMetaData implements Serializable
 
    private List<String> revisions;
    
-   private String dataPathId;
+   private String dataId;
 
    private Map vfsResource;
 
@@ -41,14 +41,14 @@ public class DocumentMetaData implements Serializable
       this.vfsResource = vfsResource;
    }
 
-   public String getDataPathId()
+   public String getDataId()
    {
-      return dataPathId;
+      return dataId;
    }
 
-   public void setDataPathId(String dataPathId)
+   public void setDataId(String dataId)
    {
-      this.dataPathId = dataPathId;
+      this.dataId = dataId;
    }
 
 }

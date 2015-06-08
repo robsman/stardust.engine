@@ -400,6 +400,22 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="TestDocument" Name="TestDocument" IsArray="FALSE">
+         <DataType>
+            <ExternalReference location="org.eclipse.stardust.engine.api.runtime.Document"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="922" Type="dmsDocument">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="1a6a4887-9213-4b44-a36f-3a27716a93dc"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="SimpleManual" Name="SimpleManual" AccessLevel="PUBLIC">
@@ -1894,6 +1910,224 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="DocumentProcess" Name="DocumentProcess" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="event_260ef713-cd8b-4061-9b55-0f2d9ea2b0f4" Name="End Event">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="912">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="b2ac15a7-33d2-4037-a549-5449ef8da83d"/>
+                           <carnot:Attribute Name="stardust:bpmnEndEventHost" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:bpmnEvent:911">
+                              <carnot:Value>
+                                 <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{}</value>
+                              </carnot:Value>
+                           </carnot:Attribute>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="WriteActivity" Name="WriteActivity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="913" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="962" Id="TestDocument" Name="TestDocument" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="TestDocument"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="963" Id="TestDocument" Name="TestDocument" Direction="IN" Context="default">
+                              <carnot:DataRef Id="TestDocument"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="6deb310d-738f-4bbd-84bb-923c6e4c6b54"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ReadActivity" Name="ReadActivity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="915" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="949" Id="TestDocument" Name="TestDocument" Direction="IN" Context="default">
+                              <carnot:DataRef Id="TestDocument"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="a6e2788c-d755-49c6-81d5-d7d1fca28ca4"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ReadActivity2" Name="ReadActivity2">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="967" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="1039" Id="DocumentData1" Name="DocumentData1" Direction="IN" Context="default">
+                              <carnot:DataRef Id="DocumentData1" Expression=""/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="91c74b61-5130-45b6-92db-4e2888aad86a"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="e08b0b86-eb68-49be-936c-79f5e1dde162" Name="" From="WriteActivity" To="ReadActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="960" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="ca59149a-da1f-49e2-9f3e-8ae61c049d55" Name="" From="ReadActivity2" To="event_260ef713-cd8b-4061-9b55-0f2d9ea2b0f4">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="969" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="881b0b10-be85-4c4d-a701-449967051a5c" Name="" From="ReadActivity" To="ReadActivity2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="973" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="905">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="910" Id="ManualTrigger1" Name="" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="1034" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="1035" Id="PROCESS_ATTACHMENTS" Name="PROCESS_ATTACHMENTS" Direction="OUT" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="PROCESS_ATTACHMENTS"/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="1036" Id="DocumentData1Path" Name="DocumentData1Path" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData1" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="1037" Id="DocumentData1Path" Name="DocumentData1Path" Direction="OUT" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData1" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="68623193-5753-4263-ba3e-b3d6b0e82344"/>
+                     <carnot:Attribute Name="carnot:engine:dms:byReference" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="908" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="907" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="440" Height="693" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="906" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="406" Height="623" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="907">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="909" X="75" Y="33" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="911" X="205" Y="558" Width="26" Height="26"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="914" X="40" Y="113" Width="180" Height="50" ModelElement="WriteActivity"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="916" X="152" Y="235" Width="180" Height="50" ModelElement="ReadActivity"/>
+                                       <carnot:Symbol Kind="DATA" Oid="923" X="32" Y="240" Width="100" Height="70" ModelElement="TestDocument"/>
+                                       <carnot:Symbol Kind="DATA" Oid="964" X="34" Y="343" Width="100" Height="70" ModelElement="DocumentData1"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="968" X="200" Y="379" Width="180" Height="50" ModelElement="ReadActivity2"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="917" SourceSymbol="909" TargetSymbol="914" SourceAnchor="right" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="925" SourceSymbol="923" TargetSymbol="914" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="950" SourceSymbol="923" TargetSymbol="916" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="961" ModelElement="e08b0b86-eb68-49be-936c-79f5e1dde162" SourceSymbol="914" TargetSymbol="916" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="970" ModelElement="ca59149a-da1f-49e2-9f3e-8ae61c049d55" SourceSymbol="968" TargetSymbol="911" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="972" SourceSymbol="964" TargetSymbol="968" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="974" ModelElement="881b0b10-be85-4c4d-a701-449967051a5c" SourceSymbol="916" TargetSymbol="968" SourceAnchor="bottom" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -2051,7 +2285,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Tue Jun 02 11:59:30 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Thu Jun 04 13:34:07 CAT 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

@@ -23,7 +23,7 @@ public class DocumentMetaDataSerializer implements JsonSerializer<DocumentMetaDa
    {
       final JsonObject jsonObject = new JsonObject();
       jsonObject.add("revisions", context.serialize(documentMetaData.getRevisions()));
-      jsonObject.add("dataPathId", context.serialize(documentMetaData.getDataPathId()));
+      jsonObject.add("dataId", context.serialize(documentMetaData.getDataId()));
       String vfs;
       try
       {
@@ -51,10 +51,10 @@ public class DocumentMetaDataSerializer implements JsonSerializer<DocumentMetaDa
       {
          meta.setRevisions((List)context.deserialize(revisionsElement, listType.getType()));
       }
-      JsonElement pathElement = jsonObject.get("dataPathId");
+      JsonElement pathElement = jsonObject.get("dataId");
       if (pathElement != null)
       {
-         meta.setDataPathId((String)context.deserialize(pathElement, String.class));
+         meta.setDataId((String)context.deserialize(pathElement, String.class));
       }
       JsonElement vfsElement = jsonObject.get("vfsResource");
       if (vfsElement != null)

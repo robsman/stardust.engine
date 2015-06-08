@@ -5226,6 +5226,7 @@ public class ArchiveTest
       // check no new archives added
       assertEquals(1, archives.size());
       assertNull(archives.get(0).getDumpLocation());
+      assertEquals(1,archives.get(0).getExportModel().getModelOidToUuid().keySet().size());
       
       // check processes deleted again
       clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5234,6 +5235,112 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(5, clearedInstances.size());
       assertEquals(18, clearedActivities.size());
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void archiveImportDump() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      ProcessInstanceQuery pQuery = ProcessInstanceQuery
+            .findInState(new ProcessInstanceState[] {
+                  ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
+
+      startAllProcesses(workflowService, queryService, aQuery);
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(8, oldInstances.size());
+      assertEquals(28, oldActivities.size());
+      List<ProcessInstance> exported = new ArrayList<ProcessInstance>();
+      List<Long> exportedIds = new ArrayList<Long>();
+      for (ProcessInstance pi : oldInstances)
+      {
+         if (pi.getProcessName().equals("CallSubProcessesInModel"))
+         {
+            exported.add(pi);
+            exportedIds.add(pi.getOID());
+         }
+         else if (pi.getRootProcessInstanceOID() != pi.getOID())
+         {
+            exported.add(pi);
+            exportedIds.add(pi.getOID());
+         }
+      }
+      assertEquals(3, exported.size());
+      // backup some processes
+      ArchiveFilter filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      ExportResult exportResultBackUp = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
+                  null));
+      assertNotNullExportResult(exportResultBackUp);
+      assertEquals(3, exportResultBackUp.getPurgeProcessIds().size());
+      assertEquals(1, exportResultBackUp.getDates().size());
+      assertNull(exportResultBackUp
+            .getExportIndex(exportResultBackUp.getDates().iterator().next()).getDumpLocation());
+      archive(workflowService, exportResultBackUp);
+      List<IArchive> archives = findArchives(workflowService, filter, 1);
+      assertNull(archives.get(0).getDumpLocation());
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(5, clearedInstances.size());
+      assertEquals(18, clearedActivities.size());
+           
+      archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+
+      // import the backup
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+      assertEquals(3, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, exported, true, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+      
+      // now dump the same processes again
+      // in reality we always dump to a differenct location, so in unit test we clear the archive to simulate this
+      clearArchiveManager("default");
+
+      filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      exportResultBackUp = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  "dumpLocation"));
+      assertNotNull(exportResultBackUp);
+      assertEquals(0, exportResultBackUp.getPurgeProcessIds().size());
+      assertEquals(1, exportResultBackUp.getDates().size());
+      Date startDate = testTimestampProvider.getTimestamp();
+      ExportIndex exportIndex = exportResultBackUp.getExportIndex(startDate);
+      assertNotNullExportResult(exportResultBackUp);
+      assertNotNull(exportIndex);
+      
+      archive(workflowService, exportResultBackUp);
+     
+      archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null ));
+      // check no new archives added
+      assertEquals(1, archives.size());
+      assertEquals("dumpLocation", archives.get(0).getDumpLocation());
+      assertEquals(1, archives.get(0).getExportModel().getModelOidToUuid().keySet().size());
+      
+      // check processes not deleted again
+      clearedInstances = queryService.getAllProcessInstances(pQuery);
+      clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(8, clearedInstances.size());
+      assertEquals(28, clearedActivities.size());
    }
    
    protected static void startAllProcesses(WorkflowService workflowService,

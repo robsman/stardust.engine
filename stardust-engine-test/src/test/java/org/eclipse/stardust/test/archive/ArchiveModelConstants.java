@@ -59,6 +59,8 @@ public class ArchiveModelConstants
    static final String PROCESS_DEF_DEFERRED = MODEL_ID_PREFIX + "DeferredProcess";
    
    static final String PROCESS_DEF_DEFERRED_WITH_SUBS = MODEL_ID_PREFIX + "DeferredWithSubs";
+
+   static final String PROCESS_DEF_DOCUMENT = MODEL_ID_PREFIX + "DocumentProcess";
    
    static final String DATA_ID_TEXTDATA = "TextData";
 
@@ -75,8 +77,14 @@ public class ArchiveModelConstants
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDB = "MyFieldB";
 
    static final String DATA_ID_STRUCTUREDDATA_MYFIELDA = "MyFieldA";
+
+   static final String DATA_ID_DOCUMENTDATA1_PATH = "DocumentData1Path";
    
    static final String DATA_ID_DOCUMENTDATA2_PATH = "DocumentData2Path";
+   
+   static final String DATA_ID_DOCUMENTDATA3 = "DocumentData3";
+
+   static final String DATA_ID_TESTDOCUMENT = "TestDocument";
 
    static final String DESCR_CUSTOMERNAME = "CustomerName"; // TextData
 

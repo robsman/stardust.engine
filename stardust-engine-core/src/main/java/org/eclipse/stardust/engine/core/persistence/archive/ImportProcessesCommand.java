@@ -178,7 +178,7 @@ public class ImportProcessesCommand implements ServiceCommand
          }
          for (Long oid : exportProcesses)
          {
-            addDocumentsToProcess(sf.getDocumentManagementService(), oid);
+            addDocumentsToProcess(session, sf.getDocumentManagementService(), oid);
          }
       }
       catch (IllegalStateException e)
@@ -217,7 +217,7 @@ public class ImportProcessesCommand implements ServiceCommand
       document.setPath(temp.getPath());
    }
    
-   private void addDocumentsToProcess(DocumentManagementService dms, Long piOid)
+   private void addDocumentsToProcess(Session session, DocumentManagementService dms, Long piOid)
    {
      
       Map<Document, String> attachments = ExportImportSupport.fetchProcessAttachments(piOid);
@@ -266,20 +266,14 @@ public class ImportProcessesCommand implements ServiceCommand
                      }
                      setDocumentProperties(documentMetaData, document);
                      document = (DmsDocumentBean) dms.updateDocument(document, content, document.getEncoding(), true, latestRevComment, latestRevName, false);
-                     if (documentMetaData.getDataPathId() != null)
-                     {
-                        ExportImportSupport.updateAttachment(pi, document, documentMetaData.getDataPathId());
-                     }
+                     ExportImportSupport.updateAttachment(session, pi, document, documentMetaData.getDataId());
                   } 
                   else // create the one and only version
                   {
                      setDocumentProperties(documentMetaData, document);
                      document = (DmsDocumentBean)dms.createDocument(getFolderName(dms, document), document, content, document.getEncoding());
                      document =(DmsDocumentBean)dms.versionDocument(document.getId(), latestRevComment, latestRevName);
-                     if (documentMetaData.getDataPathId() != null)
-                     {
-                        ExportImportSupport.updateAttachment(pi, document, documentMetaData.getDataPathId());
-                     }
+                     ExportImportSupport.updateAttachment(session, pi, document, documentMetaData.getDataId());
                   }
                }
             }

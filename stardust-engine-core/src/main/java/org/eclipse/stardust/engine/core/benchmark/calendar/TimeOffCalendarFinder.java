@@ -68,7 +68,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       isDayOfYearBlocked.clear();
    }
 
-   public synchronized boolean isBlocked(Date date)
+   public synchronized Boolean isBlocked(Date date)
    {
       Pair<Integer, Integer> key = getKey(date);
       Boolean dayBlocked = isDayOfYearBlocked.get(key);
@@ -77,6 +77,10 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       {
          this.executionDate = date;
          this.readAllDefinitions();
+         if (this.calendarJsonByPath.isEmpty())
+         {
+            return null;
+         }
          dayBlocked = this.isBlocked;
          isDayOfYearBlocked.put(key, dayBlocked);
       }

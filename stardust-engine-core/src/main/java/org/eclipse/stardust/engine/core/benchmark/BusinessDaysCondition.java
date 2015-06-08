@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.benchmark;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.benchmark.calendar.CalendarUtils;
@@ -24,9 +25,9 @@ import org.eclipse.stardust.engine.core.benchmark.calendar.CalendarUtils;
  */
 public class BusinessDaysCondition extends CalendarDaysCondition
 {
-   private static final int MAX_BLOCKED_DAYS = 1500;
+   private static final int MAX_BLOCKED_DAYS = 20000;
 
-   private Logger trace = LogManager.getLogger(BusinessDaysCondition.class);
+   private static Logger trace = LogManager.getLogger(BusinessDaysCondition.class);
 
    protected String calendarDocumentId;
 
@@ -43,7 +44,7 @@ public class BusinessDaysCondition extends CalendarDaysCondition
       long currentTimeMillis = System.currentTimeMillis();
       Calendar calendar = Calendar.getInstance();
       calendar.setTime(date);
-      // 4,1 years worth of blocked days stop calculation to prevent
+      // 54.79 years worth of blocked days stop calculation to prevent
       // endless loop for endless calendar events.
       int maxBlockedDaysCounter = MAX_BLOCKED_DAYS;
 
@@ -56,11 +57,11 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             case MONTHS:
                // TODO exact month?
-               amount = amount *30;
+               amount = amount * 30;
                break;
 
             case WEEKS:
-               amount = amount *7;
+               amount = amount * 7;
                break;
 
             default:
@@ -71,7 +72,8 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count < amount)
             {
-               maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, 1);
+               maxBlockedDaysCounter = skipBlockedBusinessDays(calendar,
+                     maxBlockedDaysCounter, 1);
 
                calendar.add(Calendar.DAY_OF_YEAR, 1);
                count++;
@@ -81,32 +83,28 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count > amount)
             {
-               maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, -1);
+               maxBlockedDaysCounter = skipBlockedBusinessDays(calendar,
+                     maxBlockedDaysCounter, -1);
 
                calendar.add(Calendar.DAY_OF_YEAR, -1);
                count--;
             }
          }
+
+         // apply offset time
+         if (offset.getHour() != null && offset.getMinute() != null)
+         {
+            calendar.set(Calendar.HOUR_OF_DAY, offset.getHour());
+            calendar.set(Calendar.MINUTE, offset.getMinute());
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+         }
       }
       else
       {
          // The offset is null: only skip business days.
-         maxBlockedDaysCounter = skipBusinessDay(calendar, maxBlockedDaysCounter, 1);
-      }
-
-      // apply offset time
-      if (offset.getHour() != null && offset.getMinute() != null)
-      {
-         calendar.set(Calendar.HOUR_OF_DAY, offset.getHour());
-         calendar.set(Calendar.MINUTE, offset.getMinute());
-         calendar.set(Calendar.SECOND, 0);
-         calendar.set(Calendar.MILLISECOND, 0);
-      }
-
-      if (maxBlockedDaysCounter == 0)
-      {
-         trace.warn("Skipped '" + MAX_BLOCKED_DAYS
-               + "' non-business days, ignoring further blocked days calculation!");
+         maxBlockedDaysCounter = skipBlockedBusinessDays(calendar, maxBlockedDaysCounter,
+               1);
       }
 
       if (trace.isDebugEnabled())
@@ -114,21 +112,26 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          trace.debug("BusinessDay offset calculation took: "
                + (System.currentTimeMillis() - currentTimeMillis) + " ms");
       }
+
+      if (maxBlockedDaysCounter == 0)
+      {
+         String message = "Calculation failed: Skipped '" + MAX_BLOCKED_DAYS
+               + "' non-business days. Endless schedule in calendar?";
+         trace.error(message);
+         throw new InternalException(message);
+      }
       return calendar.getTime();
    }
 
-   private int skipBusinessDay(Calendar calendar, int maxBlockedDays, int skipAmount)
+   private int skipBlockedBusinessDays(Calendar calendar, int maxBlockedDays,
+         int skipAmount)
    {
-      while (isBusinessDay(calendar.getTime()) && maxBlockedDays > 0)
+      while (CalendarUtils.isBlockedBusinessDay(calendar.getTime(), calendarDocumentId)
+            && maxBlockedDays > 0)
       {
          calendar.add(Calendar.DAY_OF_YEAR, skipAmount);
          maxBlockedDays--;
       }
       return maxBlockedDays;
-   }
-
-   private boolean isBusinessDay(Date date)
-   {
-      return CalendarUtils.isBusinessDay(date, calendarDocumentId);
    }
 }

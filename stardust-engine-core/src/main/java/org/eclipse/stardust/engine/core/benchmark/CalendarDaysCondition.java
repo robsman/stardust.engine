@@ -88,6 +88,11 @@ public class CalendarDaysCondition implements ConditionEvaluator
    private boolean evaluate(Date date)
    {
       Date offsetDate = applyOffset(date, offset);
+      if (offsetDate == null)
+      {
+         // offset calculation failed, condition is not met.
+         return false;
+      }
 
       boolean result = false;
       Date currentTime = TimestampProviderUtils.getTimeStamp();

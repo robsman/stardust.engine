@@ -373,7 +373,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             for (IProcessDefinition processDef : model.getProcessDefinitions()) {
                for (IActivity activity : processDef.getActivities()) {
                   for (IEventHandler event : activity.getEventHandlers()) {
-                     if (null != event.getAllAttributes() && event.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
+                     if (event.getType().getId().equals(PredefinedConstants.SIGNAL_CONDITION)) {
                         signalEventsPerModel.add(event);
                      }
                   }
@@ -463,7 +463,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          {
             try
             {
-               if (handler.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY))
+               if (handler.getType().getId().equals(PredefinedConstants.SIGNAL_CONDITION))
                {
                   if (handler.getId().equals(signalName))
                   {

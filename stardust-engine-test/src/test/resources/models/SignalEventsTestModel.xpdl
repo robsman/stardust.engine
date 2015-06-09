@@ -391,7 +391,6 @@
                                        <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{}</value>
                                     </carnot:Value>
                                  </carnot:Attribute>
-                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -441,7 +440,6 @@
                                  <carnot:EventAction Oid="1003" Id="CompleteActivity" Name="Complete Activity" Type="completeActivity" Kind="EVENT"/>
                               </carnot:EventActions>
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -939,7 +937,6 @@
                                  <carnot:EventAction Oid="1005" Id="CompleteActivity" Name="Complete Activity" Type="completeActivity" Kind="EVENT"/>
                               </carnot:EventActions>
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -1120,7 +1117,6 @@
                                  <carnot:EventAction Oid="1007" Id="CompleteActivity" Name="Complete Activity" Type="completeActivity" Kind="EVENT"/>
                               </carnot:EventActions>
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
@@ -1478,7 +1474,6 @@
                                  <carnot:EventAction Oid="2002" Id="CompleteActivity" Name="Complete Activity" Type="completeActivity" Kind="EVENT"/>
                               </carnot:EventActions>
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="0" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>

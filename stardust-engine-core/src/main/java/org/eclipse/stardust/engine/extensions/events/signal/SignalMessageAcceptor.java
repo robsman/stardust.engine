@@ -354,11 +354,9 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             for (IProcessDefinition processDef : model.getProcessDefinitions()) {
                for (ITrigger trigger : processDef.getTriggers())
                {
-                  if (PredefinedConstants.JMS_TRIGGER.equals(trigger.getType().getId()))
+                  if (PredefinedConstants.SIGNAL_TRIGGER.equals(trigger.getType().getId()))
                   {
-                     if (null != trigger.getAllAttributes() && trigger.getAllAttributes().containsKey(BPMN_SIGNAL_PROPERTY_KEY)) {
-                        signalTriggersPerModel.add(trigger);
-                     }
+                     signalTriggersPerModel.add(trigger);
                   }
                }
             }

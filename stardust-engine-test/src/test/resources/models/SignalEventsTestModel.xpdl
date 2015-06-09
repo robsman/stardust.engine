@@ -1359,7 +1359,7 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="965">
                   <carnot:Triggers>
-                     <carnot:Trigger Oid="968" Id="Signal2" Name="Signal JMS Trigger" Type="jms">
+                     <carnot:Trigger Oid="968" Id="Signal2" Name="Signal JMS Trigger" Type="signal">
                         <carnot:AccessPoints>
                            <carnot:AccessPoint Oid="972" Id="SignalData_1" Name="Signal Data #1" Direction="OUT" Type="serializable">
                               <carnot:Attributes>
@@ -1387,7 +1387,6 @@
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
-                           <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                            <carnot:Attribute Name="carnot:engine:messageType" Value="Map" Type="org.eclipse.stardust.engine.extensions.jms.app.MessageType"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
@@ -1720,6 +1719,14 @@
                      </carnot:Attributes>
                   </carnot:TriggerType>
                   <carnot:TriggerType Oid="23" Id="jms" Name="JMS Trigger" IsPredefined="true" IsPullTrigger="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/jms/icon.gif"/>
+                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.jms.trigger.JMSTriggerPane"/>
+                        <carnot:Attribute Name="carnot:engine:jmsAcceptor" Value="org.eclipse.stardust.engine.extensions.jms.trigger.DefaultTriggerMessageAcceptor"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jms.trigger.JMSTriggerValidator"/>
+                     </carnot:Attributes>
+                  </carnot:TriggerType>
+                  <carnot:TriggerType Oid="888" Id="signal" Name="JMS Signal Trigger" IsPredefined="true" IsPullTrigger="false">
                      <carnot:Attributes>
                         <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/jms/icon.gif"/>
                         <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.jms.trigger.JMSTriggerPane"/>

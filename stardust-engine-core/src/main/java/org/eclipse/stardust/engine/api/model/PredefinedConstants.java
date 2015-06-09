@@ -91,6 +91,7 @@ public final class PredefinedConstants
    public static final String SCAN_TRIGGER = "scan";
    public static final String MAIL_TRIGGER = "mail";
    public static final String JMS_TRIGGER = "jms";
+   public static final String SIGNAL_TRIGGER = "signal";
    public static final String TIMER_TRIGGER = "timer";
 
    // predefined condition type IDs

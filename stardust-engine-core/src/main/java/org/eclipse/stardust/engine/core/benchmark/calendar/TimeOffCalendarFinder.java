@@ -134,6 +134,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       {
          JsonObject scheduleJson = SchedulingUtils.getAsJsonObject(json, "scheduling");
          SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
+
          Calendar now = getCalendar(executionDate);
          now.set(Calendar.MINUTE, 0);
          now.set(Calendar.HOUR, 0);
@@ -141,6 +142,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
 
          // Get schedule for current day by searching next schedule from last day.
          Date timeOffSchedule = sc.processSchedule(scheduleJson, true, -1);
+
          if (timeOffSchedule != null)
          {
             Date startDate = getTime(scheduleJson, "startTimeStamp", timeOffSchedule);
@@ -165,6 +167,17 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
                }
             }
             isBlocking = executionTimeMatches(timeOffSchedule);
+         }
+         else if (sc instanceof SchedulingRecurrenceNone)
+         {
+            // check if current day is blocked, no recurrence.
+            Date startDate = getTime2(scheduleJson, "startTimeStamp");
+            Date endDate = getTime2(scheduleJson, "endTimeStamp");
+            if (startDate != null && endDate != null && startDate.before(executionDate)
+                  && endDate.after(executionDate))
+            {
+               isBlocking = true;
+            }
          }
       }
 
@@ -231,6 +244,18 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          now.set(Calendar.HOUR, ref.get(Calendar.HOUR));
          now.set(Calendar.MINUTE, ref.get(Calendar.MINUTE));
          return now.getTime();
+      }
+      return null;
+   }
+
+
+   private Date getTime2(JsonObject scheduleJson, String name)
+   {
+      String value = SchedulingUtils.getAsString(scheduleJson, name);
+      if (value != null)
+      {
+         Date time = new Date(Long.parseLong(value));
+         return time;
       }
       return null;
    }

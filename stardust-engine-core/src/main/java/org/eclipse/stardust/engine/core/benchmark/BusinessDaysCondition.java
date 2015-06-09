@@ -68,7 +68,13 @@ public class BusinessDaysCondition extends CalendarDaysCondition
                break;
          }
 
-         if (amount > 0)
+         if (amount == 0)
+         {
+            // only skip blocked business days forward.
+            maxBlockedDaysCounter = skipBlockedBusinessDays(calendar,
+                  maxBlockedDaysCounter, 1);
+         }
+         else if (amount > 0)
          {
             while (count < amount)
             {
@@ -83,6 +89,7 @@ public class BusinessDaysCondition extends CalendarDaysCondition
          {
             while (count > amount)
             {
+               // skip blocked business days backward.
                maxBlockedDaysCounter = skipBlockedBusinessDays(calendar,
                      maxBlockedDaysCounter, -1);
 
@@ -115,9 +122,8 @@ public class BusinessDaysCondition extends CalendarDaysCondition
 
       if (maxBlockedDaysCounter == 0)
       {
-         String message = "Calculation failed: Skipped '" + MAX_BLOCKED_DAYS
-               + "' non-business days. Endless schedule in calendar?";
-         trace.error(message);
+         String message = "Calculation failed: Skipped " + MAX_BLOCKED_DAYS
+               + " non-business days. Endless schedule in calendar?";
          throw new InternalException(message);
       }
       return calendar.getTime();

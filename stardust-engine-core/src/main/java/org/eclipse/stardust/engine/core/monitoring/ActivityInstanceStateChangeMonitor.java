@@ -157,7 +157,7 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
             AuditTrailLogger.getInstance(LogCode.ENGINE)
                   .warn(MessageFormat.format(
                         "Failed to write benchmark value for activity instance {0}, no benchmark has been set.",
-                        ai.getOID(), e));
+                        ai.getOID()), e);
          }
       }
    }
@@ -175,12 +175,12 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
       Preferences benchmarkPreferences = prefManager.getPreferences(
             PreferenceScope.PARTITION, PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
             PreferencesConstants.PREFERENCE_ID_BENCHMARKS);
-      
+
       preferences.putAll(criticalityPreferences.getPreferences());
       preferences.putAll(benchmarkPreferences.getPreferences());
 
-      
-      
+
+
       return preferences;
    }
 }

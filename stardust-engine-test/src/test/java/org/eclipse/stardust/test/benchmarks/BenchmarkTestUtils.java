@@ -11,12 +11,14 @@
 package org.eclipse.stardust.test.benchmarks;
 
 import java.io.*;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Assert;
 
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 
@@ -44,6 +46,38 @@ public class BenchmarkTestUtils
       return content;
    }
 
+   private static String postProcess(String content)
+   {
+      if (content != null)
+      {
+         return content.replace("${currentDayStart}", getCurrentDayStart()).replace(
+               "${currentDayEnd}", getCurrentDayEnd());
+      }
+      return content;
+   }
+
+   private static String getCurrentDayEnd()
+   {
+      Calendar now = TimestampProviderUtils.getCalendar();
+
+      now.set(Calendar.HOUR_OF_DAY, 23);
+      now.set(Calendar.MINUTE, 59);
+      now.set(Calendar.MILLISECOND, 0);
+
+      return Long.valueOf(now.getTime().getTime()).toString();
+   }
+
+   private static String getCurrentDayStart()
+   {
+      Calendar now = TimestampProviderUtils.getCalendar();
+
+      now.set(Calendar.HOUR_OF_DAY, 0);
+      now.set(Calendar.MINUTE, 0);
+      now.set(Calendar.MILLISECOND, 0);
+
+      return Long.valueOf(now.getTime().getTime()).toString();
+   }
+
    public static void deployCalendar(String calendarName, ServiceFactory sf)
    {
       DocumentManagementService dms = sf.getDocumentManagementService();
@@ -67,6 +101,7 @@ public class BenchmarkTestUtils
    {
       final String calendarFilePath = "binaryFiles/" + calendarName;
       String content = BenchmarkTestUtils.readFile(calendarFilePath);
+      content = postProcess(content);
       return content;
    }
 

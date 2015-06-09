@@ -387,7 +387,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -430,7 +430,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -928,7 +928,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1109,7 +1109,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="10" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1467,7 +1467,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
-                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsSearchPeriod" Value="0" Type="long"/>
+                                 <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="0" Type="long"/>
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>

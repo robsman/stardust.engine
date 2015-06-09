@@ -36,18 +36,24 @@ public class SignalEventCondition implements EventHandlerInstance
 {
    static final Logger trace = LogManager.getLogger(SignalEventCondition.class);
 
-   private Long firedSignalValidityDuration;
+   private Long pastSignalsGracePeriod;
 
    private short partitionOid;
 
    @Override
    public void bootstrap(Map actionAttributes)
    {
-      final Object firedSignalValidityDuration = actionAttributes
-            .get(SignalMessageAcceptor.FIRED_SIGNAL_VALIDITY_DURATION);
-      this.firedSignalValidityDuration = (firedSignalValidityDuration != null)
-            ? (Long) firedSignalValidityDuration
-            : null;
+      final Object gracePeriodParam = actionAttributes
+            .get(SignalMessageAcceptor.PAST_SIGNALS_GRACE_PERIOD);
+      if (gracePeriodParam instanceof Number)
+      {
+         this.pastSignalsGracePeriod = ((Number) gracePeriodParam).longValue();
+      }
+      else if (gracePeriodParam instanceof String)
+      {
+         this.pastSignalsGracePeriod = Long.parseLong((String) gracePeriodParam);
+      }
+      // TODO support Period?
 
       this.partitionOid = SecurityProperties.getPartitionOid();
    }
@@ -55,7 +61,7 @@ public class SignalEventCondition implements EventHandlerInstance
    @Override
    public boolean accept(Event event)
    {
-      if (firedSignalValidityDuration == null || firedSignalValidityDuration.longValue() <= 0)
+      if (pastSignalsGracePeriod == null || pastSignalsGracePeriod.longValue() <= 0)
       {
          return false;
       }
@@ -74,7 +80,7 @@ public class SignalEventCondition implements EventHandlerInstance
                String signalName = handler.getName();
 
                final Date now = TimestampProviderUtils.getTimeStamp();
-               final Date validFrom = new Date(now.getTime() - firedSignalValidityDuration.longValue() * 1000);
+               final Date validFrom = new Date(now.getTime() - pastSignalsGracePeriod.longValue() * 1000);
 
                final Iterator<SignalMessageBean> messageStoreIter = SignalMessageBean.findFor(partitionOid, signalName, validFrom);
                final SignalMessageAcceptor signalMsgAcceptor = new SignalMessageAcceptor();

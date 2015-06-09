@@ -381,11 +381,16 @@
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Activity Oid="59" IsHibernatedOnCreation="true">
                         <carnot:EventHandlers>
-                           <carnot:EventHandler Oid="77" Id="Signal1" Name="Signal1" Type="signal">
+                           <carnot:EventHandler Oid="77" Id="Signal1" Name="Signal1" Type="signal" IsAutomaticallyBound="false">
                               <carnot:EventActions>
                                  <carnot:EventAction Oid="1001" Id="CompleteActivity" Name="Complete Activity" Type="completeActivity" Kind="EVENT"/>
                               </carnot:EventActions>
                               <carnot:Attributes>
+                                 <carnot:Attribute Name="stardust:bpmnEvent:34">
+                                    <carnot:Value>
+                                       <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{}</value>
+                                    </carnot:Value>
+                                 </carnot:Attribute>
                                  <carnot:Attribute Name="stardust.bpmn.signal" Value="stardust.bpmn.signal"/>
                                  <carnot:Attribute Name="stardust:bpmn:signal:pastSignalsGracePeriod" Value="10"/>
                               </carnot:Attributes>
@@ -394,6 +399,13 @@
                         <carnot:QualityCodes/>
                         <carnot:DataFlows/>
                         <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="6a1b25c9-1e8d-4145-988e-9ec722cfdffa"/>
+                           <carnot:Attribute Name="stardust:bpmnIntermediateEventHost" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:bpmnEvent:34">
+                              <carnot:Value>
+                                 <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{"eventHandlerUuid":"WaitforFileArrival"}</value>
+                              </carnot:Value>
+                           </carnot:Attribute>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>

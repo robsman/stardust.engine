@@ -34,6 +34,7 @@ public class Version implements Comparable<Version>, Serializable
    private int micro;
    private String build;
 
+   private String vendor = CurrentVersion.VENDOR_NAME;
 
    // This product name flags special comparison treatment on Version
    private static final String PRODUCT_NAME_STARDUST = "Eclipse Process Manager";
@@ -101,7 +102,11 @@ public class Version implements Comparable<Version>, Serializable
    public static Version createModelVersion(String versionString, String vendorString)
    {
       Version version = new Version(versionString);
-      if ( !vendorString.contains(PRODUCT_NAME_STARDUST))
+      if (vendorString.contains(PRODUCT_NAME_STARDUST))
+      {
+         version.vendor = PRODUCT_NAME_STARDUST;
+      }
+      else
       {
          // product name not EPM -> assumed to be created with IPP
          version = Version.createFixedVersion(version.getMajor(), version.getMinor(),
@@ -175,6 +180,21 @@ public class Version implements Comparable<Version>, Serializable
          {
             return mapStardust2Ipp.get(this).compareTo(otherVersion, includeMicro);
          }
+      }
+      else if (!PRODUCT_NAME_STARDUST.equals(CurrentVersion.PRODUCT_NAME)
+            && (PRODUCT_NAME_STARDUST.equals(this.vendor) || PRODUCT_NAME_STARDUST
+                  .equals(otherVersion.vendor)))
+      {
+         // comparing a Stardust tagged version with a non-Stardust version
+         Version lhs = (!this.fixed && PRODUCT_NAME_STARDUST.equals(this.vendor)) //
+               ? mapStardust2Ipp.get(this)
+               : this;
+         Version rhs = (!otherVersion.fixed && PRODUCT_NAME_STARDUST
+               .equals(otherVersion.vendor)) //
+               ? mapStardust2Ipp.get(otherVersion)
+               : otherVersion;
+
+         return lhs.compareTo(rhs, includeMicro);
       }
 
       if (major < otherVersion.major)

@@ -29,6 +29,8 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.ResponseMatch;
 
 
 /**
@@ -43,16 +45,19 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
    {
    }
 
+   @Override
    public boolean isStateless()
    {
       return true;
    }
 
+   @Override
    public Collection getAccessPoints(StringKey key)
    {
       return DefaultMessageHelper.getIntrinsicAccessPoints(key, Direction.OUT);
    }
 
+   @Override
    public Iterator<IActivityInstance> getMatchingActivityInstances(Message message)
    {
       try
@@ -200,6 +205,7 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
       }
    }
 
+   @Override
    public Map<String, Object> getData(Message message, StringKey id, Iterator accessPoints)
    {
       if (trace.isDebugEnabled())
@@ -210,18 +216,42 @@ public class DefaultMessageAcceptor implements MessageAcceptor, Stateless
       return DefaultMessageHelper.getData(message, accessPoints);
    }
 
+   @Override
    public String getName()
    {
       return "Default acceptor";
    }
 
+   @Override
    public boolean hasPredefinedAccessPoints(StringKey id)
    {
       return DefaultMessageHelper.hasPredefinedAccessPoints(id);
    }
 
+   @Override
    public Collection getMessageTypes()
    {
       return DefaultMessageHelper.getMessageIds();
+   }
+
+   @Override
+   public Match finalizeMatch(IActivityInstance activityInstance)
+   {
+      if (activityInstance.isHibernated()) {
+         return new ResponseMatch(this, activityInstance);
+      }
+      return null;
+   }
+
+   @Override
+   public List<Match> getTriggerMatches(Message message)
+   {
+      return Collections.emptyList();
+   }
+
+   @Override
+   public List<Match> getMessageStoreMatches(Message message)
+   {
+      return Collections.emptyList();
    }
 }

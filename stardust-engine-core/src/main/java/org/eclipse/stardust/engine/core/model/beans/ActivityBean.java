@@ -249,9 +249,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          IModel externalModel = externalPackage.getReferencedModel();
          if (externalModel != null)
          {
-            String uuid = getStringAttribute("carnot:connection:uuid");
-            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(StringUtils.isEmpty(uuid)
-                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
+            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(externalReference.getId());
             if (referenceProcess != null)
             {
                return getImplementation(referenceProcess);
@@ -497,7 +495,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    }
 
-   public ModelElementList getOutDataMappings()
+   public ModelElementList<IDataMapping> getOutDataMappings()
    {
       return outDataMappings;
    }
@@ -1046,6 +1044,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          return interfaceContext;
       }
 
+      if (contextId != null && contextId.startsWith(PredefinedConstants.EVENT_CONTEXT))
+      {
+         return new MyEventContext(contextId);
+      }
+
       IApplication app = getApplication();
       if (app != null && isInteractive())
       {
@@ -1344,6 +1347,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       private MyDefaultContext()
       {
          super(PredefinedConstants.DEFAULT_CONTEXT, true);
+      }
+
+      public RootElement getModel()
+      {
+         return ActivityBean.this.getModel();
+      }
+   }
+
+   private class MyEventContext extends ApplicationContextBean
+   {
+      private static final long serialVersionUID = 1L;
+
+      private MyEventContext(String id)
+      {
+         super(id, true);
       }
 
       public RootElement getModel()

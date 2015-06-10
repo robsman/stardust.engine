@@ -1,0 +1,3 @@
+org.eclipse.stardust.engine.extensions.events.error.ErrorMessageAcceptor
+org.eclipse.stardust.engine.extensions.events.escalation.EscalationMessageAcceptor
+org.eclipse.stardust.engine.extensions.events.signal.SignalMessageAcceptor

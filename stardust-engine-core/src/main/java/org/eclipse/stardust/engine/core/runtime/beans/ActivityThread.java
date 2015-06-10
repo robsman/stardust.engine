@@ -235,6 +235,10 @@ public class ActivityThread implements Runnable
       if (isInAbortingPiHierarchy())
       {
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
+         if (oid == null)
+         {
+            oid = Long.valueOf(0);
+         }
          // TODO: trace the real state: aborted or aborting.
          BpmRuntimeError error;
          if (activityInstance == null)

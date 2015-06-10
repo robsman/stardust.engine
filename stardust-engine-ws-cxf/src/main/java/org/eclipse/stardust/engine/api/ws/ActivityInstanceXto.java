@@ -54,6 +54,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="historicalStates" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalStates" minOccurs="0"/>
  *         &lt;element name="historicalEvents" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalEvents" minOccurs="0"/>
  *         &lt;element name="criticality" type="{http://www.w3.org/2001/XMLSchema}double"/>
+ *         &lt;element name="benchmarkResult" type="{http://eclipse.org/stardust/ws/v2012a/api}BenchmarkResult"/>
  *         &lt;element name="qualityAssuranceInfo" type="{http://eclipse.org/stardust/ws/v2012a/api}QualityAssuranceInfo" minOccurs="0"/>
  *         &lt;element name="qualityAssuranceState" type="{http://eclipse.org/stardust/ws/v2012a/api}QualityAssuranceState" minOccurs="0"/>
  *         &lt;element name="attributes" type="{http://eclipse.org/stardust/ws/v2012a/api}ActivityInstanceAttributes" minOccurs="0"/>
@@ -95,6 +96,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "historicalStates",
     "historicalEvents",
     "criticality",
+    "benchmarkResult",
     "qualityAssuranceInfo",
     "qualityAssuranceState",
     "attributes"
@@ -143,6 +145,8 @@ public class ActivityInstanceXto {
     protected HistoricalStatesXto historicalStates;
     protected HistoricalEventsXto historicalEvents;
     protected double criticality;
+    @XmlElement(required = true)
+    protected BenchmarkResultXto benchmarkResult;
     protected QualityAssuranceInfoXto qualityAssuranceInfo;
     protected QualityAssuranceStateXto qualityAssuranceState;
     protected ActivityInstanceAttributesXto attributes;
@@ -753,6 +757,30 @@ public class ActivityInstanceXto {
      */
     public void setCriticality(double value) {
         this.criticality = value;
+    }
+
+    /**
+     * Gets the value of the benchmarkResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BenchmarkResultXto }
+     *     
+     */
+    public BenchmarkResultXto getBenchmarkResult() {
+        return benchmarkResult;
+    }
+
+    /**
+     * Sets the value of the benchmarkResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BenchmarkResultXto }
+     *     
+     */
+    public void setBenchmarkResult(BenchmarkResultXto value) {
+        this.benchmarkResult = value;
     }
 
     /**

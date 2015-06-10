@@ -22,6 +22,7 @@
                nillable="true" />
             <element name="attachments" type="bat:InputDocuments"
                minOccurs="0" nillable="true" />
+            <element name="benchmarkId" type="xsd:string" minOccurs="0" nillable="true" />
          </sequence>
       </complexType>
    </element>

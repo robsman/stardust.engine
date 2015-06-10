@@ -1251,6 +1251,7 @@
 				minOccurs="0" />
 
 			<element name="criticality" type="double"/>
+			<element name="benchmarkResult" type="tns:BenchmarkResult"/>
 
 			<element name="qualityAssuranceInfo" type="tns:QualityAssuranceInfo" minOccurs="0" />
 			<element name="qualityAssuranceState" type="tns:QualityAssuranceState" minOccurs="0" />
@@ -1304,6 +1305,9 @@
 				minOccurs="0" />
 			-->
 
+			<element name="benchmark" type="long" />
+			<element name="benchmarkResult" type="tns:BenchmarkResult" />
+			
 			<element name="state" type="tns:ProcessInstanceState" />
 
 			<element name="detailsLevel" type="tns:ProcessInstanceDetailsLevel" />
@@ -2687,6 +2691,14 @@
 		</sequence>
 	</complexType>
 
+   <complexType name="BenchmarkResult">
+       <sequence>
+           <element name="benchmarkOid" type="long" />
+           <element name="category" type="int" />
+           <element name="properties" type="tns:Map" />
+       </sequence>
+   </complexType>
+
    <complexType name="RuntimeArtifact">
       <annotation>
          <documentation>
@@ -2857,5 +2869,6 @@
 			<enumeration value="FAILED" />
 		</restriction>
 	</simpleType>
+	
 
 </schema>

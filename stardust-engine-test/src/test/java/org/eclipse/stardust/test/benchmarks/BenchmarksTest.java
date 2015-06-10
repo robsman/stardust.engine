@@ -9,17 +9,13 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.monitoring.ActivityInstanceStateChangeMonitor;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -207,6 +203,35 @@ public class BenchmarksTest
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
 
+   }
+
+   @Test
+   public void queryBenchmarkResult()
+   {
+      BenchmarkTestUtils.deployBenchmark("example.benchmark", serviceFactory);
+
+      serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, new StartOptions(null, true, "example.benchmark"));
+
+      serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withBenchmark);
+
+      ActivityInstanceQuery findAlive = ActivityInstanceQuery.findAlive();
+
+      findAlive.where(ActivityInstanceQuery.BENCHMARK_OID.greaterThan(0));
+      findAlive.where(ActivityInstanceQuery.BENCHMARK_VALUE.greaterOrEqual(0));
+
+      findAlive.orderBy(ActivityInstanceQuery.BENCHMARK_OID, false);
+      findAlive.orderBy(ActivityInstanceQuery.BENCHMARK_VALUE);
+
+      ActivityInstances instances = serviceFactory.getQueryService()
+            .getAllActivityInstances(findAlive);
+
+      assertEquals(2, instances.size());
+
+      ActivityInstance ai1 = instances.get(0);
+      ActivityInstance ai2 = instances.get(1);
+      assertTrue(ai1.getBenchmarkResult().getBenchmark() > ai2.getBenchmarkResult().getBenchmark());
    }
 
 }

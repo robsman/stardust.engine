@@ -3821,7 +3821,7 @@ public class Archiver
 
    private void archiveModels(Long modelOid)
    {
-      if (modelOid != null)
+      if (archive && modelOid != null)
       {
          List<Long> references = getReferences(modelOid);
          for (Long oid : references)

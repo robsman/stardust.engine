@@ -16,6 +16,10 @@ import static org.eclipse.stardust.test.benchmarks.BenchmarkTestUtils.deployCale
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Map;
+
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -24,6 +28,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -73,8 +78,8 @@ public class BenchmarkCalendarTest
    // All timeoff blocked since 26th may 2015
    private static final String ALL_TIMEOFF_CALENDAR = "timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d278.json";
 
-   // Yesterday and Tomorrow timeoff (needs processing)
-   private static final String YESTERDAY_AND_TOMORROW_TIMEOFF_CALENDAR = "timeOffCalendar-32bf4126-8eec-4836-aaa8-fe5319532a07.json";
+   // Today timeoff (done by timestamp replacement while reading the file)
+   private static final String TODAY_TIMEOFF_CALENDAR = "timeOffCalendar-32bf4126-8eec-4836-aaa8-fe5319532a07.json";
 
    private static final String BENCHMARK1_ARTIFACT_ID = "calendar1.benchmark";
 
@@ -165,18 +170,26 @@ public class BenchmarkCalendarTest
    @Test
    public void activityBenchmarkCalendar5TodayTimeOff()
    {
-      deployCalendar(YESTERDAY_AND_TOMORROW_TIMEOFF_CALENDAR, serviceFactory);
+      deployCalendar(TODAY_TIMEOFF_CALENDAR, serviceFactory);
       deployBenchmark(BENCHMARK5_ARTIFACT_ID, serviceFactory);
 
       // Test for default
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK5_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK5_ARTIFACT_ID));
       assertEquals(0, pi.getBenchmarkResult().getCategory());
 
       ActivityInstance instance = serviceFactory.getQueryService()
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
 
       assertEquals(1, instance.getBenchmarkResult().getCategory());
+   }
+
+   private Map<String, Serializable> getBusinessDateMap()
+   {
+      Map<String, Serializable> data = CollectionUtils.newHashMap();
+
+      data.put("BUSINESS_DATE", Calendar.getInstance());
+      return data;
    }
 
 }

@@ -27,7 +27,7 @@
     "processDefinitions": {
       "dueDate": {
         "enabled": true,
-        "dataReference": "BUSINESS_DATE",
+        "dataReference": "{BenchmarksModel}DUE_DATE",
         "useBusinessDays": false,
         "offset": {
           "amount": 10,
@@ -88,7 +88,7 @@
                 "condition": {
                   "lhs": "CURRENT_TIME",
                   "operator": "<",
-                  "rhs": "BUSINESS_DATE"
+                  "rhs": "{BenchmarksModel}BUSINESS_DATE"
                 },
                 "useBusinessDays": true,
                 "offset": {
@@ -121,7 +121,7 @@
                       "condition": {
                         "lhs": "CURRENT_TIME",
                         "operator": "<",
-                        "rhs": "BUSINESS_DATE"
+                        "rhs": "{BenchmarksModel}BUSINESS_DATE"
                       },
                       "useBusinessDays": true,
                       "offset": {
@@ -139,7 +139,7 @@
                       "condition": {
                         "lhs": "CURRENT_TIME",
                         "operator": ">",
-                        "rhs": "BUSINESS_DATE"
+                        "rhs": "{BenchmarksModel}BUSINESS_DATE"
                       },
                       "useBusinessDays": true,
                       "offset": {
@@ -157,7 +157,7 @@
                       "condition": {
                         "lhs": "CURRENT_TIME",
                         "operator": ">",
-                        "rhs": "BUSINESS_DATE"
+                        "rhs": "{BenchmarksModel}BUSINESS_DATE"
                       },
                       "useBusinessDays": true,
                       "offset": {

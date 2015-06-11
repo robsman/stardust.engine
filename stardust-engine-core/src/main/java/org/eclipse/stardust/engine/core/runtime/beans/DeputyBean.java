@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,14 +42,14 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Internal class to help with creation and parsing of the deputy information.
- * 
+ *
  * The element names are intentionally 1 character long and no namespace and XML declaration
  * to keep the serialized version as small as possible.
- * 
+ *
  * Top element ("d") must have no attributes and the user element ("u") must be the first child,
  * i.e. the serialized form must have the format "&lt;d&gt;&lt;u&gt;user-oid&lt;/u&gt;...other
  * children...&lt;/d&gt;".
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -78,7 +78,11 @@ public class DeputyBean
       }
    }
 
-   private static class DateAdapter extends XmlAdapter<Long, Date>
+   /**
+    * Package private necessary as otherwise WAS seems to have problems.
+    * See CRNT-37131
+    */
+   static class DateAdapter extends XmlAdapter<Long, Date>
    {
       @Override
       public Date unmarshal(Long v) throws Exception

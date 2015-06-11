@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.data;
+package org.eclipse.stardust.test.deploy;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
@@ -33,13 +33,13 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 /**
  * /**
  * <p>
- * Tests if new structured validation via model validation at deployment time works.
+ * Tests if runtime binding data validation via model validation at deployment time works.
  * </p>
  *
  * @author Barry.Grotjahn
  *
  */
-public class DeployValidationTest
+public class DeployRuntimeBindingValidationTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
@@ -62,11 +62,10 @@ public class DeployValidationTest
       boolean errorOccured = false;
       try
       {
-         deploy("Structured");
+         deploy("RuntimeBindingDeploy");
       }
       catch (DeploymentException e)
       {
-         System.err.println(e);
          assertDeploymentError(e);
          errorOccured = true;
       }
@@ -81,9 +80,7 @@ public class DeployValidationTest
 
    private void assertDeploymentError(DeploymentException e)
    {
-      int DATA01027 = 0;
-      int DATA01017 = 0;
-      int DATA01028 = 0;
+      int ACTY01018 = 0;
       
       List<DeploymentInfo> infos = e.getInfos();
       for (DeploymentInfo deploymentInfo : infos)
@@ -94,33 +91,17 @@ public class DeployValidationTest
             String errorID = inconsistency.getErrorID();
             if(!StringUtils.isEmpty(errorID))
             {
-               if(errorID.equals("DATA01027"))
+               if(errorID.equals("ACTY01018"))
                {
-                  DATA01027++;
-               }
-               else if(errorID.equals("DATA01017"))
-               {
-                  DATA01017++;
-               }
-               else if(errorID.equals("DATA01028"))
-               {
-                  DATA01028++;
+                  ACTY01018++;
                }
             }
          }
       }
 
-      if(DATA01027 != 2)
+      if(ACTY01018 != 7)
       {
-         Assert.fail("2 ErrorCase 'DATA01027' expected but not found.");         
-      }
-      if(DATA01017 != 1)
-      {
-         Assert.fail("ErrorCase 'DATA01017' expected but not found.");                  
-      }
-      if(DATA01028 != 1)
-      {
-         Assert.fail("ErrorCase 'DATA01028' expected but not found.");                  
+         Assert.fail("7 ErrorCase 'ACTY01018' expected but not found.");         
       }
    }
 }

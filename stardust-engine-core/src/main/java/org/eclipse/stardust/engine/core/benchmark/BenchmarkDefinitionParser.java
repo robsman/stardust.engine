@@ -303,7 +303,7 @@ public class BenchmarkDefinitionParser
 
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
-      String qualifiedDataId = calendarCondition.get("lhs").getAsString();
+      String qualifiedDataId = calendarCondition.get("rhs").getAsString();
 
       String stringComperator = calendarCondition.get("operator").getAsString();
 

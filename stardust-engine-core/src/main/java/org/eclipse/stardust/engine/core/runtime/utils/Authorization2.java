@@ -926,6 +926,9 @@ public class Authorization2
       @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
       Permission getModifyUserDataPermission();
 
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyDmsData)
+      Permission getModifyDmsDataPermission();
+
       @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
       Permission getReadAuditTrailStatisticsPermission();
 

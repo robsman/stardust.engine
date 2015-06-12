@@ -9,6 +9,7 @@ import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.persistence.archive.DocumentOption;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public abstract class BaseExportImportCommand extends ConsoleCommand
@@ -26,7 +27,7 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    protected static final String MODEL_IDS = "models";
    protected static final String PROCESS_DEFINITION_IDS = "processes";
    protected static final String PREFERENCES = "preferences";
-   
+   protected static final String WITH_DOCS = "withDocuments";
 
    public BaseExportImportCommand()
    {
@@ -37,6 +38,37 @@ public abstract class BaseExportImportCommand extends ConsoleCommand
    {
       return argTypes;
    }
+
+   protected DocumentOption getDocumentOption(Map options)
+   {
+      DocumentOption option;
+      if (options.containsKey(WITH_DOCS))
+      {
+         String optionValue = (String) options.get(WITH_DOCS);
+         if (!StringUtils.isEmpty(optionValue))
+         {
+            option = DocumentOption.valueOf(optionValue.toUpperCase());
+            if (option == null)
+            {
+               throw new PublicException(
+                     BpmRuntimeError.CLI_INVALID_OPTION_DOCUMENTS
+                           .raise(options.get(WITH_DOCS)));
+            }
+         }
+         else
+         {
+            throw new PublicException(
+                  BpmRuntimeError.CLI_INVALID_OPTION_DOCUMENTS
+                        .raise(options.get(WITH_DOCS)));
+         }
+      }
+      else
+      {
+         option = DocumentOption.NONE;
+      }
+      return option;
+   }
+
 
    protected int getConcurrentBatches(Map options)
    {

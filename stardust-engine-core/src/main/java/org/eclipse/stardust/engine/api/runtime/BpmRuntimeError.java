@@ -661,7 +661,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 CLI_INVALID_OPTION_DUMP = newArgs1("CLI01025", BpmRuntimeErrorMessages.getString("CLI01025")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_INVALID_OPTION_PREFERENCES  = newArgs1("CLI01026", BpmRuntimeErrorMessages.getString("CLI01026")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_INVALID_CONTENT_FOR_OPTION_PREFERENCES  = newArgs1("CLI01027", BpmRuntimeErrorMessages.getString("CLI01027")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args1 CLI_INVALID_OPTION_DOCUMENTS = newArgs1("CLI01028", BpmRuntimeErrorMessages.getString("CLI01028")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    //// Archiver related
    public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_ARCHIVING_LOG_ENTRIES = newArgs0("ARCH01002", BpmRuntimeErrorMessages.getString("ARCH01002")); //$NON-NLS-1$ //$NON-NLS-2$

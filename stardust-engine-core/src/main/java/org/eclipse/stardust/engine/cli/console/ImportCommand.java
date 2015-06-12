@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.persistence.archive.ArchiveFilter;
+import org.eclipse.stardust.engine.core.persistence.archive.DocumentOption;
 import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
@@ -124,7 +125,10 @@ public class ImportCommand extends BaseExportImportCommand
             PREFERENCES,
             "Optional parameter pointing to a preferences.xml that contains information about the archive/dump where the data is imported from.",
             true);
-
+      
+      argTypes.register("-" + WITH_DOCS, "-wd", WITH_DOCS,
+            "Optional parameter determines if documents are imported. Per default no documents are imported. Valid options: NONE/LATEST/ALL ", true);
+      
       argTypes.addExclusionRule(new String[] {PROCESSES_BY_OID, MODEL_IDS}, false);
    }
 
@@ -139,6 +143,8 @@ public class ImportCommand extends BaseExportImportCommand
       final Collection<String> processDefinitionIds = getProcessDefinitionIds(options);
       final Collection<String> modelIds = getModelIds(options); 
       final Map<String, String> preferences = getPreferences(options);
+      final DocumentOption documentOption = getDocumentOption(options); 
+      
       for (final String partitionId : partitionIds)
       {
          Date start = new Date();
@@ -170,13 +176,13 @@ public class ImportCommand extends BaseExportImportCommand
                      if (CollectionUtils.isNotEmpty(archives))
                      {
                         importMetaData = validateImport(currentArchive, workflowService,descriptors,
-                              preferences);
+                              preferences, documentOption);
                      }
                      int count = 0;
                      if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
                      {
                         count = importFile(processDefinitionIds, modelIds, fromDate, toDate, processOids,descriptors, partitionId,
-                        importMetaData, serviceFactory, currentArchive, preferences);
+                        importMetaData, serviceFactory, currentArchive, preferences, documentOption);
                      }
                      return count;
                   }
@@ -218,12 +224,12 @@ public class ImportCommand extends BaseExportImportCommand
    }
    
    private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService,
-         HashMap<String, Object> descriptors, Map<String, String> preferences)
+         HashMap<String, Object> descriptors, Map<String, String> preferences, DocumentOption documentOption)
    {
       ImportMetaData importMetaData;
       ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
       ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE, archive, filter, null, preferences);
+            ImportProcessesCommand.Operation.VALIDATE, archive, filter, null, preferences, documentOption);
       importMetaData = (ImportMetaData) workflowService.execute(importCommand);
       if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
       {
@@ -240,7 +246,7 @@ public class ImportCommand extends BaseExportImportCommand
    private int importFile(final Collection<String> processDefinitionIds,
          final Collection<String> modelIds, Date fromDate, Date toDate, List<Long> processOids, HashMap<String, Object> descriptors,
          String partitionId, ImportMetaData importMetaData,
-         ServiceFactory serviceFactory, IArchive archive, Map<String, String> preferences)
+         ServiceFactory serviceFactory, IArchive archive, Map<String, String> preferences, DocumentOption documentOption)
    {
       int count = 0;
 
@@ -248,7 +254,7 @@ public class ImportCommand extends BaseExportImportCommand
       {
          ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds,processOids, null, fromDate, toDate, descriptors);
          ImportProcessesCommand command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, filter, importMetaData, preferences);
+                  archive, filter, importMetaData, preferences, documentOption);
          count = (Integer) serviceFactory.getWorkflowService().execute(command);
 
          print("Imported " + count + " process instances into partition " + partitionId

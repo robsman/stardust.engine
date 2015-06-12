@@ -54,9 +54,11 @@ public class ImportProcessesCommand implements ServiceCommand
    private final Map<String, String> preferences;
    
    private IArchiveReader reader;
+   
+   private DocumentOption documentOption;
 
    public ImportProcessesCommand(Operation operation, IArchive archive, 
-         ArchiveFilter filter, ImportMetaData importMetaData, Map<String, String> preferences)
+         ArchiveFilter filter, ImportMetaData importMetaData, Map<String, String> preferences, DocumentOption documentOption)
    {
       super();
       this.operation = operation;
@@ -64,6 +66,7 @@ public class ImportProcessesCommand implements ServiceCommand
       this.archive = archive;
       this.importMetaData = importMetaData;
       this.preferences = preferences;
+      this.documentOption = documentOption;
    }
 
    /**
@@ -73,7 +76,7 @@ public class ImportProcessesCommand implements ServiceCommand
     */
    public ImportProcessesCommand(ArchiveFilter filter, Map<String, String> preferences)
    {
-      this(Operation.QUERY, null, filter, null, preferences);
+      this(Operation.QUERY, null, filter, null, preferences, DocumentOption.NONE);
    }
   
    @Override
@@ -176,9 +179,12 @@ public class ImportProcessesCommand implements ServiceCommand
                      ProcessElementExporter.EXPORT_PROCESS_ID, archive.getExportIndex().getUuid(oid));
             }
          }
-         for (Long oid : exportProcesses)
+         if (documentOption != DocumentOption.NONE)
          {
-            addDocumentsToProcess(session, sf.getDocumentManagementService(), oid);
+            for (Long oid : exportProcesses)
+            {
+               addDocumentsToProcess(session, sf.getDocumentManagementService(), oid);
+            }
          }
       }
       catch (IllegalStateException e)
@@ -215,6 +221,8 @@ public class ImportProcessesCommand implements ServiceCommand
       document.setSize(temp.getSize());
       document.setVersionLabels(temp.getVersionLabels());
       document.setPath(temp.getPath());
+      
+      //storeImportDocument
    }
    
    private void addDocumentsToProcess(Session session, DocumentManagementService dms, Long piOid)
@@ -237,7 +245,7 @@ public class ImportProcessesCommand implements ServiceCommand
                {
                   String latestRevComment = document.getRevisionComment();
                   String latestRevName = document.getRevisionName();
-                  if (CollectionUtils.isNotEmpty(documentMetaData.getRevisions()))
+                  if (documentOption == DocumentOption.ALL && CollectionUtils.isNotEmpty(documentMetaData.getRevisions()))
                   {
                      boolean firstDoc = true;
                      for (String revision : documentMetaData.getRevisions())

@@ -18,6 +18,7 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.archive.DocumentMetaData;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
@@ -66,6 +67,23 @@ public class RepositoryAuditTrailUtils
          }
       }
    }
+
+   public static void storeImportDocument(Document document)
+   {
+      if (document != null)
+      {
+         storeResource(document.getId(), document, DocumentMetaData.class);
+
+         // store entry for revision
+         if (document.getRevisionId() != null
+               && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId())
+               && !RepositoryConstants.VERSION_VERSIONED.equals(document.getRevisionId()))
+         {
+            storeResource(document.getRevisionId(), document, DocumentMetaData.class);
+         }
+      }
+   }
+
 
    /**
     * Fetches the document from the AuditTrail.

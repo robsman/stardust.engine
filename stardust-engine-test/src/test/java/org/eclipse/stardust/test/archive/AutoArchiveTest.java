@@ -1624,7 +1624,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertNotNull(pi.getRootProcessInstanceOID());
       
       ArchiveTest.assertDataExists(pi.getOID(), oldActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_SUB,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       archiveQueue();
       archives = (List<IArchive>) workflowService
@@ -1649,7 +1649,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       
       ArchiveTest.assertDataNotExists(pi.getOID(), oldActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_SUB,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       
       archives = (List<IArchive>) workflowService
@@ -1669,7 +1669,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
             
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_SUB,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       assertQueueEmpty();
    }

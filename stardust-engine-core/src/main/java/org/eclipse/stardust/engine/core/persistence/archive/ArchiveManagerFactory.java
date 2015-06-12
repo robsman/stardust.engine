@@ -27,6 +27,8 @@ public class ArchiveManagerFactory
    public static final String DEFAULT_ARCHIVE_FOLDER_FORMAT = "\\yyyy\\MM\\dd\\HH";
 
    public static final String DEFAULT_AUTO_ARCHIVE = "false";
+   
+   public static final  String DEFAULT_AUTO_ARCHIVE_DOCUMENTS = DocumentOption.NONE.name();
 
    public static final String CARNOT_ARCHIVE_WRITER_ROOTFOLDER = "stardust-archiving.export.archive.filesystem.root";
 
@@ -55,6 +57,8 @@ public class ArchiveManagerFactory
    public static final String CARNOT_ARCHIVE_READER_ROOTFOLDER = "stardust-archiving.import.archive.filesystem.root";
 
    public static final String CARNOT_ARCHIVE_READER_FOLDER_FORMAT = "stardust-archiving.import.archive.filesystem.folderFormat";
+   
+   public static final String CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS = "stardust-archiving.import.archive.auto.documents";
 
    private static volatile ConcurrentHashMap<String, IArchiveWriter> PARTITION_WRITERS = CollectionUtils
          .newConcurrentHashMap();
@@ -148,6 +152,7 @@ public class ArchiveManagerFactory
       setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
             ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
       setPreference(preferences, CARNOT_ARCHIVE_READER_CUSTOM, "");
+      setPreference(preferences, CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
       preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID, SecurityProperties.getPartition().getId());
       return preferences;
    }
@@ -169,7 +174,7 @@ public class ArchiveManagerFactory
       setPreference(preferences, CARNOT_ARCHIVE_WRITER_CUSTOM, "");
       preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
       setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
       return preferences;
    }
 
@@ -304,5 +309,10 @@ public class ArchiveManagerFactory
    public static boolean autoArchive()
    {
       return getArchiveWriter(SecurityProperties.getPartition().getId()).isAutoArchive();
+   }
+
+   public static DocumentOption getDocumentOption()
+   {
+      return getArchiveWriter(SecurityProperties.getPartition().getId()).getDocumentOption();
    }
 }

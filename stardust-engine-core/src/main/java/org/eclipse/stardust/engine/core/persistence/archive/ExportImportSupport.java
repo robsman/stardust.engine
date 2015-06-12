@@ -61,7 +61,73 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 public class ExportImportSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(ExportImportSupport.class);
-         
+   
+
+   public static void exportDocuments(
+         DocumentManagementService dms,
+         DocumentOption documentOption, ExportResult exportResult)
+   {
+      for (Date date : exportResult.getDates())
+      {
+         ExportIndex exportIndex = exportResult.getExportIndex(date);
+         for (long piOid :exportIndex.getProcessInstanceOids())
+         {
+            Map<Document, String> attachments = ExportImportSupport.fetchProcessAttachments(piOid);
+            if (attachments != null)
+            {
+               for (Document doc : attachments.keySet())
+               {
+                  List<Document> versions;
+                  
+                  if (documentOption == DocumentOption.ALL)
+                  {
+                     if ("UNVERSIONED".equals(doc.getRevisionName()))
+                     {
+                        versions = Arrays.asList(doc);
+                     }
+                     else
+                     {
+                        versions = dms.getDocumentVersions(doc.getId());
+                        Comparator<Document> docComparator = new Comparator<Document>()
+                        {
+                           @Override
+                           public int compare(Document o1, Document o2)
+                           {
+                              return o1.getDateLastModified().compareTo(o2.getDateLastModified());
+                           }
+                        };
+                        Collections.sort(versions, docComparator);
+                     }
+                  }
+                  else if (documentOption == DocumentOption.LATEST)
+                  {
+                     versions = Arrays.asList(doc);
+                  }
+                  else
+                  {
+                     return;
+                  }
+                  List<String> revisions = new ArrayList<String>();
+                  for (Document version : versions)
+                  {
+                     byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+                     // we will only add the revision names to the latest revision
+                     if (version.getRevisionName().equals(doc.getRevisionName()))
+                     {
+                        exportResult.addDocument(piOid, date, version, content, revisions, attachments.get(doc));
+                     }
+                     else
+                     {
+                        revisions.add(version.getRevisionName());
+                        exportResult.addDocument(piOid, date, version, content, null, attachments.get(doc));
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
    public static String getDocumentMetaDataName(String documentName)
    {
       int lastIndex = documentName.lastIndexOf('.');
@@ -165,10 +231,12 @@ public class ExportImportSupport
             oids.add(pi.getOID());
          }
          ArchiveFilter filter = new ArchiveFilter(null, null, oids, null, null, null, null);
-         ExportResult exportResult = (ExportResult) new WorkflowServiceImpl()
-               .execute(new ExportProcessesCommand(
-                     ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, 
-                     null));
+         ExportResult exportResult;
+         ServiceFactory sf = ServiceFactoryLocator.get(CredentialProvider.CURRENT_TX);
+         exportResult = (ExportResult) new ExportProcessesCommand(
+               ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, 
+               null, ArchiveManagerFactory.getDocumentOption()).execute(sf);
+               
          ExportQueueSender sender = new ExportQueueSender();
          sender.sendMessage(exportResult);
       }

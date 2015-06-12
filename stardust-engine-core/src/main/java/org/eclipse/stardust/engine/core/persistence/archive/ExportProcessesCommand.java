@@ -73,9 +73,11 @@ public class ExportProcessesCommand implements ServiceCommand
 
    private final ObjectMessage message;
    
+   private DocumentOption documentOption;
+   
    private ExportProcessesCommand(Operation operation, ArchiveFilter filter, ExportMetaData exportMetaData,
          ExportResult exportResult,
-         String dumpLocation, ObjectMessage message)
+         String dumpLocation, ObjectMessage message, DocumentOption documentOption)
    {
       this.operation = operation;
       this.exportMetaData = exportMetaData;
@@ -83,6 +85,7 @@ public class ExportProcessesCommand implements ServiceCommand
       this.exportResult = exportResult;
       this.dumpLocation = dumpLocation;
       this.message = message;
+      this.documentOption = documentOption;
    }
 
    /**
@@ -90,9 +93,9 @@ public class ExportProcessesCommand implements ServiceCommand
     * @param filter criteria
     */
    public ExportProcessesCommand(Operation operation, ArchiveFilter filter,
-         String dumpLocation)
+         String dumpLocation, DocumentOption documentOption)
    {
-      this(operation, filter, null, null, dumpLocation, null);
+      this(operation, filter, null, null, dumpLocation, null, documentOption);
    }
    
    /**
@@ -101,10 +104,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * receiving a unique id
     */
    public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
-         String dumpLocation)
+         String dumpLocation, DocumentOption documentOption)
    {
 
-      this(operation, null, exportMetaData, null, dumpLocation, null);
+      this(operation, null, exportMetaData, null, dumpLocation, null, documentOption);
    }
 
    /**
@@ -112,10 +115,10 @@ public class ExportProcessesCommand implements ServiceCommand
     * exportResults
     */
    public ExportProcessesCommand(Operation operation, ExportResult exportResult,
-         String dumpLocation)
+         String dumpLocation, DocumentOption documentOption)
    {
 
-      this(operation, null, null, exportResult, dumpLocation, null);
+      this(operation, null, null, exportResult, dumpLocation, null, documentOption);
    }
     
    /**
@@ -123,7 +126,7 @@ public class ExportProcessesCommand implements ServiceCommand
    */
    public ExportProcessesCommand(ObjectMessage message)
    {
-      this(Operation.ARCHIVE_MESSAGES, null, null, null, null, message);
+      this(Operation.ARCHIVE_MESSAGES, null, null, null, null, message, DocumentOption.NONE);
    }
    
    @Override
@@ -163,6 +166,7 @@ public class ExportProcessesCommand implements ServiceCommand
             result = archive(sf.getDocumentManagementService(), session);
             break;
          case ARCHIVE_MESSAGES:
+            this.documentOption = ArchiveManagerFactory.getDocumentOption();
             result = archiveMessages(sf.getWorkflowService(), sf.getDocumentManagementService(), session);
             break;
          default:
@@ -393,44 +397,9 @@ public class ExportProcessesCommand implements ServiceCommand
          {
             LOGGER.debug("Exporting complete.");
          }
-         for (Date date : exportResult.getDates())
+         if (documentOption != DocumentOption.NONE)
          {
-            ExportIndex exportIndex = exportResult.getExportIndex(date);
-            for (long piOid :exportIndex.getProcessInstanceOids())
-            {
-               Map<Document, String> attachments = ExportImportSupport.fetchProcessAttachments(piOid);
-               if (attachments != null)
-               {
-                  for (Document doc : attachments.keySet())
-                  {
-                     List<Document> versions = dms.getDocumentVersions(doc.getId());
-                     Comparator<Document> docComparator = new Comparator<Document>()
-                     {
-                        @Override
-                        public int compare(Document o1, Document o2)
-                        {
-                           return o1.getDateLastModified().compareTo(o2.getDateLastModified());
-                        }
-                     };
-                     Collections.sort(versions, docComparator);
-                     List<String> revisions = new ArrayList<String>();
-                     for (Document version : versions)
-                     {
-                        byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
-                        // we will only add the revision names to the latest revision
-                        if (version.getRevisionName().equals(doc.getRevisionName()))
-                        {
-                           exportResult.addDocument(piOid, date, version, content, revisions, attachments.get(doc));
-                        }
-                        else
-                        {
-                           revisions.add(version.getRevisionName());
-                           exportResult.addDocument(piOid, date, version, content, null, attachments.get(doc));
-                        }
-                     }
-                  }
-               }
-            }
+            ExportImportSupport.exportDocuments(dms, documentOption, exportResult);
          }
       }
       else

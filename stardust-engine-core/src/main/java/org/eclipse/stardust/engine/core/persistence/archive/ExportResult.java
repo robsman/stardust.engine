@@ -7,7 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.google.gson.Gson;
 
-import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -377,6 +377,12 @@ public class ExportResult implements Serializable
             addResult(session, persistent);
          }
          close();
+         DocumentOption documentOption = ArchiveManagerFactory.getDocumentOption();
+         if (documentOption != DocumentOption.NONE)
+         {
+            ServiceFactory sf = ServiceFactoryLocator.get(CredentialProvider.CURRENT_TX);
+            ExportImportSupport.exportDocuments(sf.getDocumentManagementService(), documentOption, this);
+         }
       }
       else
       {
@@ -384,7 +390,7 @@ public class ExportResult implements Serializable
       }
       open = false;
    }
-
+   
    public void close()
    {
       if (open)

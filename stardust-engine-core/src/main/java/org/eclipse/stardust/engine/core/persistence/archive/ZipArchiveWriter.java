@@ -54,7 +54,7 @@ public class ZipArchiveWriter implements IArchiveWriter
    
    private final boolean autoArchive;
    
-   private final boolean autoArchiveDocs;
+   private final DocumentOption documentOption;
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
@@ -89,7 +89,7 @@ public class ZipArchiveWriter implements IArchiveWriter
       int zipFileSize = Integer.valueOf(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ZIP_FILE_SIZE_MB));
       String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_DATE_FORMAT);
       boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE));
-      boolean autoDocs = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
+      this.documentOption = DocumentOption.valueOf(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
       
       if (zipFileSize <= 0)
       {
@@ -101,7 +101,6 @@ public class ZipArchiveWriter implements IArchiveWriter
       this.dateFormat = dateFormat;
       this.zipFileSize = zipFileSize;
       this.autoArchive = auto;
-      this.autoArchiveDocs = autoDocs;
    }
    
    @Override
@@ -120,6 +119,12 @@ public class ZipArchiveWriter implements IArchiveWriter
    public boolean isAutoArchive()
    {
       return autoArchive;
+   }
+   
+   @Override
+   public DocumentOption getDocumentOption()
+   {
+      return documentOption;
    }
 
    @Override

@@ -58,4 +58,6 @@ public interface IArchiveWriter
    public boolean addDocuments(Serializable key, byte[] data);
    
    public boolean isModelExported(Serializable dumpLocation, String uuid);
+   
+   public DocumentOption getDocumentOption();
 }

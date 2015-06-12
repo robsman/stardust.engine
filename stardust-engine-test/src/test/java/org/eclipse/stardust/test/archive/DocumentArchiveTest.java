@@ -29,10 +29,7 @@ import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveFilter;
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
-import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
-import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
@@ -52,7 +49,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 /*
  * 
  */
-public class DocumentArchiveTest
+public class DocumentArchiveTest  
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
@@ -173,7 +170,7 @@ public class DocumentArchiveTest
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -202,7 +199,7 @@ public class DocumentArchiveTest
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
@@ -280,7 +277,7 @@ public class DocumentArchiveTest
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
 
       ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -309,7 +306,7 @@ public class DocumentArchiveTest
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(3, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
@@ -354,7 +351,7 @@ public class DocumentArchiveTest
 
    @SuppressWarnings("unchecked")
    @Test
-   public void test1Doc3Versions() throws Exception
+   public void test1Doc3VersionsExportAllImportAll() throws Exception
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
@@ -456,7 +453,7 @@ public class DocumentArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -477,7 +474,7 @@ public class DocumentArchiveTest
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
@@ -612,7 +609,7 @@ public class DocumentArchiveTest
       
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -633,7 +630,7 @@ public class DocumentArchiveTest
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
@@ -791,7 +788,7 @@ public class DocumentArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -811,7 +808,7 @@ public class DocumentArchiveTest
       assertNull(folder);
            
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
@@ -889,9 +886,7 @@ public class DocumentArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      final ProcessInstance pi = workflowService.startProcess(
-            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
-      
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
     
       DeployedModel activeModel = queryService.getModel(pi.getModelOID());
       List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
@@ -964,7 +959,7 @@ public class DocumentArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -984,12 +979,13 @@ public class DocumentArchiveTest
       assertNull(folder);
            
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
             oldActivities);
       folder = dms.getFolder(path);
+      assertNotNull(folder);
       assertEquals(1,  folder.getDocumentCount());
       Document newDocument = getDocumentInDms(dms, path, docName);
       assertNotNull(newDocument);
@@ -1131,7 +1127,7 @@ public class DocumentArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
-      ArchiveTest.exportAndArchive(workflowService, filter);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -1153,7 +1149,7 @@ public class DocumentArchiveTest
       assertNull(folder);
            
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null));
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
       assertEquals(1, count);
 
       Document newDocumentv1 = null;
@@ -1161,6 +1157,7 @@ public class DocumentArchiveTest
       ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
             oldActivities);
       folder = dms.getFolder(path);
+      assertNotNull(folder);
       assertEquals(2,  folder.getDocumentCount());
       Document newDocument1 = getDocumentInDms(dms, path, doc1Name);
       assertNotNull(newDocument1);
@@ -1220,12 +1217,759 @@ public class DocumentArchiveTest
       assertEquals(countClobs, countClobsNew);
    }
    
+   @SuppressWarnings("unchecked")
+   @Test
+   public void test1Doc3VersionsExportAllImportNone() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
+      DeployedModel activeModel = queryService.getModel(pi.getModelOID());
+      List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
+      DocumentType type1 = documentTypes.get(0);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      final String docName = "TestDoc.txt";
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      byte[] contentV1 = "My File Content v1".getBytes();
+      byte[] contentV2 = "My File Content v2".getBytes();
+      byte[] contentV3 = "My File Content v3".getBytes();
+      Document oldDocumentv1 = null;
+      Document oldDocumentv2 = null;
+      Document oldDocumentv3 = null;
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+            type1);
+      Document document = getDocumentInDms(dms, path, docName);
+      assertNotNull(document);
+      assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
+      Thread.sleep(1000L);
+      document.setDescription("descr 1.1");
+      document.setOwner("john");
+      document.setContentType("pdf");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 1");
+      document.setProperty("MyFieldB", 222);
+      document = dms.updateDocument(document, contentV2, "utf-81", true, "1.1 comment", "1.1", false);
+      assertEquals(new String(contentV2), new String(dms.retrieveDocumentContent(document.getId())));
+      document.setDescription("descr 1.2");
+      document.setOwner("peter");
+      document.setContentType("jpg");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 2");
+      document.setProperty("MyFieldB", 333);
+      document = dms.updateDocument(document, contentV3, "utf-82", true, "1.2 comment", "1.2", false);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(document.getId())));
+      List<Document> versions = dms.getDocumentVersions(document.getId());
+      assertEquals(3, versions.size());
+      for (Document version : versions)
+      {
+         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+         if (version.getRevisionName().equals("1.0"))
+         {
+            assertEquals(new String(contentV1), new String(content));
+            assertEquals("1.0 comment", version.getRevisionComment());
+            assertEquals("descr 1.0", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
+            assertEquals( "a value", version.getProperty("MyFieldA"));
+            oldDocumentv1 = version;
+         }
+         if (version.getRevisionName().equals("1.1"))
+         {
+            assertEquals(new String(contentV2), new String(content));
+            assertEquals("1.1 comment", version.getRevisionComment());
+            assertEquals("descr 1.1", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.1"), version.getVersionLabels());
+            assertEquals( "a value 1", version.getProperty("MyFieldA"));
+            oldDocumentv2 = version;
+         }
+         if (version.getRevisionName().equals("1.2"))
+         {
+            assertEquals(new String(contentV3), new String(content));
+            assertEquals("1.2 comment", version.getRevisionComment());
+            assertEquals("descr 1.2", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.2"), version.getVersionLabels());
+            assertEquals( "a value 2", version.getProperty("MyFieldA"));
+            oldDocumentv3 = version;
+         }
+      }
+      assertNotNull(oldDocumentv1);
+      assertNotNull(oldDocumentv2);
+      assertNotNull(oldDocumentv3);
+      
+      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      Folder folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+    
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+      Document temp = getDocumentInDms(dms, path, docName);
+      assertNull(temp);
+      folder = dms.getFolder(path);
+      assertNull(folder);
+           
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      
+      IArchive archive = archives.get(0);
+      String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
+      assertNotNull(archive.getDocumentContent(documentNameInArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameInArchive));
+      String documentNameV2InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv2.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV2InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV2InArchive));
+      String documentNameV1InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv1.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV1InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV1InArchive));
+      
+      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+
+      Thread.sleep(500L);
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
+      assertEquals(1, count);
+
+      ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
+            oldActivities);
+      processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      temp = getDocumentInDms(dms, path, docName);
+      assertNull(temp);
+      folder = dms.getFolder(path);
+      assertNull(folder);
+      int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      assertEquals(countClobs, countClobsNew);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void test1Doc3VersionsExportAllImportLatest() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
+      DeployedModel activeModel = queryService.getModel(pi.getModelOID());
+      List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
+      DocumentType type1 = documentTypes.get(0);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      final String docName = "TestDoc.txt";
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      byte[] contentV1 = "My File Content v1".getBytes();
+      byte[] contentV2 = "My File Content v2".getBytes();
+      byte[] contentV3 = "My File Content v3".getBytes();
+      Document oldDocumentv1 = null;
+      Document oldDocumentv2 = null;
+      Document oldDocumentv3 = null;
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+            type1);
+      Document document = getDocumentInDms(dms, path, docName);
+      assertNotNull(document);
+      assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
+      Thread.sleep(1000L);
+      document.setDescription("descr 1.1");
+      document.setOwner("john");
+      document.setContentType("pdf");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 1");
+      document.setProperty("MyFieldB", 222);
+      document = dms.updateDocument(document, contentV2, "utf-81", true, "1.1 comment", "1.1", false);
+      assertEquals(new String(contentV2), new String(dms.retrieveDocumentContent(document.getId())));
+      document.setDescription("descr 1.2");
+      document.setOwner("peter");
+      document.setContentType("jpg");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 2");
+      document.setProperty("MyFieldB", 333);
+      document = dms.updateDocument(document, contentV3, "utf-82", true, "1.2 comment", "1.2", false);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(document.getId())));
+      List<Document> versions = dms.getDocumentVersions(document.getId());
+      assertEquals(3, versions.size());
+      for (Document version : versions)
+      {
+         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+         if (version.getRevisionName().equals("1.0"))
+         {
+            assertEquals(new String(contentV1), new String(content));
+            assertEquals("1.0 comment", version.getRevisionComment());
+            assertEquals("descr 1.0", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
+            assertEquals( "a value", version.getProperty("MyFieldA"));
+            oldDocumentv1 = version;
+         }
+         if (version.getRevisionName().equals("1.1"))
+         {
+            assertEquals(new String(contentV2), new String(content));
+            assertEquals("1.1 comment", version.getRevisionComment());
+            assertEquals("descr 1.1", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.1"), version.getVersionLabels());
+            assertEquals( "a value 1", version.getProperty("MyFieldA"));
+            oldDocumentv2 = version;
+         }
+         if (version.getRevisionName().equals("1.2"))
+         {
+            assertEquals(new String(contentV3), new String(content));
+            assertEquals("1.2 comment", version.getRevisionComment());
+            assertEquals("descr 1.2", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.2"), version.getVersionLabels());
+            assertEquals( "a value 2", version.getProperty("MyFieldA"));
+            oldDocumentv3 = version;
+         }
+      }
+      assertNotNull(oldDocumentv1);
+      assertNotNull(oldDocumentv2);
+      assertNotNull(oldDocumentv3);
+      
+      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      Folder folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+    
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+      Document temp = getDocumentInDms(dms, path, docName);
+      assertNull(temp);
+      folder = dms.getFolder(path);
+      assertNull(folder);
+           
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      
+      IArchive archive = archives.get(0);
+      String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
+      assertNotNull(archive.getDocumentContent(documentNameInArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameInArchive));
+      String documentNameV2InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv2.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV2InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV2InArchive));
+      String documentNameV1InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv1.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV1InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV1InArchive));
+      
+      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.LATEST));
+      assertEquals(1, count);
+
+      ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
+            oldActivities);
+      Document newDocument = getDocumentInDms(dms, path, docName);
+      versions = dms.getDocumentVersions(newDocument.getId());
+      assertEquals(1, versions.size());
+      processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      for (Document doc : processAttachments)
+      {
+         assertNotNull(dms.retrieveDocumentContent(doc.getId()));
+      }
+      folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+      
+      assertNotNull(newDocument);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(newDocument.getId())));
+
+      Document newDocumentv3 = versions.get(0);
+      assertEquals("1.0", newDocumentv3.getRevisionName());
+      byte[] content = dms.retrieveDocumentContent(newDocumentv3.getRevisionId());
+      assertEquals(new String(contentV3), new String(content));
+      assertEquals("1.2 comment", newDocumentv3.getRevisionComment());
+      assertEquals("descr 1.2", newDocumentv3.getDescription());
+      assertEquals("peter", newDocumentv3.getOwner());
+      assertEquals("jpg", newDocumentv3.getContentType());
+      assertEquals(Arrays.asList("1.2"), newDocumentv3.getVersionLabels());
+      assertNotNull(newDocumentv3);
+      int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      assertEquals(countClobs, countClobsNew);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void test1Doc3VersionsExportLatestImportAll() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
+      DeployedModel activeModel = queryService.getModel(pi.getModelOID());
+      List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
+      DocumentType type1 = documentTypes.get(0);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      final String docName = "TestDoc.txt";
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      byte[] contentV1 = "My File Content v1".getBytes();
+      byte[] contentV2 = "My File Content v2".getBytes();
+      byte[] contentV3 = "My File Content v3".getBytes();
+      Document oldDocumentv1 = null;
+      Document oldDocumentv2 = null;
+      Document oldDocumentv3 = null;
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+            type1);
+      Document document = getDocumentInDms(dms, path, docName);
+      assertNotNull(document);
+      assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
+      Thread.sleep(1000L);
+      document.setDescription("descr 1.1");
+      document.setOwner("john");
+      document.setContentType("pdf");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 1");
+      document.setProperty("MyFieldB", 222);
+      document = dms.updateDocument(document, contentV2, "utf-81", true, "1.1 comment", "1.1", false);
+      assertEquals(new String(contentV2), new String(dms.retrieveDocumentContent(document.getId())));
+      document.setDescription("descr 1.2");
+      document.setOwner("peter");
+      document.setContentType("jpg");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 2");
+      document.setProperty("MyFieldB", 333);
+      document = dms.updateDocument(document, contentV3, "utf-82", true, "1.2 comment", "1.2", false);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(document.getId())));
+      List<Document> versions = dms.getDocumentVersions(document.getId());
+      assertEquals(3, versions.size());
+      for (Document version : versions)
+      {
+         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+         if (version.getRevisionName().equals("1.0"))
+         {
+            assertEquals(new String(contentV1), new String(content));
+            assertEquals("1.0 comment", version.getRevisionComment());
+            assertEquals("descr 1.0", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
+            assertEquals( "a value", version.getProperty("MyFieldA"));
+            oldDocumentv1 = version;
+         }
+         if (version.getRevisionName().equals("1.1"))
+         {
+            assertEquals(new String(contentV2), new String(content));
+            assertEquals("1.1 comment", version.getRevisionComment());
+            assertEquals("descr 1.1", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.1"), version.getVersionLabels());
+            assertEquals( "a value 1", version.getProperty("MyFieldA"));
+            oldDocumentv2 = version;
+         }
+         if (version.getRevisionName().equals("1.2"))
+         {
+            assertEquals(new String(contentV3), new String(content));
+            assertEquals("1.2 comment", version.getRevisionComment());
+            assertEquals("descr 1.2", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.2"), version.getVersionLabels());
+            assertEquals( "a value 2", version.getProperty("MyFieldA"));
+            oldDocumentv3 = version;
+         }
+      }
+      assertNotNull(oldDocumentv1);
+      assertNotNull(oldDocumentv2);
+      assertNotNull(oldDocumentv3);
+      
+      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      Folder folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+    
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.LATEST);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+      Document temp = getDocumentInDms(dms, path, docName);
+      assertNull(temp);
+      folder = dms.getFolder(path);
+      assertNull(folder);
+           
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      IArchive archive = archives.get(0);
+
+      String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
+      assertNotNull(archive.getDocumentContent(documentNameInArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameInArchive));
+      String documentNameV2InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv2.getRevisionName());
+      assertNull(archive.getDocumentContent(documentNameV2InArchive));
+      assertNull(archive.getDocumentProperties(documentNameV2InArchive));
+      String documentNameV1InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv1.getRevisionName());
+      assertNull(archive.getDocumentContent(documentNameV1InArchive));
+      assertNull(archive.getDocumentProperties(documentNameV1InArchive));
+      
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.ALL));
+      assertEquals(1, count);
+
+      ArchiveTest.assertProcessAndActivities(queryService, pQuery, aQuery, oldInstances,
+            oldActivities);
+      Document newDocument = getDocumentInDms(dms, path, docName);
+      versions = dms.getDocumentVersions(newDocument.getId());
+      assertEquals(1, versions.size());
+      processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      for (Document doc : processAttachments)
+      {
+         assertNotNull(dms.retrieveDocumentContent(doc.getId()));
+      }
+      folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+      
+      assertNotNull(newDocument);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(newDocument.getId())));
+
+      Document newDocumentv3 = versions.get(0);
+      assertEquals("1.0", newDocumentv3.getRevisionName());
+      byte[] content = dms.retrieveDocumentContent(newDocumentv3.getRevisionId());
+      assertEquals(new String(contentV3), new String(content));
+      assertEquals("1.2 comment", newDocumentv3.getRevisionComment());
+      assertEquals("descr 1.2", newDocumentv3.getDescription());
+      assertEquals("peter", newDocumentv3.getOwner());
+      assertEquals("jpg", newDocumentv3.getContentType());
+      assertEquals(Arrays.asList("1.2"), newDocumentv3.getVersionLabels());
+      assertNotNull(newDocumentv3);
+      int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
+      assertEquals(countClobs, countClobsNew);
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void test1Doc3VersionsExportNone() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
+      DeployedModel activeModel = queryService.getModel(pi.getModelOID());
+      List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
+      DocumentType type1 = documentTypes.get(0);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      final String docName = "TestDoc.txt";
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      byte[] contentV1 = "My File Content v1".getBytes();
+      byte[] contentV2 = "My File Content v2".getBytes();
+      byte[] contentV3 = "My File Content v3".getBytes();
+      Document oldDocumentv1 = null;
+      Document oldDocumentv2 = null;
+      Document oldDocumentv3 = null;
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+            type1);
+      Document document = getDocumentInDms(dms, path, docName);
+      assertNotNull(document);
+      assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
+      Thread.sleep(1000L);
+      document.setDescription("descr 1.1");
+      document.setOwner("john");
+      document.setContentType("pdf");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 1");
+      document.setProperty("MyFieldB", 222);
+      document = dms.updateDocument(document, contentV2, "utf-81", true, "1.1 comment", "1.1", false);
+      assertEquals(new String(contentV2), new String(dms.retrieveDocumentContent(document.getId())));
+      document.setDescription("descr 1.2");
+      document.setOwner("peter");
+      document.setContentType("jpg");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 2");
+      document.setProperty("MyFieldB", 333);
+      document = dms.updateDocument(document, contentV3, "utf-82", true, "1.2 comment", "1.2", false);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(document.getId())));
+      List<Document> versions = dms.getDocumentVersions(document.getId());
+      assertEquals(3, versions.size());
+      for (Document version : versions)
+      {
+         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+         if (version.getRevisionName().equals("1.0"))
+         {
+            assertEquals(new String(contentV1), new String(content));
+            assertEquals("1.0 comment", version.getRevisionComment());
+            assertEquals("descr 1.0", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
+            assertEquals( "a value", version.getProperty("MyFieldA"));
+            oldDocumentv1 = version;
+         }
+         if (version.getRevisionName().equals("1.1"))
+         {
+            assertEquals(new String(contentV2), new String(content));
+            assertEquals("1.1 comment", version.getRevisionComment());
+            assertEquals("descr 1.1", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.1"), version.getVersionLabels());
+            assertEquals( "a value 1", version.getProperty("MyFieldA"));
+            oldDocumentv2 = version;
+         }
+         if (version.getRevisionName().equals("1.2"))
+         {
+            assertEquals(new String(contentV3), new String(content));
+            assertEquals("1.2 comment", version.getRevisionComment());
+            assertEquals("descr 1.2", version.getDescription());
+            assertEquals(type1, version.getDocumentType());
+            assertEquals(Arrays.asList("1.2"), version.getVersionLabels());
+            assertEquals( "a value 2", version.getProperty("MyFieldA"));
+            oldDocumentv3 = version;
+         }
+      }
+      assertNotNull(oldDocumentv1);
+      assertNotNull(oldDocumentv2);
+      assertNotNull(oldDocumentv3);
+      
+      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      Folder folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+    
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.NONE);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(0, instances.size());
+      assertEquals(0, activitiesCleared.size());
+      Document temp = getDocumentInDms(dms, path, docName);
+      assertNull(temp);
+      folder = dms.getFolder(path);
+      assertNull(folder);
+           
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      IArchive archive = archives.get(0);
+      String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
+      assertNull(archive.getDocumentContent(documentNameInArchive));
+      assertNull(archive.getDocumentProperties(documentNameInArchive));
+      String documentNameV2InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv2.getRevisionName());
+      assertNull(archive.getDocumentContent(documentNameV2InArchive));
+      assertNull(archive.getDocumentProperties(documentNameV2InArchive));
+      String documentNameV1InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv1.getRevisionName());
+      assertNull(archive.getDocumentContent(documentNameV1InArchive));
+      assertNull(archive.getDocumentProperties(documentNameV1InArchive));
+   }
+   
+   @SuppressWarnings("unchecked")
+   @Test
+   public void test1Doc3VersionsDumpAll() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
+      DeployedModel activeModel = queryService.getModel(pi.getModelOID());
+      List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
+      DocumentType type1 = documentTypes.get(0);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+      final String docName = "TestDoc.txt";
+      DocumentManagementService dms = sf.getDocumentManagementService();
+      byte[] contentV1 = "My File Content v1".getBytes();
+      byte[] contentV2 = "My File Content v2".getBytes();
+      byte[] contentV3 = "My File Content v3".getBytes();
+      Document oldDocumentv1 = null;
+      Document oldDocumentv2 = null;
+      Document oldDocumentv3 = null;
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+            type1);
+      Document document = getDocumentInDms(dms, path, docName);
+      assertNotNull(document);
+      assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
+      Thread.sleep(1000L);
+      document.setDescription("descr 1.1");
+      document.setOwner("john");
+      document.setContentType("pdf");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 1");
+      document.setProperty("MyFieldB", 222);
+      document = dms.updateDocument(document, contentV2, "utf-81", true, "1.1 comment", "1.1", false);
+      assertEquals(new String(contentV2), new String(dms.retrieveDocumentContent(document.getId())));
+      document.setDescription("descr 1.2");
+      document.setOwner("peter");
+      document.setContentType("jpg");
+      document.setDocumentType(type1);
+      document.setProperty("MyFieldA", "a value 2");
+      document.setProperty("MyFieldB", 333);
+      document = dms.updateDocument(document, contentV3, "utf-82", true, "1.2 comment", "1.2", false);
+      assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(document.getId())));
+      List<Document> versions = dms.getDocumentVersions(document.getId());
+      assertEquals(3, versions.size());
+      for (Document version : versions)
+      {
+         if (version.getRevisionName().equals("1.0"))
+         {
+            oldDocumentv1 = version;
+         }
+         if (version.getRevisionName().equals("1.1"))
+         {
+            oldDocumentv2 = version;
+         }
+         if (version.getRevisionName().equals("1.2"))
+         {
+            oldDocumentv3 = version;
+         }
+      }
+      assertNotNull(oldDocumentv1);
+      assertNotNull(oldDocumentv2);
+      assertNotNull(oldDocumentv3);
+      
+      List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
+      assertNotNull(processAttachments);
+      assertEquals(1, processAttachments.size());
+      Folder folder = dms.getFolder(path);
+      assertEquals(1,  folder.getDocumentCount());
+    
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveTest.exportAndArchive(workflowService, filter, "dumpLocation", DocumentOption.ALL);
+
+      ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(instances);
+      assertNotNull(activitiesCleared);
+      assertEquals(1, instances.size());
+      assertEquals(2, activitiesCleared.size());
+      Document temp = getDocumentInDms(dms, path, docName);
+      assertNotNull(temp);
+      folder = dms.getFolder(path);
+      assertNotNull(folder);
+           
+      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      IArchive archive = archives.get(0);
+      versions = dms.getDocumentVersions(oldDocumentv3.getId());
+      assertEquals(3, versions.size());
+      String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
+      assertNotNull(archive.getDocumentContent(documentNameInArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameInArchive));
+      String documentNameV2InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv2.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV2InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV2InArchive));
+      String documentNameV1InArchive = ExportImportSupport.getDocumentNameInArchive(documentNameInArchive, oldDocumentv1.getRevisionName());
+      assertNotNull(archive.getDocumentContent(documentNameV1InArchive));
+      assertNotNull(archive.getDocumentProperties(documentNameV1InArchive));
+   }
+   
    /**
     * @param pi
     * @return
     */
    @SuppressWarnings({"rawtypes", "unchecked"})
-   private List<Document> fetchProcessAttachments(WorkflowService ws, Long piOid,
+   protected static List<Document> fetchProcessAttachments(WorkflowService ws, Long piOid,
          String pathId)
    {
       List<Document> processAttachments = new ArrayList<Document>();
@@ -1247,13 +1991,13 @@ public class DocumentArchiveTest
       return processAttachments;
    }
    
-   private Document getDocumentInDms(DocumentManagementService dms, String path, String name)
+   protected static Document getDocumentInDms(DocumentManagementService dms, String path, String name)
    {
       Document document = dms.getDocument(path + "/" + name);
       return document;
    }
    
-   private String addProcessAttachment(WorkflowService ws, DocumentManagementService dms, ProcessInstance pi, String docName, byte[] content,
+   protected static String addProcessAttachment(WorkflowService ws, DocumentManagementService dms, ProcessInstance pi, String docName, byte[] content,
          String revisionComment, String revisionName, String descr, DocumentType type)
    {
       String defaultPath = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime());

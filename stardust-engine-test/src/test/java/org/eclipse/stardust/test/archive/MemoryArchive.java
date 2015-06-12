@@ -69,7 +69,15 @@ public class MemoryArchive implements IArchive
    {
       String metaName = ExportImportSupport.getDocumentMetaDataName(documentName);
       byte[] raw = documentData.get(metaName);
-      DocumentMetaData result = ExportImportSupport.getGson().fromJson(new String(raw), DocumentMetaData.class);
+      DocumentMetaData result;
+      if (raw != null)
+      {
+         result = ExportImportSupport.getGson().fromJson(new String(raw), DocumentMetaData.class);
+      }
+      else
+      {
+         result = null;
+      }
       return result;
    }
 

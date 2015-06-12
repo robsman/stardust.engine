@@ -12,10 +12,7 @@ import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StringUtils;
 
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportIndex;
-import org.eclipse.stardust.engine.core.persistence.archive.ExportResult;
-import org.eclipse.stardust.engine.core.persistence.archive.IArchiveWriter;
+import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class MemoryArchiveWriter implements IArchiveWriter
@@ -43,7 +40,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
    
    private boolean auto;
 
-   private boolean autoDocs;
+   private final DocumentOption documentOption;
    
    private static int keyCounter = 0;
    
@@ -59,7 +56,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
       }
       String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_DATE_FORMAT);
       boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE));
-      boolean autoDocs = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
+      this.documentOption = DocumentOption.valueOf(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
       repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
       repoDoc = new HashMap<String, HashMap<String, HashMap<String, byte[]>>>();
       allDocs = new HashMap<String, HashMap<String, byte[]>>();
@@ -72,7 +69,6 @@ public class MemoryArchiveWriter implements IArchiveWriter
       this.archiveManagerId = id;
       this.dateFormat = dateFormat;
       this.auto = auto;
-      this.autoDocs = autoDocs;
    }
    
    @Override
@@ -91,6 +87,12 @@ public class MemoryArchiveWriter implements IArchiveWriter
    public boolean isAutoArchive()
    {
       return auto;
+   }
+   
+   @Override
+   public DocumentOption getDocumentOption()
+   {
+      return documentOption;
    }
 
    @Override

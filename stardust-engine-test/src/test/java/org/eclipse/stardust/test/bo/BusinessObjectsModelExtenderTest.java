@@ -69,7 +69,7 @@ public class BusinessObjectsModelExtenderTest
    {
 
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            "{NewSimpleModel3}DarkerChecklist", this.processData, false);
+            "{NewSimpleModel3}DarkerChecklist", this.processData, true);
 
       ProcessDefinition pd = serviceFactory.getQueryService().getProcessDefinition(
             "{NewSimpleModel3}DarkerChecklist");

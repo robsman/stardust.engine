@@ -133,10 +133,10 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
       }
 
       if (BenchmarkUtils.isBenchmarkedPI(ai.getProcessInstance())
-            && (ai.getState() == ActivityInstanceState.Application
+            && ((ai.getState() == ActivityInstanceState.Application
                   && newState == ActivityInstanceState.SUSPENDED && recalcOnSuspend)
             || (ai.getState() == ActivityInstanceState.Created
-                  && newState == ActivityInstanceState.CREATED && recalcOnCreate))
+                  && newState == ActivityInstanceState.CREATED && recalcOnCreate)))
       {
          try
          {

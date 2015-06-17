@@ -142,6 +142,35 @@
             <ExternalReference location="ArchiveModel" xref="TextData?uuid=222b0146-3f61-4465-b7da-4e37d15cbd9f" namespace="data"/>
          </DataType>
       </DataField>
+      <DataField Id="NumberValue">
+         <DataType>
+            <ExternalReference location="ArchiveModel" xref="NumberValue?uuid=2351df7d-8034-4f9c-a58f-adfcba8cfffe" namespace="data"/>
+         </DataType>
+      </DataField>
+      <DataField Id="DocumentData1">
+         <DataType>
+            <ExternalReference location="ArchiveModel" xref="DocumentData1?uuid=a40b88b8-59ad-4534-bdfd-0acc9081d6a8" namespace="data"/>
+         </DataType>
+      </DataField>
+      <DataField Id="DocumentData1" Name="DocumentData1" IsArray="FALSE">
+         <DataType>
+            <xpdl:ExternalReference xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" ext:uuid="3356df17-3a64-4d7f-8a7c-500f3433d548" location="ArchiveModel" xref="DataStructure"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="1246" Type="dmsDocument">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.engine.api.runtime.Document"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="5acc35f8-2081-45ed-a8ff-0480ad32d86f"/>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:connection:uri" Value="cnx://file/typeDeclaration/DataStructure"/>
+                     <carnot:Attribute Name="carnot:engine:dms:resourceMetadataSchema" Value="ArchiveModel{DataStructure}"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="Other" Name="Other" AccessLevel="PUBLIC">
@@ -370,6 +399,226 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="DeferredWithTrigger" Name="DeferredWithTrigger" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="event_47371b6b-3e67-4731-aa05-2a4a6a1452b4" Name="End Event">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1172">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="b8572073-4890-4997-aff0-4fb828842699"/>
+                           <carnot:Attribute Name="stardust:bpmnEndEventHost" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:bpmnEvent:1171">
+                              <carnot:Value>
+                                 <value xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1">{}</value>
+                              </carnot:Value>
+                           </carnot:Attribute>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="MultiplyByTwo" Name="MultiplyByTwo">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="MutilplyByTwo" PackageRef="ArchiveModel">
+                        <ActualParameters>
+                           <ActualParameter>NumberValue</ActualParameter>
+                           <ActualParameter>NumberValue</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1177" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="1237" Id="NumberValue" Name="NumberValue" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberOut"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="1238" Id="NumberValue" Name="NumberValue" Direction="IN" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberIn"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="38c03b93-1071-4c08-a293-114645c015aa"/>
+                           <carnot:Attribute Name="taskType" Value="script"/>
+                           <carnot:Attribute Name="carnot:connection:uri" Value="cnx://file/application/MutilplyByTwo"/>
+                           <carnot:Attribute Name="carnot:connection:uuid" Value="b006a83d-b799-4764-a0f4-70f238d71d82"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="MultiplyByTwo1" Name="MultiplyByTwo 1">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="MutilplyByTwo" PackageRef="ArchiveModel">
+                        <ActualParameters>
+                           <ActualParameter>NumberValue</ActualParameter>
+                           <ActualParameter>NumberValue</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1179" Implementation="Application">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="1241" Id="NumberValue" Name="NumberValue" Direction="OUT" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberOut"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="1242" Id="NumberValue" Name="NumberValue" Direction="IN" Context="application">
+                              <carnot:DataRef Id="NumberValue"/>
+                              <carnot:AccessPointRef Id="NumberIn"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="9f780c0a-3ffa-466c-aa86-b39f94dd34bc"/>
+                           <carnot:Attribute Name="taskType" Value="script"/>
+                           <carnot:Attribute Name="carnot:connection:uri" Value="cnx://file/application/MutilplyByTwo"/>
+                           <carnot:Attribute Name="carnot:connection:uuid" Value="b006a83d-b799-4764-a0f4-70f238d71d82"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="2f63606f-09e0-41e7-9860-372fb7844da0" Name="" From="MultiplyByTwo1" To="event_47371b6b-3e67-4731-aa05-2a4a6a1452b4">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="1188" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="92c0451b-4f81-4b90-9aa2-987b307264f4" Name="" From="MultiplyByTwo" To="MultiplyByTwo1">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="1190" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="1164">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="1170" Id="ManualTrigger1" Name="" Type="camel">
+                        <carnot:Description/>
+                        <carnot:AccessPoints>
+                           <carnot:AccessPoint Oid="1248" Id="content" Name="content" Direction="OUT" Type="dmsDocument">
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:dataType" Value="typeDeclaration:{ArchiveModel}DataStructure"/>
+                                 <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                                 <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                              </carnot:Attributes>
+                           </carnot:AccessPoint>
+                        </carnot:AccessPoints>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="1249">
+                              <carnot:DataRef Id="DocumentData1" Expression=""/>
+                              <carnot:AccessPointRef Id="content"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="carnot:engine:integration::overlay" Value="fileEvent"/>
+                           <carnot:Attribute Name="eventClass" Value="message"/>
+                           <carnot:Attribute Name="throwing" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="interrupting" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;file://target/FileDirectory/CSV?fileName=messageFile.csv&amp;amp;initialDelay=5000&amp;amp;delay=5000&quot;/&gt;&lt;to uri=&quot;ipp:direct&quot;/&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
+                           <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword:Password}"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="content" Type="String"/>
+                           <carnot:Attribute Name="carnot:engine:camel::producerBpmTypeConverter" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:camel::producerInboundConversion" Value="fromCSV?delimiter=,"/>
+                           <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
+                           <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="1222" Id="DocumentData1" Name="DocumentData1" Direction="OUT" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData1" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="1223" Id="DocumentData1" Name="DocumentData1" Direction="IN" IsDescriptor="false" IsKey="false">
+                        <carnot:DataRef Id="DocumentData1" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="fc9dc15b-c78b-45f2-849c-0424816f28cc"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="1167" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="1166" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="430" Height="674" Orientation="Vertical">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="LANE" Oid="1165" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="396" Height="604" Orientation="Vertical" ParentLane="1166">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="1169" X="257" Y="31" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="1171" X="174" Y="449" Width="26" Height="26"/>
+                                       <carnot:Symbol Kind="DATA" Oid="1174" X="63" Y="253" Width="100" Height="70" ModelElement="NumberValue"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="1178" X="178" Y="171" Width="180" Height="50" ModelElement="MultiplyByTwo"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="1180" X="178" Y="329" Width="180" Height="50" ModelElement="MultiplyByTwo1"/>
+                                       <carnot:Symbol Kind="DATA" Oid="1247" X="73" Y="98" Width="100" Height="70" ModelElement="DocumentData1"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="1185" SourceSymbol="1174" TargetSymbol="1178" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="1187" SourceSymbol="1174" TargetSymbol="1180" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1189" ModelElement="2f63606f-09e0-41e7-9860-372fb7844da0" SourceSymbol="1180" TargetSymbol="1171" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1191" ModelElement="92c0451b-4f81-4b90-9aa2-987b307264f4" SourceSymbol="1178" TargetSymbol="1180" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1192" SourceSymbol="1169" TargetSymbol="1178" SourceAnchor="bottom" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -474,6 +723,13 @@
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageProcessingValidator"/>
                      </carnot:Attributes>
                   </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="1110" Id="camelSpringProducerApplication" Name="Camel Producer Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
                </carnot:ApplicationTypes>
                <carnot:ApplicationContextTypes>
                   <carnot:ApplicationContextType Oid="14" Id="default" Name="Default Context" IsPredefined="true" HasApplicationPath="false" HasMappingId="true"/>
@@ -488,6 +744,12 @@
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.triggers.manual.ManualTriggerValidator"/>
                      </carnot:Attributes>
                   </carnot:TriggerType>
+                  <carnot:TriggerType Oid="1227" Id="camel" Name="Camel Trigger" IsPredefined="true" IsPullTrigger="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
+                        <carnot:Attribute Name="carnot:engine:runtimeValidator" Value="org.eclipse.stardust.engine.extensions.camel.trigger.validation.CamelTriggerValidator"/>
+                     </carnot:Attributes>
+                  </carnot:TriggerType>
                </carnot:TriggerTypes>
                <carnot:EventConditionTypes/>
                <carnot:EventActionTypes/>
@@ -497,7 +759,13 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Fri Feb 13 08:21:44 CAT 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed Jun 17 12:41:28 CAT 2015"/>
+               <carnot:Attribute Name="ipp:variables[0]:name" Value="camelTriggerUsername" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="motu" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[0]:description" Value="motu" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[1]:name" Value="camelTriggerPassword:Password" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[1]:defaultValue" Value="motu" Type="String"/>
+               <carnot:Attribute Name="ipp:variables[1]:description" Value="motu" Type="String"/>
                <carnot:Attribute Name="carnot:connection:1:id" Value="file"/>
                <carnot:Attribute Name="carnot:connection:1:name" Value="file"/>
                <carnot:Attribute Name="carnot:connection:1:type" Value="file"/>

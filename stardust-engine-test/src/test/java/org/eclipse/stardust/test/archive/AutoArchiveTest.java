@@ -1189,7 +1189,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, clearedActivities.size());
       
       ArchiveTest.assertDataNotExists(pi.getOID(), oldActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_TRIGGER,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 288, queryService);
 
       archives = (List<IArchive>) workflowService
@@ -1331,7 +1331,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertNotNull(pi.getRootProcessInstanceOID());
       
       ArchiveTest.assertDataExists(pi.getOID(), oldActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_TRIGGER,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       
 
@@ -1360,7 +1360,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, clearedActivities.size());
       
       ArchiveTest.assertDataNotExists(pi.getOID(), oldActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_TRIGGER,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       
       archives = (List<IArchive>) workflowService
@@ -1384,7 +1384,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       ArchiveTest.assertActivityInstancesEquals(oldActivities, newActivities);
             
       ArchiveTest.assertDataExists(pi.getOID(), newActivities.get(1).getOID(),
-            ArchiveModelConstants.PROCESS_DEF_DEFERRED,
+            ArchiveModelConstants.PROCESS_DEF_DEFERRED_TRIGGER,
             ArchiveModelConstants.DATA_ID_NUMBERVALUE, 36, queryService);
       assertQueueEmpty();
    }
@@ -2103,7 +2103,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
    private ProcessInstance findCompletedDeferred(QueryService queryService) throws Exception
    {
       ProcessInstanceQuery pQuery = ProcessInstanceQuery
-            .findForProcess(ArchiveModelConstants.PROCESS_DEF_DEFERRED_NAME);
+            .findForProcess(ArchiveModelConstants.PROCESS_DEF_DEFERRED_TRIGGER_NAME);
       
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ProcessInstance instance;

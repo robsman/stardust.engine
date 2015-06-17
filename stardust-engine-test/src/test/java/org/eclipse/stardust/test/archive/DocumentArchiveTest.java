@@ -886,8 +886,9 @@ public class DocumentArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      final ProcessInstance pi = ArchiveTest.startAndCompleteSimple(workflowService, queryService);
-    
+      final ProcessInstance pi = workflowService.startProcess(
+            ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
+      
       DeployedModel activeModel = queryService.getModel(pi.getModelOID());
       List<DocumentType> documentTypes = DocumentTypeUtils.getDeclaredDocumentTypes(activeModel);
       DocumentType type1 = null;

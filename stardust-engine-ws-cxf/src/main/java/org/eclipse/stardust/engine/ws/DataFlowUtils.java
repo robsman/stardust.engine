@@ -1046,7 +1046,7 @@ public class DataFlowUtils
       return ret;
    }
 
-   private static Serializable unmarshalSimpleTypeXsdValue(ParameterXto param)
+   public static Serializable unmarshalSimpleTypeXsdValue(ParameterXto param)
    {
       QName targetType = param.getType();
       String value = param.getPrimitive();

@@ -1099,9 +1099,14 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
             
       IArchive archive = archives.get(0);
-      assertEquals(2, archive.getExportModel().getModelOidToUuid().size());
       assertTrue(archive.getExportModel().getModelOidToUuid().containsKey(modelOID1));
       assertTrue(archive.getExportModel().getModelOidToUuid().containsKey(modelOID2));
+      Set<String> uniqueUUIDs = new HashSet<String>();
+      for (int key : archive.getExportModel().getModelOidToUuid().keySet())
+      {
+         uniqueUUIDs.add(archive.getExportModel().getModelOidToUuid().get(key));
+      }
+      assertEquals(2, uniqueUUIDs.size());
 
       filter = new ArchiveFilter(null, null,null, null, null, null, null);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(

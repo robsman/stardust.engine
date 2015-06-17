@@ -39,6 +39,8 @@ public class MemoryArchiveWriter implements IArchiveWriter
    private String dateFormat;
    
    private boolean auto;
+   
+   private final boolean isKeyDescriptorsOnly;
 
    private final DocumentOption documentOption;
    
@@ -56,6 +58,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
       }
       String dateFormat = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_DATE_FORMAT);
       boolean auto = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE));
+      boolean isKeyDescriptorsOnly = "true".equals(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY));
       this.documentOption = DocumentOption.valueOf(preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS));
       repo = new HashMap<String, HashMap<String, HashMap<Long, byte[]>>>();
       repoDoc = new HashMap<String, HashMap<String, HashMap<String, byte[]>>>();
@@ -69,6 +72,7 @@ public class MemoryArchiveWriter implements IArchiveWriter
       this.archiveManagerId = id;
       this.dateFormat = dateFormat;
       this.auto = auto;
+      this.isKeyDescriptorsOnly = isKeyDescriptorsOnly;
    }
    
    @Override
@@ -93,6 +97,12 @@ public class MemoryArchiveWriter implements IArchiveWriter
    public DocumentOption getDocumentOption()
    {
       return documentOption;
+   }
+   
+   @Override
+   public boolean isKeyDescriptorsOnly()
+   {
+      return isKeyDescriptorsOnly;
    }
 
    @Override

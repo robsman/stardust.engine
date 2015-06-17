@@ -201,21 +201,27 @@ public class ArchiveTest
      
       startAndCompleteSimple(wsA, qsA);
       startAndCompleteSimple(wsB, qsB);
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(wsA, filter);      
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       exportAndArchive(wsB, filter);      
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = findArchives(wsA, filter, 1);
       IArchive archive = archives.get(0);
       assertEquals(PARTION_A, archive.getArchiveManagerId());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       archives = findArchives(wsB, filter, 1);
       archive = archives.get(0);
       assertEquals(PARTION_B, archive.getArchiveManagerId());
 
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_A, "sysop");
       AuditTrailPartitionManager.dropAuditTrailPartition(PARTION_B, "sysop");
+   }
+
+   public static ArchiveFilter getBlankArchiveFilter()
+   {
+      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      return filter;
    }
    
    @Test
@@ -300,12 +306,12 @@ public class ArchiveTest
       assertDataExists(piB.getOID(), writeActivityB.getOID(),
             ArchiveModelConstants.PROCESS_DEF_SIMPLEMANUAL,
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", qsB);
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
 
       ExportResult exportResultA = (ExportResult) wsA.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
       assertNotNullExportResult(exportResultA);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       ExportResult exportResultB = (ExportResult) wsB.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
       assertNotNullExportResult(exportResultB);
@@ -337,13 +343,13 @@ public class ArchiveTest
       List<IArchive> archivesB = (List<IArchive>) wsB
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archivesB.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) wsA
             .execute(new ImportProcessesCommand(
                   ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archivesA.get(0),
                   filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count = (Integer) wsB
             .execute(new ImportProcessesCommand(
                   ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archivesB.get(0),
@@ -437,7 +443,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_TEXTDATA, "my test data", qsA);
 
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(wsA, filter);
 
       ProcessInstances instancesA = qsA.getAllProcessInstances(pQuery);
@@ -458,7 +464,7 @@ public class ArchiveTest
       assertEquals(1, archives.size());
       final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.ERROR);
       barrier.registerWithLog4j();
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) wsB.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -529,7 +535,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -598,7 +604,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -613,7 +619,7 @@ public class ArchiveTest
 
       adminService.deleteModel(piOtherModel.getModelOID());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       RtEnvHome.deployModel(sf.getAdministrationService(), null,
@@ -671,7 +677,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
 
       List<Integer> modelOids = Arrays.asList(piOtherModel.getModelOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
+      ArchiveFilter filter = getModelOidsFilter(modelOids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -684,7 +690,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -694,6 +700,12 @@ public class ArchiveTest
             Arrays.asList(piOtherModel));
       assertActivityInstancesEquals(oldActivities, newActivities);
 
+   }
+
+   private ArchiveFilter getModelOidsFilter(List<Integer> modelOids)
+   {
+      ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
+      return filter;
    }
    
    @Test
@@ -745,7 +757,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -759,7 +771,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<String> modelids = Arrays.asList(ArchiveModelConstants.MODEL_ID_OTHER);
-      filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      filter = getModelIdsFilter(modelids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -770,6 +782,13 @@ public class ArchiveTest
       assertEquals(1, newInstances.size());
       assertEquals(4, newActivities.size());
       assertExportIds(queryService, newInstances, newInstances, true);
+   }
+
+   private ArchiveFilter getModelIdsFilter(List<String> modelids)
+   {
+      ArchiveFilter filter;
+      filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      return filter;
    }
 
    @Test
@@ -821,7 +840,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -835,7 +854,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<String> modelids = Arrays.asList("x");
-      filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      filter = getModelIdsFilter(modelids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -897,7 +916,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
 
       List<String> modelids = Arrays.asList(ArchiveModelConstants.MODEL_ID_OTHER);
-      ArchiveFilter filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      ArchiveFilter filter = getModelIdsFilter(modelids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -910,7 +929,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -971,7 +990,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
 
       List<String> modelids = Arrays.asList("x");
-      ArchiveFilter filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      ArchiveFilter filter = getModelIdsFilter(modelids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1047,7 +1066,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
 
       List<Integer> modelOids = Arrays.asList(piModel.getModelOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
+      ArchiveFilter filter = getModelOidsFilter(modelOids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1060,7 +1079,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -1104,7 +1123,7 @@ public class ArchiveTest
 
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID);
       setUp();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1123,7 +1142,7 @@ public class ArchiveTest
       assertEquals(1, archives.size());
       IArchive archive = archives.get(0);
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -1174,7 +1193,7 @@ public class ArchiveTest
       setUp();
       List<Integer> modelOids = Arrays.asList(pi.getModelOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, modelOids, null, null, null);
+      ArchiveFilter filter = getModelOidsFilter(modelOids);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY, filter, null, DocumentOption.NONE));
@@ -1205,7 +1224,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       IArchive archive = archives.get(0);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -1223,7 +1242,7 @@ public class ArchiveTest
    public void importNull()
    {
       WorkflowService workflowService = sf.getWorkflowService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, null, filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -1234,7 +1253,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       List<Long> oids = Arrays.asList(-1L);
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1247,11 +1266,16 @@ public class ArchiveTest
       assertNullRawData(exportResult);
    }
 
+   public static ArchiveFilter getPiOidsFilter(List<Long> oids)
+   {
+      return new ArchiveFilter(null, null,oids, null, null, null, null);
+   }
+
    @Test
    public void testExportNoData() throws Exception
    {
       WorkflowService workflowService = sf.getWorkflowService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1264,7 +1288,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       Long oid = null;
       List<Long> oids = Arrays.asList(oid);
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1276,7 +1300,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       List<Long> oids = new ArrayList<Long>();
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1293,7 +1317,7 @@ public class ArchiveTest
             ArchiveModelConstants.PROCESS_DEF_SIMPLE, null, true);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1411,7 +1435,7 @@ public class ArchiveTest
 
       // dump the process that is still active
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1522,7 +1546,7 @@ public class ArchiveTest
 
       // dump the process that is still active
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1568,7 +1592,7 @@ public class ArchiveTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(),
             ProcessInstanceState.Completed);
       
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1613,7 +1637,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_TEXTDATA1, dataInput2, queryService);
       
       //import the dump
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, dump, filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -1723,12 +1747,12 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(7, count);
@@ -1797,7 +1821,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      ArchiveFilter filter = getDateFilter(fromDate, toDate);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -1806,13 +1830,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(4, clearedInstances.size());
       assertEquals(13, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -1822,6 +1846,11 @@ public class ArchiveTest
       assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(simpleManualB, simpleA, simpleB));
       assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+
+   private ArchiveFilter getDateFilter(Date fromDate, Date toDate)
+   {
+      return new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
    }
    
    @Test
@@ -1870,14 +1899,14 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(6, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startP1, midP1, null);
+      ArchiveFilter filter = getDateFilter(startP1, midP1);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
                   null, DocumentOption.NONE));
       assertNullRawData(exportResult);
 
-      filter = new ArchiveFilter(null, null,null, null, midP1, endP1, null);
+      filter = getDateFilter(midP1, endP1);
       exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1892,13 +1921,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(1, clearedInstances.size());
       assertEquals(3, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       IArchive archive = archives.get(0);
       assertNotNull(archive.getExportIndex().getOidsToUuids().get(pi.getOID()));
       assertNull(archive.getExportIndex().getOidsToUuids().get(pi2.getOID()));
@@ -1956,7 +1985,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(6, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startP1, midP1, null);
+      ArchiveFilter filter = getDateFilter(startP1, midP1);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1975,13 +2004,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(2, clearedInstances.size());
       assertEquals(6, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       IArchive archive = archives.get(0);
       assertNotNull(archive.getExportIndex().getOidsToUuids().get(pi.getOID()));
       assertNull(archive.getExportIndex().getOidsToUuids().get(pi2.getOID()));
@@ -2065,7 +2094,7 @@ public class ArchiveTest
       assertEquals(5, expectedActivities.size());
       
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2080,7 +2109,7 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
       List<String> procDefIds = Arrays.asList("Simple","SimpleManual");
@@ -2177,7 +2206,7 @@ public class ArchiveTest
       assertEquals(5, expectedActivities.size());
       
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2192,7 +2221,7 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
       List<String> procDefIds = Arrays.asList("Simple","SimpleManual");
@@ -2291,7 +2320,7 @@ public class ArchiveTest
       assertEquals(3, expectedInstances.size());
       assertEquals(12, expectedActivities.size());
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2300,11 +2329,11 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
       List<String> procDefIds = Arrays.asList("Simple", "ScriptProcess");
-      filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      filter = getProcesDefIdFilter(procDefIds);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -2408,7 +2437,7 @@ public class ArchiveTest
       assertEquals(10, expectedActivities.size());
       
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2424,14 +2453,14 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
       List<String> procDefIds = Arrays.asList("CallSubProcessesInModel");
-      filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      filter = getProcesDefIdFilter(procDefIds);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -2488,7 +2517,7 @@ public class ArchiveTest
       assertEquals(3, oldInstances.size());
       assertEquals(10, oldActivities.size());
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2497,14 +2526,14 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
       List<String> procDefIds = Arrays.asList("Simple");
-      filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      filter = getProcesDefIdFilter(procDefIds);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -2539,7 +2568,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2548,14 +2577,14 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
       List<String> ids = Arrays.asList("x");
-      filter = new ArchiveFilter(null, ids,null, null, null, null, null);
+      filter = getProcesDefIdFilter(ids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -2628,7 +2657,7 @@ public class ArchiveTest
       
       List<String> procDefIds = Arrays.asList("Simple", "ScriptProcess");
       
-      ArchiveFilter filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      ArchiveFilter filter = getProcesDefIdFilter(procDefIds);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -2637,13 +2666,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(5, clearedInstances.size());
       assertEquals(16, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -2653,6 +2682,11 @@ public class ArchiveTest
       assertProcessInstancesEquals(queryService,oldInstances, newInstances,
             Arrays.asList(scriptProcess, simpleA, simpleB));
       assertActivityInstancesEquals(oldActivities, newActivities);
+   }
+
+   private ArchiveFilter getProcesDefIdFilter(List<String> procDefIds)
+   {
+      return new ArchiveFilter(null, procDefIds,null, null, null, null, null);
    }
    
    @Test
@@ -2717,7 +2751,7 @@ public class ArchiveTest
       
       List<String> procDefIds = Arrays.asList("CallSubProcessesInModel");
       
-      ArchiveFilter filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      ArchiveFilter filter = getProcesDefIdFilter(procDefIds);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2736,13 +2770,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(5, clearedInstances.size());
       assertEquals(18, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -2801,7 +2835,7 @@ public class ArchiveTest
       
       List<String> procDefIds = Arrays.asList("Simple");
       
-      ArchiveFilter filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      ArchiveFilter filter = getProcesDefIdFilter(procDefIds);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2844,7 +2878,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<String> ids = Arrays.asList("x");
-      ArchiveFilter filter = new ArchiveFilter(null, ids, null, null, null, null, null);
+      ArchiveFilter filter = getProcesDefIdFilter(ids);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -2979,7 +3013,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, simpleManualADate, scriptProcessDate, null);
+      ArchiveFilter filter = getDateFilter(simpleManualADate, scriptProcessDate);
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -3000,36 +3034,36 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(5, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       ImportMetaData meta = (ImportMetaData) workflowService
             .execute(new ImportProcessesCommand(
                   ImportProcessesCommand.Operation.VALIDATE, archives.get(0), filter,  null, null, DocumentOption.NONE));
       assertNotNull(meta);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, getArchive(scriptProcessDate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(1, count);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, getArchive(simpleManualADate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(2, count);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, getArchive(simpleManualBDate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(3, count);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, getArchive(simpleDate, archives),
             filter, meta, null, DocumentOption.NONE));
@@ -3037,7 +3071,7 @@ public class ArchiveTest
       // assert that sub processes are archived with their root process
       assertNull(getArchive(subProcessesDate, archives));
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, getArchive(subProcessesInModelDate,
                   archives), filter, meta, null, DocumentOption.NONE));
@@ -3118,7 +3152,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY, filter, null, DocumentOption.NONE);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
@@ -3157,7 +3191,7 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
@@ -3178,13 +3212,13 @@ public class ArchiveTest
             new Long(simpleA.getModelOID())));
 
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       importCommand = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
             archives.get(0), filter, importMetaData1, null, DocumentOption.NONE);
       int count = (Integer) workflowService.execute(importCommand);
       assertTrue(count > 0);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       importCommand = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
             archives.get(1), filter, importMetaData2, null, DocumentOption.NONE);
       count += (Integer) workflowService.execute(importCommand);
@@ -3270,7 +3304,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY, filter, null, DocumentOption.NONE);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
@@ -3312,7 +3346,7 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, startDate, endDate, null);
+      filter = getDateFilter(startDate, endDate);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
@@ -3358,7 +3392,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY, filter, null, DocumentOption.NONE);
       ExportMetaData exportMetaData = (ExportMetaData) workflowService.execute(command);
@@ -3387,7 +3421,7 @@ public class ArchiveTest
 
    private String getExportIndexJSON(WorkflowService workflowService)
    {
-      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -3440,7 +3474,7 @@ public class ArchiveTest
       testTimestampProvider.nextDay();
       Date toDate = testTimestampProvider.getTimestamp();
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, toDate, fromDate, null);
+      ArchiveFilter filter = getDateFilter(toDate, fromDate);
       workflowService.execute(new ExportProcessesCommand(
             ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
             null, DocumentOption.NONE));
@@ -3458,13 +3492,13 @@ public class ArchiveTest
 
       startAndCompleteSimple(workflowService, queryService);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, toDate, fromDate, null);
+      filter = getDateFilter(toDate, fromDate);
       workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
@@ -3482,7 +3516,7 @@ public class ArchiveTest
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -3500,7 +3534,7 @@ public class ArchiveTest
       
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -3517,7 +3551,7 @@ public class ArchiveTest
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -3534,7 +3568,7 @@ public class ArchiveTest
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
             dataByProcess, getJSON(exportModel), json, new HashMap<String, byte[]>());
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -3623,7 +3657,7 @@ public class ArchiveTest
       assertEquals(7, expectedActivities.size());
       assertEquals(3, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3637,7 +3671,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(4, archives.size());
       int count = 0;
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       for (IArchive archive: archives)
       {
          count += (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -3735,7 +3769,7 @@ public class ArchiveTest
       assertEquals(7, expectedActivities.size());
       assertEquals(3, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -3744,36 +3778,36 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, firstDate, firstDate, null);
+      filter = getDateFilter(firstDate, firstDate);
       List<IArchive> archives = findArchives(workflowService, filter, 1);
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
-      filter = new ArchiveFilter(null, null,null, null, lastDate, lastDate, null);
+      filter = getDateFilter(lastDate, lastDate);
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
             filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
-      filter = new ArchiveFilter(null, null,null, null, fromDate, fromDate, null);
+      filter = getDateFilter(fromDate, fromDate);
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
             filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
       assertEquals(2, count);
-      filter = new ArchiveFilter(null, null,null, null, toDate, toDate, null);
+      filter = getDateFilter(toDate, toDate);
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
             filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
@@ -3815,7 +3849,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(6, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -3883,7 +3917,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(6, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       List<Long> processInstanceOids = Arrays.asList(pi1.getOID(), pi2.getOID());
@@ -3950,7 +3984,7 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(6, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       List<Long> processInstanceOids = null;
@@ -4035,7 +4069,7 @@ public class ArchiveTest
       assertEquals(2, oldInstances.size());
       assertEquals(7, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -4046,12 +4080,12 @@ public class ArchiveTest
       assertEquals(0, activitiesCleared.size());
 
       List<String> modelids = Arrays.asList(ArchiveModelConstants.MODEL_ID_OTHER);
-      filter = new ArchiveFilter(modelids, null,null, null, null, null, null);
+      filter = getModelIdsFilter(modelids);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       IArchive archive = archives.get(0);
       assertEquals(1, archive.getExportIndex().getOidsToUuids().size());
       assertTrue(archive.getExportIndex().getOidsToUuids().containsKey(piOtherModel.getOID()));
@@ -4123,7 +4157,7 @@ public class ArchiveTest
       assertEquals(28, oldActivities.size());
       
            
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4132,12 +4166,12 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(3, archives.size());
       List<String> procDefIds = Arrays.asList("Simple", "ScriptProcess");
-      filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      filter = getProcesDefIdFilter(procDefIds);
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(filter, null));
       assertEquals(2, archives.size());
    }
@@ -4196,7 +4230,7 @@ public class ArchiveTest
       assertEquals(3, oldInstances.size());
       assertEquals(10, oldActivities.size());
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4207,7 +4241,7 @@ public class ArchiveTest
       assertEquals(0, clearedActivities.size());
 
       List<String> procDefIds = Arrays.asList("Simple");
-      filter = new ArchiveFilter(null, procDefIds,null, null, null, null, null);
+      filter = getProcesDefIdFilter(procDefIds);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
@@ -4244,14 +4278,14 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(4, archives.size());
 
       List<Long> processInstanceOids = Arrays.asList(simpleB.getOID());
-      filter = new ArchiveFilter(null, null,processInstanceOids, null, null, null, null);
+      filter = getPiOidsFilter(processInstanceOids);
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -4260,7 +4294,7 @@ public class ArchiveTest
       Long process = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
       assertTrue(process == simpleB.getOID());
       processInstanceOids = Arrays.asList(simpleB.getOID(), simpleManualA.getOID());
-      filter = new ArchiveFilter(null, null,processInstanceOids, null, null, null, null);
+      filter = getPiOidsFilter(processInstanceOids);
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(2, archives.size());
@@ -4321,9 +4355,9 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
-      filter = new ArchiveFilter(null, null,null, null, fromDate, lastDate, null);
+      filter = getDateFilter(fromDate, lastDate);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(3, archives.size());
@@ -4377,9 +4411,9 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
-      filter = new ArchiveFilter(null, null,null, null, null, fromDate, null);
+      filter = getDateFilter(null, fromDate);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(2, archives.size());
@@ -4427,9 +4461,9 @@ public class ArchiveTest
       assertNotNull(oldInstances);
       assertEquals(7, oldInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
-      filter = new ArchiveFilter(null, null,null, null, toDate, null, null);
+      filter = getDateFilter(toDate, null);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(2, archives.size());
@@ -4507,7 +4541,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4521,7 +4555,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       Date date = null;
-      filter = new ArchiveFilter(null, null,null, null, date, date, null);
+      filter = getDateFilter(date, date);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(7, count);
@@ -4616,7 +4650,7 @@ public class ArchiveTest
       assertEquals(10, expectedActivities.size());
       assertEquals(4, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4625,18 +4659,18 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, date1, date1, null);
+      filter = getDateFilter(date1, date1);
       List<IArchive> archives = findArchives(workflowService, filter, 1);
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
-      filter = new ArchiveFilter(null, null,null, null, date2, date2, null);
+      filter = getDateFilter(date2, date2);
       archives = (List<IArchive>) workflowService.execute(new ImportProcessesCommand(
             filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0),
             filter, null, null, DocumentOption.NONE));
@@ -4739,7 +4773,7 @@ public class ArchiveTest
       assertEquals(17, expectedActivities.size());
       assertEquals(6, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4748,22 +4782,22 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, date1, date1, null);
+      filter = getDateFilter(date1, date1);
       @SuppressWarnings("unchecked")
       List<IArchive> archivesDate1 = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archivesDate1.size());
-      filter = new ArchiveFilter(null, null,null, null, date2, date2, null);
+      filter = getDateFilter(date2, date2);
       @SuppressWarnings("unchecked")
       List<IArchive> archivesDate2 = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archivesDate2.size());
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archivesDate1.get(0),
             filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
-      filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      filter = getDateFilter(fromDate, toDate);
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archivesDate2.get(0),
             filter, null, null, DocumentOption.NONE));
@@ -4831,7 +4865,7 @@ public class ArchiveTest
       assertEquals(20, oldActivities.size());
 
       Date fromDate = null;
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      ArchiveFilter filter = getDateFilter(fromDate, toDate);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4844,7 +4878,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(4, count);
@@ -4913,7 +4947,7 @@ public class ArchiveTest
       assertEquals(20, oldActivities.size());
 
       Date toDate = null;
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, fromDate, toDate, null);
+      ArchiveFilter filter = getDateFilter(fromDate, toDate);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -4926,7 +4960,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(6, count);
@@ -4999,7 +5033,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5009,7 +5043,7 @@ public class ArchiveTest
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
@@ -5025,7 +5059,7 @@ public class ArchiveTest
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       models = queryService.getModels(DeployedModelQuery
@@ -5072,7 +5106,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5081,13 +5115,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(8, count);
@@ -5114,7 +5148,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, "c", DocumentOption.NONE));
@@ -5172,7 +5206,7 @@ public class ArchiveTest
       }
       assertEquals(3, exported.size());
       // backup some processes
-      ArchiveFilter filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(exportedIds);
       ExportResult exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
@@ -5197,7 +5231,7 @@ public class ArchiveTest
       assertEquals(1, archives.size());
 
       // import the backup
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -5209,7 +5243,7 @@ public class ArchiveTest
       
       // archive the same processes again
 
-      filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      filter = getPiOidsFilter(exportedIds);
       exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -5274,7 +5308,7 @@ public class ArchiveTest
       }
       assertEquals(3, exported.size());
       // backup some processes
-      ArchiveFilter filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(exportedIds);
       ExportResult exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT,filter,
@@ -5299,7 +5333,7 @@ public class ArchiveTest
       assertEquals(1, archives.size());
 
       // import the backup
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -5313,7 +5347,7 @@ public class ArchiveTest
       // in reality we always dump to a differenct location, so in unit test we clear the archive to simulate this
       clearArchiveManager("default");
 
-      filter = new ArchiveFilter(null, null,exportedIds, null, null, null, null);
+      filter = getPiOidsFilter(exportedIds);
       exportResultBackUp = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -5462,7 +5496,7 @@ public class ArchiveTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5476,25 +5510,25 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(simpleManualA.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
       oids = Arrays.asList(simpleManualA.getOID(), simpleManualB.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
       oids = Arrays.asList(simpleManualA.getOID(), simpleManualB.getOID(),
             subProcessesInModel.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
       oids = Arrays.asList(simpleManualA.getOID(), simpleManualB.getOID(),
             subProcessesInModel.getOID(), simpleA.getOID(), simpleB.getOID(),
             scriptProcess.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -5582,7 +5616,7 @@ public class ArchiveTest
       assertEquals(12, expectedActivities.size());
       assertEquals(4, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5591,13 +5625,13 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(simpleA.getOID(), subProcessesInModel.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(4, count);
@@ -5686,7 +5720,7 @@ public class ArchiveTest
       assertEquals(12, expectedActivities.size());
       assertEquals(4, expectedInstances.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5700,7 +5734,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(simpleA.getOID(), subSimple.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(4, count);
@@ -5773,7 +5807,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5787,7 +5821,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(-1L, null);
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -5849,7 +5883,7 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5863,7 +5897,7 @@ public class ArchiveTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = new ArrayList<Long>();
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(0, count);
@@ -5925,9 +5959,9 @@ public class ArchiveTest
       assertEquals(7, oldInstances.size());
       assertEquals(20, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       List<Long> oids = Arrays.asList(simpleA.getOID(), simpleManualA.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -5940,7 +5974,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(2, count);
@@ -5977,7 +6011,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -5987,12 +6021,12 @@ public class ArchiveTest
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
                  
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = getPiOidsFilter(oids);
       
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
@@ -6027,7 +6061,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -6060,7 +6094,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -6096,7 +6130,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, startDate, endDate, null);
+      ArchiveFilter filter = getDateFilter(startDate, endDate);
       exportAndArchive(workflowService, filter);
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -6165,7 +6199,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -6181,7 +6215,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -6225,7 +6259,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -6241,7 +6275,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -6297,7 +6331,7 @@ public class ArchiveTest
       descriptors.put("invalid", "invalid");
       //key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERNAME, "bbb");
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      ArchiveFilter filter = getDescriptorFilter(descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -6364,7 +6398,7 @@ public class ArchiveTest
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue2*2)));
       //key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERNAME, "bbb");
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      ArchiveFilter filter = getDescriptorFilter(descriptors);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -6389,7 +6423,7 @@ public class ArchiveTest
       assertFalse(archive.getExportIndex().contains(pi1.getOID()));
       assertTrue(archive.getExportIndex().contains(pi2.getOID()));
       assertTrue(archive.getExportIndex().contains(pi3.getOID()));
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(2, count);
@@ -6412,6 +6446,11 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
+   }
+
+   private ArchiveFilter getDescriptorFilter(HashMap<String, Object> descriptors)
+   {
+      return new ArchiveFilter(null, null,null, null, null, null, descriptors);
    }
 
    private ProcessInstance startAndCompleteScriptProcess(WorkflowService workflowService,
@@ -6506,7 +6545,7 @@ public class ArchiveTest
       assertEquals(10, expectedActivities.size());
       
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -6522,14 +6561,14 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
       HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_SIMPLE, Long.toString(subSimple.getOID()));
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -6623,7 +6662,7 @@ public class ArchiveTest
       assertEquals(10, expectedActivities.size());
       
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -6639,14 +6678,14 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
       HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CALL_SUBPROCESSES_IN_MODEL, Long.toString(subProcessesInModel.getOID()));
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);;
+      filter = getDescriptorFilter(descriptors);;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -6721,7 +6760,7 @@ public class ArchiveTest
       HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_SIMPLE, Long.toString(subSimple.getOID()));
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      ArchiveFilter filter = getDescriptorFilter(descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -6737,11 +6776,11 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(5, clearedInstances.size());
       assertEquals(18, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -6816,7 +6855,7 @@ public class ArchiveTest
       HashMap<String, Object> descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CALL_SUBPROCESSES_IN_MODEL, Long.toString(subProcessesInModel.getOID()));
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      ArchiveFilter filter = getDescriptorFilter(descriptors);
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -6832,11 +6871,11 @@ public class ArchiveTest
       assertNotNull(clearedActivities);
       assertEquals(5, clearedInstances.size());
       assertEquals(18, clearedActivities.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);;
+      filter = getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -6901,7 +6940,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -6932,14 +6971,14 @@ public class ArchiveTest
       assertTrue(archive.getExportIndex().contains(pi1.getOID()));
       assertTrue(archive.getExportIndex().contains(pi2.getOID()));
       assertTrue(archive.getExportIndex().contains(pi3.getOID()));
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(2, count);
       descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue1*2)));
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -7013,7 +7052,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7047,7 +7086,7 @@ public class ArchiveTest
       Long processInstanceOid = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
       updateField(archive, processInstanceOid, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015/03/06 00:00:00:000");
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(2, count);
@@ -7115,7 +7154,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi2, textValue2, numberValue2, dataPathIds);
       assertDataPaths(workflowService, pi3, textValue3, numberValue3, dataPathIds);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7141,7 +7180,7 @@ public class ArchiveTest
       //key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERNAME, "bbb");
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       List<IArchive> archives = findArchives(workflowService, filter, 1);
       IArchive archive = archives.get(0);
       assertTrue(archive.getExportIndex().contains(pi1.getOID()));
@@ -7157,7 +7196,7 @@ public class ArchiveTest
       descriptors = new HashMap<String, Object>();
       //non key key primitive
       descriptors.put(ArchiveModelConstants.DESCR_CUSTOMERID, Integer.toString((numberValue1*2)));
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, archive, filter, importMetaData, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -7217,7 +7256,7 @@ public class ArchiveTest
 
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7263,7 +7302,7 @@ public class ArchiveTest
       Date date = dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE);
       descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, date);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      filter = getDescriptorFilter(descriptors);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -7278,6 +7317,155 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue1));
 
       assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+   }
+   
+   @Test
+   public void testDescriptorExportAll() throws Exception
+   {
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      String textValue1 = "aaa";
+      int numberValue1 = 20;
+     
+      final ProcessInstance pi1 = startAndCompleteScriptProcess(workflowService,
+            queryService, textValue1, numberValue1);
+    
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      FilterOrTerm pOrTerm = pQuery.getFilter().addOrTerm();
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi1.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi1.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(8, oldActivities.size());
+      assertNotNull(pi1.getScopeProcessInstanceOID());
+      assertNotNull(pi1.getRootProcessInstanceOID());
+
+      Set<String> dataPathIds = new HashSet<String>();
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_ID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERDATA_NAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERID);
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERNAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_BUSINESSDATE);
+
+      assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+
+      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
+      exportAndArchive(workflowService, filter);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+
+      assertFalse(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue1 * 2));
+     
+      List<IArchive> archives = findArchives(workflowService, filter, 1);
+      IArchive archive = archives.get(0);
+      assertTrue(archive.getExportIndex().contains(pi1.getOID()));
+      assertTrue(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_CUSTOMERID));
+      assertTrue(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_CUSTOMERNAME));
+      assertTrue(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_BUSINESSDATE));
+      filter = getBlankArchiveFilter();
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+
+      assertTrue(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue1));
+
+      assertDataPaths(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+   }
+   
+   @Test
+   public void testDescriptorExportKeyOnly() throws Exception
+   {
+      int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
+      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY,
+            "true");
+      ArchiveManagerFactory.resetArchiveManagers();
+      WorkflowService workflowService = sf.getWorkflowService();
+      QueryService queryService = sf.getQueryService();
+
+      String textValue1 = "aaa";
+      int numberValue1 = 20;
+     
+      final ProcessInstance pi1 = startAndCompleteScriptProcess(workflowService,
+            queryService, textValue1, numberValue1);
+    
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      FilterOrTerm pOrTerm = pQuery.getFilter().addOrTerm();
+      pOrTerm.or(ProcessInstanceQuery.OID.isEqual(pi1.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      FilterOrTerm orTerm = aQuery.getFilter().addOrTerm();
+      orTerm.or(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi1.getOID()));
+
+      ProcessInstances oldInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(8, oldActivities.size());
+      assertNotNull(pi1.getScopeProcessInstanceOID());
+      assertNotNull(pi1.getRootProcessInstanceOID());
+
+      Set<String> dataPathIds = new HashSet<String>();
+      dataPathIds.add(ArchiveModelConstants.DESCR_CUSTOMERNAME);
+      dataPathIds.add(ArchiveModelConstants.DESCR_BUSINESSDATE);
+
+      ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
+      exportAndArchive(workflowService, filter);
+
+      ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances clearedActivities = queryService.getAllActivityInstances(aQuery);
+      assertNotNull(clearedInstances);
+      assertNotNull(clearedActivities);
+      assertEquals(0, clearedInstances.size());
+      assertEquals(0, clearedActivities.size());
+
+      assertFalse(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDB, numberValue1 * 2));
+     
+      List<IArchive> archives = findArchives(workflowService, filter, 1);
+      IArchive archive = archives.get(0);
+      assertTrue(archive.getExportIndex().contains(pi1.getOID()));
+      assertFalse(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_CUSTOMERID));
+      assertTrue(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_CUSTOMERNAME));
+      assertTrue(archive.getExportIndex().getFields().containsKey(ArchiveModelConstants.DESCR_BUSINESSDATE));
+      filter = getBlankArchiveFilter();
+      int count = (Integer) workflowService.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
+      assertEquals(1, count);
+      ProcessInstances newInstances = queryService.getAllProcessInstances(pQuery);
+      ActivityInstances newActivities = queryService.getAllActivityInstances(aQuery);
+
+      assertProcessInstancesEquals(queryService,oldInstances, newInstances, newInstances, true);
+      assertActivityInstancesEquals(oldActivities, newActivities);
+
+      assertTrue(hasStructuredDateField(pi1.getOID(),
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA,
+            ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue1));
+
+      assertKeyDataPathsOnly(workflowService, pi1, textValue1, numberValue1, dataPathIds);
+      ArchiveManagerFactory.resetArchiveManagers();
    }
    
    @Test
@@ -7337,7 +7525,7 @@ public class ArchiveTest
       final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
       Date date = dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE);
       descriptors.put(ArchiveModelConstants.DESCR_BUSINESSDATE, date);
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, descriptors);
+      ArchiveFilter filter = getDescriptorFilter(descriptors);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7362,7 +7550,7 @@ public class ArchiveTest
       assertTrue(archive.getExportIndex().contains(pi1.getOID()));
       assertTrue(archive.getExportIndex().contains(pi2.getOID()));
       assertTrue(archive.getExportIndex().contains(pi3.getOID()));
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -7395,7 +7583,7 @@ public class ArchiveTest
       Map<String, Serializable> inDataPaths = workflowService.getInDataPaths(
             pi1.getOID(), dataPathIds);
 
-      assertEquals(6, inDataPaths.size());
+      assertEquals(dataPathIds.size(), inDataPaths.size());
 
       HashMap<String, Serializable> customerData = ((HashMap<String, Serializable>) inDataPaths
             .get(ArchiveModelConstants.DESCR_CUSTOMERDATA));
@@ -7409,6 +7597,29 @@ public class ArchiveTest
             inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERDATA_NAME));
       assertEquals(numberValue1 * 2,
             inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERID));
+      assertEquals(textValue1, inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERNAME));
+      //2015/03/05 00:00:00:000
+      final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            
+      assertEquals(dateFormat.parse(ArchiveModelConstants.DEFAULT_DATE), inDataPaths.get(ArchiveModelConstants.DESCR_BUSINESSDATE));
+   }
+   
+   @SuppressWarnings("unchecked")
+   private void assertKeyDataPathsOnly(WorkflowService workflowService,
+         final ProcessInstance pi1, String textValue1, int numberValue1,
+         Set<String> dataPathIds) throws Exception
+   {
+      Map<String, Serializable> inDataPaths = workflowService.getInDataPaths(
+            pi1.getOID(), dataPathIds);
+
+      assertEquals(dataPathIds.size(), inDataPaths.size());
+
+      HashMap<String, Serializable> customerData = ((HashMap<String, Serializable>) inDataPaths
+            .get(ArchiveModelConstants.DESCR_CUSTOMERDATA));
+      assertNull(customerData);
+      assertNull(inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERDATA_ID));
+      assertNull(inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERDATA_NAME));
+      assertNull(inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERID));
       assertEquals(textValue1, inDataPaths.get(ArchiveModelConstants.DESCR_CUSTOMERNAME));
       //2015/03/05 00:00:00:000
       final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -7482,7 +7693,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi, textValue, 10, dataPathIds);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7504,7 +7715,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue));
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -7602,7 +7813,7 @@ public class ArchiveTest
       assertDataPaths(workflowService, pi, textValue, 10, dataPathIds);
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQuery);
@@ -7624,7 +7835,7 @@ public class ArchiveTest
             ArchiveModelConstants.DATA_ID_STRUCTUREDDATA_MYFIELDA, textValue));
 
       List<IArchive> archives = findArchives(workflowService, filter, 1);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -7927,7 +8138,7 @@ public class ArchiveTest
       }
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
@@ -7963,7 +8174,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -8226,7 +8437,7 @@ public class ArchiveTest
 
       List<Long> oids = Arrays.asList(pi.getOID(), subSimple.getOID(),
             subSimpleManual.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
 
       ProcessInstances clearedInstances = queryService.getAllProcessInstances(pQueryRoot);
@@ -8262,7 +8473,7 @@ public class ArchiveTest
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -8320,7 +8531,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
       
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -8329,7 +8540,7 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
@@ -8345,7 +8556,7 @@ public class ArchiveTest
       final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.ERROR);
       barrier.registerWithLog4j();
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
 
@@ -8386,7 +8597,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -8414,7 +8625,7 @@ public class ArchiveTest
       
       final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.ERROR);
       barrier.registerWithLog4j();
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
 
@@ -8456,7 +8667,7 @@ public class ArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter = getPiOidsFilter(oids);
       exportAndArchive(workflowService, filter);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -8480,7 +8691,7 @@ public class ArchiveTest
       RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -8532,7 +8743,7 @@ public class ArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       @SuppressWarnings("unchecked")
       List<IArchive> archives = (List<IArchive>) workflowService
@@ -8546,7 +8757,7 @@ public class ArchiveTest
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -8560,14 +8771,14 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
 
       // deploy same model with one added process
       RtEnvHome.deployModel(sf.getAdministrationService(), null,
             ArchiveModelConstants.MODELV2_ID);
       final ProcessInstance piT1 = startAndCompleteTest(workflowService, queryService);
             
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
 
       // redeploy same model
@@ -8597,7 +8808,7 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
          ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -8615,7 +8826,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
 
       final ProcessInstance piS1 = startAndCompleteSimple(workflowService, queryService);
 
@@ -8632,7 +8843,7 @@ public class ArchiveTest
       final ProcessInstance piS3 = startAndCompleteSimple(workflowService, queryService);
       final ProcessInstance piT2 = startAndCompleteTest(workflowService, queryService);
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter);
       List<IArchive> archives = findArchives(workflowService, filter, 1);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -8657,7 +8868,7 @@ public class ArchiveTest
       final ProcessInstance piS6 = startAndCompleteSimple(workflowService, queryService);
       final ProcessInstance piT4 = startAndCompleteTest(workflowService, queryService);
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       exportAndArchive(workflowService, filter,5,10);
 
       RtEnvHome.deployModel(sf.getAdministrationService(), null,
@@ -8709,7 +8920,7 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       count = 0;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
          ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));
@@ -8731,7 +8942,7 @@ public class ArchiveTest
    {
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = getBlankArchiveFilter();
       
       Date date1 = testTimestampProvider.getTimestamp();
       final ProcessInstance piS1 = startAndCompleteSimple(workflowService, queryService);
@@ -8753,7 +8964,7 @@ public class ArchiveTest
             ArchiveModelConstants.MODEL_ID);
       testTimestampProvider.nextDay();
       Date date2 = testTimestampProvider.getTimestamp();
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       final ProcessInstance piS4 = startAndCompleteSimple(workflowService, queryService);
       
       
@@ -8817,7 +9028,7 @@ public class ArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instancesCleared.size());
       assertEquals(0, activitiesCleared.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = getBlankArchiveFilter();
       int count = 0;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
          ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));

@@ -165,7 +165,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .findInState(new ProcessInstanceState[] {
                   ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -194,7 +194,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archiveQueue();
 
       //they are already auto exported so should not be exported again
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -214,7 +214,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, delActivities.size());
       
       // import the backups
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(9, count);
@@ -236,7 +236,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       QueryService queryService = sf.getQueryService();
       String dataInput1 = "aaaa";
       String dataInput2 = "bbb";
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -324,7 +324,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -364,7 +364,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -405,7 +405,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       QueryService queryService = sf.getQueryService();
       String dataInput1 = "aaaa";
       String dataInput2 = "bbb";
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -492,7 +492,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -536,7 +536,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -579,7 +579,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       QueryService queryService = sf.getQueryService();
       String dataInput1 = "aaaa";
       String dataInput2 = "bbb";
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -666,7 +666,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -708,7 +708,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -749,7 +749,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -851,7 +851,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(8, oldInstances.size());
       assertEquals(28, oldActivities.size());
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -881,7 +881,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       RtEnvHome.deployModel(adminService, null, ArchiveModelConstants.MODEL_ID_OTHER);
       setUp();
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       models = queryService.getModels(DeployedModelQuery
@@ -992,7 +992,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertNotNull(clearedInstances);
       assertEquals(0, clearedInstances.size());
       
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -1004,7 +1004,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID12));
       assertTrue(archive1.getExportModel().getModelOidToUuid().containsKey(modelOID22));
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));
       Models models = queryService.getModels(DeployedModelQuery
@@ -1067,7 +1067,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(10, oldActivities.size());
 
       // clear the completed processes without archive queue cleared yet
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult exportResult = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1108,7 +1108,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       }
       assertEquals(2, uniqueUUIDs.size());
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       Models models = queryService.getModels(DeployedModelQuery
@@ -1133,7 +1133,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1178,7 +1178,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       Long rootProcess = archive.getExportIndex().getRootProcessToSubProcesses().keySet().iterator().next();
       assertEquals(2, archive.getExportIndex().getRootProcessToSubProcesses().get(rootProcess).size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);;
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1200,7 +1200,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(3, count);
@@ -1224,7 +1224,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1261,7 +1261,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1283,7 +1283,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -1310,7 +1310,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             DocumentOption.ALL.name());
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1349,7 +1349,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1378,7 +1378,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertNotNull(archive.getDocumentProperties(documentNameInArchive));
     
      
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.NONE));
       assertEquals(1, count);
@@ -1401,7 +1401,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       enableTransientProcessesSupport();
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1536,7 +1536,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, clearedInstances.size());
       assertEquals(0, clearedActivities.size());
       
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1547,38 +1547,38 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(6, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ImportMetaData meta = (ImportMetaData) workflowService
             .execute(new ImportProcessesCommand(
                   ImportProcessesCommand.Operation.VALIDATE, archives.get(0),filter, null, null, DocumentOption.NONE));
       assertNotNull(meta);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(scriptProcessDate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(1, count);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleManualADate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(2, count);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleManualBDate,
                   archives), filter, meta, null, DocumentOption.NONE));
       assertEquals(3, count);
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(simpleDate, archives),
             filter, meta, null, DocumentOption.NONE));
       assertEquals(5, count);
       // assert that sub processes are archived with their root process
       assertNull(ArchiveTest.getArchive(subProcessesDate, archives));
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(deferredDate,
                   archives), filter, meta, null, DocumentOption.NONE));
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count += (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.IMPORT, ArchiveTest.getArchive(subProcessesInModelDate,
                   archives), filter, meta, null, DocumentOption.NONE));
@@ -1600,7 +1600,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
 
       WorkflowService workflowService = sf.getWorkflowService();
       QueryService queryService = sf.getQueryService();
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1644,7 +1644,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, clearedActivities.size());
       
       List<Long> oids = Arrays.asList(pi.getOID());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       ExportResult rawData = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
@@ -1662,7 +1662,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
       GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, 
             archives.get(0), filter, null, null, DocumentOption.NONE));
@@ -1692,7 +1692,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .findInState(new ProcessInstanceState[] {
                   ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1733,7 +1733,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archiveQueue();
 
       //they are already auto exported so should not be exported again
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1754,7 +1754,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, delActivities.size());
 
       // import the backups
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, 
             archive, filter, null, null, DocumentOption.NONE));
@@ -1780,7 +1780,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .findInState(new ProcessInstanceState[] {
                   ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1810,7 +1810,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       archiveQueue();
 
       //they are already auto exported so should not be exported again
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1829,7 +1829,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, delActivities.size());
       
       // import the backups
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, 
             archives.get(0), filter, null, null, DocumentOption.NONE));
@@ -1854,7 +1854,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
             .findInState(new ProcessInstanceState[] {
                   ProcessInstanceState.Aborted, ProcessInstanceState.Completed});
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();;
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(0, archives.size());
@@ -1909,7 +1909,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(1, archives.size());
 
       //they are already auto exported so should not be exported again
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       ExportResult result = (ExportResult) workflowService
             .execute(new ExportProcessesCommand(
                   ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter, null, DocumentOption.NONE));
@@ -1928,7 +1928,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(0, delActivities.size());
       
       // import the backups
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();;
       count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archives.get(0), 
             filter, null, null, DocumentOption.NONE));
@@ -2017,7 +2017,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       folder = dms.getFolder(path);
       assertNull(folder);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -2027,7 +2027,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertNotNull(archive.getDocumentContent(documentNameInArchive));
       assertNotNull(archive.getDocumentProperties(documentNameInArchive));
     
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter = ArchiveTest.getPiOidsFilter(oids);
 
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.LATEST));

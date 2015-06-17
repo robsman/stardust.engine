@@ -28,6 +28,8 @@ public class ArchiveManagerFactory
 
    public static final String DEFAULT_AUTO_ARCHIVE = "false";
    
+   public static final String DEFAULT_KEY_DESCRIPTOR_ONLY = "false";
+   
    public static final  String DEFAULT_AUTO_ARCHIVE_DOCUMENTS = DocumentOption.NONE.name();
 
    public static final String CARNOT_ARCHIVE_WRITER_ROOTFOLDER = "stardust-archiving.export.archive.filesystem.root";
@@ -45,6 +47,8 @@ public class ArchiveManagerFactory
    public static final String CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE = "stardust-archiving.export.archive.auto";
 
    public static final String CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS = "stardust-archiving.export.archive.auto.documents";
+   
+   public static final String CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY = "stardust-archiving.export.archive.descriptor.keyonly";
    
    public static final String CARNOT_ARCHIVE_WRITER_MANAGER_TYPE = "stardust-archiving.export.archive.type";
    
@@ -175,6 +179,7 @@ public class ArchiveManagerFactory
       preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
       setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
       setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY, DEFAULT_KEY_DESCRIPTOR_ONLY);
       return preferences;
    }
 
@@ -314,5 +319,10 @@ public class ArchiveManagerFactory
    public static DocumentOption getDocumentOption()
    {
       return getArchiveWriter(SecurityProperties.getPartition().getId()).getDocumentOption();
+   }
+
+   public static boolean isKeyDescriptorsOnly()
+   {
+      return getArchiveWriter(SecurityProperties.getPartition().getId()).isKeyDescriptorsOnly();
    }
 }

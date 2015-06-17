@@ -660,7 +660,18 @@ public class ExportImportSupport
    {
       if (path.getData().getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
       {
+         boolean include;
+         if (ArchiveManagerFactory.isKeyDescriptorsOnly())
+         {
+            include = path.isKeyDescriptor();
+         }
+         else
+         {
+            include = true;
+         }
+       
          return path.isDescriptor()
+               && include
                && (Direction.IN.equals(path.getDirection()) || Direction.IN_OUT
                      .equals(path.getDirection()))
                && ((null == ids) || ids.contains(path.getId()));
@@ -691,7 +702,7 @@ public class ExportImportSupport
       return descriptors;
    }
 
-   public static Map<String, Object> getDescriptors(IProcessInstance processInstance,
+   private static Map<String, Object> getDescriptors(IProcessInstance processInstance,
          Set<String> ids) throws ObjectNotFoundException
    {
       if (processInstance == null)

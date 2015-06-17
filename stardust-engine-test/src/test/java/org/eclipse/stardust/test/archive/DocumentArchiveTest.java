@@ -169,7 +169,7 @@ public class DocumentArchiveTest
       assertEquals(2, oldActivities.size());
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -191,11 +191,11 @@ public class DocumentArchiveTest
       Folder folder3 = dms.getFolder(path3);
       assertNull(folder3);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -276,7 +276,7 @@ public class DocumentArchiveTest
       assertEquals(6, oldActivities.size());
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
 
-      ArchiveFilter filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      ArchiveFilter filter = ArchiveTest.getBlankArchiveFilter();
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -298,11 +298,11 @@ public class DocumentArchiveTest
       Folder folder3 = dms.getFolder(path3);
       assertNull(folder3);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -452,7 +452,7 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -466,11 +466,11 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -608,7 +608,7 @@ public class DocumentArchiveTest
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -622,11 +622,11 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -787,14 +787,14 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -959,14 +959,14 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -1127,14 +1127,14 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
       ActivityInstances activitiesCleared = queryService.getAllActivityInstances(aQuery);
@@ -1322,7 +1322,7 @@ public class DocumentArchiveTest
 
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1336,7 +1336,7 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -1352,7 +1352,7 @@ public class DocumentArchiveTest
       assertNotNull(archive.getDocumentContent(documentNameV1InArchive));
       assertNotNull(archive.getDocumentProperties(documentNameV1InArchive));
       
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
 
       Thread.sleep(500L);
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
@@ -1476,7 +1476,7 @@ public class DocumentArchiveTest
 
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1490,7 +1490,7 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -1506,7 +1506,7 @@ public class DocumentArchiveTest
       assertNotNull(archive.getDocumentContent(documentNameV1InArchive));
       assertNotNull(archive.getDocumentProperties(documentNameV1InArchive));
       
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
 
       int count = (Integer) workflowService.execute(new ImportProcessesCommand(
             ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive, filter, null, null, DocumentOption.LATEST));
@@ -1648,7 +1648,7 @@ public class DocumentArchiveTest
 
       int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.LATEST);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1662,11 +1662,11 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       IArchive archive = archives.get(0);
 
       String documentNameInArchive = ExportImportSupport.getDocumentNameInArchive(pi.getOID(), document);
@@ -1818,7 +1818,7 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.NONE);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1832,7 +1832,7 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
@@ -1932,7 +1932,7 @@ public class DocumentArchiveTest
       assertNotNull(pi.getRootProcessInstanceOID());
 
       List<Long> oids = Arrays.asList(pi.getOID());
-      ArchiveFilter filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, "dumpLocation", DocumentOption.ALL);
 
       ProcessInstances instances = queryService.getAllProcessInstances(pQuery);
@@ -1946,11 +1946,11 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNotNull(folder);
            
-      filter = new ArchiveFilter(null, null,null, null, null, null, null);
+      filter = ArchiveTest.getBlankArchiveFilter();
       List<IArchive> archives = (List<IArchive>) workflowService
             .execute(new ImportProcessesCommand(filter, null));
       assertEquals(1, archives.size());
-      filter = new ArchiveFilter(null, null,oids, null, null, null, null);
+      filter =  ArchiveTest.getPiOidsFilter(oids);
       IArchive archive = archives.get(0);
       versions = dms.getDocumentVersions(oldDocumentv3.getId());
       assertEquals(3, versions.size());

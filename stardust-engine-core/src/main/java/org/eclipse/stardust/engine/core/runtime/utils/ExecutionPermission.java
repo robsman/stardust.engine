@@ -120,6 +120,10 @@ public @interface ExecutionPermission {
        */
       modifyDataValues,
       /**
+       * permission to modify any data via the document management service
+       */
+      modifyDmsData,
+      /**
        * permission to modify process instances
        */
       modifyProcessInstances,

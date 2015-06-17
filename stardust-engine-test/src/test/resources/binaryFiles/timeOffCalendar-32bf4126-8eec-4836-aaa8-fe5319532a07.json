@@ -1,0 +1,67 @@
+{
+   "pluginId": "timeOffCalendar",
+   "name": "TimeOffSingle",
+   "events": [
+   {
+      "start": ${currentDayStart},
+      "end": ${currentDayEnd},
+      "title": "Today Off",
+      "id": "72a9b40a-66b7-4f39-aa7d-b91c8812040c",
+      "allDay": true,
+      "description": "",
+      "scheduling": {
+         "recurrenceInterval": "none",
+         "showRecurrenceOption": true,
+         "executionTime": "00:00 AM",
+         "startTimeStamp": ${currentDayStart},
+         "endTimeStamp": ${currentDayEnd},
+         "showEndDateOption": false,
+         "endDateOptional": true,
+         "noEndDate": false,
+         "showAllDayOption": true,
+         "allDay": false,
+         "recurringEvent": false,
+         "active": true,
+         "recurrenceRange": {
+            "endDate": "2015-06-09",
+            "startDate": "2015-06-08",
+            "occurences": 1,
+            "endMode": "noEnd"
+         },
+         "dailyRecurrenceOptions": {
+            "daysRecurrence": "interval",
+            "daysIntervalCount": 1
+         },
+         "weeklyRecurrenceOptions": {
+            "recurrenceWeekCount": 1,
+            "mondays": false,
+            "tuesdays": true,
+            "wednesdays": false,
+            "thursdays": true,
+            "fridays": false,
+            "saturdays": false,
+            "sundays": false
+         },
+         "monthlyRecurrenceOptions": {
+            "monthsRecurrence": "day",
+            "dayNumber": 15,
+            "month": 2,
+            "day": 2,
+            "dayIndex": 1,
+            "monthIndex": 1
+         },
+         "yearlyRecurrenceOptions": {
+            "yearlyRecurrence": "weekday",
+            "recurEveryYear": 1,
+            "onMonth": 11,
+            "onDay": 3,
+            "onTheXDay": 2,
+            "onTheXDayName": 3,
+            "onTheMonth": 11
+         }
+      },
+      "type": "timeOff"
+   }],
+   "recurringEvents": [],
+   "importedCalendars": []
+}

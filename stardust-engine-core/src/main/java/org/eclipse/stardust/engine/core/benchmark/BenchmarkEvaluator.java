@@ -21,7 +21,6 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
@@ -89,7 +88,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
          Pair<String, String> qualifiedActivityId = new Pair<String, String>(
                getQualifiedIdForProcess(bean.getActivity().getProcessDefinition()),
                bean.getActivity().getId());
-         
+
          TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark.getActivityConditions(qualifiedActivityId);
 
          if (activityConditions == null)
@@ -178,7 +177,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
          AuditTrailLogger.getInstance(LogCode.ENGINE)
                .warn(MessageFormat.format(
                      "Failed to evaluate benchmark for activity instance {0}, benchmark value has been set to invalid (-1).",
-                     bean.getOID(), e));
+                     bean.getOID()), e);
          return BENCHMARKK_FAULT_VALUE;
       }
    }
@@ -273,7 +272,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
          AuditTrailLogger.getInstance(LogCode.ENGINE)
                .warn(MessageFormat.format(
                      "Failed to evaluate benchmark for process instance {0}, benchmark has been set to invalid (-1).",
-                     bean.getOID(), e));
+                     bean.getOID()), e);
          return BENCHMARKK_FAULT_VALUE;
       }
    }

@@ -71,6 +71,7 @@ public final class PredefinedConstants
    public static final String APPLICATION_CONTEXT = "application";
    public static final String PROCESSINTERFACE_CONTEXT = "processInterface";
    public static final String EXTERNALWEBAPP_CONTEXT = "externalWebApp";
+   public static final String EVENT_CONTEXT = "event-";
 
    // predefined action type Ids
    public static final String MAIL_ACTION = "mail";
@@ -90,17 +91,21 @@ public final class PredefinedConstants
    public static final String SCAN_TRIGGER = "scan";
    public static final String MAIL_TRIGGER = "mail";
    public static final String JMS_TRIGGER = "jms";
+   public static final String SIGNAL_TRIGGER = "signal";
    public static final String TIMER_TRIGGER = "timer";
 
    // predefined condition type IDs
    public static final String TIMER_CONDITION = "timer";
    public static final String ACTIVITY_ON_ASSIGNMENT_CONDITION = "onAssignment";
+   public static final String ESCALATION_CONDITION = "escalation";
    public static final String EXPRESSION_CONDITION = "expression";
    public static final String EXCEPTION_CONDITION = "exception";
    public static final String ACTIVITY_STATECHANGE_CONDITION = "statechange";
    public static final String PROCESS_STATECHANGE_CONDITION = "processStatechange";
    public static final String EXTERNAL_EVENT_CONDITION = "external";
    public static final String OBSERVER_EVENT_CONDITION = "observer";
+   public static final String SUBPROCESS_EXCEPTION = "subprocessException";
+   public static final String SIGNAL_CONDITION = "signal";
 
    // predefined data
    public static final String LAST_ACTIVITY_PERFORMER = "LAST_ACTIVITY_PERFORMER";

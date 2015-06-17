@@ -65,7 +65,7 @@ public class WorkflowServiceFacade implements IWorkflowService
    private static final Logger trace = LogManager.getLogger(WorkflowServiceFacade.class);
 
    public ProcessInstanceXto startProcess(String processId, ParametersXto parameters,
-         Boolean startSynchronously, InputDocumentsXto attachments) throws BpmFault
+         Boolean startSynchronously, InputDocumentsXto attachments, String benchmarkId) throws BpmFault
    {
       try
       {
@@ -83,7 +83,7 @@ public class WorkflowServiceFacade implements IWorkflowService
          }
 
          StartProcessWithDocumentsCommand command = new StartProcessWithDocumentsCommand(processId, model.getModelOID(),
-               initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model));
+               initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model), benchmarkId);
 
          ProcessInstance pi = null;
          try

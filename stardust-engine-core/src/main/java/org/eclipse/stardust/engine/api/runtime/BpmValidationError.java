@@ -111,8 +111,9 @@ public class BpmValidationError extends ErrorCase
    public static final Args ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW = new Args("ACTY01014");
    public static final Args ACTY_INCOMPATIBLE_SUBPROCESSMODE = new Args("ACTY01015");
    public static final Args ACTY_NO_LOOP_INPUT_DATA = new Args("ACTY01016");
-
-
+   public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET = new Args("ACTY01017");
+   public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING = new Args("ACTY01018");
+   
    //Conditions related
    public static final Args COND_NOT_AN_EXCEPTION_CLASS = new Args("COND01001");
    public static final Args COND_NO_CONDITION_SPECIFIED = new Args("COND01002");

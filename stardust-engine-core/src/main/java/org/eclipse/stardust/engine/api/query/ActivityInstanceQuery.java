@@ -56,6 +56,9 @@ public class ActivityInstanceQuery extends Query
    private static final String FIELD__PROCESS_INSTANCE_PRIORITY = "process_instance_"
          + ProcessInstanceBean.FIELD__PRIORITY;
 
+   private static final String FIELD__PROCESS_INSTANCE_BENCHMARK_OID = "process_instance_"
+         + ProcessInstanceBean.FIELD__BENCHMARK_OID;
+
    /**
     * The OID of the activity instance.
     *
@@ -128,11 +131,28 @@ public class ActivityInstanceQuery extends Query
          new Attribute(ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
    /**
     * The Criticality of the activity instance.
-    * 
+    *
     * @see org.eclipse.stardust.engine.api.runtime.ActivityInstance#getCriticality()
     */
    public static final Attribute CRITICALITY =
-         new Attribute(ActivityInstanceBean.FIELD__CRITICALITY);   
+         new Attribute(ActivityInstanceBean.FIELD__CRITICALITY);
+   /**
+    * The benchmark result category of the activity instance.
+    *
+    * @see org.eclipse.stardust.engine.api.runtime.ActivityInstance#getBenchmarkResult()
+    */
+   public static final Attribute BENCHMARK_VALUE =
+         new Attribute(ActivityInstanceBean.FIELD__BENCHMAKRK_VALUE);
+
+   /**
+    * The benchmark definition oid of the process instance the activity instance belongs to.
+    *
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean#getBenchmark()
+    */
+   public static final FilterableAttribute BENCHMARK_OID = new ReferenceAttribute(
+         new Attribute(FIELD__PROCESS_INSTANCE_BENCHMARK_OID), ProcessInstanceBean.class,
+         ActivityInstanceBean.FIELD__PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID,
+         ProcessInstanceBean.FIELD__BENCHMARK_OID);
    /**
     * The priority of the process instance the activity instance belongs to.
     *
@@ -141,8 +161,8 @@ public class ActivityInstanceQuery extends Query
    public static final FilterableAttribute PROCESS_INSTANCE_PRIORITY = new ReferenceAttribute(
          new Attribute(FIELD__PROCESS_INSTANCE_PRIORITY), ProcessInstanceBean.class,
          ActivityInstanceBean.FIELD__PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID,
-         ProcessInstanceBean.FIELD__PRIORITY);   
-   
+         ProcessInstanceBean.FIELD__PRIORITY);
+
    /**
     * Orders the resulting activity instances by their activity id.
     * <br/><br/>
@@ -165,7 +185,7 @@ public class ActivityInstanceQuery extends Query
     * For internal use only!
     */
    public static final CustomOrderCriterion PROC_DEF_ID = new CustomOrderCriterion(
-         AuditTrailProcessDefinitionBean.class, 
+         AuditTrailProcessDefinitionBean.class,
          AuditTrailProcessDefinitionBean.FIELD__ID);
 
    /**
@@ -786,11 +806,11 @@ public class ActivityInstanceQuery extends Query
 
       return query;
    }
-   
+
    /**
     * Creates a query for finding activity instances which have
     * the given Document as a process attachment
-    * 
+    *
     * @param document The Document to find activity instances having a reference to.
     * @return The readily configured query.
     */
@@ -802,7 +822,7 @@ public class ActivityInstanceQuery extends Query
    /**
     * Creates a query for finding activity instances which have
     * the given Document as a process attachment
-    * 
+    *
     * @param documentId The Id of the Document to find activity instances having a reference to.
     * @return The readily configured query.
     */
@@ -861,7 +881,7 @@ public class ActivityInstanceQuery extends Query
     * Activity instance attribute supporting filter operations.
     * <p />
     * Not for direct use.
-    * 
+    *
     */
    public static final class Attribute extends FilterableAttributeImpl
    {

@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
+import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
@@ -205,6 +206,9 @@ public interface DocumentManagementService extends Service
     * @return the new document.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document createDocument(String folderId, DocumentInfo document) throws DocumentManagementServiceException;
 
    /**
@@ -230,6 +234,9 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentUpload(String)
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException;
 
@@ -243,6 +250,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document versionDocument(String documentId, String versionLabel) throws DocumentManagementServiceException;
 
    /**
@@ -254,6 +264,9 @@ public interface DocumentManagementService extends Service
     * @return document describing the new document version
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document versionDocument(String documentId, String versionComment, String versionLabel) throws DocumentManagementServiceException;
 
    /**
@@ -268,6 +281,9 @@ public interface DocumentManagementService extends Service
     * @param documentRevisionId The revisionId of the document version to be removed.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeDocumentVersion(String documentId, String documentRevisionId) throws DocumentManagementServiceException;
 
    /**
@@ -281,6 +297,9 @@ public interface DocumentManagementService extends Service
     * @return The moved Document.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document moveDocument(final String documentId, final String targetPath) throws DocumentManagementServiceException;
 
    /**
@@ -295,6 +314,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
    /**
@@ -308,6 +330,9 @@ public interface DocumentManagementService extends Service
     * @return the updated document
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
 
@@ -333,6 +358,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #updateDocument(Document, byte[], String, boolean, String, String, boolean)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, byte[] content, String encoding,
          boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
@@ -357,6 +385,9 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentUpload(String)
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, byte[] content, String encoding,
          boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
@@ -370,6 +401,9 @@ public interface DocumentManagementService extends Service
     * @return An upload token valid for the lifetime of this service's session.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    String requestDocumentContentUpload(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -378,6 +412,9 @@ public interface DocumentManagementService extends Service
     * @param documentId ID or path of the document to remove.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeDocument(String documentId) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +431,9 @@ public interface DocumentManagementService extends Service
     * @return the new folder.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Folder createFolder(String parentFolderId, FolderInfo folder) throws DocumentManagementServiceException;
 
    /**
@@ -403,6 +443,9 @@ public interface DocumentManagementService extends Service
     * @return the updated folder.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Folder updateFolder(Folder folder) throws DocumentManagementServiceException;
 
    /**
@@ -413,6 +456,9 @@ public interface DocumentManagementService extends Service
     * (applies to all the children). If false, only the folder itself will be removed.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeFolder(String folderId, boolean recursive) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -478,6 +524,9 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @param policy
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void setPolicy(String resourceId, AccessControlPolicy policy);
 
    /**
@@ -511,6 +560,9 @@ public interface DocumentManagementService extends Service
     * @return a report containing information about the migration batch execution.
     * @throws DocumentManagementServiceException if there are problems in repository access or the user is not an administrator.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount) throws DocumentManagementServiceException;
 
    /**
@@ -596,6 +648,9 @@ public interface DocumentManagementService extends Service
    // Repository specific methods.
    ///////////////////////////////////////////////////////////////////////////////////////
 
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount, String repositoryId)
          throws DocumentManagementServiceException;
 

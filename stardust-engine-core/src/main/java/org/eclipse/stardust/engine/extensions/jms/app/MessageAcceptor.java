@@ -12,12 +12,14 @@ package org.eclipse.stardust.engine.extensions.jms.app;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.jms.Message;
 
 import org.eclipse.stardust.common.StringKey;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
 
 
 /**
@@ -42,6 +44,10 @@ public interface MessageAcceptor
     */
    Iterator<IActivityInstance> getMatchingActivityInstances(Message message);
 
+   List<Match> getTriggerMatches(Message message);
+
+   List<Match> getMessageStoreMatches(Message message);
+
    /**
     * Extracts the data
     *
@@ -57,5 +63,7 @@ public interface MessageAcceptor
    Collection getAccessPoints(StringKey id);
 
    Collection getMessageTypes();
+
+   Match finalizeMatch(IActivityInstance activityInstance);
 
 }

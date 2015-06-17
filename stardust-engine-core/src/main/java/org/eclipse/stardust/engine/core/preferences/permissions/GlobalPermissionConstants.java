@@ -145,12 +145,17 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
    /**
     * permission to deploy and manage a runtime artifact.
     */
-   public static final String DEPLOY_RUNTIME_ARTIFACT = ExecutionPermission.Id.deployRuntimeArtifact.name();
+   public static final String GLOBAL_DEPLOY_RUNTIME_ARTIFACT = ExecutionPermission.Id.deployRuntimeArtifact.name();
+
    /**
     * permission to read a deployed runtime artifact.
     */
-   public static final String READ_RUNTIME_ARTIFACT = ExecutionPermission.Id.readRuntimeArtifact.name();
+   public static final String GLOBAL_READ_RUNTIME_ARTIFACT = ExecutionPermission.Id.readRuntimeArtifact.name();
 
+   /**
+    * permission to modify any data via the document management service.
+    */
+   public static final String GLOBAL_MODIFY_DMS_DATA = ExecutionPermission.Id.modifyDmsData.name();
 
    public static final Set<String> globalPermissionIds = CollectionUtils.newSet();
 

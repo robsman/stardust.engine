@@ -13,7 +13,13 @@ package org.eclipse.stardust.engine.core.benchmark;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -25,13 +31,16 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  */
 public class CalendarDaysCondition implements ConditionEvaluator
 {
+   private static Logger trace = LogManager.getLogger(CalendarDaysCondition.class);
+
    protected String qualifiedDataId;
 
    protected Comperator comperator;
 
    protected Offset offset;
 
-   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId, Offset offset)
+   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId,
+         Offset offset)
    {
       this.comperator = comperator;
       this.qualifiedDataId = qualifiedDataId;
@@ -54,6 +63,8 @@ public class CalendarDaysCondition implements ConditionEvaluator
 
       if (date == null)
       {
+         trace.warn("Could not resolve data with dataId '" + qualifiedDataId
+               + "'. Using process instance start time.");
          date = ai.getProcessInstance().getStartTime();
       }
 
@@ -75,6 +86,8 @@ public class CalendarDaysCondition implements ConditionEvaluator
 
       if (date == null)
       {
+         trace.warn("Could not resolve data with dataId '" + qualifiedDataId
+               + "'. Using process instance start time.");
          date = pi.getStartTime();
       }
       return evaluate(date);
@@ -82,7 +95,19 @@ public class CalendarDaysCondition implements ConditionEvaluator
 
    private Date getDateDateValue(ProcessInstanceBean pi, String qualifiedDataId)
    {
-      return (Date) pi.getDataValue(qualifiedDataId);
+      Calendar calendar = null;
+
+      if (qualifiedDataId != null)
+      {
+         String dataId = QName.valueOf(qualifiedDataId).getLocalPart();
+         IModel iModel = (IModel) pi.getProcessDefinition().getModel();
+         IData iData = iModel.findData(dataId);
+         if (iData != null)
+         {
+            calendar = (Calendar) pi.getInDataValue(iData, dataId);
+         }
+      }
+      return calendar == null ? null : calendar.getTime();
    }
 
    private boolean evaluate(Date date)

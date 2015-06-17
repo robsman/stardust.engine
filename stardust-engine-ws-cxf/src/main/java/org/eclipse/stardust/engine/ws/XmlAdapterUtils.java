@@ -26,7 +26,9 @@ import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.ensureFolderExists;
 import static org.eclipse.stardust.engine.ws.DmsAdapterUtils.storeDocumentIntoDms;
 import static org.eclipse.stardust.engine.ws.WebServiceEnv.currentWebServiceEnvironment;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -88,6 +90,7 @@ import org.eclipse.stardust.engine.api.ws.UserQueryResultXto.UsersXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -2123,6 +2126,7 @@ public class XmlAdapterUtils
          res.setProcessDefinitionId(ai.getProcessDefinitionId());
 
          res.setCriticality(ai.getCriticality());
+         res.setBenchmarkResult(marshalBenchmarkResult(ai.getBenchmarkResult()));
 
          // TODO replace with regular getter
          if (ai instanceof ActivityInstanceDetails)
@@ -2207,6 +2211,21 @@ public class XmlAdapterUtils
          }
       }
       return res;
+   }
+
+   private static BenchmarkResultXto marshalBenchmarkResult(
+         BenchmarkResult benchmarkResult)
+   {
+      BenchmarkResultXto ret = null;
+      if (benchmarkResult != null)
+      {
+         ret = new BenchmarkResultXto();
+         
+         ret.setBenchmarkOid(benchmarkResult.getBenchmark());
+         ret.setCategory(benchmarkResult.getCategory());
+         ret.setProperties(marshalMap(benchmarkResult.getProperties()));
+      }
+      return ret;
    }
 
    private static ActivityInstanceAttributesXto marshalActivityInstanceAttributes(

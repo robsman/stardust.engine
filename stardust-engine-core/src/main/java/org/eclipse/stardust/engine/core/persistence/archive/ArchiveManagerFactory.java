@@ -177,17 +177,20 @@ public class ArchiveManagerFactory
       }
 
       setPreference(preferences, CARNOT_ARCHIVE_WRITER_MANAGER_TYPE, "");
-      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER, "");
-      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_FOLDER_FORMAT,
-            ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ZIP_FILE_SIZE_MB,
-            ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_CUSTOM, "");
-      preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY, DEFAULT_KEY_DESCRIPTOR_ONLY);
+      if (!StringUtils.isEmpty(preferences.get(CARNOT_ARCHIVE_WRITER_MANAGER_TYPE)))
+      {
+         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER, "");
+         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_FOLDER_FORMAT,
+               ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+         setPreference(preferences, CARNOT_ARCHIVE_WRITER_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ZIP_FILE_SIZE_MB,
+               ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
+         setPreference(preferences, CARNOT_ARCHIVE_WRITER_CUSTOM, "");
+         preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
+         setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
+         setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
+         setPreference(preferences, CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY, DEFAULT_KEY_DESCRIPTOR_ONLY);
+      }
       return preferences;
    }
 

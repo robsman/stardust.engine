@@ -18,8 +18,6 @@ public class ArchiveManagerFactory
 {
    public static final String MODULE_ID_STARDUST_ARCHIVING = "stardust-archiving";
 
-   private static final String DEFAULT_ARCHIVE_MANAGER = "FILESYSTEM";
-
    public static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
    public static final String DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB = "100";
@@ -88,7 +86,10 @@ public class ArchiveManagerFactory
                Map<String, String> preferences = aggregateWritePreferences(null);
                getCurrentId(preferences);
                IArchiveWriter manager = createArchiveWriter(preferences);
-               PARTITION_WRITERS.put(partition, manager);
+               if (manager != null)
+               {
+                  PARTITION_WRITERS.put(partition, manager);
+               }
             }
          }
       }
@@ -127,19 +128,26 @@ public class ArchiveManagerFactory
    {
       String archiveManagerType = preferences.get(CARNOT_ARCHIVE_WRITER_MANAGER_TYPE);
 
-      ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
-
       IArchiveWriter archiveManager;
-      switch (type)
+      if (!StringUtils.isEmpty(archiveManagerType.toUpperCase()))
       {
-         case FILESYSTEM:
-            archiveManager = new ZipArchiveWriter(preferences);
-            break;
-         case CUSTOM:
-            archiveManager = getCustomArchiveWriter(preferences);
-            break;
-         default:
-            throw new IllegalArgumentException("Unknown ArchiveManager");
+         ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
+   
+         switch (type)
+         {
+            case FILESYSTEM:
+               archiveManager = new ZipArchiveWriter(preferences);
+               break;
+            case CUSTOM:
+               archiveManager = getCustomArchiveWriter(preferences);
+               break;
+            default:
+               throw new IllegalArgumentException("Unknown ArchiveManager");
+         }
+      }
+      else
+      {
+         archiveManager = null;
       }
       return archiveManager;
    }
@@ -151,7 +159,7 @@ public class ArchiveManagerFactory
          preferences = new HashMap<String, String>();
       }
 
-      setPreference(preferences, CARNOT_ARCHIVE_READER_MANAGER_TYPE, DEFAULT_ARCHIVE_MANAGER);
+      setPreference(preferences, CARNOT_ARCHIVE_READER_MANAGER_TYPE, "");
       setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER, "");
       setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
             ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
@@ -168,7 +176,7 @@ public class ArchiveManagerFactory
          preferences = new HashMap<String, String>();
       }
 
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_MANAGER_TYPE, DEFAULT_ARCHIVE_MANAGER);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_MANAGER_TYPE, "");
       setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER, "");
       setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_FOLDER_FORMAT,
             ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
@@ -293,12 +301,14 @@ public class ArchiveManagerFactory
 
    public static String getDateFormat(String partition)
    {
-      return getArchiveWriter(partition).getDateFormat();
+      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      return archiveWriter.getDateFormat();
    }
 
    public static String getCurrentId(String partition)
    {
-      return getArchiveWriter(partition).getArchiveManagerId();
+      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      return archiveWriter.getArchiveManagerId();
    }
 
    public static String getDateFormat()
@@ -313,16 +323,23 @@ public class ArchiveManagerFactory
 
    public static boolean autoArchive()
    {
-      return getArchiveWriter(SecurityProperties.getPartition().getId()).isAutoArchive();
+      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      if (archiveWriter == null)
+      {
+         return false;
+      }
+      return archiveWriter.isAutoArchive();
    }
 
    public static DocumentOption getDocumentOption()
    {
-      return getArchiveWriter(SecurityProperties.getPartition().getId()).getDocumentOption();
+      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      return archiveWriter.getDocumentOption();
    }
 
    public static boolean isKeyDescriptorsOnly()
    {
-      return getArchiveWriter(SecurityProperties.getPartition().getId()).isKeyDescriptorsOnly();
+      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      return archiveWriter.isKeyDescriptorsOnly();
    }
 }

@@ -215,7 +215,9 @@ public class DocumentArchiveTest
       assertObjectEquals(oldDocument1, newDocument1, oldDocument1, false);
       assertObjectEquals(oldDocument2, newDocument2, oldDocument2, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 3;
+      int versionCount = 3;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
 
    @SuppressWarnings("unchecked")
@@ -324,7 +326,9 @@ public class DocumentArchiveTest
       assertObjectEquals(oldDocument2, newDocument2, oldDocument2, false);
       assertObjectEquals(oldDocument3, newDocument3, oldDocument3, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 3;
+      int versionCount = 3;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
 
    private Document checkProcessAttachment(WorkflowService workflowService,
@@ -451,6 +455,7 @@ public class DocumentArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
+      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
@@ -493,7 +498,6 @@ public class DocumentArchiveTest
       assertEquals(new String(contentV3), new String(dms.retrieveDocumentContent(newDocument.getId())));
       versions = dms.getDocumentVersions(newDocument.getId());
       assertEquals(3, versions.size());
-      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
 
       Document newDocumentv1 = null;
       Document newDocumentv2 = null;
@@ -543,8 +547,10 @@ public class DocumentArchiveTest
       assertObjectEquals(oldDocumentv2, newDocumentv2, oldDocumentv2, false);
       assertObjectEquals(oldDocumentv3, newDocumentv3, oldDocumentv3, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
-   }
+      int docCount = 1;
+      int versionCount = 3;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
+    }
    
    @SuppressWarnings("unchecked")
    @Test
@@ -672,9 +678,11 @@ public class DocumentArchiveTest
       assertNotNull(newDocumentv1);
       assertObjectEquals(oldDocumentv1, newDocumentv1, oldDocumentv1, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 1;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
-   
+      
    @SuppressWarnings("unchecked")
    @Test
    public void testDocumentDataWithPath() throws Exception
@@ -768,7 +776,6 @@ public class DocumentArchiveTest
       assertNotNull(oldDocumentv1);
       assertNotNull(oldDocumentv2);
       assertNotNull(oldDocumentv3);
-      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       
       List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), ArchiveModelConstants.DATA_ID_DOCUMENTDATA2_PATH);
       assertNotNull(processAttachments);
@@ -786,6 +793,7 @@ public class DocumentArchiveTest
       assertNotNull(pi.getScopeProcessInstanceOID());
       assertNotNull(pi.getRootProcessInstanceOID());
 
+      int countClobs = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       List<Long> oids = Arrays.asList(pi.getOID());
       ArchiveFilter filter =  ArchiveTest.getPiOidsFilter(oids);
       ArchiveTest.exportAndArchive(workflowService, filter, null, DocumentOption.ALL);
@@ -877,7 +885,9 @@ public class DocumentArchiveTest
       assertObjectEquals(oldDocumentv2, newDocumentv2, oldDocumentv2, false);
       assertObjectEquals(oldDocumentv3, newDocumentv3, oldDocumentv3, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 3;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -1016,7 +1026,9 @@ public class DocumentArchiveTest
       assertNotNull(newDocumentv1);
       assertObjectEquals(oldDocumentv1, newDocumentv1, oldDocumentv1, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 1;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -1215,7 +1227,9 @@ public class DocumentArchiveTest
       assertObjectEquals(oldDocument1, newDocumentv1, oldDocument1, false);
       assertObjectEquals(oldTestDocument, newTestDocumentv1, oldTestDocument, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 2;
+      int versionCount = 2;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -1369,7 +1383,9 @@ public class DocumentArchiveTest
       folder = dms.getFolder(path);
       assertNull(folder);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 0;
+      int versionCount = 0;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -1541,7 +1557,9 @@ public class DocumentArchiveTest
       assertEquals(Arrays.asList("1.2"), newDocumentv3.getVersionLabels());
       assertNotNull(newDocumentv3);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 1;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -1712,7 +1730,9 @@ public class DocumentArchiveTest
       assertEquals(Arrays.asList("1.2"), newDocumentv3.getVersionLabels());
       assertNotNull(newDocumentv3);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 1;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    @SuppressWarnings("unchecked")
@@ -2213,6 +2233,5 @@ public class DocumentArchiveTest
          }
       }
    }
-
 
 }

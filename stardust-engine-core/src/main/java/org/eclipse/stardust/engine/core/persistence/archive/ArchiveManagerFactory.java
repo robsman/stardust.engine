@@ -107,19 +107,26 @@ public class ArchiveManagerFactory
    {
       String archiveManagerType = preferences.get(CARNOT_ARCHIVE_READER_MANAGER_TYPE);
 
-      ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
-
       IArchiveReader reader;
-      switch (type)
+
+      if (!StringUtils.isEmpty(archiveManagerType.toUpperCase()))
       {
-         case FILESYSTEM:
-            reader = new ZipArchiveReader(preferences);;
-            break;
-         case CUSTOM:
-            reader = getCustomArchiveReader(preferences);
-            break;
-         default:
-            throw new IllegalArgumentException("Unknown ArchiveReader");
+         ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
+         switch (type)
+         {
+            case FILESYSTEM:
+               reader = new ZipArchiveReader(preferences);;
+               break;
+            case CUSTOM:
+               reader = getCustomArchiveReader(preferences);
+               break;
+            default:
+               throw new IllegalArgumentException("Unknown ArchiveReader");
+         }
+      }
+      else
+      {
+         reader = null;
       }
       return reader;
    }
@@ -160,12 +167,15 @@ public class ArchiveManagerFactory
       }
 
       setPreference(preferences, CARNOT_ARCHIVE_READER_MANAGER_TYPE, "");
-      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER, "");
-      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
-            ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
-      setPreference(preferences, CARNOT_ARCHIVE_READER_CUSTOM, "");
-      setPreference(preferences, CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
-      preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID, SecurityProperties.getPartition().getId());
+      if (!StringUtils.isEmpty(preferences.get(CARNOT_ARCHIVE_READER_MANAGER_TYPE)))
+      {
+         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER, "");
+         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
+               ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+         setPreference(preferences, CARNOT_ARCHIVE_READER_CUSTOM, "");
+         setPreference(preferences, CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
+         preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID, SecurityProperties.getPartition().getId());
+      }
       return preferences;
    }
    

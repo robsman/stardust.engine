@@ -16,6 +16,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryAuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 /**
@@ -221,8 +222,6 @@ public class ImportProcessesCommand implements ServiceCommand
       document.setSize(temp.getSize());
       document.setVersionLabels(temp.getVersionLabels());
       document.setPath(temp.getPath());
-      
-      //storeImportDocument
    }
    
    private void addDocumentsToProcess(Session session, DocumentManagementService dms, Long piOid)
@@ -271,9 +270,11 @@ public class ImportProcessesCommand implements ServiceCommand
                               document = (DmsDocumentBean) dms.updateDocument(document, prevContent, document.getEncoding(), true, revisionComment, revision, false);
                            }
                         }
+                        RepositoryAuditTrailUtils.storeImportDocument(document);
                      }
                      setDocumentProperties(documentMetaData, document);
                      document = (DmsDocumentBean) dms.updateDocument(document, content, document.getEncoding(), true, latestRevComment, latestRevName, false);
+                     RepositoryAuditTrailUtils.storeImportDocument(document);
                      ExportImportSupport.updateAttachment(session, pi, document, documentMetaData.getDataId());
                   } 
                   else // create the one and only version
@@ -281,6 +282,7 @@ public class ImportProcessesCommand implements ServiceCommand
                      setDocumentProperties(documentMetaData, document);
                      document = (DmsDocumentBean)dms.createDocument(getFolderName(dms, document), document, content, document.getEncoding());
                      document =(DmsDocumentBean)dms.versionDocument(document.getId(), latestRevComment, latestRevName);
+                     RepositoryAuditTrailUtils.storeImportDocument(document);
                      ExportImportSupport.updateAttachment(session, pi, document, documentMetaData.getDataId());
                   }
                }

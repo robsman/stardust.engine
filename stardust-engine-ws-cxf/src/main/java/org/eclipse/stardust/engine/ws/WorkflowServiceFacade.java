@@ -1078,7 +1078,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
-         wfs.deleteBusinessObjectInstance(qualifiedBusinessObjectId,primaryKey);
+         wfs.deleteBusinessObjectInstance(qualifiedBusinessObjectId,DataFlowUtils.unmarshalSimpleTypeXsdValue(primaryKey));
 
       }
       catch (ApplicationException e)

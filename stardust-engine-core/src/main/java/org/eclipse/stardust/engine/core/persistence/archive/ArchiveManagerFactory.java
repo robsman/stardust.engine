@@ -314,13 +314,13 @@ public class ArchiveManagerFactory
 
    public static String getDateFormat(String partition)
    {
-      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      IArchiveWriter archiveWriter = getArchiveWriter(partition);
       return archiveWriter.getDateFormat();
    }
 
    public static String getCurrentId(String partition)
    {
-      IArchiveWriter archiveWriter = getArchiveWriter(SecurityProperties.getPartition().getId());
+      IArchiveWriter archiveWriter = getArchiveWriter(partition);
       return archiveWriter.getArchiveManagerId();
    }
 

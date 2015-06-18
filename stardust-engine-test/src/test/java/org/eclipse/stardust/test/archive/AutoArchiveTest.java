@@ -2062,7 +2062,9 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       assertEquals(Arrays.asList("1.0"), newDocumentv1.getVersionLabels());
       assertNotNull(newDocumentv1);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
-      assertEquals(countClobs, countClobsNew);
+      int docCount = 1;
+      int versionCount = 1;
+      assertEquals(countClobs + docCount + versionCount, countClobsNew);
    }
    
    private void archiveQueue() throws JMSException

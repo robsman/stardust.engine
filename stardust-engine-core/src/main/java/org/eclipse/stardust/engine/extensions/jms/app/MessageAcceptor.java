@@ -18,6 +18,9 @@ import java.util.Map;
 import javax.jms.Message;
 
 import org.eclipse.stardust.common.StringKey;
+import org.eclipse.stardust.common.annotations.SPI;
+import org.eclipse.stardust.common.annotations.Status;
+import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
 
@@ -31,6 +34,7 @@ import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
  * @author rsauer, ubirkemeyer
  * @version $Revision$
  */
+@SPI(status = Status.Beta, useRestriction = UseRestriction.Public)
 public interface MessageAcceptor
 {
    /**

@@ -2,10 +2,10 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
@@ -92,28 +92,24 @@ public class ArchiveManagerFactory
 
    private static IArchiveReader createArchiveReader(Map<String, String> preferences)
    {
-      ServiceLoader<IArchiveReader> readers = ServiceLoader.load(IArchiveReader.class);
-
-      for (IArchiveReader reader : readers)
+      IArchiveReader reader = ExtensionProviderUtils.getFirstExtensionProvider(IArchiveReader.class);
+      if (reader != null)
       {
          preferences = aggregateReadPreferences(preferences);
          reader.init(preferences);
-         return reader;
       }
-      return null;
+      return reader;
    }
    
    private static IArchiveWriter createArchiveWriter(Map<String, String> preferences)
    {
-      ServiceLoader<IArchiveWriter> writers = ServiceLoader.load(IArchiveWriter.class);
-
-      for (IArchiveWriter writer : writers)
+      IArchiveWriter writer = ExtensionProviderUtils.getFirstExtensionProvider(IArchiveWriter.class);
+      if (writer != null)
       {
          preferences = aggregateWritePreferences(preferences);
          writer.init(preferences);
-         return writer;
       }
-      return null;
+      return writer;
    }
 
    private static Map<String, String> aggregateReadPreferences(Map<String, String> preferences)

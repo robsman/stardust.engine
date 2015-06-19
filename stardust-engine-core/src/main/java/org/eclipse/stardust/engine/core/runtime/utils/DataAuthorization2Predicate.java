@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
 /**
  * Predicate class which is used to restrict access to work items based on its activity
@@ -34,5 +39,21 @@ public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
          return Authorization2.hasPermission(context);
       }
       return false;
+   }
+
+   public static void verify(IData data, ClientPermission permission)
+   {
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      if (runtimeEnvironment.isSecureContext())
+      {
+         AuthorizationContext context = AuthorizationContext.create(permission);
+         DataAuthorization2Predicate authorizationPredicate = new DataAuthorization2Predicate(context);
+         if (!authorizationPredicate.accept(data))
+         {
+            IUser user = context.getUser();
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
+                  user.getOID(), String.valueOf(permission), user.getAccount()));
+         }
+      }
    }
 }

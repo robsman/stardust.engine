@@ -33,7 +33,6 @@ import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -52,6 +51,8 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.DataAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -130,7 +131,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final FieldRef FR__STARTING_ACTIVITY_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_ACTIVITY_INSTANCE);
    public static final FieldRef FR__BENCHMARK_OID = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_OID);
    public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_VALUE);
-   
+
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -1266,16 +1267,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public void setOutDataValue(IData data, String path, Object value)
          throws InvalidValueException
    {
-      /*BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-      Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
-      if (authorizationPredicate instanceof DataAuthorization2Predicate)
-      {
-         ((DataAuthorization2Predicate) authorizationPredicate).setProcessInstance(this);
-         if (!authorizationPredicate.accept(data))
-         {
-            return;
-         }
-      }*/
+      DataAuthorization2Predicate.verify(data, ClientPermission.MODIFY_DATA_VALUE);
 
       String validatorClass = data.getType().getStringAttribute(
             PredefinedConstants.VALIDATOR_CLASS_ATT);
@@ -1382,16 +1374,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public Object getInDataValue(IData data, String path,
          AccessPoint targetActivityAccessPoint, String targetPath, IActivity activity)
    {
-      /*BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-      Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
-      if (authorizationPredicate instanceof DataAuthorization2Predicate)
-      {
-         ((DataAuthorization2Predicate) authorizationPredicate).setProcessInstance(this);
-         if (!authorizationPredicate.accept(data))
-         {
-            return null;
-         }
-      }*/
+      DataAuthorization2Predicate.verify(data, ClientPermission.READ_DATA_VALUE);
 
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
@@ -2244,31 +2227,31 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return this;
    }
-   
+
    public void setBenchmark(long benchmarkOid)
    {
       markModified(FIELD__BENCHMARK_OID);
       this.benchmark = benchmarkOid;
    }
-   
+
    public long getBenchmark()
    {
       fetch();
       return this.benchmark;
    }
-   
+
    public void setBenchmarkValue(int benchmarkValue)
    {
       markModified(FIELD__BENCHMARK_VALUE);
       this.benchmarkValue = benchmarkValue;
    }
-   
-   public int getBenchmarkValue()   
+
+   public int getBenchmarkValue()
    {
       fetch();
       return this.benchmarkValue;
-   }   
-   
+   }
+
    public boolean isIntrinsicOutAccessPoint(String id)
    {
       return PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(id);
@@ -2278,6 +2261,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return Collections.singletonMap(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
             DetailsFactory.create(this));
-   }   
-   
+   }
+
 }

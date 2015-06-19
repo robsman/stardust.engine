@@ -51,6 +51,7 @@ public interface DocumentManagementService extends Service
     * @return the document or null if no document with such ID (or path) exists.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    Document getDocument(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -60,6 +61,7 @@ public interface DocumentManagementService extends Service
     * @return list of document versions found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Document> getDocumentVersions(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -69,6 +71,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Document> getDocuments(List<String> documentIds) throws DocumentManagementServiceException;
 
    /**
@@ -78,6 +81,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Document> findDocumentsByName(String namePattern) throws DocumentManagementServiceException;
 
@@ -88,6 +92,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Document> findDocuments(String xpathQuery) throws DocumentManagementServiceException;
 
@@ -98,6 +103,7 @@ public interface DocumentManagementService extends Service
     *
     * @return a List of Document objects.
     */
+   @ExecutionPermission
    Documents findDocuments(DocumentQuery query);
 
    /**
@@ -115,6 +121,7 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentDownload(String)
     */
+   @ExecutionPermission
    byte[] retrieveDocumentContent(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -126,6 +133,7 @@ public interface DocumentManagementService extends Service
     * @return A download token valid for the lifetime of this service's session.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    String requestDocumentContentDownload(String documentId) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +149,7 @@ public interface DocumentManagementService extends Service
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
+   @ExecutionPermission
    Folder getFolder(String folderId) throws DocumentManagementServiceException;
 
    /**
@@ -155,6 +164,7 @@ public interface DocumentManagementService extends Service
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
+   @ExecutionPermission
    Folder getFolder(String folderId, int levelOfDetail) throws DocumentManagementServiceException;
 
    /**
@@ -166,6 +176,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Folder> getFolders(List<String> folderIds, int levelOfDetail) throws DocumentManagementServiceException;
 
    /**
@@ -177,6 +188,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Folder> findFoldersByName(String namePattern, int levelOfDetail) throws DocumentManagementServiceException;
 
@@ -189,6 +201,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Folder> findFolders(String xpathQuery, int levelOfDetail) throws DocumentManagementServiceException;
 
@@ -472,6 +485,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<Privilege> getPrivileges(String resourceId);
 
    /**
@@ -484,6 +498,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getEffectivePolicies(String resourceId);
 
    /**
@@ -496,6 +511,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getPolicies(String resourceId);
 
    /**
@@ -508,6 +524,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getApplicablePolicies(String resourceId);
 
    /**
@@ -575,6 +592,7 @@ public interface DocumentManagementService extends Service
     * @throws ObjectNotFoundException
     *            if the specified schema location cannot be found
     */
+   @ExecutionPermission
    byte[] getSchemaDefinition(String schemaLocation) throws ObjectNotFoundException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -597,6 +615,7 @@ public interface DocumentManagementService extends Service
     * @param configuration
     *           The configuration for the repository to bind.
     */
+   @ExecutionPermission
    void bindRepository(IRepositoryConfiguration configuration);
 
    /**
@@ -604,6 +623,7 @@ public interface DocumentManagementService extends Service
     *
     * @param repositoryId The id of the repository instance to unbind.
     */
+   @ExecutionPermission
    void unbindRepository(String repositoryId);
 
    /**
@@ -611,6 +631,7 @@ public interface DocumentManagementService extends Service
     *
     * @return Repository instance information.
     */
+   @ExecutionPermission
    List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
 
    /**
@@ -622,6 +643,7 @@ public interface DocumentManagementService extends Service
     *
     * @return Repository provider information.
     */
+   @ExecutionPermission
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
 
    /**
@@ -635,6 +657,7 @@ public interface DocumentManagementService extends Service
     * @param repositoryId
     *           The id of the repository instance.
     */
+   @ExecutionPermission
    void setDefaultRepository(String repositoryId);
 
    /**
@@ -642,6 +665,7 @@ public interface DocumentManagementService extends Service
     *
     * @return The id of the currently set default repository.
     */
+   @ExecutionPermission
    String getDefaultRepository();
 
    ///////////////////////////////////////////////////////////////////////////////////////

@@ -52,7 +52,7 @@ public interface UserService extends Service
     * @param clientId the client starting the session.
     * @return the new session id.
     */
-   // no restrictions
+   @ExecutionPermission
    String startSession(String clientId);
 
    /**
@@ -60,7 +60,7 @@ public interface UserService extends Service
     *
     * @param sessionId the id of the ending session.
     */
-   // no restrictions
+   @ExecutionPermission
    void closeSession(String sessionId);
 
    /**
@@ -70,7 +70,7 @@ public interface UserService extends Service
     *
     * @deprecated Superseded by {@link #isInternalAuthentication()}.
     */
-   // no restrictions
+   @ExecutionPermission
    boolean isInternalAuthentified();
 
    /**
@@ -78,7 +78,7 @@ public interface UserService extends Service
     *
     * @return true if CARNOT services use internal authentication.
     */
-   // no restrictions
+   @ExecutionPermission
    boolean isInternalAuthentication();
 
    /**
@@ -86,7 +86,7 @@ public interface UserService extends Service
     *
     * @return true if Carnot services use internal authorization.
     */
-   // no restrictions
+   @ExecutionPermission
    boolean isInternalAuthorization();
 
    /**
@@ -94,7 +94,7 @@ public interface UserService extends Service
     *
     * @return the current user.
     */
-   // no restrictions
+   @ExecutionPermission
    User getUser();
 
    /**
@@ -120,7 +120,7 @@ public interface UserService extends Service
     * @throws InvalidPasswordException
     *            if the new password does not match the given rules.
     */
-   // no restrictions
+   @ExecutionPermission
    User modifyLoginUser(String oldPassword, String firstName, String lastName,
          String newPassword, String eMail) throws ConcurrencyException,
          IllegalOperationException, InvalidPasswordException;
@@ -157,8 +157,8 @@ public interface UserService extends Service
     * 			the user account to generate the token for
     */
    @ExecutionPermission(
-	         id = ExecutionPermission.Id.resetUserPassword,
-	         defaults = { ExecutionPermission.Default.ALL })
+            id = ExecutionPermission.Id.resetUserPassword,
+            defaults = { ExecutionPermission.Default.ALL })
    void generatePasswordResetToken(String realm, String account);
 
    /**
@@ -625,6 +625,7 @@ public interface UserService extends Service
     *
     * @return List of deputy users for given user.
     */
+    @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
     List<Deputy> getDeputies(UserInfo user);
 
    /**
@@ -635,5 +636,6 @@ public interface UserService extends Service
     *
     * @return List of users for given deputy user.
     */
+    @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
     List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser);
 }

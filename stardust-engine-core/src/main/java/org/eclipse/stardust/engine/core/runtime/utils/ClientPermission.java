@@ -13,14 +13,15 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2.GlobalPermissionSpecificService;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Default;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
@@ -28,7 +29,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
 public final class ClientPermission
 {
-   private static final Logger trace = LogManager.getLogger(ClientPermission.class);
+// private static final Logger trace = LogManager.getLogger(ClientPermission.class);
 
    static final ClientPermission NULL = new ClientPermission(null, Scope.model, new Default[] {Default.ADMINISTRATOR},
          new Default[] {}, true, true, false, new Id[] {});
@@ -47,6 +48,10 @@ public final class ClientPermission
    public static final ClientPermission MODIFY_CASE;
    public static final ClientPermission MODIFY_PROCESS_INSTANCES;
    public static final ClientPermission READ_PROCESS_INSTANCE_DATA;
+
+   // data scope permissions
+   public static final ClientPermission MODIFY_DATA_VALUE;
+   public static final ClientPermission READ_DATA_VALUE;
 
    // global scope permissions
    public static final ClientPermission CONTROL_PROCESS_ENGINE;
@@ -95,6 +100,7 @@ public final class ClientPermission
       MODIFY_AUDIT_TRAIL = initializePermission(map, AdministrationService.class, "cleanupRuntimeAndModels");
       MODIFY_AUDIT_TRAIL_UNCHANGEABLE = initializePermission(map, AdministrationService.class, "deleteProcesses", List.class);
       MODIFY_CASE = initializePermission(map, WorkflowService.class, "joinCase", long.class, long[].class);
+      MODIFY_DATA_VALUE = initializePermission(map, IProcessInstance.class, "setOutDataValue", IData.class, String.class, Object.class);
       MODIFY_DEPARTMENTS = initializePermission(map, AdministrationService.class, "modifyDepartment", long.class, String.class, String.class);
       MODIFY_PROCESS_INSTANCES = initializePermission(map, AdministrationService.class, "setProcessInstancePriority", long.class, int.class);
       MODIFY_USER_DATA = initializePermission(map, UserService.class, "modifyUser", User.class);
@@ -103,6 +109,7 @@ public final class ClientPermission
       READ_ACTIVITY_INSTANCE_DATA = initializePermission(map, WorkflowService.class, "getActivityInstance", long.class);
       READ_AUDIT_TRAIL_STATISTICS = initializePermission(map, AdministrationService.class, "getAuditTrailHealthReport");
       READ_DEPARTMENTS = initializePermission(map, AdministrationService.class, "getDepartment", long.class);
+      READ_DATA_VALUE = initializePermission(map, IProcessInstance.class, "getInDataValue", IData.class, String.class);
       READ_MODEL_DATA = initializePermission(map, QueryService.class, "getModel", long.class);
       READ_PROCESS_INSTANCE_DATA = initializePermission(map, WorkflowService.class, "getProcessInstance", long.class);
       READ_USER_DATA = initializePermission(map, UserService.class, "getUser", long.class);
@@ -131,7 +138,11 @@ public final class ClientPermission
    {
       ClientPermission cp = NULL;
       ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-      if (permission != null)
+      if (permission == null)
+      {
+         System.err.println("Missing permission for: " + method);
+      }
+      else if (permission.id() != ExecutionPermission.Id.none)
       {
          cp = map.get(permission);
          if (cp == null)
@@ -318,10 +329,7 @@ public final class ClientPermission
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Missing permission for: " + method);
-         }
+         throw new InternalException("Unauthorized method access: " + method);
       }
       return cp == NULL ? null : cp;
    }

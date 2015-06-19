@@ -1406,7 +1406,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
          return getInDataPath(processInstance, path);
       }
-
    }
 
    public Map<String, Serializable> getInDataPaths(long processOID, Set<String> ids)
@@ -1489,9 +1488,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new ObjectNotFoundException(
                BpmRuntimeError.MDL_DANGLING_IN_DATA_PATH.raise(path));
       }
-      Object value = processInstance.getInDataValue(data, path.getAccessPath());
-
-      return (Serializable) value;
+      return (Serializable) processInstance.getInDataValue(data, path.getAccessPath());
    }
 
    public void setOutDataPath(long processOID, String id, Object value)

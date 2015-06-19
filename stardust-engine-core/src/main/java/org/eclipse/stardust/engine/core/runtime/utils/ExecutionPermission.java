@@ -48,6 +48,10 @@ public @interface ExecutionPermission {
     */
    public enum Id {
       /**
+       * no permission is required
+       */
+      none,
+      /**
        * permission to abort an activity
        */
       abortActivityInstances,
@@ -104,9 +108,17 @@ public @interface ExecutionPermission {
        */
       manageEventHandlers,
       /**
+       * permission to modify activity instances
+       */
+      modifyActivityInstances,
+      /**
        * permission to modify the AuditTrail database
        */
       modifyAuditTrail,
+      /**
+       * permission to modify the AuditTrail database
+       */
+      modifyAuditTrailStatistics,
       /**
        * permission to modify departments
        */
@@ -206,7 +218,7 @@ public @interface ExecutionPermission {
     *
     * @return a string containing the identifier.
     */
-   Id id();
+   Id id() default Id.none;
 
    /**
     * Specifies the scope of the permission, which can be one of:

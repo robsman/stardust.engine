@@ -239,8 +239,8 @@ public class Authorization2
                      }
                      else if (PreferenceScope.PARTITION.equals(scope))
                      {
-                        ClientPermission partitionPermission = ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES;
-                        AuthorizationContext partitionContext = AuthorizationContext.create(partitionPermission);
+                        AuthorizationContext partitionContext = AuthorizationContext.create(
+                              ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES);
                         partitionContext.setModels(models);
                         requiredGrant = checkPermission(partitionContext);
                         if (requiredGrant != null)
@@ -322,16 +322,17 @@ public class Authorization2
             }
             break;
          }
-         if (authorizationPredicate != null)
-         {
-            BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-            runtimeEnvironment.setAuthorizationPredicate(authorizationPredicate);
-         }
          if (requiredGrant != null)
          {
             IUser user = context.getUser();
             throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
                   user.getOID(), String.valueOf(permission), user.getAccount()));
+         }
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         rtEnv.setSecureContext(true);
+         if (authorizationPredicate != null)
+         {
+            rtEnv.setAuthorizationPredicate(authorizationPredicate);
          }
       }
    }
@@ -919,6 +920,9 @@ public class Authorization2
 
       @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
       Permission getModifyAuditTrailPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
+      Permission getModifyAuditTrailStatisticsPermission();
 
       @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
       Permission getModifyDepartmentsPermission();

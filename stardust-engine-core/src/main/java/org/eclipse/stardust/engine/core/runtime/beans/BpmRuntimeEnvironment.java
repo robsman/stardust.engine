@@ -109,6 +109,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private DataClusterRuntimeInfo dataClusterRuntimeInfo;
 
+   private boolean secureContext;
+
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
       super(predecessor);
@@ -162,6 +164,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setAuthorizationPredicate(Authorization2Predicate authorization2Predicate)
    {
       this.authorization2Predicate = authorization2Predicate;
+   }
+
+   public boolean isSecureContext()
+   {
+      return secureContext;
+   }
+
+   public void setSecureContext(boolean secureContext)
+   {
+      this.secureContext = secureContext;
    }
 
    public TimestampProvider getTimestampProvider()

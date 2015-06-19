@@ -82,7 +82,7 @@ public interface AdministrationService extends Service
     *
     * @return The password rules or null.
     */
-   // No permission check
+   @ExecutionPermission
    PasswordRules getPasswordRules();
 
    /**
@@ -558,7 +558,7 @@ public interface AdministrationService extends Service
     *
     * @return the current user.
     */
-   // No permission check
+   @ExecutionPermission
    User getUser();
 
    /**
@@ -573,12 +573,7 @@ public interface AdministrationService extends Service
     *
     * @return a list of permission ids.
     */
-   /*@ExecutionPermission(
-           id="readModelData",
-           scope=ExecutionPermission.Scope.model,
-           changeable=false,
-           defaults={ExecutionPermission.Default.ALL})*/
-   // no permission check here
+   @ExecutionPermission
    List<Permission> getPermissions();
 
    /**
@@ -588,6 +583,7 @@ public interface AdministrationService extends Service
     * @return the profile.
     */
    // TODO: deprecate
+   @ExecutionPermission
    Map<String, ?> getProfile(ProfileScope scope);
 
    /**
@@ -597,6 +593,7 @@ public interface AdministrationService extends Service
     * @param profile the profile.
     */
    // TODO: deprecate
+   @ExecutionPermission
    void setProfile(ProfileScope scope, Map<String, ?> profile);
 
    /**
@@ -609,7 +606,7 @@ public interface AdministrationService extends Service
     *
     * @exception ObjectNotFoundException if there is no runtime object with the specified OID
     */
-   // TODO: discuss, introduce permission
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
          String message, Throwable throwable) throws ObjectNotFoundException;
 
@@ -691,6 +688,7 @@ public interface AdministrationService extends Service
     *
     * @throws PublicException if <tt>scope</tt> is null.
     */
+   @ExecutionPermission
    Preferences getPreferences(PreferenceScope scope, String moduleId, String preferencesId);
 
    /**
@@ -732,6 +730,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId);
 
    /**
@@ -744,6 +743,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId, boolean all);
 
    /**
@@ -755,6 +755,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is null or empty.
     */
+   @ExecutionPermission
    List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds);
 
    /**
@@ -765,6 +766,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>model</tt> is null.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(byte[] model);
 
    /**
@@ -787,6 +789,7 @@ public interface AdministrationService extends Service
     *
     * @return the currently set Permissions
     */
+   @ExecutionPermission
    public RuntimePermissions getGlobalPermissions();
 
    /**

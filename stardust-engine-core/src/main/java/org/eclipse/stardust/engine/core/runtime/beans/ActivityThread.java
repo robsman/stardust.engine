@@ -232,6 +232,21 @@ public class ActivityThread implements Runnable
 
    public void run()
    {
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      boolean secureContext = runtimeEnvironment.isSecureContext();
+      runtimeEnvironment.setSecureContext(false);
+      try
+      {
+         runInternal();
+      }
+      finally
+      {
+         runtimeEnvironment.setSecureContext(secureContext);
+      }
+   }
+
+   public void runInternal()
+   {
       if (isInAbortingPiHierarchy())
       {
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);

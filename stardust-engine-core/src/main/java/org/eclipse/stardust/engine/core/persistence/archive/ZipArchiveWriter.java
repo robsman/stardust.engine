@@ -18,6 +18,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 
 public class ZipArchiveWriter implements IArchiveWriter
 {
+   public static final int BUFFER_SIZE = 1024 * 16;
+   
+   private static final String FOLDER_MODELS = "models";
+   
    private static final String ZIP = ".zip";
 
    private static final String ZIP_PART = ".part";
@@ -42,29 +46,28 @@ public class ZipArchiveWriter implements IArchiveWriter
 
    private static final String FILENAME_DOC = "doc.dat";
 
-   private final String archiveManagerId;
+   private String archiveManagerId;
 
-   private final String rootFolder;
+   private String rootFolder;
 
-   private final long zipFileSize;
+   private long zipFileSize;
 
-   private final String folderFormat;
+   private String folderFormat;
 
-   private final String dateFormat;
+   private String dateFormat;
    
-   private final boolean autoArchive;
+   private boolean autoArchive;
    
-   private final boolean isKeyDescriptorsOnly;
+   private boolean isKeyDescriptorsOnly;
    
-   private final DocumentOption documentOption;
+   private DocumentOption documentOption;
 
    private final ExportFilenameFilter filter = new ExportFilenameFilter();
 
-   public static final int BUFFER_SIZE = 1024 * 16;
+   public ZipArchiveWriter()
+   {}
    
-   private static final String FOLDER_MODELS = "models";
-
-   public ZipArchiveWriter(Map<String, String> preferences)
+   public void init(Map<String, String> preferences)
    {
       String rootFolder = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER);
       if (StringUtils.isEmpty(rootFolder.trim()))

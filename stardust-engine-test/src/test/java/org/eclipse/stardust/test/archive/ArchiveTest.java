@@ -104,14 +104,6 @@ public class ArchiveTest
       setUp();
       ArchiveTest.deletePreferences();
       int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
       ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE,
             "false");
    }
@@ -179,26 +171,7 @@ public class ArchiveTest
       RtEnvHome.deployModel(asA, null, ArchiveModelConstants.MODEL_ID);
       RtEnvHome.deployModel(asB, null, ArchiveModelConstants.MODEL_ID);
       setUp();
-      
-      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
-      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-     
+           
       startAndCompleteSimple(wsA, qsA);
       startAndCompleteSimple(wsB, qsB);
       ArchiveFilter filter = getBlankArchiveFilter();
@@ -235,26 +208,6 @@ public class ArchiveTest
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
       
-      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
-      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-     
-
       ServiceFactory factoryA = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
             ADMIN_USER_PWD_PAIR.password(), propertiesA);
       ServiceFactory factoryB = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
@@ -377,26 +330,6 @@ public class ArchiveTest
       Map<String, Object> propertiesB = new HashMap<String, Object>();
       propertiesA.put(SecurityProperties.PARTITION, PARTION_A);
       propertiesB.put(SecurityProperties.PARTITION, PARTION_B);
-
-      int partitionIdA = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_A, "oid")).intValue();
-      int partitionIdB = ((BigDecimal)getEntryInDbForObject("PARTITION", "id", PARTION_B, "oid")).intValue();
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdA,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
-      createPreference(partitionIdB,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-     
       
       ServiceFactory factoryA = ServiceFactoryLocator.get(ADMIN_USER_PWD_PAIR.username(),
             ADMIN_USER_PWD_PAIR.password(), propertiesA);

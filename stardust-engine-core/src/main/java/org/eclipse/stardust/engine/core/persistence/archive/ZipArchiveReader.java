@@ -20,18 +20,21 @@ public class ZipArchiveReader extends BaseArchiveReader
    private static final String ZIP_PART0 = ".part0" + ZIP;
 
    private static final String ZIP_PART = ".part";
+   
+   public static final int BUFFER_SIZE = 1024 * 16;
 
    private static final Logger LOGGER = LogManager.getLogger(ZipArchiveReader.class);
 
-   private final String rootFolder;
+   private String rootFolder;
 
-   private final String folderFormat;
+   private String folderFormat;
 
-   private final ZipFileFilter zipFileFilter = new ZipFileFilter();
+   private ZipFileFilter zipFileFilter = new ZipFileFilter();
 
-   public static final int BUFFER_SIZE = 1024 * 16;
-
-   public ZipArchiveReader(Map<String, String> preferences)
+   public ZipArchiveReader()
+   {}
+   
+   public void init(Map<String, String> preferences)
    {
       String rootFolder = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER);
       if (StringUtils.isEmpty(rootFolder.trim()))

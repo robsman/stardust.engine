@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 public interface IArchiveWriter
 {
@@ -9,6 +10,8 @@ public interface IArchiveWriter
    public static final String FILENAME_DOCUMENT_META_SUFFIX = "_meta";
    
    public static final String EXT_JSON = ".json";
+
+   public void init(Map<String, String> preferences);
    
    /**
     * Opens archive for writing results. Typically this is to reserve a unique place in the archive repository for results with specified index date.

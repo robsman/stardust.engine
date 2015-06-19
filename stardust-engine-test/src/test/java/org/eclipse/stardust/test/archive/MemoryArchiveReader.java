@@ -17,7 +17,10 @@ public class MemoryArchiveReader extends BaseArchiveReader
 
    private MemoryArchiveWriter writer;
    
-   public MemoryArchiveReader(Map<String, String> preferences)
+   public MemoryArchiveReader()
+   {}
+   
+   public void init(Map<String, String> preferences)
    {
       String id = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID);
 

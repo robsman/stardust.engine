@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface IArchiveReader
 {
+   public void init(Map<String, String> preferences);
+   
    public ArrayList<IArchive> findArchives(ArchiveFilter filter);
    
    public ArrayList<IArchive> findArchives(ArrayList<IArchive> unfilteredArchives, Collection<Long> processInstanceOids, Map<String, Object> descriptors);

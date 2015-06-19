@@ -33,20 +33,22 @@ public class MemoryArchiveWriter implements IArchiveWriter
 
    protected HashMap<String, HashMap<String, Date>> dateArchiveKey;
    
-   
    private String archiveManagerId;
 
    private String dateFormat;
    
    private boolean auto;
    
-   private final boolean isKeyDescriptorsOnly;
+   private boolean isKeyDescriptorsOnly;
 
-   private final DocumentOption documentOption;
+   private DocumentOption documentOption;
    
    private static int keyCounter = 0;
    
-   public MemoryArchiveWriter(Map<String, String> preferences)
+   public MemoryArchiveWriter()
+   {}
+   
+   public void init(Map<String, String> preferences)
    {
       String id = preferences.get(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID);
 

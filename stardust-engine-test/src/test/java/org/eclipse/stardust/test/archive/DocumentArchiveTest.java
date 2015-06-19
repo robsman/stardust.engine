@@ -81,14 +81,6 @@ public class DocumentArchiveTest
       setUp();
       ArchiveTest.deletePreferences();
       int id = ((BigDecimal)ArchiveTest.getEntryInDbForObject("PARTITION", "id", "default", "oid")).intValue();
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_TYPE,
-            ArchiveManagerFactory.ArchiveManagerType.CUSTOM.name());
-      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_READER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveReader");
-      ArchiveTest.createPreference(id,  ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_CUSTOM,
-            "org.eclipse.stardust.test.archive.MemoryArchiveWriter");
       ArchiveTest.createPreference(id, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE,
             "false");      
    }

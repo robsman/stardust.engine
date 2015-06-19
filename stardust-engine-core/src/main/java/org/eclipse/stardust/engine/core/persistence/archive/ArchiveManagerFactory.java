@@ -1,11 +1,9 @@
 package org.eclipse.stardust.engine.core.persistence.archive;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.util.StringUtils;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
@@ -48,14 +46,6 @@ public class ArchiveManagerFactory
    
    public static final String CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY = "stardust-archiving.export.archive.descriptor.keyonly";
    
-   public static final String CARNOT_ARCHIVE_WRITER_MANAGER_TYPE = "stardust-archiving.export.archive.type";
-   
-   public static final String CARNOT_ARCHIVE_WRITER_CUSTOM = "Archive.Manager.Writer.Type.Class";
-   
-   public static final String CARNOT_ARCHIVE_READER_CUSTOM = "Archive.Manager.Reader.Type.Class";
-   
-   public static final String CARNOT_ARCHIVE_READER_MANAGER_TYPE = "stardust-archiving.import.archive.type";
-   
    public static final String CARNOT_ARCHIVE_READER_ROOTFOLDER = "stardust-archiving.import.archive.filesystem.root";
 
    public static final String CARNOT_ARCHIVE_READER_FOLDER_FORMAT = "stardust-archiving.import.archive.filesystem.folderFormat";
@@ -83,9 +73,7 @@ public class ArchiveManagerFactory
          {
             if (!PARTITION_WRITERS.containsKey(partition))
             {
-               Map<String, String> preferences = aggregateWritePreferences(null);
-               getCurrentId(preferences);
-               IArchiveWriter manager = createArchiveWriter(preferences);
+               IArchiveWriter manager = createArchiveWriter(null);
                if (manager != null)
                {
                   PARTITION_WRITERS.put(partition, manager);
@@ -98,65 +86,34 @@ public class ArchiveManagerFactory
 
    public static IArchiveReader getArchiveReader(Map<String, String> preferences)
    {
-      preferences = aggregateReadPreferences(preferences);
       IArchiveReader reader = createArchiveReader(preferences);
       return reader;
    }
-   
+
    private static IArchiveReader createArchiveReader(Map<String, String> preferences)
    {
-      String archiveManagerType = preferences.get(CARNOT_ARCHIVE_READER_MANAGER_TYPE);
+      ServiceLoader<IArchiveReader> readers = ServiceLoader.load(IArchiveReader.class);
 
-      IArchiveReader reader;
-
-      if (!StringUtils.isEmpty(archiveManagerType.toUpperCase()))
+      for (IArchiveReader reader : readers)
       {
-         ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
-         switch (type)
-         {
-            case FILESYSTEM:
-               reader = new ZipArchiveReader(preferences);;
-               break;
-            case CUSTOM:
-               reader = getCustomArchiveReader(preferences);
-               break;
-            default:
-               throw new IllegalArgumentException("Unknown ArchiveReader");
-         }
+         preferences = aggregateReadPreferences(preferences);
+         reader.init(preferences);
+         return reader;
       }
-      else
-      {
-         reader = null;
-      }
-      return reader;
+      return null;
    }
    
    private static IArchiveWriter createArchiveWriter(Map<String, String> preferences)
    {
-      String archiveManagerType = preferences.get(CARNOT_ARCHIVE_WRITER_MANAGER_TYPE);
+      ServiceLoader<IArchiveWriter> writers = ServiceLoader.load(IArchiveWriter.class);
 
-      IArchiveWriter archiveManager;
-      if (!StringUtils.isEmpty(archiveManagerType.toUpperCase()))
+      for (IArchiveWriter writer : writers)
       {
-         ArchiveManagerType type = ArchiveManagerType.valueOf(archiveManagerType.toUpperCase());
-   
-         switch (type)
-         {
-            case FILESYSTEM:
-               archiveManager = new ZipArchiveWriter(preferences);
-               break;
-            case CUSTOM:
-               archiveManager = getCustomArchiveWriter(preferences);
-               break;
-            default:
-               throw new IllegalArgumentException("Unknown ArchiveManager");
-         }
+         preferences = aggregateWritePreferences(preferences);
+         writer.init(preferences);
+         return writer;
       }
-      else
-      {
-         archiveManager = null;
-      }
-      return archiveManager;
+      return null;
    }
 
    private static Map<String, String> aggregateReadPreferences(Map<String, String> preferences)
@@ -166,16 +123,11 @@ public class ArchiveManagerFactory
          preferences = new HashMap<String, String>();
       }
 
-      setPreference(preferences, CARNOT_ARCHIVE_READER_MANAGER_TYPE, "");
-      if (!StringUtils.isEmpty(preferences.get(CARNOT_ARCHIVE_READER_MANAGER_TYPE)))
-      {
-         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER, "");
-         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
-               ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
-         setPreference(preferences, CARNOT_ARCHIVE_READER_CUSTOM, "");
-         setPreference(preferences, CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
-         preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID, SecurityProperties.getPartition().getId());
-      }
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_ROOTFOLDER, "");
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_READER_FOLDER_FORMAT,
+            ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+      setPreference(preferences, CARNOT_ARCHIVE_READER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
+      preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_READER_MANAGER_ID, SecurityProperties.getPartition().getId());
       return preferences;
    }
    
@@ -186,21 +138,16 @@ public class ArchiveManagerFactory
          preferences = new HashMap<String, String>();
       }
 
-      setPreference(preferences, CARNOT_ARCHIVE_WRITER_MANAGER_TYPE, "");
-      if (!StringUtils.isEmpty(preferences.get(CARNOT_ARCHIVE_WRITER_MANAGER_TYPE)))
-      {
-         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER, "");
-         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_FOLDER_FORMAT,
-               ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
-         setPreference(preferences, CARNOT_ARCHIVE_WRITER_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-         setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ZIP_FILE_SIZE_MB,
-               ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
-         setPreference(preferences, CARNOT_ARCHIVE_WRITER_CUSTOM, "");
-         preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
-         setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
-         setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
-         setPreference(preferences, CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY, DEFAULT_KEY_DESCRIPTOR_ONLY);
-      }
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ROOTFOLDER, "");
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_FOLDER_FORMAT,
+            ArchiveManagerFactory.DEFAULT_ARCHIVE_FOLDER_FORMAT);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+      setPreference(preferences, ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_ZIP_FILE_SIZE_MB,
+            ArchiveManagerFactory.DEFAULT_ARCHIVE_ZIP_FILE_SIZE_MB);
+      preferences.put(ArchiveManagerFactory.CARNOT_ARCHIVE_WRITER_MANAGER_ID, SecurityProperties.getPartition().getId());
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE, DEFAULT_AUTO_ARCHIVE);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_AUTO_ARCHIVE_DOCUMENTS, DEFAULT_AUTO_ARCHIVE_DOCUMENTS);
+      setPreference(preferences, CARNOT_ARCHIVE_WRITER_KEY_DESCRIPTOR_ONLY, DEFAULT_KEY_DESCRIPTOR_ONLY);
       return preferences;
    }
 
@@ -211,12 +158,6 @@ public class ArchiveManagerFactory
       {
          preferences.put(preference, getPreference(preference, defaultValue));
       }
-   }
-
-   private static String getCurrentId(Map<String, String> preferences)
-   {
-      String partition = SecurityProperties.getPartition().getId();
-      return partition;
    }
 
    private static String getPreference(String preferenceName, String defaultValue)
@@ -233,83 +174,6 @@ public class ArchiveManagerFactory
       {
          return defaultValue;
       }
-   }
-
-   private static IArchiveWriter getCustomArchiveWriter(Map<String, String> preferences)
-   {
-      String custom = preferences.get(CARNOT_ARCHIVE_WRITER_CUSTOM);
-      if (StringUtils.isEmpty(custom.trim()))
-      {
-         throw new IllegalArgumentException(CARNOT_ARCHIVE_WRITER_CUSTOM
-               + " must be provided for Custom archive writer");
-      }
-      try
-      {
-         Class type = Class.forName(custom);
-         Constructor method = type.getConstructor(Map.class);
-         IArchiveWriter instance = (IArchiveWriter) method.newInstance(preferences);
-         return instance;
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new IllegalArgumentException(custom + " class not found");
-      }
-      catch (ClassCastException e)
-      {
-         throw new IllegalArgumentException(custom + " is not an IArchiveManager."
-               + e.getMessage());
-      }
-      catch (NoSuchMethodException e)
-      {
-         throw new IllegalArgumentException(custom + " is not an IArchiveManager."
-               + e.getMessage());
-      }
-      catch (Exception e)
-      {
-         throw new IllegalArgumentException(custom + " class could not be instantiated "
-               + e.getMessage());
-      }
-   }
-   
-   private static IArchiveReader getCustomArchiveReader(Map<String, String> preferences)
-   {
-      String custom = preferences.get(CARNOT_ARCHIVE_READER_CUSTOM);
-      if (StringUtils.isEmpty(custom.trim()))
-      {
-         throw new IllegalArgumentException(CARNOT_ARCHIVE_READER_CUSTOM
-               + " must be provided for Custom archive reader type");
-      }
-      try
-      {
-         Class type = Class.forName(custom);
-         Constructor method = type.getConstructor(Map.class);
-         IArchiveReader instance = (IArchiveReader) method.newInstance(preferences);
-         return instance;
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new IllegalArgumentException(custom + " class not found");
-      }
-      catch (ClassCastException e)
-      {
-         throw new IllegalArgumentException(custom + " is not an IArchiveReader."
-               + e.getMessage());
-      }
-      catch (NoSuchMethodException e)
-      {
-         throw new IllegalArgumentException(custom + " is not an IArchiveReader."
-               + e.getMessage());
-      }
-      catch (Exception e)
-      {
-         throw new IllegalArgumentException(custom + " class could not be instantiated "
-               + e.getMessage());
-      }
-   }
-
-   public enum ArchiveManagerType
-   {
-      FILESYSTEM, CUSTOM;
    }
 
    public static String getDateFormat(String partition)

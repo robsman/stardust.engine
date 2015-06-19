@@ -47,6 +47,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
@@ -81,9 +82,9 @@ public class ExportImportSupport
                   
                   if (documentOption == DocumentOption.ALL)
                   {
-                     if ("UNVERSIONED".equals(doc.getRevisionName()))
+                     if (RepositoryConstants.VERSION_UNVERSIONED.equals(doc.getRevisionName()))
                      {
-                        versions = Arrays.asList(doc);
+                        versions = Arrays.asList(dms.getDocument(doc.getId()));
                      }
                      else
                      {
@@ -101,7 +102,14 @@ public class ExportImportSupport
                   }
                   else if (documentOption == DocumentOption.LATEST)
                   {
-                     versions = Arrays.asList(doc);
+                     if (RepositoryConstants.VERSION_UNVERSIONED.equals(doc.getRevisionName()))
+                     {
+                        versions = Arrays.asList(dms.getDocument(doc.getId()));
+                     }
+                     else
+                     {
+                        versions = Arrays.asList(dms.getDocument(doc.getRevisionId()));
+                     }
                   }
                   else
                   {
@@ -110,7 +118,15 @@ public class ExportImportSupport
                   List<String> revisions = new ArrayList<String>();
                   for (Document version : versions)
                   {
-                     byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
+                     byte[] content;
+                     if (RepositoryConstants.VERSION_UNVERSIONED.equals(version.getRevisionName()))
+                     {
+                        content = dms.retrieveDocumentContent(version.getId());
+                     }
+                     else
+                     {
+                        content = dms.retrieveDocumentContent(version.getRevisionId()); 
+                     }
                      // we will only add the revision names to the latest revision
                      if (version.getRevisionName().equals(doc.getRevisionName()))
                      {
@@ -131,7 +147,15 @@ public class ExportImportSupport
    public static String getDocumentMetaDataName(String documentName)
    {
       int lastIndex = documentName.lastIndexOf('.');
-      String docName = documentName.substring(0, lastIndex);
+      String docName;
+      if (lastIndex > -1)
+      {
+         docName = documentName.substring(0, lastIndex);
+      }
+      else
+      {
+         docName = documentName;
+      }
       String metaName = docName + IArchiveWriter.FILENAME_DOCUMENT_META_SUFFIX + IArchiveWriter.EXT_JSON;
       return metaName;
    }
@@ -322,7 +346,7 @@ public class ExportImportSupport
    {
       GsonBuilder gsonBuilder = new GsonBuilder();
       gsonBuilder.setPrettyPrinting();
-      gsonBuilder.registerTypeAdapter(DocumentMetaData.class, new DocumentMetaDataSerializer());
+      gsonBuilder.registerTypeAdapter(ImportDocument.class, new ImportDocumentSerializer());
       Gson gson = gsonBuilder.create();
       return gson;
    }

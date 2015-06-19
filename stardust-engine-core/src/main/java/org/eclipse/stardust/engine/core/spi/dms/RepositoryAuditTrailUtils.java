@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.spi.dms;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.PublicException;
@@ -18,7 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.archive.DocumentMetaData;
+import org.eclipse.stardust.engine.core.persistence.archive.ImportDocument;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
@@ -72,19 +73,26 @@ public class RepositoryAuditTrailUtils
    {
       if (document != null)
       {
-         storeResource(document.getId(), document, DocumentMetaData.class);
+         storeResource(document.getId(), document, ImportDocument.class);
 
          // store entry for revision
          if (document.getRevisionId() != null
                && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId())
                && !RepositoryConstants.VERSION_VERSIONED.equals(document.getRevisionId()))
          {
-            storeResource(document.getRevisionId(), document, DocumentMetaData.class);
+            storeResource(document.getRevisionId(), document, ImportDocument.class);
          }
       }
    }
 
-
+   public static void removeImportDocumentMetaData(List<String> resourceIds)
+   {
+      for (String resourceId : resourceIds)
+      {
+         ClobDataBean documentBlob = ClobDataBean.find(generateResourceHash(resourceId), ImportDocument.class);
+         documentBlob.delete();
+      }
+   }
    /**
     * Fetches the document from the AuditTrail.
     *

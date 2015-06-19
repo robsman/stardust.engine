@@ -2057,6 +2057,7 @@ public class AutoArchiveTest extends AbstractTransientProcessInstanceTest
       int docCount = 1;
       int versionCount = 1;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      DocumentArchiveTest.reArchiveAndClear(workflowService, dms, path);
    }
    
    private void archiveQueue() throws JMSException

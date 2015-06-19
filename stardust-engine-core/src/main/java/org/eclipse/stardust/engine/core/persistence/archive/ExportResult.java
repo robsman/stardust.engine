@@ -297,7 +297,7 @@ public class ExportResult implements Serializable
 
          String name = ExportImportSupport.getDocumentNameInArchive(piOid, document);
          String metaName = ExportImportSupport.getDocumentMetaDataName(name);
-         DocumentMetaData metaData = new DocumentMetaData();
+         ImportDocument metaData = new ImportDocument();
          metaData.setRevisions(revisions);
          metaData.setDataId(dataId);
          metaData.setVfsResource(((DmsDocumentBean)document).vfsResource());
@@ -317,7 +317,7 @@ public class ExportResult implements Serializable
          lengths.add(content.length);
          names.add(name);
          Gson gson = ExportImportSupport.getGson();
-         byte[] meta = gson.toJson(metaData, DocumentMetaData.class).getBytes();
+         byte[] meta = gson.toJson(metaData, ImportDocument.class).getBytes();
          lengths.add(meta.length);
          names.add(metaName);
          documents = ExportImportSupport.addAll(documents, content);

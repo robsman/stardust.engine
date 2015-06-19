@@ -43,6 +43,6 @@ public interface IArchive
    
    public byte[] getDocumentContent(String documentName);
    
-   public DocumentMetaData getDocumentProperties(String documentName);
+   public ImportDocument getDocumentProperties(String documentName);
 
 }

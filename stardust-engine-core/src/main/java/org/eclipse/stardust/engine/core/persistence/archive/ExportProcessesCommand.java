@@ -28,6 +28,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryAuditTrailUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 
 /**
  * This class allows a request to archive or dump processes instances. The processes will be
@@ -334,6 +336,14 @@ public class ExportProcessesCommand implements ServiceCommand
       {
          if (CollectionUtils.isNotEmpty(exportResult.getPurgeProcessIds()))
          {
+            List<String> importDocumentIds = new ArrayList<String>();
+            List<Long> allExportIds = new ArrayList<Long>();
+            for (Date date : exportResult.getDates())
+            {
+               ExportIndex exportIndex = exportResult.getExportIndex(date);
+               allExportIds.addAll(exportIndex.getProcessInstanceOids());
+            }
+            
             for (Long piOid : exportResult.getPurgeProcessIds())
             {
                ProcessInstanceBean pi = (ProcessInstanceBean) session.findByOID(
@@ -361,6 +371,32 @@ public class ExportProcessesCommand implements ServiceCommand
                if (startTime != null)
                {
                   String defaultPath = DmsUtils.composeDefaultPath(piOid, startTime);
+                  
+                  // we are deleting a process that was imported, we also need to delete it's document metadata
+                  if (!allExportIds.contains(piOid))
+                  {
+                     Folder folder = dms.getFolder(defaultPath, Folder.LOD_LIST_MEMBERS_OF_MEMBERS);
+                     if (folder != null)
+                     {
+                        for (Folder subFolder : folder.getFolders())
+                        {
+                           for (Document document : subFolder.getDocuments())
+                           {
+                              importDocumentIds.add(document.getId());
+                              if (document.getRevisionId() != null
+                                    && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId()))
+                              {
+                                
+                                 List<Document> versions = dms.getDocumentVersions(document.getId());
+                                 for (Document version : versions)
+                                 {
+                                    importDocumentIds.add(version.getRevisionId());
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
                   try
                   {
                      dms.removeFolder(defaultPath, true);
@@ -371,6 +407,7 @@ public class ExportProcessesCommand implements ServiceCommand
                   }
                }
             }
+            RepositoryAuditTrailUtils.removeImportDocumentMetaData(importDocumentIds);
          }
       }
    }

@@ -18,7 +18,12 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
+
+import javax.sql.DataSource;
 
 import org.junit.*;
 import org.junit.Test;
@@ -210,6 +215,7 @@ public class DocumentArchiveTest
       int docCount = 3;
       int versionCount = 3;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, Arrays.asList(path1, path2, path3));
    }
 
    @SuppressWarnings("unchecked")
@@ -321,6 +327,7 @@ public class DocumentArchiveTest
       int docCount = 3;
       int versionCount = 3;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, Arrays.asList(path1, path2, path3));
    }
 
    private Document checkProcessAttachment(WorkflowService workflowService,
@@ -542,6 +549,7 @@ public class DocumentArchiveTest
       int docCount = 1;
       int versionCount = 3;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
     }
    
    @SuppressWarnings("unchecked")
@@ -563,30 +571,12 @@ public class DocumentArchiveTest
       final String docName = "mychat";
       DocumentManagementService dms = sf.getDocumentManagementService();
       byte[] contentV1 = "My File Content v1".getBytes();
-      Document oldDocumentv1 = null;
-      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,"1.0 comment", "1.0", "descr 1.0",
+      String path = addProcessAttachment(workflowService, dms, pi, docName, contentV1,null, null, "descr 1.0",
             type1);
       Document document = getDocumentInDms(dms, path, docName);
       assertNotNull(document);
       assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(document.getId())));
-      List<Document> versions = dms.getDocumentVersions(document.getId());
-      assertEquals(1, versions.size());
-      for (Document version : versions)
-      {
-         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
-         if (version.getRevisionName().equals("1.0"))
-         {
-            assertEquals(new String(contentV1), new String(content));
-            assertEquals("1.0 comment", version.getRevisionComment());
-            assertEquals("descr 1.0", version.getDescription());
-            assertEquals(type1, version.getDocumentType());
-            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
-            assertEquals( "a value", version.getProperty("MyFieldA"));
-            oldDocumentv1 = version;
-         }
-      }
-      assertNotNull(oldDocumentv1);
-      
+            
       List<Document> processAttachments = fetchProcessAttachments(workflowService, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
       assertNotNull(processAttachments);
       assertEquals(1, processAttachments.size());
@@ -615,6 +605,7 @@ public class DocumentArchiveTest
       assertNotNull(activitiesCleared);
       assertEquals(0, instances.size());
       assertEquals(0, activitiesCleared.size());
+      assertEquals(0, ArchiveTest.countRows(ClobDataBean.TABLE_NAME));
       Document temp = getDocumentInDms(dms, path, docName);
       assertNull(temp);
       folder = dms.getFolder(path);
@@ -645,34 +636,41 @@ public class DocumentArchiveTest
       Document newDocument = getDocumentInDms(dms, path, docName);
       assertNotNull(newDocument);
       assertEquals(new String(contentV1), new String(dms.retrieveDocumentContent(newDocument.getId())));
-      versions = dms.getDocumentVersions(newDocument.getId());
-      assertEquals(1, versions.size());
-
-      Document newDocumentv1 = null;
-      for (Document version : versions)
-      {
-         byte[] content = dms.retrieveDocumentContent(version.getRevisionId());
-         if (version.getRevisionName().equals("1.0"))
-         {
-            assertEquals(new String(contentV1), new String(content));
-            assertEquals("1.0 comment", version.getRevisionComment());
-            assertEquals("descr 1.0", version.getDescription());
-            assertEquals("bob", version.getOwner());
-            assertEquals("xml", version.getContentType());
-            assertEquals(Arrays.asList("1.0"), version.getVersionLabels());
-            PrintDocumentAnnotationsImpl annotations = (PrintDocumentAnnotationsImpl)version.getDocumentAnnotations();
-            assertNotNull(annotations.getNotes());
-            assertEquals(1,annotations.getNotes().size());
-            assertEquals("blue", annotations.getNotes().iterator().next().getColor());
-            newDocumentv1 = version;
-         }
-      }
-      assertNotNull(newDocumentv1);
-      assertObjectEquals(oldDocumentv1, newDocumentv1, oldDocumentv1, false);
+      assertObjectEquals(document, newDocument, document, false);
       int countClobsNew = ArchiveTest.countRows(ClobDataBean.TABLE_NAME);
       int docCount = 1;
-      int versionCount = 1;
+      int versionCount = 0;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      
+      reArchiveAndClear(workflowService, dms, path);
+   }
+
+   protected static void reArchiveAndClear(WorkflowService workflowService, 
+         DocumentManagementService dms, String path) throws Exception
+   {
+      reArchiveAndClear(workflowService, dms, Arrays.asList(path));
+   }
+   
+   private static void reArchiveAndClear(WorkflowService workflowService, 
+         DocumentManagementService dms, List<String> paths) throws Exception
+   {
+      Folder folder;
+      ArchiveFilter filter;
+      filter =  ArchiveTest.getBlankArchiveFilter();
+      ExportResult exportResult = (ExportResult) workflowService
+            .execute(new ExportProcessesCommand(
+                  ExportProcessesCommand.Operation.QUERY_AND_EXPORT, filter,
+                  null, DocumentOption.ALL));
+      assertNotNull(exportResult);
+      assertTrue(exportResult.getPurgeProcessIds().size() > 0);
+      assertEquals(0, exportResult.getDates().size());
+      ArchiveTest.archive(workflowService, exportResult);
+      for (String path : paths)
+      {
+         folder = dms.getFolder(path);
+         assertNull(folder);
+      }
+      assertEquals(0, countMetaRows());
    }
       
    @SuppressWarnings("unchecked")
@@ -880,6 +878,7 @@ public class DocumentArchiveTest
       int docCount = 1;
       int versionCount = 3;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
    
    @SuppressWarnings("unchecked")
@@ -1021,8 +1020,9 @@ public class DocumentArchiveTest
       int docCount = 1;
       int versionCount = 1;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
-   
+         
    @SuppressWarnings("unchecked")
    @Test
    public void testDocumentProcess() throws Exception
@@ -1222,6 +1222,7 @@ public class DocumentArchiveTest
       int docCount = 2;
       int versionCount = 2;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
    
    @SuppressWarnings("unchecked")
@@ -1378,6 +1379,7 @@ public class DocumentArchiveTest
       int docCount = 0;
       int versionCount = 0;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
    
    @SuppressWarnings("unchecked")
@@ -1552,6 +1554,7 @@ public class DocumentArchiveTest
       int docCount = 1;
       int versionCount = 1;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
    
    @SuppressWarnings("unchecked")
@@ -1725,6 +1728,7 @@ public class DocumentArchiveTest
       int docCount = 1;
       int versionCount = 1;
       assertEquals(countClobs + docCount + versionCount, countClobsNew);
+      reArchiveAndClear(workflowService, dms, path);
    }
    
    @SuppressWarnings("unchecked")
@@ -2044,8 +2048,10 @@ public class DocumentArchiveTest
         
          docInfo.setDocumentAnnotations(annotations);
          document = (DmsDocumentBean)dms.createDocument(defaultPath, docInfo, content, "utf-8");
-         document = (DmsDocumentBean)dms.versionDocument(document.getId(), revisionComment, revisionName);
-         
+         if (revisionName != null)
+         {
+            document = (DmsDocumentBean)dms.versionDocument(document.getId(), revisionComment, revisionName);
+         }
          List<Document> processAttachments = fetchProcessAttachments(ws, pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS);
          processAttachments.add(document);
          ws.setOutDataPath(pi.getOID(), DmsConstants.PATH_ID_ATTACHMENTS, processAttachments);
@@ -2225,5 +2231,40 @@ public class DocumentArchiveTest
          }
       }
    }
+   
+   private static int countMetaRows() throws Exception
+   {
+      final DataSource ds = testClassSetup.dataSource();
 
+      Connection connection = null;
+      Statement stmt = null;
+      try
+      {
+         ArchiveTest.deletePreferences();
+         connection = ds.getConnection();
+         stmt = connection.createStatement();
+         final ResultSet rs = stmt.executeQuery("select count(*) from PUBLIC.CLOB_DATA where ownerType = 'IMPORTDOCUMENT'");
+         int result;
+         if (rs.next())
+         {
+            result = rs.getBigDecimal(1).intValue();
+         }
+         else
+         {
+            result = 0;
+         }
+         return result;
+      }
+      finally
+      {
+         if (stmt != null)
+         {
+            stmt.close();
+         }
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+   }
 }

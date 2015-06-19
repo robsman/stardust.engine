@@ -65,14 +65,14 @@ public class MemoryArchive implements IArchive
    }
 
    @Override
-   public DocumentMetaData getDocumentProperties(String documentName)
+   public ImportDocument getDocumentProperties(String documentName)
    {
       String metaName = ExportImportSupport.getDocumentMetaDataName(documentName);
       byte[] raw = documentData.get(metaName);
-      DocumentMetaData result;
+      ImportDocument result;
       if (raw != null)
       {
-         result = ExportImportSupport.getGson().fromJson(new String(raw), DocumentMetaData.class);
+         result = ExportImportSupport.getGson().fromJson(new String(raw), ImportDocument.class);
       }
       else
       {

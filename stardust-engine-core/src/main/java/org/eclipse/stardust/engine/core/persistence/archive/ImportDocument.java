@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class DocumentMetaData implements Serializable
+public class ImportDocument implements Serializable
 {
 
    /**
@@ -18,7 +18,7 @@ public class DocumentMetaData implements Serializable
 
    private Map vfsResource;
 
-   public DocumentMetaData()
+   public ImportDocument()
    {}
 
    public List<String> getRevisions()

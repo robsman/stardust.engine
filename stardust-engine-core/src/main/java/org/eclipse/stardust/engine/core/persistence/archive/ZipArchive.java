@@ -73,15 +73,15 @@ public class ZipArchive implements IArchive, Serializable
    }
 
    @Override
-   public DocumentMetaData getDocumentProperties(String documentName)
+   public ImportDocument getDocumentProperties(String documentName)
    {
       String metaName = ExportImportSupport.getDocumentMetaDataName(documentName);
       String path = getPartWithEntry(documentName);
-      DocumentMetaData result;
+      ImportDocument result;
       if (path != null)
       {
          byte[] raw = uncompressZipEntry(path, metaName);
-         result = ExportImportSupport.getGson().fromJson(new String(raw), DocumentMetaData.class);
+         result = ExportImportSupport.getGson().fromJson(new String(raw), ImportDocument.class);
       }
       else
       {

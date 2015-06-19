@@ -207,7 +207,7 @@ public class ImportProcessesCommand implements ServiceCommand
    }
    
 
-   private void setDocumentProperties(DocumentMetaData documentMetaData, DmsDocumentBean document)
+   private void setDocumentProperties(ImportDocument documentMetaData, DmsDocumentBean document)
    {
       DmsDocumentBean temp = new DmsDocumentBean(documentMetaData.getVfsResource());
       document.setDocumentAnnotations(temp.getDocumentAnnotations());
@@ -235,7 +235,7 @@ public class ImportProcessesCommand implements ServiceCommand
          {
             DmsDocumentBean document = (DmsDocumentBean)doc;
             String docName = ExportImportSupport.getDocumentNameInArchive(piOid, doc);
-            DocumentMetaData documentMetaData =  archive.getDocumentProperties(docName);
+            ImportDocument documentMetaData =  archive.getDocumentProperties(docName);
             byte[] content = archive.getDocumentContent(docName);
             if (content != null)
             {
@@ -254,7 +254,7 @@ public class ImportProcessesCommand implements ServiceCommand
 
                         if (prevContent != null)
                         {
-                           DocumentMetaData props = archive.getDocumentProperties(revisionName);
+                           ImportDocument props = archive.getDocumentProperties(revisionName);
                            setDocumentProperties(props, document);
                            String revisionComment = document.getRevisionComment();
                            if (firstDoc)
@@ -281,7 +281,10 @@ public class ImportProcessesCommand implements ServiceCommand
                   {
                      setDocumentProperties(documentMetaData, document);
                      document = (DmsDocumentBean)dms.createDocument(getFolderName(dms, document), document, content, document.getEncoding());
-                     document =(DmsDocumentBean)dms.versionDocument(document.getId(), latestRevComment, latestRevName);
+                     if (!"UNVERSIONED".equals(latestRevName))
+                     {
+                        document =(DmsDocumentBean)dms.versionDocument(document.getId(), latestRevComment, latestRevName);
+                     }
                      RepositoryAuditTrailUtils.storeImportDocument(document);
                      ExportImportSupport.updateAttachment(session, pi, document, documentMetaData.getDataId());
                   }

@@ -941,7 +941,7 @@ public class ArchiveTest
       assertEquals(7, oldActivities.size());
    }
 
-   private static void archive(WorkflowService workflowService, ExportResult exportResult)
+   public static void archive(WorkflowService workflowService, ExportResult exportResult)
    {
       ExportProcessesCommand command = new ExportProcessesCommand(
             ExportProcessesCommand.Operation.ARCHIVE, exportResult, null, DocumentOption.NONE);

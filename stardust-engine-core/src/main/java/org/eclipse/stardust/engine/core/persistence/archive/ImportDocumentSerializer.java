@@ -12,13 +12,13 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryAuditTrailUtils;
 
-public class DocumentMetaDataSerializer implements JsonSerializer<DocumentMetaData>, JsonDeserializer<DocumentMetaData>
+public class ImportDocumentSerializer implements JsonSerializer<ImportDocument>, JsonDeserializer<ImportDocument>
 {
    private static final Logger LOGGER = LogManager
-         .getLogger(DocumentMetaDataSerializer.class);
+         .getLogger(ImportDocumentSerializer.class);
 
    @Override
-   public JsonElement serialize(final DocumentMetaData documentMetaData,
+   public JsonElement serialize(final ImportDocument documentMetaData,
          final Type typeOfSrc, final JsonSerializationContext context)
    {
       final JsonObject jsonObject = new JsonObject();
@@ -39,12 +39,12 @@ public class DocumentMetaDataSerializer implements JsonSerializer<DocumentMetaDa
    }
 
    @Override
-   public DocumentMetaData deserialize(JsonElement json, Type typeOfT,
+   public ImportDocument deserialize(JsonElement json, Type typeOfT,
          JsonDeserializationContext context) throws JsonParseException
    {
       TypeToken<List<String>> listType = new TypeToken<List<String>>(){};
       
-      DocumentMetaData meta = new DocumentMetaData();
+      ImportDocument meta = new ImportDocument();
       final JsonObject jsonObject = json.getAsJsonObject();
       JsonElement revisionsElement = jsonObject.get("revisions");
       if (revisionsElement != null)

@@ -14,58 +14,59 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceContextAware;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 
 /**
- * This class contains attributes for an activity instance. 
- * 
+ * This class contains attributes for an activity instance.
+ *
  * @author barry.grotjahn
  */
-public interface ActivityInstanceAttributes extends Serializable
+public interface ActivityInstanceAttributes extends Serializable, ActivityInstanceContextAware
 {
    /**
     * Return the oid for the activity instance this attributes belongs to
-    * 
+    *
     * @return the oid of the corresponding activity instance
     */
    long getActivityInstanceOid();
-   
+
    /**
     * Adds a {@link Note} for the given text
     * @param text
     * @return the note created
     */
    Note addNote(String text);
-   
+
    /**
     * Gets the notes which were currently added
     * for this instance.See {@link ActivityInstanceAttributes#addNote(String)}
     * @return the current added notes for this instance
     */
    List<Note> getAddedNotes();
-   
+
    /**
     * Gets the {@link Note} set for this activity instance
     * @return the notes set for this instance
-    * 
+    *
     */
    List<Note> getNotes();
-   
+
    /**
-    * Sets notes to this instance 
+    * Sets notes to this instance
     * @param notes - the notes to set for this instance
     */
    void setNotes(List<Note> notes);
    /**
     * Sets the {@link QualityAssuranceResult} for a specific activity instance.
-    * 
+    *
     * @param result - the result object to set
     */
    void setQualityAssuranceResult(QualityAssuranceResult result);
-   
+
    /**
     * Gets the {@link QualityAssuranceResult} for a specific activity instance.
-    * This will be null for non quality assurance activity instances 
+    * This will be null for non quality assurance activity instances
     * ({@link ActivityInstance#getQualityAssuranceState()} != {@link QualityAssuranceState#IS_QUALITY_ASSURANCE}).
     * or a newly created quality assurance instance.
     * @return the {@link QualityAssuranceResult}

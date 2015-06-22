@@ -64,6 +64,10 @@ public class StatisticsQueryEvaluatorFactory implements IQueryEvaluatorFactory
       {
          result = new ProcessStatisticsRetriever();
       }
+      else if (BenchmarkProcessStatisticsQuery.ID.equals(queryId))
+      {
+         result = new BenchmarkProcessStatisticsRetriever();
+      }
 
       return result;
    }
@@ -87,6 +91,10 @@ public class StatisticsQueryEvaluatorFactory implements IQueryEvaluatorFactory
       else if (CriticalityStatisticsQuery.ID.equals(queryId))
       {
          result = new CriticalityStatisticsRetriever();
+      }
+      else if (BenchmarkActivityStatisticsQuery.ID.equals(queryId))
+      {
+         result = new BenchmarkActivityStatisticsRetriever();
       }
 
       return result;

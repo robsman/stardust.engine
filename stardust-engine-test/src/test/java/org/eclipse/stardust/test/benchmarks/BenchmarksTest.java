@@ -241,7 +241,7 @@ public class BenchmarksTest
 
       ActivityInstance ai1 = instances.get(0);
       ActivityInstance ai2 = instances.get(1);
-      assertTrue(ai1.getBenchmarkResult().getBenchmark() > ai2.getBenchmarkResult().getBenchmark());
+      assertTrue(ai1.getProcessInstance().getBenchmark() > ai2.getProcessInstance().getBenchmark());
    }
 
 }

@@ -170,9 +170,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
       BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(benchmark);
       
-      this.benchmarkResult = new BenchmarkResultDetails(benchmark,
-            processInstance.getBenchmarkValue(),
-            benchmarkDefinition.getProperty(processInstance.getBenchmarkValue()));
+         this.benchmarkResult = new BenchmarkResultDetails(
+               processInstance.getBenchmarkValue(),
+               benchmarkDefinition.getProperty(processInstance.getBenchmarkValue()));
       }
       else
       {

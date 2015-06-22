@@ -2221,7 +2221,6 @@ public class XmlAdapterUtils
       {
          ret = new BenchmarkResultXto();
          
-         ret.setBenchmarkOid(benchmarkResult.getBenchmark());
          ret.setCategory(benchmarkResult.getCategory());
          ret.setProperties(marshalMap(benchmarkResult.getProperties()));
       }

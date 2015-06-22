@@ -192,7 +192,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(processInstance.getBenchmark());
 
          this.benchmarkResult = new BenchmarkResultDetails(
-               processInstance.getBenchmark(), activityInstance.getBenchmarkValue(),
+               activityInstance.getBenchmarkValue(),
                benchmarkDefinition.getProperty(activityInstance.getBenchmarkValue()));
       }
 

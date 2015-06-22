@@ -34,35 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwner }
+     * Create an instance of {@link GetDefinitionResponse }
      * 
      */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParametersResponse }
-     * 
-     */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
-    }
-
-    /**
-     * Create an instance of {@link BpmInteractionFaultXto }
-     * 
-     */
-    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
-        return new BpmInteractionFaultXto();
-    }
-
-    /**
-     * Create an instance of {@link GetDefinition }
-     * 
-     */
-    public GetDefinition createGetDefinition() {
-        return new GetDefinition();
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
     }
 
     /**
@@ -74,11 +50,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParameters }
+     * Create an instance of {@link GetOwner }
      * 
      */
-    public SetOutputParameters createSetOutputParameters() {
-        return new SetOutputParameters();
+    public GetOwner createGetOwner() {
+        return new GetOwner();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinition }
+     * 
+     */
+    public GetDefinition createGetDefinition() {
+        return new GetDefinition();
     }
 
     /**
@@ -90,11 +74,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinitionResponse }
+     * Create an instance of {@link GetInputParametersResponse }
      * 
      */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParameters }
+     * 
+     */
+    public SetOutputParameters createSetOutputParameters() {
+        return new SetOutputParameters();
     }
 
     /**
@@ -103,6 +95,14 @@ public class ObjectFactory {
      */
     public GetInputParameters createGetInputParameters() {
         return new GetInputParameters();
+    }
+
+    /**
+     * Create an instance of {@link BpmInteractionFaultXto }
+     * 
+     */
+    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
+        return new BpmInteractionFaultXto();
     }
 
     /**

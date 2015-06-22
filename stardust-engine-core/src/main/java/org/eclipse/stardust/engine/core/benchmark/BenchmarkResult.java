@@ -19,8 +19,6 @@ import java.util.Map;
 public interface BenchmarkResult
 {
 
-   long getBenchmark();
-
    int getCategory();
 
    Map<String, Serializable> getProperties();

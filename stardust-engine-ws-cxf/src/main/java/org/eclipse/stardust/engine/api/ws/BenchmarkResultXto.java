@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="benchmarkOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="category" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="properties" type="{http://eclipse.org/stardust/ws/v2012a/api}Map"/>
  *       &lt;/sequence>
@@ -30,32 +29,14 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "BenchmarkResult", propOrder = {
-    "benchmarkOid",
     "category",
     "properties"
 })
 public class BenchmarkResultXto {
 
-    protected long benchmarkOid;
     protected int category;
     @XmlElement(required = true)
     protected MapXto properties;
-
-    /**
-     * Gets the value of the benchmarkOid property.
-     * 
-     */
-    public long getBenchmarkOid() {
-        return benchmarkOid;
-    }
-
-    /**
-     * Sets the value of the benchmarkOid property.
-     * 
-     */
-    public void setBenchmarkOid(long value) {
-        this.benchmarkOid = value;
-    }
 
     /**
      * Gets the value of the category property.

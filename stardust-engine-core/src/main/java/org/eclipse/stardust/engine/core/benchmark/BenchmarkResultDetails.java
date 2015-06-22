@@ -24,23 +24,15 @@ public class BenchmarkResultDetails implements BenchmarkResult, Serializable
    private static final long serialVersionUID = 1L;
 
    long benchmarkOid;
-   
-   int category;
-   
-   Map<String, Serializable> properties;
-   
-   public BenchmarkResultDetails(long benchmakrOid, int category,
-         Map<String, Serializable> properties)
-   {
-     this.benchmarkOid = benchmakrOid;
-     this.category = category;
-     this.properties = properties;
-   }
 
-   @Override
-   public long getBenchmark()
+   int category;
+
+   Map<String, Serializable> properties;
+
+   public BenchmarkResultDetails(int category, Map<String, Serializable> properties)
    {
-      return this.benchmarkOid;
+      this.category = category;
+      this.properties = properties;
    }
 
    @Override
@@ -51,7 +43,7 @@ public class BenchmarkResultDetails implements BenchmarkResult, Serializable
 
    @Override
    public Map<String, Serializable> getProperties()
-   {     
+   {
       return this.properties;
    }
 

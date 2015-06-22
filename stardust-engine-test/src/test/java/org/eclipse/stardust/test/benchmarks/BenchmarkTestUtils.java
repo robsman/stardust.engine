@@ -22,6 +22,9 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 
+/**
+ * @author Roland.Stamm
+ */
 public class BenchmarkTestUtils
 {
 

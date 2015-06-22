@@ -16,7 +16,19 @@ import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.spi.artifact.IArtifactHandler;
 
-public class BenchmarkDefinitionArtifactHandler implements IArtifactHandler, IArtifactHandler.Factory
+/**
+ * This {@link IArtifactHandler} handles artifacts of type
+ * {@link BenchmarkDefinitionArtifactType}.
+ * <p>
+ * The handled artifacts are all of content type
+ * {@link BenchmarkDefinitionArtifactHandler#MIME_TYPE}.<br>
+ * Internal caches for benchmark definitions are flushed if a benchmark definition runtime
+ * artifact is overwritten or deleted.
+ *
+ * @author Roland.Stamm
+ */
+public class BenchmarkDefinitionArtifactHandler
+      implements IArtifactHandler, IArtifactHandler.Factory
 {
 
    public static final ArtifactType ARTIFACT_TYPE = new BenchmarkDefinitionArtifactType();
@@ -45,8 +57,6 @@ public class BenchmarkDefinitionArtifactHandler implements IArtifactHandler, IAr
    @Override
    public RuntimeArtifact preProcess(RuntimeArtifact runtimeArtifact)
    {
-      // TODO validation?
-
       return runtimeArtifact;
    }
 
@@ -58,9 +68,7 @@ public class BenchmarkDefinitionArtifactHandler implements IArtifactHandler, IAr
 
    @Override
    public void beforeDelete(DeployedRuntimeArtifact deployedRuntimeArtifact)
-   {
-      // TODO check referential integrity?
-   }
+   {}
 
    @Override
    public void afterDelete(long oid)

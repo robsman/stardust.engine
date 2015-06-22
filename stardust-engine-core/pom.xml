@@ -909,6 +909,8 @@
                   <include>core/query/statistics/api/ProcessCumulationPolicy.java</include>
 
                   <include>core/spi/artifact/IArtifactHandler.java</include>
+                  <include>core/spi/artifact/impl/BenchmarkDefinitionArtifactHandler.java</include>
+                  <include>core/spi/artifact/impl/BenchmarkDefinitionArtifactType.java</include>
 
                   <include>core/spi/dms/IRepositoryCapabilities.java</include>
                   <include>core/spi/dms/IRepositoryConfiguration.java</include>

@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
  *
  * @author Roland.Stamm
  */
-@SPI(status=Status.Beta, useRestriction=UseRestriction.Public)
+@SPI(status=Status.Stable, useRestriction=UseRestriction.Public)
 public interface IArtifactHandler
 {
 

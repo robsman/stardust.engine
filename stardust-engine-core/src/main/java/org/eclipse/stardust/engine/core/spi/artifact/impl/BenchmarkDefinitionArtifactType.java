@@ -13,7 +13,12 @@ package org.eclipse.stardust.engine.core.spi.artifact.impl;
 import org.eclipse.stardust.engine.api.runtime.ArtifactType;
 
 /**
- * @author roland.stamm
+ * The ArtifactType of a benchmark definition.
+ * <p>
+ * Benchmark definitions contain categories and conditions for process and activity
+ * instances.
+ *
+ * @author Roland.Stamm
  */
 public class BenchmarkDefinitionArtifactType implements ArtifactType
 {

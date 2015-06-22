@@ -348,6 +348,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          processInstance.setStartingUser(user);
       }
 
+      IModel iModel = (IModel) processDefinition.getModel();
+      data = initializeDefaultData((Map<String, Object>) data, iModel);
+
       if ((null != data) && !data.isEmpty())
       {
          for (Iterator< ? > iterator = data.entrySet().iterator(); iterator.hasNext(); )
@@ -355,7 +358,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             Map.Entry<String, ? > entry = (Entry<String, ? >) iterator.next();
 
             String dataId = entry.getKey();
-            IData idata = ((IModel) processDefinition.getModel()).findData(dataId);
+            IData idata = iModel.findData(dataId);
             if (idata != null)
             {
                String path = "";
@@ -390,6 +393,32 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
+   }
+
+   private static Map<String, ? > initializeDefaultData(final Map<String, Object> data, IModel iModel)
+   {
+      Map<String, Object> dataMap = null;
+      if (data != null)
+      {
+         // Do not modify original data map.
+         dataMap = CollectionUtils.copyMap(data);
+      }
+      else
+      {
+         dataMap = CollectionUtils.newMap();
+      }
+
+      if (iModel.findData(PredefinedConstants.BUSINESS_DATE) != null
+            && !dataMap.containsKey(PredefinedConstants.BUSINESS_DATE))
+      {
+         dataMap.put(PredefinedConstants.BUSINESS_DATE, null);
+      }
+      if (iModel.findData(PredefinedConstants.DUE_DATE) != null
+            && !dataMap.containsKey(PredefinedConstants.DUE_DATE))
+      {
+         dataMap.put(PredefinedConstants.DUE_DATE, null);
+      }
+      return dataMap;
    }
 
    /**

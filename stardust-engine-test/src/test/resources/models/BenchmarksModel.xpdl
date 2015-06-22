@@ -211,14 +211,14 @@
       </DataField>
       <DataField Id="DUE_DATE" Name="DUE_DATE" IsArray="FALSE">
          <DataType>
-            <BasicType Type="STRING"/>
+            <BasicType Type="Calendar"/>
          </DataType>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="83" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
                   </carnot:Attributes>

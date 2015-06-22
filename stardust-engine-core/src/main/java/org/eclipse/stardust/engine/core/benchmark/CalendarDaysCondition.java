@@ -63,8 +63,9 @@ public class CalendarDaysCondition implements ConditionEvaluator
 
       if (date == null)
       {
-         trace.warn("Could not resolve data with dataId '" + qualifiedDataId
-               + "'. Using process instance start time.");
+         trace.warn("Data '"
+               + qualifiedDataId
+               + "' is not initialized or does not exist. Using process instance start time for calculation.");
          date = ai.getProcessInstance().getStartTime();
       }
 
@@ -86,8 +87,9 @@ public class CalendarDaysCondition implements ConditionEvaluator
 
       if (date == null)
       {
-         trace.warn("Could not resolve data with dataId '" + qualifiedDataId
-               + "'. Using process instance start time.");
+         trace.warn("Data '"
+               + qualifiedDataId
+               + "' is not initialized or does not exist. Using process instance start time for calculation.");
          date = pi.getStartTime();
       }
       return evaluate(date);

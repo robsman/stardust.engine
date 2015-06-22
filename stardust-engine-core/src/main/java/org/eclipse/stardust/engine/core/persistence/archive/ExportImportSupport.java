@@ -190,7 +190,7 @@ public class ExportImportSupport
             {
                processAttachments.remove(oldDocIndex);
                processAttachments.add(document);
-               processInstance.setOutDataValue(data, null, processAttachments);
+               processInstance.setOutDataValue(data, "", processAttachments);
             }
             else
             {
@@ -200,10 +200,7 @@ public class ExportImportSupport
          }
          if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(typeId))
          {
-              Long oldClobOid = (Long)dataValue.getValue();
-              processInstance.setOutDataValue(data, null, document);
-              ClobDataBean clob = (ClobDataBean)session.findByOID(ClobDataBean.class, oldClobOid);
-              clob.delete();
+              processInstance.setOutDataValue(data, "", document);
          }
       }
 

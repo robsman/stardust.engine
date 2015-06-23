@@ -106,64 +106,10 @@ public class TransientProcessInstanceWriteBehindTest extends AbstractTransientPr
       Parameters.instance().set(KernelTweakingProperties.ASYNC_WRITE_VIA_JMS, Boolean.TRUE);
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED, null, true);
-      writeFromQueueToAuditTrail(pi.getOID(), JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
+      writeFromQueueToAuditTrail(sf, JmsProperties.AUDIT_TRAIL_QUEUE_NAME_PROPERTY);
 
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_PI_STATE_CHECK, pi.getState(), is(ProcessInstanceState.Completed));
       assertThat(testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
    }
 
-   private void writeFromQueueToAuditTrail(final long piOid, final String queueName) throws JMSException
-   {
-      final Queue queue = testClassSetup.queue(queueName);
-      final JmsTemplate jmsTemplate = new JmsTemplate();
-      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
-      jmsTemplate.setReceiveTimeout(5000L);
-
-      final Message message = jmsTemplate.receive(queue);
-      if (message == null)
-      {
-         throw new JMSException("Timeout while receiving.");
-      }
-      if ( !(message instanceof BytesMessage))
-      {
-         throw new UnsupportedOperationException("Can only read from bytes message.");
-      }
-
-      final ServiceCommand writeToAuditTrail = new WriteToAuditTrailCommand((BytesMessage) message);
-      sf.getWorkflowService().execute(writeToAuditTrail);
-   }
-
-   private static final class WriteToAuditTrailCommand implements ServiceCommand
-   {
-      private static final long serialVersionUID = -1945946762667325417L;
-
-      private final BytesMessage message;
-
-      public WriteToAuditTrailCommand(final BytesMessage message)
-      {
-         this.message = message;
-      }
-
-      @Override
-      public Serializable execute(final ServiceFactory sf)
-      {
-         final BlobReader reader = new AbstractJmsBytesMessageReader()
-         {
-            @Override
-            protected BytesMessage nextBlobContainer() throws PublicException
-            {
-               return message;
-            }
-         };
-         reader.nextBlob();
-
-         final ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
-         persistor.persistBlob(reader);
-         persistor.writeIntoAuditTrail((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL), 1);
-
-         reader.close();
-
-         return null;
-      }
-   }
 }

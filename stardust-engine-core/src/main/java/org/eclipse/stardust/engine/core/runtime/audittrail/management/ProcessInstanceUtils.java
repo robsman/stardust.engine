@@ -748,24 +748,24 @@ public class ProcessInstanceUtils
                   "Lock-tables are not supported for types with compound PKs.");
 
             DeleteDescriptor delete = DeleteDescriptor
-            		.fromLockTable(partType);
+                  .fromLockTable(partType);
 
             String partOid = tdType.getPkFields()[PK_OID].getName();
             PredicateTerm lockRowsPredicate = Predicates
-            		.inList(delete.fieldRef(partOid), QueryDescriptor
-            				.from(partType)
-            				.select(partOid)
-            				.where(predicate));
+                  .inList(delete.fieldRef(partOid), QueryDescriptor
+                        .from(partType)
+                        .select(partOid)
+                        .where(predicate));
 
             session.executeDelete(delete
-            		.where(lockRowsPredicate));
+                  .where(lockRowsPredicate));
          }
 
          // delete data rows
 
          DeleteDescriptor delete = DeleteDescriptor
-         		.from(partType)
-         		.where(predicate);
+               .from(partType)
+               .where(predicate);
 
          processedItems += session.executeDelete(delete);
       }
@@ -811,9 +811,9 @@ public class ProcessInstanceUtils
          List<Long> piOidsBatch = iterator.next();
 
          PredicateTerm predicate = Predicates
-         		.andTerm(
-         				Predicates.inList(piOidField, piOidsBatch),
-         				(null != restriction) ? restriction : Predicates.TRUE);
+               .andTerm(
+                     Predicates.inList(piOidField, piOidsBatch),
+                     (null != restriction) ? restriction : Predicates.TRUE);
 
          // delete lock rows
          TypeDescriptor tdType = TypeDescriptor.get(partType);
@@ -825,11 +825,11 @@ public class ProcessInstanceUtils
             String partOid = tdType.getPkFields()[PK_OID].getName();
 
             QueryDescriptor lckSubselect = QueryDescriptor
-            		.from(partType)
-            		.select(partOid);
+                  .from(partType)
+                  .select(partOid);
 
             lckSubselect.innerJoin(piPartType)
-            		.on(fkPiPartField, piPartPkName);
+                  .on(fkPiPartField, piPartPkName);
 
             DeleteDescriptor delete = DeleteDescriptor.fromLockTable(partType);
             delete.where(Predicates.inList(delete.fieldRef(partOid), lckSubselect.where(predicate)));
@@ -842,7 +842,7 @@ public class ProcessInstanceUtils
          DeleteDescriptor delete = DeleteDescriptor.from(partType);
 
          delete.innerJoin(piPartType)
-         		.on(fkPiPartField, piPartPkName);
+               .on(fkPiPartField, piPartPkName);
 
          processedItems += session.executeDelete(delete.where(predicate));
       }

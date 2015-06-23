@@ -19,16 +19,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -51,6 +42,7 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
    public static final String[] procinst_hier_idx1_UNIQUE_INDEX = new String[]{FIELD__PROCESS_INSTANCE, FIELD__SUB_PROCESS_INSTANCE};
    public static final String[] procinst_hier_idx2_UNIQUE_INDEX = new String[]{FIELD__SUB_PROCESS_INSTANCE, FIELD__PROCESS_INSTANCE};
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
    private static final String processInstance_EAGER_FETCH = Boolean.FALSE.toString();
    private static final String processInstance_MANDATORY = Boolean.TRUE.toString();

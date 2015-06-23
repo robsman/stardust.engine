@@ -510,6 +510,7 @@ public final class PredefinedConstants
    public static final String VALID_FROM_ATT = ENGINE_SCOPE + "validFrom";
    public static final String VALID_TO_ATT = ENGINE_SCOPE + "validTo";
    public static final String DEPLOYMENT_COMMENT_ATT = ENGINE_SCOPE + "deploymentComment";
+   public static final String MODEL_UUID = ENGINE_SCOPE + "modelUUID";
 
    public static final String EVENT_ACCESS_POINT = ENGINE_SCOPE + "eventScope";
    public static final String MESSAGE_TYPE_ATT = ENGINE_SCOPE + "messageType";

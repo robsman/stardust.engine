@@ -23,7 +23,6 @@ import java.util.Date;
 import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.*;
-import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
@@ -48,6 +47,8 @@ import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.persistence.archive.ExportImportSupport;
 import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
@@ -57,6 +58,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessElementExporter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -1613,8 +1615,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          // TODO make sure no non-PI related data is lost
 
          Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
-
-         boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false);
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false) && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT;
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
 
          final AbstractTransientProcessInstanceSupport transientPiSupport;
@@ -1677,6 +1679,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          List<Persistent> persistentToBeInserted = Collections.EMPTY_LIST;
          List<Persistent> persistentToBeUpdated = Collections.EMPTY_LIST;
 
+         List<IProcessInstance> processesToArchive = null;
+         boolean isNotTransient = true;
+         if (transientPiSupport.arePisTransientExecutionCandidates() || transientPiSupport.isTransientExecutionCancelled())
+         {
+            isNotTransient = transientPiSupport.persistentsNeedToBeWrittenToBlob();
+         }
          // take a snapshot of the key set to avoid ConcurrentModificationExceptions
          for (Class<?> type : newList(objCacheRegistry.keySet()))
          {
@@ -1699,6 +1707,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             for (PersistenceController dpc : (Collection<PersistenceController>) cache.values())
             {
                Persistent persistent = dpc.getPersistent();
+               if (isNotTransient && type == ProcessInstanceBean.class)
+               {
+                  if (ArchiveManagerFactory.autoArchive())
+                  {
+                     ProcessInstanceBean pi = (ProcessInstanceBean) persistent;
+                     if (mustProcessBeArchived(pi))
+                     {
+                        if (processesToArchive == null)
+                        {
+                           processesToArchive = CollectionUtils.newArrayList(25);
+                        }
+                        processesToArchive.add(pi);
+                     }
+                  }
+               }
+               
                if ((dpc.isCreated() || dpc.isModified())
                      && (persistent instanceof LazilyEvaluated))
                {
@@ -1960,9 +1984,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             try
             {
                blobBuilder.persistAndClose();
-
                transientPiSupport.storeBlob(blobBuilder, this, params);
-
                if (trace.isDebugEnabled())
                {
                   trace.debug("Persisted processes to BLOB.");
@@ -1972,6 +1994,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                throw new InternalException(
                      "Failed to persist processes to BLOB: " + e.getMessage(), e);
+            }
+         }
+         else
+         {
+            if (CollectionUtils.isNotEmpty(processesToArchive))
+            {
+               ExportImportSupport.archive(processesToArchive);
             }
          }
 
@@ -1986,12 +2015,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             executeDelete(bulkDeleteStatement.getStatementString(), bulkDeleteStatement.getBindValueList(), bulkDeleteStatement.getType());
          }
 
-         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv != null && rtEnv.isDeploymentBeanCreated())
          {
             ModelManagerFactory.getCurrent().resetLastDeployment();
          }
-
 
       }
       catch (SQLException x)
@@ -1999,9 +2026,31 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
       }
+      finally 
+      {
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (rtEnv != null)
+         {
+            rtEnv.setOperationMode(BpmRuntimeEnvironment.OperationMode.DEFAULT);
+         }
+      }
       SessionLifecycleUtils.getSessionLifecycleExtension().afterSave(this);
    }
 
+   private boolean mustProcessBeArchived(ProcessInstanceBean persistentToFilter)
+   {
+      // check not archive for excluding re-archiving imported archived processes
+      final boolean isNotArchived = null == persistentToFilter.getPropertyValue(ProcessElementExporter.EXPORT_PROCESS_ID);
+      final boolean isAborted = persistentToFilter.isAborted();
+      final boolean isCompleted = persistentToFilter.isCompleted();
+      final boolean isRoot = persistentToFilter.getOID() == persistentToFilter.getRootProcessInstanceOID();
+      
+      final boolean isCreated = persistentToFilter.getPersistenceController().isCreated();
+      final boolean isModified = persistentToFilter.getPersistenceController().isModified();
+      
+      return (isNotArchived && (isCreated || isModified) && isRoot && (isAborted || isCompleted));
+   }
+   
    private void remove(AbstractCache externalCache, Persistent persistent)
    {
       if (externalCache != null)

@@ -12,12 +12,13 @@ package org.eclipse.stardust.engine.core.monitoring;
 
 
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor;
 
 
 public class DefaultProcessExecutionMonitor implements IProcessExecutionMonitor
 {
+
    public void processStarted(IProcessInstance process)
    {
    }

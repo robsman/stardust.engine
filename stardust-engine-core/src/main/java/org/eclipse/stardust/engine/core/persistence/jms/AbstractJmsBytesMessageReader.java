@@ -22,7 +22,7 @@ import org.eclipse.stardust.common.error.PublicException;
  * @author sauer
  * @version $Revision$
  */
-public abstract class AbstractJmsBytesMessageReader implements BlobReader
+public abstract class AbstractJmsBytesMessageReader extends AbstractBlobReader
 {
 
    private BytesMessage msg;

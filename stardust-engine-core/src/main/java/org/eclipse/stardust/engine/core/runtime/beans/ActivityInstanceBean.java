@@ -208,8 +208,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    /**
     * Contains the OID of the activity.
     */
+   @ForeignKey (modelElement=ModelBean.class)
    protected long model;
 
+   @ForeignKey (modelElement=ActivityBean.class)
    protected long activity;
 
    ProcessInstanceBean processInstance;
@@ -2622,6 +2624,15 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             throw new InternalException(e);
          }
       }
+   }
+   
+   /**
+    * This method is called when importing an activity instance from an archive.
+    * This is the only time this should be called, it initialized the initial performer
+    * attribute which is necessary upon session flushing
+    */
+   public void prepareForImportFromArchive() {
+      recordInitialPerformer();
    }
 
    public QualityAssuranceState getQualityAssuranceState()

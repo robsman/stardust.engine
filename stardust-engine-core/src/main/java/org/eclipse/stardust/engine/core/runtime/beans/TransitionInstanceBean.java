@@ -11,7 +11,10 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -48,7 +51,9 @@ public class TransitionInstanceBean extends IdentifiablePersistentBean
 
    public ProcessInstanceBean processInstance;
 
+   @ForeignKey (modelElement=ModelBean.class)
    public long model;
+   @ForeignKey (modelElement=TransitionBean.class)
    public long transition;
 
    public ActivityInstanceBean source;
@@ -100,5 +105,12 @@ public class TransitionInstanceBean extends IdentifiablePersistentBean
       fetchLink(FIELD__TARGET);
 
       return target;
+   }
+
+   public void prepareForImportFromArchive()
+   {
+      getStartActivity();
+      getEndActivity();
+      getProcessInstance();
    }
 }

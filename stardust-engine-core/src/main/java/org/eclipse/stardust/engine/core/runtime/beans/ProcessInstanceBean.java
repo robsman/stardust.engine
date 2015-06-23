@@ -34,6 +34,8 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
@@ -163,7 +165,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private long startTime;
    private long terminationTime;
    private int state = ProcessInstanceState.CREATED;
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
    private int priority;
    private long deployment;
@@ -1754,7 +1758,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public AuditTrailPersistence getAuditTrailPersistence()
    {
-      if (isGlobalAuditTrailPersistenceOverride())
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      
+      if (isGlobalAuditTrailPersistenceOverride() && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT)
       {
          return determineGlobalOverride();
       }
@@ -2257,6 +2263,25 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return this;
    }
 
+   /**
+    * This method is called when importing a process instance from an archive. This is the
+    * only time this should be called, it initialized the ProcessInstanceScopeBean,
+    * startingActivity and startingUser
+    */
+   public void prepareForImportFromArchive()
+   {
+      if (getScopeProcessInstance() != null)
+      {
+         // we need to explicitly create the scope bean like this, it can't be
+         // imported normally. this constructor calls session.cluster which is
+         // necessary to be called only once.
+         new ProcessInstanceScopeBean(this, getScopeProcessInstance(),
+               getRootProcessInstance());
+      }
+      getStartingActivityInstance();
+      getStartingUser();
+   }
+   
    public void setBenchmark(long benchmarkOid)
    {
       markModified(FIELD__BENCHMARK_OID);

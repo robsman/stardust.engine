@@ -31,6 +31,8 @@ public interface JmsProperties
    String DAEMON_QUEUE_NAME_PROPERTY = "jms/CarnotDaemonQueue";
    String APPLICATION_QUEUE_NAME_PROPERTY = "jms/CarnotApplicationQueue";
    String AUDIT_TRAIL_QUEUE_NAME_PROPERTY = "jms/CarnotAuditTrailQueue";
+   String ARCHIVE_QUEUE_NAME_PROPERTY = "jms/CarnotArchiveQueue";
+   String EXPORT_QUEUE_NAME_PROPERTY = "jms/CarnotExportQueue";
    
    String PROP_PREFIX = "JMS.";
    

@@ -547,7 +547,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 JMS_UNEXPECTED_SECTION_MARKER = newArgs1("JMS01009", BpmRuntimeErrorMessages.getString("JMS01009")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JMS_MESSAGE_TYPE_FOR_ID_NOT_SUPPORTED = newArgs1("JMS01010", BpmRuntimeErrorMessages.getString("JMS01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JMS_MATCHING_AI_FOUND_BUT_IT_IS_NOT_OF_RECEIVING_NATURE = newArgs1("JMS01011", BpmRuntimeErrorMessages.getString("JMS01011")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args0 JMS_FAILED_INITIALIZING_JMS_EXPORTQUEUE_SENDER = newArgs0("JMS01012", BpmRuntimeErrorMessages.getString("JMS01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_SEND_EXPORTQUEUE_SENDER = newArgs0("JMS01013", BpmRuntimeErrorMessages.getString("JMS01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    //// Preference Store related
 
    public static final Args0 PREF_PREF_STORE_READONLY = newArgs0("PREF01001", BpmRuntimeErrorMessages.getString("PREF01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -652,8 +654,15 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 CLI_NEITHER_REPOSITORY_NOR_MODEL_FILE_PROVIDED = newArgs0("CLI01018", BpmRuntimeErrorMessages.getString("CLI01018")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_FAILED_RESOLVING_PARTITION_OIDS = newArgs0("CLI01019", BpmRuntimeErrorMessages.getString("CLI01019")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 CLI_INVALID_DEPARTMENT_PATH_CREATE_IT_MANUALLY_OR_SPECIFIY_OPTION = newArgs2("CLI01020", BpmRuntimeErrorMessages.getString("CLI01020")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
+   public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_DATEDESCRIPTOR = newArgs1("CLI01021", BpmRuntimeErrorMessages.getString("CLI01021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_FROMDATE = newArgs1("CLI01022", BpmRuntimeErrorMessages.getString("CLI01022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TODATE = newArgs1("CLI01023", BpmRuntimeErrorMessages.getString("CLI01023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_UNSUPPORTED_FORMAT_FOR_OPTION_PROCESSINSTANCEOID = newArgs1("CLI01024", BpmRuntimeErrorMessages.getString("CLI01024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_INVALID_OPTION_DUMP = newArgs1("CLI01025", BpmRuntimeErrorMessages.getString("CLI01025")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_INVALID_OPTION_PREFERENCES  = newArgs1("CLI01026", BpmRuntimeErrorMessages.getString("CLI01026")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_INVALID_CONTENT_FOR_OPTION_PREFERENCES  = newArgs1("CLI01027", BpmRuntimeErrorMessages.getString("CLI01027")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_INVALID_OPTION_DOCUMENTS = newArgs1("CLI01028", BpmRuntimeErrorMessages.getString("CLI01028")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    //// Archiver related
    public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_ARCHIVING_LOG_ENTRIES = newArgs0("ARCH01002", BpmRuntimeErrorMessages.getString("ARCH01002")); //$NON-NLS-1$ //$NON-NLS-2$

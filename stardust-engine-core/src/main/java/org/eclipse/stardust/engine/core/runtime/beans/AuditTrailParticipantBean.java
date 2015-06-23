@@ -13,11 +13,8 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -50,7 +47,8 @@ public class AuditTrailParticipantBean extends IdentifiablePersistentBean implem
          FIELD__ID, FIELD__OID, FIELD__MODEL};
 
    static final boolean type_USE_LITERALS = true;
-   
+
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    
    private static final int id_COLUMN_LENGTH = 50;

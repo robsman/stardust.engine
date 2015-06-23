@@ -33,6 +33,7 @@ public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActi
    public static final int SYSTEM_MESSAGE_TYPE_ID = 1;
    public static final int DAEMON_MESSAGE_TYPE_ID = 2;
    public static final int RESPONSE_HANDLER_MESSAGE_TYPE_ID = 3;
+   public static final int ARCHIVE_MESSAGE_TYPE_ID = 4;
 
    public static final String MESSAGE_TYPE_TAG = "messageType";
    public static final String TRANSPORT_CLASS_TAG = "transportClass";

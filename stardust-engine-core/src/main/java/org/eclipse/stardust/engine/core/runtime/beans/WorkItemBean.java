@@ -26,7 +26,10 @@ import org.eclipse.stardust.engine.api.runtime.ActivityExecutionUtils;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
+import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
@@ -89,19 +92,25 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
 
    static final boolean state_USE_LITERALS = true;
 
+   @ForeignKey (persistentElement=ActivityInstanceBean.class)
    private long activityInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long scopeProcessInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long rootProcessInstance;
 
    /**
     * Contains the OID of the activity.
     */
+   @ForeignKey (modelElement=ModelBean.class)
    protected long model;
 
+   @ForeignKey (modelElement=ActivityBean.class)
    protected long activity;
 
    private int state;

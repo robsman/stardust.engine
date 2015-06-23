@@ -174,6 +174,11 @@
          <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
          <scope>runtime</scope>
       </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <scope>runtime</scope>
+      </dependency>
 
       <!-- JUnit (incl. Hamcrest) -->
       <dependency>
@@ -190,6 +195,69 @@
          <groupId>org.springframework</groupId>
          <artifactId>spring-context</artifactId>
       </dependency>
+
+      <!-- Camel JS script execution -->
+      <dependency>
+         <groupId>org.apache.bsf</groupId>
+         <artifactId>bsf-engines</artifactId>
+         <version>3.1-stardust01</version>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.ws.commons.axiom</groupId>
+               <artifactId>axiom-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.ws.commons.axiom</groupId>
+               <artifactId>axiom-impl</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>stax</groupId>
+               <artifactId>stax-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.codehaus.woodstox</groupId>
+               <artifactId>wstx-asl</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>rhino</groupId>
+               <artifactId>js</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>xmlbeans</groupId>
+               <artifactId>xbean</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>net.sourceforge.retroweaver</groupId>
+               <artifactId>retroweaver</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>net.sourceforge.retroweaver</groupId>
+               <artifactId>retroweaver-rt</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>asm</groupId>
+               <artifactId>asm</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>asm</groupId>
+               <artifactId>asm-commons</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>asm</groupId>
+               <artifactId>asm-util</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>backport-util-concurrent</groupId>
+               <artifactId>backport-util-concurrent</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
    </dependencies>
 
    <build>

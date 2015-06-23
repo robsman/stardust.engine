@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.daemons;
 
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.common.Action;
@@ -294,10 +295,24 @@ public class DaemonAction extends SecurityContextAwareAction
          synchronized (locks)
          {
             String type = carrier.getType();
+            List<String> exclusiveDaemons = Parameters.instance().getStrings(
+                  DaemonProperties.DAEMON_EXCLUSIVE_TYPES, ",");
             if (locks.contains(type))
             {
                throw new ConcurrencyException(
                      BpmRuntimeError.BPMRT_DAEMON_ALREADY_RUNNING.raise(type));
+            }
+            else if (exclusiveDaemons != null && exclusiveDaemons.contains(type))
+            {
+               for (String exclusiveType : exclusiveDaemons)
+               {
+                  if (locks.contains(exclusiveType))
+                  {
+                     throw new ConcurrencyException(
+                           BpmRuntimeError.BPMRT_DAEMON_EXCLUSE_TYPE_LOCKED.raise(exclusiveType));
+                  }
+               }
+
             }
             locks.add(type);
          }

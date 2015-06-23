@@ -110,7 +110,7 @@ public class BenchmarkDaemon implements IDaemon
                evaluatorMap.put(benchmarkDetails.getBenchmarkOid(), evaluator);
             }
 
-            trace.info("Adding PI <" + oid + "> to benchmarkPIMap");
+            trace.debug("Adding PI <" + oid + "> to benchmarkPIMap");
             benchmarkPIMap.put(oid, evaluator.getBenchmarkForProcessInstance(oid));
 
             Map<Long, String> aiBenchmarkMap = benchmarkDetails.getAiBenchmarkMap();
@@ -132,7 +132,7 @@ public class BenchmarkDaemon implements IDaemon
                benchmarkAIMap));
          
          currentPiOid = lastPiOid;
-         nInstance = nInstance + benchmarkPIMap.size();
+         nInstance = nInstance + benchmarkPIMap.size();         
 
       }
       catch (Exception e)
@@ -204,7 +204,7 @@ public class BenchmarkDaemon implements IDaemon
 
             if ( !piBenchmarkMap.containsKey(oid))
             {
-               trace.info("Add PI with OID <" + oid + "> to update map");
+               trace.debug("Add PI with OID <" + oid + "> to update map");
                piBenchmarkMap.put(oid, new PiBenchmarkDetails(benchmarkOid));
                copiedRows++ ;
             }

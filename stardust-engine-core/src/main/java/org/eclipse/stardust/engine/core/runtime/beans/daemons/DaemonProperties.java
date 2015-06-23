@@ -19,4 +19,6 @@ public interface DaemonProperties
    static final String DAEMON_RETRY_NUMBER = "Stardust.Engine.Daemon.Acknowledge.Retry";
 
    static final String DAEMON_RETRY_DELAY = "Stardust.Engine.Daemon.Acknowledge.Delay";
+   
+   static final String DAEMON_EXCLUSIVE_TYPES = "Stardust.Engine.Daemon.ExclusiveExecutionTypes";
 }

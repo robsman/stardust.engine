@@ -369,6 +369,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 BPMRT_FAILED_CREATING_DATA_VALUE = newArgs1("BPMRT02121", BpmRuntimeErrorMessages.getString("BPMRT02121")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_DAEMON_ALREADY_RUNNING = newArgs1("CONC03100", BpmRuntimeErrorMessages.getString("CONC03100")); //$NON-NLS-1$ //$NON-NLS-2$
+   
+   public static final Args1 BPMRT_DAEMON_EXCLUSE_TYPE_LOCKED = newArgs1("CONC03101", BpmRuntimeErrorMessages.getString("CONC03101"));  //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs1("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
 

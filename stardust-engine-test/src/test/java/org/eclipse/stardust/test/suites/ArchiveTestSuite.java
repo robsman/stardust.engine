@@ -38,7 +38,7 @@ import org.eclipse.stardust.test.archive.DocumentArchiveTest;
 @SuiteClasses({
    ArchiveTest.class, AutoArchiveTest.class, DocumentArchiveTest.class
               })
-@ApplicationContextConfiguration(locations = "classpath:app-ctxs/archive.app-ctx.xml")
+@ApplicationContextConfiguration(locations = { "classpath:app-ctxs/archive.app-ctx.xml", "classpath:stardust-default-camel-context.app-ctx.xml" })
 public class ArchiveTestSuite
 {
    /* test suite */

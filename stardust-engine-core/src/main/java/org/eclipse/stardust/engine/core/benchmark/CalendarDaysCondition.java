@@ -53,7 +53,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       Date date;
       try
       {
-         date = getDateDateValue((ProcessInstanceBean) ai.getProcessInstance(),
+         date = getDateValue((ProcessInstanceBean) ai.getProcessInstance(),
                qualifiedDataId);
       }
       catch (ObjectNotFoundException e)
@@ -78,7 +78,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       Date date;
       try
       {
-         date = getDateDateValue(pi, qualifiedDataId);
+         date = getDateValue(pi, qualifiedDataId);
       }
       catch (ObjectNotFoundException e)
       {
@@ -95,9 +95,9 @@ public class CalendarDaysCondition implements ConditionEvaluator
       return evaluate(date);
    }
 
-   private Date getDateDateValue(ProcessInstanceBean pi, String qualifiedDataId)
+   private Date getDateValue(ProcessInstanceBean pi, String qualifiedDataId)
    {
-      Calendar calendar = null;
+      Date time = null;
 
       if (qualifiedDataId != null)
       {
@@ -106,10 +106,19 @@ public class CalendarDaysCondition implements ConditionEvaluator
          IData iData = iModel.findData(dataId);
          if (iData != null)
          {
-            calendar = (Calendar) pi.getInDataValue(iData, dataId);
+            Object inDataValue = pi.getInDataValue(iData, dataId);
+
+            if (inDataValue instanceof Calendar)
+            {
+               time = ((Calendar) inDataValue).getTime();
+            }
+            else if (inDataValue instanceof Date)
+            {
+               time = (Date) inDataValue;
+            }
          }
       }
-      return calendar == null ? null : calendar.getTime();
+      return time;
    }
 
    private boolean evaluate(Date date)

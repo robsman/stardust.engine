@@ -311,7 +311,8 @@ public class ImportProcessesCommand implements ServiceCommand
       try
       {
          ExportModel exportModel = archive.getExportModel();
-         ExportImportSupport.validateModel(sf.getQueryService(), exportModel, importMetaData);
+         ExportImportSupport.validateModel(sf.getQueryService(), exportModel, 
+               importMetaData, archive.getExportIndex().getVersion());
       }
       catch (Exception e)
       {

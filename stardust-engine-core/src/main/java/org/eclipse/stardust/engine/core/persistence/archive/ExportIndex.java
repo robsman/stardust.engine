@@ -26,6 +26,8 @@ public class ExportIndex implements Serializable
    private String dateFormat;
 
    private String dumpLocation;
+   
+   private String version;
 
    // map of root oid to subprocess process oids.
    // if a root process has no subprocesses the sublist will be empty, it will not be null
@@ -41,14 +43,14 @@ public class ExportIndex implements Serializable
    {
    }
 
-   public ExportIndex(String archiveManagerId, String dateFormat, String dumpLocation)
+   public ExportIndex(String archiveManagerId, String version, String dateFormat, String dumpLocation)
    {
-      this(archiveManagerId, dateFormat, new HashMap<Long, List<Long>>(), 
+      this(archiveManagerId, version, dateFormat, new HashMap<Long, List<Long>>(), 
             new HashMap<String, Map<String, List<Long>>>(), new HashMap<Long, String>(), dumpLocation,
             new HashMap<Long, List<String>>());
    }
 
-   public ExportIndex(String archiveManagerId, String dateFormat, 
+   public ExportIndex(String archiveManagerId, String version, String dateFormat, 
          Map<Long, List<Long>> processes,
          Map<String, Map<String, List<Long>>> fields, Map<Long, String> oidsToUuids, String dumpLocation,
          Map<Long, List<String>> processDocuments)
@@ -59,8 +61,14 @@ public class ExportIndex implements Serializable
       this.dumpLocation = dumpLocation;
       this.dateFormat = dateFormat;
       this.oidsToUuids = oidsToUuids;
+      this.version = version;
    }
    
+   public String getVersion()
+   {
+      return version;
+   }
+
    public boolean contains(Long processInstanceOid)
    {
       return oidsToUuids.get(processInstanceOid) != null;

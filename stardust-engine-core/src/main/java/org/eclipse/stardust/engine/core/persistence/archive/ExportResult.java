@@ -150,7 +150,7 @@ public class ExportResult implements Serializable
          ExportIndex exportIndex = exportIndexByDate.get(indexDate);
          if (exportIndex == null)
          {
-            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(),
+            exportIndex = new ExportIndex(ArchiveManagerFactory.getCurrentId(), ExportImportSupport.getVersion(),
                   ArchiveManagerFactory.getDateFormat(), dumpLocation);
             exportIndexByDate.put(indexDate, exportIndex);
          }

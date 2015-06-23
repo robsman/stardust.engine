@@ -22,6 +22,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.config.CurrentVersion;
+import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -529,6 +531,7 @@ public class ExportImportSupport
             exportModelByDate = new HashMap<Date, ExportModel>();
          }
          String archiveManagerId = null;
+         String version = null;
          String dateFormat = null;
          String dumpLocation = null;
          dateloop: for (Date date : uniqueDates)
@@ -539,6 +542,7 @@ public class ExportImportSupport
                if (exportIndex != null)
                {
                   archiveManagerId = exportIndex.getArchiveManagerId();
+                  version = exportIndex.getVersion();
                   dateFormat = exportIndex.getDateFormat();
                   dumpLocation = exportIndex.getDumpLocation();
                   break dateloop;
@@ -554,7 +558,7 @@ public class ExportImportSupport
             {
                allData = new byte[] {};
                allDocuments = new byte[] {};
-               index = new ExportIndex(archiveManagerId, dateFormat, dumpLocation);
+               index = new ExportIndex(archiveManagerId, version, dateFormat, dumpLocation);
                indexByDate.put(date, index);
             }
             for (ExportResult result : exportResults)
@@ -904,7 +908,7 @@ public class ExportImportSupport
     *           Map with element class as Key to Map of imported runtimeOid to current
     *           environment's runtimeOid
     */
-   public static void validateModel(QueryService queryService, ExportModel exportModel, ImportMetaData importMetaData)
+   public static void validateModel(QueryService queryService, ExportModel exportModel, ImportMetaData importMetaData, String version)
    {
       if (importMetaData == null)
       {
@@ -918,6 +922,13 @@ public class ExportImportSupport
                "Invalid environment to import into. Export partition "
                      + exportModel.getPartition() + " does not match current partition "
                      + SecurityProperties.getPartition().getId());
+      }
+      if (!version.equals(getVersion()))
+      {
+         throw new IllegalStateException(
+               "Invalid environment to import into. Export environment version "
+                     + version + " does not match current environment version "
+                     + getVersion());
       }
       ModelManagerPartition modelManager = (ModelManagerPartition) ModelManagerFactory
             .getCurrent();
@@ -1313,6 +1324,31 @@ public class ExportImportSupport
          final Field fkField = linkDesc.getFkField();
          final Class< ? > fkFieldType = fkField.getType();
          reader.readFieldValue(fkFieldType);
+      }
+   }
+
+   public static String getVersion()
+   {
+      Version version = null;
+      PropertyPersistor persistor = PropertyPersistor.findByName(Constants.CARNOT_VERSION);
+      if (persistor != null)
+      {
+         try
+         {
+            version = Version.createModelVersion(persistor.getValue(), CurrentVersion.getVendorName());
+         }
+         catch (Exception e)
+         {
+            LOGGER.error("Failed getting IPP version", e);
+         }
+      }
+      if (version != null)
+      {
+         return version.toCompleteString();
+      }
+      else
+      {
+         return null;
       }
    }
 

@@ -321,6 +321,82 @@ public class ArchiveTest
    }
 
    @Test
+   public void testIPPVersionValidation() throws Exception
+   {
+      WorkflowService ws = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+      
+      final ProcessInstance pi = startAndCompleteSimple(ws, qs);
+
+      ProcessInstanceQuery pQuery = new ProcessInstanceQuery();
+      pQuery.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      ActivityInstanceQuery aQuery = new ActivityInstanceQuery();
+      aQuery.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
+
+     
+      ProcessInstances oldInstances = qs.getAllProcessInstances(pQuery);
+      ActivityInstances oldActivities = qs.getAllActivityInstances(aQuery);
+      assertNotNull(oldInstances);
+      assertNotNull(oldActivities);
+      assertEquals(1, oldInstances.size());
+      assertEquals(2, oldActivities.size());
+      assertEquals(pi.getOID(), oldInstances.get(0).getOID());
+      assertNotNull(pi.getScopeProcessInstanceOID());
+      assertNotNull(pi.getRootProcessInstanceOID());
+
+      List<Long> oids = Arrays.asList(pi.getOID());
+      ArchiveFilter filter = getPiOidsFilter(oids);
+      exportAndArchive(ws, filter);
+      
+      filter = getBlankArchiveFilter();
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) ws
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      MemoryArchive archive = (MemoryArchive)archives.get(0);
+      
+      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), "x", "yyyy-dd-MM HH:mm", null);
+      ExportIndex oldIndex = archive.getExportIndex();
+      
+      for (Long oid : oldIndex.getRootProcessToSubProcesses().keySet())
+      {
+         exportIndex.getRootProcessToSubProcesses().put(oid, oldIndex.getRootProcessToSubProcesses().get(oid));
+         exportIndex.setUuid(oid, oldIndex.getUuid(oid));
+         for (Long subId : oldIndex.getRootProcessToSubProcesses().get(oid))
+         {
+            exportIndex.setUuid(subId, oldIndex.getUuid(subId));
+         }
+      }      
+      exportIndex.setFields(oldIndex.getFields());
+      
+      String json = getJSON(exportIndex);
+      MemoryArchive archive1 = new MemoryArchive((String)archive.getArchiveKey(), archive.getDate(), 
+            archive.getDataByProcess(), getJSON(archive.getExportModel()), json,
+            new HashMap<String, byte[]>());
+      
+      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.ERROR);
+      barrier.registerWithLog4j();
+      filter = getBlankArchiveFilter();
+      int count = (Integer) ws.execute(new ImportProcessesCommand(
+            ImportProcessesCommand.Operation.VALIDATE_AND_IMPORT, archive1, filter, null, null, DocumentOption.NONE));
+      assertEquals(0, count);
+
+      ProcessInstances newInstancesA = qs.getAllProcessInstances(pQuery);
+      ActivityInstances newActivitiesA = qs.getAllActivityInstances(aQuery);
+      ProcessInstances newInstancesB = qs.getAllProcessInstances(pQuery);
+      ActivityInstances newActivitiesB = qs.getAllActivityInstances(aQuery);
+      assertEquals(0, newInstancesA.size());
+      assertEquals(0, newActivitiesA.size());
+      assertEquals(0, newInstancesB.size());
+      assertEquals(0, newActivitiesB.size());
+
+      barrier
+            .waitForLogMessage(
+                  "Invalid environment to import into.*Export environment version x does not match current environment version.*",
+                  new WaitTimeout(5, TimeUnit.SECONDS));
+   }
+
+   @Test
    public void testPartitionValidation() throws Exception
    {
       AuditTrailPartitionManager.createAuditTrailPartition(PARTION_A, "sysop");
@@ -3334,10 +3410,13 @@ public class ArchiveTest
             exportMetaData, null, DocumentOption.NONE);
       ExportResult exportResult = (ExportResult) workflowService.execute(command);
       assertNotNullModel(exportResult);
+      
+      String version = getVersion(workflowService, filter, exportMetaData, exportResult);
+      
       HashMap<Long, byte[]> data = new HashMap<Long, byte[]>();
       data.put(1L, new byte[] {1});
-      String json = getExportIndexJSON(workflowService);
-
+      String json = getExportIndexJSON(workflowService, version);
+      
       MemoryArchive archive = new MemoryArchive("key", testTimestampProvider.getTimestamp(),
             data, getJSON(exportResult.getExportModel(testTimestampProvider.getTimestamp())), json,
             new HashMap<String, byte[]>());
@@ -3352,7 +3431,25 @@ public class ArchiveTest
 
    }
 
-   private String getExportIndexJSON(WorkflowService workflowService)
+   private String getVersion(WorkflowService workflowService, ArchiveFilter filter,
+         ExportMetaData exportMetaData, ExportResult exportResult)
+   {
+      ExportProcessesCommand command;
+      command = new ExportProcessesCommand(ExportProcessesCommand.Operation.EXPORT_BATCH,
+            exportMetaData, null, DocumentOption.NONE);
+      ExportResult exportResultData = (ExportResult) workflowService.execute(command);
+      assertNotNull(exportResultData);
+      ExportResult merge = ExportImportSupport.merge(Arrays.asList(exportResultData), exportResult.getExportModelsByDate());
+      archive(workflowService, merge);
+      @SuppressWarnings("unchecked")
+      List<IArchive> archives = (List<IArchive>) workflowService
+            .execute(new ImportProcessesCommand(filter, null));
+      assertEquals(1, archives.size());
+      String version = archives.get(0).getExportIndex().getVersion();
+      return version;
+   }
+
+   private String getExportIndexJSON(WorkflowService workflowService, String version)
    {
       ArchiveFilter filter = getBlankArchiveFilter();
       workflowService
@@ -3365,7 +3462,7 @@ public class ArchiveTest
       String start = "2015/03/05 00:00:00:000";
       String end = "2015/03/05 13:00:00:000";
       oids.put(1L, new ArrayList<Long>());
-      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), getDateFormat("default"), "c");
+      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), version, getDateFormat("default"), "c");
       List<Long> subProcesses = new ArrayList<Long>();
       exportIndex.getRootProcessToSubProcesses().put(1L, subProcesses);
       exportIndex.setUuid(1L, uuid);
@@ -3444,7 +3541,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {5});
-      String json = getExportIndexJSON(workflowService);
+      String json = getExportIndexJSON(workflowService, "x");
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -3461,7 +3558,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_EOF});
-      String json = getExportIndexJSON(workflowService);
+      String json = getExportIndexJSON(workflowService, "x");
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
            new HashMap<Integer, String>(), "");
       
@@ -3479,7 +3576,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES});
-      String json = getExportIndexJSON(workflowService);
+      String json = getExportIndexJSON(workflowService, "x");
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -3496,7 +3593,7 @@ public class ArchiveTest
       WorkflowService workflowService = sf.getWorkflowService();
       HashMap<Long, byte[]> dataByProcess = new HashMap<Long, byte[]>();
       dataByProcess.put(1L, new byte[] {BlobBuilder.SECTION_MARKER_INSTANCES, 5});
-      String json = getExportIndexJSON(workflowService);
+      String json = getExportIndexJSON(workflowService, "x");
       ExportModel exportModel = new ExportModel(new HashMap<String, Long>(), 
             new HashMap<Integer, String>(), "");
       MemoryArchive archive = new MemoryArchive("key",testTimestampProvider.getTimestamp(),
@@ -7211,7 +7308,7 @@ public class ArchiveTest
       Long exportProcess = oldIndex.getRootProcessToSubProcesses().keySet().iterator().next();
       oldIndex.addField(exportProcess, ArchiveModelConstants.DESCR_BUSINESSDATE, "2015-05-03 00:00");
   
-      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), "yyyy-dd-MM HH:mm", null);
+      ExportIndex exportIndex = new ExportIndex(getArchiveManagerId("default"), oldIndex.getVersion(),"yyyy-dd-MM HH:mm", null);
       
       for (Long oid : oldIndex.getRootProcessToSubProcesses().keySet())
       {

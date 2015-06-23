@@ -274,6 +274,7 @@
                </excludes>
                <forkCount>1</forkCount>
                <reuseForks>false</reuseForks>
+               <argLine>-XX:MaxPermSize=140m -Xmx384m</argLine>
                <failIfNoTests>false</failIfNoTests>
                <testFailureIgnore>true</testFailureIgnore>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>

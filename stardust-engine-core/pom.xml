@@ -839,8 +839,8 @@
                   <include>api/query/DocumentQuery.java</include>
                   <include>api/query/DataOrder.java</include>
                   <include>api/query/DeployedModelQuery.java</include>
-                  <include>api/query/DeployedRuntimeArtifactsQuery.java</include>
-                  <include>api/query/DeployedRuntimeArtifacts.java</include>
+                  <include>api/query/DeployedRuntimeArtifactQuery.java</include>
+                  <include>api/query/DeployedRuntimeArtifact.java</include>
                   <include>api/query/EvaluateByWorkitemsPolicy.java</include>
                   <include>api/query/ExcludeUserPolicy.java</include>
                   <include>api/query/EvaluationPolicy.java</include>

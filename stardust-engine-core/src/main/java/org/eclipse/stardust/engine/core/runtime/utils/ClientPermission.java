@@ -81,10 +81,7 @@ public final class ClientPermission
             DocumentManagementService.class, AdministrationService.class, GlobalPermissionSpecificService.class};
       for (Class<?> cls : classes)
       {
-         for (Method method : cls.getMethods())
-         {
-            initializePermission(map, method);
-         }
+         initializeClass(map, cls);
       }
 
       // additional permission used by delegation
@@ -121,6 +118,15 @@ public final class ClientPermission
       SAVE_OWN_REALM_SCOPE_PREFERENCES = initializePermission(map, GlobalPermissionSpecificService.class, "getSaveOwnRealmScopePreferencesPermission");
    }
 
+   public static void initializeClass(
+         HashMap<ExecutionPermission, ClientPermission> map, Class< ? > cls)
+   {
+      for (Method method : cls.getMethods())
+      {
+         initializePermission(map, method);
+      }
+   }
+
    private static ClientPermission initializePermission(HashMap<ExecutionPermission, ClientPermission> map, Class<?> cls, String name, Class<?>... args)
    {
       try
@@ -141,6 +147,7 @@ public final class ClientPermission
       if (permission == null)
       {
          System.err.println("Missing permission for: " + method);
+         cp = null;
       }
       else if (permission.id() != ExecutionPermission.Id.none)
       {
@@ -151,6 +158,7 @@ public final class ClientPermission
             map.put(permission, cp);
          }
       }
+      
       if (!permissionCache.containsKey(method))
       {
          permissionCache.put(method, cp);

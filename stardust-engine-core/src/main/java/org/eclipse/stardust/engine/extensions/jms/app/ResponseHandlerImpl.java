@@ -381,38 +381,42 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
    private List<Match> findMatchForTriggerMessage(Message message, Trigger trigger)
    {
-      TriggerMessageAcceptor acceptor = getAcceptorForTrigger(trigger);
+      List<TriggerMessageAcceptor> acceptors = getExtensionAcceptorsForTrigger(trigger);
 
-      try
+      Map acceptedData;
+      for (TriggerMessageAcceptor acceptor : acceptors)
       {
-         Map acceptedData = acceptor.acceptMessage(message, trigger);
-         if (acceptedData != null)
+         try
          {
-            return singletonList((Match) new TriggerMatch(acceptor, trigger, acceptedData));
+            acceptedData = acceptor.acceptMessage(message, trigger);
+            if (acceptedData != null)
+            {
+               return singletonList((Match) new TriggerMatch(acceptor, trigger, acceptedData));
+            }
+         }
+         catch (Exception e)
+         {
+            trace.warn("The acceptor " + acceptor + " was not able to get a matching "
+                  + "criteria.Maybe it is not responsible for the message '"
+                  + JMSUtils.messageToString(message) + "'.", e);
          }
       }
-      catch (Exception e)
-      {
-         trace.warn("The acceptor " + acceptor + " was not able to get a matching "
-               + "criteria.Maybe it is not responsible for the message '"
-               + JMSUtils.messageToString(message) + "'.", e);
-      }
 
-      return null;
+      acceptedData = DEFAULT_TRIGGER_MESSAGE_ACCEPTOR.acceptMessage(message, trigger);
+      if (acceptedData != null)
+      {
+         return singletonList((Match) new TriggerMatch(DEFAULT_TRIGGER_MESSAGE_ACCEPTOR, trigger, acceptedData));
+      }
+      else
+      {
+         return null;
+      }
    }
 
-   private TriggerMessageAcceptor getAcceptorForTrigger(Trigger trigger)
+   private List<TriggerMessageAcceptor> getExtensionAcceptorsForTrigger(Trigger trigger)
    {
       // TODO introduce factory to allow Acceptors to opt in per Trigger
-      List<TriggerMessageAcceptor> acceptors = ExtensionProviderUtils
-            .getExtensionProviders(TriggerMessageAcceptor.class);
-
-      if ( !acceptors.isEmpty())
-      {
-         return acceptors.get(0);
-      }
-
-      return DEFAULT_TRIGGER_MESSAGE_ACCEPTOR;
+      return ExtensionProviderUtils.getExtensionProviders(TriggerMessageAcceptor.class);
    }
 
    public static interface Match

@@ -24,15 +24,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import javax.jms.*;
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
-
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
@@ -49,9 +55,16 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
 import org.eclipse.stardust.engine.core.persistence.jms.AbstractJmsBytesMessageReader;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
 import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
@@ -60,6 +73,9 @@ import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.util.JmsConstants;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.jta.JtaTransactionManager;
 
 /**
  * <p>
@@ -601,7 +617,7 @@ public class AbstractTransientProcessInstanceTest
          return null;
       }
    }
-   
+
 
    public void writeFromQueueToAuditTrail(ServiceFactory sf, final String queueName) throws JMSException
    {
@@ -645,7 +661,7 @@ public class AbstractTransientProcessInstanceTest
             {
                return message;
             }
-            
+
          };
          reader.nextBlob();
 

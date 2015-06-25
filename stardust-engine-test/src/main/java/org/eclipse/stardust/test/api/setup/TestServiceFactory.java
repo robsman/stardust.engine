@@ -11,17 +11,22 @@
 package org.eclipse.stardust.test.api.setup;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.stardust.common.error.LoginFailedException;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.Service;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
+import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
 import org.junit.rules.ExternalResource;
 
 /**

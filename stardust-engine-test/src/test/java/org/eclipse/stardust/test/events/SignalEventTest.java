@@ -30,7 +30,6 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.log4j.Level;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -50,7 +49,6 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.JmsConstants;
-import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.h2.api.Trigger;
@@ -146,8 +144,6 @@ public class SignalEventTest
 
       ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
       ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
-      Log4jLogMessageBarrier logBarrier = new Log4jLogMessageBarrier(Level.WARN);
-      logBarrier.registerWithLog4j();
 
       // start signal acceptor process and initialize with predicate data
       ProcessInstance rootProcess = wfs.startProcess("{SignalEventsTestModel}SignalWithPredicateData", null, true);

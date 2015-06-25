@@ -179,13 +179,124 @@ public class ExportCommand extends BaseExportImportCommand
          final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
                properties);
          final ArchivingService archivingService = new ArchivingService(serviceFactory);
-         
-//         ProcessTool.createProcesses(serviceFactory);
-//         if (1 == 1)
-//         {
-//            return 0;
-//         }
+     
+         ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds, processOids, modelOids, fromDate, toDate, descriptors);
+         ExportMetaData exportMetaData = archivingService.findProcessesToExport(filter, dumpLocation, documentOption);
+      
+         print("Found " + exportMetaData.getAllProcessesForExport(dumpLocation != null).size() + " processes to export");
+         List<ExportMetaData> batches = ExportImportSupport.partition(exportMetaData,
+               batchSize);
+         print("Found " + batches.size() + " batches to export");
+         final Map<Date, ExportModel> exportModel;
+         if (exportMetaData.getAllProcessesForExport(dumpLocation != null).size() > 0)
+         {
+            exportModel = exportModel(archivingService, exportMetaData,  dumpLocation, documentOption);
+         }
+         else
+         {
+            exportModel = null;
+         }
+         ExecutorService executor = Executors.newFixedThreadPool(concurrentBatches);
+         List<Future<Integer[]>> results = new ArrayList<Future<Integer[]>>();
+         for (final ExportMetaData batch : batches)
+         {
+            Callable<Integer[]> exportCallable = new Callable<Integer[]>()
+            {
+               @Override
+               public Integer[] call() throws Exception
+               {
+                  int archiveCount = 0;
+                  int purgeCount = 0;
+                  ExportResult result = archivingService.getExportResultForProcesses(batch, dumpLocation, documentOption);
+                  if (result == null)
+                  {
+                     print("No Data to export. Export file not created.");
+                  }
+                  else
+                  {
+                     ExportResult mergedResult = ExportImportSupport.merge(Arrays.asList(result), exportModel);
+                     archivingService.archiveExportResults(mergedResult, dumpLocation, documentOption);
+                     for (Date date : mergedResult.getDates())
+                     {
+                        ExportIndex exportIndex = mergedResult.getExportIndex(date);
+                        archiveCount += exportIndex.getOidsToUuids().size();
+                     }
+                     purgeCount = mergedResult.getPurgeProcessIds().size();
+                  }
+                  return new Integer[] {archiveCount, purgeCount};
+               }
 
+            };
+            results.add(executor.submit(exportCallable));
+         }
+
+         print(new Date() + " Export Submitted");
+         int archiveCount = 0;
+         int purgeCount = 0;
+         for (Future<Integer[]> result : results)
+         {
+            try
+            {
+               Integer[] counts = result.get();
+               archiveCount += counts[0];
+               purgeCount += counts[1];
+            }
+            catch (Exception e)
+            {
+               print("Unexpected Exception during Export " + e.getMessage());
+               e.printStackTrace();
+            }
+         }
+         String operation = dumpLocation != null ? "Dump" : "Archive";
+         print(new Date() + " Export Done for Partition: " + partitionId);
+         
+         if (dumpLocation != null)
+         {
+            print(new Date() + " Processes to " + operation + ": " + archiveCount);
+         }
+         else
+         {
+            print(new Date() + " Processes to " + operation + ": " + archiveCount + "; Processes to delete: " +  purgeCount);
+         }
+         print(new Date() + " Export Done for Partition: " + partitionId);
+
+         Date end = new Date();
+         long millis = end.getTime() - start.getTime();
+         String duration = String.format("%d min, %d sec", TimeUnit.MILLISECONDS
+               .toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis)
+               - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+         print("Export Complete for Partition: " + partitionId + ". Time taken: "
+               + duration);
+      }
+
+      return 0;
+   }
+   
+   /*
+   public int run(Map options)
+   {
+      final String dumpLocation = getDumpLocation(options);
+      final Date fromDate = getFromDate(options);
+      final Date toDate = getToDate(options);
+      final List<Long> processOids = getProcessOids(options);
+      final List<Integer> modelOids = getModelOids(options);
+      final List<String> partitionIds = getPartitions(options);
+      final int batchSize = getBatchSize(options);
+      final int concurrentBatches = getConcurrentBatches(options);
+      final HashMap<String, Object> descriptors = getDescriptors(options);
+      final Collection<String> processDefinitionIds = getProcessDefinitionIds(options);
+      final Collection<String> modelIds = getModelIds(options); 
+      final DocumentOption documentOption = getDocumentOption(options); 
+
+      for (final String partitionId : partitionIds)
+      {
+         Date start = new Date();
+         Map<String, String> properties = new HashMap<String, String>();
+         properties.put(SecurityProperties.PARTITION, partitionId);
+         final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
+               properties);
+         final ArchivingService archivingService = new ArchivingService(serviceFactory);
+     
          ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds, processOids, modelOids, fromDate, toDate, descriptors);
          ExportMetaData exportMetaData = archivingService.findProcessesToExport(filter, dumpLocation, documentOption);
       
@@ -290,7 +401,7 @@ public class ExportCommand extends BaseExportImportCommand
       }
 
       return 0;
-   }
+   }*/
     
    private String getDumpLocation(Map options)
    {

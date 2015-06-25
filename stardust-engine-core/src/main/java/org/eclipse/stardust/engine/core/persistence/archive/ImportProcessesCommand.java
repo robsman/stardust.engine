@@ -58,7 +58,7 @@ public class ImportProcessesCommand implements ServiceCommand
    
    private DocumentOption documentOption;
 
-   public ImportProcessesCommand(Operation operation, IArchive archive, 
+   protected ImportProcessesCommand(Operation operation, IArchive archive, 
          ArchiveFilter filter, ImportMetaData importMetaData, Map<String, String> preferences, DocumentOption documentOption)
    {
       super();
@@ -75,7 +75,7 @@ public class ImportProcessesCommand implements ServiceCommand
     * 
     * @param processOids
     */
-   public ImportProcessesCommand(ArchiveFilter filter, Map<String, String> preferences)
+   protected ImportProcessesCommand(ArchiveFilter filter, Map<String, String> preferences)
    {
       this(Operation.QUERY, null, filter, null, preferences, DocumentOption.NONE);
    }
@@ -325,7 +325,7 @@ public class ImportProcessesCommand implements ServiceCommand
    /**
     * @author jsaayman
     */
-   public static enum Operation
+   protected static enum Operation
    {
       /**
        * Validate if import environment contains compatible model and partition. Imports

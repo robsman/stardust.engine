@@ -94,7 +94,7 @@ public class ExportProcessesCommand implements ServiceCommand
     * 
     * @param filter criteria
     */
-   public ExportProcessesCommand(Operation operation, ArchiveFilter filter,
+   protected ExportProcessesCommand(Operation operation, ArchiveFilter filter,
          String dumpLocation, DocumentOption documentOption)
    {
       this(operation, filter, null, null, dumpLocation, null, documentOption);
@@ -105,7 +105,7 @@ public class ExportProcessesCommand implements ServiceCommand
     * exportMetaData. Set dumpOnly to true if they should not be marked as exported by
     * receiving a unique id
     */
-   public ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
+   protected ExportProcessesCommand(Operation operation, ExportMetaData exportMetaData,
          String dumpLocation, DocumentOption documentOption)
    {
 
@@ -116,7 +116,7 @@ public class ExportProcessesCommand implements ServiceCommand
     * Use this constructor to archive or purge all processInstances for given
     * exportResults
     */
-   public ExportProcessesCommand(Operation operation, ExportResult exportResult,
+   protected ExportProcessesCommand(Operation operation, ExportResult exportResult,
          String dumpLocation, DocumentOption documentOption)
    {
 
@@ -126,7 +126,7 @@ public class ExportProcessesCommand implements ServiceCommand
    /**
    * Use this constructor when auto archive is enabled auto archive
    */
-   public ExportProcessesCommand(ObjectMessage message)
+   protected ExportProcessesCommand(ObjectMessage message)
    {
       this(Operation.ARCHIVE_MESSAGES, null, null, null, null, message, DocumentOption.NONE);
    }
@@ -713,9 +713,6 @@ public class ExportProcessesCommand implements ServiceCommand
       AndTerm whereTerm;
       if (dumpLocation != null)
       {
-         // TODO Improve by adding restriction on uuid ProcessInstanceProperty.FR__STRING_VALUE:
-         // (not like currentArchiveId_processId_starttime in long) or is null
-         // currently dont know how to add such complex like condition
          whereTerm = Predicates.andTerm(modelRestriction,
             processDefinitionRestriction);
       }
@@ -776,7 +773,7 @@ public class ExportProcessesCommand implements ServiceCommand
    /**
     * @author jsaayman
     */
-   public static enum Operation
+   protected static enum Operation
    {
       /**
        * Find processes to export, export model and all processes found.

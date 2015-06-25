@@ -24,11 +24,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.core.persistence.archive.ArchiveFilter;
-import org.eclipse.stardust.engine.core.persistence.archive.DocumentOption;
-import org.eclipse.stardust.engine.core.persistence.archive.IArchive;
-import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand;
+import org.eclipse.stardust.engine.core.persistence.archive.*;
 import org.eclipse.stardust.engine.core.persistence.archive.ImportProcessesCommand.ImportMetaData;
 import org.eclipse.stardust.engine.core.preferences.XmlPreferenceReader;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -152,7 +148,6 @@ public class ImportCommand extends BaseExportImportCommand
          properties.put(SecurityProperties.PARTITION, partitionId);
          final ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions,
                properties);
-         final WorkflowService workflowService = serviceFactory.getWorkflowService();
 
          final List<IArchive> archives = findArchives(serviceFactory,
                processDefinitionIds, modelIds, fromDate, toDate, processOids,
@@ -175,7 +170,7 @@ public class ImportCommand extends BaseExportImportCommand
                      ImportMetaData importMetaData = null;
                      if (CollectionUtils.isNotEmpty(archives))
                      {
-                        importMetaData = validateImport(currentArchive, workflowService,descriptors,
+                        importMetaData = validateImport(currentArchive, serviceFactory, descriptors,
                               preferences, documentOption);
                      }
                      int count = 0;
@@ -223,14 +218,12 @@ public class ImportCommand extends BaseExportImportCommand
       return 0;
    }
    
-   private ImportMetaData validateImport(IArchive archive, WorkflowService workflowService,
+   private ImportMetaData validateImport(IArchive archive, ServiceFactory serviceFactory,
          HashMap<String, Object> descriptors, Map<String, String> preferences, DocumentOption documentOption)
    {
       ImportMetaData importMetaData;
       ArchiveFilter filter = new ArchiveFilter(null, null, null, null, null, null, null);
-      ImportProcessesCommand importCommand = new ImportProcessesCommand(
-            ImportProcessesCommand.Operation.VALIDATE, archive, filter, null, preferences, documentOption);
-      importMetaData = (ImportMetaData) workflowService.execute(importCommand);
+      importMetaData = new ArchivingService(serviceFactory).validate(archive, filter, preferences, documentOption);
       if (StringUtils.isEmpty(importMetaData.getErrorMessage()))
       {
          print("Model validated, proceding with import for " + archive.getArchiveKey());
@@ -253,9 +246,7 @@ public class ImportCommand extends BaseExportImportCommand
       if (archive != null)
       {
          ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds,processOids, null, fromDate, toDate, descriptors);
-         ImportProcessesCommand command = new ImportProcessesCommand(ImportProcessesCommand.Operation.IMPORT,
-                  archive, filter, importMetaData, preferences, documentOption);
-         count = (Integer) serviceFactory.getWorkflowService().execute(command);
+         count = new ArchivingService(serviceFactory).importData(archive, filter, importMetaData, preferences, documentOption);
 
          print("Imported " + count + " process instances into partition " + partitionId
                + " from archive: " + archive.getArchiveKey());
@@ -268,8 +259,7 @@ public class ImportCommand extends BaseExportImportCommand
          HashMap<String, Object> descriptors, Map<String, String> preferences)
    {
       ArchiveFilter filter = new ArchiveFilter(modelIds, processDefinitionIds, processOids, null, fromDate, toDate, descriptors);
-      ImportProcessesCommand command = new ImportProcessesCommand(filter, preferences);
-      List<IArchive> archives = (List<IArchive>) serviceFactory.getWorkflowService().execute(command);
+      List<IArchive> archives = new ArchivingService(serviceFactory).findArchives(filter, preferences);
       return archives;
    }
    

@@ -16,8 +16,8 @@ public interface IArchiveWriter
    /**
     * Opens archive for writing results. Typically this is to reserve a unique place in the archive repository for results with specified index date.
     * Returns a handle to the place in the repository where the data must be written to
-    * @param partition
     * @param indexDate
+    * @param exportIndex
     * @return Returns a handle to the place in the repository where the data must be written to
     */
    public Serializable open(Date indexDate, ExportIndex exportIndex);
@@ -33,7 +33,7 @@ public interface IArchiveWriter
    /**
     * Adds model to the repository location identified by key
     * @param key
-    * @param results
+    * @param model
     * @return success indicator
     */
    public boolean addModel(Serializable key, String model);
@@ -48,21 +48,56 @@ public interface IArchiveWriter
     */
    public boolean close(Serializable key, Date indexDate, ExportResult exportResult);
 
+   /**
+    * Add index json to archive
+    * @param key
+    * @param indexData
+    * @return
+    */
    public boolean addIndex(Serializable key, String indexData);
 
-   public String getArchiveManagerId();
-
+   /**
+    * Add Model xpdl to Archive. 
+    * This method does not require the open and close operations to be called separately, it encompasses this.
+    * This is because a model is only written to the archive the first time a process is ever exported for the model.  
+    * @param dumpLocation
+    * @param uuid
+    * @param xpdl
+    * @return
+    */
    public boolean addModelXpdl(Serializable dumpLocation, String uuid, String xpdl);
-
-   public String getDateFormat();
-
-   public boolean isAutoArchive();
 
    public boolean addDocuments(Serializable key, byte[] data);
    
+   public String getArchiveManagerId();
+   
+   /**
+    * @return Dateformat for archive exportindex
+    */
+   public String getDateFormat();
+
+   /**
+    * @return true if archive on complete is enabled
+    */
+   public boolean isAutoArchive();
+   
+   /**
+    * Returns true if the model with the uuid has been written to archive
+    * @param dumpLocation
+    * @param uuid
+    * @return
+    */
    public boolean isModelExported(Serializable dumpLocation, String uuid);
    
+   /**
+    * Return DocumentOption configured via preferences
+    * @return
+    */
    public DocumentOption getDocumentOption();
 
+   /**
+    *  Return true if only key descriptors must be exported, as configured via preferences
+    * @return
+    */
    public boolean isKeyDescriptorsOnly();
 }

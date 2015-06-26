@@ -90,10 +90,6 @@ public class ExportProcessesCommand implements ServiceCommand
       this.documentOption = documentOption;
    }
 
-   /**
-    * 
-    * @param filter criteria
-    */
    protected ExportProcessesCommand(Operation operation, ArchiveFilter filter,
          String dumpLocation, DocumentOption documentOption)
    {

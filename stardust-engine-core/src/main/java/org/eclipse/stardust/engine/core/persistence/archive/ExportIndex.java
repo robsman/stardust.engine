@@ -7,7 +7,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
-
+/**
+ * Contains meta data about processes that is to be stored in an Archive. This will be serialized to JSON
+ * @author jsaayman
+ *
+ */
 public class ExportIndex implements Serializable
 {
 

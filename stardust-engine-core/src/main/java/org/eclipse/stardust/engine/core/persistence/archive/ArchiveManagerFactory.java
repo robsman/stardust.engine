@@ -12,6 +12,15 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
+/**
+ * Responsible for Providing Archive Reader or Writers per partition. 
+ * The readers and writer implementations are managed by ExtensionProviderUtils.
+ * The reader and writer configuration is set up using preferences.   
+ * 
+ * A new reader is created per invocation, but writers are cached per partition.
+ * @author jsaayman
+ *
+ */
 public class ArchiveManagerFactory
 {
    public static final String MODULE_ID_STARDUST_ARCHIVING = "stardust-archiving";

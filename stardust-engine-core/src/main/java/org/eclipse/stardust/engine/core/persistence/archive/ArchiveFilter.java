@@ -5,6 +5,11 @@ import java.util.*;
 
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
+/**
+ * This is a data transfer object for filter criteria
+ * @author jsaayman
+ *
+ */
 public class ArchiveFilter implements Serializable
 {
    /**

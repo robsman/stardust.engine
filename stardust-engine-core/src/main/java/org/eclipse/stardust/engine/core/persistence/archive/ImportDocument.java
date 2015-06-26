@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contains meta data about a document that is to be stored in an Archive. This will be serialized to JSON
+ * @author jsaayman
+ *
+ */
 public class ImportDocument implements Serializable
 {
 

@@ -3,6 +3,11 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * Contains model information that needs to be stored in an Archive. This will be serialized to JSON
+ * @author jsaayman
+ *
+ */
 public class ExportModel implements Serializable
 {
 

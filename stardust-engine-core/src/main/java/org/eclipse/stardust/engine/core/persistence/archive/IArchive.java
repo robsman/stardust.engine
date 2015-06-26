@@ -3,7 +3,11 @@ package org.eclipse.stardust.engine.core.persistence.archive;
 import java.io.Serializable;
 import java.util.List;
 
-
+/**
+ * Implement this interface for reading an archive itself
+ * @author jsaayman
+ *
+ */
 public interface IArchive
 {
 

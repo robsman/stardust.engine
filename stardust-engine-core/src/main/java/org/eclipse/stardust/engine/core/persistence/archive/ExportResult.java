@@ -19,7 +19,7 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 /**
- * 
+ * This class is used to store all information that needs to be written to an archive
  * @author jsaayman
  *
  */

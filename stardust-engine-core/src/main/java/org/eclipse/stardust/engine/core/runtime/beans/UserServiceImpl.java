@@ -893,7 +893,15 @@ public class UserServiceImpl implements UserService, Serializable
 
          UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-         DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
+         // fromDate should not be set to past - use now instead.
+         final Date now = TimestampProviderUtils.getTimeStamp();
+         Date fromDate = options.getFromDate();
+         if(now.compareTo(fromDate) > 0)
+         {
+            fromDate = now;
+         }
+
+         DeputyBean db = new DeputyBean(userBean.getOID(), fromDate,
                options.getToDate(), options.getParticipants());
 
          deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());

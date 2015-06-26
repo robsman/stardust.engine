@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -564,6 +564,8 @@ public interface UserService extends Service
     * time frame all grants from given user. The deputy user has to login again before the
     * inherited grants become active.
     *
+    * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new Date()</code> (now).
+    *
     * @param user
     *           the user to which a deputy user shall be added.
     * @param deputyUser
@@ -582,6 +584,8 @@ public interface UserService extends Service
     * Modifies an existing deputy user for a given user. This deputy user inherits for the
     * defined time frame all grants from given user. The deputy user has to login again
     * before changes become active.
+
+    * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new Date()</code> (now).
     *
     * @param user
     *           the user for which a deputy user shall be modified.

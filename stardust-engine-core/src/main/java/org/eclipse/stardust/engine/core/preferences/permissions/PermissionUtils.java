@@ -277,7 +277,6 @@ public class PermissionUtils
             if (srcSet != null && srcSet.equals(targetSet)
                   || checkValidParticipants(targetList, isGlobalPermission(key)))
             {
-               toAdd.remove(key);
                toAdd.put("deny:" + key, (Serializable) value);
             }
          }

@@ -198,7 +198,10 @@ public class DataCopyUtils
       String srcDataId = srcValue.getData().getId();
 
       IData targetData = getDataFromProcessInstance(processInstance, srcDataId);
-
+      if (targetData == null)
+      {
+         return false;
+      }
       IDataValue dataValue = processInstance.getDataValue(targetData);
 
       return null != dataValue.getValue();
@@ -250,7 +253,15 @@ public class DataCopyUtils
             if ( !mappingRules.containsKey(dataId))
             {
                targetData = getDataFromProcessInstance(targetProcessInstance, dataId);
-               if ( !ignoreDataIds.contains(targetData.getId()))
+               if (targetData == null)
+               {
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Value not copied. Data '" + dataId
+                           + "' does not exist in target model.");
+                  }
+               }
+               else if (targetData != null && !ignoreDataIds.contains(targetData.getId()))
                {
                   targetValue = srcValue.getSerializedValue();
                   targetProcessInstance.setOutDataValue(targetData, "", targetValue);
@@ -261,7 +272,15 @@ public class DataCopyUtils
                DataCopyMappingRule dataCopyMappingRule = mappingRules.get(dataId);
                targetData = dataCopyMappingRule.getTargetData();
 
-               if ( !ignoreDataIds.contains(targetData.getId()))
+               if (targetData == null)
+               {
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Data value not copied. Data '" + dataId
+                           + "' does not exist in target model.");
+                  }
+               }
+               else if ( !ignoreDataIds.contains(targetData.getId()))
                {
                   Object modifiedValue = processMappingRule(srcValue,
                         dataCopyMappingRule, targetProcessInstance);

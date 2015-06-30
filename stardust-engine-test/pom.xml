@@ -200,7 +200,6 @@
       <dependency>
          <groupId>org.apache.bsf</groupId>
          <artifactId>bsf-engines</artifactId>
-         <version>3.1-stardust01</version>
          <scope>runtime</scope>
          <exclusions>
             <exclusion>

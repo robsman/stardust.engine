@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="MyDepartmentModel" Name="My Department Model">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="MyDepartmentModel" Name="My Department Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -87,6 +86,30 @@
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Role Oid="10157"/>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="RestrictedReader" Name="Restricted Reader">
+         <ParticipantType Type="ROLE"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="10303">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                  </carnot:Attributes>
+               </carnot:Role>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="RestrictedWriter" Name="Restricted Writer">
+         <ParticipantType Type="ROLE"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="10316">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                  </carnot:Attributes>
+               </carnot:Role>
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Participant>
@@ -259,6 +282,22 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:dataId" Value="ScopeDataEnumJava"/>
+                  </carnot:Attributes>
+               </carnot:Organization>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="Restricted" Name="Restricted">
+         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Organization Oid="10317">
+                  <carnot:Members>
+                     <carnot:Member Id="RestrictedReader"/>
+                     <carnot:Member Id="RestrictedWriter"/>
+                  </carnot:Members>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                   </carnot:Attributes>
                </carnot:Organization>
             </ExtendedAttribute>
@@ -573,10 +612,42 @@
                <carnot:DataField Oid="10288" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="Enumeration" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value="XYZ"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Enumeration" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BUSINESS_DATE" Name="Business Date" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="DATETIME"/>
+         </DataType>
+         <Description>Business Date.</Description>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10302" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="RestrictedData" Name="Restricted Data" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10304" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="RestrictedReader"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues[0]" Value="RestrictedWriter"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -1328,10 +1399,102 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="RestrictedDataAccess" Name="Restricted Data Access" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="RestrictedActivity" Name="Restricted Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Restricted</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10311" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10308">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="10313" Id="ManualRestrictedTrigger" Name="Manual Restricted Trigger" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Restricted"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="10309" Id="RestrictedInput" Name="Restricted Input" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="RestrictedData" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10310" Id="RestrictedOutput" Name="Restricted Output" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="RestrictedData" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.startProcesses" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10307" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10306" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10312" X="330" Y="365" Width="210" Height="60" ModelElement="RestrictedActivity"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="10314" X="370" Y="155" Width="130" Height="60" ModelElement="ManualRestrictedTrigger"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10315" SourceSymbol="10314" TargetSymbol="10312" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="1" CarnotVersion="8.2.0" ModelOid="0">
+         <carnot:Package Oid="1" CarnotVersion="9.9.9" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="10002" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -1673,6 +1836,9 @@
                      <carnot:Symbol Kind="ROLE" Oid="10194" X="715" Y="215" Width="30" Height="40" ModelElement="Dto"/>
                      <carnot:Symbol Kind="ROLE" Oid="10195" X="710" Y="270" Width="40" Height="40" ModelElement="None"/>
                      <carnot:Symbol Kind="ROLE" Oid="10239" X="215" Y="100" Width="40" Height="40" ModelElement="None"/>
+                     <carnot:Symbol Kind="ORGANIZATION" Oid="10318" X="385" Y="500" Width="80" Height="40" ModelElement="Restricted"/>
+                     <carnot:Symbol Kind="ROLE" Oid="10319" X="265" Y="605" Width="140" Height="40" ModelElement="RestrictedReader"/>
+                     <carnot:Symbol Kind="ROLE" Oid="10320" X="465" Y="605" Width="130" Height="40" ModelElement="RestrictedWriter"/>
                   </carnot:Symbols>
                   <carnot:Connections>
                      <carnot:Connection Kind="PART_OF" Oid="10074" SourceSymbol="10073" TargetSymbol="10069"/>
@@ -1682,6 +1848,8 @@
                      <carnot:Connection Kind="WORKS_FOR" Oid="10183" SourceSymbol="10182" TargetSymbol="10178"/>
                      <carnot:Connection Kind="PART_OF" Oid="10185" SourceSymbol="10184" TargetSymbol="10180"/>
                      <carnot:Connection Kind="PART_OF" Oid="10187" SourceSymbol="10186" TargetSymbol="10180"/>
+                     <carnot:Connection Kind="WORKS_FOR" Oid="10321" SourceSymbol="10319" TargetSymbol="10318"/>
+                     <carnot:Connection Kind="WORKS_FOR" Oid="10322" SourceSymbol="10320" TargetSymbol="10318"/>
                   </carnot:Connections>
                </carnot:Diagram>
             </carnot:Diagrams>

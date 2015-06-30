@@ -20,16 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -2084,15 +2075,32 @@ public class AdministrationServiceImpl
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("configurationVariables"));
       }
 
-      List<ModelReconfigurationInfo> info;
+      List<ModelReconfigurationInfo> info = null;
+      
+      // set default to false just for the case that 
+      // ConfigurationVariableUtils.saveConfigurationVariables throws an exception
+      boolean saved = false;
       try
       {
          info = ConfigurationVariableUtils.saveConfigurationVariables(
                getPreferenceStore(), configurationVariables, force);
+         
+         saved = true;
+         assert info instanceof RandomAccess; 
+         for(int i = 0, listSize = info.size(); i<listSize && saved; i++)
+         {
+            if(!info.get(i).success())
+            {
+               saved = false;
+            }
+         }
       }
       finally
       {
-         reloadModelManagerAfterModelOperation();
+         if(saved)
+         {
+            reloadModelManagerAfterModelOperation();
+         }
       }
 
       return info;

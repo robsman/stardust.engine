@@ -88,6 +88,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private RtDetailsFactory detailsFactory;
 
+   /** Contains the referenced models. The map key is the model id of the referenced model */
    private Map<String, IModel> modelOverrides;
 
    private IActivityInstance currentActivityInstance;

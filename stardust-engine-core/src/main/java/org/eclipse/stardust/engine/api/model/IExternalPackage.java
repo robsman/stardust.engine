@@ -21,11 +21,15 @@ import org.eclipse.stardust.engine.core.model.utils.Nameable;
  */
 public interface IExternalPackage extends Identifiable, Nameable
 {
+   /** Returns the model id of the referenced model */
    String getHref();
    
+   /** Returns the model which contains the external package declaration */
    IModel getModel();
    
+   /** Returns the referenced model */
    IModel getReferencedModel() throws UnresolvedExternalReference;
    
+   /** Returns model attributes like the connection URI prefix from the referenced model */
    String getExtendedAttribute(String name);
 }

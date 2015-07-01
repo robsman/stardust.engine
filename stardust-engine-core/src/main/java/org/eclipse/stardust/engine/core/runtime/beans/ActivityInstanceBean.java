@@ -37,7 +37,6 @@ import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
@@ -1679,9 +1678,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             return applicationInstance.invoke(activity.getApplicationOutDataMappingAccessPoints());
          }
          catch (InvocationTargetException e)
-         {
+         {            
             if (number > -1)
             {
+               trace.warn("Unexpected exception : " + e.getMessage() + ".");            
+               trace.warn("Retrying " + (number + 1) + ((0 < number) ? " times." : " time."));
+                              
                try
                {
                   Thread.sleep(time * 1000);

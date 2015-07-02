@@ -267,7 +267,7 @@ public class BenchmarkDefinitionParser
                   conditionObject.get(CONDITION_TYPE_KEY_FREEFORM_EXPRESSION)
                         .getAsString()));
          }
-         else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("currentTime"))
+         else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("dataExpression"))
          {
             conditionMap.put(categoryIndexMap.get(categoryId),
                   createCalendarCondition(conditionObject, benchmarkDefinition));
@@ -304,6 +304,10 @@ public class BenchmarkDefinitionParser
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
       String qualifiedDataId = calendarCondition.get("rhs").getAsString();
+      
+      String drefPath = calendarCondition.get("rhsDeref") != null
+            ? calendarCondition.get("rhsDeref").getAsString()
+            : null;
 
       String stringComperator = calendarCondition.get("operator").getAsString();
 
@@ -320,12 +324,12 @@ public class BenchmarkDefinitionParser
       if (isBusinessCalendar)
       {
          evaluator = new BusinessDaysCondition(benchmarkDefinition.getBusinessCalendarId(), comperator,
-               qualifiedDataId, offset);
+               qualifiedDataId, drefPath, offset);
       }
       else
       {
 
-         evaluator = new CalendarDaysCondition(comperator, qualifiedDataId, offset);
+         evaluator = new CalendarDaysCondition(comperator, qualifiedDataId, drefPath, offset);
       }
       return evaluator;
    }

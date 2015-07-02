@@ -19,13 +19,17 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.monitoring.ActivityInstanceStateChangeMonitor;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -95,6 +99,27 @@ public class BenchmarksTest
    }
 
    @Test
+   public void startProcessInstanceWithDefaultBenchmarkTest()
+   {
+      // Setting default benchmark in preferences
+      
+      Map<String, Serializable> pref = CollectionUtils.newMap();
+      pref.put("{BenchmarksModel}BenchmarkedProcess", BENCHMARK_REF);
+      
+      Preferences prefs = new Preferences(PreferenceScope.PARTITION,
+            PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
+            PreferencesConstants.PREFERENCE_ID_DEFAULT_BENCHMARKS, pref);
+
+      serviceFactory.getAdministrationService().savePreferences(prefs);
+
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withoutBenchmark);
+      
+      assertTrue(0 < pi.getBenchmark());
+      assertTrue(0 == pi.getBenchmarkResult().getCategory());      
+   }
+
+   @Test
    public void recalculateBenchmarkOnActivityStateChangeTest()
    {
 
@@ -108,7 +133,7 @@ public class BenchmarksTest
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
       // Check if properties are available
-      assertEquals("Late",instance.getBenchmarkResult().getProperties().get("name"));
+      assertEquals("Late", instance.getBenchmarkResult().getProperties().get("name"));
    }
 
    @Test
@@ -164,7 +189,6 @@ public class BenchmarksTest
 
    }
 
-
    @Test
    public void startSubProcessInstanceWithBenchmarkTest()
    {
@@ -194,11 +218,11 @@ public class BenchmarksTest
 
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+      ProcessInstance pi1 = serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
             startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+      ProcessInstance pi2 = serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
             startOptions_withoutBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+      ProcessInstance pi3 = serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
             startOptions_withBenchmark);
 
       serviceFactory.getAdministrationService().startDaemon(
@@ -212,6 +236,20 @@ public class BenchmarksTest
 
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
+      
+      BenchmarkResult res1 = serviceFactory.getWorkflowService()
+            .getProcessInstance(pi1.getOID())
+            .getBenchmarkResult();
+      
+      BenchmarkResult res2 = serviceFactory.getWorkflowService()
+            .getProcessInstance(pi2.getOID())
+            .getBenchmarkResult();      
+
+
+      assertTrue(res1.getCategory() > 0);
+      assertTrue(res2 == null);
+
+      
 
    }
 
@@ -220,11 +258,11 @@ public class BenchmarksTest
    {
       BenchmarkTestUtils.deployBenchmark("example.benchmark", serviceFactory);
 
-      serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, "example.benchmark"));
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            new StartOptions(null, true, "example.benchmark"));
 
-      serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, startOptions_withBenchmark);
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
 
       ActivityInstanceQuery findAlive = ActivityInstanceQuery.findAlive();
 
@@ -241,7 +279,8 @@ public class BenchmarksTest
 
       ActivityInstance ai1 = instances.get(0);
       ActivityInstance ai2 = instances.get(1);
-      assertTrue(ai1.getProcessInstance().getBenchmark() > ai2.getProcessInstance().getBenchmark());
+      assertTrue(ai1.getProcessInstance().getBenchmark() > ai2.getProcessInstance()
+            .getBenchmark());
    }
 
 }

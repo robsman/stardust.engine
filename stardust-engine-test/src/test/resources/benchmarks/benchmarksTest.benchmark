@@ -104,7 +104,7 @@
             {
               "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
               "type": "freeform",
-              "freeformExpression": "false;"
+              "freeformExpression": "true;"
             }
           ],
           "activities": [

@@ -37,7 +37,6 @@
             <module>stardust-engine-client</module>
             <module>stardust-engine-ejb3</module>
             <module>stardust-engine-spring</module>
-            <module>stardust-engine-test</module>
             <module>stardust-engine-ws-cxf</module>
             <module>stardust-engine-camel</module>
             <module>stardust-engine-business-calendar</module>

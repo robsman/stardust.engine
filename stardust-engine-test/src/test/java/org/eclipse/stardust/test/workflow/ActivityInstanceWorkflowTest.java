@@ -940,11 +940,30 @@ public class ActivityInstanceWorkflowTest
     * <p>
     * Tests whether the correct exception is thrown when the activity instance attribute
     * is <code>null</code>.
+    * If <code>WorkflowService</code> is unguarded then an <code>InvalidArgumentException</code>
+    * from method itself is expected.
     * </p>
     */
    @Test(expected = InvalidArgumentException.class)
-   public void testSetActivityInstanceAttributesFailNullAttribute()
+   public void testSetActivityInstanceAttributesUnguardedFailNullAttribute()
    {
+      GlobalParameters.globals().set("WorkflowService.Guarded", "false");
+      userSf.getWorkflowService().setActivityInstanceAttributes(null);
+   }
+
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance attribute
+    * is <code>null</code>.
+    * If <code>WorkflowService</code> is unguarded then an <code>ObjectNotFoundException</code>
+    * from authorization check is expected as no AI can be found on which the authorization can
+    * be retrieved for.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testSetActivityInstanceAttributesGuardedFailNullAttribute()
+   {
+      GlobalParameters.globals().set("WorkflowService.Guarded", "true");
       userSf.getWorkflowService().setActivityInstanceAttributes(null);
    }
 

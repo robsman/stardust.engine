@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import org.junit.ClassRule;
@@ -90,6 +91,8 @@ public class BenchmarkCalendarTest
    private static final String BENCHMARK4_ARTIFACT_ID = "calendar4.benchmark";
 
    private static final String BENCHMARK5_ARTIFACT_ID = "calendar5.benchmark";
+   
+   private static final String BENCHMARK6_ARTIFACT_ID = "calendar6.benchmark";
 
    @Test
    public void activityBenchmarkCalendar1TimeOff()
@@ -99,7 +102,7 @@ public class BenchmarkCalendarTest
 
       // Test for default
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK1_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK1_ARTIFACT_ID));
       assertEquals(0, pi.getBenchmarkResult().getCategory());
 
       ActivityInstance instance = serviceFactory.getQueryService()
@@ -118,7 +121,7 @@ public class BenchmarkCalendarTest
 
       // Test for default
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK2_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK2_ARTIFACT_ID));
       assertEquals(0, pi.getBenchmarkResult().getCategory());
 
       ActivityInstance instance = serviceFactory.getQueryService()
@@ -136,7 +139,7 @@ public class BenchmarkCalendarTest
 
       // Test for default
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK3_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK3_ARTIFACT_ID));
       assertEquals(0, pi.getBenchmarkResult().getCategory());
 
       ActivityInstance instance = serviceFactory.getQueryService()
@@ -154,11 +157,11 @@ public class BenchmarkCalendarTest
 
       // Test for default
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK4_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK4_ARTIFACT_ID));
       assertEquals(0, pi.getBenchmarkResult().getCategory());
 
       ProcessInstance pi2 = serviceFactory.getWorkflowService().startProcess(
-            BENCHMARK_PROCESS, new StartOptions(null, true, BENCHMARK4_ARTIFACT_ID));
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK4_ARTIFACT_ID));
       assertEquals(0, pi2.getBenchmarkResult().getCategory());
 
       ActivityInstance instance = serviceFactory.getQueryService()
@@ -183,12 +186,33 @@ public class BenchmarkCalendarTest
 
       assertEquals(1, instance.getBenchmarkResult().getCategory());
    }
-
-   private Map<String, Serializable> getBusinessDateMap()
+   
+   @Test
+   public void activityBenchmarkCalendar6TodayTimeOff()
    {
-      Map<String, Serializable> data = CollectionUtils.newHashMap();
+      deployCalendar(TODAY_TIMEOFF_CALENDAR, serviceFactory);
+      deployBenchmark(BENCHMARK6_ARTIFACT_ID, serviceFactory);
 
+      // Test for default
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, new StartOptions(getBusinessDateMap(), true, BENCHMARK6_ARTIFACT_ID));
+      assertEquals(0, pi.getBenchmarkResult().getCategory());
+
+      ActivityInstance instance = serviceFactory.getQueryService()
+            .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
+
+      assertEquals(1, instance.getBenchmarkResult().getCategory());
+   }   
+
+   private Map<String, Object> getBusinessDateMap()
+   {
+      Map<String, Object> data = CollectionUtils.newHashMap();
+
+      Map sdMap = CollectionUtils.newHashMap();
+      sdMap.put("TheDate", null);
+      
       data.put("BUSINESS_DATE", Calendar.getInstance());
+      data.put("DateSD", sdMap);
       return data;
    }
 

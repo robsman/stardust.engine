@@ -15,11 +15,13 @@ import java.util.Date;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -38,35 +40,34 @@ public class CalendarDaysCondition implements ConditionEvaluator
    protected Comperator comperator;
 
    protected Offset offset;
+   
+   protected String dataPath;
 
-   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId,
+   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId, String dataPath,
          Offset offset)
    {
       this.comperator = comperator;
       this.qualifiedDataId = qualifiedDataId;
       this.offset = offset;
+      this.dataPath = dataPath;
    }
 
    @Override
    public Boolean evaluate(ActivityInstanceBean ai)
    {
       Date date;
-      try
-      {
-         date = getDateValue((ProcessInstanceBean) ai.getProcessInstance(),
-               qualifiedDataId);
-      }
-      catch (ObjectNotFoundException e)
-      {
-         date = null;
-      }
+
+      date = getDateValue((ProcessInstanceBean) ai.getProcessInstance(), qualifiedDataId,
+            dataPath);
 
       if (date == null)
       {
          trace.warn("Data '"
                + qualifiedDataId
                + "' is not initialized or does not exist. Using process instance start time for calculation.");
-         date = ai.getProcessInstance().getStartTime();
+         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
+               qualifiedDataId, date));
+
       }
 
       return evaluate(date);
@@ -76,37 +77,41 @@ public class CalendarDaysCondition implements ConditionEvaluator
    public Boolean evaluate(ProcessInstanceBean pi)
    {
       Date date;
-      try
-      {
-         date = getDateValue(pi, qualifiedDataId);
-      }
-      catch (ObjectNotFoundException e)
-      {
-         date = null;
-      }
+
+      date = getDateValue(pi, qualifiedDataId, dataPath);
 
       if (date == null)
       {
          trace.warn("Data '"
                + qualifiedDataId
-               + "' is not initialized or does not exist. Using process instance start time for calculation.");
-         date = pi.getStartTime();
+               + "' is not initialized or does not exist.");
+         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
+               qualifiedDataId, date));
       }
       return evaluate(date);
    }
 
-   private Date getDateValue(ProcessInstanceBean pi, String qualifiedDataId)
+   private Date getDateValue(ProcessInstanceBean pi, String qualifiedDataId, String dataPath)
    {
       Date time = null;
 
       if (qualifiedDataId != null)
       {
          String dataId = QName.valueOf(qualifiedDataId).getLocalPart();
+   
          IModel iModel = (IModel) pi.getProcessDefinition().getModel();
          IData iData = iModel.findData(dataId);
          if (iData != null)
          {
-            Object inDataValue = pi.getInDataValue(iData, dataId);
+            Object inDataValue;
+            if (dataPath != null)
+            {
+               inDataValue = pi.getInDataValue(iData,  dataPath);
+            }
+            else
+            {
+               inDataValue = pi.getInDataValue(iData, dataId);
+            }
 
             if (inDataValue instanceof Calendar)
             {
@@ -116,6 +121,16 @@ public class CalendarDaysCondition implements ConditionEvaluator
             {
                time = (Date) inDataValue;
             }
+            else
+            {
+               throw new InvalidValueException(
+                     BpmRuntimeError.BPMRT_INCOMPATIBLE_TYPE_FOR_DATA.raise(dataId));
+            }
+         }
+         else
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(qualifiedDataId));
          }
       }
       return time;

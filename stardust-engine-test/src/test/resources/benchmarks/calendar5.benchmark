@@ -82,7 +82,7 @@
           "categoryConditions": [
             {
               "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-              "type": "currentTime",
+              "type": "dataExpression",
               "freeformExpression": "",
               "details": {
                 "condition": {
@@ -115,7 +115,7 @@
               "categoryConditions": [
                  {
                     "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-                    "type": "currentTime",
+                    "type": "dataExpression",
                     "freeformExpression": "",
                     "details": {
                       "condition": {
@@ -133,7 +133,7 @@
                 },
                  {
                     "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-                    "type": "currentTime",
+                    "type": "dataExpression",
                     "freeformExpression": "",
                     "details": {
                       "condition": {
@@ -151,7 +151,7 @@
                 },
                  {
                     "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-                    "type": "currentTime",
+                    "type": "dataExpression",
                     "freeformExpression": "",
                     "details": {
                       "condition": {

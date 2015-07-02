@@ -11,7 +11,23 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <TypeDeclarations/>
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="DateType" Name="DateType">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dat1="http://www.infinity.com/bpm/model/BenchmarksModel/DateType" targetNamespace="http://www.infinity.com/bpm/model/BenchmarksModel/DateType">
+               <xsd:complexType name="DateType">
+                  <xsd:sequence>
+                     <xsd:element name="TheDate" type="xsd:dateTime"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="DateType" type="dat1:DateType"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+   </TypeDeclarations>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -201,9 +217,9 @@
                <carnot:DataField Oid="82" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -211,14 +227,32 @@
       </DataField>
       <DataField Id="DUE_DATE" Name="DUE_DATE" IsArray="FALSE">
          <DataType>
-            <BasicType Type="Calendar"/>
+            <BasicType Type="DATETIME"/>
          </DataType>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="83" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="DateSD" Name="DateSD" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="DateType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="84" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
                   </carnot:Attributes>
@@ -456,7 +490,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="8.2.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="9.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="2" Id="primitive" Name="Primitive Daten" IsPredefined="true">

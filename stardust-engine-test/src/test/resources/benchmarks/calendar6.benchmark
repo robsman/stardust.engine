@@ -2,7 +2,7 @@
   "id": "097fcef5-e725-4c16-b66c-ed4b35418283",
   "name": "General Processing 1",
   "description": "General Benchmarks",
-  "businessCalendar": "/business-calendars/timeOffCalendar/timeOffCalendar-4aba2223-5500-4e22-b209-8e13c1aff4c4.json",
+  "businessCalendar": "/business-calendars/timeOffCalendar/timeOffCalendar-32bf4126-8eec-4836-aaa8-fe5319532a07.json",
   "categories": [
     {
       "id": "77df2bb8-af69-426e-be59-84b18f04cc30",
@@ -27,7 +27,7 @@
     "processDefinitions": {
       "dueDate": {
         "enabled": true,
-        "dataReference": "BUSINESS_DATE",
+        "dataReference": "{BenchmarksModel}DUE_DATE",
         "useBusinessDays": false,
         "offset": {
           "amount": 10,
@@ -88,7 +88,8 @@
                 "condition": {
                   "lhs": "CURRENT_TIME",
                   "operator": "<",
-                  "rhs": "BUSINESS_DATE"
+                  "rhs": "{BenchmarksModel}DateSD",
+                  "rhsDeref": "TheDate" 
                 },
                 "useBusinessDays": true,
                 "offset": {
@@ -121,25 +122,54 @@
                       "condition": {
                         "lhs": "CURRENT_TIME",
                         "operator": "<",
-                        "rhs": "BUSINESS_DATE"
+                 		"rhs": "{BenchmarksModel}DateSD",
+                  		"rhsDeref": "TheDate" 
                       },
                       "useBusinessDays": true,
                       "offset": {
-                        "amount": 5,
+                        "amount": 0,
                         "unit": "d",
                         "time": "12:01 AM"
                       }
                     }
                 },
-                {
-                  "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-                 "type": "freeform",
-                  "freeformExpression": "false;"
+                 {
+                    "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+                    "type": "dataExpression",
+                    "freeformExpression": "",
+                    "details": {
+                      "condition": {
+                        "lhs": "CURRENT_TIME",
+                        "operator": ">",
+                  		"rhs": "{BenchmarksModel}DateSD",
+                 		"rhsDeref": "TheDate" 
+                      },
+                      "useBusinessDays": true,
+                      "offset": {
+                        "amount": 0,
+                        "unit": "d",
+                        "time": "12:01 AM"
+                      }
+                    }
                 },
-                {
-                  "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-                  "type": "freeform",
-                  "freeformExpression": "false;"
+                 {
+                    "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
+                    "type": "dataExpression",
+                    "freeformExpression": "",
+                    "details": {
+                      "condition": {
+                        "lhs": "CURRENT_TIME",
+                        "operator": ">",
+                 	    "rhs": "{BenchmarksModel}DateSD",
+                        "rhsDeref": "TheDate" 
+                      },
+                      "useBusinessDays": true,
+                      "offset": {
+                        "amount": 1,
+                        "unit": "d",
+                        "time": "12:01 AM"
+                      }
+                    }
                 }
               ]
             }

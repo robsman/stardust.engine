@@ -82,7 +82,7 @@
           "categoryConditions": [
             {
               "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-              "type": "currentTime",
+              "type": "dataExpression",
               "freeformExpression": "",
               "details": {
                 "condition": {
@@ -115,7 +115,7 @@
               "categoryConditions": [
                  {
                     "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-                    "type": "currentTime",
+                    "type": "dataExpression",
                     "freeformExpression": "",
                     "details": {
                       "condition": {

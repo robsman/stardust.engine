@@ -43,6 +43,15 @@
             <module>stardust-engine-business-calendar</module>
          </modules>
       </profile>
+      <profile>
+         <id>engine-test</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <modules>
+            <module>stardust-engine-test</module>
+         </modules>
+      </profile>      
    </profiles>
 
    <build>

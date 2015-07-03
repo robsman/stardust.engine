@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 
 /**
  * @author mgille
@@ -105,41 +106,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, SecurityProperties.getUser(), values);
 
-      if (options.getBenchmarkId() != null)
+      if ( !AuditTrailPersistence.isTransientExecution(processInstance.getAuditTrailPersistence()))
       {
-          DeployedRuntimeArtifact artifact = ArtifactManagerFactory.getCurrent()
-               .getActiveDeployedArtifact(BenchmarkDefinitionArtifactType.TYPE_ID,
-                     options.getBenchmarkId());
-         if (artifact != null)
-         {
-            processInstance.setBenchmark(artifact.getOid());
-         }
-         else
-         {
-            throw new ObjectNotFoundException(
-                  BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options.getBenchmarkId()));
-         }
-      }
-      else
-      {
-         // Lookup default benchmark
-         IPreferenceStorageManager prefManager = PreferenceStorageFactory.getCurrent();
-         
-         Preferences defaultBenchmarkPrefs = prefManager.getPreferences(
-               PreferenceScope.PARTITION,
-               PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
-               PreferencesConstants.PREFERENCE_ID_DEFAULT_BENCHMARKS);
-         
-         Map<String,Serializable> defaults = defaultBenchmarkPrefs.getPreferences();
-         
-         QName qualifedProcessDefinitionId = new QName(processDefinition.getModel().getId(), processDefinition.getId());
-         
-         if (defaults.containsKey(qualifedProcessDefinitionId.toString()))
+         if (options.getBenchmarkId() != null)
          {
             DeployedRuntimeArtifact artifact = ArtifactManagerFactory.getCurrent()
                   .getActiveDeployedArtifact(BenchmarkDefinitionArtifactType.TYPE_ID,
-                        defaults.get(qualifedProcessDefinitionId.toString()).toString());
-           
+                        options.getBenchmarkId());
             if (artifact != null)
             {
                processInstance.setBenchmark(artifact.getOid());
@@ -150,8 +123,42 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                      BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options.getBenchmarkId()));
             }
          }
-      }
+         else
+         {
+            // Lookup default benchmark
+            IPreferenceStorageManager prefManager = PreferenceStorageFactory.getCurrent();
 
+            Preferences defaultBenchmarkPrefs = prefManager.getPreferences(
+                  PreferenceScope.PARTITION,
+                  PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
+                  PreferencesConstants.PREFERENCE_ID_DEFAULT_BENCHMARKS);
+
+            Map<String, Serializable> defaults = defaultBenchmarkPrefs.getPreferences();
+
+            QName qualifedProcessDefinitionId = new QName(processDefinition.getModel()
+                  .getId(), processDefinition.getId());
+
+            if (defaults.containsKey(qualifedProcessDefinitionId.toString()))
+            {
+               DeployedRuntimeArtifact artifact = ArtifactManagerFactory.getCurrent()
+                     .getActiveDeployedArtifact(
+                           BenchmarkDefinitionArtifactType.TYPE_ID,
+                           defaults.get(qualifedProcessDefinitionId.toString())
+                                 .toString());
+
+               if (artifact != null)
+               {
+                  processInstance.setBenchmark(artifact.getOid());
+               }
+               else
+               {
+                  throw new ObjectNotFoundException(
+                        BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options.getBenchmarkId()));
+               }
+            }
+         }
+      }
+      
       if (trace.isInfoEnabled())
       {
          trace.info("Starting process '" + processDefinition.getId() + "', oid = "

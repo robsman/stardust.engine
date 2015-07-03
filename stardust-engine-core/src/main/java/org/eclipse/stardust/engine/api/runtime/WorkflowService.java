@@ -1762,7 +1762,7 @@ public interface WorkflowService extends Service
     * @throws PublicException if the process instance is no scope process instance.
     * @throws InvalidArgumentException if attributes is null.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyProcessInstances,
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAttributes,
          scope=ExecutionPermission.Scope.processDefinition,
          defaults={ExecutionPermission.Default.ALL})
    void setProcessInstanceAttributes(ProcessInstanceAttributes attributes)
@@ -1781,7 +1781,7 @@ public interface WorkflowService extends Service
     * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied
     *
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyActivityInstances,
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAttributes,
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.ALL})
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)

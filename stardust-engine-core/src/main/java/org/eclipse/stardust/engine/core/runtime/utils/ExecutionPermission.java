@@ -112,6 +112,10 @@ public @interface ExecutionPermission {
        */
       modifyActivityInstances,
       /**
+       * permission to modify the attributes of activity and process instances
+       */
+      modifyAttributes,
+      /**
        * permission to modify the AuditTrail database
        */
       modifyAuditTrail,

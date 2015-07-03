@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.struct;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -983,6 +984,10 @@ public class StructuredDataXPathUtils
       else if (typeKey == BigData.PERIOD)
       {
          return new Period((short)0, (short)0, (short)0, (short)0, (short)0, (short)0);
+      }
+      else if (typeKey == BigData.DECIMAL)
+      {
+         return new BigDecimal(0);
       }
       else
       {

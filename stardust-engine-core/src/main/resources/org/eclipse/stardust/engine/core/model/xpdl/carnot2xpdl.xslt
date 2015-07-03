@@ -721,7 +721,7 @@
 
                   <carnot:QualityCodes>
                      <xsl:for-each select="wfm:validQualityCodes">
-                        <carnot:QualityCode><xsl:value-of select="." /></carnot:QualityCode>
+                        <carnot:QualityCode><xsl:value-of select="carnot-xpdl-utils:fixQualityAssuranceCode(.)" xmlns:carnot-xpdl-utils="xalan://org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils"/></carnot:QualityCode>
                      </xsl:for-each>
                   </carnot:QualityCodes>
 

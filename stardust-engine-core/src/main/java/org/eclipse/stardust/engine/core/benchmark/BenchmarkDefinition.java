@@ -16,6 +16,8 @@ import java.util.TreeMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
@@ -52,6 +54,12 @@ public class BenchmarkDefinition
       this.properties = CollectionUtils.newMap();
 
       RuntimeArtifact ra = ArtifactManagerFactory.getCurrent().getArtifact(benchmarkOid);
+      
+      if (ra == null)
+      {
+         throw new ObjectNotFoundException(BpmRuntimeError.ATDB_UNKNOWN_RUNTIME_ARTIFACT_OID.raise(oid));
+      }
+      
       BenchmarkDefinitionParser.parse(this, ra.getContent());
    }
 

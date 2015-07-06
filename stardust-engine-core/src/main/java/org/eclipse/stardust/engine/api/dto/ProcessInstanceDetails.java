@@ -95,7 +95,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
    private final long benchmark;
 
-   private final BenchmarkResult benchmarkResult;
+   private BenchmarkResult benchmarkResult;
 
    private ProcessInstance scopeprocessInstance = null;
 
@@ -168,11 +168,18 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       
       if (benchmark > 0)
       {
-      BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(benchmark);
-      
-         this.benchmarkResult = new BenchmarkResultDetails(
-               processInstance.getBenchmarkValue(),
-               benchmarkDefinition.getProperty(processInstance.getBenchmarkValue()));
+         try
+         {
+            BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(benchmark);
+
+            this.benchmarkResult = new BenchmarkResultDetails(
+                  processInstance.getBenchmarkValue(),
+                  benchmarkDefinition.getProperty(processInstance.getBenchmarkValue()));
+         }
+         catch (ObjectNotFoundException e)
+         {
+            this.benchmarkResult = null;
+         }
       }
       else
       {

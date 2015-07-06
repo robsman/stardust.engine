@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.EventHandler;
@@ -189,11 +190,19 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
       if (processInstance.getBenchmark() > 0)
       {
-         BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(processInstance.getBenchmark());
 
-         this.benchmarkResult = new BenchmarkResultDetails(
-               activityInstance.getBenchmarkValue(),
-               benchmarkDefinition.getProperty(activityInstance.getBenchmarkValue()));
+         try
+         {
+            BenchmarkDefinition benchmarkDefinition = BenchmarkUtils.getBenchmarkDefinition(processInstance.getBenchmark());
+
+            this.benchmarkResult = new BenchmarkResultDetails(
+                  activityInstance.getBenchmarkValue(),
+                  benchmarkDefinition.getProperty(activityInstance.getBenchmarkValue()));
+         }
+         catch (ObjectNotFoundException e)
+         {
+            this.benchmarkResult = null;
+         }
       }
 
       performer = initPerformer(activityInstance);

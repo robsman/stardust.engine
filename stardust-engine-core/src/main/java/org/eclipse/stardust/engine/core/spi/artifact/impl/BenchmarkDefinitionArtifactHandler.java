@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.artifact.impl;
 
-import org.eclipse.stardust.engine.api.runtime.ArtifactType;
-import org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact;
-import org.eclipse.stardust.engine.api.runtime.RuntimeArtifact;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.spi.artifact.IArtifactHandler;
 
 /**
@@ -68,7 +71,21 @@ public class BenchmarkDefinitionArtifactHandler
 
    @Override
    public void beforeDelete(DeployedRuntimeArtifact deployedRuntimeArtifact)
-   {}
+   {
+      
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAlive();
+      
+      query.where(ProcessInstanceQuery.BENCHMARK_OID.greaterThan(0));
+      
+      ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
+            QueryServiceUtils.getDefaultEvaluationContext()).executeFetch();      
+      
+      if (rawResult.hasNext())
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.ATDB_RUNTIME_ARTIFACT_IN_USE.raise(deployedRuntimeArtifact.getOid()));
+      }
+   }
 
    @Override
    public void afterDelete(long oid)

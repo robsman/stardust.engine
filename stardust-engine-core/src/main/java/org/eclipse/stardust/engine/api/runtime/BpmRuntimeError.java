@@ -180,6 +180,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ATDB_UNKNOWN_WORK_ITEM_OID = newArgs1("ATDB01132", BpmRuntimeErrorMessages.getString("ATDB01132")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 ATDB_UNKNOWN_RUNTIME_ARTIFACT_OID = newArgs1("ATDB01141", BpmRuntimeErrorMessages.getString("ATDB01141")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_RUNTIME_ARTIFACT_IN_USE = new Args1("ATDB01142", BpmRuntimeErrorMessages.getString("ATDB01142")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// Runtime Artifact related

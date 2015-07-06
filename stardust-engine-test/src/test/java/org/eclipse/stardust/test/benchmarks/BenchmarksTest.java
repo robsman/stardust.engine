@@ -19,13 +19,11 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -249,8 +247,19 @@ public class BenchmarksTest
       assertTrue(res1.getCategory() > 0);
       assertTrue(res2 == null);
 
+   }
+   
+   @Test(expected = IllegalOperationException.class)
+   public void disallowDeleteOfBenchmarkDefinitionForActiveInstancesTest()
+   {
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withBenchmark);
       
-
+      long benchmarkOid = pi.getBenchmark();
+      
+      serviceFactory.getAdministrationService().deleteRuntimeArtifact(benchmarkOid);
+      
+      Assert.fail("Should throw exception");
    }
 
    @Test

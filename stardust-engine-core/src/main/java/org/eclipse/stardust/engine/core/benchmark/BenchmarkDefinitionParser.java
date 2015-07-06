@@ -23,11 +23,15 @@ import com.google.gson.JsonParser;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.benchmark.CalendarDaysCondition.Comperator;
 import org.eclipse.stardust.engine.core.benchmark.Offset.CalendarUnit;
 
 public class BenchmarkDefinitionParser
 {
+   
+   private static final Logger trace = LogManager.getLogger(BenchmarkDefinitionParser.class);
 
    // Benchmark Definition First Level Elements
    private static final String JSON_DEFAULTS = "defaults";
@@ -294,13 +298,27 @@ public class BenchmarkDefinitionParser
 
       JsonObject details = conditionObject.getAsJsonObject("details");
 
-      boolean isBusinessCalendar = details.get("useBusinessDays").getAsBoolean();
-
       JsonObject jsonOffset = details.getAsJsonObject("offset");
 
-      Offset offset = new Offset(jsonOffset.get("amount").getAsInt(), CalendarUnit.DAYS,
-            jsonOffset.get("time").getAsString());
+      Offset offset = null;
+      
+      boolean isBusinessCalendar = false;
 
+      if (jsonOffset != null)
+      {
+         if (jsonOffset.get("useBusinessDays") != null)
+         {
+            isBusinessCalendar = jsonOffset.get("useBusinessDays").getAsBoolean();
+         }
+
+         if (jsonOffset.get("applyOffset") != null
+               && jsonOffset.get("applyOffset").getAsBoolean())
+         {
+            offset = new Offset(jsonOffset.get("amount").getAsInt(), CalendarUnit.DAYS,
+                  jsonOffset.get("time").getAsString());
+         }
+      }
+      
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
       String qualifiedDataId = calendarCondition.get("rhs").getAsString();
@@ -354,6 +372,7 @@ public class BenchmarkDefinitionParser
       }
       catch (Exception e)
       {
+         trace.error(e);
          jsonObject = null;
       }
 

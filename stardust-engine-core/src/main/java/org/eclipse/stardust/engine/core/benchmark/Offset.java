@@ -37,7 +37,7 @@ public class Offset
       {
          try
          {
-            Date date = new SimpleDateFormat("hh:mm aa").parse(timeOfDay);
+            Date date = new SimpleDateFormat("HH:mm").parse(timeOfDay);
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);

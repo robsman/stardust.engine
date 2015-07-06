@@ -28,11 +28,12 @@
       "dueDate": {
         "enabled": true,
         "dataReference": "BUSINESS_DATE",
-        "useBusinessDays": false,
         "offset": {
+          "applyOffset": true,
+          "useBusinessDays": false,
           "amount": 10,
           "unit": "d",
-          "time": "12:01 AM"
+          "time": "00:01"
         }
       },
       "categoryConditions": [
@@ -87,14 +88,19 @@
               "details": {
                 "condition": {
                   "lhs": "CURRENT_TIME",
+                  "lhsType": "attribute",
+                  "lhsDeref": "",
                   "operator": "<",
-                  "rhs": "BUSINESS_DATE"
+                  "rhs": "{BenchmarksModel}BUSINESS_DATE",
+                  "rhsType": "data",
+                  "rhsDeref": ""
                 },
-                "useBusinessDays": true,
                 "offset": {
+                  "applyOffset": true,
+                  "useBusinessDays": true,
                   "amount": 5,
                   "unit": "d",
-                  "time": "12:01 AM"
+                  "time": "00:01"
                 }
               }
             },
@@ -120,14 +126,19 @@
                     "details": {
                       "condition": {
                         "lhs": "CURRENT_TIME",
+                        "lhsType": "attribute",
+                        "lhsDeref": "",
                         "operator": "<",
-                        "rhs": "BUSINESS_DATE"
+                        "rhs": "{BenchmarksModel}BUSINESS_DATE",
+                        "rhsType": "data",
+                        "rhsDeref": ""
                       },
-                      "useBusinessDays": true,
                       "offset": {
+                        "applyOffset": true,
+                        "useBusinessDays": true,
                         "amount": 5,
                         "unit": "d",
-                        "time": "12:01 AM"
+                        "time": "00:01"
                       }
                     }
                 },

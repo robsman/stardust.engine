@@ -28,11 +28,12 @@
       "dueDate": {
         "enabled": true,
         "dataReference": "{BenchmarksModel}DUE_DATE",
-        "useBusinessDays": false,
         "offset": {
+          "applyOffset": true,
+          "useBusinessDays": false,
           "amount": 10,
           "unit": "d",
-          "time": "12:01 AM"
+          "time": "00:01"
         }
       },
       "categoryConditions": [
@@ -91,9 +92,10 @@
                   "rhs": "{BenchmarksModel}DateSD",
                   "rhsDeref": "TheDate" 
                 },
-                "useBusinessDays": true,
                 "offset": {
                   "amount": 5,
+                  "applyOffset": true;
+                  "useBusinessDays": true,
                   "unit": "d",
                   "time": "12:01 AM"
                 }
@@ -125,9 +127,10 @@
                  		"rhs": "{BenchmarksModel}DateSD",
                   		"rhsDeref": "TheDate" 
                       },
-                      "useBusinessDays": true,
                       "offset": {
                         "amount": 0,
+                        "applyOffset": true;
+                        "useBusinessDays": true,                        
                         "unit": "d",
                         "time": "12:01 AM"
                       }
@@ -144,9 +147,10 @@
                   		"rhs": "{BenchmarksModel}DateSD",
                  		"rhsDeref": "TheDate" 
                       },
-                      "useBusinessDays": true,
                       "offset": {
                         "amount": 0,
+                        "applyOffset": true,
+                        "useBusinessDays": true,                        
                         "unit": "d",
                         "time": "12:01 AM"
                       }
@@ -163,9 +167,10 @@
                  	    "rhs": "{BenchmarksModel}DateSD",
                         "rhsDeref": "TheDate" 
                       },
-                      "useBusinessDays": true,
                       "offset": {
                         "amount": 1,
+                        "applyOffset": true,
+                        "useBusinessDays": true,
                         "unit": "d",
                         "time": "12:01 AM"
                       }

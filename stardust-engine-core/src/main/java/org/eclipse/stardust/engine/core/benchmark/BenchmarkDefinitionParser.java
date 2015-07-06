@@ -30,11 +30,10 @@ import org.eclipse.stardust.engine.core.benchmark.Offset.CalendarUnit;
 
 public class BenchmarkDefinitionParser
 {
-   
+
    private static final Logger trace = LogManager.getLogger(BenchmarkDefinitionParser.class);
 
    // Benchmark Definition First Level Elements
-   private static final String JSON_DEFAULTS = "defaults";
 
    private static final String JSON_MODELS = "models";
 
@@ -66,7 +65,6 @@ public class BenchmarkDefinitionParser
    private static final String CONDITION_TYPE = "type";
 
    private static final String CONDITION_CATEGORY_ID = "categoryId";
-
 
    public static void parse(BenchmarkDefinition benchmarkDefinition, byte[] contentBytes)
    {
@@ -107,68 +105,6 @@ public class BenchmarkDefinitionParser
 
          }
 
-         JsonObject jsonDefaults = json.getAsJsonObject(JSON_DEFAULTS);
-
-         // Parse for global process conditions
-         JsonObject pdDefaults = jsonDefaults.getAsJsonObject(PROCESS_DEFINITIONS_GLOBAL_KEY);
-
-         JsonArray pdCategoryConditions = pdDefaults.getAsJsonArray(CATEGORY_CONDITIONS);
-
-         for (JsonElement jsonElement : pdCategoryConditions)
-         {
-            JsonObject conditionObject = jsonElement.getAsJsonObject();
-
-            String categoryId = conditionObject.get(CONDITION_CATEGORY_ID).getAsString();
-
-            if (categoryIndexMap.containsKey(categoryId))
-            {
-               if (conditionObject.get(CONDITION_TYPE)
-                     .getAsString()
-                     .equals(CONDITION_TYPE_KEY_FREEFORM))
-               {
-                  benchmarkDefinition.globalActivityConditions.put(
-                        categoryIndexMap.get(categoryId), new FreeFormCondition(
-                              conditionObject.get(CONDITION_TYPE_KEY_FREEFORM_EXPRESSION)
-                                    .getAsString()));
-               }
-               else
-               {
-                  benchmarkDefinition.globalProcessConditions.put(
-                        categoryIndexMap.get(categoryId), new NoBenchmarkCondition());
-               }
-            }
-         }
-
-         // Parse for global activity conditions
-         JsonObject aDefaults = jsonDefaults.getAsJsonObject(ACTIVITIES_GLOBAL_KEY);
-
-         JsonArray aCategoryConditions = aDefaults.getAsJsonArray(CATEGORY_CONDITIONS);
-
-         for (JsonElement jsonElement : aCategoryConditions)
-         {
-            JsonObject conditionObject = jsonElement.getAsJsonObject();
-
-            String categoryId = conditionObject.get(CONDITION_CATEGORY_ID).getAsString();
-
-            if (categoryIndexMap.containsKey(categoryId))
-            {
-               if (conditionObject.get(CONDITION_TYPE)
-                     .getAsString()
-                     .equals(CONDITION_TYPE_KEY_FREEFORM))
-               {
-                  benchmarkDefinition.globalActivityConditions.put(
-                        categoryIndexMap.get(categoryId), new FreeFormCondition(
-                              conditionObject.get(CONDITION_TYPE_KEY_FREEFORM_EXPRESSION)
-                                    .getAsString()));
-               }
-               else
-               {
-                  benchmarkDefinition.globalActivityConditions.put(
-                        categoryIndexMap.get(categoryId), new NoBenchmarkCondition());
-               }
-            }
-         }
-
          // Parse models element conditions
          JsonArray jsonModels = json.getAsJsonArray(JSON_MODELS);
 
@@ -191,7 +127,7 @@ public class BenchmarkDefinitionParser
                if (categoryConditions != null)
                {
 
-                  TreeMap<Integer,ConditionEvaluator> pdConditionMap = CollectionUtils.newTreeMap();
+                  TreeMap<Integer, ConditionEvaluator> pdConditionMap = CollectionUtils.newTreeMap();
 
                   for (JsonElement categoryCondition : categoryConditions)
                   {
@@ -203,7 +139,8 @@ public class BenchmarkDefinitionParser
                      pdConditionMap.putAll(createConditionMap(categoryIndexMap,
                            conditionObject, categoryId, benchmarkDefinition));
                   }
-                  benchmarkDefinition.processConditions.put(pdId.toString(), pdConditionMap);
+                  benchmarkDefinition.processConditions.put(pdId.toString(),
+                        pdConditionMap);
                }
 
                // Read actvityCondidions
@@ -219,7 +156,7 @@ public class BenchmarkDefinitionParser
 
                   if (activityCategoryConditions != null)
                   {
-                     TreeMap<Integer,ConditionEvaluator> aConditionMap = CollectionUtils.newTreeMap();
+                     TreeMap<Integer, ConditionEvaluator> aConditionMap = CollectionUtils.newTreeMap();
 
                      for (JsonElement categoryCondition : activityCategoryConditions)
                      {
@@ -228,9 +165,8 @@ public class BenchmarkDefinitionParser
                         String categoryId = conditionObject.get(CONDITION_CATEGORY_ID)
                               .getAsString();
 
-                        aConditionMap.putAll(createConditionMap(categoryIndexMap, conditionObject,
-                              categoryId, benchmarkDefinition));
-
+                        aConditionMap.putAll(createConditionMap(categoryIndexMap,
+                              conditionObject, categoryId, benchmarkDefinition));
 
                      }
                      benchmarkDefinition.activityConditions.put(new Pair<String, String>(
@@ -244,7 +180,6 @@ public class BenchmarkDefinitionParser
       }
 
    }
-
 
    /**
     *
@@ -271,14 +206,12 @@ public class BenchmarkDefinitionParser
                   conditionObject.get(CONDITION_TYPE_KEY_FREEFORM_EXPRESSION)
                         .getAsString()));
          }
-         else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("dataExpression"))
+         else if (conditionObject.get(CONDITION_TYPE)
+               .getAsString()
+               .equals("dataExpression"))
          {
             conditionMap.put(categoryIndexMap.get(categoryId),
                   createCalendarCondition(conditionObject, benchmarkDefinition));
-         }
-         else if (conditionObject.get(CONDITION_TYPE).getAsString().equals("default"))
-         {
-            conditionMap.put(categoryIndexMap.get(categoryId), new DefaultCondition());
          }
          else
          {
@@ -292,7 +225,8 @@ public class BenchmarkDefinitionParser
     * @param conditionObject
     * @return
     */
-   private static ConditionEvaluator createCalendarCondition(JsonObject conditionObject, BenchmarkDefinition benchmarkDefinition)
+   private static ConditionEvaluator createCalendarCondition(JsonObject conditionObject,
+         BenchmarkDefinition benchmarkDefinition)
    {
       ConditionEvaluator evaluator;
 
@@ -301,7 +235,7 @@ public class BenchmarkDefinitionParser
       JsonObject jsonOffset = details.getAsJsonObject("offset");
 
       Offset offset = null;
-      
+
       boolean isBusinessCalendar = false;
 
       if (jsonOffset != null)
@@ -318,11 +252,11 @@ public class BenchmarkDefinitionParser
                   jsonOffset.get("time").getAsString());
          }
       }
-      
+
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
       String qualifiedDataId = calendarCondition.get("rhs").getAsString();
-      
+
       String drefPath = calendarCondition.get("rhsDeref") != null
             ? calendarCondition.get("rhsDeref").getAsString()
             : null;
@@ -341,13 +275,15 @@ public class BenchmarkDefinitionParser
 
       if (isBusinessCalendar)
       {
-         evaluator = new BusinessDaysCondition(benchmarkDefinition.getBusinessCalendarId(), comperator,
-               qualifiedDataId, drefPath, offset);
+         evaluator = new BusinessDaysCondition(
+               benchmarkDefinition.getBusinessCalendarId(), comperator, qualifiedDataId,
+               drefPath, offset);
       }
       else
       {
 
-         evaluator = new CalendarDaysCondition(comperator, qualifiedDataId, drefPath, offset);
+         evaluator = new CalendarDaysCondition(comperator, qualifiedDataId, drefPath,
+               offset);
       }
       return evaluator;
    }

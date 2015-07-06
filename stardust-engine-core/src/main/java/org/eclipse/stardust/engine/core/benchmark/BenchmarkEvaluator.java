@@ -91,84 +91,28 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
          TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark.getActivityConditions(qualifiedActivityId);
 
-         if (activityConditions == null)
+         // evaluate activity scope.
+         ArrayList<Integer> columns = new ArrayList<Integer>(activityConditions.keySet());
+
+         Collections.reverse(columns);
+
+         for (Integer column : columns)
          {
-            // evaluate only global scope
-            TreeMap<Integer, ConditionEvaluator> globalActivityConditions = benchmark.getGlobalActivityConditions();
-            ArrayList<Integer> globalColumns = new ArrayList<Integer>(
-                  globalActivityConditions.keySet());
+            ConditionEvaluator evaluator = activityConditions.get(column);
 
-            Collections.reverse(globalColumns);
-
-            for (Integer column : globalColumns)
+            if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
             {
-               // if no evaluator is present, default to global scope.
-               ConditionEvaluator globalEvaluator = benchmark.getGlobalActivityConditions()
-                     .get(column);
-               if (globalEvaluator instanceof NoBenchmarkCondition
-                     || globalEvaluator == null)
-               {
-                  // no global condition set, continue evaluation with next column.
-                  continue;
-               }
-               else
-               {
-                  Boolean result = globalEvaluator.evaluate(bean);
-                  if (result != null && result)
-                  {
-                     return column;
-                  }
-               }
+               // no condition set, continue evaluation with next column.
+               continue;
             }
-         }
-         else
-         {
-            // evaluate activity scope.
-            ArrayList<Integer> columns = new ArrayList<Integer>(
-                  activityConditions.keySet());
-
-            Collections.reverse(columns);
-
-            for (Integer column : columns)
+            Boolean result = evaluator.evaluate(bean);
+            if (result != null && result)
             {
-               ConditionEvaluator evaluator = activityConditions.get(column);
-
-               if (evaluator instanceof NoBenchmarkCondition)
-               {
-                  // no condition set, continue evaluation with next column.
-                  continue;
-               }
-               else if (evaluator instanceof DefaultCondition || evaluator == null)
-               {
-                  // if no evaluator is present, default to global scope.
-                  ConditionEvaluator globalEvaluator = benchmark.getGlobalActivityConditions()
-                        .get(column);
-
-                  if (globalEvaluator instanceof NoBenchmarkCondition
-                        || globalEvaluator == null)
-                  {
-                     // no global condition set, continue evaluation with next column.
-                     continue;
-                  }
-                  else
-                  {
-                     Boolean result = globalEvaluator.evaluate(bean);
-                     if (result != null && result)
-                     {
-                        return column;
-                     }
-                  }
-               }
-               else
-               {
-                  Boolean result = evaluator.evaluate(bean);
-                  if (result != null && result)
-                  {
-                     return column;
-                  }
-               }
+               return column;
             }
+
          }
+
          // no benchmark result everything was false.
          return 0;
       }
@@ -188,82 +132,28 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       {
          TreeMap<Integer, ConditionEvaluator> processConditions = benchmark.getProcessConditions(getQualifiedIdForProcess(bean.getProcessDefinition()));
 
-         if (processConditions == null)
+         // evaluate process scope.
+         ArrayList<Integer> columns = new ArrayList<Integer>(processConditions.keySet());
+
+         Collections.reverse(columns);
+
+         for (Integer column : columns)
          {
-            // evaluate only global scope.
-            TreeMap<Integer, ConditionEvaluator> globalProcessConditions = benchmark.getGlobalProcessConditions();
-            ArrayList<Integer> globalColumns = new ArrayList<Integer>(
-                  globalProcessConditions.keySet());
+            ConditionEvaluator evaluator = processConditions.get(column);
 
-            for (Integer column : globalColumns)
+            if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
             {
-               // if no evaluator is present, default to global scope.
-               ConditionEvaluator globalEvaluator = benchmark.getGlobalProcessConditions()
-                     .get(column);
-               if (globalEvaluator instanceof NoBenchmarkCondition
-                     || globalEvaluator == null)
-               {
-                  // no global condition set, continue evaluation with next column.
-                  continue;
-               }
-               else
-               {
-                  Boolean result = globalEvaluator.evaluate(bean);
-                  if (result != null && result)
-                  {
-                     return column;
-                  }
-               }
+               // no condition set, continue evaluation with next column.
+               continue;
             }
-         }
-         else
-         {
-            // evaluate process scope.
-            ArrayList<Integer> columns = new ArrayList<Integer>(
-                  processConditions.keySet());
-
-            Collections.reverse(columns);
-
-            for (Integer column : columns)
+            Boolean result = evaluator.evaluate(bean);
+            if (result != null && result)
             {
-               ConditionEvaluator evaluator = processConditions.get(column);
-
-               if (evaluator instanceof NoBenchmarkCondition)
-               {
-                  // no condition set, continue evaluation with next column.
-                  continue;
-               }
-               else if (evaluator instanceof DefaultCondition || evaluator == null)
-               {
-                  // if no evaluator is present, default to global scope.
-                  ConditionEvaluator globalEvaluator = benchmark.getGlobalProcessConditions()
-                        .get(column);
-
-                  if (globalEvaluator instanceof NoBenchmarkCondition
-                        || globalEvaluator == null)
-                  {
-                     // no global condition set, continue evaluation with next column.
-                     continue;
-                  }
-                  else
-                  {
-                     Boolean result = globalEvaluator.evaluate(bean);
-                     if (result != null && result)
-                     {
-                        return column;
-                     }
-                  }
-               }
-               else
-               {
-                  Boolean result = evaluator.evaluate(bean);
-                  if (result != null && result)
-                  {
-                     return column;
-                  }
-               }
+               return column;
             }
+
          }
+
          // no benchmark result everything was false.
          return 0;
       }

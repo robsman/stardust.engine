@@ -31,10 +31,6 @@ public class BenchmarkDefinition
 
    long oid;
 
-   TreeMap<Integer, ConditionEvaluator> globalProcessConditions;
-
-   TreeMap<Integer, ConditionEvaluator> globalActivityConditions;
-
    Map<String, TreeMap<Integer,ConditionEvaluator>> processConditions;
 
    Map<Pair<String, String>, TreeMap<Integer,ConditionEvaluator>> activityConditions;
@@ -46,8 +42,6 @@ public class BenchmarkDefinition
    public BenchmarkDefinition(long benchmarkOid)
    {
       this.oid = benchmarkOid;
-      this.globalProcessConditions = CollectionUtils.newTreeMap();
-      this.globalActivityConditions = CollectionUtils.newTreeMap();
       this.activityConditions = CollectionUtils.newMap();
       this.processConditions = CollectionUtils.newMap();
 
@@ -68,15 +62,6 @@ public class BenchmarkDefinition
       return oid;
    }
 
-   public TreeMap<Integer, ConditionEvaluator> getGlobalProcessConditions()
-   {
-      return globalProcessConditions;
-   }
-
-   public TreeMap<Integer, ConditionEvaluator> getGlobalActivityConditions()
-   {
-      return globalActivityConditions;
-   }
 
    public TreeMap<Integer, ConditionEvaluator> getProcessConditions(String processId)
    {

@@ -105,7 +105,7 @@ public class UserContext
             : (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
 
-   protected static UserContext getInstance()
+   public static UserContext getInstance()
    {
       return INSTANCE;
    }

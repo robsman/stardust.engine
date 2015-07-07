@@ -128,13 +128,8 @@ public class JsonTypeConverter
                }
                else
                {
-                  json = gson.toJson(dataMap);
+            	   json = gson.toJson(dataMap);
                }
-               //workaround to customize fields name since FieldNAmingStrategy is not working with 1.6
-               //TODO: replace workaround after gson upgrade
-               if(json.contains("@"))
-                  json=json.replaceAll("@", "");
-
                replaceDataValue(dataMapping, json, extendedAttributes);
             }
          }

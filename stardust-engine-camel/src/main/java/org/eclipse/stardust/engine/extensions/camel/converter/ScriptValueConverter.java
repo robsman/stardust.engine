@@ -122,8 +122,7 @@ public final class ScriptValueConverter
       }
       else if (value instanceof Map)
       {
-         // ensure each value in the Map is unwrapped (which may have been an unwrapped
-         // NativeMap!)
+         // ensure each value in the Map is unwrapped
          Map<Object, Object> map = (Map<Object, Object>) value;
          Map<Object, Object> copyMap = new HashMap<Object, Object>(map.size());
          for (Object key : map.keySet())
@@ -162,7 +161,7 @@ public final class ScriptValueConverter
 
    private static String getId(String propId, TypedXPath xpath)
    {
-      if (xpath!=null && xpath.isAttribute())
+      if (xpath!=null && xpath.isAttribute() && !xpath.getId().startsWith("@"))
       {
          return "@" + propId;
       }

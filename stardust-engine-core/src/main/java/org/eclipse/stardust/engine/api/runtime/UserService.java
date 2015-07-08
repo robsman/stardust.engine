@@ -576,9 +576,11 @@ public interface UserService extends Service
     * @return the created deputy.
     * @throws DeputyExistsException
     *            if the requested deputy already exists.
+    * @throws InvalidArgumentException
+    *            if options.toDate is in the past
     */
     @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options);
+    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws InvalidArgumentException;
 
    /**
     * Modifies an existing deputy user for a given user. This deputy user inherits for the
@@ -591,19 +593,21 @@ public interface UserService extends Service
     *           the user for which a deputy user shall be modified.
     * @param deputyUser
     *           the deputy user.
-    * @param fromDate
+    * @param options.fromDate
     *           date from when deputy user inherits all grants of user. not allowed to be
     *           null.
-    * @param toDate
+    * @param options.toDate
     *           date when inherited grants are revoked from deputy user. If date is null
     *           then no upper limit exists.
     *
     * @return the created deputy.
     * @throws ObjectNotFoundException
     *            if the requested deputy does not exists.
+    * @throws InvalidArgumentException
+    *            if options.toDate is in the past
     */
     @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException;
+    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException, InvalidArgumentException;
 
    /**
     * Removes an existing deputy user for a given user. All inherited grants from user are

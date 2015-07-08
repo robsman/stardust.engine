@@ -893,8 +893,16 @@ public class UserServiceImpl implements UserService, Serializable
 
          UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-         // fromDate should not be set to past - use now instead.
          final Date now = TimestampProviderUtils.getTimeStamp();
+         // toDate is not allowed to be in the past
+         Date toDate = options.getToDate();
+         if(toDate != null && now.compareTo(toDate) > 0)
+         {
+            throw new InvalidArgumentException(
+                  BpmRuntimeError.ATDB_DEPUTY_TO_DATE_NOT_ALLOWED_TO_BE_IN_PAST.raise(toDate));
+         }
+
+         // fromDate should not be set to past - use now instead.
          Date fromDate = options.getFromDate();
          if(now.compareTo(fromDate) > 0)
          {

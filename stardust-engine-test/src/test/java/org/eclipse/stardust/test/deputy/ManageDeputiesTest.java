@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Role;
@@ -273,10 +274,24 @@ public class ManageDeputiesTest
     *
     * </p>
     */
+   @Test(expected=InvalidArgumentException.class)
+   public void addDeputyAdminTest2ForTest3ToInPast()
+   {
+      DeputyOptions pastOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.TO, DEPUTY_VALIDITY_DATE.PAST);
+
+      @SuppressWarnings("unused")
+      Deputy addedDeputy = adminUserService.addDeputy(test3, test2, pastOptions);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
    @Test
    public void addDeputyAdminTest2ForTest3FromInPast()
    {
-      DeputyOptions pastOptions = createDeputyOptions(FROM_TARGET.PAST);
+      DeputyOptions pastOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.FROM, DEPUTY_VALIDITY_DATE.PAST);
 
       Deputy addedDeputy = adminUserService.addDeputy(test3, test2, pastOptions);
 
@@ -289,9 +304,24 @@ public class ManageDeputiesTest
     * </p>
     */
    @Test
+   public void addDeputyAdminTest2ForTest3ToInFuture()
+   {
+      DeputyOptions futureOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.TO, DEPUTY_VALIDITY_DATE.FUTURE);
+
+      Deputy addedDeputy = adminUserService.addDeputy(test3, test2, futureOptions);
+
+      Assert.assertTrue(addedDeputy.getUntilDate().compareTo(futureOptions.getToDate()) == 0);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
    public void addDeputyAdminTest2ForTest3FromInFuture()
    {
-      DeputyOptions futureOptions = createDeputyOptions(FROM_TARGET.FUTURE);
+      DeputyOptions futureOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.FROM, DEPUTY_VALIDITY_DATE.FUTURE);
 
       Deputy addedDeputy = adminUserService.addDeputy(test3, test2, futureOptions);
 
@@ -303,10 +333,25 @@ public class ManageDeputiesTest
     *
     * </p>
     */
+   @Test(expected=InvalidArgumentException.class)
+   public void modifyDeputyAdminTest2ForTest3ToInPast()
+   {
+      DeputyOptions pastOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.TO, DEPUTY_VALIDITY_DATE.PAST);
+
+      adminUserService.addDeputy(test3, test2, options);
+      @SuppressWarnings("unused")
+      Deputy modifiedDeputy = adminUserService.modifyDeputy(test3, test2, pastOptions);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
    @Test
    public void modifyDeputyAdminTest2ForTest3FromInPast()
    {
-      DeputyOptions pastOptions = createDeputyOptions(FROM_TARGET.PAST);
+      DeputyOptions pastOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.FROM, DEPUTY_VALIDITY_DATE.PAST);
 
       adminUserService.addDeputy(test3, test2, options);
       Deputy modifiedDeputy = adminUserService.modifyDeputy(test3, test2, pastOptions);
@@ -320,9 +365,25 @@ public class ManageDeputiesTest
     * </p>
     */
    @Test
+   public void modifyDeputyAdminTest2ForTest3ToInFuture()
+   {
+      DeputyOptions futureOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.TO, DEPUTY_VALIDITY_DATE.FUTURE);
+
+      adminUserService.addDeputy(test3, test2, options);
+      Deputy modifiedDeputy = adminUserService.modifyDeputy(test3, test2, futureOptions);
+
+      Assert.assertTrue(modifiedDeputy.getUntilDate().compareTo(futureOptions.getToDate()) == 0);
+   }
+
+   /**
+    * <p>
+    *
+    * </p>
+    */
+   @Test
    public void modifyDeputyAdminTest2ForTest3FromInFuture()
    {
-      DeputyOptions futureOptions = createDeputyOptions(FROM_TARGET.FUTURE);
+      DeputyOptions futureOptions = createDeputyOptions(DEPUTY_VALIDITY_TARGET.FROM, DEPUTY_VALIDITY_DATE.FUTURE);
 
       adminUserService.addDeputy(test3, test2, options);
       Deputy modifiedDeputy = adminUserService.modifyDeputy(test3, test2, futureOptions);
@@ -330,30 +391,50 @@ public class ManageDeputiesTest
       Assert.assertTrue(modifiedDeputy.getFromDate().compareTo(futureOptions.getFromDate()) == 0);
    }
 
-   private static DeputyOptions createDeputyOptions(FROM_TARGET fromTarget)
+   private static DeputyOptions createDeputyOptions(DEPUTY_VALIDITY_TARGET target, DEPUTY_VALIDITY_DATE dateSelector)
    {
       long nowInMs = TimestampProviderUtils.getTimeStampValue();
-      Date fromDate;
-      switch (fromTarget)
+      Date date;
+      switch (dateSelector)
       {
          case PAST:
-            fromDate = new Date(nowInMs - 1000 * 60 * 60 * 24);
+            date = new Date(nowInMs - 1000 * 60 * 60 * 24);
             break;
          case FUTURE:
-            fromDate = new Date(nowInMs + 1000 * 60 * 60 * 24);
+            date = new Date(nowInMs + 1000 * 60 * 60 * 24);
             break;
 
          default:
-            fromDate = new Date(nowInMs);
+            date = new Date(nowInMs);
             break;
       }
-      DeputyOptions options = new DeputyOptions(fromDate, null);
+
+      DeputyOptions options = null;
+      switch (target)
+      {
+         case FROM:
+            options = new DeputyOptions(date, null);
+            break;
+
+         case TO:
+            options = new DeputyOptions(new Date(nowInMs), date);
+            break;
+
+         default:
+            Assert.fail("Value not supported: " + target);
+            break;
+      }
 
       return options;
    }
 
-   private static enum FROM_TARGET
+   private static enum DEPUTY_VALIDITY_DATE
    {
       PAST, NOW, FUTURE
+   }
+
+   private static enum DEPUTY_VALIDITY_TARGET
+   {
+      FROM, TO
    }
 }

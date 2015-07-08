@@ -91,26 +91,30 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
          TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark.getActivityConditions(qualifiedActivityId);
 
-         // evaluate activity scope.
-         ArrayList<Integer> columns = new ArrayList<Integer>(activityConditions.keySet());
-
-         Collections.reverse(columns);
-
-         for (Integer column : columns)
+         if (activityConditions != null)
          {
-            ConditionEvaluator evaluator = activityConditions.get(column);
+            // evaluate activity scope.
+            ArrayList<Integer> columns = new ArrayList<Integer>(
+                  activityConditions.keySet());
 
-            if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
-            {
-               // no condition set, continue evaluation with next column.
-               continue;
-            }
-            Boolean result = evaluator.evaluate(bean);
-            if (result != null && result)
-            {
-               return column;
-            }
+            Collections.reverse(columns);
 
+            for (Integer column : columns)
+            {
+               ConditionEvaluator evaluator = activityConditions.get(column);
+
+               if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
+               {
+                  // no condition set, continue evaluation with next column.
+                  continue;
+               }
+               Boolean result = evaluator.evaluate(bean);
+               if (result != null && result)
+               {
+                  return column;
+               }
+
+            }
          }
 
          // no benchmark result everything was false.
@@ -130,28 +134,33 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
    {
       try
       {
-         TreeMap<Integer, ConditionEvaluator> processConditions = benchmark.getProcessConditions(getQualifiedIdForProcess(bean.getProcessDefinition()));
+         TreeMap<Integer, ConditionEvaluator> processConditions = benchmark
+               .getProcessConditions(getQualifiedIdForProcess(bean.getProcessDefinition()));
 
-         // evaluate process scope.
-         ArrayList<Integer> columns = new ArrayList<Integer>(processConditions.keySet());
-
-         Collections.reverse(columns);
-
-         for (Integer column : columns)
+         if (processConditions != null)
          {
-            ConditionEvaluator evaluator = processConditions.get(column);
+            // evaluate process scope.
+            ArrayList<Integer> columns = new ArrayList<Integer>(
+                  processConditions.keySet());
 
-            if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
-            {
-               // no condition set, continue evaluation with next column.
-               continue;
-            }
-            Boolean result = evaluator.evaluate(bean);
-            if (result != null && result)
-            {
-               return column;
-            }
+            Collections.reverse(columns);
 
+            for (Integer column : columns)
+            {
+               ConditionEvaluator evaluator = processConditions.get(column);
+
+               if (evaluator instanceof NoBenchmarkCondition || evaluator == null)
+               {
+                  // no condition set, continue evaluation with next column.
+                  continue;
+               }
+               Boolean result = evaluator.evaluate(bean);
+               if (result != null && result)
+               {
+                  return column;
+               }
+
+            }
          }
 
          // no benchmark result everything was false.

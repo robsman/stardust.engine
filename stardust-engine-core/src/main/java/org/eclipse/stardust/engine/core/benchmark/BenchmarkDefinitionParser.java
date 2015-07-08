@@ -120,7 +120,12 @@ public class BenchmarkDefinitionParser
             {
                JsonObject pdJson = processDefinition.getAsJsonObject();
 
-               QName pdId = new QName(modelId, pdJson.get("id").getAsString());
+               String pdId = pdJson.get("id").getAsString();
+               // if not qualified, add  modelId.
+               if (pdId != null && !pdId.startsWith("{" + modelId))
+               {
+                  pdId = new QName(modelId, pdId).toString();
+               }
 
                JsonArray categoryConditions = pdJson.getAsJsonArray(CATEGORY_CONDITIONS);
 
@@ -170,7 +175,7 @@ public class BenchmarkDefinitionParser
 
                      }
                      benchmarkDefinition.activityConditions.put(new Pair<String, String>(
-                           pdId.toString(), aId), aConditionMap);
+                           pdId, aId), aConditionMap);
 
                   }
                }

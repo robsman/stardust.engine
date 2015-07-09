@@ -23,9 +23,11 @@ import com.google.gson.JsonParser;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.benchmark.CalendarDaysCondition.Comperator;
+import org.eclipse.stardust.engine.core.benchmark.ConditionParameter.ParameterType;
 import org.eclipse.stardust.engine.core.benchmark.Offset.CalendarUnit;
 
 public class BenchmarkDefinitionParser
@@ -260,10 +262,27 @@ public class BenchmarkDefinitionParser
 
       JsonObject calendarCondition = details.getAsJsonObject("condition");
 
-      String qualifiedDataId = calendarCondition.get("rhs").getAsString();
+      JsonObject lhs = calendarCondition.getAsJsonObject("lhs");
+      JsonObject rhs = calendarCondition.getAsJsonObject("rhs");
 
-      String drefPath = calendarCondition.get("rhsDeref") != null
-            ? calendarCondition.get("rhsDeref").getAsString()
+      String lhsId = lhs.get("id").getAsString();
+
+      String lhsDrefPath = !StringUtils.isEmpty(lhs.get("deref").getAsString()) ? lhs.get(
+            "deref").getAsString() : null;
+
+      ParameterType lhsType = lhs.get("type") != null
+            ? ConditionParameter.evaluateType(lhs.get("type").getAsString())
+            : null;
+
+      // String rhs = calendarCondition.get("rhs").getAsString();
+
+      String rhsId = rhs.get("id").getAsString();
+
+      String rhsDrefPath = !StringUtils.isEmpty(rhs.get("deref").getAsString()) ? rhs.get(
+            "deref").getAsString() : null;
+
+      ParameterType rhsType = rhs.get("type") != null
+            ? ConditionParameter.evaluateType(rhs.get("type").getAsString())
             : null;
 
       String stringComperator = calendarCondition.get("operator").getAsString();
@@ -278,16 +297,22 @@ public class BenchmarkDefinitionParser
          comperator = Comperator.LATER_THAN;
       }
 
+      ConditionParameter lhsParameter = new ConditionParameter(lhsType, lhsId,
+            lhsDrefPath);
+
+      ConditionParameter rhsParameter = new ConditionParameter(rhsType, rhsId,
+            rhsDrefPath);
+
       if (isBusinessCalendar)
       {
          evaluator = new BusinessDaysCondition(
-               benchmarkDefinition.getBusinessCalendarId(), comperator, qualifiedDataId,
-               drefPath, offset);
+               benchmarkDefinition.getBusinessCalendarId(), lhsParameter, comperator,
+               rhsParameter, offset);
+
       }
       else
       {
-
-         evaluator = new CalendarDaysCondition(comperator, qualifiedDataId, drefPath,
+         evaluator = new CalendarDaysCondition(lhsParameter, comperator, rhsParameter,
                offset);
       }
       return evaluator;

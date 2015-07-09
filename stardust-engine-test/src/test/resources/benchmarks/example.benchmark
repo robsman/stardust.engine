@@ -37,13 +37,17 @@
               "freeformExpression": "",
               "details": {
                 "condition": {
-                  "lhs": "CURRENT_TIME",
-                  "lhsType": "attribute",
-                  "lhsDeref": "",
-                  "operator": ">",
-                  "rhs": "{BenchmarksModel}DUE_DATE",
-                  "rhsType": "data",
-                  "rhsDeref": ""
+                  "lhs": { 
+                    "id": "CURRENT_TIME",
+                    "type": "attribute",
+                    "deref": ""
+                  },
+                  "operator": ">",                  
+                  "rhs": {
+                    "id": {BenchmarksModel}DUE_DATE",
+                    "type": "data",
+                    "deref": ""
+                  }
                 },
                 "offset": {
                   "applyOffset": true,

@@ -88,9 +88,17 @@
               "freeformExpression": "",
               "details": {
                 "condition": {
-                  "lhs": "CURRENT_TIME",
+                 "lhs": {
+                    "id": "CURRENT_TIME",
+                    "type": "attribute",
+                    "deref": ""
+                  },
                   "operator": "<",
-                  "rhs": "{BenchmarksModel}BUSINESS_DATE"
+                  "rhs": {
+                    "id": "{BenchmarksModel}BUSINESS_DATE",
+                    "type": "data",
+                    "deref": ""
+                  }
                 },
                 "offset": {                
                   "amount": 5,
@@ -122,9 +130,17 @@
                     "freeformExpression": "",
                     "details": {
                       "condition": {
-                        "lhs": "CURRENT_TIME",
+                        "lhs": {
+                          "id": "CURRENT_TIME",
+                          "type": "attribute",
+                          "deref": ""
+                        },
                         "operator": "<",
-                 		"rhs": "{BenchmarksModel}BUSINESS_DATE"
+                        "rhs": {
+                          "id": "{BenchmarksModel}BUSINESS_DATE",
+                          "type": "data",
+                          "deref": ""
+                         }
                       },
                       "offset": {
                         "applyOffset": true,
@@ -141,9 +157,17 @@
                     "freeformExpression": "",
                     "details": {
                       "condition": {
-                        "lhs": "CURRENT_TIME",
+                        "lhs": { 
+                          "id": "CURRENT_TIME",
+                          "type": "attribute",
+                          "deref": ""
+                        },
                         "operator": ">",
-                  		"rhs": "{BenchmarksModel}BUSINESS_DATE"
+                  		"rhs": {
+                  		"id": "{BenchmarksModel}BUSINESS_DATE",
+                  		"type": "data",
+                  		"deref": ""                  		
+                  		}
                       },
                       "offset": {
                         "applyOffset": true,
@@ -160,9 +184,17 @@
                     "freeformExpression": "",
                     "details": {
                       "condition": {
-                        "lhs": "CURRENT_TIME",
+                        "lhs": {
+                          "id": "CURRENT_TIME",
+                          "type": "attribute",
+                          "deref": ""
+                        },
                         "operator": ">",
-                 	    "rhs": "{BenchmarksModel}BUSINESS_DATE"
+                 	    "rhs": {
+                 	      "id": "{BenchmarksModel}BUSINESS_DATE",
+                 	      "type": "data",
+                 	      "deref": ""
+                 	    }
                       },
                       "offset": {
                         "applyOffset": true,

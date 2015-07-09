@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.benchmark.ConditionParameter.ParameterType;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -33,6 +34,12 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  */
 public class CalendarDaysCondition implements ConditionEvaluator
 {
+   private static final String CURRENT_TIME_ATTRIBUE = "CURRENT_TIME";
+   
+   private static final String PROCESS_START_TIME_ATTRIBUTE = "PROCESS_START_TIME";
+   
+   private static final String ROOT_PROCESS_START_TIME_ATTRIBUTE = "ROOT_PROCESS_START_TIME";
+   
    private static Logger trace = LogManager.getLogger(CalendarDaysCondition.class);
 
    protected String qualifiedDataId;
@@ -42,7 +49,13 @@ public class CalendarDaysCondition implements ConditionEvaluator
    protected Offset offset;
    
    protected String dataPath;
+   
+   protected ConditionParameter lhsParameter;
+   
+   protected ConditionParameter rhsParameter;
+   
 
+   /*
    public CalendarDaysCondition(Comperator comperator, String qualifiedDataId, String dataPath,
          Offset offset)
    {
@@ -51,45 +64,124 @@ public class CalendarDaysCondition implements ConditionEvaluator
       this.offset = offset;
       this.dataPath = dataPath;
    }
+   */
+   
+   public CalendarDaysCondition(ConditionParameter lhsParameter, Comperator comperator, ConditionParameter rhsParameter, Offset offset)
+   {
+      this.lhsParameter = lhsParameter;
+      this.comperator = comperator;
+      this.rhsParameter = rhsParameter;
+      this.offset = offset;
+   }
+   
 
    @Override
    public Boolean evaluate(ActivityInstanceBean ai)
    {
-      Date date;
+      Date rhsDate = null;
+      Date lhsDate = null;
 
-      date = getDateValue((ProcessInstanceBean) ai.getProcessInstance(), qualifiedDataId,
-            dataPath);
-
-      if (date == null)
+      if (this.rhsParameter.getType().equals(ParameterType.DATA))
       {
+         rhsDate = getDateValue((ProcessInstanceBean) ai.getProcessInstance(),
+               this.rhsParameter.getParameterId(), this.rhsParameter.getDataPath());
+      }
+      else if (this.rhsParameter.getType().equals(ParameterType.ATTRIBUTE))
+      {
+         rhsDate = getAttributeValue((ProcessInstanceBean) ai.getProcessInstance(), this.rhsParameter.getParameterId());
+      }
+      
+      if (this.lhsParameter.getType().equals(ParameterType.DATA))
+      {
+         lhsDate = getDateValue((ProcessInstanceBean) ai.getProcessInstance(),
+               this.lhsParameter.getParameterId(), this.lhsParameter.getDataPath());
+      }
+      else if (this.lhsParameter.getType().equals(ParameterType.ATTRIBUTE))
+      {
+         lhsDate = getAttributeValue((ProcessInstanceBean) ai.getProcessInstance(), this.lhsParameter.getParameterId());
+      }      
+
+      if (lhsDate == null || rhsDate == null)
+      {
+         String invalidParam = rhsDate == null
+               ? rhsParameter.getParameterId()
+               : lhsParameter.getParameterId();
+               
+         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;               
+               
          trace.warn("Data '"
-               + qualifiedDataId
+               + invalidParam
                + "' is not initialized or does not exist. Using process instance start time for calculation.");
          throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-               qualifiedDataId, date));
+               this.rhsParameter.getParameterId(), invalidDate));
 
       }
 
-      return evaluate(date);
+      return evaluate(lhsDate, rhsDate);
    }
 
    @Override
    public Boolean evaluate(ProcessInstanceBean pi)
    {
-      Date date;
+      Date rhsDate = null;
+      Date lhsDate = null;
 
-      date = getDateValue(pi, qualifiedDataId, dataPath);
-
-      if (date == null)
+      if (this.rhsParameter.getType().equals(ParameterType.DATA))
       {
-         trace.warn("Data '"
-               + qualifiedDataId
-               + "' is not initialized or does not exist.");
-         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-               qualifiedDataId, date));
+         rhsDate = getDateValue(pi, this.rhsParameter.getParameterId(),
+               this.rhsParameter.getDataPath());
       }
-      return evaluate(date);
+      else if (this.rhsParameter.getType().equals(ParameterType.ATTRIBUTE))
+      {
+         rhsDate = getAttributeValue((ProcessInstanceBean) pi,
+               this.rhsParameter.getParameterId());
+      }
+
+      if (this.lhsParameter.getType().equals(ParameterType.DATA))
+      {
+         lhsDate = getDateValue(pi, this.lhsParameter.getParameterId(),
+               this.lhsParameter.getDataPath());
+      }
+      else if (this.lhsParameter.getType().equals(ParameterType.ATTRIBUTE))
+      {
+         lhsDate = getAttributeValue((ProcessInstanceBean) pi,
+               this.lhsParameter.getParameterId());
+      }
+
+      if (rhsDate == null || lhsDate == null)
+      {
+         String invalidParam = rhsDate == null
+               ? rhsParameter.getParameterId()
+               : lhsParameter.getParameterId();
+               
+         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;
+         
+         trace.warn("Data or attribute '" + invalidParam
+               + "' is not initialized or does not exist.");
+
+         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
+      invalidParam, invalidDate));
+      }
+      return evaluate(lhsDate, rhsDate);
    }
+
+   private Date getAttributeValue(ProcessInstanceBean processInstance, String parameterId)
+   {
+      if (parameterId.equals(CURRENT_TIME_ATTRIBUE))
+      {
+         return TimestampProviderUtils.getTimeStamp();
+      }
+      else if (parameterId.equals(PROCESS_START_TIME_ATTRIBUTE))
+      {
+         return processInstance.getStartTime();
+      }
+      else if (parameterId.equals(ROOT_PROCESS_START_TIME_ATTRIBUTE))
+      {
+         processInstance.getRootProcessInstance().getStartTime();
+      }
+      return null;
+   }
+
 
    private Date getDateValue(ProcessInstanceBean pi, String qualifiedDataId, String dataPath)
    {
@@ -136,9 +228,9 @@ public class CalendarDaysCondition implements ConditionEvaluator
       return time;
    }
 
-   private boolean evaluate(Date date)
+   private boolean evaluate(Date lhsDate, Date rhsDate)
    {
-      Date offsetDate = applyOffset(date, offset);
+      Date offsetDate = applyOffset(rhsDate, offset);
       if (offsetDate == null)
       {
          // offset calculation failed, condition is not met.
@@ -146,14 +238,14 @@ public class CalendarDaysCondition implements ConditionEvaluator
       }
 
       boolean result = false;
-      Date currentTime = TimestampProviderUtils.getTimeStamp();
+      // Date currentTime = TimestampProviderUtils.getTimeStamp();
       if (Comperator.LATER_THAN.equals(comperator))
       {
-         result = currentTime.after(offsetDate);
+         result = lhsDate.after(offsetDate);
       }
       else if (Comperator.NOT_LATER_THAN.equals(comperator))
       {
-         result = currentTime.before(offsetDate);
+         result = lhsDate.before(offsetDate);
       }
       return result;
    }

@@ -42,13 +42,13 @@ public abstract class Upgrader
 
    public UpgradableItem upgrade(boolean recover) throws UpgradeException
    {
-      return upgradeToVersion(CurrentVersion.getVersion(), recover);
+      upgradeToVersion(CurrentVersion.getVersion(), recover);
+      return item;
    }
 
-   public UpgradableItem upgradeToVersion(Version version, boolean recover)
+   public void upgradeToVersion(Version version, boolean recover)
          throws UpgradeException
    {
-      UpgradableItem item = this.item;
       try
       {
          setup();
@@ -63,17 +63,18 @@ public abstract class Upgrader
             {
                break;
             }
-            if (job.matches(item.getVersion()))
+            Version itemVersion = item.getVersion();
+            if (itemVersion == null || job.matches(itemVersion))
             {
                String message = "Running job '" + job.getVersion()
                      + "' against item '" + item.getDescription()
-                     + "' with version '" + item.getVersion() + "'.";
+                     + "' with version '" + itemVersion + "'.";
                System.out.println(message);
                System.out.println("");
 
                trace.info(message);
 
-               item = job.run(item, recover);
+               job.run(item, recover);
 
                String doneMessage = "Upgrade to version " + job.getVersion() + " done.";
                System.out.println(doneMessage);
@@ -81,7 +82,7 @@ public abstract class Upgrader
                trace.info(doneMessage);
 
                recover = false;
-               
+
                if (upgradeStep)
                {
                   trace.info("Stopping upgrade after one step as requested");
@@ -99,7 +100,6 @@ public abstract class Upgrader
       {
          shutdown();
       }
-      return item;
    }
 
    protected void setup()

@@ -10,22 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.framework;
 
-import java.io.IOException;
 import java.io.StringReader;
-import java.net.URL;
 
-import javax.xml.parsers.DocumentBuilder;
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 
 /**
  * Wraps an xml CARNOT model as an upgradable item. The model is expected to
@@ -38,141 +30,95 @@ public class ModelItem implements UpgradableItem
 {
    public static final Logger trace = LogManager.getLogger(ModelItem.class);
 
-   public static final String LEGACY_VERSION_ATT = "carnot_xml_version";
-   public static final String VERSION_ATT = "carnotVersion";
-   public static final String VENDOR_ATT = "vendor";
-
    private String model;
-   private Version version;
-   private Element modelElement;
-   private boolean changed = false;
 
-   public ModelItem(String model)
+   private Version version;
+
+   private long oid;
+
+   private RuntimeItem runtimeItem;
+
+   private ModelUpgradeInfo upgradeInfo;
+
+   private boolean changed;
+
+   public ModelItem(RuntimeItem runtimeItem, long oid, String model)
    {
+      this.oid = oid;
       this.model = model;
+      this.runtimeItem = runtimeItem;
    }
 
-   /**
-    * Gets the version of the model directly from the xml string. If no model
-    * version is found '1.0.0' is returned.
-    */
    public Version getVersion()
    {
-      if (version != null)
+      if (version == null)
       {
-         return version;
-      }
-      bootstrapDOM();
-      String versionString = modelElement.getAttribute(VERSION_ATT);
-      if (versionString == null || versionString.equals(""))
-      {
-         versionString = modelElement.getAttribute(LEGACY_VERSION_ATT);
-      }
-      if (versionString == null || versionString.equals(""))
-      {
-         version = Version.createFixedVersion(1, 0, 0);
-      }
-      else
-      {
-         String vendorString = modelElement.getAttribute(VENDOR_ATT);
-         version = Version.createModelVersion(versionString, vendorString);
+         try
+         {
+            String versionString = getUpgradeInfo().getVersion();
+            if (versionString != null && !versionString.startsWith("9.9.9"))
+            {
+               version = Version.createModelVersion(versionString, getUpgradeInfo().getVendor());
+            }
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+            throw new UpgradeException("Unable to parse model with oid: " + oid);
+         }
       }
       return version;
    }
 
-   /**
-    * Provides the DOM for the document by getting the document element.
-    * This method is reentrant.
-    */
-   private void bootstrapDOM()
-   {
-      if (modelElement != null)
-      {
-         return;
-      }
-      try
-      {
-         DocumentBuilder _domBuilder = XmlUtils.newDomBuilder(true);
-         InputSource inputSource = new InputSource(new StringReader(model));
-         // TODO ship 3.0 DTD
-         final URL dtd = ModelItem.class.getResource("WorkflowModel.dtd");
-         inputSource.setSystemId(dtd.toString());
-         _domBuilder.setEntityResolver(new EntityResolver()
-         {
-            public InputSource resolveEntity(String publicId, String systemId)
-                  throws SAXException, IOException
-            {
-               if ("http://www.carnot.ag/workflowmodel/3.0/WorkflowModel.dtd".equals(systemId))
-               {
-                  return new InputSource(dtd.openStream());
-               }
-               return null;
-            }
-         });
-         Document document = _domBuilder.parse(inputSource);
-         modelElement = document.getDocumentElement();
-      }
-      catch (SAXException e)
-      {
-         trace.warn("", e);
-         throw new UpgradeException(e.getMessage());
-      }
-      catch (IOException e)
-      {
-         trace.warn("", e);
-         throw new UpgradeException(e.getMessage());
-      }
-   }
-
-   /**
-    * Sets a new version for the model.
-    */
    public void setVersion(Version version)
    {
-      bootstrapDOM();
-      if (version.compareTo(Version.createFixedVersion(3, 0, 0)) < 0)
-      {
-         modelElement.setAttribute(LEGACY_VERSION_ATT, version.toString());
-      }
-      else
-      {
-         modelElement.setAttribute(VERSION_ATT, version.toString());
-      }
       this.version = version;
-      changed = true;
    }
 
    public String getDescription()
    {
-      return "Model";
+      try
+      {
+         return "'" + getUpgradeInfo().getName() + "' (" + getUpgradeInfo().getId() + ")";
+      }
+      catch (Exception e)
+      {
+         throw new UpgradeException("Unable to parse model with oid: " + oid);
+      }
    }
 
-   /**
-    * Retrieves the model with the changes done (esp. the new version number)
-    */
    public String getModel()
    {
-      if (!changed)
-      {
-         return model;
-      }
-
-      /*    weird!?
-
-            CharArrayWriter writer = new CharArrayWriter();
-            OutputFormat _outputFormat = new OutputFormat();
-
-            _outputFormat.setIndent(3);
-            _outputFormat.setEncoding("ISO-8859-1");
-            XmlUtils serializer = new XmlUtils(writer, _outputFormat);
-      */
-      changed = false;
       return model;
    }
 
-   public Element getModelElement()
+   public void setModel(String model)
    {
-      bootstrapDOM();
-      return modelElement;
+      this.model = model;
+      changed = true;
+   }
+
+   public long getOid()
+   {
+      return oid;
+   }
+
+   public RuntimeItem getRuntimeItem()
+   {
+      return runtimeItem;
+   }
+
+   public ModelUpgradeInfo getUpgradeInfo() throws JAXBException, SAXException
+   {
+      if (upgradeInfo == null)
+      {
+         upgradeInfo = ModelUpgradeInfo.get(new StringReader(model));
+      }
+      return upgradeInfo;
+   }
+
+   public boolean isChanged()
+   {
+      return changed;
    }
 }

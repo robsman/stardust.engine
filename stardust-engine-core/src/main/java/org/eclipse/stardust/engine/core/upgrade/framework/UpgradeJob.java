@@ -24,9 +24,6 @@ import org.eclipse.stardust.common.config.Version;
  */
 public abstract class UpgradeJob
 {
-   /**
-    *
-    */
    public abstract UpgradableItem run(UpgradableItem item, boolean recover);
 
    public abstract Version getVersion();

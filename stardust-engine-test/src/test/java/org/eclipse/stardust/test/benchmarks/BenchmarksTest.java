@@ -70,9 +70,9 @@ public class BenchmarksTest
 
    private StartOptions startOptions_withoutBenchmark;
 
-   private static final String BENCHMARK_PROCESS = "BenchmarkedProcess";
+   private static final String BENCHMARK_PROCESS = "{BenchmarksModel}BenchmarkedProcess";
 
-   private static final String BENCHMARK_PROCESS_W_SUB = "BenchmarkedParentProcess";
+   private static final String BENCHMARK_PROCESS_W_SUB = "{BenchmarksModel}BenchmarkedParentProcess";
 
    private static final String BENCHMARK_REF = "benchmarksTest.benchmark";
 

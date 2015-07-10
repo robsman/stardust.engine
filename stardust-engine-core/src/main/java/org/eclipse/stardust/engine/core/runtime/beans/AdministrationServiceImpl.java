@@ -31,13 +31,7 @@ import org.eclipse.stardust.common.Functor;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ValidationException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -47,15 +41,7 @@ import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
 import org.eclipse.stardust.engine.api.dto.DeploymentInfoDetails;
 import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.OrganizationInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProfileScope;
-import org.eclipse.stardust.engine.api.model.QualifiedModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery.DeployedModelState;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
@@ -2076,17 +2062,17 @@ public class AdministrationServiceImpl
       }
 
       List<ModelReconfigurationInfo> info = null;
-      
-      // set default to false just for the case that 
+
+      // set default to false just for the case that
       // ConfigurationVariableUtils.saveConfigurationVariables throws an exception
       boolean saved = false;
       try
       {
          info = ConfigurationVariableUtils.saveConfigurationVariables(
                getPreferenceStore(), configurationVariables, force);
-         
+
          saved = true;
-         assert info instanceof RandomAccess; 
+         assert info instanceof RandomAccess;
          for(int i = 0, listSize = info.size(); i<listSize && saved; i++)
          {
             if(!info.get(i).success())
@@ -2215,5 +2201,13 @@ public class AdministrationServiceImpl
    private static ArtifactManager getArtifactManager()
    {
       return ArtifactManagerFactory.getCurrent();
+   }
+
+   @Override
+   public ProcessInstanceLinkType createProcessInstanceLinkType(String id, String description)
+   {
+      ProcessInstanceLinkTypeBean link = new ProcessInstanceLinkTypeBean(id, description);
+      trace.info("Created process instance link type '" + id + "'.");
+      return DetailsFactory.create(link);
    }
 }

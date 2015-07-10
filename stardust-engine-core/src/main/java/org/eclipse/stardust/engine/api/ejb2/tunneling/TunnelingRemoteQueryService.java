@@ -1301,4 +1301,45 @@ public interface TunnelingRemoteQueryService extends javax.ejb.EJBObject, org.ec
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
+         
+    /**
+     * Gets a specific process instance link type.
+     *
+     * @param id the in of the process instance link type.
+     *
+     * @return the process instance link type.
+     *
+     * @throws ObjectNotFoundException if there is no process instance link type with the specified
+     *     id.
+     *     <em>Instances of {@link ObjectNotFoundException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstanceLinkType(
+     *     java.lang.String id)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         getProcessInstanceLinkType(
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Gets all process instance link types defined.
+     *
+     * @return a list of process instance link types.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstanceLinkTypes()
+     */
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType>
+         getAllProcessInstanceLinkTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
          }

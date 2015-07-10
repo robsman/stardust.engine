@@ -550,6 +550,27 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
             serviceProxy).getRuntimeArtifacts(query);
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstanceLinkType(java.lang.String id)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         getProcessInstanceLinkType(java.lang.String id)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getProcessInstanceLinkType(id);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstanceLinkTypes()
+    */
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType>
+         getAllProcessInstanceLinkTypes()
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            serviceProxy).getAllProcessInstanceLinkTypes();
+   }
+
 	public QueryServiceBean()
 	{
       super(org.eclipse.stardust.engine.api.runtime.QueryService.class,

@@ -1003,4 +1003,18 @@ public class QueryServiceImpl implements QueryService, Serializable
       }
       return false;
    }
+
+   @Override
+   public ProcessInstanceLinkType getProcessInstanceLinkType(String id)
+   {
+      return DetailsFactory.create(ProcessInstanceLinkTypeBean.findById(id));
+   }
+
+   @Override
+   public List<ProcessInstanceLinkType> getAllProcessInstanceLinkTypes()
+   {
+      return DetailsFactory.<ProcessInstanceLinkType, ProcessInstanceLinkTypeDetails>
+         createCollection(ProcessInstanceLinkTypeBean.findAll(),
+         IProcessInstanceLinkType.class, ProcessInstanceLinkTypeDetails.class);
+   }
 }

@@ -14,13 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ValidationException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.ProfileScope;
@@ -863,4 +857,32 @@ public interface AdministrationService extends Service
    @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
    public List<ArtifactType> getSupportedRuntimeArtifactTypes();
 
+   /**
+    * Creates a new type of link between process instances.
+    *
+    * @param id the id of the link type.
+    * @param description the description of the link type.
+    *
+    * @return the newly created process instance link type.
+    *
+    * @throws ObjectExistsException if another link type with the same id already exists.
+    */
+   // TODO: (fh) clarify permission
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+   public ProcessInstanceLinkType createProcessInstanceLinkType(String id, String description);
+
+   /**
+    * Deletes an existing type of link between process instances.
+    * <p>
+    * Predefined link types cannot be deleted.
+    * </p>
+    *
+    * @param id the id of the link type to delete.
+    *
+    * @throws ObjectNotFoundException if there is no link type with the specified id,
+    *       or the id identifies one of the predefined link types.
+    */
+   // TODO: (fh) clarify permission
+   //@ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+   //public void deleteProcessInstanceLinkType(String id);
 }

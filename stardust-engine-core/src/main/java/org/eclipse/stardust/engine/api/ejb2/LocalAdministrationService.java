@@ -1445,6 +1445,27 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
          getSupportedRuntimeArtifactTypes()
          throws org.eclipse.stardust.common.error.WorkflowException;
          
+    /**
+     * Creates a new type of link between process instances.
+     *
+     * @param id the id of the link type.
+     * @param description the description of the link type.
+     *
+     * @return the newly created process instance link type.
+     *
+     * @throws ObjectExistsException if another link type with the same id already exists.
+     *     <em>Instances of {@link ObjectExistsException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(
+     *     java.lang.String id, java.lang.String description)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException;
 

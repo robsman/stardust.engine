@@ -1471,6 +1471,65 @@ public class QueryServiceImpl extends org.eclipse.stardust.engine.api.ejb3.beans
       }
     }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstanceLinkType(java.lang.String id)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         getProcessInstanceLinkType(
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getProcessInstanceLinkType(id);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstanceLinkTypes()
+    */
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType>
+         getAllProcessInstanceLinkTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.QueryService)
+            service).getAllProcessInstanceLinkTypes();
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
 	public QueryServiceImpl()
 	{
       this.serviceType=org.eclipse.stardust.engine.api.runtime.QueryService.class;

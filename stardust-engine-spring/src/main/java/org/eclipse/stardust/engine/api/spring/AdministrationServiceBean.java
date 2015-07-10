@@ -632,6 +632,16 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
             serviceProxy).getSupportedRuntimeArtifactTypes();
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).createProcessInstanceLinkType(id, description);
+   }
+
 	public AdministrationServiceBean()
 	{
       super(org.eclipse.stardust.engine.api.runtime.AdministrationService.class,

@@ -1614,6 +1614,36 @@ public class AdministrationServiceImpl extends org.eclipse.stardust.engine.api.e
       }
     }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+    */
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(
+         java.lang.String id, java.lang.String description,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).createProcessInstanceLinkType(id, description);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
 	public AdministrationServiceImpl()
 	{
       this.serviceType=org.eclipse.stardust.engine.api.runtime.AdministrationService.class;

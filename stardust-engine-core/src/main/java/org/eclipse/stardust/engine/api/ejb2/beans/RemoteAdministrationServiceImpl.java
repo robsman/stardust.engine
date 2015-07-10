@@ -2246,6 +2246,42 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
       }
     }
 
+    /**
+     * Creates a new type of link between process instances.
+     *
+     * @param id the id of the link type.
+     * @param description the description of the link type.
+     *
+     * @return the newly created process instance link type.
+     *
+     * @throws ObjectExistsException if another link type with the same id already exists.
+     *     <em>Instances of {@link ObjectExistsException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(
+     *     java.lang.String id, java.lang.String description)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).createProcessInstanceLinkType(id, description);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
     public void ejbCreate() throws javax.ejb.CreateException
     {
       super.init(org.eclipse.stardust.engine.api.runtime.AdministrationService.class,

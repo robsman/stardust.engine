@@ -448,4 +448,22 @@ public interface QueryService extends org.eclipse.stardust.engine.core.runtime.e
          org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstanceLinkType(java.lang.String id)
+    */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         getProcessInstanceLinkType(
+         java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstanceLinkTypes()
+    */
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType>
+         getAllProcessInstanceLinkTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
          }

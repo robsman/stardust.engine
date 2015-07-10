@@ -836,4 +836,23 @@ public interface QueryService extends Service
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
    public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
+
+   /**
+    * Gets a specific process instance link type.
+    *
+    * @param id the in of the process instance link type.
+    * @return the process instance link type.
+    *
+    * @throws ObjectNotFoundException if there is no process instance link type with the specified id.
+    */
+   @ExecutionPermission
+   public ProcessInstanceLinkType getProcessInstanceLinkType(String id);
+
+   /**
+    * Gets all process instance link types defined.
+    *
+    * @return a list of process instance link types.
+    */
+   @ExecutionPermission
+   public List<ProcessInstanceLinkType> getAllProcessInstanceLinkTypes();
 }

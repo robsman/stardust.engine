@@ -14,11 +14,13 @@ import java.io.Serializable;
 
 /**
  * Specifies the type of link that associates one process instance to another.
- * 
- * There are two predefined link types:
+ *
+ * There are several predefined link types:
  * <ul>
  * <li><b>switch</b> - a process instance was aborted and execution switched to another process instance.</li>
- * <li><b>join</b> - a process instance has joined as subprocess another process instance.</li> 
+ * <li><b>join</b> - a process instance has joined as subprocess another process instance.</li>
+ * <li><b>upgrade</b> - a process instance has been upgraded to a new process definition.</li>
+ * <li><b>spawn</b> - a process instance has been started as peer of another process instance.</li>
  * </ul>
  *
  * @author Florin.Herinean

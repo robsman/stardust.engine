@@ -31,8 +31,15 @@ import org.xml.sax.SAXException;
 /**
  * The base class for all model upgrade jobs.
  *
+ * TODO: (fh)
+ *  - calls to addRole and addPrimitiveData from sub classes should only record the change request.
+ *  - actual action should be performed as a block in the run method.
+ *  - updating of the model string should be performed as transformation: string -> sax source with (custom xml reader) -> identity transformer -> string
+ *  - the custom xml reader should inject/filter the changes recorded at step 1.
+ *  - updating of the runtime should read (once) the relevant content from the tables and fill in the runtime oid registry, then inject the new model elements.
+ *
  * @see UpgradeJob
- * @author kberberich, ubirkemeyer
+ * @author Florin.Herinean
  * @version $Revision$
  */
 public abstract class ModelUpgradeJob extends UpgradeJob

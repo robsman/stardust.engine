@@ -34,6 +34,20 @@
   </modules>
   
   <build>
+    <!--pluginManagement>
+       <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-install-plugin</artifactId>
+              <version>2.5.2</version>
+         </plugin>
+         <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <version>2.8.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement-->
     <plugins>
       <plugin>
          <artifactId>maven-dependency-plugin</artifactId>
@@ -91,6 +105,16 @@
                         <groupId>p2.osgi.bundle</groupId>
                         <artifactId>org.eclipse.equinox.registry</artifactId>
                         <version>${org.eclipse.equinox.registry.version}</version>
+                     </ArtifactItem>
+                     <ArtifactItem>
+                        <groupId>p2.osgi.bundle</groupId>
+                        <artifactId>org.eclipse.core.resources</artifactId>
+                        <version>${org.eclipse.core.resources.version}</version>
+                     </ArtifactItem>
+                     <ArtifactItem>
+                        <groupId>p2.osgi.bundle</groupId>
+                        <artifactId>org.eclipse.core.jobs</artifactId>
+                        <version>${org.eclipse.core.jobs.version}</version>
                      </ArtifactItem>
                   </artifactItems>
                   <stripVersion>true</stripVersion>
@@ -222,6 +246,32 @@
                   <version>${org.eclipse.equinox.registry.version}</version>
                </configuration>
             </execution>
+            <execution>
+               <id>install-core-jobs</id>
+               <phase>install</phase>
+               <goals>
+                  <goal>install-file</goal>
+               </goals>
+               <configuration>
+                  <file>${dependency.target.dir}/org.eclipse.core.jobs.jar</file>
+                  <groupId>org.eclipse.core</groupId>
+                  <artifactId>org.eclipse.core.jobs</artifactId>
+                  <version>${org.eclipse.core.jobs.version}</version>
+               </configuration>
+            </execution>
+            <execution>
+               <id>install-core-resources</id>
+               <phase>install</phase>
+               <goals>
+                  <goal>install-file</goal>
+               </goals>
+               <configuration>
+                  <file>${dependency.target.dir}/org.eclipse.core.resources.jar</file>
+                  <groupId>org.eclipse.core</groupId>
+                  <artifactId>org.eclipse.core.resources</artifactId>
+                  <version>${org.eclipse.core.resources.version}</version>
+               </configuration>
+            </execution>
          </executions>
       </plugin>
       <plugin>
@@ -273,7 +323,7 @@
                </configuration>
             </execution>
             <execution>
-               <id>deploy-emf-ecore-chamge</id>
+               <id>deploy-emf-ecore-change</id>
                <phase>deploy</phase>
                <goals>
                   <goal>deploy-file</goal>
@@ -348,6 +398,32 @@
                   <groupId>org.eclipse.equinox</groupId>
                   <artifactId>org.eclipse.equinox.registry</artifactId>
                   <version>${org.eclipse.equinox.registry.version}</version>
+               </configuration>
+            </execution>
+            <execution>
+               <id>install-core-jobs</id>
+               <phase>install</phase>
+               <goals>
+                  <goal>deploy-file</goal>
+               </goals>
+               <configuration>
+                  <file>${dependency.target.dir}/org.eclipse.core.jobs.jar</file>
+                  <groupId>org.eclipse.core</groupId>
+                  <artifactId>org.eclipse.core.jobs</artifactId>
+                  <version>${org.eclipse.core.jobs.version}</version>
+               </configuration>
+            </execution>
+            <execution>
+               <id>install-core-resources</id>
+               <phase>install</phase>
+               <goals>
+                  <goal>deploy-file</goal>
+               </goals>
+               <configuration>
+                  <file>${dependency.target.dir}/org.eclipse.core.resources.jar</file>
+                  <groupId>org.eclipse.core</groupId>
+                  <artifactId>org.eclipse.core.resources</artifactId>
+                  <version>${org.eclipse.core.resources.version}</version>
                </configuration>
             </execution>
          </executions>

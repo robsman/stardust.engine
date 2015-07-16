@@ -23,7 +23,6 @@ import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -139,7 +138,7 @@ public class BenchmarksTest
       // Check if properties are available
       assertEquals("Late", instance.getBenchmarkResult().getProperties().get("name"));
    }
-
+  
    @Test
    public void recaculateBenchmarkOnActivityStateChangeSwitchedOffTest()
    {
@@ -175,6 +174,7 @@ public class BenchmarksTest
 
       // Switch Preference to recalulate on suspend
       pref.put(ActivityInstanceStateChangeMonitor.BENCHMARK_PREF_RECALC_ONSUSPEND, true);
+      pref.put(ActivityInstanceStateChangeMonitor.BENCHMARK_PREF_RECALC_ONCREATE, true);      
 
       Preferences changedPrefs = new Preferences(PreferenceScope.PARTITION,
             PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
@@ -192,7 +192,7 @@ public class BenchmarksTest
       assertNotEquals(instance.getBenchmarkResult().getCategory(), 0);
 
    }
-
+   
    @Test
    public void startSubProcessInstanceWithBenchmarkTest()
    {
@@ -260,14 +260,14 @@ public class BenchmarksTest
    {
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PROCESS, startOptions_withComplexBenchmark);
-      
+            
       ActivityInstance instance = serviceFactory.getQueryService()
-            .findFirstActivityInstance(ActivityInstanceQuery.findAlive());      
+            .findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));      
       
       assertEquals(2, instance.getBenchmarkResult().getCategory());
       
    }
-   
+
    @Test(expected = IllegalOperationException.class)
    public void disallowDeleteOfBenchmarkDefinitionForActiveInstancesTest()
    {
@@ -310,5 +310,5 @@ public class BenchmarksTest
       assertTrue(ai1.getProcessInstance().getBenchmark() > ai2.getProcessInstance()
             .getBenchmark());
    }
-
+   
 }

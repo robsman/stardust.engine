@@ -67,6 +67,8 @@ public class BenchmarksTest
          serviceFactory);
 
    private StartOptions startOptions_withBenchmark;
+   
+   private StartOptions startOptions_withComplexBenchmark;
 
    private StartOptions startOptions_withoutBenchmark;
 
@@ -75,13 +77,17 @@ public class BenchmarksTest
    private static final String BENCHMARK_PROCESS_W_SUB = "{BenchmarksModel}BenchmarkedParentProcess";
 
    private static final String BENCHMARK_REF = "benchmarksTest.benchmark";
+   
+   private static final String COMPLEX_BENCHMARK_REF = "complexBenchmarksTest.benchmark";
 
    @Before
    public void setup()
    {
       BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
+      BenchmarkTestUtils.deployBenchmark("complexBenchmarksTest.benchmark", serviceFactory);
 
       startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_REF);
+      startOptions_withComplexBenchmark = new StartOptions(null, true, COMPLEX_BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
    }
 
@@ -247,6 +253,19 @@ public class BenchmarksTest
       assertTrue(res1.getCategory() > 0);
       assertTrue(res2 == null);
 
+   }
+   
+   @Test
+   public void complexFreeformBenchmarkTest()
+   {
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withComplexBenchmark);
+      
+      ActivityInstance instance = serviceFactory.getQueryService()
+            .findFirstActivityInstance(ActivityInstanceQuery.findAlive());      
+      
+      assertEquals(2, instance.getBenchmarkResult().getCategory());
+      
    }
    
    @Test(expected = IllegalOperationException.class)

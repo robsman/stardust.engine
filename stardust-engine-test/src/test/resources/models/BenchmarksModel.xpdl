@@ -260,6 +260,25 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="LoanAmount" Name="Loan Amount" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <InitialValue>12000</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="85" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="long" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="12000"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="BenchmarkedProcess" Name="Benchmarked Process" AccessLevel="PRIVATE">

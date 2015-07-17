@@ -199,7 +199,7 @@ public class ScopedWorklistTest
    @Test
    public void testCrossModelPermissions()
    {
-      RtEnvHome.deploy(adminSf.getAdministrationService(), null, INVOICES_MODEL, APPROVALS_MODEL);
+      RtEnvHome.deployModel(adminSf.getAdministrationService(), null, INVOICES_MODEL, APPROVALS_MODEL);
 
       List<Department> clients = DepartmentHome.createDepartments(adminSf,
             INVOICES_MODEL, "Client", "Macquarie", "Mario");
@@ -235,7 +235,7 @@ public class ScopedWorklistTest
       Assert.assertEquals("Count", 1, w.getCumulatedSize());
 
       RtEnvHome.cleanUpRuntimeAndModels(adminSf.getAdministrationService());
-      RtEnvHome.deploy(adminSf.getAdministrationService(), null, MODEL_NAME);
+      RtEnvHome.deployModel(adminSf.getAdministrationService(), null, MODEL_NAME);
    }
 
    private void ensureWorklistAssignedTo(final Department createdDept)

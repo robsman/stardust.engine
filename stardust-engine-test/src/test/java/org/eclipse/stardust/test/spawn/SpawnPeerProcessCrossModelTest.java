@@ -83,7 +83,7 @@ public class SpawnPeerProcessCrossModelTest
             getStartMap(), true);
 
       // This makes the running PI a pi from an older model version.
-      RtEnvHome.deploy(sf.getAdministrationService(), null, MODEL_NAME);
+      RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_NAME);
 
       // Get ai from subprocess.
       ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
@@ -251,7 +251,7 @@ public class SpawnPeerProcessCrossModelTest
             getStartMap(), true);
 
       // This makes the running PI a pi from an older model version.
-      RtEnvHome.deploy(sf.getAdministrationService(), null, MODEL_NAME);
+      RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_NAME);
 
       // Get ai from subprocess.
       ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());

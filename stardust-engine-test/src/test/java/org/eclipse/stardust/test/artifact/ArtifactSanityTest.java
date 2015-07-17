@@ -42,7 +42,7 @@ import org.eclipse.stardust.test.dms.DmsModelConstants;
 public class ArtifactSanityTest
 {
 
-   private static final String BENCHMARK_ARTIFACT_TYPE_ID = BenchmarkDefinitionArtifactType.TYPE_ID;
+   private static final String ARTIFACT_TYPE_ID = BenchmarkDefinitionArtifactType.TYPE_ID;
 
    private static final String ARTIFACT_NAME1 = "Benchmark One";
 
@@ -70,7 +70,11 @@ public class ArtifactSanityTest
 
    @Before
    public void setup() throws InterruptedException
-   {}
+   {
+      AdministrationService as = sf.getAdministrationService();
+
+      as.deployRuntimeArtifact(getRuntimeArtifact1(ARTIFACT_ID1));
+   }
 
    @After
    public void cleanup() throws InterruptedException
@@ -78,8 +82,28 @@ public class ArtifactSanityTest
 
    private RuntimeArtifact getRuntimeArtifact1(String artifactId)
    {
-      return new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID, artifactId, ARTIFACT_NAME1,
+      return new RuntimeArtifact(ARTIFACT_TYPE_ID, artifactId, ARTIFACT_NAME1,
             ARTIFACT_CONTENT1.getBytes(), new Date(1));
+   }
+
+   private RuntimeArtifact getActiveRuntimeArtifact(String artifactId)
+   {
+      QueryService qs = sf.getQueryService();
+
+      long oid = getDeployedActiveArtifactOid(artifactId);
+      return qs.getRuntimeArtifact(oid);
+   }
+
+   private long getDeployedActiveArtifactOid(String artifactId)
+   {
+      QueryService qs = sf.getQueryService();
+
+      DeployedRuntimeArtifacts runtimeArtifacts = qs
+            .getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findActive(artifactId, ARTIFACT_TYPE_ID, new Date(1)));
+
+      Assert.assertNotNull(runtimeArtifacts);
+      Assert.assertEquals(1, runtimeArtifacts.size());
+      return runtimeArtifacts.get(0).getOid();
    }
 
    @Test
@@ -90,10 +114,10 @@ public class ArtifactSanityTest
       DeployedRuntimeArtifact deployedRuntimeArtifact = as
             .deployRuntimeArtifact(getRuntimeArtifact1(ARTIFACT_ID1));
 
-      Assert.assertEquals(1, deployedRuntimeArtifact.getOid());
+      Assert.assertTrue(0 < deployedRuntimeArtifact.getOid());
       Assert.assertEquals(ARTIFACT_ID1, deployedRuntimeArtifact.getArtifactId());
       Assert.assertEquals(ARTIFACT_NAME1, deployedRuntimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+      Assert.assertEquals(ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact.getArtifactTypeId());
    }
 
@@ -102,7 +126,7 @@ public class ArtifactSanityTest
    {
       AdministrationService as = sf.getAdministrationService();
 
-      as.deployRuntimeArtifact(new RuntimeArtifact(BENCHMARK_ARTIFACT_TYPE_ID, null,
+      as.deployRuntimeArtifact(new RuntimeArtifact(ARTIFACT_TYPE_ID, null,
             null, null, null));
 
       Assert.fail("Should throw exception");
@@ -121,13 +145,11 @@ public class ArtifactSanityTest
    @Test
    public void testGetBenchmark()
    {
-      AdministrationService as = sf.getAdministrationService();
-
-      RuntimeArtifact runtimeArtifact = as.getRuntimeArtifact(1);
+      RuntimeArtifact runtimeArtifact = getActiveRuntimeArtifact(ARTIFACT_ID1);
 
       Assert.assertEquals(ARTIFACT_ID1, runtimeArtifact.getArtifactId());
       Assert.assertEquals(ARTIFACT_NAME1, runtimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID, runtimeArtifact.getArtifactTypeId());
+      Assert.assertEquals(ARTIFACT_TYPE_ID, runtimeArtifact.getArtifactTypeId());
       Assert.assertEquals(ARTIFACT_CONTENT1, new String(runtimeArtifact.getContent()));
    }
 
@@ -142,10 +164,10 @@ public class ArtifactSanityTest
 
       DeployedRuntimeArtifact deployedRuntimeArtifact = runtimeArtifacts.get(0);
 
-      Assert.assertEquals(1, deployedRuntimeArtifact.getOid());
+      Assert.assertTrue(0 < deployedRuntimeArtifact.getOid());
       Assert.assertEquals(ARTIFACT_ID1, deployedRuntimeArtifact.getArtifactId());
       Assert.assertEquals(ARTIFACT_NAME1, deployedRuntimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+      Assert.assertEquals(ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact.getArtifactTypeId());
    }
 
@@ -154,25 +176,25 @@ public class ArtifactSanityTest
    {
       AdministrationService as = sf.getAdministrationService();
 
-      RuntimeArtifact runtimeArtifact = as.getRuntimeArtifact(1);
-
+      RuntimeArtifact runtimeArtifact = getActiveRuntimeArtifact(ARTIFACT_ID1);
       runtimeArtifact.setContent(ARTIFACT_NEW_CONTENT1.getBytes());
+      long oid = getDeployedActiveArtifactOid(ARTIFACT_ID1);
 
-      DeployedRuntimeArtifact deployedRuntimeArtifact = as.overwriteRuntimeArtifact(1,
+      DeployedRuntimeArtifact deployedRuntimeArtifact = as.overwriteRuntimeArtifact(oid,
             runtimeArtifact);
 
-      Assert.assertEquals(1, deployedRuntimeArtifact.getOid());
+      Assert.assertTrue( 0 < deployedRuntimeArtifact.getOid());
       Assert.assertEquals(ARTIFACT_ID1, deployedRuntimeArtifact.getArtifactId());
       Assert.assertEquals(ARTIFACT_NAME1, deployedRuntimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+      Assert.assertEquals(ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact.getArtifactTypeId());
 
-      RuntimeArtifact overwrittenRuntimeArtifact = as.getRuntimeArtifact(1);
+      RuntimeArtifact overwrittenRuntimeArtifact = as.getRuntimeArtifact(oid);
       Assert.assertEquals(ARTIFACT_NEW_CONTENT1,
             new String(overwrittenRuntimeArtifact.getContent()));
       Assert.assertEquals(ARTIFACT_ID1, overwrittenRuntimeArtifact.getArtifactId());
       Assert.assertEquals(ARTIFACT_NAME1, overwrittenRuntimeArtifact.getArtifactName());
-      Assert.assertEquals(BENCHMARK_ARTIFACT_TYPE_ID,
+      Assert.assertEquals(ARTIFACT_TYPE_ID,
             deployedRuntimeArtifact.getArtifactTypeId());
    }
 
@@ -181,7 +203,7 @@ public class ArtifactSanityTest
    {
       AdministrationService as = sf.getAdministrationService();
 
-      RuntimeArtifact runtimeArtifact = as.getRuntimeArtifact(1);
+      RuntimeArtifact runtimeArtifact = getActiveRuntimeArtifact(ARTIFACT_ID1);
 
       runtimeArtifact.setContent(ARTIFACT_NEW_CONTENT1.getBytes());
 
@@ -193,13 +215,16 @@ public class ArtifactSanityTest
    @Test
    public void testDeleteBenchmark()
    {
+      long oid = getDeployedActiveArtifactOid(ARTIFACT_ID1);
+
       AdministrationService as = sf.getAdministrationService();
 
-      Assert.assertNotNull(as.getRuntimeArtifact(1));
+      Assert.assertNotNull(as.getRuntimeArtifact(oid));
 
-      as.deleteRuntimeArtifact(1);
 
-      Assert.assertNull(as.getRuntimeArtifact(1));
+      as.deleteRuntimeArtifact(oid);
+
+      Assert.assertNull(as.getRuntimeArtifact(oid));
    }
 
    @Test(expected = ObjectNotFoundException.class)

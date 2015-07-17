@@ -618,12 +618,11 @@ public class Authorization2
                      + "' available for department retrieval.");
             }
 
-            QName qualifiedId = new QName(model.getId(),dataId);
-
+            String qualifiedId = new QName(dataObject.getModel().getId(), dataId).toString();
             String dataPath = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-            if (context.hasValue(qualifiedId.toString(), dataPath))
+            if (context.hasValue(qualifiedId, dataPath))
             {
-               departmentIds.add(context.getValue(qualifiedId.toString(), dataPath));
+               departmentIds.add(context.getValue(qualifiedId, dataPath));
             }
             else
             {

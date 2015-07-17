@@ -10,17 +10,23 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.util;
 
+import java.util.Collections;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Participant;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.*;
 
 /**
  * <p>
  * This utility class allows for creating departments for testing purposes.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -30,7 +36,7 @@ public class DepartmentHome
     * <p>
     * Creates a new department for the specified organization with the given department ID and parent.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for creating the user
     * @param deptId the ID the department's <i>id</i>, <i>name</i>, and <i>description</i> will be initialized with
     * @param orgId the ID of the organization the department should be created for
@@ -46,7 +52,7 @@ public class DepartmentHome
       if (deptName == null)
       {
          throw new NullPointerException("Department Name must not be null.");
-      }      
+      }
       if (deptId.isEmpty())
       {
          throw new IllegalArgumentException("Department ID must not be empty.");
@@ -64,7 +70,7 @@ public class DepartmentHome
       {
          throw new NullPointerException("Service Factory must not be null.");
       }
-      
+
       final Participant participant = sf.getQueryService().getParticipant(orgId);
       if ( !(participant instanceof Organization))
       {
@@ -73,12 +79,12 @@ public class DepartmentHome
       final Organization org = (Organization) participant;
       return sf.getAdministrationService().createDepartment(deptId, deptId, deptName, parent, org);
    }
-      
+
    /**
     * <p>
     * Creates a new department for the specified organization with the given department ID and parent.
     * </p>
-    * 
+    *
     * @param sf a service factory needed for creating the user
     * @param deptId the ID the department's <i>id</i>, <i>name</i>, and <i>description</i> will be initialized with
     * @param orgId the ID of the organization the department should be created for
@@ -108,7 +114,7 @@ public class DepartmentHome
       {
          throw new NullPointerException("Service Factory must not be null.");
       }
-      
+
       final Participant participant = sf.getQueryService().getParticipant(orgId);
       if ( !(participant instanceof Organization))
       {
@@ -117,7 +123,47 @@ public class DepartmentHome
       final Organization org = (Organization) participant;
       return sf.getAdministrationService().createDepartment(deptId, deptId, deptId, parent, org);
    }
-   
+
+   public static List<Department> createDepartments(final ServiceFactory sf,
+         String modelId, String orgId, String... departmentIds)
+   {
+      return createDepartments(sf, modelId, orgId, null, departmentIds);
+   }
+
+   public static List<Department> createDepartments(final ServiceFactory sf,
+         String modelId, String orgId, DepartmentInfo parent, String... departmentIds)
+   {
+      return createDepartments(sf, new QName(modelId, orgId).toString(), parent, departmentIds);
+   }
+
+   public static List<Department> createDepartments(final ServiceFactory sf,
+         String organizationQualifiedId, DepartmentInfo parent, String... departmentIds)
+   {
+      if (departmentIds == null)
+      {
+         return Collections.emptyList();
+      }
+      AdministrationService as = sf.getAdministrationService();
+      QueryService qs = sf.getQueryService();
+      OrganizationInfoDetails organization = new OrganizationInfoDetails(organizationQualifiedId);
+      List<Department> result = CollectionUtils.newList();
+      for (String id : departmentIds)
+      {
+         Department dept;
+         try
+         {
+            dept = qs.findDepartment(parent, id, organization);
+         }
+         catch (ObjectNotFoundException ex)
+         {
+            dept = as.createDepartment(id, id, id, parent, organization);
+            System.out.println("Created department: " + dept);
+         }
+         result.add(dept);
+      }
+      return result;
+   }
+
    private DepartmentHome()
    {
       /* utility class; do not allow the creation of an instance */

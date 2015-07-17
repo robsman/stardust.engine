@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -564,6 +564,8 @@ public interface UserService extends Service
     * time frame all grants from given user. The deputy user has to login again before the
     * inherited grants become active.
     *
+    * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new Date()</code> (now).
+    *
     * @param user
     *           the user to which a deputy user shall be added.
     * @param deputyUser
@@ -574,32 +576,38 @@ public interface UserService extends Service
     * @return the created deputy.
     * @throws DeputyExistsException
     *            if the requested deputy already exists.
+    * @throws InvalidArgumentException
+    *            if options.toDate is in the past
     */
     @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options);
+    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws InvalidArgumentException;
 
    /**
     * Modifies an existing deputy user for a given user. This deputy user inherits for the
     * defined time frame all grants from given user. The deputy user has to login again
     * before changes become active.
+
+    * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new Date()</code> (now).
     *
     * @param user
     *           the user for which a deputy user shall be modified.
     * @param deputyUser
     *           the deputy user.
-    * @param fromDate
+    * @param options.fromDate
     *           date from when deputy user inherits all grants of user. not allowed to be
     *           null.
-    * @param toDate
+    * @param options.toDate
     *           date when inherited grants are revoked from deputy user. If date is null
     *           then no upper limit exists.
     *
     * @return the created deputy.
     * @throws ObjectNotFoundException
     *            if the requested deputy does not exists.
+    * @throws InvalidArgumentException
+    *            if options.toDate is in the past
     */
     @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
-    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException;
+    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException, InvalidArgumentException;
 
    /**
     * Removes an existing deputy user for a given user. All inherited grants from user are

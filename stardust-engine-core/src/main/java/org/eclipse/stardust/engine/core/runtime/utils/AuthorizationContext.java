@@ -953,13 +953,10 @@ public class AuthorizationContext
 
    public List<IDepartment> getSubdepartments(IDepartment department)
    {
-      if (!this.subdepartments.containsKey(department))
+      List<IDepartment> list = subdepartments.get(department);
+      if (list == null)
       {
-         if (department == null)
-         {
-            this.subdepartments.put(department, CollectionUtils.<IDepartment>newList());
-         }
-         else
+         if (department != null)
          {
             Iterator<IDepartment> iterator = DepartmentHierarchyBean.findAllSubDepartments(department);
             while (iterator.hasNext())
@@ -968,11 +965,11 @@ public class AuthorizationContext
                if (dptmt != department)
                {
                   IDepartment parent = dptmt.getParentDepartment();
-                  List<IDepartment> subs = this.subdepartments.get(parent);
+                  List<IDepartment> subs = subdepartments.get(parent);
                   if (subs == null)
                   {
                      subs = CollectionUtils.newList();
-                     this.subdepartments.put(parent, subs);
+                     subdepartments.put(parent, subs);
                   }
                   if (!subs.contains(dptmt))
                   {
@@ -981,8 +978,14 @@ public class AuthorizationContext
                }
             }
          }
+         list = subdepartments.get(department);
+         if (list == null)
+         {
+            list = CollectionUtils.<IDepartment>newList();
+            subdepartments.put(department, list);
+         }
       }
-      return this.subdepartments.get(department);
+      return list;
    }
 
    public IDepartment findById(IOrganization org, List<String> departmentIds, IDepartment parent)

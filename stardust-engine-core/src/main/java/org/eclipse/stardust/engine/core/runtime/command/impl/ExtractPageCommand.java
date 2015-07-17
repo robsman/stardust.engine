@@ -13,9 +13,10 @@ package org.eclipse.stardust.engine.core.runtime.command.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
@@ -175,7 +176,7 @@ public class ExtractPageCommand implements ServiceCommand
          }
          
          // DMS data should not be copied, so initialize it with null values.
-         setDmsDataNull(data);
+         setDmsDataNull(data, page);
          
          if(!page.isAbortProcessInstance())
          {
@@ -234,23 +235,54 @@ public class ExtractPageCommand implements ServiceCommand
     * the extracted page.
     * 
     * @param data data that can already contain an extracted page.
+    * @param page 
     */
-   private void setDmsDataNull(Map<String, Document> data)
+   private void setDmsDataNull(Map<String, Document> data, PageModel page)
    {
-      if (processInstance != null)
+      IModel model = getModel(page.getProcessId());
+      
+      if (model == null)
       {
-         ModelManager modelManager = ModelManagerFactory.getCurrent();
-         IModel model = modelManager.findModel(processInstance.getModelOID());
+         if (processInstance != null)
+         {
+            ModelManager modelManager = ModelManagerFactory.getCurrent();
+            model = modelManager.findModel(processInstance.getModelOID());
+         }
+      }
+
+      if (model != null)
+      {
          ModelElementList<IData> allData = model.getData();
          for (IData iData : allData)
          {
-            if (StructuredTypeRtUtils.isDmsType(iData.getType().getId())
-                  && !data.containsKey(iData.getId()))
+            if (StructuredTypeRtUtils.isDmsType(iData.getType().getId()) && !data.containsKey(iData.getId()))
             {
                data.put(iData.getId(), null);
             }
          }
       }
+   }
+   
+   /**
+    * @param processId
+    * @return
+    */
+   private IModel getModel(String processId)
+   {
+      String namespace = null;
+      if (processId.startsWith("{"))
+      {
+         QName qname = QName.valueOf(processId);
+         namespace = qname.getNamespaceURI();
+         processId = qname.getLocalPart();
+      }
+
+      if (namespace != null)
+      {
+         IModel model = ModelManagerFactory.getCurrent().findActiveModel(namespace);
+         return model;
+      }
+      return null;
    }
 
    public ProcessInstance getProcessInstance()

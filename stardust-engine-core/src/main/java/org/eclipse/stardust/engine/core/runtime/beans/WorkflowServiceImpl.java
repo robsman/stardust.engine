@@ -189,14 +189,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       assertNotCaseProcessInstance(parentProcessInstance);
       assertNotTransientProcessInstance(parentProcessInstance);
       assertActiveProcessInstance(parentProcessInstance);
-      if ( !parentProcessInstance.getProcessDefinition()
-            .getModel()
-            .getId()
-            .equals(processDefinition.getModel().getId()))
-      {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS.raise(rootProcessInstanceOid));
-      }
 
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, parentProcessInstance, SecurityProperties.getUser(), data);
@@ -701,13 +693,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          if (processId.equals(originatingProcessDefinition.getId()))
          {
-            /*
-             * if (model == originatingProcessDefinition.getModel()) { throw new
-             * IllegalOperationException(
-             * BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId)); } else {
-             */
             linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-            /* } */
          }
       }
       else

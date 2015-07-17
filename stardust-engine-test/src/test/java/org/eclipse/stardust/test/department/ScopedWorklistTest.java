@@ -20,8 +20,12 @@ import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.model.ModelParticipant;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -31,9 +35,9 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -58,39 +62,48 @@ import org.junit.rules.TestRule;
  * </ul>
  * of scoped work items works correctly.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ScopedWorklistTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String USER_ID = "User";
-   
+   private static final String APPROVER_ID = "approver";
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
-   
+   private final TestServiceFactory approverSf = new TestServiceFactory(new UsernamePasswordPair(APPROVER_ID, APPROVER_ID));
+
+   private final static String INVOICES_MODEL = "Invoices";
+   private final static String APPROVALS_MODEL = "Approvals";
+
+   private static final QName INVOICE_PROCESSING = new QName(INVOICES_MODEL, "InvoiceProcessing");
+   private static final QName INVOICE_APPROVAL = new QName(APPROVALS_MODEL, "InvoiceApprovalLevel1");
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf)
-                                          .around(userSf);
+                                          .around(userSf)
+                                          .around(approverSf);
 
    @Before
    public void setUp()
    {
       UserHome.create(adminSf, USER_ID);
    }
-   
+
    /**
     * <p>
     * It should be possible to create a department, start a process instance comprising a
     * department and later retrieve the department from the worklist items.
-    * </p>  
+    * </p>
     */
    @Test
    public void testCreatingScopedWorklistItem()
@@ -98,12 +111,12 @@ public class ScopedWorklistTest
       final Department dept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
       final ModelParticipant org1 = (ModelParticipant) adminSf.getQueryService().getParticipant(ORG_ID_1);
       final ModelParticipantInfo mpi = dept.getScopedParticipant(org1);
-      
+
       final User user = userSf.getUserService().getUser();
       UserHome.addGrants(adminSf, user, mpi);
-      
+
       startProcess(PROCESS_ID_2, COUNTRY_CODE_DATA_NAME);
-      
+
       ensureWorklistAssignedTo(dept);
    }
 
@@ -117,20 +130,20 @@ public class ScopedWorklistTest
    public void testActivityInstanceAssignedToDepartment()
    {
       final Department originalDept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
-      
+
       startProcess(PROCESS_ID_3, X_SCOPE);
-      
+
       final ActivityInstances ais = adminSf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive());
       assertEquals(1, ais.size());
-      
+
       final ActivityInstanceDetails aid = (ActivityInstanceDetails) ais.get(0);
       final ModelParticipantInfo performer = (ModelParticipantInfo) aid.getCurrentPerformer();
       final DepartmentInfo retrievedDept = performer.getDepartment();
-      
+
       assertNotNull("Department must not be null.", retrievedDept);
       assertEquals(originalDept.getOID(), retrievedDept.getOID());
    }
-   
+
    /**
     * <p>
     * Tests whether a worklist item of a created activity instance
@@ -142,7 +155,7 @@ public class ScopedWorklistTest
    public void testWorklistAssignedToDepartmentNoPermission()
    {
       startProcess(PROCESS_ID_3, X_SCOPE);
-      
+
       final Iterator<Worklist> iter = getSubWorklists();
       while (iter.hasNext())
       {
@@ -150,7 +163,7 @@ public class ScopedWorklistTest
          assertTrue("There should be no work items due to insufficient grants.", wl.isEmpty());
       }
    }
-   
+
    /**
     * <p>
     * Tests whether a worklist item of a created activity instance
@@ -162,30 +175,77 @@ public class ScopedWorklistTest
    {
       final Department dept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
       final Organization org = dept.getOrganization();
-      
+
       startProcess(PROCESS_ID_3, X_SCOPE);
-      
+
       final User user = userSf.getUserService().getUser();
       UserHome.addGrants(adminSf, user, dept.getScopedParticipant(org));
-      
+
       final Iterator<Worklist> iter = getSubWorklists();
       Assert.assertTrue("There should be a work item.", iter.hasNext());
-      
+
       final Worklist wl = iter.next();
       assertFalse("There should be just one work item.", iter.hasNext());
-      
+
       final DepartmentInfo assignedDep = ((ModelParticipantInfo) wl.getOwner()).getDepartment();
       assertEquals(dept.getOID(), assignedDep.getOID());
    }
-   
+
+   /**
+    * Tests whether an activity instance is correctly found by a worklist query in a cross model
+    * scenario where the data and scoped organization is defined in a different model than the
+    * one defining the restricted model element (activity or process definition).
+    */
+   @Test
+   public void testCrossModelPermissions()
+   {
+      RtEnvHome.deploy(adminSf.getAdministrationService(), null, INVOICES_MODEL, APPROVALS_MODEL);
+
+      List<Department> clients = DepartmentHome.createDepartments(adminSf,
+            INVOICES_MODEL, "Client", "Macquarie", "Mario");
+      List<Department> streams = DepartmentHome.createDepartments(adminSf,
+            INVOICES_MODEL, "ExpenseStream", clients.get(0), "Legal", "Tax");
+      List<Department> levels = DepartmentHome.createDepartments(adminSf,
+            INVOICES_MODEL, "Clearance", streams.get(0), "L1", "L2");
+
+      UserHome.create(adminSf, APPROVER_ID,
+            ParticipantInfoUtil.newModelParticipantInfo(INVOICES_MODEL, "ApproverL1", levels.get(0)));
+
+      Map<String, Object> client = CollectionUtils.newMap();
+      client.put("Id", clients.get(0).getId());
+      client.put("Name", clients.get(0).getName());
+
+      Map<String, Object> stream = CollectionUtils.newMap();
+      stream.put("Id", streams.get(0).getId());
+      stream.put("Name", streams.get(0).getName());
+
+      Map<String, Object> invoice = CollectionUtils.newMap();
+      invoice.put("Client", client);
+      invoice.put("ExpenseStream", stream);
+
+      Map<String, Object> data1 = CollectionUtils.newMap();
+      data1.put("ApprovalProcessID", INVOICE_APPROVAL.toString());
+      data1.put("ClearanceLevel", levels.get(0).getId());
+      data1.put("Invoice", invoice);
+
+      ProcessInstance pi1 = adminSf.getWorkflowService().startProcess(INVOICE_PROCESSING.toString(), data1, true);
+      Assert.assertNotNull("Started process instance", pi1);
+
+      Worklist w = approverSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
+      Assert.assertEquals("Count", 1, w.getCumulatedSize());
+
+      RtEnvHome.cleanUpRuntimeAndModels(adminSf.getAdministrationService());
+      RtEnvHome.deploy(adminSf.getAdministrationService(), null, MODEL_NAME);
+   }
+
    private void ensureWorklistAssignedTo(final Department createdDept)
    {
       final Iterator<Worklist> worklistIter = getSubWorklists();
-      
+
       boolean found = false;
       while (worklistIter.hasNext())
       {
-         final Worklist pwl = worklistIter.next(); 
+         final Worklist pwl = worklistIter.next();
          if (pwl.getOwnerID().equals(ORG_ID_1))
          {
             final ParticipantInfo participant = pwl.getOwner();
@@ -195,20 +255,20 @@ public class ScopedWorklistTest
             }
             final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
             assertEquals(createdDept.getId(), deptInfo.getId());
-            
+
             found = true;
             break;
          }
       }
       assertTrue("No appropriate work item found.", found);
    }
-   
+
    private void startProcess(final String processId, final String dataId)
    {
       final Map<String, String> piData = Collections.singletonMap(dataId, DEPT_ID_DE);
       userSf.getWorkflowService().startProcess(processId, piData, true);
    }
-   
+
    @SuppressWarnings("unchecked")
    private Iterator<Worklist> getSubWorklists()
    {

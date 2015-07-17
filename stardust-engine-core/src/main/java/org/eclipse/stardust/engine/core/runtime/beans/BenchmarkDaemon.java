@@ -197,10 +197,10 @@ public class BenchmarkDaemon implements IDaemon
          int copiedRows = 0;
          while (rs.next() && copiedRows < batchSize)
          {
-            long oid = rs.getLong(ProcessInstanceBean.FIELD__OID);
-            long aiOid = rs.getLong(ActivityInstanceBean.FIELD__OID);
-            String activityId = rs.getString(AuditTrailActivityBean.FIELD__ID);
-            long benchmarkOid = rs.getLong(ProcessInstanceBean.FIELD__BENCHMARK_OID);
+            long oid = rs.getLong(3);
+            long aiOid = rs.getLong(1);
+            String activityId = rs.getString(2);
+            long benchmarkOid = rs.getLong(4);
 
             if ( !piBenchmarkMap.containsKey(oid))
             {

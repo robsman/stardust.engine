@@ -55,8 +55,11 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       int benchmarkValue = evaluateBenchmarkForPi(piBean);
 
-      trace.info("Evaluating Benchmark with OID <" + this.benchmark.getOid()
-            + "> for Process Instance <" + piOid + ">");
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Evaluating Benchmark with OID <" + this.benchmark.getOid()
+               + "> for Process Instance <" + piOid + ">");
+      }
 
       return benchmarkValue;
    }
@@ -69,9 +72,11 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       int benchmarkValue = evaluateBenchmarkForAi(aiBean);
 
-      trace.info("Evaluating Benchmark with OID <" + this.benchmark.getOid()
-            + "> for Activity Instance <" + aiOid + ">/<" + activityId + ">");
-
+      if (trace.isDebugEnabled())
+      {
+         trace.info("Evaluating Benchmark with OID <" + this.benchmark.getOid()
+               + "> for Activity Instance <" + aiOid + ">/<" + activityId + ">");
+      }
       return benchmarkValue;
    }
 

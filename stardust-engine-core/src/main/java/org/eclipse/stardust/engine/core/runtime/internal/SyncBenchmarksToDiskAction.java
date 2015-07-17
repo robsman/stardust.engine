@@ -231,6 +231,8 @@ public class SyncBenchmarksToDiskAction extends Procedure
             finally
             {
                QueryUtils.closeStatement(stmt);
+//               con.commit();
+//               con.close();
             }
          }
          catch (SQLException e)

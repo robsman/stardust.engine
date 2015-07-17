@@ -42,8 +42,8 @@ public class AccessPointDetailsEvaluator implements Serializable
 
    private List allAccessPoints = null;
 
-   private Map detailsAttributes;
-   private Map typeAttributes;
+   private final Map detailsAttributes;
+   private final Map typeAttributes;
 
    /**
     * This utility method helps to determine if an activity is implemented in terms
@@ -76,10 +76,6 @@ public class AccessPointDetailsEvaluator implements Serializable
          // prepare lazy evaluation.
          persistentAccessPoints = createDetailsCollection(owner
                .getAllPersistentAccessPoints());
-         providerClassName = owner.getProviderClass();
-
-         this.detailsAttributes = Collections.unmodifiableMap(detailsAttributes);
-         this.typeAttributes = Collections.unmodifiableMap(typeAttributes);
       }
       else
       {
@@ -89,6 +85,11 @@ public class AccessPointDetailsEvaluator implements Serializable
          allAccessPoints = isArchiveAuditTrail ? Collections.emptyList()
                : createDetailsCollection(owner.getAllAccessPoints());
       }
+
+      // store info for transient access point initialization
+      this.providerClassName = owner.getProviderClass();
+      this.detailsAttributes = Collections.unmodifiableMap(detailsAttributes);
+      this.typeAttributes = Collections.unmodifiableMap(typeAttributes);
    }
 
    private static List createDetailsCollection(Iterator iterator)
@@ -99,11 +100,21 @@ public class AccessPointDetailsEvaluator implements Serializable
 
    public List getAccessPoints()
    {
-      if (null == allAccessPoints)
+      if (null == allAccessPoints || null == transientAccessPoints)
       {
          initTransientAccessPoints();
-         allAccessPoints = CollectionUtils.union(persistentAccessPoints,
-               transientAccessPoints);
+         if (transientAccessPoints != null)
+         {
+            if (persistentAccessPoints != null)
+            {
+               allAccessPoints = CollectionUtils.union(persistentAccessPoints,
+                     transientAccessPoints);
+            }
+            else
+            {
+               allAccessPoints = transientAccessPoints;
+            }
+         }
       }
 
       return allAccessPoints;
@@ -138,14 +149,19 @@ public class AccessPointDetailsEvaluator implements Serializable
             AccessPointProvider provider = (AccessPointProvider) Reflect
                   .getInstance(providerClassName);
 
-            for (Iterator i = provider.createIntrinsicAccessPoints(detailsAttributes,
-                  typeAttributes); i.hasNext();)
+            Iterator i = provider.createIntrinsicAccessPoints(detailsAttributes,
+                  typeAttributes);
+            if (i != null)
             {
-               tmpAccessPoints.add((AccessPoint) i.next());
-            }
+               while (i.hasNext())
+               {
+                  tmpAccessPoints.add((AccessPoint) i.next());
+               }
 
-            transientAccessPoints = DetailsFactory.createCollection(tmpAccessPoints
-                  .iterator(), AccessPoint.class, AccessPointDetails.class);
+               transientAccessPoints = DetailsFactory.createCollection(
+                     tmpAccessPoints.iterator(), AccessPoint.class,
+                     AccessPointDetails.class);
+            }
          }
       }
    }

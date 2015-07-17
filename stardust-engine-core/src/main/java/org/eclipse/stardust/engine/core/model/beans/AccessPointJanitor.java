@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +55,13 @@ public class AccessPointJanitor
    public Iterator iterator()
    {
       recalculateAccessPoints();
-      
+
       final List transientAps = (List) transientPoints.get();
-      if (0 == persistentPoints.size())
+      if (transientAps == null)
+      {
+         return Collections.emptyList().iterator();
+      }
+      else if (0 == persistentPoints.size())
       {
          return transientAps.iterator();
       }
@@ -83,22 +88,31 @@ public class AccessPointJanitor
          {
             AccessPointProvider provider = (AccessPointProvider)
                   Reflect.getInstance(providerClass);
-            
+
             if ((provider instanceof ModelAware) && (owner instanceof ModelElement))
             {
                ((ModelAware) provider).setModel((IModel) ((ModelElement) owner).getModel());
             }
-            
+
             Map typeProps = owner instanceof Typeable ?
                   ((Typeable) owner).getType().getAllAttributes() : null;
-            for (Iterator i = provider.createIntrinsicAccessPoints(
-                  ((AttributeHolder) owner).getAllAttributes(), typeProps); i.hasNext();)
+
+            Iterator i = provider.createIntrinsicAccessPoints(
+                  ((AttributeHolder) owner).getAllAttributes(), typeProps);
+            if (i == null)
             {
-               AccessPoint ap = (AccessPoint) i.next();
-               aps.add(ap);
+               aps = null;
+            }
+            else
+            {
+               while (i.hasNext())
+               {
+                  AccessPoint ap = (AccessPoint) i.next();
+                  aps.add(ap);
+               }
             }
          }
-         
+
          transientPoints.compareAndSet(null, aps);
       }
    }
@@ -126,9 +140,12 @@ public class AccessPointJanitor
       if(ap == null)
       {
          final List transientAps = (List) transientPoints.get();
-         ap = findAccessPoint(id, direction, transientAps);
+         if (transientAps != null)
+         {
+            ap = findAccessPoint(id, direction, transientAps);
+         }
       }
-      
+
       return ap;
    }
 
@@ -148,59 +165,59 @@ public class AccessPointJanitor
    }
 
    public synchronized void addIntrinsicAccessPoint(AccessPoint ap)
-   {      
+   {
       List aps = (List) transientPoints.get();
       if (null == aps)
       {
          transientPoints.compareAndSet(null, CollectionUtils.newList());
          aps = (List) transientPoints.get();
       }
-      
+
       aps.add(ap);
    }
 
    public synchronized void remove(AccessPoint accessPoint)
    {
       List transientAps = (List) transientPoints.get();
-      
+
       if ( !transientAps.remove(accessPoint) && accessPoint instanceof ModelElement)
       {
          persistentPoints.remove((ModelElement) accessPoint);
       }
    }
-   
+
    public void setDirty()
    {
       transientPoints.set(null);
    }
-   
+
    private AccessPoint findAccessPoint(String id, Direction direction, Iterable accessPoints)
    {
-      Iterator i = accessPoints.iterator(); 
+      Iterator i = accessPoints.iterator();
       while(i.hasNext())
       {
          String tmpId = id;
          AccessPoint point = (AccessPoint) i.next();
-           
+
          //if the access point is an access point for a method,
          //expect a non generic method name
          if(isMethodAccessPoint(point))
          {
             tmpId = getSimpleMethodName(tmpId);
          }
-         
+
          if (point.getId().equals(tmpId)
-               && (direction == null || 
-                   point.getDirection().equals(Direction.IN_OUT) || 
+               && (direction == null ||
+                   point.getDirection().equals(Direction.IN_OUT) ||
                    point.getDirection().equals(direction)))
          {
             return point;
          }
       }
-      
+
       return null;
    }
-   
+
    private boolean isMethodAccessPoint(AccessPoint point)
    {
       Object characteristics = point.getAttribute(PredefinedConstants.FLAVOR_ATT);
@@ -208,10 +225,10 @@ public class AccessPointJanitor
       {
          return true;
       }
-      
+
       return false;
    }
-   
+
    private String getSimpleMethodName(String methodName)
    {
       MethodDescriptor md = Reflect.describeEncodedMethod(methodName);
@@ -219,7 +236,7 @@ public class AccessPointJanitor
       {
          return md.toString();
       }
-      
+
       return methodName;
    }
 }

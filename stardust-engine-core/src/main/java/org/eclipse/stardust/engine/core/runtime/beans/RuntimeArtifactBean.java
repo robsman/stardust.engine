@@ -128,7 +128,7 @@ public class RuntimeArtifactBean extends IdentifiablePersistentBean implements I
             Predicates.isEqual(FR__ARTIFACT_TYPE_ID, artifactType),//
             Predicates.isEqual(FR__ARTIFACT_ID, artifactId),//
             Predicates.isEqual(FR__PARTITION, SecurityProperties.getPartitionOid()),
-            Predicates.lessThan(FR__VALID_FROM, time)));
+            Predicates.lessOrEqual(FR__VALID_FROM, time)));
 
       whereTerm.addOrderBy(FR__VALID_FROM, false);
       whereTerm.addOrderBy(FR__OID, false);

@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.api.dto;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogUtils;
@@ -61,7 +62,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
       IActivity activity = mapping.getActivity();
       IApplicationContext applContext = activity.getContext(
             mapping.getContext());
-      Map contextAttributes = new HashMap();
+      Map contextAttributes = CollectionUtils.copyMap(activity.getAllAttributes());
       Map typeAttributes = new HashMap();
       initAttributeMaps(applContext, contextAttributes, typeAttributes);
 

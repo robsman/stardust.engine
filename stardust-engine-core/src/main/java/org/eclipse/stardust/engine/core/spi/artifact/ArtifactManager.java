@@ -191,9 +191,11 @@ public class ArtifactManager
     */
    public RuntimeArtifact getActiveArtifactAt(String artifactTypeId, String artifactId, Date date)
    {
+      Date validAt = date == null ? new Date(0): date;
+
       // retrieve valid at date
       IRuntimeArtifact runtimeArtifactBean = RuntimeArtifactBean.findActive(
-            artifactTypeId, artifactId, date.getTime());
+            artifactTypeId, artifactId, validAt.getTime());
 
       return getArtifactWithContent(runtimeArtifactBean);
    }

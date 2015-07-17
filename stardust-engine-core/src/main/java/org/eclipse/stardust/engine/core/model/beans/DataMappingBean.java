@@ -15,12 +15,14 @@ import java.util.List;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
@@ -131,9 +133,9 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             IData data = dataMapping.getData();
             if(data != null)
             {
-               String dataTypeId = data.getType().getId();         
+               String dataTypeId = data.getType().getId();
                if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
-               {         
+               {
                   IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
                   if (xPathMap != null)
                   {
@@ -144,7 +146,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                         if (xPath == null)
                         {
                            BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(dataMapping.getId());
-                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                     
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                         }
                      }
                   }
@@ -225,6 +227,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                      applicationAccessPointId, getErrorName());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
+
             IApplicationContext context = activity.getContext(this.context);
             if (context != null)
             {
@@ -236,8 +239,10 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   if (!StringUtils.isEmpty(applicationAccessPointId))
                   {
                      // SubProcess activities use application access points to convey
-                     // their access point information in data mappings for mode sync_seperate
-                     if (SubProcessModeKey.SYNC_SEPARATE != activity.getSubProcessMode())
+                     // their access point information in data mappings for mode sync_seperate.
+                     // Applications with dynamic mappings are only available at application runtime.
+                     if (SubProcessModeKey.SYNC_SEPARATE != activity.getSubProcessMode()
+                           && !isDynamicMappedApplication(activity.getApplication()))
                      {
                         BpmValidationError error = BpmValidationError.DATA_APPLICATION_ACCESS_POINT_NOT_RESOLVABLE_FOR_DATAMAPPING.raise(
                               applicationAccessPointId, getErrorName());
@@ -280,6 +285,25 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             }
          }
       }
+   }
+
+   private boolean isDynamicMappedApplication(IApplication application)
+   {
+      try
+      {
+         String providerClass = application.getProviderClass();
+         if (!StringUtils.isEmpty(providerClass))
+         {
+            AccessPointProvider provider = (AccessPointProvider) Reflect
+                  .getInstance(providerClass);
+            return Boolean.TRUE.equals(Reflect.getFieldValue(provider, "hasDynamicAccessPoints"));
+         }
+      }
+      catch (Exception e)
+      {
+         // Validation for provider is handled at other location.
+      }
+      return false;
    }
 
    private void validatePath(List inconsistencies, ExtendedDataValidator leftValidator)

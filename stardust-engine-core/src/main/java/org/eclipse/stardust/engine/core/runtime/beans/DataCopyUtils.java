@@ -39,10 +39,15 @@ public class DataCopyUtils
    protected static void copyNotes(IProcessInstance srcProcessInstance,
          IProcessInstance processInstance)
    {
-      List<ProcessInstanceProperty> notesAsProperties = srcProcessInstance.getNotes();
+      // Ensure notes are copied from scope process instance to scope process instance.
+      IProcessInstance targetScopeProcessInstance = processInstance.getScopeProcessInstance();
+
+      IProcessInstance scopeProcessInstance = srcProcessInstance
+            .getScopeProcessInstance();
+      List<ProcessInstanceProperty> notesAsProperties = scopeProcessInstance.getNotes();
       for (ProcessInstanceProperty srcPiNote : notesAsProperties)
       {
-         processInstance.addExistingNote(srcPiNote);
+         targetScopeProcessInstance.addExistingNote(srcPiNote);
       }
    }
 

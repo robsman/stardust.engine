@@ -17,6 +17,8 @@ import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.spawn.SpawnProcessTest;
+import org.eclipse.stardust.test.spawn.SpawnSubProcessTest;
+
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -32,7 +34,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SpawnProcessTest.class })
+@SuiteClasses({ SpawnProcessTest.class, SpawnSubProcessTest.class })
 public class SpawnProcessTestSuite
 {
    @ClassRule

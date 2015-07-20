@@ -106,7 +106,7 @@
                         <artifactId>org.eclipse.equinox.registry</artifactId>
                         <version>${org.eclipse.equinox.registry.version}</version>
                      </ArtifactItem>
-                     <ArtifactItem>
+                     <!--ArtifactItem>
                         <groupId>p2.osgi.bundle</groupId>
                         <artifactId>org.eclipse.core.resources</artifactId>
                         <version>${org.eclipse.core.resources.version}</version>
@@ -115,7 +115,7 @@
                         <groupId>p2.osgi.bundle</groupId>
                         <artifactId>org.eclipse.core.jobs</artifactId>
                         <version>${org.eclipse.core.jobs.version}</version>
-                     </ArtifactItem>
+                     </ArtifactItem-->
                   </artifactItems>
                   <stripVersion>true</stripVersion>
                </configuration>
@@ -246,7 +246,7 @@
                   <version>${org.eclipse.equinox.registry.version}</version>
                </configuration>
             </execution>
-            <execution>
+            <!--execution>
                <id>install-core-jobs</id>
                <phase>install</phase>
                <goals>
@@ -271,7 +271,7 @@
                   <artifactId>org.eclipse.core.resources</artifactId>
                   <version>${org.eclipse.core.resources.version}</version>
                </configuration>
-            </execution>
+            </execution-->
          </executions>
       </plugin>
       <plugin>
@@ -400,7 +400,7 @@
                   <version>${org.eclipse.equinox.registry.version}</version>
                </configuration>
             </execution>
-            <execution>
+            <!--execution>
                <id>install-core-jobs</id>
                <phase>install</phase>
                <goals>
@@ -425,7 +425,7 @@
                   <artifactId>org.eclipse.core.resources</artifactId>
                   <version>${org.eclipse.core.resources.version}</version>
                </configuration>
-            </execution>
+            </execution-->
          </executions>
       </plugin>
     </plugins>

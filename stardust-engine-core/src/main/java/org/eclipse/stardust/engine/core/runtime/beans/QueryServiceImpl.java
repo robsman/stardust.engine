@@ -1013,8 +1013,6 @@ public class QueryServiceImpl implements QueryService, Serializable
    @Override
    public List<ProcessInstanceLinkType> getAllProcessInstanceLinkTypes()
    {
-      return DetailsFactory.<ProcessInstanceLinkType, ProcessInstanceLinkTypeDetails>
-         createCollection(ProcessInstanceLinkTypeBean.findAll(),
-         IProcessInstanceLinkType.class, ProcessInstanceLinkTypeDetails.class);
+      return DetailsFactory.createList(ProcessInstanceLinkTypeBean.findAll());
    }
 }

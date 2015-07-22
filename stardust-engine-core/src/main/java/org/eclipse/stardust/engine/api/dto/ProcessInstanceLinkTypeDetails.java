@@ -15,11 +15,11 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
 public class ProcessInstanceLinkTypeDetails implements ProcessInstanceLinkType
 {
    private static final long serialVersionUID = 1L;
-   
+
    private long oid;
    private String id;
    private String description;
-   
+
    public ProcessInstanceLinkTypeDetails(long oid, String id, String description)
    {
       this.oid = oid;
@@ -40,5 +40,30 @@ public class ProcessInstanceLinkTypeDetails implements ProcessInstanceLinkType
    public String getDescription()
    {
       return description;
+   }
+
+   @Override
+   public String toString()
+   {
+      return id + "(" + oid + ")";
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return 31 * 31 + 31 * id.hashCode() + (int) (oid ^ (oid >>> 32));
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      ProcessInstanceLinkTypeDetails other = (ProcessInstanceLinkTypeDetails) obj;
+      return oid == other.oid && id != null && id.equals(other.id);
    }
 }

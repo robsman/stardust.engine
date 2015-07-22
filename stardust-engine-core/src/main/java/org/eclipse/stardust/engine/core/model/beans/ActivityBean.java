@@ -18,19 +18,17 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementListAdapter;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElement;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.struct.*;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointProvider;
 
@@ -644,14 +642,14 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
-         
+
          if(hasRuntimeBinding())
          {
             String dataId = getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
             if(StringUtils.isEmpty(dataId))
             {
                BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET.raise(getId());
-               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));               
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             IData dataObject = ((IModel) getModel()).findData(dataId);
             if (dataObject == null)
@@ -664,9 +662,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                DataTypeBean dataTypeBean = (DataTypeBean) dataObject.getType();
                String dataTypeId = dataTypeBean.getId();
                String dataPath = getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-               
+
                if(dataTypeId.equals(PredefinedConstants.STRUCTURED_DATA))
-               {               
+               {
                   IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(dataObject);
                   if (xPathMap != null)
                   {
@@ -675,22 +673,22 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                      if(xPath == null)
                      {
                         BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                           
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                      }
                      else if(xPath.getType() != BigData.STRING)
                      {
                         BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                           
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                      }
                      else
                      {
                         if(xPath.isEnumeration() && !StringUtils.isEmpty(dataPath))
                         {
                            BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                                                         
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                         }
                      }
-                  }                  
+                  }
                }
                else if(dataTypeId.equals(PredefinedConstants.PRIMITIVE_DATA))
                {
@@ -698,21 +696,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                   if(type.equals(Type.String))
                   {
                      if(!StringUtils.isEmpty(dataPath))
-                     {                     
+                     {
                         BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                     
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                      }
                   }
                   else
                   {
                      BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                                          
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
                }
                else
                {
                   BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                  
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
             }
          }
@@ -1115,7 +1113,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
       if (contextId != null && contextId.startsWith(PredefinedConstants.EVENT_CONTEXT))
       {
-         return new MyEventContext(contextId);
+         return new MyEventContext(contextId, getModel());
       }
 
       IApplication app = getApplication();
@@ -1356,7 +1354,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                JavaDataTypeUtils.createIntrinsicAccessPoint(this,
             PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
                      PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
-            "org.eclipse.stardust.engine.api.runtime.ProcessInstance", Direction.OUT, false, null));         
+            "org.eclipse.stardust.engine.api.runtime.ProcessInstance", Direction.OUT, false, null));
       }
 
       public RootElement getModel()
@@ -1424,18 +1422,29 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       }
    }
 
-   private class MyEventContext extends ApplicationContextBean
+   private static class MyEventContext extends ApplicationContextBean
    {
+      private static final IApplicationContextType eventContextType = new ApplicationContextTypeBean("EventContext", "Event Context", true, false, false);
+
       private static final long serialVersionUID = 1L;
 
-      private MyEventContext(String id)
+      private RootElement model;
+
+      private MyEventContext(String id, RootElement model)
       {
          super(id, true);
+         this.model = model;
       }
 
       public RootElement getModel()
       {
-         return ActivityBean.this.getModel();
+         return model;
+      }
+
+      @Override
+      public PluggableType getType()
+      {
+         return eventContextType;
       }
    }
 

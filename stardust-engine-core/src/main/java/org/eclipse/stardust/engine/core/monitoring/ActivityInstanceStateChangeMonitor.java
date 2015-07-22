@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.spi.monitoring.IActivityInstanceMonitor;
+import org.eclipse.stardust.engine.extensions.events.signal.WorkCompletionSignalEmitter;
 import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 /**
@@ -67,6 +68,11 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
 
          recalculateCriticalityIfDesired(activity, newState);
          recalculateBenchmark(activity, newState);
+      }
+
+      if (newState == ActivityInstanceState.COMPLETED)
+      {
+         WorkCompletionSignalEmitter.activityCompleted(activity);
       }
    }
 

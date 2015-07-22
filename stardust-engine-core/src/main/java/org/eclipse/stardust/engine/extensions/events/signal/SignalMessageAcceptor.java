@@ -20,22 +20,12 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.Stateless;
-import org.eclipse.stardust.common.StringKey;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ITrigger;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
@@ -45,17 +35,10 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.pojo.data.JavaAccessPoint;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageBean;
-import org.eclipse.stardust.engine.core.runtime.beans.SignalMessageLookupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageType;
@@ -76,9 +59,13 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
    private static final String CACHED_SIGNAL_EVENTS = SignalMessageAcceptor.class.getName() + ".SignalEvents";
 
    public static final String BPMN_SIGNAL_CODE = "stardust:bpmn:signal:name";
+   public static final String BPMN_SIGNAL_SOURCE = "stardust:bpmn:signal:source";
    public static final String PAST_SIGNALS_GRACE_PERIOD = "stardust:bpmn:signal:pastSignalsGracePeriod";
 
    public static final String BPMN_SIGNAL_PROPERTY_KEY = "stardust.bpmn.signal";
+   public static final String BPMN_SIGNAL_PROPERTY_MODEL_OID = SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY + ":modelOid";
+   public static final String BPMN_SIGNAL_PROPERTY_RUNTIME_OID = SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY + ":runtimeOid";
+   public static final String BPMN_SIGNAL_PROPERTY_EMITTER_TYPE = SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY + ":emitterType";
 
    @Override
    public boolean isStateless()
@@ -105,12 +92,15 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
             trace.info("[Activity Instances] Accept message '" + SendSignalEventAction.SIGNAL_EVENT_TYPE
                      + "' for signal name '" + signalName + "'.");
 
+            ModelManager manager = ModelManagerFactory.getCurrent();
+
             OrTerm activityFilter = new OrTerm();
 
             List<IEventHandler> signalEventHandlers = initializeFromModel().getFirst();
             for (IEventHandler signalEventHandler : signalEventHandlers)
             {
-               if (signalEventHandler.getId().equals(signalName)) {
+               if (signalEventHandler.getId().equals(signalName) && matchesFilters(manager, signalEventHandler, message))
+               {
                   IActivity activity = (IActivity) signalEventHandler.getParent();
                   activityFilter.add(
                         andTerm(
@@ -155,6 +145,43 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          throw new PublicException(e);
       }
       return result.iterator();
+   }
+
+   private boolean matchesFilters(ModelManager manager, IEventHandler signalEventHandler, Message message) throws JMSException
+   {
+      Set<EventHandlerOwner> targets = signalEventHandler.getRuntimeAttribute(SignalMessageAcceptor.BPMN_SIGNAL_SOURCE);
+      if (targets != null)
+      {
+         if (message.propertyExists(BPMN_SIGNAL_PROPERTY_EMITTER_TYPE))
+         {
+            try
+            {
+               int type = message.getIntProperty(BPMN_SIGNAL_PROPERTY_EMITTER_TYPE);
+               int modelOid = message.getIntProperty(BPMN_SIGNAL_PROPERTY_MODEL_OID);
+               long runtimeOid = message.getLongProperty(BPMN_SIGNAL_PROPERTY_RUNTIME_OID);
+               EventHandlerOwner source = null;
+               switch (type)
+               {
+               case Event.ACTIVITY_INSTANCE:
+                  source = manager.findActivity(modelOid, runtimeOid);
+                  break;
+               case Event.PROCESS_INSTANCE:
+                  source = manager.findProcessDefinition(modelOid, runtimeOid);
+                  break;
+               }
+               return targets.contains(source);
+            }
+            catch (Exception ex)
+            {
+               return false;
+            }
+         }
+         else
+         {
+            return false;
+         }
+      }
+      return true;
    }
 
    @Override
@@ -465,6 +492,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
                {
                   if (handler.getId().equals(signalName))
                   {
+                     // TODO check
                      return handler;
                   }
                }
@@ -548,6 +576,7 @@ public class SignalMessageAcceptor implements MessageAcceptor, MultiMatchCapable
          {
             if ( !e.getId().equals(signalName))
             {
+               // TODO check
                continue;
             }
 

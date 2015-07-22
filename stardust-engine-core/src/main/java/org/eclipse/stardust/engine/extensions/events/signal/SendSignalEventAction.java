@@ -13,10 +13,7 @@ import javax.jms.QueueSession;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -71,19 +68,7 @@ public class SendSignalEventAction implements EventActionInstance
          message.setStringProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_KEY, signalCode);
          message.setStringProperty(DefaultMessageHelper.PARTITION_ID_HEADER, partitionId);
 
-         ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
-         String eventHandlerId = determineActiveEventHandlerId(ai.getActivity(), event.getHandlerModelElementOID());
-         ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
-         for (IDataMapping mapping : inDataMappings)
-         {
-            if ( !mapping.getContext().equals(PredefinedConstants.EVENT_CONTEXT + eventHandlerId))
-            {
-               continue;
-            }
-
-            Object dataValue = ai.getProcessInstance().getInDataValue(mapping.getData(), mapping.getDataPath());
-            message.setObject(mapping.getId(), dataValue);
-         }
+         prepareMessage(event, message);
 
          sender.send(queue, message);
       }
@@ -94,6 +79,43 @@ public class SendSignalEventAction implements EventActionInstance
       }
 
       return null;
+   }
+
+   protected void prepareMessage(Event event, MapMessage message) throws JMSException
+   {
+      if (event.getObjectOID() == Event.OID_UNDEFINED)
+      {
+         message.setIntProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_EMITTER_TYPE, event.getEmitterType());
+
+         int modelOid = (Integer) event.getAttribute("modelOid");
+         message.setIntProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_MODEL_OID, modelOid);
+
+         long runtimeOid = (Long) event.getAttribute("runtimeOid");
+         message.setLongProperty(SignalMessageAcceptor.BPMN_SIGNAL_PROPERTY_RUNTIME_OID, runtimeOid);
+
+         String id = (String) event.getAttribute("id");
+         Object dataValue = event.getAttribute("dataValue");
+         message.setObject(id, dataValue);
+      }
+      else
+      {
+         ActivityInstanceBean ai = ActivityInstanceBean.findByOID(event.getObjectOID());
+         String eventHandlerId = determineActiveEventHandlerId(ai.getActivity(), event.getHandlerModelElementOID());
+         ModelElementList<IDataMapping> inDataMappings = ai.getActivity().getInDataMappings();
+         for (IDataMapping mapping : inDataMappings)
+         {
+            if ( !mapping.getContext().equals(PredefinedConstants.EVENT_CONTEXT + eventHandlerId))
+            {
+               continue;
+            }
+
+            String id = mapping.getId();
+            IData data = mapping.getData();
+            String dataPath = mapping.getDataPath();
+            Object dataValue = ai.getProcessInstance().getInDataValue(data, dataPath);
+            message.setObject(id, dataValue);
+         }
+      }
    }
 
    private String determineActiveEventHandlerId(IActivity ai, long handlerOid)

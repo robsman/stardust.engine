@@ -85,6 +85,7 @@ public final class PredefinedConstants
    public static final String ACTIVATE_ACTIVITY_ACTION = "activateActivity";
    public static final String SET_DATA_ACTION = "setData";
    public static final String EXCLUDE_USER_ACTION = "excludeUser";
+   public static final String SEND_SIGNAL_ACTION = "sendSignal";
 
    // predefined trigger type IDs
    public static final String MANUAL_TRIGGER = "manual";

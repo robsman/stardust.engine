@@ -154,10 +154,11 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
          }
          catch (Exception e)
          {
-            AuditTrailLogger.getInstance(LogCode.ENGINE)
-                  .warn(MessageFormat.format(
-                        "Failed to write benchmark value for activity instance {0}, no benchmark has been set.",
-                        ai.getOID()), e);
+            trace.warn(MessageFormat
+                  .format(
+                        "Failed to write benchmark value for activity instance with OID '{0}'.",
+                        ai.getOID())
+                  + " Error: " + e.getMessage());
          }
       }
    }

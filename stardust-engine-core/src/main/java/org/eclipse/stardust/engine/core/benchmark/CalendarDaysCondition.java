@@ -35,11 +35,11 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class CalendarDaysCondition implements ConditionEvaluator
 {
    private static final String CURRENT_TIME_ATTRIBUE = "CURRENT_TIME";
-   
+
    private static final String PROCESS_START_TIME_ATTRIBUTE = "PROCESS_START_TIME";
-   
+
    private static final String ROOT_PROCESS_START_TIME_ATTRIBUTE = "ROOT_PROCESS_START_TIME";
-   
+
    private static Logger trace = LogManager.getLogger(CalendarDaysCondition.class);
 
    protected String qualifiedDataId;
@@ -47,25 +47,13 @@ public class CalendarDaysCondition implements ConditionEvaluator
    protected Comperator comperator;
 
    protected Offset offset;
-   
-   protected String dataPath;
-   
-   protected ConditionParameter lhsParameter;
-   
-   protected ConditionParameter rhsParameter;
-   
 
-   /*
-   public CalendarDaysCondition(Comperator comperator, String qualifiedDataId, String dataPath,
-         Offset offset)
-   {
-      this.comperator = comperator;
-      this.qualifiedDataId = qualifiedDataId;
-      this.offset = offset;
-      this.dataPath = dataPath;
-   }
-   */
-   
+   protected String dataPath;
+
+   protected ConditionParameter lhsParameter;
+
+   protected ConditionParameter rhsParameter;
+
    public CalendarDaysCondition(ConditionParameter lhsParameter, Comperator comperator, ConditionParameter rhsParameter, Offset offset)
    {
       this.lhsParameter = lhsParameter;
@@ -73,7 +61,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       this.rhsParameter = rhsParameter;
       this.offset = offset;
    }
-   
+
 
    @Override
    public Boolean evaluate(ActivityInstanceBean ai)
@@ -90,7 +78,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       {
          rhsDate = getAttributeValue((ProcessInstanceBean) ai.getProcessInstance(), this.rhsParameter.getParameterId());
       }
-      
+
       if (this.lhsParameter.getType().equals(ParameterType.DATA))
       {
          lhsDate = getDateValue((ProcessInstanceBean) ai.getProcessInstance(),
@@ -99,22 +87,23 @@ public class CalendarDaysCondition implements ConditionEvaluator
       else if (this.lhsParameter.getType().equals(ParameterType.ATTRIBUTE))
       {
          lhsDate = getAttributeValue((ProcessInstanceBean) ai.getProcessInstance(), this.lhsParameter.getParameterId());
-      }      
+      }
 
       if (lhsDate == null || rhsDate == null)
       {
          String invalidParam = rhsDate == null
                ? rhsParameter.getParameterId()
                : lhsParameter.getParameterId();
-               
-         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;               
-               
-         trace.warn("Data '"
-               + invalidParam
-               + "' is not initialized or does not exist. Using process instance start time for calculation.");
-         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-               this.rhsParameter.getParameterId(), invalidDate));
 
+         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;
+
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Data '" + invalidParam
+                  + "' is not initialized or does not exist.");
+         }
+         throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
+               invalidParam, invalidDate));
       }
 
       return evaluate(lhsDate, rhsDate);
@@ -153,14 +142,16 @@ public class CalendarDaysCondition implements ConditionEvaluator
          String invalidParam = rhsDate == null
                ? rhsParameter.getParameterId()
                : lhsParameter.getParameterId();
-               
-         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;
-         
-         trace.warn("Data or attribute '" + invalidParam
-               + "' is not initialized or does not exist.");
 
+         Date invalidDate = rhsDate == null ? rhsDate : lhsDate;
+
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Data or attribute '" + invalidParam
+                  + "' is not initialized or does not exist.");
+         }
          throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-      invalidParam, invalidDate));
+               invalidParam, invalidDate));
       }
       return evaluate(lhsDate, rhsDate);
    }
@@ -190,7 +181,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       if (qualifiedDataId != null)
       {
          String dataId = QName.valueOf(qualifiedDataId).getLocalPart();
-   
+
          IModel iModel = (IModel) pi.getProcessDefinition().getModel();
          IData iData = iModel.findData(dataId);
          if (iData != null)

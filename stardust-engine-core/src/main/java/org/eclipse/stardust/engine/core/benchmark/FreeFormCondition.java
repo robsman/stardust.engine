@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.benchmark;
 
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.javascript.BenchmarkEvaluationAction;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 
@@ -43,11 +45,14 @@ public class FreeFormCondition implements ConditionEvaluator
       }
       catch (Exception e)
       {
-         trace.warn(
-               "Benchmark evaluation caused an excpetion. Benchmark for AI "
-                     + ai.getOID() + " will not be evaluated", e);
+         String message = "Benchmark evaluation caused an excpetion. Benchmark for AI "
+               + ai.getOID() + " will not be evaluated. Error: " + e.getMessage();
+         if (trace.isDebugEnabled())
+         {
+            trace.debug(message, e);
+         }
+         throw new PublicException(message);
       }
-      return false;
    }
 
    @Override
@@ -64,10 +69,13 @@ public class FreeFormCondition implements ConditionEvaluator
       }
       catch (Exception e)
       {
-         trace.warn(
-               "Benchmark evaluation caused an excpetion. Benchmark for PI "
-                     + pi.getOID() + " will not be evaluated", e);
+         String message = "Benchmark evaluation caused an excpetion. Benchmark for PI "
+               + pi.getOID() + " will not be evaluated. Error: " + e.getMessage();
+         if (trace.isDebugEnabled())
+         {
+            trace.debug(message, e);
+         }
+         throw new PublicException(message);
       }
-      return false;
    }
 }

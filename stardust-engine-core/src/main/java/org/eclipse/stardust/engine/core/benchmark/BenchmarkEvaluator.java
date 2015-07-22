@@ -21,9 +21,7 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.IBenchmarkEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
@@ -57,8 +55,8 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       if (trace.isDebugEnabled())
       {
-         trace.debug("Evaluating Benchmark with OID <" + this.benchmark.getOid()
-               + "> for Process Instance <" + piOid + ">");
+         trace.debug("Evaluating Benchmark with OID '" + this.benchmark.getOid()
+               + "' for Process Instance OID '" + piOid + "'.");
       }
 
       return benchmarkValue;
@@ -74,8 +72,8 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       if (trace.isDebugEnabled())
       {
-         trace.info("Evaluating Benchmark with OID <" + this.benchmark.getOid()
-               + "> for Activity Instance <" + aiOid + ">/<" + activityId + ">");
+         trace.debug("Evaluating Benchmark with OID '" + this.benchmark.getOid()
+               + "' for Activity Instance OID '" + aiOid + "', activityId '" + activityId + "'.");
       }
       return benchmarkValue;
    }
@@ -127,10 +125,11 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       }
       catch (Exception e)
       {
-         AuditTrailLogger.getInstance(LogCode.ENGINE)
-               .warn(MessageFormat.format(
-                     "Failed to evaluate benchmark for activity instance {0}, benchmark value has been set to invalid (-1).",
-                     bean.getOID()), e);
+         trace.warn(MessageFormat
+               .format(
+                     "Failed to evaluate benchmark for activity instance {0}, benchmark has been set to invalid (-1).",
+                     bean.getOID())
+               + " Error: " + e.getMessage());
          return BENCHMARKK_FAULT_VALUE;
       }
    }
@@ -173,10 +172,11 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       }
       catch (Exception e)
       {
-         AuditTrailLogger.getInstance(LogCode.ENGINE)
-               .warn(MessageFormat.format(
+         trace.warn(MessageFormat
+               .format(
                      "Failed to evaluate benchmark for process instance {0}, benchmark has been set to invalid (-1).",
-                     bean.getOID()), e);
+                     bean.getOID())
+               + " Error: " + e.getMessage());
          return BENCHMARKK_FAULT_VALUE;
       }
    }

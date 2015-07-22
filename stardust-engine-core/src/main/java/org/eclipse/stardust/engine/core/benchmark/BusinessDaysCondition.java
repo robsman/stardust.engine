@@ -31,15 +31,6 @@ public class BusinessDaysCondition extends CalendarDaysCondition
 
    protected String calendarDocumentId;
 
-   /*
-   public BusinessDaysCondition(String calendarDocumentId, Comperator comperator,
-         String qualifiedDataId, String dataPath, Offset offset)
-   {
-      super(comperator, qualifiedDataId, dataPath, offset);
-      this.calendarDocumentId = calendarDocumentId;
-   }
-   */
-   
    public BusinessDaysCondition(String calendarDocumentid, ConditionParameter lhsParameter, Comperator comperator,
          ConditionParameter rhsParameter, Offset offset)
    {

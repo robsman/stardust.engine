@@ -239,12 +239,12 @@ public class BenchmarkDefinitionParser
 
       JsonObject details = conditionObject.getAsJsonObject("details");
 
-      JsonObject jsonOffset = details.getAsJsonObject("offset");
+      JsonObject calendarCondition = details.getAsJsonObject("condition");
 
       Offset offset = null;
-
       boolean isBusinessCalendar = false;
 
+      JsonObject jsonOffset = calendarCondition.getAsJsonObject("offset");
       if (jsonOffset != null)
       {
          if (jsonOffset.get("useBusinessDays") != null)
@@ -260,7 +260,6 @@ public class BenchmarkDefinitionParser
          }
       }
 
-      JsonObject calendarCondition = details.getAsJsonObject("condition");
 
       JsonObject lhs = calendarCondition.getAsJsonObject("lhs");
       JsonObject rhs = calendarCondition.getAsJsonObject("rhs");

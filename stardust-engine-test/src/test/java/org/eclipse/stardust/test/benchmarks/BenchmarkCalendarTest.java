@@ -91,7 +91,7 @@ public class BenchmarkCalendarTest
    private static final String BENCHMARK4_ARTIFACT_ID = "calendar4.benchmark";
 
    private static final String BENCHMARK5_ARTIFACT_ID = "calendar5.benchmark";
-   
+
    private static final String BENCHMARK6_ARTIFACT_ID = "calendar6.benchmark";
 
    @Test
@@ -186,9 +186,9 @@ public class BenchmarkCalendarTest
 
       assertEquals(1, instance.getBenchmarkResult().getCategory());
    }
-   
+
    @Test
-   public void activityBenchmarkCalendar6TodayTimeOff()
+   public void activityBenchmarkCalendar6TodayTimeOffStructDeref()
    {
       deployCalendar(TODAY_TIMEOFF_CALENDAR, serviceFactory);
       deployBenchmark(BENCHMARK6_ARTIFACT_ID, serviceFactory);
@@ -202,7 +202,7 @@ public class BenchmarkCalendarTest
             .findFirstActivityInstance(ActivityInstanceQuery.findAlive());
 
       assertEquals(1, instance.getBenchmarkResult().getCategory());
-   }   
+   }
 
    private Map<String, Object> getBusinessDateMap()
    {
@@ -210,7 +210,7 @@ public class BenchmarkCalendarTest
 
       Map sdMap = CollectionUtils.newHashMap();
       sdMap.put("TheDate", new Date());
-      
+
       data.put("BUSINESS_DATE", Calendar.getInstance());
       data.put("DateSD", sdMap);
       return data;

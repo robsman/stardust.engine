@@ -1,171 +1,170 @@
 {
-  "id": "097fcef5-e725-4c16-b66c-ed4b35418283",
-  "name": "General Processing 1",
-  "description": "General Benchmarks",
-  "businessCalendar": "/business-calendars/timeOffCalendar/timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json",
-  "categories": [
-    {
-      "id": "77df2bb8-af69-426e-be59-84b18f04cc30",
-      "index": 1,
-      "name": "On Time",
-      "color": "#00FF00"
-    },
-    {
-      "id": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-      "index": 2,
-      "name": "Almost Late",
-      "color": "#FFFF00"
-    },
-    {
-      "id": "00910fc6-0637-47a0-ad33-19180090b967",
-      "index": 3,
-      "name": "Late",
-      "color": "#FF0000"
-    }
-  ],
-  "defaults": {
-    "processDefinitions": {
-      "dueDate": {
-        "enabled": true,
-        "dataReference": "BUSINESS_DATE",
-        "offset": {
-          "applyOffset": true,
-          "useBusinessDays": false,
-          "amount": 10,
-          "unit": "d",
-          "time": "00:01"
-        }
+   "id":"097fcef5-e725-4c16-b66c-ed4b35418283",
+   "name":"General Processing 1",
+   "description":"General Benchmarks",
+   "businessCalendar":"/business-calendars/timeOffCalendar/timeOffCalendar-d76edddf-361f-4423-8f70-de8d72b1d277.json",
+   "categories":[
+      {
+         "id":"77df2bb8-af69-426e-be59-84b18f04cc30",
+         "index":1,
+         "name":"On Time",
+         "color":"#00FF00"
       },
-      "categoryConditions": [
-        {
-          "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-          "type": "none"
-        },
-        {
-          "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-          "type": "none"
-        },
-        {
-          "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-          "type": "freeform",
-          "freeformExpression": "false;"
-        }
-      ]
-    },
-    "activities": {
-      "categoryConditions": [
-        {
-          "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-          "type": "freeform",
-          "freeformExpression": "false;"
-        },
-        {
-          "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-          "type": "freeform",
-          "freeformExpression": "false;"
-        },
-        {
-          "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-          "type": "freeform",
-          "freeformExpression": "false;"
-        }
-      ]
-    }
-  },
-  "models": [
-    {
-      "id": "BenchmarksModel",
-      "oid": 5,
-      "processDefinitions": [
-        {
-          "id": "BenchmarkedProcess",
-          "oid": 10,
-          "categoryConditions": [
+      {
+         "id":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+         "index":2,
+         "name":"Almost Late",
+         "color":"#FFFF00"
+      },
+      {
+         "id":"00910fc6-0637-47a0-ad33-19180090b967",
+         "index":3,
+         "name":"Late",
+         "color":"#FF0000"
+      }
+   ],
+   "defaults":{
+      "processDefinitions":{
+         "dueDate":{
+            "enabled":true,
+            "dataReference":"BUSINESS_DATE",
+            "offset":{
+               "applyOffset":true,
+               "useBusinessDays":false,
+               "amount":10,
+               "unit":"d",
+               "time":"00:01"
+            }
+         },
+         "categoryConditions":[
             {
-              "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-              "type": "dataExpression",
-              "freeformExpression": "",
-              "details": {
-                "condition": {
-                  "lhs": {
-                    "id": "CURRENT_TIME",
-                    "type": "attribute",
-                    "deref": ""
+               "categoryId":"77df2bb8-af69-426e-be59-84b18f04cc30",
+               "type":"none"
+            },
+            {
+               "categoryId":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+               "type":"none"
+            },
+            {
+               "categoryId":"00910fc6-0637-47a0-ad33-19180090b967",
+               "type":"freeform",
+               "freeformExpression":"false;"
+            }
+         ]
+      },
+      "activities":{
+         "categoryConditions":[
+            {
+               "categoryId":"77df2bb8-af69-426e-be59-84b18f04cc30",
+               "type":"freeform",
+               "freeformExpression":"false;"
+            },
+            {
+               "categoryId":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+               "type":"freeform",
+               "freeformExpression":"false;"
+            },
+            {
+               "categoryId":"00910fc6-0637-47a0-ad33-19180090b967",
+               "type":"freeform",
+               "freeformExpression":"false;"
+            }
+         ]
+      }
+   },
+   "models":[
+      {
+         "id":"BenchmarksModel",
+         "oid":5,
+         "processDefinitions":[
+            {
+               "id":"BenchmarkedProcess",
+               "oid":10,
+               "categoryConditions":[
+                  {
+                     "categoryId":"77df2bb8-af69-426e-be59-84b18f04cc30",
+                     "type":"dataExpression",
+                     "freeformExpression":"",
+                     "details":{
+                        "condition":{
+                           "lhs":{
+                              "id":"CURRENT_TIME",
+                              "type":"attribute",
+                              "deref":""
+                           },
+                           "operator":"<",
+                           "rhs":{
+                              "id":"{BenchmarksModel}BUSINESS_DATE",
+                              "type":"data",
+                              "deref":""
+                           },
+                           "offset":{
+                              "applyOffset":true,
+                              "useBusinessDays":true,
+                              "amount":5,
+                              "unit":"d",
+                              "time":"00:01"
+                           }
+                        }
+                     }
                   },
-                  "operator": "<",
-                  "rhs": {
-                    "id": "{BenchmarksModel}BUSINESS_DATE",
-                    "type": "data",
-                    "deref": ""
+                  {
+                     "categoryId":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+                     "type":"none"
+                  },
+                  {
+                     "categoryId":"00910fc6-0637-47a0-ad33-19180090b967",
+                     "type":"freeform",
+                     "freeformExpression":"false;"
                   }
-                },
-                "offset": {
-                  "applyOffset": true,
-                  "useBusinessDays": true,
-                  "amount": 5,
-                  "unit": "d",
-                  "time": "00:01"
-                }
-              }
-            },
-            {
-              "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-              "type": "none"
-            },
-            {
-              "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-              "type": "freeform",
-              "freeformExpression": "false;"
-            }
-          ],
-          "activities": [
-            {
-              "id": "BenchmarkedActivity",
-              "oid": 15,
-              "categoryConditions": [
-                 {
-                    "categoryId": "77df2bb8-af69-426e-be59-84b18f04cc30",
-                    "type": "dataExpression",
-                    "freeformExpression": "",
-                    "details": {
-                      "condition": {
-                        "lhs": {
-                          "id": "CURRENT_TIME",
-                          "type": "attribute",
-                          "deref": ""
+               ],
+               "activities":[
+                  {
+                     "id":"BenchmarkedActivity",
+                     "oid":15,
+                     "categoryConditions":[
+                        {
+                           "categoryId":"77df2bb8-af69-426e-be59-84b18f04cc30",
+                           "type":"dataExpression",
+                           "freeformExpression":"",
+                           "details":{
+                              "condition":{
+                                 "lhs":{
+                                    "id":"CURRENT_TIME",
+                                    "type":"attribute",
+                                    "deref":""
+                                 },
+                                 "operator":"<",
+                                 "rhs":{
+                                    "id":"{BenchmarksModel}BUSINESS_DATE",
+                                    "type":"data",
+                                    "deref":""
+                                 },
+                                 "offset":{
+                                    "applyOffset":true,
+                                    "useBusinessDays":true,
+                                    "amount":5,
+                                    "unit":"d",
+                                    "time":"00:01"
+                                 }
+                              }
+                           }
                         },
-                        "operator": "<",
-                        "rhs": {
-                          "id": "{BenchmarksModel}BUSINESS_DATE",
-                          "type": "data",
-                          "deref": ""
-                         }
-                      },
-                      "offset": {
-                        "applyOffset": true,
-                        "useBusinessDays": true,
-                        "amount": 5,
-                        "unit": "d",
-                        "time": "00:01"
-                      }
-                    }
-                },
-                {
-                  "categoryId": "d1fee32c-cb5b-4637-bb5d-b611acfe636a",
-                  "type": "freeform",
-                  "freeformExpression": "false;"
-                },
-                {
-                  "categoryId": "00910fc6-0637-47a0-ad33-19180090b967",
-                  "type": "freeform",
-                  "freeformExpression": "false;"
-                }
-              ]
+                        {
+                           "categoryId":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+                           "type":"freeform",
+                           "freeformExpression":"false;"
+                        },
+                        {
+                           "categoryId":"00910fc6-0637-47a0-ad33-19180090b967",
+                           "type":"freeform",
+                           "freeformExpression":"false;"
+                        }
+                     ]
+                  }
+               ]
             }
-          ]
-        }
-      ]
-    }
-  ]
+         ]
+      }
+   ]
 }
-

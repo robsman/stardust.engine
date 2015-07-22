@@ -21,6 +21,7 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.benchmarks.BenchmarkCalendarTest;
+import org.eclipse.stardust.test.benchmarks.BenchmarkStatisticsTest;
 import org.eclipse.stardust.test.benchmarks.BenchmarksTest;
 
 
@@ -28,11 +29,12 @@ import org.eclipse.stardust.test.benchmarks.BenchmarksTest;
 @SuiteClasses({
                 BenchmarksTest.class,
                 BenchmarkCalendarTest.class,
+                BenchmarkStatisticsTest.class
               })
 public class BenchmarksTestSuite
 {
-   private static final String[] MODEL_NAME_ARRAY = new String[]{"BenchmarksModel"}; 
-   
+   private static final String[] MODEL_NAME_ARRAY = new String[]{"BenchmarksModel"};
+
    @ClassRule
    public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME_ARRAY);
 }

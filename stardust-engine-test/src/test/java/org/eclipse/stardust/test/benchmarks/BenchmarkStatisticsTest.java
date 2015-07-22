@@ -117,8 +117,8 @@ public class BenchmarkStatisticsTest
       Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts.getBenchmarkCategoryCount();
       // Counts only for one category
       Assert.assertEquals(1, benchmarkCategoryCountMap.size());
-      // Category 0 has count of 3
-      Assert.assertEquals(Long.valueOf(3L), benchmarkCategoryCountMap.get(0));
+      // Category 3 has count of 3
+      Assert.assertEquals(Long.valueOf(3L), benchmarkCategoryCountMap.get(3));
 
    }
 
@@ -145,7 +145,7 @@ public class BenchmarkStatisticsTest
       Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts.getBenchmarkCategoryCount();
       // Counts only for one category
       Assert.assertEquals(1, benchmarkCategoryCountMap.size());
-      // Category 0 has count of 3
+      // Category 3 has count of 3
       Assert.assertEquals(Long.valueOf(3L), benchmarkCategoryCountMap.get(3));
    }
 
@@ -159,28 +159,5 @@ public class BenchmarkStatisticsTest
       Assert.fail("No deployed runtime artifact found.");
       return 0L;
    }
-
-   //   @Test
-//   public void startSubProcessInstanceWithBenchmarkTest()
-//   {
-//      ProcessInstance parentPi = serviceFactory.getWorkflowService().startProcess(
-//            BENCHMARK_PROCESS_W_SUB, startOptions_withBenchmark);
-//
-//      ActivityInstances instances = serviceFactory.getQueryService()
-//            .getAllActivityInstances(
-//                  ActivityInstanceQuery.findAlive("BenchmarkedSubProcess",
-//                        "BenchmarkedActivity"));
-//
-//      if (instances.size() > 0)
-//      {
-//         ActivityInstance ai = instances.get(0);
-//         assertEquals(ai.getProcessInstance().getBenchmark(), parentPi.getBenchmark());
-//      }
-//      else
-//      {
-//         fail("Expected AI in Subprocess not found");
-//      }
-//
-//   }
 
 }

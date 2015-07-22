@@ -40,19 +40,21 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class DaemonAction extends SecurityContextAwareAction
 {
    private static final String INVALID_ACTION = "invalid_action";
-   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
-   
+
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;
+
    private static final Logger trace = LogManager.getLogger(DaemonAction.class);
 
    private final String type;
+
    private IDaemon daemon;
-   
+
    private final DaemonCarrier originalCarrier;
 
    public DaemonAction(DaemonCarrier carrier)
    {
       super(carrier);
-      
+
       this.type = carrier.getType();
       this.originalCarrier = carrier;
    }
@@ -65,7 +67,8 @@ public class DaemonAction extends SecurityContextAwareAction
          throw new InternalException("Unknown daemon type '" + type + "'.");
       }
 
-      ForkingServiceFactory factory = Parameters.instance().getObject(EngineProperties.FORKING_SERVICE_HOME);
+      ForkingServiceFactory factory = Parameters.instance().getObject(
+            EngineProperties.FORKING_SERVICE_HOME);
       ForkingService service = null;
       try
       {
@@ -78,33 +81,40 @@ public class DaemonAction extends SecurityContextAwareAction
          {
             try
             {
-               long batchSize = Parameters.instance().getLong(
-                        type + DaemonProperties.DAEMON_BATCH_SIZE_SUFFIX, Long.MAX_VALUE);
-               ExecuteDaemonAction innerAction = new ExecuteDaemonAction(carrier, daemon, batchSize);
+               DaemonUtils.getExecutionMonitor().beforeExecute(
+                     DaemonUtils.getDaemon(daemon.getType(), false));
 
-               daemonLogger.info("Running daemon '" + type.toString() + "'.");                              
+               long batchSize = Parameters.instance().getLong(
+                     type + DaemonProperties.DAEMON_BATCH_SIZE_SUFFIX, Long.MAX_VALUE);
+               ExecuteDaemonAction innerAction = new ExecuteDaemonAction(carrier, daemon,
+                     batchSize);
+
+               daemonLogger.info("Running daemon '" + type.toString() + "'.");
                while (IDaemon.WORK_PENDING.equals(innerAction.getExecutionStatus()))
                {
-                  SecurityContextBoundAction securityContextBoundAction =
-                     SecurityContextAwareAction.actionDefinesSecurityContext(innerAction);
+                  SecurityContextBoundAction securityContextBoundAction = SecurityContextAwareAction.actionDefinesSecurityContext(innerAction);
                   service.isolate(securityContextBoundAction);
-                  // (Florin.Herinean) acknowledge at the end of each loop to increase responsiveness
+                  // (Florin.Herinean) acknowledge at the end of each loop to increase
+                  // responsiveness
                   acknowledge(service, carrier);
                }
-               
+
                if (IDaemon.WORK_DONE.equals(innerAction.getExecutionStatus()))
                {
                   // (fh) mark successful execution
                   carrier.setStartTimeStamp(TimestampProviderUtils.getTimeStampValue());
-                  SetDaemonLogAction setLastExecutionLogAction =
-                     SetDaemonLogAction.setLastExecutionLog(carrier, DaemonExecutionState.OK);
+                  SetDaemonLogAction setLastExecutionLogAction = SetDaemonLogAction.setLastExecutionLog(
+                        carrier, DaemonExecutionState.OK);
                   service.isolate(setLastExecutionLogAction);
                }
+               
+               DaemonUtils.getExecutionMonitor().afterExecute(
+                     DaemonUtils.getDaemon(daemon.getType(), false));
             }
             catch (Exception ex)
             {
-               AuditTrailLogAction logAction = new AuditTrailLogAction(
-                     "Execution for '" + type + "' daemon failed.", ex);
+               AuditTrailLogAction logAction = new AuditTrailLogAction("Execution for '"
+                     + type + "' daemon failed.", ex);
                service.isolate(logAction);
             }
          }
@@ -114,7 +124,7 @@ public class DaemonAction extends SecurityContextAwareAction
          AuditTrailLogAction logAction = new AuditTrailLogAction("Execution for " + type
                + " daemon failed. It will be stopped now.", x);
          Object result = service.isolate(logAction);
-         if(result != null && result.equals(INVALID_ACTION))
+         if (result != null && result.equals(INVALID_ACTION))
          {
             return null;
          }
@@ -122,15 +132,15 @@ public class DaemonAction extends SecurityContextAwareAction
          DaemonCarrier carrier = originalCarrier.copy();
 
          service.isolate(new DaemonOperation(DaemonOperation.Type.STOP, carrier));
-         
+
          carrier.setStartTimeStamp(0);
-         SetDaemonLogAction setStartLogAction =
-            SetDaemonLogAction.setStartLog(carrier, AcknowledgementState.RespondedFailure);
+         SetDaemonLogAction setStartLogAction = SetDaemonLogAction.setStartLog(carrier,
+               AcknowledgementState.RespondedFailure);
          service.isolate(setStartLogAction);
 
-         carrier.setStartTimeStamp(-1);
-         SetDaemonLogAction setLastExecutionLogAction =
-            SetDaemonLogAction.setLastExecutionLog(carrier, DaemonExecutionState.Fatal);
+         carrier.setStartTimeStamp( -1);
+         SetDaemonLogAction setLastExecutionLogAction = SetDaemonLogAction.setLastExecutionLog(
+               carrier, DaemonExecutionState.Fatal);
          service.isolate(setLastExecutionLogAction);
       }
       finally
@@ -140,7 +150,8 @@ public class DaemonAction extends SecurityContextAwareAction
       return null;
    }
 
-   private DaemonLog acknowledge(final ForkingService service, final DaemonCarrier carrier) throws Exception
+   private DaemonLog acknowledge(final ForkingService service, final DaemonCarrier carrier)
+         throws Exception
    {
       DaemonLog daemonLog = null;
       DaemonRetry daemonRetry = new DaemonRetry(service);
@@ -152,10 +163,9 @@ public class DaemonAction extends SecurityContextAwareAction
             {
                Action getStartLogAction = GetDaemonLogAction.getStartLog(carrier);
                daemonLog = (DaemonLog) service.isolate(getStartLogAction);
-               if (AcknowledgementState.Requested.equals(daemonLog
-                     .getAcknowledgementState()))
+               if (AcknowledgementState.Requested.equals(daemonLog.getAcknowledgementState()))
                {
-                  carrier.setStartTimeStamp(-1);
+                  carrier.setStartTimeStamp( -1);
                   SetDaemonLogAction setStartLogAction = SetDaemonLogAction.setStartLog(
                         carrier, AcknowledgementState.RespondedOK);
                   service.isolate(setStartLogAction);
@@ -185,6 +195,7 @@ public class DaemonAction extends SecurityContextAwareAction
    private class AuditTrailLogAction implements Action
    {
       private Exception x;
+
       private String message;
 
       public AuditTrailLogAction(String message, Exception x)
@@ -202,32 +213,33 @@ public class DaemonAction extends SecurityContextAwareAction
          catch (Exception e)
          {
             LogUtils.traceException(e, true);
-            return INVALID_ACTION;            
+            return INVALID_ACTION;
          }
-         
+
          return null;
       }
    }
-   
+
    private static class ExecuteDaemonAction extends SecurityContextAwareAction
    {
       private static Set<String> locks = CollectionUtils.newSet();
-      
+
       private final DaemonCarrier carrier;
+
       private final IDaemon daemon;
-      private final long batchSize; 
-      
+
+      private final long batchSize;
+
       private IDaemon.ExecutionResult execStatus;
-      
-      ExecuteDaemonAction(DaemonCarrier carrier, IDaemon daemon,
-            long batchSize)
+
+      ExecuteDaemonAction(DaemonCarrier carrier, IDaemon daemon, long batchSize)
       {
          super(carrier);
-         
+
          this.carrier = carrier;
          this.daemon = daemon;
          this.batchSize = batchSize;
-         
+
          reset();
       }
 
@@ -324,7 +336,7 @@ public class DaemonAction extends SecurityContextAwareAction
          DaemonLog daemonLog = (DaemonLog) getLastExecutionLogAction.execute();
          daemonLog.lock();
       }
-      
+
       public IDaemon.ExecutionResult getExecutionStatus()
       {
          return execStatus;

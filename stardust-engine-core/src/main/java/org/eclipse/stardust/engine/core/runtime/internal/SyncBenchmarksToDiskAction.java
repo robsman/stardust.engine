@@ -121,9 +121,6 @@ public class SyncBenchmarksToDiskAction extends Procedure
                   final Long aiOid = (Long) entry.getKey();
                   final int benchmarkValue = (Integer) entry.getValue();
 
-                  trace.info("Update benchmark value for AI <" + aiOid + "> to <"
-                        + benchmarkValue + ">");
-
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Update benchmark value for AI <" + aiOid + "> to <"
@@ -179,9 +176,6 @@ public class SyncBenchmarksToDiskAction extends Procedure
 
                   final Long piOid = (Long) entry.getKey();
                   final int benchmarkValue = (Integer) entry.getValue();
-
-                  trace.info("Update benchmark value for PI <" + piOid + "> to <"
-                        + benchmarkValue + ">");
 
                   if (trace.isDebugEnabled())
                   {

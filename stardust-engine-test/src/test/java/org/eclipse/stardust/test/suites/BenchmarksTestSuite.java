@@ -27,9 +27,9 @@ import org.eclipse.stardust.test.benchmarks.BenchmarksTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+                BenchmarkStatisticsTest.class,
                 BenchmarksTest.class,
-                BenchmarkCalendarTest.class,
-                BenchmarkStatisticsTest.class
+                BenchmarkCalendarTest.class
               })
 public class BenchmarksTestSuite
 {

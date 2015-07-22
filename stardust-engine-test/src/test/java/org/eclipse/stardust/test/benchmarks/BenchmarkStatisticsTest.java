@@ -66,8 +66,6 @@ public class BenchmarkStatisticsTest
 
    private static final String BENCHMARK_PROCESS = "{BenchmarksModel}BenchmarkedProcess";
 
-   private static final String BENCHMARK_PROCESS_W_SUB = "{BenchmarksModel}BenchmarkedParentProcess";
-
    private static final String BENCHMARK_ACTIVITY = "{BenchmarksModel}BenchmarkedActivity";
 
    private static final String BENCHMARK_REF = "benchmarksTest.benchmark";
@@ -81,7 +79,7 @@ public class BenchmarkStatisticsTest
       startOptions_withoutBenchmark = new StartOptions(null, true);
    }
 
-@Test
+   @Test
    public void queryProcessBenchmarkStatisticsAfterDaemonRun()
    {
 

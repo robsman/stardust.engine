@@ -16,8 +16,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
@@ -167,8 +167,8 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
                   Predicates.isEqual(FR__ID, trimmedId),
                   Predicates.isEqual(FR__PARTITION, partition)))))
       {
-         throw new PublicException(
-               BpmRuntimeError.ATDB_LINK_TYPE_ID_EXISTS.raise(id), id, null);
+         throw new ObjectExistsException(
+               BpmRuntimeError.ATDB_LINK_TYPE_ID_EXISTS.raise(id));
       }
 
       this.id = trimmedId;

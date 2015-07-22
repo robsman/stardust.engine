@@ -11,35 +11,28 @@
 package org.eclipse.stardust.test.events;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Session;
+import javax.jms.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.extensions.events.signal.SignalMessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
@@ -52,12 +45,7 @@ import org.eclipse.stardust.test.api.util.JmsConstants;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.h2.api.Trigger;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.springframework.jms.core.JmsTemplate;
@@ -90,6 +78,38 @@ public class SignalEventTest
    public void init()
    {
       Parameters.instance().set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
+   }
+
+   @Test
+   public void testWorkCompletionSignalReceivers() throws Exception
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ActivityInstanceStateBarrier aiStateChangeBarrier = ActivityInstanceStateBarrier.instance();
+      ProcessInstanceStateBarrier piStateChangeBarrier = ProcessInstanceStateBarrier.instance();
+
+      Map<String, String> data = Collections.singletonMap("Data_1", "13");
+
+      ProcessInstance sender = wfs.startProcess("{SignalEventsTestModel}RegularProcess", data, true);
+      aiStateChangeBarrier.awaitForId(sender.getOID(), "Activity1");
+
+      ProcessInstance receiver = wfs.startProcess("{SignalEventsTestModel}WorkCompletedListener", data, true);
+      aiStateChangeBarrier.awaitForId(receiver.getOID(), "ActivityCompletionListener");
+      ActivityInstance ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(receiver.getOID(), "ActivityCompletionListener"));
+      aiStateChangeBarrier.await(ai.getOID(), ActivityInstanceState.Hibernated);
+
+      ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(sender.getOID(), "Activity1"));
+      wfs.activateAndComplete(ai.getOID(), null, null);
+
+      aiStateChangeBarrier.awaitForId(receiver.getOID(), "ProcessCompletionListener");
+      ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(receiver.getOID(), "ProcessCompletionListener"));
+      aiStateChangeBarrier.await(ai.getOID(), ActivityInstanceState.Hibernated);
+
+      aiStateChangeBarrier.awaitForId(sender.getOID(), "Activity2");
+      ai = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive(sender.getOID(), "Activity2"));
+      wfs.activateAndComplete(ai.getOID(), null, null);
+      piStateChangeBarrier.await(receiver.getOID(), ProcessInstanceState.Completed);
    }
 
    @Test
@@ -214,8 +234,8 @@ public class SignalEventTest
       // signal has been accepted, assert that output data is correct
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
       Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
-      assertThat(outputData, Matchers.instanceOf(String.class));
-      assertThat((String) outputData, Matchers.equalTo("Horst"));
+      assertThat(outputData, instanceOf(String.class));
+      assertThat((String) outputData, equalTo("Horst"));
    }
 
    @Test
@@ -241,12 +261,12 @@ public class SignalEventTest
 
       // assert message parameters
       Object obj1 = wfs.getInDataPath(triggerPiOid, "TriggerData_1Path");
-      assertThat(obj1, Matchers.instanceOf(String.class));
-      assertThat((String) obj1, Matchers.equalTo("Klaus"));
+      assertThat(obj1, instanceOf(String.class));
+      assertThat((String) obj1, equalTo("Klaus"));
 
       Object obj2 = wfs.getInDataPath(triggerPiOid, "TriggerData_2Path");
-      assertThat(obj2, Matchers.instanceOf(String.class));
-      assertThat((String) obj2, Matchers.equalTo("Horst"));
+      assertThat(obj2, instanceOf(String.class));
+      assertThat((String) obj2, equalTo("Horst"));
    }
 
    @Test
@@ -300,8 +320,8 @@ public class SignalEventTest
       // signal has been accepted, assert that output data is correct
       piStateChangeBarrier.await(rootProcess.getOID(), ProcessInstanceState.Completed);
       Object outputData = wfs.getInDataPath(rootProcess.getOID(), "OutputDataPath");
-      assertThat(outputData, Matchers.instanceOf(String.class));
-      assertThat((String) outputData, Matchers.equalTo("Horst"));
+      assertThat(outputData, instanceOf(String.class));
+      assertThat((String) outputData, equalTo("Horst"));
    }
 
    @Test

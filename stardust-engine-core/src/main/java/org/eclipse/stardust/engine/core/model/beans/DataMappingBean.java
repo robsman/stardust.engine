@@ -87,7 +87,8 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       }
 
       // Rule: associated data must be part of the same model
-      if (getData() == null)
+      // if only dataPath is set and no data, then this is a CONSTANT
+      if (getData() == null && StringUtils.isEmpty(getDataPath()))
       {
          BpmValidationError error = BpmValidationError.DATA_NO_DATA_SET_FOR_DATAMAPPING.raise(getErrorName());
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
@@ -260,12 +261,15 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                }
                else
                {
-                  // ... otherwise at least the data part of the data mapping is validated.
-                  ExtendedDataValidator leftValidator = (ExtendedDataValidator) ValidatorUtils
-                        .getValidator(getData().getType(), this, inconsistencies);
-                  if (null != leftValidator)
+                  if(getData() != null)
                   {
-                     validatePath(inconsistencies, leftValidator);
+                     // ... otherwise at least the data part of the data mapping is validated.
+                     ExtendedDataValidator leftValidator = (ExtendedDataValidator) ValidatorUtils
+                           .getValidator(getData().getType(), this, inconsistencies);
+                     if (null != leftValidator)
+                     {
+                        validatePath(inconsistencies, leftValidator);
+                     }
                   }
                }
             }

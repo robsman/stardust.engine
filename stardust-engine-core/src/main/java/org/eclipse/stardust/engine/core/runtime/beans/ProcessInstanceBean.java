@@ -1412,13 +1412,14 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
-            targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
+            targetActivityAccessPoint == null && 
+               (data != null && JavaDataTypeUtils.isJavaEnumeration(data))
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
 
       if(!(evaluator instanceof IHandleGetDataValue))
       {
-         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);
+         return evaluator.evaluate(data, data == null ? null : getDataValue(data).getValue(), path, evaluationContext);
       }
       return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
    }

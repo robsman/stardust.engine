@@ -77,24 +77,31 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
       // todo: (france, fh) only data bridge object is considered ???
       try
       {
-         String validatorClass = mapping.getData().getType().getStringAttribute(
-               PredefinedConstants.VALIDATOR_CLASS_ATT);
-         ExtendedDataValidator validator = SpiUtils
-               .createExtendedDataValidator(validatorClass);
-         AccessPathEvaluationContext context = new AccessPathEvaluationContext(null,
-               null, null, activity);
-
-         final boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
-               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
-
-         type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
-                  ? FALLBACK_TYPE_NAME
-                  : validator.getBridgeObject(mapping.getData(),
-                        mapping.getDataPath(),
-                        Direction.IN.equals(direction)
-                           ? Direction.OUT
-                           : Direction.IN, context)
-                     .getEndClass().getName();
+         if(mapping.getData() != null)
+         {
+            String validatorClass = mapping.getData().getType().getStringAttribute(
+                  PredefinedConstants.VALIDATOR_CLASS_ATT);
+            ExtendedDataValidator validator = SpiUtils
+                  .createExtendedDataValidator(validatorClass);
+            AccessPathEvaluationContext context = new AccessPathEvaluationContext(null,
+                  null, null, activity);
+   
+            final boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
+                  Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+   
+            type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
+                     ? FALLBACK_TYPE_NAME
+                     : validator.getBridgeObject(mapping.getData(),
+                           mapping.getDataPath(),
+                           Direction.IN.equals(direction)
+                              ? Direction.OUT
+                              : Direction.IN, context)
+                        .getEndClass().getName();
+         }
+         else
+         {
+            type = FALLBACK_TYPE_NAME;
+         }         
       }
       catch (Exception e)
       {
@@ -106,7 +113,10 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
       this.processDefinitionId = activity.getProcessDefinition().getId();
 
       this.context = mapping.getContext();
-      this.dataId = mapping.getData().getId();
+      if(mapping.getData() != null)
+      {
+         this.dataId = mapping.getData().getId();
+      }
    }
 
    private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)

@@ -52,6 +52,7 @@ public class DataModelConstants
     */
    public static final String MODEL_NAME = "DataModel";
    public static final String VOLATILE_MODEL_NAME = "VolatileDataModel";
+   public static final String CONSTANT_MODEL_NAME = "TestConstant";
 
 
    /**

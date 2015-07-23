@@ -740,7 +740,10 @@
                            </xsl:if>
 
                            <carnot:DataRef>
-                              <xsl:attribute name="Id"><xsl:value-of select="@data" /></xsl:attribute>
+                              <xsl:if test="@data">                           
+                                 <xsl:attribute name="Id"><xsl:value-of select="@data" /></xsl:attribute>
+                              </xsl:if>
+                              
                               <xsl:if test="@dataPath">
                                  <xsl:attribute name="Expression"><xsl:value-of select="@dataPath" /></xsl:attribute>
                               </xsl:if>

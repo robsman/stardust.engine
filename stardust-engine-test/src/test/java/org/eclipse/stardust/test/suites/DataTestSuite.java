@@ -13,6 +13,7 @@ package org.eclipse.stardust.test.suites;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.data.DataModelConstants.VOLATILE_MODEL_NAME;
+import static org.eclipse.stardust.test.data.DataModelConstants.CONSTANT_MODEL_NAME;
 
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -40,11 +41,12 @@ import org.junit.runners.Suite.SuiteClasses;
                InitialValuePrimitiveDataTest.class,
                StructuredDataSanityTest.class,
                StructuredTypeDefinitionTest.class,
-               VolatileDataTest.class
+               VolatileDataTest.class,
+               ConstantsDataMappingsTest.class
              })
 public class DataTestSuite
 {
 
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, VOLATILE_MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, VOLATILE_MODEL_NAME, CONSTANT_MODEL_NAME);
 }

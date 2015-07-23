@@ -1160,6 +1160,9 @@ public class AdministrationServiceImpl
 
          Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
+         AdminServiceUtils.deletePartitionRuntimeArtifacts(
+               SecurityProperties.getPartitionOid(), session);
+         
          cleanupDeployments(session);
          cleanupModelReferences(session);
 

@@ -398,8 +398,7 @@ public class AdminServiceUtils
       session.delete(PropertyPersistor.class, Predicates.andTerm( //
             Predicates.notInList(PropertyPersistor.FR__OID, propOids), //
             partitionPredicate), false);
-      
-      AdminServiceUtils.deletePartitionRuntimeArtifacts((short) partitionOid, session);      
+            
    }
 
    private static void getAllParentDepartmentOids(IDepartment department,

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.compatibility.ui.preferences;
 
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.preferences.manager.AbstractPreferenceEditor;
 import org.eclipse.stardust.engine.core.preferences.manager.AbstractPreferenceStore;
 
@@ -21,34 +23,61 @@ public class ReadOnlyUiPreferenceEditor extends AbstractPreferenceEditor
    {
       super(moduleId, preferencesId, prefsStore);
    }
-   
+
    @Override
    public void save()
    {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
+
+   @Override
+   public void resetValue(String name)
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
    }
 
    @Override
    public void setValue(String name, boolean value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
    @Override
    public void setValue(String name, double value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
    @Override
    public void setValue(String name, float value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
    @Override
    public void setValue(String name, int value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
    @Override
    public void setValue(String name, long value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
    @Override
    public void setValue(String name, String value)
-   {}
+   {
+      throw new PublicException(
+            BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+   }
 
 }

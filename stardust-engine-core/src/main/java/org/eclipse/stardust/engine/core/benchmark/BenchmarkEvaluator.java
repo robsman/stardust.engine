@@ -37,12 +37,12 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
    private static final int BENCHMARKK_FAULT_VALUE = -1;
 
-   private BenchmarkDefinition benchmark;
+   private long benchmarkOid;
 
    public BenchmarkEvaluator(long benchmarkOid)
    {
 
-      benchmark = BenchmarkUtils.getBenchmarkDefinition(benchmarkOid);
+      this.benchmarkOid = benchmarkOid;
 
    }
 
@@ -55,7 +55,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       if (trace.isDebugEnabled())
       {
-         trace.debug("Evaluating Benchmark with OID '" + this.benchmark.getOid()
+         trace.debug("Evaluating Benchmark with OID '" + this.benchmarkOid
                + "' for Process Instance OID '" + piOid + "'.");
       }
 
@@ -72,7 +72,7 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
 
       if (trace.isDebugEnabled())
       {
-         trace.debug("Evaluating Benchmark with OID '" + this.benchmark.getOid()
+         trace.debug("Evaluating Benchmark with OID '" + this.benchmarkOid
                + "' for Activity Instance OID '" + aiOid + "', activityId '" + activityId + "'.");
       }
       return benchmarkValue;
@@ -92,7 +92,8 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
                getQualifiedIdForProcess(bean.getActivity().getProcessDefinition()),
                bean.getActivity().getId());
 
-         TreeMap<Integer, ConditionEvaluator> activityConditions = benchmark.getActivityConditions(qualifiedActivityId);
+         TreeMap<Integer, ConditionEvaluator> activityConditions = getBenchmarkDefinition()
+               .getActivityConditions(qualifiedActivityId);
 
          if (activityConditions != null)
          {
@@ -134,11 +135,16 @@ public class BenchmarkEvaluator implements IBenchmarkEvaluator
       }
    }
 
+   private BenchmarkDefinition getBenchmarkDefinition()
+   {
+      return BenchmarkUtils.getBenchmarkDefinition(benchmarkOid);
+   }
+
    private int evaluateBenchmarkForPi(ProcessInstanceBean bean)
    {
       try
       {
-         TreeMap<Integer, ConditionEvaluator> processConditions = benchmark
+         TreeMap<Integer, ConditionEvaluator> processConditions = getBenchmarkDefinition()
                .getProcessConditions(getQualifiedIdForProcess(bean.getProcessDefinition()));
 
          if (processConditions != null)

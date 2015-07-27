@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
+import org.eclipse.stardust.engine.core.spi.extensions.model.RuntimeAccessPointProvider;
 
 
 /**
@@ -44,6 +45,8 @@ public class AccessPointDetailsEvaluator implements Serializable
 
    private final Map detailsAttributes;
    private final Map typeAttributes;
+
+   private boolean alwaysEvaluateTransient = false;
 
    /**
     * This utility method helps to determine if an activity is implemented in terms
@@ -90,6 +93,8 @@ public class AccessPointDetailsEvaluator implements Serializable
       this.providerClassName = owner.getProviderClass();
       this.detailsAttributes = Collections.unmodifiableMap(detailsAttributes);
       this.typeAttributes = Collections.unmodifiableMap(typeAttributes);
+
+      initTransientAccessPoints();
    }
 
    private static List createDetailsCollection(Iterator iterator)
@@ -100,7 +105,7 @@ public class AccessPointDetailsEvaluator implements Serializable
 
    public List getAccessPoints()
    {
-      if (null == allAccessPoints || null == transientAccessPoints)
+      if (null == allAccessPoints || alwaysEvaluateTransient)
       {
          initTransientAccessPoints();
          if (transientAccessPoints != null)
@@ -148,6 +153,11 @@ public class AccessPointDetailsEvaluator implements Serializable
 
             AccessPointProvider provider = (AccessPointProvider) Reflect
                   .getInstance(providerClassName);
+
+            if (provider instanceof RuntimeAccessPointProvider)
+            {
+               this.alwaysEvaluateTransient = true;
+            }
 
             Iterator i = provider.createIntrinsicAccessPoints(detailsAttributes,
                   typeAttributes);

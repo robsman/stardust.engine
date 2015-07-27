@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.artifact.impl;
 
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
@@ -72,18 +71,27 @@ public class BenchmarkDefinitionArtifactHandler
    @Override
    public void beforeDelete(DeployedRuntimeArtifact deployedRuntimeArtifact)
    {
-      
+      long benchmarkOid = deployedRuntimeArtifact.getOid();
+
       ProcessInstanceQuery query = ProcessInstanceQuery.findAlive();
-      
-      query.where(ProcessInstanceQuery.BENCHMARK_OID.greaterThan(0));
-      
+
+
+      if (benchmarkOid > 0)
+      {
+         query.where(ProcessInstanceQuery.BENCHMARK_OID.isEqual(benchmarkOid));
+      }
+      else
+      {
+         query.where(ProcessInstanceQuery.BENCHMARK_OID.greaterThan(0));
+      }
+
       ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
-            QueryServiceUtils.getDefaultEvaluationContext()).executeFetch();      
-      
+            QueryServiceUtils.getDefaultEvaluationContext()).executeFetch();
+
       if (rawResult.hasNext())
       {
          throw new IllegalOperationException(
-               BpmRuntimeError.ATDB_RUNTIME_ARTIFACT_IN_USE.raise(deployedRuntimeArtifact.getOid()));
+               BpmRuntimeError.ATDB_RUNTIME_ARTIFACT_IN_USE.raise(benchmarkOid));
       }
    }
 

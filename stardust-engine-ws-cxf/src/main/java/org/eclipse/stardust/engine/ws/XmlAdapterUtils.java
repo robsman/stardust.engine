@@ -5301,9 +5301,21 @@ public class XmlAdapterUtils
       {
          xto = new RuntimePermissionsXto();
 
-         RuntimePermissionsMapXto mapXto = new RuntimePermissionsMapXto();
+         xto.setRuntimePermissionsMap(marshalRuntimePermissionMap(permissions.getPermissionMap()));
+         xto.setDeniedRuntimePermissionsMap(marshalRuntimePermissionMap(permissions.getDeniedPermissionsMap()));
+      }
+      return xto;
+   }
+   
+   private static RuntimePermissionsMapXto marshalRuntimePermissionMap(
+         Map<String, List<String>> permissionMap)
+   {
+      RuntimePermissionsMapXto mapXto = null;
 
-         Map<String, List<String>> permissionMap = permissions.getPermissionMap();
+      if (permissionMap != null)
+      {
+
+         mapXto = new RuntimePermissionsMapXto();
 
          Set<String> keys = permissionMap.keySet();
 
@@ -5321,10 +5333,8 @@ public class XmlAdapterUtils
             mapEntry.setValueList(stringListXto);
             mapXto.getRuntimePermissionsEntry().add(mapEntry);
          }
-
-         xto.setRuntimePermissionsMap(mapXto);
       }
-      return xto;
+      return mapXto;
    }
 
    public static RuntimePermissions unmarshalRuntimePermissions(

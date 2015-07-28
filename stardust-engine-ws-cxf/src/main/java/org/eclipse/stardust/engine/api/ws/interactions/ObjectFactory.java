@@ -34,11 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinitionResponse }
+     * Create an instance of {@link GetInputParameters }
      * 
      */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
     }
 
     /**
@@ -50,14 +50,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwner }
-     * 
-     */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
-    }
-
-    /**
      * Create an instance of {@link GetDefinition }
      * 
      */
@@ -66,11 +58,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParametersResponse }
+     * Create an instance of {@link GetOwner }
      * 
      */
-    public SetOutputParametersResponse createSetOutputParametersResponse() {
-        return new SetOutputParametersResponse();
+    public GetOwner createGetOwner() {
+        return new GetOwner();
     }
 
     /**
@@ -82,6 +74,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link BpmInteractionFaultXto }
+     * 
+     */
+    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
+        return new BpmInteractionFaultXto();
+    }
+
+    /**
      * Create an instance of {@link SetOutputParameters }
      * 
      */
@@ -90,19 +90,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetInputParameters }
+     * Create an instance of {@link GetDefinitionResponse }
      * 
      */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
     }
 
     /**
-     * Create an instance of {@link BpmInteractionFaultXto }
+     * Create an instance of {@link SetOutputParametersResponse }
      * 
      */
-    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
-        return new BpmInteractionFaultXto();
+    public SetOutputParametersResponse createSetOutputParametersResponse() {
+        return new SetOutputParametersResponse();
     }
 
     /**

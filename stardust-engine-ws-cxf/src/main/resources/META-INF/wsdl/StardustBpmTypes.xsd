@@ -2537,6 +2537,7 @@
 		</annotation>
 		<sequence>
 			<element name="RuntimePermissionsMap" type="tns:RuntimePermissionsMap" />
+			<element name="DeniedRuntimePermissionsMap" type="tns:RuntimePermissionsMap" />
 		</sequence>
 	</complexType>
 

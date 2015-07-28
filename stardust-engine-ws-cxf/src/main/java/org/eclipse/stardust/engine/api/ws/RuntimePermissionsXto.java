@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="RuntimePermissionsMap" type="{http://eclipse.org/stardust/ws/v2012a/api}RuntimePermissionsMap"/>
+ *         &lt;element name="DeniedRuntimePermissionsMap" type="{http://eclipse.org/stardust/ws/v2012a/api}RuntimePermissionsMap"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -33,12 +34,15 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RuntimePermissions", propOrder = {
-    "runtimePermissionsMap"
+    "runtimePermissionsMap",
+    "deniedRuntimePermissionsMap"
 })
 public class RuntimePermissionsXto {
 
     @XmlElement(name = "RuntimePermissionsMap", required = true)
     protected RuntimePermissionsMapXto runtimePermissionsMap;
+    @XmlElement(name = "DeniedRuntimePermissionsMap", required = true)
+    protected RuntimePermissionsMapXto deniedRuntimePermissionsMap;
 
     /**
      * Gets the value of the runtimePermissionsMap property.
@@ -62,6 +66,30 @@ public class RuntimePermissionsXto {
      */
     public void setRuntimePermissionsMap(RuntimePermissionsMapXto value) {
         this.runtimePermissionsMap = value;
+    }
+
+    /**
+     * Gets the value of the deniedRuntimePermissionsMap property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link RuntimePermissionsMapXto }
+     *     
+     */
+    public RuntimePermissionsMapXto getDeniedRuntimePermissionsMap() {
+        return deniedRuntimePermissionsMap;
+    }
+
+    /**
+     * Sets the value of the deniedRuntimePermissionsMap property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link RuntimePermissionsMapXto }
+     *     
+     */
+    public void setDeniedRuntimePermissionsMap(RuntimePermissionsMapXto value) {
+        this.deniedRuntimePermissionsMap = value;
     }
 
 }

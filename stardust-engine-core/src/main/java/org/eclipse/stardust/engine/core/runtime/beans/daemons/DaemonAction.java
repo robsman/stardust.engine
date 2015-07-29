@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.DaemonDetails;
 import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
@@ -81,8 +82,14 @@ public class DaemonAction extends SecurityContextAwareAction
          {
             try
             {
+               GetDaemonLogAction getLastExecutionLogAction = GetDaemonLogAction.getLastExecutionLog(carrier);
+               DaemonLog lastExecutionLog = (DaemonLog) service.isolate(getLastExecutionLogAction);
+
                DaemonUtils.getExecutionMonitor().beforeExecute(
-                     DaemonUtils.getDaemon(daemon.getType(), false));
+                     new DaemonDetails(daemonLog.getType(), carrier.getStartTimeStamp(),
+                           lastExecutionLog.getTimeStamp(), true,
+                           daemonLog.getAcknowledgementState(),
+                           daemonLog.getDaemonExecutionState()));
 
                long batchSize = Parameters.instance().getLong(
                      type + DaemonProperties.DAEMON_BATCH_SIZE_SUFFIX, Long.MAX_VALUE);
@@ -108,8 +115,14 @@ public class DaemonAction extends SecurityContextAwareAction
                   service.isolate(setLastExecutionLogAction);
                }
                
+               getLastExecutionLogAction = GetDaemonLogAction.getLastExecutionLog(carrier);
+               lastExecutionLog = (DaemonLog) service.isolate(getLastExecutionLogAction);
+               
                DaemonUtils.getExecutionMonitor().afterExecute(
-                     DaemonUtils.getDaemon(daemon.getType(), false));
+                     new DaemonDetails(daemonLog.getType(), carrier.getStartTimeStamp(),
+                           lastExecutionLog.getTimeStamp(), true,
+                           daemonLog.getAcknowledgementState(),
+                           daemonLog.getDaemonExecutionState()));
             }
             catch (Exception ex)
             {

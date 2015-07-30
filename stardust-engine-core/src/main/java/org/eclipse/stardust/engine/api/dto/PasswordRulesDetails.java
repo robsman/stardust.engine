@@ -72,9 +72,9 @@ public class PasswordRulesDetails implements PasswordRules
       return sendNotificationMails;
    }   
    
-   public void setPasswordTracking(int days)
+   public void setPasswordTracking(int number)
    {
-      passwordTracking = days;
+      passwordTracking = number;
    }
    
    public int getPasswordTracking()

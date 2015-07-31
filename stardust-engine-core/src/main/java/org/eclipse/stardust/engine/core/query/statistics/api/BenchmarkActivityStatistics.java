@@ -14,33 +14,66 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
-
 
 /**
  * @author roland.stamm
  * @version $Revision$
  */
-public abstract class BenchmarkActivityStatistics extends CustomActivityInstanceQueryResult
+public abstract class BenchmarkActivityStatistics
+      extends CustomActivityInstanceQueryResult
 {
    private static final long serialVersionUID = 1l;
 
-   protected Map<Long, BenchmarkResults> benchmarkResultPerBenchmarkOid;
+   protected Map<Pair<String, String>, BenchmarkCategoryCounts> benchmarkCategoryCountsPerActivityId;
+
+   protected Map<Pair<String, String>, Long> abortedPerActivityId;
+
+   protected Map<Pair<String, String>, Long> completedPerActivityId;
 
    protected BenchmarkActivityStatistics(BenchmarkActivityStatisticsQuery query)
    {
       super(query);
 
-      this.benchmarkResultPerBenchmarkOid = CollectionUtils.newMap();
+      this.benchmarkCategoryCountsPerActivityId = CollectionUtils.newMap();
+      this.abortedPerActivityId = CollectionUtils.newMap();
+      this.completedPerActivityId = CollectionUtils.newMap();
    }
 
-   public BenchmarkResults getStatisticsForBenchmark(long benchmarkOid)
+   public BenchmarkCategoryCounts getBenchmarkCategoryCountsForActivity(String processId,
+         String activityId)
    {
-      return benchmarkResultPerBenchmarkOid.get(benchmarkOid);
+      Pair<String, String> key = new Pair<String, String>(processId, activityId);
+      return benchmarkCategoryCountsPerActivityId.get(key);
    }
 
-   public Map<Long, BenchmarkResults> getBenchmarkResults()
+   public Map<Pair<String, String>, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
-      return Collections.unmodifiableMap(benchmarkResultPerBenchmarkOid);
+      return Collections.unmodifiableMap(benchmarkCategoryCountsPerActivityId);
+   }
+
+   public Map<Pair<String, String>, Long> getAbortedPerActivityId()
+   {
+      return Collections.unmodifiableMap(abortedPerActivityId);
+   }
+
+   public long getAbortedCountForActivity(String processId, String activityId)
+   {
+      Pair<String, String> key = new Pair<String, String>(processId, activityId);
+      Long count = abortedPerActivityId.get(key);
+      return count == null ? 0 : count;
+   }
+
+   public Map<Pair<String, String>, Long> getCompletedPerActivityId()
+   {
+      return Collections.unmodifiableMap(completedPerActivityId);
+   }
+
+   public long getCompletedCountForActivity(String processId, String activityId)
+   {
+      Pair<String, String> key = new Pair<String, String>(processId, activityId);
+      Long count = completedPerActivityId.get(key);
+      return count == null ? 0 : count;
    }
 }

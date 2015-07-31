@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkCategoryCounts;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatisticsQuery;
-import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkResults;
 
 /**
  * @author roland.stamm
@@ -27,15 +28,45 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
       super(query);
    }
 
-   public void addBenchmarkedInstances(String processId, long benchmarkOid, int benchmarkValue)
+   public void registerProcessBenchmarkCategory(String processId, int benchmarkValue)
    {
-      BenchmarkResults benchmarkedInstance = benchmarkResultPerBenchmarkOid.get(benchmarkOid);
-      if (null == benchmarkedInstance)
+      Pair<String,String> key = new Pair(processId, null);
+      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerProcessId.get(key);
+
+      if (benchmarkCategoryCount == null)
       {
-         benchmarkedInstance = new BenchmarkResults();
-         benchmarkResultPerBenchmarkOid.put(benchmarkOid, benchmarkedInstance);
+         benchmarkCategoryCount = new BenchmarkCategoryCounts();
+         benchmarkCategoryCountsPerProcessId.put(key, benchmarkCategoryCount);
       }
 
-      benchmarkedInstance.registerProcess(processId, benchmarkValue);
+      benchmarkCategoryCount.registerBenchmarkValue(benchmarkValue);
+   }
+
+   public void addAbortedInstance(String qualifiedProcessId)
+   {
+      Long count = abortedPerProcessId.get(qualifiedProcessId);
+      if (count == null)
+      {
+         count = 1L;
+      }
+      else
+      {
+         count++;
+      }
+      abortedPerProcessId.put(qualifiedProcessId, count);
+   }
+
+   public void addCompletedInstance(String qualifiedProcessId)
+   {
+      Long count = completedPerProcessId.get(qualifiedProcessId);
+      if (count == null)
+      {
+         count = 1L;
+      }
+      else
+      {
+         count++;
+      }
+      completedPerProcessId.put(qualifiedProcessId, count);
    }
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.core.query.statistics.api.*;
 
 /**
@@ -25,15 +26,47 @@ public class BenchmarkActivityStatisticsResult extends BenchmarkActivityStatisti
       super(asq);
    }
 
-   public void addBenchmarkedInstances(String processId, String activityId, long aiOid, long benchmarkOid, int benchmarkValue)
+   public void registerActivityBenchmarkCategory(String processId, String activityId, int benchmarkValue)
    {
-      BenchmarkResults benchmarkedInstance = benchmarkResultPerBenchmarkOid.get(benchmarkOid);
-      if (null == benchmarkedInstance)
+      Pair<String,String> key = new Pair(processId, activityId);
+      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerActivityId.get(key);
+
+      if (benchmarkCategoryCount == null)
       {
-         benchmarkedInstance = new BenchmarkResults();
-         benchmarkResultPerBenchmarkOid.put(benchmarkOid, benchmarkedInstance);
+         benchmarkCategoryCount = new BenchmarkCategoryCounts();
+         benchmarkCategoryCountsPerActivityId.put(key, benchmarkCategoryCount);
       }
 
-      benchmarkedInstance.registerActivity(processId, activityId, benchmarkValue);
+      benchmarkCategoryCount.registerBenchmarkValue(benchmarkValue);
+   }
+
+   public void addAbortedInstance(String qualifiedProcessId, String qualifiedActivityId)
+   {
+      Pair<String,String> key = new Pair<String, String>(qualifiedProcessId, qualifiedActivityId);
+      Long count = abortedPerActivityId.get(key);
+      if (count == null)
+      {
+         count = 1L;
+      }
+      else
+      {
+         count++;
+      }
+      abortedPerActivityId.put(key, count);
+   }
+
+   public void addCompletedInstance(String qualifiedProcessId, String qualifiedActivityId)
+   {
+      Pair<String,String> key = new Pair<String, String>(qualifiedProcessId, qualifiedActivityId);
+      Long count = completedPerActivityId.get(key);
+      if (count == null)
+      {
+         count = 1L;
+      }
+      else
+      {
+         count++;
+      }
+      completedPerActivityId.put(key, count);
    }
 }

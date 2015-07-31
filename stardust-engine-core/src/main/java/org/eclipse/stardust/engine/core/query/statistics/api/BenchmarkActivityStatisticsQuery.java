@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -31,18 +30,6 @@ public class BenchmarkActivityStatisticsQuery extends CustomActivityInstanceQuer
    static final long serialVersionUID = 8790093503685888481L;
 
    public static final String ID = BenchmarkActivityStatisticsQuery.class.getName();
-
-   private List<Long> selectedBenchmarks;
-
-   public List<Long> getSelectedBenchmarks()
-   {
-      return selectedBenchmarks;
-   }
-
-   public void setSelectedBenchmarks(List<Long> selectedBenchmarks)
-   {
-      this.selectedBenchmarks = selectedBenchmarks;
-   }
 
    public static BenchmarkActivityStatisticsQuery forProcesses(
          ProcessDefinition process)

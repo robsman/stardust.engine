@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
 
 
@@ -25,22 +26,50 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
 {
    private static final long serialVersionUID = 1l;
 
-   protected Map<Long, BenchmarkResults> benchmarkResultPerBenchmarkOid;
+   protected Map<Pair<String,String>, BenchmarkCategoryCounts> benchmarkCategoryCountsPerProcessId;
+
+   protected Map<String, Long> abortedPerProcessId;
+
+   protected Map<String, Long> completedPerProcessId;
 
    protected BenchmarkProcessStatistics(BenchmarkProcessStatisticsQuery query)
    {
       super(query);
 
-      this.benchmarkResultPerBenchmarkOid = CollectionUtils.newMap();
+      this.benchmarkCategoryCountsPerProcessId = CollectionUtils.newMap();
+      this.abortedPerProcessId  = CollectionUtils.newMap();
+      this.completedPerProcessId = CollectionUtils.newMap();
    }
 
-   public BenchmarkResults getStatisticsForBenchmark(long benchmarkOid)
+   public BenchmarkCategoryCounts getBenchmarkCategoryCountsForProcess(String qualifiedProcessId)
    {
-      return benchmarkResultPerBenchmarkOid.get(benchmarkOid);
+      return benchmarkCategoryCountsPerProcessId.get(new Pair(qualifiedProcessId, null));
    }
 
-   public Map<Long, BenchmarkResults> getBenchmarkResults()
+   public Map<Pair<String,String>, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
-      return Collections.unmodifiableMap(benchmarkResultPerBenchmarkOid);
+      return Collections.unmodifiableMap(benchmarkCategoryCountsPerProcessId);
+   }
+
+   public Map<String, Long> getAbortedPerProcessId()
+   {
+      return abortedPerProcessId;
+   }
+
+   public long getAbortedCountForProcess(String qualifiedProcessId)
+   {
+      Long count = abortedPerProcessId.get(qualifiedProcessId);
+      return count == null ? 0 : count;
+   }
+
+   public Map<String, Long> getCompletedPerProcessId()
+   {
+      return completedPerProcessId;
+   }
+
+   public long getCompletedCountForProcess(String qualifiedProcessId)
+   {
+      Long count = completedPerProcessId.get(qualifiedProcessId);
+      return count == null ? 0 : count;
    }
 }

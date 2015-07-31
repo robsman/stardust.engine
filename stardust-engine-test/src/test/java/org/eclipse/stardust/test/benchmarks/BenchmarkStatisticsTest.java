@@ -13,6 +13,8 @@ package org.eclipse.stardust.test.benchmarks;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
+import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -21,10 +23,10 @@ import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery;
-import org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.StartOptions;
 import org.eclipse.stardust.engine.core.query.statistics.api.*;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
@@ -64,6 +66,10 @@ public class BenchmarkStatisticsTest
 
    private StartOptions startOptions_withoutBenchmark;
 
+   private static final String MODEL_PREFIX = "{BenchmarksModel}";
+
+   private static final String BUSINESS_DATE = "BUSINESS_DATE";
+
    private static final String BENCHMARK_PROCESS = "{BenchmarksModel}BenchmarkedProcess";
 
    private static final String BENCHMARK_ACTIVITY = "{BenchmarksModel}BenchmarkedActivity";
@@ -75,23 +81,34 @@ public class BenchmarkStatisticsTest
    {
       BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
 
-      startOptions_withBenchmark = new StartOptions(null, true, BENCHMARK_REF);
+      startOptions_withBenchmark = new StartOptions(Collections.singletonMap(
+            BUSINESS_DATE, Calendar.getInstance()), true, BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
+
+      // 2 with benchmark
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+
+      // 1 without benchmark
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withoutBenchmark);
+
+      // 1 with benchmark (total of 3 now)
+      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+
+      // 1 aborted
+      ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withBenchmark);
+      serviceFactory.getAdministrationService().abortProcessInstance(pi.getOID());
    }
 
    @Test
    public void queryProcessBenchmarkStatisticsAfterDaemonRun()
    {
-
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withoutBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
-
+      // Daemon execution
       serviceFactory.getAdministrationService().startDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
 
@@ -104,53 +121,86 @@ public class BenchmarkStatisticsTest
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
 
-      // query
-      BenchmarkProcessStatisticsQuery query = BenchmarkProcessStatisticsQuery.forProcessIds(Collections.singleton(BENCHMARK_PROCESS));
-      query.setSelectedBenchmarks(Collections.singletonList(getDeployedBenchmarkOid()));
+      // Query
+      BenchmarkProcessStatisticsQuery query = BenchmarkProcessStatisticsQuery
+            .forProcessIds(Collections.singleton(BENCHMARK_PROCESS));
 
-      BenchmarkProcessStatistics stats = (BenchmarkProcessStatistics) serviceFactory.getQueryService().getAllProcessInstances(query);
+      // Do not add state filter to include aborted and completed.
+      // query.where(ProcessStateFilter.ALIVE);
 
-      BenchmarkResults statisticsForBenchmark = stats.getBenchmarkResults().values().iterator().next();
-      BenchmarkCategoryCounts benchmarkCategoryCounts = statisticsForBenchmark.getBenchmarkCategoryCountsForProcess(BENCHMARK_PROCESS);
-      Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts.getBenchmarkCategoryCount();
-      // Counts only for one category
+      // Only for the selected benchmark.
+      query.where(BenchmarkProcessStatisticsQuery.BENCHMARK_OID
+            .isEqual(getDeployedBenchmarkOid()));
+
+      // Only for BUSINESS_DATE today.
+      query.where(DataFilter.between(MODEL_PREFIX + BUSINESS_DATE, getCurrentDayStart(),
+            getCurrentDayEnd()));
+
+      BenchmarkProcessStatistics stats = (BenchmarkProcessStatistics) serviceFactory
+            .getQueryService().getAllProcessInstances(query);
+      Assert.assertNotNull(stats);
+
+      BenchmarkCategoryCounts benchmarkCategoryCounts = stats
+            .getBenchmarkCategoryCountsForProcess(BENCHMARK_PROCESS);
+      Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts
+            .getBenchmarkCategoryCount();
+
+      // Counts only exist for one category, because no benchmark process does not have
+      // business date.
       Assert.assertEquals(1, benchmarkCategoryCountMap.size());
       // Category 3 has count of 3
       Assert.assertEquals(Long.valueOf(3L), benchmarkCategoryCountMap.get(3));
 
+      Assert.assertEquals(1, stats.getAbortedCountForProcess(BENCHMARK_PROCESS));
+      Assert.assertEquals(0, stats.getCompletedCountForProcess(BENCHMARK_PROCESS));
    }
 
    @Test
    public void queryActivityBenchmarkStatistics()
    {
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withoutBenchmark);
-      serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-            startOptions_withBenchmark);
+      // Query
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessId(BENCHMARK_PROCESS);
 
-      // query
-      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery.forProcessId(BENCHMARK_PROCESS);
-      query.setSelectedBenchmarks(Collections.singletonList(getDeployedBenchmarkOid()));
+      // Do not add state filter to include aborted and completed.
+      // query.where(ActivityStateFilter.ALIVE);
 
-      BenchmarkActivityStatistics stats = (BenchmarkActivityStatistics) serviceFactory.getQueryService().getAllActivityInstances(query);
+      // Only for the selected benchmark.
+      query.where(BenchmarkActivityStatisticsQuery.BENCHMARK_OID
+            .isEqual(getDeployedBenchmarkOid()));
 
-      BenchmarkResults statisticsForBenchmark = stats.getBenchmarkResults().values().iterator().next();
-      BenchmarkCategoryCounts benchmarkCategoryCounts = statisticsForBenchmark.getBenchmarkCategoryCountsForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY);
-      Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts.getBenchmarkCategoryCount();
-      // Counts only for one category
+      // Only for BUSINESS_DATE today.
+      query.where(DataFilter.between(MODEL_PREFIX + BUSINESS_DATE, getCurrentDayStart(),
+            getCurrentDayEnd()));
+
+      BenchmarkActivityStatistics stats = (BenchmarkActivityStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+
+      BenchmarkCategoryCounts benchmarkCategoryCounts = stats
+            .getBenchmarkCategoryCountsForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY);
+      Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts
+            .getBenchmarkCategoryCount();
+
+      // Counts only exist for one category, because no benchmark process does not have
+      // business date.
       Assert.assertEquals(1, benchmarkCategoryCountMap.size());
       // Category 3 has count of 3
       Assert.assertEquals(Long.valueOf(3L), benchmarkCategoryCountMap.get(3));
+
+      //
+      Assert.assertEquals(1,
+            stats.getAbortedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
+      Assert.assertEquals(0,
+            stats.getCompletedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
    }
 
    private Long getDeployedBenchmarkOid()
    {
-      DeployedRuntimeArtifacts runtimeArtifacts = serviceFactory.getQueryService().getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findActive(BENCHMARK_REF, BenchmarkDefinitionArtifactType.TYPE_ID, new Date()));
-      if (runtimeArtifacts!= null && runtimeArtifacts.size() > 0)
+      DeployedRuntimeArtifacts runtimeArtifacts = serviceFactory.getQueryService()
+            .getRuntimeArtifacts(
+                  DeployedRuntimeArtifactQuery.findActive(BENCHMARK_REF,
+                        BenchmarkDefinitionArtifactType.TYPE_ID, new Date()));
+      if (runtimeArtifacts != null && runtimeArtifacts.size() > 0)
       {
          return runtimeArtifacts.get(0).getOid();
       }
@@ -158,4 +208,25 @@ public class BenchmarkStatisticsTest
       return 0L;
    }
 
+   private static Serializable getCurrentDayEnd()
+   {
+      Calendar now = Calendar.getInstance();
+
+      now.set(Calendar.HOUR_OF_DAY, 23);
+      now.set(Calendar.MINUTE, 59);
+      now.set(Calendar.MILLISECOND, 0);
+
+      return now;// .getTime();//.getTime();
+   }
+
+   private static Serializable getCurrentDayStart()
+   {
+      Calendar now = Calendar.getInstance();
+
+      now.set(Calendar.HOUR_OF_DAY, 0);
+      now.set(Calendar.MINUTE, 0);
+      now.set(Calendar.MILLISECOND, 0);
+
+      return now;// .getTime();//.getTime();
+   }
 }

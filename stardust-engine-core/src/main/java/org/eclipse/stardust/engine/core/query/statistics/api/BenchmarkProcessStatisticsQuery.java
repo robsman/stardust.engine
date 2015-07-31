@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
@@ -29,21 +28,6 @@ public class BenchmarkProcessStatisticsQuery extends CustomProcessInstanceQuery
    static final long serialVersionUID = -4101345299290353466L;
 
    public static final String ID = BenchmarkProcessStatisticsQuery.class.getName();
-
-   public static final String RESULT_PRIORIZED_INSTANCES_HISTOGRAM = ID
-         + ".priorizedInstancesHistogram";
-
-   private List<Long> selectedBenchmarks;
-
-   public List<Long> getSelectedBenchmarks()
-   {
-      return selectedBenchmarks;
-   }
-
-   public void setSelectedBenchmarks(List<Long> selectedBenchmarks)
-   {
-      this.selectedBenchmarks = selectedBenchmarks;
-   }
 
    public static BenchmarkProcessStatisticsQuery forAllProcesses()
    {

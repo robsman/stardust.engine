@@ -1635,11 +1635,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void addExistingNote(ProcessInstanceProperty srcNote)
    {
-      super.addProperty(srcNote.clone(this.getOID()));
+      ProcessInstanceProperty clonedNote = srcNote.clone(this.getOID());
+      super.addProperty(clonedNote);
 
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+
+      // cluster after caches are refreshed, else results in duplicate cache entry.
+      SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(clonedNote);
    }
 
    public List/* <Attribute> */getNotes()

@@ -250,6 +250,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args2("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args2("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args2("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_DEPUTY_TO_DATE_NOT_ALLOWED_TO_BE_IN_PAST = newArgs1("ATDB02130"); //$NON-NLS-1$
 
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$

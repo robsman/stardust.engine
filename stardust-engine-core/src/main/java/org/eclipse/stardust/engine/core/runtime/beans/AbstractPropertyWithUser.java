@@ -46,6 +46,10 @@ public abstract class AbstractPropertyWithUser extends AbstractProperty
       {
          return null;
       }
+      else if (0 == workflowUser)
+      {
+         return null;
+      }      
       return UserBean.findByOid(workflowUser);
    }
 

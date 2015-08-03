@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -251,12 +251,12 @@ public class UserServiceImpl implements UserService, Serializable
 
       if (isInternalAuthentication())
       {
-         if(isTeamLeader(user) || SecurityProperties.getUser().hasRole(PredefinedConstants.ADMINISTRATOR_ROLE));
+         if (isTeamLeader(user)
+               || SecurityProperties.getUser().hasRole(
+                     PredefinedConstants.ADMINISTRATOR_ROLE))
          {
             user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
          }
-
-         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
 
          String previousPassword = user.getPassword();
          String newPassword = null;

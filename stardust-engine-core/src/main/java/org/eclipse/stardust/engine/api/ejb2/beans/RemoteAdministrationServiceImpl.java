@@ -794,10 +794,14 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
      * Retrieves the specified daemon.
      * The following daemon types exist:
      * <ul>
-     * <li><code>event.daemon</code> for the event daemon</li>
-     * <li><code>mail.trigger</code> for the mail trigger daemon</li>
-     * <li><code>timer.trigger</code> for the timer trigger daemon</li>
+     * <li><code>mail.trigger</code> for the mail trigger daemon
+     * <li><code>timer.trigger</code> for the timer trigger daemon
+     * <li><code>event.daemon</code> for the event daemon
      * <li><code>system.daemon</code> for the notification daemon.</li>
+     * <li><code>criticality.daemon</code> for the prioritization daemon.</li>
+     * <li><code>benchmark.daemon</code> for the benchmark daemon.</li>
+     * <li><code>reporting.daemon</code> for the reporting daemon.</li>
+     * <li><code>business_calendar.daemon</code> for the business calendar daemon.</li>
      * </ul>
      *
      * @param daemonType the type of the daemon.

@@ -32,6 +32,9 @@ public interface Daemon extends Serializable
     * <li><code>event.daemon</code> for the event daemon
     * <li><code>system.daemon</code> for the notification daemon.</li>
     * <li><code>criticality.daemon</code> for the prioritization daemon.</li>
+    * <li><code>benchmark.daemon</code> for the benchmark daemon.</li>
+    * <li><code>reporting.daemon</code> for the reporting daemon.</li>
+    * <li><code>business_calendar.daemon</code> for the business calendar daemon.</li>
     * </ul>
     *
     * @return the type of the daemon

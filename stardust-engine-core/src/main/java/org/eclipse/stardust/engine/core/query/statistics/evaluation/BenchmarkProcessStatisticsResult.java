@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
-import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkCategoryCounts;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatisticsQuery;
@@ -30,13 +29,12 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
 
    public void registerProcessBenchmarkCategory(String processId, int benchmarkValue)
    {
-      Pair<String,String> key = new Pair(processId, null);
-      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerProcessId.get(key);
+      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerProcessId.get(processId);
 
       if (benchmarkCategoryCount == null)
       {
          benchmarkCategoryCount = new BenchmarkCategoryCounts();
-         benchmarkCategoryCountsPerProcessId.put(key, benchmarkCategoryCount);
+         benchmarkCategoryCountsPerProcessId.put(processId, benchmarkCategoryCount);
       }
 
       benchmarkCategoryCount.registerBenchmarkValue(benchmarkValue);

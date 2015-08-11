@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
 
 
@@ -26,7 +25,7 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
 {
    private static final long serialVersionUID = 1l;
 
-   protected Map<Pair<String,String>, BenchmarkCategoryCounts> benchmarkCategoryCountsPerProcessId;
+   protected Map<String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerProcessId;
 
    protected Map<String, Long> abortedPerProcessId;
 
@@ -43,10 +42,10 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
 
    public BenchmarkCategoryCounts getBenchmarkCategoryCountsForProcess(String qualifiedProcessId)
    {
-      return benchmarkCategoryCountsPerProcessId.get(new Pair(qualifiedProcessId, null));
+      return benchmarkCategoryCountsPerProcessId.get(qualifiedProcessId);
    }
 
-   public Map<Pair<String,String>, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
+   public Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
       return Collections.unmodifiableMap(benchmarkCategoryCountsPerProcessId);
    }

@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 
-public class BenchmarkCategoryCounts
+public class BenchmarkCategoryCounts implements Serializable
 {
+   private static final long serialVersionUID = 5453972468743033764L;
 
    private Map<Integer, Long> benchmarkCategoryCount = CollectionUtils.newMap();
 

@@ -16,8 +16,9 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.query.FilterOrTerm;
-import org.eclipse.stardust.engine.api.query.ProcessDefinitionFilter;
+import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 
 
@@ -29,7 +30,20 @@ public class BenchmarkActivityStatisticsQuery extends CustomActivityInstanceQuer
 {
    static final long serialVersionUID = 8790093503685888481L;
 
+   private static final String FIELD__PROCESS_INSTANCE_START_TIME = "process_instance_"
+         + ProcessInstanceBean.FIELD__START_TIME;
+
    public static final String ID = BenchmarkActivityStatisticsQuery.class.getName();
+
+   /**
+    * The start time of the process instance the activity instance belongs to.
+    *
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean#getStartTime()
+    */
+   public static final FilterableAttribute PROCESS_INSTANCE_START_TIME = new ReferenceAttribute(
+         new Attribute(FIELD__PROCESS_INSTANCE_START_TIME), ProcessInstanceBean.class,
+         ActivityInstanceBean.FIELD__PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID,
+         ProcessInstanceBean.FIELD__START_TIME);
 
    public static BenchmarkActivityStatisticsQuery forProcesses(
          ProcessDefinition process)
@@ -74,5 +88,13 @@ public class BenchmarkActivityStatisticsQuery extends CustomActivityInstanceQuer
    protected BenchmarkActivityStatisticsQuery()
    {
       super(ID);
+   }
+
+   public static final class Attribute extends FilterableAttributeImpl
+   {
+      private Attribute(String name)
+      {
+         super(ActivityInstanceQuery.class, name);
+      }
    }
 }

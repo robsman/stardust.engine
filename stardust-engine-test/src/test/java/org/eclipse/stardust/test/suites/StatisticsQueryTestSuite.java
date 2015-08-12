@@ -13,6 +13,7 @@ package org.eclipse.stardust.test.suites;
 import static org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode.NATIVE_THREADING;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.CROSS_MODEL_ID;
 
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -40,5 +41,5 @@ import org.eclipse.stardust.test.query.statistics.UserStatisticsQueryTest;
 public class StatisticsQueryTestSuite
 {
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), NATIVE_THREADING, MODEL_ID);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), NATIVE_THREADING, MODEL_ID, CROSS_MODEL_ID);
 }

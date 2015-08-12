@@ -16,7 +16,6 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.ACTIVITY_ID_WORK;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
-import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID_PREFIX;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_DO_WORK;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_AI_PROCESSING_TIME;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,6 +23,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+
+import javax.xml.namespace.QName;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -168,10 +169,12 @@ public class ActivityInstanceStatisticsQueryTest
 
    private void assertThatStatisticsAreCorrect(final ActivityStatisticsResult result)
    {
-      final IActivityStatistics workAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_DO_WORK, MODEL_ID_PREFIX + ACTIVITY_ID_WORK);
+      final IActivityStatistics workAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_DO_WORK,
+            new QName(MODEL_ID, ACTIVITY_ID_WORK).toString());
       assertForProcessDef(workAiStats);
 
-      final IActivityStatistics lastInteractiveAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_AI_PROCESSING_TIME, MODEL_ID_PREFIX + ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY);
+      final IActivityStatistics lastInteractiveAiStats = result.getStatisticsForActivity(PROCESS_DEF_ID_AI_PROCESSING_TIME,
+            new QName(MODEL_ID, ACTIVITY_ID_LAST_INTERACTIVE_ACTIVITY).toString());
       assertForProcessDef(lastInteractiveAiStats);
    }
 

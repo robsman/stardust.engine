@@ -13,7 +13,10 @@ package org.eclipse.stardust.test.query.statistics;
 import static org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode.NATIVE_THREADING;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.MODEL_ID;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.CROSS_MODEL_ID;
 import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_DO_WORK;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_PI_PROCESSING_TIME_A;
+import static org.eclipse.stardust.test.query.statistics.StatisticsQueryModelConstants.PROCESS_DEF_ID_PI_CROSS_PROCESSING_TIME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,23 +24,19 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.DateRange;
 import org.eclipse.stardust.engine.core.query.statistics.api.StatisticsDateRangePolicy;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatistics.PerformanceInInterval;
+import org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatistics.PerformanceStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.Contribution;
@@ -47,6 +46,7 @@ import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatist
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 public class UserStatisticsQueryTest
@@ -60,7 +60,7 @@ public class UserStatisticsQueryTest
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(USER_PWD_PAIR, NATIVE_THREADING, MODEL_ID);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(USER_PWD_PAIR, NATIVE_THREADING, MODEL_ID, CROSS_MODEL_ID);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
@@ -99,6 +99,54 @@ public class UserStatisticsQueryTest
 
       assertTrue(doWorkToday.getTimeSpent().equals(doWorkToday2.getTimeSpent()));
       assertTrue(doWorkToday.getTimeWaiting().before(doWorkToday2.getTimeWaiting()));
+   }
+
+   @Test
+   public void testCrossModelUserStatisticsQuery() throws Exception
+   {
+      runProcessingTime(PROCESS_DEF_ID_PI_PROCESSING_TIME_A);
+      runProcessingTime(PROCESS_DEF_ID_PI_CROSS_PROCESSING_TIME);
+
+      List<DateRange> dateRange = CollectionUtils.newArrayList();
+      dateRange.add(DateRange.TODAY);
+
+      UserPerformanceStatisticsQuery userPerformanceStatisticsQuery = UserPerformanceStatisticsQuery.forAllUsers();
+      userPerformanceStatisticsQuery.setPolicy(new StatisticsDateRangePolicy(dateRange));
+
+      UserPerformanceStatistics allStatistics = (UserPerformanceStatistics) qService.getAllUsers(userPerformanceStatisticsQuery);
+      assertEquals(6, getPerformedActivityInstancesCount(allStatistics, PROCESS_DEF_ID_PI_PROCESSING_TIME_A));
+      assertEquals(6, getPerformedActivityInstancesCount(allStatistics, PROCESS_DEF_ID_PI_CROSS_PROCESSING_TIME));
+   }
+
+   protected int getPerformedActivityInstancesCount(
+         UserPerformanceStatistics allStatistics, String processDefId)
+   {
+      PerformanceStatistics stats = allStatistics.getStatisticsForUserAndProcess(sf.getUserService().getUser().getOID(), processDefId);
+      int ais = 0;
+      for (org.eclipse.stardust.engine.core.query.statistics.api.UserPerformanceStatistics.Contribution contribution : stats.contributions)
+      {
+         PerformanceInInterval performance = contribution.getPerformanceInInterval(DateRange.TODAY);
+         ais += performance.getnAisCompleted();
+      }
+      return ais;
+   }
+
+   private void runProcessingTime(String qualifiedProcessId) throws InterruptedException, TimeoutException
+   {
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(qualifiedProcessId, null, true);
+
+      ActivityInstance ai = null;
+      do
+      {
+         ai = sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
+         if (ai != null)
+         {
+            Thread.sleep(100);
+            sf.getWorkflowService().complete(ai.getOID(), null, null);
+         }
+      } while (ai != null);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
    }
 
    @Test

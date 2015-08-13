@@ -187,6 +187,12 @@ public class BridgeObject
             }
          }
       }
+      
+      // validation will be skipped if a generic type is involved
+      if (leftBridge == null || rightBridge == null)
+      {
+         return true;
+      }
 
       return Direction.IN.equals(direction)
             ? leftBridge.acceptAssignmentFrom(rightBridge)

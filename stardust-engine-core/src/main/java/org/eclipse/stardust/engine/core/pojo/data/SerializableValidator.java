@@ -40,8 +40,10 @@ public class SerializableValidator implements ExtendedDataValidator, Stateless
    public BridgeObject getBridgeObject(AccessPoint point, String path,
          Direction direction, AccessPathEvaluationContext context)
    {
-      return new BridgeObjectWithContext(JavaDataTypeUtils.getBridgeObject(point, path),
-            context);
+      BridgeObject bridgeObject = JavaDataTypeUtils.getBridgeObject(point, path);
+      return bridgeObject != null
+            ? new BridgeObjectWithContext(bridgeObject, context)
+            : null;
    }
 
    public List validate(Map attributes)

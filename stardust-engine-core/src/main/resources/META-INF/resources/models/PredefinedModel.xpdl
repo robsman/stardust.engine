@@ -51,7 +51,7 @@
       </Participant>
       <Participant Id="Auditor" Name="Auditor">
          <ParticipantType Type="ROLE"/>
-         <Description>TODO</Description>
+         <Description>Provides read-only authorization to view all processing aspects of the workflow.</Description>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Role Oid="10063"/>
